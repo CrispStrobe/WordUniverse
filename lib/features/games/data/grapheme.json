@@ -1,0 +1,671 @@
+{
+  "quelle": "Die wichtigsten Basis- und Orthographeme des Deutschen (nach Thomé 1992; Thomé, Siekmann & Thomé 2011)",
+  "kategorien": [
+    {
+      "name": "Vokale",
+      "eintraege": [
+        {
+          "gt_phonem": "/a:/",
+          "ipa_phonem": "aː",
+          "sampa_phonem": "a:",
+          "basisgraphem": {
+            "graphem": "<a>",
+            "prozent": 90.96
+          },
+          "orthographeme": [
+            {
+              "graphem": "<ah>",
+              "prozent": 7.52
+            },
+            {
+              "graphem": "<aa>",
+              "prozent": 1.51
+            }
+          ]
+        },
+        {
+          "gt_phonem": "/e:/",
+          "ipa_phonem": "eː",
+          "sampa_phonem": "e:",
+          "basisgraphem": {
+            "graphem": "<e>",
+            "prozent": 85.7
+          },
+          "orthographeme": [
+            {
+              "graphem": "<eh>",
+              "prozent": 12.65
+            },
+            {
+              "graphem": "<ee>",
+              "prozent": 1.65
+            }
+          ]
+        },
+        {
+          "gt_phonem": "/i:/",
+          "ipa_phonem": "iː",
+          "sampa_phonem": "i:",
+          "basisgraphem": {
+            "graphem": "<ie>",
+            "prozent": 72.11
+          },
+          "orthographeme": [
+            {
+              "graphem": "<ih>",
+              "prozent": 17.63
+            },
+            {
+              "graphem": "<i>",
+              "prozent": 8.89
+            },
+            {
+              "graphem": "<ieh>",
+              "prozent": 1.36
+            }
+          ]
+        },
+        {
+          "gt_phonem": "/o:/",
+          "ipa_phonem": "oː",
+          "sampa_phonem": "o:",
+          "basisgraphem": {
+            "graphem": "<o>",
+            "prozent": 89.0
+          },
+          "orthographeme": [
+            {
+              "graphem": "<oh>",
+              "prozent": 20.82
+            },
+            {
+              "graphem": "<oo>",
+              "prozent": 0.18
+            }
+          ]
+        },
+        {
+          "gt_phonem": "/u:/",
+          "ipa_phonem": "uː",
+          "sampa_phonem": "u:",
+          "basisgraphem": {
+            "graphem": "<u>",
+            "prozent": 96.09
+          },
+          "orthographeme": [
+            {
+              "graphem": "<uh>",
+              "prozent": 3.91
+            }
+          ]
+        },
+        {
+          "gt_phonem": "/ε:/",
+          "ipa_phonem": "ɛː",
+          "sampa_phonem": "E:",
+          "basisgraphem": {
+            "graphem": "<ä>",
+            "prozent": 68.85
+          },
+          "orthographeme": [
+            {
+              "graphem": "<äh>",
+              "prozent": 31.15
+            }
+          ]
+        },
+        {
+          "gt_phonem": "/ø:/",
+          "ipa_phonem": "øː",
+          "sampa_phonem": "2:",
+          "basisgraphem": {
+            "graphem": "<ö>",
+            "prozent": 86.73
+          },
+          "orthographeme": [
+            {
+              "graphem": "<öh>",
+              "prozent": 13.27
+            }
+          ]
+        },
+        {
+          "gt_phonem": "/y:/",
+          "ipa_phonem": "yː",
+          "sampa_phonem": "y:",
+          "basisgraphem": {
+            "graphem": "<ü>",
+            "prozent": 77.94
+          },
+          "orthographeme": [
+            {
+              "graphem": "<üh>",
+              "prozent": 21.8
+            },
+            {
+              "graphem": "<y>",
+              "prozent": 0.25
+            }
+          ]
+        },
+        {
+          "gt_phonem": "/a/",
+          "ipa_phonem": "a",
+          "sampa_phonem": "a",
+          "basisgraphem": {
+            "graphem": "<a>",
+            "prozent": 100
+          },
+          "orthographeme": []
+        },
+        {
+          "gt_phonem": "/e/",
+          "ipa_phonem": "ə",
+          "sampa_phonem": "@",
+          "basisgraphem": {
+            "graphem": "<e>",
+            "prozent": 100
+          },
+          "orthographeme": []
+        },
+        {
+          "gt_phonem": "/I/",
+          "ipa_phonem": "ɪ",
+          "sampa_phonem": "I",
+          "basisgraphem": {
+            "graphem": "<i>",
+            "prozent": 99.75
+          },
+          "orthographeme": [
+            {
+              "graphem": "<ie>",
+              "prozent": 0.25
+            }
+          ]
+        },
+        {
+          "gt_phonem": "/o/",
+          "ipa_phonem": "ɔ",
+          "sampa_phonem": "O",
+          "basisgraphem": {
+            "graphem": "<o>",
+            "prozent": 100
+          },
+          "orthographeme": []
+        },
+        {
+          "gt_phonem": "/υ/",
+          "ipa_phonem": "ʊ",
+          "sampa_phonem": "U",
+          "basisgraphem": {
+            "graphem": "<u>",
+            "prozent": 100
+          },
+          "orthographeme": []
+        },
+        {
+          "gt_phonem": "/ε/",
+          "ipa_phonem": "ɛ",
+          "sampa_phonem": "E",
+          "basisgraphem": {
+            "graphem": "<e>",
+            "prozent": 87.44
+          },
+          "orthographeme": [
+            {
+              "graphem": "<ä>",
+              "prozent": 12.56
+            }
+          ]
+        },
+        {
+          "gt_phonem": "/œ/",
+          "ipa_phonem": "œ",
+          "sampa_phonem": "9",
+          "basisgraphem": {
+            "graphem": "<ö>",
+            "prozent": 100
+          },
+          "orthographeme": []
+        },
+        {
+          "gt_phonem": "/Y/",
+          "ipa_phonem": "ʏ",
+          "sampa_phonem": "Y",
+          "basisgraphem": {
+            "graphem": "<ü>",
+            "prozent": 99.67
+          },
+          "orthographeme": [
+            {
+              "graphem": "<y>",
+              "prozent": 0.33
+            }
+          ]
+        },
+        {
+          "gt_phonem": "/aɪ/",
+          "ipa_phonem": "aɪ",
+          "sampa_phonem": "aI",
+          "basisgraphem": {
+            "graphem": "<ei>",
+            "prozent": 99.53
+          },
+          "orthographeme": [
+            {
+              "graphem": "<eih>",
+              "prozent": 0.3
+            },
+            {
+              "graphem": "<ai>",
+              "prozent": 0.17
+            }
+          ]
+        },
+        {
+          "gt_phonem": "/aυ/",
+          "ipa_phonem": "aʊ",
+          "sampa_phonem": "aU",
+          "basisgraphem": {
+            "graphem": "<au>",
+            "prozent": 100
+          },
+          "orthographeme": []
+        },
+        {
+          "gt_phonem": "/ɔI/",
+          "ipa_phonem": "ɔʏ",
+          "sampa_phonem": "OY",
+          "basisgraphem": {
+            "graphem": "<eu>",
+            "prozent": 81.73
+          },
+          "orthographeme": [
+            {
+              "graphem": "<äu>",
+              "prozent": 18.27
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Konsonanten",
+      "eintraege": [
+        {
+          "gt_phonem": "/p/",
+          "ipa_phonem": "p",
+          "sampa_phonem": "p",
+          "basisgraphem": {
+            "graphem": "<p>",
+            "prozent": 53.67
+          },
+          "orthographeme": [
+            {
+              "graphem": "<b>",
+              "prozent": 39.9
+            },
+            {
+              "graphem": "<pp>",
+              "prozent": 6.43
+            }
+          ]
+        },
+        {
+          "gt_phonem": "/t/",
+          "ipa_phonem": "t",
+          "sampa_phonem": "t",
+          "basisgraphem": {
+            "graphem": "<t>",
+            "prozent": 73.73
+          },
+          "orthographeme": [
+            {
+              "graphem": "<d>",
+              "prozent": 20.33
+            },
+            {
+              "graphem": "<tt>",
+              "prozent": 5.61
+            },
+            {
+              "graphem": "<dt>",
+              "prozent": 0.3
+            },
+            {
+              "graphem": "<th>",
+              "prozent": 0.04
+            }
+          ]
+        },
+        {
+          "gt_phonem": "/k/",
+          "ipa_phonem": "k",
+          "sampa_phonem": "k",
+          "basisgraphem": {
+            "graphem": "<k>",
+            "prozent": 57.85
+          },
+          "orthographeme": [
+            {
+              "graphem": "<g>",
+              "prozent": 26.64
+            },
+            {
+              "graphem": "<ck>",
+              "prozent": 15.36
+            },
+            {
+              "graphem": "<ch>",
+              "prozent": 0.1
+            },
+            {
+              "graphem": "<c>",
+              "prozent": 0.05
+            }
+          ]
+        },
+        {
+          "gt_phonem": "/s/",
+          "ipa_phonem": "s",
+          "sampa_phonem": "s",
+          "basisgraphem": {
+            "graphem": "<s>",
+            "prozent": 76.24
+          },
+          "orthographeme": [
+            {
+              "graphem": "<ss>",
+              "prozent": 15.63
+            },
+            {
+              "graphem": "<ß>",
+              "prozent": 8.13
+            }
+          ]
+        },
+        {
+          "gt_phonem": "/f/",
+          "ipa_phonem": "f",
+          "sampa_phonem": "f",
+          "basisgraphem": {
+            "graphem": "<f>",
+            "prozent": 65.38
+          },
+          "orthographeme": [
+            {
+              "graphem": "<v>",
+              "prozent": 31.95
+            },
+            {
+              "graphem": "<ff>",
+              "prozent": 2.58
+            },
+            {
+              "graphem": "<ph>",
+              "prozent": 0.09
+            }
+          ]
+        },
+        {
+          "gt_phonem": "/b/",
+          "ipa_phonem": "b",
+          "sampa_phonem": "b",
+          "basisgraphem": {
+            "graphem": "<b>",
+            "prozent": 100
+          },
+          "orthographeme": [
+            {
+              "graphem": "<bb>",
+              "prozent": 0
+            }
+          ]
+        },
+        {
+          "gt_phonem": "/d/",
+          "ipa_phonem": "d",
+          "sampa_phonem": "d",
+          "basisgraphem": {
+            "graphem": "<d>",
+            "prozent": 100
+          },
+          "orthographeme": [
+            {
+              "graphem": "<dd>",
+              "prozent": 0
+            }
+          ]
+        },
+        {
+          "gt_phonem": "/g/",
+          "ipa_phonem": "g",
+          "sampa_phonem": "g",
+          "basisgraphem": {
+            "graphem": "<g>",
+            "prozent": 99.95
+          },
+          "orthographeme": [
+            {
+              "graphem": "<gg>",
+              "prozent": 0.05
+            }
+          ]
+        },
+        {
+          "gt_phonem": "/x/",
+          "ipa_phonem": "x / ç",
+          "sampa_phonem": "x / C",
+          "basisgraphem": {
+            "graphem": "<ch>",
+            "prozent": 96.12
+          },
+          "orthographeme": [
+            {
+              "graphem": "<g>",
+              "prozent": 7.88
+            }
+          ]
+        },
+        {
+          "gt_phonem": "/z/",
+          "ipa_phonem": "z",
+          "sampa_phonem": "z",
+          "basisgraphem": {
+            "graphem": "<s>",
+            "prozent": 100
+          },
+          "orthographeme": []
+        },
+        {
+          "gt_phonem": "/ʃ/",
+          "ipa_phonem": "ʃ",
+          "sampa_phonem": "S",
+          "basisgraphem": {
+            "graphem": "<sch>",
+            "prozent": 59.13
+          },
+          "orthographeme": [
+            {
+              "graphem": "<s>",
+              "prozent": 40.87
+            }
+          ]
+        },
+        {
+          "gt_phonem": "/v/",
+          "ipa_phonem": "v",
+          "sampa_phonem": "v",
+          "basisgraphem": {
+            "graphem": "<w>",
+            "prozent": 99.25
+          },
+          "orthographeme": [
+            {
+              "graphem": "<v>",
+              "prozent": 0.75
+            }
+          ]
+        },
+        {
+          "gt_phonem": "/r/",
+          "ipa_phonem": "ʁ",
+          "sampa_phonem": "R",
+          "basisgraphem": {
+            "graphem": "<r>",
+            "prozent": 98.95
+          },
+          "orthographeme": [
+            {
+              "graphem": "<rr>",
+              "prozent": 1.05
+            },
+            {
+              "graphem": "<rh>",
+              "prozent": 0
+            }
+          ]
+        },
+        {
+          "gt_phonem": "/l/",
+          "ipa_phonem": "l",
+          "sampa_phonem": "l",
+          "basisgraphem": {
+            "graphem": "<l>",
+            "prozent": 83.42
+          },
+          "orthographeme": [
+            {
+              "graphem": "<ll>",
+              "prozent": 16.58
+            }
+          ]
+        },
+        {
+          "gt_phonem": "/m/",
+          "ipa_phonem": "m",
+          "sampa_phonem": "m",
+          "basisgraphem": {
+            "graphem": "<m>",
+            "prozent": 89.23
+          },
+          "orthographeme": [
+            {
+              "graphem": "<mm>",
+              "prozent": 10.77
+            }
+          ]
+        },
+        {
+          "gt_phonem": "/n/",
+          "ipa_phonem": "n",
+          "sampa_phonem": "n",
+          "basisgraphem": {
+            "graphem": "<n>",
+            "prozent": 95.3
+          },
+          "orthographeme": [
+            {
+              "graphem": "<nn>",
+              "prozent": 4.7
+            }
+          ]
+        },
+        {
+          "gt_phonem": "/ŋ/",
+          "ipa_phonem": "ŋ",
+          "sampa_phonem": "N",
+          "basisgraphem": {
+            "graphem": "<ng>",
+            "prozent": 82.47
+          },
+          "orthographeme": [
+            {
+              "graphem": "<n>",
+              "prozent": 17.53
+            }
+          ]
+        },
+        {
+          "gt_phonem": "/h/",
+          "ipa_phonem": "h",
+          "sampa_phonem": "h",
+          "basisgraphem": {
+            "graphem": "<h>",
+            "prozent": 100
+          },
+          "orthographeme": []
+        },
+        {
+          "gt_phonem": "/j/",
+          "ipa_phonem": "j",
+          "sampa_phonem": "j",
+          "basisgraphem": {
+            "graphem": "<j>",
+            "prozent": 100
+          },
+          "orthographeme": []
+        },
+        {
+          "gt_phonem": "/pf/",
+          "ipa_phonem": "p͡f",
+          "sampa_phonem": "pf",
+          "basisgraphem": {
+            "graphem": "<pf>",
+            "prozent": 100
+          },
+          "orthographeme": []
+        },
+        {
+          "gt_phonem": "/ks/",
+          "ipa_phonem": "ks",
+          "sampa_phonem": "ks",
+          "basisgraphem": {
+            "graphem": "<chs>",
+            "prozent": 71.05
+          },
+          "orthographeme": [
+            {
+              "graphem": "<x>",
+              "prozent": 28.95
+            }
+          ]
+        },
+        {
+          "gt_phonem": "/ts/",
+          "ipa_phonem": "t͡s",
+          "sampa_phonem": "ts",
+          "basisgraphem": {
+            "graphem": "<z>",
+            "prozent": 87.05
+          },
+          "orthographeme": [
+            {
+              "graphem": "<tz>",
+              "prozent": 12.82
+            },
+            {
+              "graphem": "<t>",
+              "prozent": 0.17
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Phonemfolge",
+      "eintraege": [
+        {
+          "gt_phonem": "/k/+/v/",
+          "ipa_phonem": "kv",
+          "sampa_phonem": "kv",
+          "basisgraphem": {
+            "graphem": "<qu>",
+            "prozent": 100
+          },
+          "orthographeme": []
+        }
+      ]
+    }
+  ]
+}
