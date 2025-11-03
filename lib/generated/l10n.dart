@@ -1,0 +1,1079 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/intl.dart' as intl;
+
+import 'l10n_de.dart';
+import 'l10n_en.dart';
+
+// ignore_for_file: type=lint
+
+/// Callers can lookup localized strings with an instance of S
+/// returned by `S.of(context)`.
+///
+/// Applications need to include `S.delegate()` in their app's
+/// `localizationDelegates` list, and the locales they support in the app's
+/// `supportedLocales` list. For example:
+///
+/// ```dart
+/// import 'generated/l10n.dart';
+///
+/// return MaterialApp(
+///   localizationsDelegates: S.localizationsDelegates,
+///   supportedLocales: S.supportedLocales,
+///   home: MyApplicationHome(),
+/// );
+/// ```
+///
+/// ## Update pubspec.yaml
+///
+/// Please make sure to update your pubspec.yaml to include the following
+/// packages:
+///
+/// ```yaml
+/// dependencies:
+///   # Internationalization support.
+///   flutter_localizations:
+///     sdk: flutter
+///   intl: any # Use the pinned version from flutter_localizations
+///
+///   # Rest of dependencies
+/// ```
+///
+/// ## iOS Applications
+///
+/// iOS applications define key application metadata, including supported
+/// locales, in an Info.plist file that is built into the application bundle.
+/// To configure the locales supported by your app, you’ll need to edit this
+/// file.
+///
+/// First, open your project’s ios/Runner.xcworkspace Xcode workspace file.
+/// Then, in the Project Navigator, open the Info.plist file under the Runner
+/// project’s Runner folder.
+///
+/// Next, select the Information Property List item, select Add Item from the
+/// Editor menu, then select Localizations from the pop-up menu.
+///
+/// Select and expand the newly-created Localizations item then, for each
+/// locale your application supports, add a new item and select the locale
+/// you wish to add from the pop-up menu in the Value field. This list should
+/// be consistent with the languages listed in the S.supportedLocales
+/// property.
+abstract class S {
+  S(String locale)
+      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+
+  final String localeName;
+
+  static S? of(BuildContext context) {
+    return Localizations.of<S>(context, S);
+  }
+
+  static const LocalizationsDelegate<S> delegate = _SDelegate();
+
+  /// A list of this localizations delegate along with the default localizations
+  /// delegates.
+  ///
+  /// Returns a list of localizations delegates containing this delegate along with
+  /// GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate,
+  /// and GlobalWidgetsLocalizations.delegate.
+  ///
+  /// Additional delegates can be added by appending to this list in
+  /// MaterialApp. This list does not have to be used at all if a custom list
+  /// of delegates is preferred or required.
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
+    delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ];
+
+  /// A list of this localizations delegate's supported locales.
+  static const List<Locale> supportedLocales = <Locale>[
+    Locale('de'),
+    Locale('en')
+  ];
+
+  /// No description provided for @appTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Word Universe'**
+  String get appTitle;
+
+  /// No description provided for @welcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Discover the Word Universe!'**
+  String get welcome;
+
+  /// No description provided for @startAdventure.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Your Word Adventure'**
+  String get startAdventure;
+
+  /// No description provided for @chooseGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Your Level'**
+  String get chooseGrade;
+
+  /// No description provided for @grade3.
+  ///
+  /// In en, this message translates to:
+  /// **'Level 1'**
+  String get grade3;
+
+  /// No description provided for @grade4.
+  ///
+  /// In en, this message translates to:
+  /// **'Level 2'**
+  String get grade4;
+
+  /// No description provided for @grade5.
+  ///
+  /// In en, this message translates to:
+  /// **'Level 3'**
+  String get grade5;
+
+  /// No description provided for @grade6.
+  ///
+  /// In en, this message translates to:
+  /// **'Level 4'**
+  String get grade6;
+
+  /// No description provided for @spaceWordRescueTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Space Word Rescue'**
+  String get spaceWordRescueTitle;
+
+  /// No description provided for @spaceWordRescueInstructions.
+  ///
+  /// In en, this message translates to:
+  /// **'Rescue words from drifting into space!'**
+  String get spaceWordRescueInstructions;
+
+  /// No description provided for @gameplayHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Hint (-2 Points)'**
+  String get gameplayHint;
+
+  /// No description provided for @gameplayCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'Check'**
+  String get gameplayCheck;
+
+  /// No description provided for @gameplayCorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct! Well done! 🚀'**
+  String get gameplayCorrect;
+
+  /// No description provided for @gameplayIncorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'That wasn\'t quite right. Try the next one!'**
+  String get gameplayIncorrect;
+
+  /// No description provided for @gameplayRescued.
+  ///
+  /// In en, this message translates to:
+  /// **'Rescued'**
+  String get gameplayRescued;
+
+  /// No description provided for @gameplayLost.
+  ///
+  /// In en, this message translates to:
+  /// **'Lost'**
+  String get gameplayLost;
+
+  /// No description provided for @gameplayWriteTheWord.
+  ///
+  /// In en, this message translates to:
+  /// **'Type the word...'**
+  String get gameplayWriteTheWord;
+
+  /// No description provided for @gameplayFeedbackCommonMistake.
+  ///
+  /// In en, this message translates to:
+  /// **'Almost right! A common mistake.\nCorrect is: {correctWord}'**
+  String gameplayFeedbackCommonMistake(Object correctWord);
+
+  /// No description provided for @gameplayFeedbackIncorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'Sorry, that\'s wrong! Correct is: {correctWord}'**
+  String gameplayFeedbackIncorrect(Object correctWord);
+
+  /// No description provided for @adaptiveDifficulty.
+  ///
+  /// In en, this message translates to:
+  /// **'Adaptive Difficulty'**
+  String get adaptiveDifficulty;
+
+  /// No description provided for @adaptiveDifficultyDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjusts problems based on your skill'**
+  String get adaptiveDifficultyDesc;
+
+  /// No description provided for @adjustProblems.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjusts problems based on your skill'**
+  String get adjustProblems;
+
+  /// No description provided for @gameMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Mission Control'**
+  String get gameMenu;
+
+  /// No description provided for @level.
+  ///
+  /// In en, this message translates to:
+  /// **'Level'**
+  String get level;
+
+  /// No description provided for @score.
+  ///
+  /// In en, this message translates to:
+  /// **'Score'**
+  String get score;
+
+  /// No description provided for @lives.
+  ///
+  /// In en, this message translates to:
+  /// **'Hull Integrity'**
+  String get lives;
+
+  /// No description provided for @time.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get time;
+
+  /// No description provided for @correct.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct!'**
+  String get correct;
+
+  /// No description provided for @incorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'Error!'**
+  String get incorrect;
+
+  /// No description provided for @excellent.
+  ///
+  /// In en, this message translates to:
+  /// **'Excellent work, Commander!'**
+  String get excellent;
+
+  /// No description provided for @good.
+  ///
+  /// In en, this message translates to:
+  /// **'Good job!'**
+  String get good;
+
+  /// No description provided for @tryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try Again!'**
+  String get tryAgain;
+
+  /// No description provided for @gameOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Mission Complete!'**
+  String get gameOver;
+
+  /// No description provided for @nextLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Next Mission'**
+  String get nextLevel;
+
+  /// No description provided for @playAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Play Again'**
+  String get playAgain;
+
+  /// No description provided for @backToMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to Mission Control'**
+  String get backToMenu;
+
+  /// No description provided for @settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settings;
+
+  /// No description provided for @sound.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound FX'**
+  String get sound;
+
+  /// No description provided for @music.
+  ///
+  /// In en, this message translates to:
+  /// **'Music'**
+  String get music;
+
+  /// No description provided for @language.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get language;
+
+  /// No description provided for @progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Career Progress'**
+  String get progress;
+
+  /// No description provided for @achievements.
+  ///
+  /// In en, this message translates to:
+  /// **'Achievements'**
+  String get achievements;
+
+  /// No description provided for @congratulations.
+  ///
+  /// In en, this message translates to:
+  /// **'Congratulations, Commander!'**
+  String get congratulations;
+
+  /// No description provided for @missionsCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Missions Completed: {count}'**
+  String missionsCompleted(int count);
+
+  /// No description provided for @starsEarned.
+  ///
+  /// In en, this message translates to:
+  /// **'Stars Earned: {count}'**
+  String starsEarned(int count);
+
+  /// No description provided for @audioSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio Settings'**
+  String get audioSettings;
+
+  /// No description provided for @soundEffects.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound effects'**
+  String get soundEffects;
+
+  /// No description provided for @backgroundMusicDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Background music'**
+  String get backgroundMusicDesc;
+
+  /// No description provided for @gameplay.
+  ///
+  /// In en, this message translates to:
+  /// **'Gameplay'**
+  String get gameplay;
+
+  /// No description provided for @puzzleTimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Puzzle Timer'**
+  String get puzzleTimer;
+
+  /// No description provided for @puzzleTimerDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable timer in puzzle games'**
+  String get puzzleTimerDesc;
+
+  /// No description provided for @showHints.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Hints'**
+  String get showHints;
+
+  /// No description provided for @showHintsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Display helpful hints during games'**
+  String get showHintsDesc;
+
+  /// No description provided for @hapticFeedback.
+  ///
+  /// In en, this message translates to:
+  /// **'Haptic Feedback'**
+  String get hapticFeedback;
+
+  /// No description provided for @hapticFeedbackDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Vibration on touch (if supported)'**
+  String get hapticFeedbackDesc;
+
+  /// No description provided for @appLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'App Language'**
+  String get appLanguage;
+
+  /// No description provided for @appLanguageDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your preferred language'**
+  String get appLanguageDesc;
+
+  /// No description provided for @languageEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get languageEnglish;
+
+  /// No description provided for @languageGerman.
+  ///
+  /// In en, this message translates to:
+  /// **'Deutsch'**
+  String get languageGerman;
+
+  /// No description provided for @difficulty.
+  ///
+  /// In en, this message translates to:
+  /// **'Difficulty'**
+  String get difficulty;
+
+  /// No description provided for @currentGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Level'**
+  String get currentGrade;
+
+  /// No description provided for @currentLevelDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Level'**
+  String get currentLevelDesc;
+
+  /// No description provided for @difficultyDescGrade3.
+  ///
+  /// In en, this message translates to:
+  /// **'Simple words (Grades 1-2)'**
+  String get difficultyDescGrade3;
+
+  /// No description provided for @difficultyDescGrade4.
+  ///
+  /// In en, this message translates to:
+  /// **'Common words (Grades 3-4)'**
+  String get difficultyDescGrade4;
+
+  /// No description provided for @difficultyDescGrade5.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced words (Grades 5-6)'**
+  String get difficultyDescGrade5;
+
+  /// No description provided for @difficultyDescGrade6.
+  ///
+  /// In en, this message translates to:
+  /// **'Expert vocabulary (Grades 6+)'**
+  String get difficultyDescGrade6;
+
+  /// No description provided for @totalScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Score'**
+  String get totalScore;
+
+  /// No description provided for @gamesPlayed.
+  ///
+  /// In en, this message translates to:
+  /// **'Games Played'**
+  String get gamesPlayed;
+
+  /// No description provided for @resetProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Progress'**
+  String get resetProgress;
+
+  /// No description provided for @about.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get about;
+
+  /// No description provided for @appVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'App Version'**
+  String get appVersion;
+
+  /// No description provided for @developer.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer'**
+  String get developer;
+
+  /// No description provided for @developerName.
+  ///
+  /// In en, this message translates to:
+  /// **'Word Universe Team'**
+  String get developerName;
+
+  /// No description provided for @targetAge.
+  ///
+  /// In en, this message translates to:
+  /// **'Target Age'**
+  String get targetAge;
+
+  /// No description provided for @targetAgeRange.
+  ///
+  /// In en, this message translates to:
+  /// **'6-12 years (Grades 1-6)'**
+  String get targetAgeRange;
+
+  /// No description provided for @aboutApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Word Universe helps primary school students learn spelling and vocabulary through engaging space-themed games.'**
+  String get aboutApp;
+
+  /// No description provided for @debugPanelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Debug Panel'**
+  String get debugPanelTitle;
+
+  /// No description provided for @debugForceUnlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Force Full Unlock'**
+  String get debugForceUnlock;
+
+  /// No description provided for @debugApplyAndClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply & Close'**
+  String get debugApplyAndClose;
+
+  /// No description provided for @parentalGateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Parental Gate'**
+  String get parentalGateTitle;
+
+  /// No description provided for @parentalGateChallenge.
+  ///
+  /// In en, this message translates to:
+  /// **'To continue, please solve this problem:'**
+  String get parentalGateChallenge;
+
+  /// No description provided for @confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get confirm;
+
+  /// No description provided for @pleaseTryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Please try again.'**
+  String get pleaseTryAgain;
+
+  /// No description provided for @purchaseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock Full Access'**
+  String get purchaseTitle;
+
+  /// No description provided for @purchaseDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock all games, all levels, and all future updates with a single purchase!'**
+  String get purchaseDescription;
+
+  /// No description provided for @purchaseButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock Now!'**
+  String get purchaseButton;
+
+  /// No description provided for @contactingStore.
+  ///
+  /// In en, this message translates to:
+  /// **'Contacting Mission Control...'**
+  String get contactingStore;
+
+  /// No description provided for @purchaseError.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred. Please check your connection and try again.'**
+  String get purchaseError;
+
+  /// No description provided for @restorePurchases.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore Purchases'**
+  String get restorePurchases;
+
+  /// No description provided for @storeUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The store is currently unavailable. Please check your connection and that you are signed in to your account.'**
+  String get storeUnavailable;
+
+  /// No description provided for @languageChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Language Changed'**
+  String get languageChanged;
+
+  /// No description provided for @languageChangedDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'The app language will change when you restart. Would you like to restart now?'**
+  String get languageChangedDesc;
+
+  /// No description provided for @later.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get later;
+
+  /// No description provided for @restartNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Restart Now'**
+  String get restartNow;
+
+  /// No description provided for @selectGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Level'**
+  String get selectGrade;
+
+  /// No description provided for @gradeN.
+  ///
+  /// In en, this message translates to:
+  /// **'Level {gradeNumber}'**
+  String gradeN(int gradeNumber);
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @restartToApplyChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Please restart the app to apply language changes'**
+  String get restartToApplyChanges;
+
+  /// No description provided for @resetProgressConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to reset all progress? This action cannot be undone.'**
+  String get resetProgressConfirmation;
+
+  /// No description provided for @progressResetSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress reset successfully!'**
+  String get progressResetSuccess;
+
+  /// No description provided for @reset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get reset;
+
+  /// No description provided for @playToUnlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Play to unlock!'**
+  String get playToUnlock;
+
+  /// No description provided for @chooseYourGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Your Level'**
+  String get chooseYourGrade;
+
+  /// No description provided for @grade3Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Spelling basics, simple nouns and verbs.'**
+  String get grade3Desc;
+
+  /// No description provided for @grade4Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Common words, basic grammar rules, and word types.'**
+  String get grade4Desc;
+
+  /// No description provided for @grade5Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'More complex words, cases, and tenses.'**
+  String get grade5Desc;
+
+  /// No description provided for @grade6Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced vocabulary and complex grammar.'**
+  String get grade6Desc;
+
+  /// No description provided for @settingsComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings coming soon!'**
+  String get settingsComingSoon;
+
+  /// No description provided for @spaceExplorerProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Space Explorer Progress'**
+  String get spaceExplorerProgress;
+
+  /// No description provided for @unlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlocked'**
+  String get unlocked;
+
+  /// No description provided for @complete.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete'**
+  String get complete;
+
+  /// No description provided for @rankRookie.
+  ///
+  /// In en, this message translates to:
+  /// **'Rookie'**
+  String get rankRookie;
+
+  /// No description provided for @rankExplorer.
+  ///
+  /// In en, this message translates to:
+  /// **'Explorer'**
+  String get rankExplorer;
+
+  /// No description provided for @rankVeteran.
+  ///
+  /// In en, this message translates to:
+  /// **'Veteran'**
+  String get rankVeteran;
+
+  /// No description provided for @rankExpert.
+  ///
+  /// In en, this message translates to:
+  /// **'Expert'**
+  String get rankExpert;
+
+  /// No description provided for @rankLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'Legend'**
+  String get rankLegend;
+
+  /// No description provided for @achievementFirstCenturyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'First Century!'**
+  String get achievementFirstCenturyTitle;
+
+  /// No description provided for @achievementFirstCenturyDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Score 100 points'**
+  String get achievementFirstCenturyDesc;
+
+  /// No description provided for @achievementScoreMasterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Score Master'**
+  String get achievementScoreMasterTitle;
+
+  /// No description provided for @achievementScoreMasterDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Score 500 points'**
+  String get achievementScoreMasterDesc;
+
+  /// No description provided for @achievementThousandClubTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Thousand Club'**
+  String get achievementThousandClubTitle;
+
+  /// No description provided for @achievementThousandClubDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Score 1000 points'**
+  String get achievementThousandClubDesc;
+
+  /// No description provided for @achievementLevelExplorerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Level Explorer'**
+  String get achievementLevelExplorerTitle;
+
+  /// No description provided for @achievementLevelExplorerDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Reach level 5'**
+  String get achievementLevelExplorerDesc;
+
+  /// No description provided for @achievementSpaceCommanderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Space Commander'**
+  String get achievementSpaceCommanderTitle;
+
+  /// No description provided for @achievementSpaceCommanderDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Reach level 10'**
+  String get achievementSpaceCommanderDesc;
+
+  /// No description provided for @achievementAllRounderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'All-Rounder'**
+  String get achievementAllRounderTitle;
+
+  /// No description provided for @achievementAllRounderDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Play all game types'**
+  String get achievementAllRounderDesc;
+
+  /// No description provided for @achievementSpeedDemonTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Speed Demon'**
+  String get achievementSpeedDemonTitle;
+
+  /// No description provided for @achievementSpeedDemonDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete a level in under 30 seconds'**
+  String get achievementSpeedDemonDesc;
+
+  /// No description provided for @achievementPerfectionistTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Perfectionist'**
+  String get achievementPerfectionistTitle;
+
+  /// No description provided for @achievementPerfectionistDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete a level without mistakes'**
+  String get achievementPerfectionistDesc;
+
+  /// No description provided for @achievementWordRescuerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Word Rescuer'**
+  String get achievementWordRescuerTitle;
+
+  /// No description provided for @achievementWordRescuerDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Rescue 100 words'**
+  String get achievementWordRescuerDesc;
+
+  /// No description provided for @unlockedStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'UNLOCKED'**
+  String get unlockedStatus;
+
+  /// No description provided for @lockedStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'LOCKED'**
+  String get lockedStatus;
+
+  /// No description provided for @achievementUnlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'ACHIEVEMENT UNLOCKED!'**
+  String get achievementUnlocked;
+
+  /// No description provided for @continueExploring.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue Exploring'**
+  String get continueExploring;
+
+  /// No description provided for @loadingAdventure.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading Word Adventure...'**
+  String get loadingAdventure;
+
+  /// No description provided for @preparingMission.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing your language mission...'**
+  String get preparingMission;
+
+  /// No description provided for @initializing.
+  ///
+  /// In en, this message translates to:
+  /// **'Initializing Word Universe...'**
+  String get initializing;
+
+  /// No description provided for @loadingAssets.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading game assets...'**
+  String get loadingAssets;
+
+  /// No description provided for @loadingProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading saved progress...'**
+  String get loadingProgress;
+
+  /// No description provided for @preparingSpaceStation.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing space station...'**
+  String get preparingSpaceStation;
+
+  /// No description provided for @calibratingNav.
+  ///
+  /// In en, this message translates to:
+  /// **'Calibrating navigation systems...'**
+  String get calibratingNav;
+
+  /// No description provided for @readyForLaunch.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready for launch!'**
+  String get readyForLaunch;
+
+  /// No description provided for @launch.
+  ///
+  /// In en, this message translates to:
+  /// **'Launch'**
+  String get launch;
+
+  /// No description provided for @splashScreenSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore • Learn • Discover'**
+  String get splashScreenSubtitle;
+
+  /// No description provided for @sriStatisticsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Learning Insights'**
+  String get sriStatisticsTitle;
+
+  /// No description provided for @sriStatisticsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'View your progress and identify areas for improvement.'**
+  String get sriStatisticsDesc;
+
+  /// No description provided for @premiumFeature.
+  ///
+  /// In en, this message translates to:
+  /// **'This is a premium feature. Unlock the full version to access.'**
+  String get premiumFeature;
+
+  /// No description provided for @close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
+
+  /// No description provided for @sriMastery.
+  ///
+  /// In en, this message translates to:
+  /// **'Overall Mastery'**
+  String get sriMastery;
+
+  /// No description provided for @sriTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Tracked'**
+  String get sriTotal;
+
+  /// No description provided for @sriMastered.
+  ///
+  /// In en, this message translates to:
+  /// **'Mastered'**
+  String get sriMastered;
+
+  /// No description provided for @sriLearning.
+  ///
+  /// In en, this message translates to:
+  /// **'Learning'**
+  String get sriLearning;
+
+  /// No description provided for @progressMatrixTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress Matrix'**
+  String get progressMatrixTitle;
+
+  /// No description provided for @progressMatrixDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Color shows mastery (green is best). Number shows problems tracked in that area.'**
+  String get progressMatrixDesc;
+}
+
+class _SDelegate extends LocalizationsDelegate<S> {
+  const _SDelegate();
+
+  @override
+  Future<S> load(Locale locale) {
+    return SynchronousFuture<S>(lookupS(locale));
+  }
+
+  @override
+  bool isSupported(Locale locale) =>
+      <String>['de', 'en'].contains(locale.languageCode);
+
+  @override
+  bool shouldReload(_SDelegate old) => false;
+}
+
+S lookupS(Locale locale) {
+  // Lookup logic when only language code is specified.
+  switch (locale.languageCode) {
+    case 'de':
+      return SDe();
+    case 'en':
+      return SEn();
+  }
+
+  throw FlutterError(
+      'S.delegate failed to load unsupported locale "$locale". This is likely '
+      'an issue with the localizations generation tool. Please file an issue '
+      'on GitHub with a reproducible sample app and the gen-l10n configuration '
+      'that was used.');
+}
