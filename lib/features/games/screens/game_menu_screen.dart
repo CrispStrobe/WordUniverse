@@ -11,6 +11,7 @@ import '../providers/game_provider.dart';
 import '../widgets/space_background.dart';
 
 import 'space_word_rescue_game.dart';
+import 'word_find_game.dart';
 
 import '../widgets/debug_panel.dart';
 import '../../settings/screens/settings_screen.dart';
@@ -32,7 +33,7 @@ class _GameMenuScreenState extends State<GameMenuScreen> with TickerProviderStat
   late Animation<double> _floatAnimation;
 
   // for new games, we must manually update game count
-  static const int _gameCount = 1;
+  static const int _gameCount = 2;
 
   @override
   void initState() {
@@ -262,6 +263,13 @@ class _GameMenuScreenState extends State<GameMenuScreen> with TickerProviderStat
             icon: Icons.rocket_launch, // Rocket rescuing words
             gradient: const LinearGradient(colors: [Color(0xFF4A00E0), Color(0xFF8E2DE2)]), // Purple space gradient
             onTap: () => _navigateToGame(SpaceWordRescueGame(gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
+        ),
+        GameInfo(
+          title: "Galaxy Word-Find", // TODO: Add to l10n
+          description: "Find the hidden words in the letter grid!", // TODO: Add to l10n
+          icon: Icons.grid_on,
+          gradient: const LinearGradient(colors: [Color(0xFF00C9FF), Color(0xFF92FE9D)]), // Blue/Green gradient
+          onTap: () => _navigateToGame(WordFindGame(gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
         ),
     ];
 

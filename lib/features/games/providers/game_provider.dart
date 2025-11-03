@@ -46,6 +46,7 @@ class GameProvider extends ChangeNotifier {
   final Map<String, SkillCategory> gameSkillMap = {
     // Assuming the game key 'space_word_rescue' is used in the game screen
     'space_word_rescue': SkillCategories.getById('basic_spelling')!,
+    'word_find_game': SkillCategories.getById('basic_vocab')!, 
     // Add other games here as you create them
     // 'article_asteroid': SkillCategories.getById('articles')!,
   };
