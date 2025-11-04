@@ -8,8 +8,8 @@
     "grade5": "Level 3",
     "grade6": "Level 4",
 
-    "spaceWordRescueTitle": "Space Word Rescue",
-    "spaceWordRescueInstructions": "Rescue words from drifting into space!",
+    "spaceWordRescueTitle": "Word Rescue",
+    "spaceWordRescueInstructions": "Rescue words from drifting off!",
     "gameplayHint": "Hint (-2 Points)",
     "gameplayCheck": "Check",
     "gameplayCorrect": "Correct! Well done! 🚀",
@@ -19,6 +19,18 @@
     "gameplayWriteTheWord": "Type the word...",
     "gameplayFeedbackCommonMistake": "Almost right! A common mistake.\nCorrect is: {correctWord}",
     "gameplayFeedbackIncorrect": "Sorry, that's wrong! Correct is: {correctWord}",
+
+    "wordFindTitle": "Word-Find",
+    "wordFindDescription": "Find the hidden words in the letter grid!",
+    "wordFindWordsToFind": "Words to Find:",
+
+    "wordSortTitle": "Word Type Station",
+    "wordSortDescription": "Sort the words into the correct categories!",
+    "wordSortCategoryNoun": "Nouns",
+    "wordSortCategoryVerb": "Verbs",
+    "wordSortCategoryAdjective": "Adjectives",
+    "wordSortCategoryAdverb": "Adverbs",
+    "wordSortInstructions": "Drag the word to the correct station!",
 
     "adaptiveDifficulty": "Adaptive Difficulty",
     "adaptiveDifficultyDesc": "Adjusts problems based on your skill",

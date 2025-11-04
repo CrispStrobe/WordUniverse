@@ -148,13 +148,13 @@ abstract class S {
   /// No description provided for @spaceWordRescueTitle.
   ///
   /// In en, this message translates to:
-  /// **'Space Word Rescue'**
+  /// **'Word Rescue'**
   String get spaceWordRescueTitle;
 
   /// No description provided for @spaceWordRescueInstructions.
   ///
   /// In en, this message translates to:
-  /// **'Rescue words from drifting into space!'**
+  /// **'Rescue words from drifting off!'**
   String get spaceWordRescueInstructions;
 
   /// No description provided for @gameplayHint.
@@ -210,6 +210,66 @@ abstract class S {
   /// In en, this message translates to:
   /// **'Sorry, that\'s wrong! Correct is: {correctWord}'**
   String gameplayFeedbackIncorrect(Object correctWord);
+
+  /// No description provided for @wordFindTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Word-Find'**
+  String get wordFindTitle;
+
+  /// No description provided for @wordFindDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Find the hidden words in the letter grid!'**
+  String get wordFindDescription;
+
+  /// No description provided for @wordFindWordsToFind.
+  ///
+  /// In en, this message translates to:
+  /// **'Words to Find:'**
+  String get wordFindWordsToFind;
+
+  /// No description provided for @wordSortTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Word Type Station'**
+  String get wordSortTitle;
+
+  /// No description provided for @wordSortDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort the words into the correct categories!'**
+  String get wordSortDescription;
+
+  /// No description provided for @wordSortCategoryNoun.
+  ///
+  /// In en, this message translates to:
+  /// **'Nouns'**
+  String get wordSortCategoryNoun;
+
+  /// No description provided for @wordSortCategoryVerb.
+  ///
+  /// In en, this message translates to:
+  /// **'Verbs'**
+  String get wordSortCategoryVerb;
+
+  /// No description provided for @wordSortCategoryAdjective.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjectives'**
+  String get wordSortCategoryAdjective;
+
+  /// No description provided for @wordSortCategoryAdverb.
+  ///
+  /// In en, this message translates to:
+  /// **'Adverbs'**
+  String get wordSortCategoryAdverb;
+
+  /// No description provided for @wordSortInstructions.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag the word to the correct station!'**
+  String get wordSortInstructions;
 
   /// No description provided for @adaptiveDifficulty.
   ///

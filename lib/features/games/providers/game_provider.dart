@@ -47,6 +47,7 @@ class GameProvider extends ChangeNotifier {
     // Assuming the game key 'space_word_rescue' is used in the game screen
     'space_word_rescue': SkillCategories.getById('basic_spelling')!,
     'word_find_game': SkillCategories.getById('basic_vocab')!, 
+    'word_sort_game': SkillCategories.getById('word_types')!,
     // Add other games here as you create them
     // 'article_asteroid': SkillCategories.getById('articles')!,
   };

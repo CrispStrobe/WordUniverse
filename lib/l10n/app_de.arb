@@ -7,8 +7,21 @@
     "grade4": "Stufe 2",
     "grade5": "Stufe 3",
     "grade6": "Stufe 4",
-    "spaceWordRescueTitle": "Weltraum-Wort-Rettung",
-    "spaceWordRescueInstructions": "Rette Wörter vor dem Abdriften ins All!",
+    "spaceWordRescueTitle": "Wort-Rettung",
+    "spaceWordRescueInstructions": "Rette Wörter vor dem Abdriften!",
+
+    "wordFindTitle": "Wortsuche",
+    "wordFindDescription": "Finde die versteckten Wörter im Buchstaben-Gitter!",
+    "wordFindWordsToFind": "Wörter finden:",
+
+    "wordSortTitle": "Wortarten-Station",
+    "wordSortDescription": "Sortiere die Wörter in die richtigen Kategorien!",
+    "wordSortCategoryNoun": "Nomen",
+    "wordSortCategoryVerb": "Verben",
+    "wordSortCategoryAdjective": "Adjektive",
+    "wordSortCategoryAdverb": "Adverben",
+    "wordSortInstructions": "Ziehe das Wort zur richtigen Station!",
+
     "gameplayHint": "Hinweis (-2 Punkte)",
     "gameplayCheck": "Prüfen",
     "gameplayCorrect": "Richtig! Gut gemacht! 🚀",
