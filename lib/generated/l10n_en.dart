@@ -33,11 +33,10 @@ class SEn extends S {
   String get grade6 => 'Level 4';
 
   @override
-  String get spaceWordRescueTitle => 'Space Word Rescue';
+  String get spaceWordRescueTitle => 'Word Rescue';
 
   @override
-  String get spaceWordRescueInstructions =>
-      'Rescue words from drifting into space!';
+  String get spaceWordRescueInstructions => 'Rescue words from drifting off!';
 
   @override
   String get gameplayHint => 'Hint (-2 Points)';
@@ -69,6 +68,37 @@ class SEn extends S {
   String gameplayFeedbackIncorrect(Object correctWord) {
     return 'Sorry, that\'s wrong! Correct is: $correctWord';
   }
+
+  @override
+  String get wordFindTitle => 'Word-Find';
+
+  @override
+  String get wordFindDescription => 'Find the hidden words in the letter grid!';
+
+  @override
+  String get wordFindWordsToFind => 'Words to Find:';
+
+  @override
+  String get wordSortTitle => 'Word Type Station';
+
+  @override
+  String get wordSortDescription =>
+      'Sort the words into the correct categories!';
+
+  @override
+  String get wordSortCategoryNoun => 'Nouns';
+
+  @override
+  String get wordSortCategoryVerb => 'Verbs';
+
+  @override
+  String get wordSortCategoryAdjective => 'Adjectives';
+
+  @override
+  String get wordSortCategoryAdverb => 'Adverbs';
+
+  @override
+  String get wordSortInstructions => 'Drag the word to the correct station!';
 
   @override
   String get adaptiveDifficulty => 'Adaptive Difficulty';

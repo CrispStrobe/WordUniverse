@@ -1,5 +1,5 @@
-name: OrthoGraph
-description: An orthography learning app, from primary school students onwards
+name: WortUniversum
+description: An orthography learning app, from primary/elementary school kids onwards
 publish_to: 'none'
 version: 1.0.2
 
@@ -39,6 +39,7 @@ dependencies:
   equatable: ^2.0.5
   uuid: ^4.1.0
   csv: ^5.0.2
+  http: ^1.2.1
 
   # Development
   flutter_launcher_icons: ^0.13.1

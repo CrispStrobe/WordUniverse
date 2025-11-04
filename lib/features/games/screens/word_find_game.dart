@@ -81,8 +81,6 @@ class _WordFindGameState extends State<WordFindGame> {
     _foundCells.clear();
     _score = 0;
 
-    // Determine grid size and word count based on grade
-    // (You can make this more complex)
     int wordCount;
     switch (widget.gradeLevel) {
       case GradeLevel.grade1:
@@ -100,19 +98,75 @@ class _WordFindGameState extends State<WordFindGame> {
         wordCount = 8;
     }
 
-    // Get words for the game
-    final allWords = _vocabularyService.getWordsByGrade(widget.gradeLevel);
-    allWords.removeWhere((word) =>
-        word.wordType == GermanWordType.andere ||
-        word.word.contains(" ") || // No multi-word phrases
-        word.word.length > _gridSize || // Word must fit in grid
-        word.word.length < 3 // Words should be at least 3 letters
-        );
-    allWords.shuffle();
-    _wordsToFind = allWords.take(wordCount).toList();
+    // --- NEW ADAPTIVE WORD SELECTION ---
+    final List<GermanWord> wordsForGame = [];
+    final Set<String> addedWordIds = {};
+
+    int reviewWordCount = (wordCount * 0.5).ceil(); // 50% review
+    int newWordCount = wordCount - reviewWordCount;
+
+    // 1. Get REVIEW words (words the user struggles with)
+    // We get *all* review items, sorted by worst performance
+    final reviewItemIds = _sriService.getItemsForReview(
+      limit: reviewWordCount * 2, // Get extra in case of filtering
+      gradeLevelFilter: widget.gradeLevel.index + 1,
+    );
+
+    for (final id in reviewItemIds) {
+      final wordString = _extractBaseWordFromSriId(id);
+      if (wordString == null) continue;
+
+      try {
+        final word = _vocabularyService.allWords.firstWhere(
+            (w) => w.word.toLowerCase() == wordString.toLowerCase());
+
+        if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
+          wordsForGame.add(word);
+          addedWordIds.add(word.id);
+          if (wordsForGame.length >= reviewWordCount) break;
+        }
+      } catch (e) {
+        // Word from SRI not in vocab, skip
+      }
+    }
+
+    // 2. Get NEW words (words the user has not seen)
+    newWordCount = wordCount - wordsForGame.length; // Recalculate how many we need
+    final newWords = _vocabularyService.getNewWords(
+      sriService: _sriService,
+      grade: widget.gradeLevel,
+      limit: newWordCount * 2, // Get extra
+    );
+
+    for (final word in newWords) {
+      if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
+        wordsForGame.add(word);
+        addedWordIds.add(word.id);
+        if (wordsForGame.length >= wordCount) break;
+      }
+    }
+
+    // 3. Fill the rest with RANDOM words (if needed)
+    if (wordsForGame.length < wordCount) {
+      int randomWordsNeeded = wordCount - wordsForGame.length;
+      final allWords = _vocabularyService.getWordsByGrade(widget.gradeLevel);
+      allWords.shuffle();
+
+      for (final word in allWords) {
+        if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
+          wordsForGame.add(word);
+          addedWordIds.add(word.id);
+          if (wordsForGame.length >= wordCount) break;
+        }
+      }
+    }
+    // --- END ADAPTIVE SELECTION ---
+
+    _wordsToFind = wordsForGame;
 
     // Generate the grid
-    final wordStrings = _wordsToFind.map((w) => w.word.replaceAll(' ', '')).toList();
+    final wordStrings =
+        _wordsToFind.map((w) => w.word.replaceAll(' ', '')).toList();
     final result = WordSearchGenerator.generate(_gridSize, wordStrings);
 
     // Update state
@@ -219,6 +273,25 @@ class _WordFindGameState extends State<WordFindGame> {
     }
   }
 
+  /// Extracts the base word (e.g., "haus") from an SRI ID (e.g., "SPELL_haus").
+  String? _extractBaseWordFromSriId(String id) {
+    if (id.startsWith('SPELL_')) {
+      return id.substring('SPELL_'.length);
+    }
+    if (id.startsWith('WORDTYPE_')) {
+      return id.substring('WORDTYPE_'.length);
+    }
+    // Add other prefixes if you track more word skills
+    return null;
+  }
+
+  /// Checks if a word is valid for this specific game.
+  bool _isWordValidForGame(GermanWord word) {
+    return !word.word.contains(" ") &&
+        word.word.length <= _gridSize &&
+        word.word.length >= 3;
+  }
+
   void _checkSelectedWord() {
     String selectedWord = "";
     List<GridPosition> orderedCells = List.from(_selectedCells);
@@ -322,13 +395,15 @@ class _WordFindGameState extends State<WordFindGame> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
+
     return Scaffold(
       body: SpaceBackground(
         child: SafeArea(
           child: Column(
             children: [
               GameUI(
-                title: "Galaxy Word-Find", // This game needs a title
+                title: s.wordFindTitle,
                 level: widget.gradeLevel.index + 1,
                 onBack: () => Navigator.of(context).pop(),
               ),
@@ -430,6 +505,7 @@ class _WordFindGameState extends State<WordFindGame> {
   }
 
   Widget _buildWordsToFindList() {
+    final s = S.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       margin: const EdgeInsets.only(top: 16, right: 16, bottom: 16),
@@ -438,7 +514,7 @@ class _WordFindGameState extends State<WordFindGame> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Wörter finden:", // TODO: Add to l10n
+            s.wordFindWordsToFind,
             style: SpaceTheme.titleStyle.copyWith(color: SpaceTheme.starYellow),
           ),
           const SizedBox(height: 12),

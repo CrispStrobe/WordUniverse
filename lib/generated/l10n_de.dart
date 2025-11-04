@@ -33,11 +33,10 @@ class SDe extends S {
   String get grade6 => 'Stufe 4';
 
   @override
-  String get spaceWordRescueTitle => 'Weltraum-Wort-Rettung';
+  String get spaceWordRescueTitle => 'Wort-Rettung';
 
   @override
-  String get spaceWordRescueInstructions =>
-      'Rette Wörter vor dem Abdriften ins All!';
+  String get spaceWordRescueInstructions => 'Rette Wörter vor dem Abdriften!';
 
   @override
   String get gameplayHint => 'Hinweis (-2 Punkte)';
@@ -70,6 +69,38 @@ class SDe extends S {
   String gameplayFeedbackIncorrect(Object correctWord) {
     return 'Leider falsch. Die korrekte Schreibweise ist: $correctWord';
   }
+
+  @override
+  String get wordFindTitle => 'Wortsuche';
+
+  @override
+  String get wordFindDescription =>
+      'Finde die versteckten Wörter im Buchstaben-Gitter!';
+
+  @override
+  String get wordFindWordsToFind => 'Wörter finden:';
+
+  @override
+  String get wordSortTitle => 'Wortarten-Station';
+
+  @override
+  String get wordSortDescription =>
+      'Sortiere die Wörter in die richtigen Kategorien!';
+
+  @override
+  String get wordSortCategoryNoun => 'Nomen';
+
+  @override
+  String get wordSortCategoryVerb => 'Verben';
+
+  @override
+  String get wordSortCategoryAdjective => 'Adjektive';
+
+  @override
+  String get wordSortCategoryAdverb => 'Adverben';
+
+  @override
+  String get wordSortInstructions => 'Ziehe das Wort zur richtigen Station!';
 
   @override
   String get adaptiveDifficulty => 'Angepasste Schwierigkeit';

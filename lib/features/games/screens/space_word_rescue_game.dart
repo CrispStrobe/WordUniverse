@@ -133,6 +133,9 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
       _isWordVisible = true;
       _feedbackMessage = ''; // Clear feedback
     });
+
+    // Request focus on the input field for the next word
+    _focusNode.requestFocus(); 
     
     final words = _vocabularyService.getNewWords(
       sriService: _sriService,
