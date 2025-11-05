@@ -79,26 +79,125 @@ class SEn extends S {
   String get wordFindWordsToFind => 'Words to Find:';
 
   @override
-  String get wordSortTitle => 'Word Type Station';
+  String get wordSortTitle => 'Word Sort Game';
 
   @override
   String get wordSortDescription =>
-      'Sort the words into the correct categories!';
+      'Sort words into categories: nouns, verbs, and adjectives';
 
   @override
-  String get wordSortCategoryNoun => 'Nouns';
+  String get wordSortTitleTimeAttack => 'Word Sort - Time Attack!';
 
   @override
-  String get wordSortCategoryVerb => 'Verbs';
+  String get wordSortCategoryNoun => 'Noun';
 
   @override
-  String get wordSortCategoryAdjective => 'Adjectives';
+  String get wordSortCategoryVerb => 'Verb';
 
   @override
-  String get wordSortCategoryAdverb => 'Adverbs';
+  String get wordSortCategoryAdjective => 'Adjective';
 
   @override
-  String get wordSortInstructions => 'Drag the word to the correct station!';
+  String get wordSortCorrect => 'Correct! Well done!';
+
+  @override
+  String get wordSortIncorrect => 'Not quite right. Let\'s learn!';
+
+  @override
+  String get wordSortTimeUp => 'Time\'s up!';
+
+  @override
+  String wordSortStreakBonus(int streak) {
+    return '🔥 $streak in a row! Bonus points!';
+  }
+
+  @override
+  String wordSortHintNounArticle(String article, String gender) {
+    return 'Correct! You say \'$article\' - the article shows it\'s a $gender noun.';
+  }
+
+  @override
+  String wordSortHintNounPlural(String singular, String plural) {
+    return 'The plural of \'$singular\' is \'$plural\'.';
+  }
+
+  @override
+  String wordSortHintVerbConjugation(String ich, String du) {
+    return 'Correct! Verbs change: \'$ich\', \'$du\' - they conjugate with the person!';
+  }
+
+  @override
+  String wordSortHintAdjectiveComparison(
+      String base, String comparative, String superlative) {
+    return 'Adjectives have degrees: $base → $comparative → $superlative';
+  }
+
+  @override
+  String wordSortWhyNot(String type) {
+    return 'No, it\'s not a $type.';
+  }
+
+  @override
+  String wordSortWhyNoun(String article) {
+    return 'It\'s a NOUN because you say \'$article\' - articles go before nouns!';
+  }
+
+  @override
+  String wordSortNounDeclensionExample(String nominative, String genitive) {
+    return 'Nouns change by case: $nominative → $genitive';
+  }
+
+  @override
+  String wordSortWhyVerb(String forms) {
+    return 'It\'s a VERB because it conjugates: $forms';
+  }
+
+  @override
+  String wordSortWhyAdjective(
+      String base, String comparative, String superlative) {
+    return 'It\'s an ADJECTIVE because it has comparison forms: $base → $comparative → $superlative';
+  }
+
+  @override
+  String get wordSortHintLookForArticle =>
+      '💡 Hint: Look for the article (der/die/das)!';
+
+  @override
+  String wordSortHintArticleExample(String article) {
+    return 'This word has the article \'$article\'';
+  }
+
+  @override
+  String get wordSortHintLookForConjugation =>
+      '💡 Hint: Can you say \'ich...\' with this word?';
+
+  @override
+  String get wordSortHintLookForComparison =>
+      '💡 Hint: Can this word describe something? Can it get \'more\' or \'most\'?';
+
+  @override
+  String get wordSortToggleTimeAttack => 'Toggle Time Attack Mode';
+
+  @override
+  String get wordSortShowHint => 'Show Hint';
+
+  @override
+  String get wordSortTimeAttackComplete => 'Time Attack Complete!';
+
+  @override
+  String get score => 'Score';
+
+  @override
+  String get correct => 'Correct!';
+
+  @override
+  String get gameOver => 'Mission Complete!';
+
+  @override
+  String get backToMenu => 'Back to Mission Control';
+
+  @override
+  String get playAgain => 'Play Again';
 
   @override
   String get adaptiveDifficulty => 'Adaptive Difficulty';
@@ -116,16 +215,10 @@ class SEn extends S {
   String get level => 'Level';
 
   @override
-  String get score => 'Score';
-
-  @override
   String get lives => 'Hull Integrity';
 
   @override
   String get time => 'Time';
-
-  @override
-  String get correct => 'Correct!';
 
   @override
   String get incorrect => 'Error!';
@@ -140,16 +233,7 @@ class SEn extends S {
   String get tryAgain => 'Try Again!';
 
   @override
-  String get gameOver => 'Mission Complete!';
-
-  @override
   String get nextLevel => 'Next Mission';
-
-  @override
-  String get playAgain => 'Play Again';
-
-  @override
-  String get backToMenu => 'Back to Mission Control';
 
   @override
   String get settings => 'Settings';

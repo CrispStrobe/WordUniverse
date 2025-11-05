@@ -24,13 +24,117 @@
     "wordFindDescription": "Find the hidden words in the letter grid!",
     "wordFindWordsToFind": "Words to Find:",
 
-    "wordSortTitle": "Word Type Station",
-    "wordSortDescription": "Sort the words into the correct categories!",
-    "wordSortCategoryNoun": "Nouns",
-    "wordSortCategoryVerb": "Verbs",
-    "wordSortCategoryAdjective": "Adjectives",
-    "wordSortCategoryAdverb": "Adverbs",
-    "wordSortInstructions": "Drag the word to the correct station!",
+    "wordSortTitle": "Word Sort Game",
+    "wordSortDescription": "Sort words into categories: nouns, verbs, and adjectives",
+    "wordSortTitleTimeAttack": "Word Sort - Time Attack!",
+    "wordSortCategoryNoun": "Noun",
+    "wordSortCategoryVerb": "Verb",
+    "wordSortCategoryAdjective": "Adjective",
+    
+    "wordSortCorrect": "Correct! Well done!",
+    "wordSortIncorrect": "Not quite right. Let's learn!",
+    "wordSortTimeUp": "Time's up!",
+    
+    "wordSortStreakBonus": "🔥 {streak} in a row! Bonus points!",
+    "@wordSortStreakBonus": {
+        "placeholders": {
+        "streak": {
+            "type": "int"
+        }
+        }
+    },
+    
+    "wordSortHintNounArticle": "Correct! You say '{article}' - the article shows it's a {gender} noun.",
+    "@wordSortHintNounArticle": {
+        "placeholders": {
+        "article": {"type": "String"},
+        "gender": {"type": "String"}
+        }
+    },
+    
+    "wordSortHintNounPlural": "The plural of '{singular}' is '{plural}'.",
+    "@wordSortHintNounPlural": {
+        "placeholders": {
+        "singular": {"type": "String"},
+        "plural": {"type": "String"}
+        }
+    },
+    
+    "wordSortHintVerbConjugation": "Correct! Verbs change: '{ich}', '{du}' - they conjugate with the person!",
+    "@wordSortHintVerbConjugation": {
+        "placeholders": {
+        "ich": {"type": "String"},
+        "du": {"type": "String"}
+        }
+    },
+    
+    "wordSortHintAdjectiveComparison": "Adjectives have degrees: {base} → {comparative} → {superlative}",
+    "@wordSortHintAdjectiveComparison": {
+        "placeholders": {
+        "base": {"type": "String"},
+        "comparative": {"type": "String"},
+        "superlative": {"type": "String"}
+        }
+    },
+    
+    "wordSortWhyNot": "No, it's not a {type}.",
+    "@wordSortWhyNot": {
+        "placeholders": {
+        "type": {"type": "String"}
+        }
+    },
+    
+    "wordSortWhyNoun": "It's a NOUN because you say '{article}' - articles go before nouns!",
+    "@wordSortWhyNoun": {
+        "placeholders": {
+        "article": {"type": "String"}
+        }
+    },
+    
+    "wordSortNounDeclensionExample": "Nouns change by case: {nominative} → {genitive}",
+    "@wordSortNounDeclensionExample": {
+        "placeholders": {
+        "nominative": {"type": "String"},
+        "genitive": {"type": "String"}
+        }
+    },
+    
+    "wordSortWhyVerb": "It's a VERB because it conjugates: {forms}",
+    "@wordSortWhyVerb": {
+        "placeholders": {
+        "forms": {"type": "String"}
+        }
+    },
+    
+    "wordSortWhyAdjective": "It's an ADJECTIVE because it has comparison forms: {base} → {comparative} → {superlative}",
+    "@wordSortWhyAdjective": {
+        "placeholders": {
+        "base": {"type": "String"},
+        "comparative": {"type": "String"},
+        "superlative": {"type": "String"}
+        }
+    },
+    
+    "wordSortHintLookForArticle": "💡 Hint: Look for the article (der/die/das)!",
+    "wordSortHintArticleExample": "This word has the article '{article}'",
+    "@wordSortHintArticleExample": {
+        "placeholders": {
+        "article": {"type": "String"}
+        }
+    },
+    
+    "wordSortHintLookForConjugation": "💡 Hint: Can you say 'ich...' with this word?",
+    "wordSortHintLookForComparison": "💡 Hint: Can this word describe something? Can it get 'more' or 'most'?",
+    
+    "wordSortToggleTimeAttack": "Toggle Time Attack Mode",
+    "wordSortShowHint": "Show Hint",
+    "wordSortTimeAttackComplete": "Time Attack Complete!",
+    
+    "score": "Score",
+    "correct": "correct",
+    "gameOver": "Game Over",
+    "backToMenu": "Back to Menu",
+    "playAgain": "Play Again",
 
     "adaptiveDifficulty": "Adaptive Difficulty",
     "adaptiveDifficultyDesc": "Adjusts problems based on your skill",

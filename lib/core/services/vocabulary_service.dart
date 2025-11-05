@@ -48,7 +48,10 @@ class GermanWord {
   final bool isGrundwortschatzBW;
   final String? genus;
   final bool nurImPlural;
+  
+  final Map<String, dynamic>? inflectionData;
   final String? ipaPhoneme;
+
   final String? sampaPhoneme;
   final List<GraphematicVariant> graphematicVariants; // The new variants!
 
@@ -81,7 +84,10 @@ class GermanWord {
     required this.isGrundwortschatzBW,
     this.genus,
     required this.nurImPlural,
+    
+    this.inflectionData,
     this.ipaPhoneme,
+
     this.sampaPhoneme,
     required this.graphematicVariants,
     this.caseSpacy,
@@ -154,6 +160,7 @@ class GermanWord {
       isGrundwortschatzBW: json['isGrundwortschatzBW'] ?? false,
       genus: json['genus'],
       nurImPlural: json['nurImPlural'] ?? false,
+      inflectionData: json['inflectionData'] as Map<String, dynamic>?,
       ipaPhoneme: json['ipaPhoneme'],
       sampaPhoneme: json['sampaPhoneme'],
       graphematicVariants: variants,
