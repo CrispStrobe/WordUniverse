@@ -81,26 +81,126 @@ class SDe extends S {
   String get wordFindWordsToFind => 'Wörter finden:';
 
   @override
-  String get wordSortTitle => 'Wortarten-Station';
+  String get wordSortTitle => 'Wortarten-Spiel';
 
   @override
   String get wordSortDescription =>
-      'Sortiere die Wörter in die richtigen Kategorien!';
+      'Sortiere Wörter in Kategorien: Nomen, Verben und Adjektive';
+
+  @override
+  String get wordSortTitleTimeAttack => 'Wortarten - Gegen die Zeit!';
 
   @override
   String get wordSortCategoryNoun => 'Nomen';
 
   @override
-  String get wordSortCategoryVerb => 'Verben';
+  String get wordSortCategoryVerb => 'Verb';
 
   @override
-  String get wordSortCategoryAdjective => 'Adjektive';
+  String get wordSortCategoryAdjective => 'Adjektiv';
 
   @override
-  String get wordSortCategoryAdverb => 'Adverben';
+  String get wordSortCorrect => 'Richtig! Gut gemacht!';
 
   @override
-  String get wordSortInstructions => 'Ziehe das Wort zur richtigen Station!';
+  String get wordSortIncorrect => 'Nicht ganz. Lass uns lernen!';
+
+  @override
+  String get wordSortTimeUp => 'Zeit abgelaufen!';
+
+  @override
+  String wordSortStreakBonus(int streak) {
+    return '🔥 $streak hintereinander! Bonuspunkte!';
+  }
+
+  @override
+  String wordSortHintNounArticle(String article, String gender) {
+    return 'Richtig! Man sagt \'$article\' - der Artikel zeigt, dass es ein $gender Nomen ist.';
+  }
+
+  @override
+  String wordSortHintNounPlural(String singular, String plural) {
+    return 'Die Mehrzahl von \'$singular\' ist \'$plural\'.';
+  }
+
+  @override
+  String wordSortHintVerbConjugation(String ich, String du) {
+    return 'Richtig! Verben verändern sich: \'$ich\', \'$du\' - sie konjugieren mit der Person!';
+  }
+
+  @override
+  String wordSortHintAdjectiveComparison(
+      String base, String comparative, String superlative) {
+    return 'Adjektive haben Steigerungsformen: $base → $comparative → $superlative';
+  }
+
+  @override
+  String wordSortWhyNot(String type) {
+    return 'Nein, es ist kein $type.';
+  }
+
+  @override
+  String wordSortWhyNoun(String article) {
+    return 'Es ist ein NOMEN, weil man \'$article\' sagt - Artikel stehen vor Nomen!';
+  }
+
+  @override
+  String wordSortNounDeclensionExample(String nominative, String genitive) {
+    return 'Nomen verändern sich nach dem Fall: $nominative → $genitive';
+  }
+
+  @override
+  String wordSortWhyVerb(String forms) {
+    return 'Es ist ein VERB, weil es konjugiert wird: $forms';
+  }
+
+  @override
+  String wordSortWhyAdjective(
+      String base, String comparative, String superlative) {
+    return 'Es ist ein ADJEKTIV, weil es Steigerungsformen hat: $base → $comparative → $superlative';
+  }
+
+  @override
+  String get wordSortHintLookForArticle =>
+      '💡 Tipp: Achte auf den Artikel (der/die/das)!';
+
+  @override
+  String wordSortHintArticleExample(String article) {
+    return 'Dieses Wort hat den Artikel \'$article\'';
+  }
+
+  @override
+  String get wordSortHintLookForConjugation =>
+      '💡 Tipp: Kann man \'ich...\' damit sagen?';
+
+  @override
+  String get wordSortHintLookForComparison =>
+      '💡 Tipp: Kann dieses Wort etwas beschreiben? Kann es \'mehr\' oder \'am meisten\' werden?';
+
+  @override
+  String get wordSortToggleTimeAttack => 'Zeit-Modus umschalten';
+
+  @override
+  String get wordSortShowHint => 'Tipp anzeigen';
+
+  @override
+  String get wordSortTimeAttackComplete =>
+      'Zeit-Herausforderung abgeschlossen!';
+
+  @override
+  String get score => 'Punkte';
+
+  @override
+  String get correct => 'Richtig!';
+
+  @override
+  String get gameOver => 'Mission abgeschlossen!';
+
+  @override
+  String get backToMenu => 'Zurück zur Missionskontrolle';
+
+  @override
+  String get playAgain => 'Nochmal spielen';
 
   @override
   String get adaptiveDifficulty => 'Angepasste Schwierigkeit';
@@ -118,16 +218,10 @@ class SDe extends S {
   String get level => 'Level';
 
   @override
-  String get score => 'Punkte';
-
-  @override
   String get lives => 'Hüllenintegrität';
 
   @override
   String get time => 'Zeit';
-
-  @override
-  String get correct => 'Richtig!';
 
   @override
   String get incorrect => 'Fehler!';
@@ -142,16 +236,7 @@ class SDe extends S {
   String get tryAgain => 'Nochmal versuchen!';
 
   @override
-  String get gameOver => 'Mission abgeschlossen!';
-
-  @override
   String get nextLevel => 'Nächste Mission';
-
-  @override
-  String get playAgain => 'Nochmal spielen';
-
-  @override
-  String get backToMenu => 'Zurück zur Missionskontrolle';
 
   @override
   String get settings => 'Einstellungen';

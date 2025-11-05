@@ -232,44 +232,190 @@ abstract class S {
   /// No description provided for @wordSortTitle.
   ///
   /// In en, this message translates to:
-  /// **'Word Type Station'**
+  /// **'Word Sort Game'**
   String get wordSortTitle;
 
   /// No description provided for @wordSortDescription.
   ///
   /// In en, this message translates to:
-  /// **'Sort the words into the correct categories!'**
+  /// **'Sort words into categories: nouns, verbs, and adjectives'**
   String get wordSortDescription;
+
+  /// No description provided for @wordSortTitleTimeAttack.
+  ///
+  /// In en, this message translates to:
+  /// **'Word Sort - Time Attack!'**
+  String get wordSortTitleTimeAttack;
 
   /// No description provided for @wordSortCategoryNoun.
   ///
   /// In en, this message translates to:
-  /// **'Nouns'**
+  /// **'Noun'**
   String get wordSortCategoryNoun;
 
   /// No description provided for @wordSortCategoryVerb.
   ///
   /// In en, this message translates to:
-  /// **'Verbs'**
+  /// **'Verb'**
   String get wordSortCategoryVerb;
 
   /// No description provided for @wordSortCategoryAdjective.
   ///
   /// In en, this message translates to:
-  /// **'Adjectives'**
+  /// **'Adjective'**
   String get wordSortCategoryAdjective;
 
-  /// No description provided for @wordSortCategoryAdverb.
+  /// No description provided for @wordSortCorrect.
   ///
   /// In en, this message translates to:
-  /// **'Adverbs'**
-  String get wordSortCategoryAdverb;
+  /// **'Correct! Well done!'**
+  String get wordSortCorrect;
 
-  /// No description provided for @wordSortInstructions.
+  /// No description provided for @wordSortIncorrect.
   ///
   /// In en, this message translates to:
-  /// **'Drag the word to the correct station!'**
-  String get wordSortInstructions;
+  /// **'Not quite right. Let\'s learn!'**
+  String get wordSortIncorrect;
+
+  /// No description provided for @wordSortTimeUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Time\'s up!'**
+  String get wordSortTimeUp;
+
+  /// No description provided for @wordSortStreakBonus.
+  ///
+  /// In en, this message translates to:
+  /// **'🔥 {streak} in a row! Bonus points!'**
+  String wordSortStreakBonus(int streak);
+
+  /// No description provided for @wordSortHintNounArticle.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct! You say \'{article}\' - the article shows it\'s a {gender} noun.'**
+  String wordSortHintNounArticle(String article, String gender);
+
+  /// No description provided for @wordSortHintNounPlural.
+  ///
+  /// In en, this message translates to:
+  /// **'The plural of \'{singular}\' is \'{plural}\'.'**
+  String wordSortHintNounPlural(String singular, String plural);
+
+  /// No description provided for @wordSortHintVerbConjugation.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct! Verbs change: \'{ich}\', \'{du}\' - they conjugate with the person!'**
+  String wordSortHintVerbConjugation(String ich, String du);
+
+  /// No description provided for @wordSortHintAdjectiveComparison.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjectives have degrees: {base} → {comparative} → {superlative}'**
+  String wordSortHintAdjectiveComparison(
+      String base, String comparative, String superlative);
+
+  /// No description provided for @wordSortWhyNot.
+  ///
+  /// In en, this message translates to:
+  /// **'No, it\'s not a {type}.'**
+  String wordSortWhyNot(String type);
+
+  /// No description provided for @wordSortWhyNoun.
+  ///
+  /// In en, this message translates to:
+  /// **'It\'s a NOUN because you say \'{article}\' - articles go before nouns!'**
+  String wordSortWhyNoun(String article);
+
+  /// No description provided for @wordSortNounDeclensionExample.
+  ///
+  /// In en, this message translates to:
+  /// **'Nouns change by case: {nominative} → {genitive}'**
+  String wordSortNounDeclensionExample(String nominative, String genitive);
+
+  /// No description provided for @wordSortWhyVerb.
+  ///
+  /// In en, this message translates to:
+  /// **'It\'s a VERB because it conjugates: {forms}'**
+  String wordSortWhyVerb(String forms);
+
+  /// No description provided for @wordSortWhyAdjective.
+  ///
+  /// In en, this message translates to:
+  /// **'It\'s an ADJECTIVE because it has comparison forms: {base} → {comparative} → {superlative}'**
+  String wordSortWhyAdjective(
+      String base, String comparative, String superlative);
+
+  /// No description provided for @wordSortHintLookForArticle.
+  ///
+  /// In en, this message translates to:
+  /// **'💡 Hint: Look for the article (der/die/das)!'**
+  String get wordSortHintLookForArticle;
+
+  /// No description provided for @wordSortHintArticleExample.
+  ///
+  /// In en, this message translates to:
+  /// **'This word has the article \'{article}\''**
+  String wordSortHintArticleExample(String article);
+
+  /// No description provided for @wordSortHintLookForConjugation.
+  ///
+  /// In en, this message translates to:
+  /// **'💡 Hint: Can you say \'ich...\' with this word?'**
+  String get wordSortHintLookForConjugation;
+
+  /// No description provided for @wordSortHintLookForComparison.
+  ///
+  /// In en, this message translates to:
+  /// **'💡 Hint: Can this word describe something? Can it get \'more\' or \'most\'?'**
+  String get wordSortHintLookForComparison;
+
+  /// No description provided for @wordSortToggleTimeAttack.
+  ///
+  /// In en, this message translates to:
+  /// **'Toggle Time Attack Mode'**
+  String get wordSortToggleTimeAttack;
+
+  /// No description provided for @wordSortShowHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Hint'**
+  String get wordSortShowHint;
+
+  /// No description provided for @wordSortTimeAttackComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Time Attack Complete!'**
+  String get wordSortTimeAttackComplete;
+
+  /// No description provided for @score.
+  ///
+  /// In en, this message translates to:
+  /// **'Score'**
+  String get score;
+
+  /// No description provided for @correct.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct!'**
+  String get correct;
+
+  /// No description provided for @gameOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Mission Complete!'**
+  String get gameOver;
+
+  /// No description provided for @backToMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to Mission Control'**
+  String get backToMenu;
+
+  /// No description provided for @playAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Play Again'**
+  String get playAgain;
 
   /// No description provided for @adaptiveDifficulty.
   ///
@@ -301,12 +447,6 @@ abstract class S {
   /// **'Level'**
   String get level;
 
-  /// No description provided for @score.
-  ///
-  /// In en, this message translates to:
-  /// **'Score'**
-  String get score;
-
   /// No description provided for @lives.
   ///
   /// In en, this message translates to:
@@ -318,12 +458,6 @@ abstract class S {
   /// In en, this message translates to:
   /// **'Time'**
   String get time;
-
-  /// No description provided for @correct.
-  ///
-  /// In en, this message translates to:
-  /// **'Correct!'**
-  String get correct;
 
   /// No description provided for @incorrect.
   ///
@@ -349,29 +483,11 @@ abstract class S {
   /// **'Try Again!'**
   String get tryAgain;
 
-  /// No description provided for @gameOver.
-  ///
-  /// In en, this message translates to:
-  /// **'Mission Complete!'**
-  String get gameOver;
-
   /// No description provided for @nextLevel.
   ///
   /// In en, this message translates to:
   /// **'Next Mission'**
   String get nextLevel;
-
-  /// No description provided for @playAgain.
-  ///
-  /// In en, this message translates to:
-  /// **'Play Again'**
-  String get playAgain;
-
-  /// No description provided for @backToMenu.
-  ///
-  /// In en, this message translates to:
-  /// **'Back to Mission Control'**
-  String get backToMenu;
 
   /// No description provided for @settings.
   ///

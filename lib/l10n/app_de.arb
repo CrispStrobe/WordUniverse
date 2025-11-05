@@ -14,13 +14,52 @@
     "wordFindDescription": "Finde die versteckten Wörter im Buchstaben-Gitter!",
     "wordFindWordsToFind": "Wörter finden:",
 
-    "wordSortTitle": "Wortarten-Station",
-    "wordSortDescription": "Sortiere die Wörter in die richtigen Kategorien!",
+    "wordSortTitle": "Wortarten-Spiel",
+    "wordSortDescription": "Sortiere Wörter in Kategorien: Nomen, Verben und Adjektive",
+    "wordSortTitleTimeAttack": "Wortarten - Gegen die Zeit!",
     "wordSortCategoryNoun": "Nomen",
-    "wordSortCategoryVerb": "Verben",
-    "wordSortCategoryAdjective": "Adjektive",
-    "wordSortCategoryAdverb": "Adverben",
-    "wordSortInstructions": "Ziehe das Wort zur richtigen Station!",
+    "wordSortCategoryVerb": "Verb",
+    "wordSortCategoryAdjective": "Adjektiv",
+    
+    "wordSortCorrect": "Richtig! Gut gemacht!",
+    "wordSortIncorrect": "Nicht ganz. Lass uns lernen!",
+    "wordSortTimeUp": "Zeit abgelaufen!",
+    
+    "wordSortStreakBonus": "🔥 {streak} hintereinander! Bonuspunkte!",
+    
+    "wordSortHintNounArticle": "Richtig! Man sagt '{article}' - der Artikel zeigt, dass es ein {gender} Nomen ist.",
+    
+    "wordSortHintNounPlural": "Die Mehrzahl von '{singular}' ist '{plural}'.",
+    
+    "wordSortHintVerbConjugation": "Richtig! Verben verändern sich: '{ich}', '{du}' - sie konjugieren mit der Person!",
+    
+    "wordSortHintAdjectiveComparison": "Adjektive haben Steigerungsformen: {base} → {comparative} → {superlative}",
+    
+    "wordSortWhyNot": "Nein, es ist kein {type}.",
+    
+    "wordSortWhyNoun": "Es ist ein NOMEN, weil man '{article}' sagt - Artikel stehen vor Nomen!",
+    
+    "wordSortNounDeclensionExample": "Nomen verändern sich nach dem Fall: {nominative} → {genitive}",
+    
+    "wordSortWhyVerb": "Es ist ein VERB, weil es konjugiert wird: {forms}",
+    
+    "wordSortWhyAdjective": "Es ist ein ADJEKTIV, weil es Steigerungsformen hat: {base} → {comparative} → {superlative}",
+    
+    "wordSortHintLookForArticle": "💡 Tipp: Achte auf den Artikel (der/die/das)!",
+    "wordSortHintArticleExample": "Dieses Wort hat den Artikel '{article}'",
+    
+    "wordSortHintLookForConjugation": "💡 Tipp: Kann man 'ich...' damit sagen?",
+    "wordSortHintLookForComparison": "💡 Tipp: Kann dieses Wort etwas beschreiben? Kann es 'mehr' oder 'am meisten' werden?",
+    
+    "wordSortToggleTimeAttack": "Zeit-Modus umschalten",
+    "wordSortShowHint": "Tipp anzeigen",
+    "wordSortTimeAttackComplete": "Zeit-Herausforderung abgeschlossen!",
+    
+    "score": "Punkte",
+    "correct": "richtig",
+    "gameOver": "Spiel vorbei",
+    "backToMenu": "Zurück zum Menü",
+    "playAgain": "Nochmal spielen",
 
     "gameplayHint": "Hinweis (-2 Punkte)",
     "gameplayCheck": "Prüfen",
