@@ -9,7 +9,9 @@ try:
     print("Note: 'tqdm' library found. Progress bar will be shown.")
 except ImportError:
     print("Note: 'tqdm' library not found. Progress bar will not be shown.", file=sys.stderr)
+    # Define a dummy tqdm function if not found
     def tqdm(iterable, **kwargs):
+        """Dummy tqdm function for compatibility."""
         return iterable
 
 # --- Mappings ---
@@ -35,7 +37,7 @@ CLEANUP_WORTART = {
     'Kardinalzahlwort', 'Ordinalzahlwort'
 }
 
-# --- New Helper Function ---
+# --- Helper Function ---
 def get_morph_feature(token_morph, feature_name, mapping=None):
     """
     Gets a feature from spaCy's morph analysis, handles list results,
@@ -52,7 +54,6 @@ def get_morph_feature(token_morph, feature_name, mapping=None):
         # Return a sorted, unique, /-separated string
         return '/'.join(sorted(list(set(features))))
     return ''
-# --- End Helper Function ---
 
 def enrich_data(input_file='voc_de.csv', output_file='voc_de_enriched.csv'):
     """
@@ -82,19 +83,15 @@ def enrich_data(input_file='voc_de.csv', output_file='voc_de_enriched.csv'):
     # --- 3. Prepare DataFrame ---
     df = df.fillna('')
     
-    # **NEW** Define all morphological columns we want to add
     morph_cols = ['Case_spacy', 'Number_spacy', 'Degree_spacy', 'PronType_spacy', 'VerbForm_spacy']
     
-    # Define the base columns in order
     base_cols = [
         'Source', 'Word', 'Lemma_spacy', 'Article', 'Forms', 
         'Wortart', 'Genus', 'URL', 'nur_im_Plural'
     ]
     
-    # Combine for the final, ordered list
     final_cols = base_cols + morph_cols
 
-    # Add any missing columns from the *input* file for robustness
     for col in final_cols:
         if col not in df.columns:
             print(f"Warning: Column '{col}' not found. Adding it as empty.")
@@ -117,7 +114,6 @@ def enrich_data(input_file='voc_de.csv', output_file='voc_de_enriched.csv'):
         spacy_pos_tag = ''
         spacy_wortart = ''
         spacy_lemma = ''
-        # **NEW** Initialize all morph features
         spacy_genus = ''
         spacy_case = ''
         spacy_number = ''
@@ -130,7 +126,6 @@ def enrich_data(input_file='voc_de.csv', output_file='voc_de_enriched.csv'):
             spacy_wortart = SPACY_POS_MAP.get(spacy_pos_tag, spacy_pos_tag)
             spacy_lemma = token.lemma_
             
-            # **NEW** Use the helper function for all morph features
             spacy_genus = get_morph_feature(token.morph, 'Gender', SPACY_GENDER_MAP)
             spacy_case = get_morph_feature(token.morph, 'Case')
             spacy_number = get_morph_feature(token.morph, 'Number')
@@ -145,7 +140,6 @@ def enrich_data(input_file='voc_de.csv', output_file='voc_de_enriched.csv'):
         final_genus = row['Genus']
         final_lemma = spacy_lemma
         
-        # **NEW** Set final morph vars. Since user has no source, we just use spaCy's
         final_case = spacy_case
         final_number = spacy_number
         final_degree = spacy_degree
@@ -161,22 +155,26 @@ def enrich_data(input_file='voc_de.csv', output_file='voc_de_enriched.csv'):
             final_wortart = 'Substantiv'
         elif not final_wortart:
             final_wortart = spacy_wortart
-        # else: keep the manual wortart (e.g. 'Mehrwortausdruck', 'Pronomen', etc.)
+        # else: keep the manual wortart
         
         # --- Step 5: Decide Final Genus (Enrich & Correct) ---
+        # *** THIS IS THE CRITICAL LOGIC ***
         if final_article in ARTICLE_TO_GENUS:
+            # Priority 1: Article is the source of truth
             final_genus = ARTICLE_TO_GENUS[final_article]
         elif final_wortart in ['Mehrwortausdruck', 'Affix']:
-            final_genus = row['Genus'] # Keep the (potentially wrong) manual entry
+            # Priority 2: Keep manual entry for special types
+            final_genus = row['Genus']
         elif spacy_genus:
+            # Priority 3: Use spaCy's guess
             final_genus = spacy_genus
         # else: fall back to the manual entry (already set in final_genus)
 
         # --- Step 6: Final Cleanup ---
         if final_wortart in CLEANUP_WORTART:
-            final_genus = ''
+            final_genus = '' # Nuke gender for non-gendered word types
         elif token and (spacy_pos_tag not in ALLOWED_GENDER_POS) and (final_wortart not in ['Mehrwortausdruck']):
-             final_genus = ''
+             final_genus = '' # Nuke gender if spaCy POS tag doesn't support it
 
         # Handle lemma for multi-word expressions
         if final_wortart in ['Mehrwortausdruck', 'Affix']:
@@ -193,7 +191,6 @@ def enrich_data(input_file='voc_de.csv', output_file='voc_de_enriched.csv'):
             'Genus': final_genus,
             'URL': row['URL'],
             'nur_im_Plural': row['nur_im_Plural'],
-            # **NEW** Add all the new morphological fields
             'Case_spacy': final_case,
             'Number_spacy': final_number,
             'Degree_spacy': final_degree,
@@ -203,7 +200,6 @@ def enrich_data(input_file='voc_de.csv', output_file='voc_de_enriched.csv'):
 
     # --- 7. Create new DataFrame and Save ---
     df_enriched = pd.DataFrame(enriched_rows)
-    # Re-order columns to the final desired format
     df_enriched = df_enriched[final_cols]
     
     df_enriched.to_csv(output_file, sep=';', index=False, encoding='utf-8')
@@ -217,4 +213,19 @@ def enrich_data(input_file='voc_de.csv', output_file='voc_de_enriched.csv'):
 
 # --- Main execution ---
 if __name__ == "__main__":
-    enrich_data(input_file='voc_de.csv', output_file='voc_de_enriched.csv')
+    # Get script's directory
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    # Define relative paths
+    input_csv = os.path.join(script_dir, '..', '..', '..', '..', 'voc_de.csv') # Assumes script is in a subfolder
+    output_csv = os.path.join(script_dir, 'voc_de_enriched.csv') # Saves output next to the script
+    
+    # Normalize paths for clean output
+    input_csv = os.path.normpath(input_csv)
+    output_csv = os.path.normpath(output_csv)
+
+    print(f"--- Running Data Enrichment (Step 1 of 3) ---")
+    print(f"Input:  {input_csv}")
+    print(f"Output: {output_csv}")
+    
+    enrich_data(input_file=input_csv, output_file=output_csv)

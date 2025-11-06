@@ -347,6 +347,207 @@ class _WordFindGameState extends State<WordFindGame> {
     _audioService.playSound('incorrect.mp3');
   }
 
+  /// Generates compact educational info for a found word
+  String _getEducationalInfo(GermanWord word) {
+    final List<String> infoParts = [];
+    
+    switch (word.wordType) {
+      case GermanWordType.substantiv:
+        // Always show article if available
+        if (word.article != null && word.article!.isNotEmpty) {
+          infoParts.add(word.article!);
+        }
+        
+        // Always show plural if available
+        if (word.plural != null && word.plural!.isNotEmpty && word.plural != '-') {
+          infoParts.add('Plural: ${word.plural}');
+        } else if (word.nurImPlural) {
+          infoParts.add('nur Plural');
+        }
+        
+        // Show genus as fallback or additional info
+        if (word.genus != null && word.genus!.isNotEmpty) {
+          infoParts.add(word.genus!.toLowerCase());
+        }
+        break;
+        
+      case GermanWordType.verb:
+        // Try to show conjugation from inflectionData
+        if (word.inflectionData != null && word.inflectionData!.isNotEmpty) {
+          final conjugation = _getRandomVerbConjugation(word.inflectionData!);
+          if (conjugation != null) {
+            infoParts.add(conjugation);
+          }
+        }
+        
+        // If no conjugation, show verb form info
+        if (infoParts.isEmpty && word.verbFormSpacy != null) {
+          final verbFormMap = {
+            'Inf': 'Infinitiv',
+            'Fin': 'finit',
+            'Part': 'Partizip',
+          };
+          infoParts.add(verbFormMap[word.verbFormSpacy] ?? word.verbFormSpacy!);
+        }
+        
+        // If still nothing, at least show it's a verb
+        if (infoParts.isEmpty) {
+          infoParts.add('Verb');
+        }
+        break;
+        
+      case GermanWordType.adjektiv:
+        // Try to show comparative and superlative
+        bool hasSteigerung = false;
+        
+        if (word.inflectionData != null) {
+          final comparative = word.inflectionData!['comparative'];
+          final superlative = word.inflectionData!['superlative'];
+          
+          if (comparative != null && comparative.toString().isNotEmpty && comparative != '-') {
+            infoParts.add(comparative.toString());
+            hasSteigerung = true;
+          }
+          if (superlative != null && superlative.toString().isNotEmpty && superlative != '-') {
+            infoParts.add(superlative.toString());
+            hasSteigerung = true;
+          }
+        }
+        
+        // Show degree info if available
+        if (word.degreeSpacy != null && word.degreeSpacy!.isNotEmpty) {
+          final degreeMap = {
+            'Pos': 'Positiv',
+            'Cmp': 'Komparativ',
+            'Sup': 'Superlativ',
+          };
+          final degreeLabel = degreeMap[word.degreeSpacy] ?? word.degreeSpacy!;
+          if (!hasSteigerung) {
+            infoParts.add(degreeLabel);
+          }
+        }
+        
+        // Fallback
+        if (infoParts.isEmpty) {
+          infoParts.add('Adjektiv');
+        }
+        break;
+        
+      case GermanWordType.pronomen:
+        // Show case if available
+        if (word.caseSpacy != null && word.caseSpacy!.isNotEmpty) {
+          final caseMap = {
+            'Nom': 'Nominativ',
+            'Acc': 'Akkusativ',
+            'Dat': 'Dativ',
+            'Gen': 'Genitiv',
+          };
+          infoParts.add(caseMap[word.caseSpacy] ?? word.caseSpacy!);
+        }
+        
+        // Show pronoun type
+        if (word.pronTypeSpacy != null && word.pronTypeSpacy!.isNotEmpty) {
+          infoParts.add(word.pronTypeSpacy!);
+        }
+        
+        if (infoParts.isEmpty) {
+          infoParts.add('Pronomen');
+        }
+        break;
+        
+      case GermanWordType.artikel:
+        // Show case and gender info
+        if (word.caseSpacy != null && word.caseSpacy!.isNotEmpty) {
+          infoParts.add(word.caseSpacy!);
+        }
+        if (word.genus != null && word.genus!.isNotEmpty) {
+          infoParts.add(word.genus!.toLowerCase());
+        }
+        if (infoParts.isEmpty) {
+          infoParts.add('Artikel');
+        }
+        break;
+        
+      case GermanWordType.adverb:
+        infoParts.add('Adverb');
+        break;
+        
+      case GermanWordType.praeposition:
+        infoParts.add('Präposition');
+        break;
+        
+      case GermanWordType.konjunktion:
+        infoParts.add('Konjunktion');
+        break;
+        
+      default:
+        // For other types, show the type name
+        final typeMap = {
+          GermanWordType.partikel: 'Partikel',
+          GermanWordType.numerale: 'Numerale',
+        };
+        final typeLabel = typeMap[word.wordType];
+        if (typeLabel != null) {
+          infoParts.add(typeLabel);
+        }
+    }
+    
+    // Return empty string if no info available
+    if (infoParts.isEmpty) return '';
+    
+    // Join with bullets for compact display
+    return ' • ${infoParts.join(' • ')}';
+  }
+
+  /// Gets a random verb conjugation from inflectionData
+  String? _getRandomVerbConjugation(Map<String, dynamic> inflectionData) {
+    final random = Random();
+    
+    // Define tense-person combinations to try
+    final options = [
+      ('Präsens', ['ich', 'du', 'er', 'sie', 'es', 'wir', 'ihr']),
+      ('Präteritum', ['ich', 'du', 'er', 'sie', 'es']),
+      ('Perfekt', ['ich', 'du', 'er']),
+    ];
+    
+    // Shuffle and try to find a valid conjugation
+    options.shuffle(random);
+    
+    for (final (tense, persons) in options) {
+      // Try different field names for the tense
+      final tenseKeys = [
+        tense,
+        tense.toLowerCase(),
+        tense.replaceAll('ä', 'a').replaceAll('ü', 'u'),
+        'present',
+        'past',
+        'perfect',
+      ];
+      
+      for (final tenseKey in tenseKeys) {
+        if (inflectionData.containsKey(tenseKey)) {
+          final tenseData = inflectionData[tenseKey];
+          if (tenseData is Map) {
+            // Shuffle persons
+            final shuffledPersons = List<String>.from(persons)..shuffle(random);
+            
+            for (final person in shuffledPersons) {
+              // Try different formats
+              if (tenseData.containsKey(person)) {
+                final form = tenseData[person];
+                if (form != null && form.toString().isNotEmpty && form != '-') {
+                  return '$person: $form';
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    return null;
+  }
+
   void _showGameOver() {
     final s = S.of(context)!;
     _gameProvider.recordLevelWin(
@@ -412,54 +613,99 @@ class _WordFindGameState extends State<WordFindGame> {
                     child: Center(child: CircularProgressIndicator()))
               else
                 Expanded(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // --- The Grid ---
-                      Expanded(
-                        flex: 3,
-                        child: Padding(
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      const double breakpoint = 600.0;
+
+                      // Calculate grid size to fit in available space
+                      Widget gridWidget;
+                      if (constraints.maxWidth < breakpoint) {
+                        // Portrait/narrow: grid should fit width and leave space for word list
+                        final availableHeight = constraints.maxHeight * 0.5; // 50% for grid
+                        final availableWidth = constraints.maxWidth - 32; // padding
+                        final gridSize = min(availableHeight, availableWidth);
+                        
+                        gridWidget = Padding(
                           padding: const EdgeInsets.all(16.0),
-                          child: GestureDetector(
-                            key: _gridKey,
-                            onPanStart: _onPanStart,
-                            onPanUpdate: _onPanUpdate,
-                            onPanEnd: _onPanEnd,
-                            child: AspectRatio(
-                              aspectRatio: 1.0,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: SpaceTheme.deepSpace.withOpacity(0.5),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: GridView.builder(
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  gridDelegate:
-                                      SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: _gridSize,
-                                  ),
-                                  itemCount: _gridSize * _gridSize,
-                                  itemBuilder: (context, index) {
-                                    final row = index ~/ _gridSize;
-                                    final col = index % _gridSize;
-                                    return _buildCell(row, col);
-                                  },
-                                ),
-                              ),
+                          child: Center(
+                            child: SizedBox(
+                              width: gridSize,
+                              height: gridSize,
+                              child: _buildGridWidget(),
                             ),
                           ),
-                        ),
-                      ),
-                      // --- Words to Find ---
-                      Expanded(
-                        flex: 2,
-                        child: _buildWordsToFindList(),
-                      ),
-                    ],
+                        );
+                      } else {
+                        // Landscape/wide: grid should fit in 60% of width
+                        final availableHeight = constraints.maxHeight - 32;
+                        final availableWidth = (constraints.maxWidth * 0.6) - 32;
+                        final gridSize = min(availableHeight, availableWidth);
+                        
+                        gridWidget = Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Center(
+                            child: SizedBox(
+                              width: gridSize,
+                              height: gridSize,
+                              child: _buildGridWidget(),
+                            ),
+                          ),
+                        );
+                      }
+
+                      final wordListWidget = _buildWordsToFindList();
+
+                      if (constraints.maxWidth < breakpoint) {
+                        // Small screen: Column layout
+                        return Column(
+                          children: [
+                            gridWidget,
+                            Expanded(child: wordListWidget),
+                          ],
+                        );
+                      } else {
+                        // Wide screen: Row layout
+                        return Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(flex: 3, child: gridWidget),
+                            Expanded(flex: 2, child: wordListWidget),
+                          ],
+                        );
+                      }
+                    },
                   ),
                 ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  // Extract grid building into separate method
+  Widget _buildGridWidget() {
+    return GestureDetector(
+      key: _gridKey,
+      onPanStart: _onPanStart,
+      onPanUpdate: _onPanUpdate,
+      onPanEnd: _onPanEnd,
+      child: Container(
+        decoration: BoxDecoration(
+          color: SpaceTheme.deepSpace.withOpacity(0.5),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: GridView.builder(
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: _gridSize,
+          ),
+          itemCount: _gridSize * _gridSize,
+          itemBuilder: (context, index) {
+            final row = index ~/ _gridSize;
+            final col = index % _gridSize;
+            return _buildCell(row, col);
+          },
         ),
       ),
     );
@@ -489,15 +735,19 @@ class _WordFindGameState extends State<WordFindGame> {
         border: Border.all(color: SpaceTheme.deepSpace.withOpacity(0.3)),
       ),
       child: Center(
-        child: Text(
-          _grid[row][col],
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: textColor,
-            shadows: const [
-              Shadow(blurRadius: 4, color: Colors.black54),
-            ],
+        // Wrap the Text to scale it down if it doesn't fit
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            _grid[row][col],
+            style: TextStyle(
+              fontSize: 18, // This is a *maximum* size
+              fontWeight: FontWeight.bold,
+              color: textColor,
+              shadows: const [
+                Shadow(blurRadius: 4, color: Colors.black54),
+              ],
+            ),
           ),
         ),
       ),
@@ -506,6 +756,13 @@ class _WordFindGameState extends State<WordFindGame> {
 
   Widget _buildWordsToFindList() {
     final s = S.of(context)!;
+    
+    // Only show words that were actually placed in the grid
+    final wordsInGrid = _wordsToFind.where((word) {
+      final wordUpper = word.word.toUpperCase().replaceAll(' ', '');
+      return _placedWords.any((placed) => placed.word == wordUpper);
+    }).toList();
+    
     return Container(
       padding: const EdgeInsets.all(16),
       margin: const EdgeInsets.only(top: 16, right: 16, bottom: 16),
@@ -520,24 +777,44 @@ class _WordFindGameState extends State<WordFindGame> {
           const SizedBox(height: 12),
           Expanded(
             child: ListView.builder(
-              itemCount: _wordsToFind.length,
+              itemCount: wordsInGrid.length,
               itemBuilder: (context, index) {
-                final word = _wordsToFind[index];
-                final wordUpper = word.word.toUpperCase();
+                final word = wordsInGrid[index];
+                final wordUpper = word.word.toUpperCase().replaceAll(' ', '');
                 final isFound = _foundWords.contains(wordUpper);
+                
+                // Get educational info when word is found
+                final eduInfo = isFound ? _getEducationalInfo(word) : '';
                 
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4.0),
-                  child: Text(
-                    word.word, // Show the base word
-                    style: SpaceTheme.bodyStyle.copyWith(
-                      fontSize: 16,
-                      color: isFound ? SpaceTheme.alienGreen : Colors.white70,
-                      decoration: isFound
-                          ? TextDecoration.lineThrough
-                          : TextDecoration.none,
-                      decorationColor: SpaceTheme.rocketRed,
-                      decorationThickness: 2.0,
+                  child: RichText(
+                    text: TextSpan(
+                      children: [
+                        // The main word
+                        TextSpan(
+                          text: word.word,
+                          style: SpaceTheme.bodyStyle.copyWith(
+                            fontSize: 16,
+                            color: isFound ? SpaceTheme.alienGreen : Colors.white70,
+                            decoration: isFound
+                                ? TextDecoration.lineThrough
+                                : TextDecoration.none,
+                            decorationColor: SpaceTheme.rocketRed,
+                            decorationThickness: 2.0,
+                          ),
+                        ),
+                        // Educational info (only when found)
+                        if (eduInfo.isNotEmpty)
+                          TextSpan(
+                            text: eduInfo,
+                            style: SpaceTheme.bodyStyle.copyWith(
+                              fontSize: 13,
+                              color: SpaceTheme.starYellow.withOpacity(0.9),
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                      ],
                     ),
                   ),
                 );
@@ -548,4 +825,5 @@ class _WordFindGameState extends State<WordFindGame> {
       ),
     );
   }
+
 }
