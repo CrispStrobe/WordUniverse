@@ -1,9 +1,13 @@
 import pandas as pd
 import json
 import re
+import os
+import sys
 
 # --- Configuration ---
+# Input file is the *output* of script 1
 INPUT_CSV_FILE = 'voc_de_enriched.csv'
+# Output file is the *final* data file
 OUTPUT_JSON_FILE = 'grundwortschatz.json'
 
 # Mapping from our CSV 'Wortart' to the Dart 'GermanWordType' enum strings
@@ -21,9 +25,10 @@ WORTART_TO_ENUM_MAP = {
     'Kardinalzahlwort': 'kardinalzahlwort',
     'Ordinalzahlwort': 'ordinalzahlwort',
     'Affix': 'affix',
-    'Mehrwortausdruck': 'mehrwortausdruck',
+    'Mehrwortausdruck': 'mehrwortausdynamic', # Dart script expects 'dynamic'
     'Andere': 'andere',
     'Symbol': 'andere',
+    'Satzzeichen': 'andere', # Map Punctuation to 'andere'
 }
 
 def parse_sources(source_str):
@@ -70,13 +75,13 @@ def convert_csv_to_json(input_file, output_file):
     """
     Loads the enriched CSV and converts it to the app's JSON format.
     """
-    print(f"Loading '{input_file}'...")
+    print(f"\nLoading '{input_file}'...")
     try:
         df = pd.read_csv(input_file, delimiter=';')
     except FileNotFoundError:
-        print(f"Error: File not found: '{input_file}'")
-        print("Please run the 'enrich.py' script first.")
-        return
+        print(f"Error: File not found: '{input_file}'", file=sys.stderr)
+        print("Please run the 'enrich_data.py' script first.", file=sys.stderr)
+        sys.exit(1)
 
     df = df.fillna('')
     print(f"Loaded {len(df)} entries.")
@@ -102,7 +107,11 @@ def convert_csv_to_json(input_file, output_file):
         if nur_im_plural_val == '' or nur_im_plural_val == '0' or nur_im_plural_val == '0.0':
             nur_im_plural = False
         else:
-            nur_im_plural = True
+            # Check if it's a noun. Only nouns can be plural-only.
+            if enum_wortart == 'substantiv':
+                 nur_im_plural = True
+            else:
+                 nur_im_plural = False # A verb can't be "plural-only"
         
         # Create the JSON object for this word
         word_obj = {
@@ -115,8 +124,8 @@ def convert_csv_to_json(input_file, output_file):
             'isGrundwortschatzBW': is_bw,
             'lemma': row['Lemma_spacy'],
             'forms': row['Forms'],
-            'genus': row.get('Genus', ''),  # NEW: Added Genus
-            'nurImPlural': nur_im_plural,    # NEW: Added nur_im_Plural as boolean
+            'genus': row.get('Genus', ''),
+            'nurImPlural': nur_im_plural,
             'url': row['URL'],
             
             # spaCy morphological fields
@@ -126,19 +135,28 @@ def convert_csv_to_json(input_file, output_file):
             'pronTypeSpacy': row['PronType_spacy'],
             'verbFormSpacy': row['VerbForm_spacy'],
             
-            # App-specific fields (empty, to be filled in-app or manually)
-            'plural': None, 
+            # App-specific fields (placeholders to be filled)
+            'plural': None, # To be filled by Script 3
             'categories': [],
             'exampleSentences': [],
             'spellingDifficulty': 0,
             'commonMistakes': None,
+            'graphematicVariants': [], # To be filled by a different process
+            'commonLearnerErrors': [], # To be filled by a different process
             'audioPath': None,
+            'inflectionData': None, # To be filled by Script 3
+            'inflectionDataEnrichedAt': None, # To be filled by Script 3
         }
         
         vocabulary_list.append(word_obj)
 
     # Wrap the list in the final JSON structure
     final_json = {
+        'metadata': {
+            'createdAt': pd.Timestamp.now().isoformat(),
+            'totalWords': len(vocabulary_list),
+            'lastEnrichmentRun': None,
+        },
         'vocabulary': vocabulary_list,
         'grammarExercises': [],
     }
@@ -148,7 +166,6 @@ def convert_csv_to_json(input_file, output_file):
         json.dump(final_json, f, indent=2, ensure_ascii=False)
         
     print("Done. ✨")
-    print(f"Copy '{output_file}' to your Flutter project's 'assets/data/' directory.")
     
     # Print some stats
     bw_words = sum(1 for w in vocabulary_list if w['isGrundwortschatzBW'])
@@ -159,4 +176,25 @@ def convert_csv_to_json(input_file, output_file):
     print(f"  Plural-only nouns: {plural_only}")
 
 if __name__ == "__main__":
-    convert_csv_to_json(INPUT_CSV_FILE, OUTPUT_JSON_FILE)
+    # Get script's directory
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    # Define relative paths
+    input_csv = os.path.join(script_dir, INPUT_CSV_FILE)
+    output_json = os.path.join(script_dir, '..', 'lib', 'features', 'games', 'data', OUTPUT_JSON_FILE)
+    
+    # Normalize paths for clean output
+    input_csv = os.path.normpath(input_csv)
+    output_json = os.path.normpath(output_json)
+
+    print(f"--- Running Data Conversion (Step 2 of 3) ---")
+    print(f"Input:  {input_csv}")
+    print(f"Output: {output_json}")
+    
+    if not os.path.exists(input_csv):
+        print(f"Error: Input file '{input_csv}' not found.", file=sys.stderr)
+        print("Please run 'enrich_data.py' first.", file=sys.stderr)
+        sys.exit(1)
+        
+    convert_csv_to_json(input_file=input_csv, output_file=output_json)
+    print(f"\nSuccess! '{output_json}' is ready for the app and Script 3.")

@@ -1,6 +1,7 @@
 // lib/features/games/screens/word_sort_game.dart
 import 'dart:async';
 import 'dart:collection';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -160,6 +161,8 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
   void _loadLevel() {
     _score = 0;
     _wordsCorrect = 0;
+    _hintUsageCount.clear();
+    _recentHints.clear();
 
     final List<GermanWord> wordsForGame = [];
     final Set<String> addedWordIds = {};
@@ -235,6 +238,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     setState(() {
       _currentWord = _wordQueue.removeFirst();
       _feedbackState = FeedbackState.none;
+      _currentHint = null;
     });
   }
 
@@ -278,10 +282,12 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
 
     // Auto-advance after 1.5 seconds
     _feedbackTimer = Timer(const Duration(milliseconds: 1500), () {
-      setState(() {
-        _loadNextWord();
-        _showConfetti = false;
-      });
+      if (mounted) {
+        setState(() {
+          _loadNextWord();
+          _showConfetti = false;
+        });
+      }
     });
   }
 
@@ -297,9 +303,11 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
 
     // Show error state for 2 seconds, then reset
     _feedbackTimer = Timer(const Duration(milliseconds: 2000), () {
-      setState(() {
-        _feedbackState = FeedbackState.none;
-      });
+      if (mounted) {
+        setState(() {
+          _feedbackState = FeedbackState.none;
+        });
+      }
     });
   }
 
@@ -320,16 +328,18 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     
     // Fade out after delay
     Future.delayed(Duration(milliseconds: isCorrect ? 1200 : 1800), () {
-      _hintController.reverse();
+      if (mounted) {
+        _hintController.reverse();
+      }
     });
   }
 
   String _generateSmartHint(GermanWord word, {required bool isCorrect, GermanWordType? guessedType}) {
     final inflection = word.inflectionData;
     
-    // Check if we've shown generic hints too many times
-    final genericHintCount = _hintUsageCount.values.where((count) => count >= 3).length;
-    final shouldUseAdvancedHints = genericHintCount >= 2;
+    // Track hint diversity - check if we're using too many similar hints
+    final genericHintCount = _hintUsageCount.values.where((count) => count >= 2).length;
+    final shouldUseAdvancedHints = genericHintCount >= 1 || _wordsCorrect >= 3;
     
     if (isCorrect) {
       return _generateCorrectHint(word, inflection, shouldUseAdvancedHints);
@@ -339,115 +349,241 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
   }
 
   String _generateCorrectHint(GermanWord word, Map<String, dynamic>? inflection, bool advanced) {
-    // For correct answers after seeing hints 3+ times, just show icon
-    if (advanced && _hintUsageCount.values.any((c) => c >= 3)) {
-      if (word.exampleSentences.isNotEmpty) {
-        return '✓ Beispiel: ${word.exampleSentences.first}';
-      }
-      return '✓';
-    }
-    
     switch (word.wordType) {
       case GermanWordType.substantiv:
-        return _getNounHint(word, inflection, advanced);
+        return _getNounHint(word, inflection, advanced, isCorrect: true);
       case GermanWordType.verb:
-        return _getVerbHint(word, inflection, advanced);
+        return _getVerbHint(word, inflection, advanced, isCorrect: true);
       case GermanWordType.adjektiv:
-        return _getAdjectiveHint(word, inflection, advanced);
+        return _getAdjectiveHint(word, inflection, advanced, isCorrect: true);
       case GermanWordType.adverb:
-        return advanced 
-            ? 'Adverbien sind unveränderlich: ${word.word}'
-            : 'Adverb: ${word.word} → beschreibt WIE etwas gemacht wird';
+        return _getAdverbHint(word, advanced);
       case GermanWordType.pronomen:
-        return advanced
-            ? 'Pronomen ersetzen Nomen: ${word.word}'
-            : 'Pronomen: ${word.word} → steht für ein Nomen';
+        return _getPronomenHint(word, advanced);
       default:
-        return '✓';
+        return '✓ Richtig!';
     }
   }
 
-  String _getNounHint(GermanWord word, Map<String, dynamic>? inflection, bool advanced) {
+  String _getNounHint(GermanWord word, Map<String, dynamic>? inflection, bool advanced, {bool isCorrect = true}) {
+    final List<String> hints = [];
+    
     if (advanced && inflection != null) {
       final nounData = inflection['analyses']?['noun'];
+      
       if (nounData != null) {
+        // 1. Declension patterns
         final declension = nounData['declension'];
         if (declension != null) {
-          // Grammar probe: Maskulinprobe
           final nom = declension['Nominativ Singular']?['definite'];
+          final gen = declension['Genitiv Singular']?['definite'];
           final dat = declension['Dativ Singular']?['definite'];
+          
           if (nom != null && dat != null) {
-            return 'Maskulinprobe: $nom → $dat (Dativ)';
+            hints.add('✓ Maskulinprobe: $nom → $dat (Dativ)');
+          }
+          if (nom != null && gen != null) {
+            hints.add('✓ Artikelprobe: $nom (Nom.) → $gen (Gen.)');
           }
         }
         
-        // Show plural formation
+        // 2. Plural formation
         final plural = nounData['plural'];
-        if (plural != null && plural != word.word) {
-          return 'Mehrzahlbildung: ${word.word} → $plural';
+        if (plural != null && plural != word.word && plural != '-') {
+          hints.add('✓ Plural: ${word.word} → $plural');
+        }
+        
+        // 3. Gender information
+        final gender = nounData['gender'];
+        if (gender != null) {
+          final genderMap = {
+            'Masculine': 'maskulin (der)',
+            'Feminine': 'feminin (die)',
+            'Neuter': 'neutral (das)',
+          };
+          final genderLabel = genderMap[gender] ?? gender;
+          hints.add('✓ Genus: $genderLabel');
         }
       }
     }
     
-    // Rotate through basic hints
-    final hints = [
-      'Nomen: ${word.article ?? 'das'} ${word.word} → Artikel zeigt es!',
-      'Sandwichprobe: ${word.article ?? 'der'} große ${word.word} ✓',
-      'Lexikalische Artikelprobe: ${word.article ?? 'das'} ${word.word}',
-    ];
+    // Article-based hints
+    if (word.article != null && word.article!.isNotEmpty) {
+      hints.add('✓ Nomen: ${word.article} ${word.word} → Artikel zeigt\'s!');
+      hints.add('✓ Sandwichprobe: ${word.article} große ${word.word} ✓');
+      hints.add('✓ Artikelprobe: ${word.article} ${word.word}');
+    }
+    
+    // Plural hints
+    if (word.plural != null && word.plural!.isNotEmpty && word.plural != '-') {
+      hints.add('✓ Mehrzahl: ${word.word} → ${word.plural}');
+    } else if (word.nurImPlural) {
+      hints.add('✓ Nur Plural: ${word.word}');
+    }
+    
+    // Capitalization rule
+    hints.add('✓ Nomen groß: ${word.word} (Großschreibung!)');
+    
+    // Genus info
+    if (word.genus != null && word.genus!.isNotEmpty) {
+      hints.add('✓ ${word.genus}: ${word.word}');
+    }
+    
+    // Fallback
+    if (hints.isEmpty) {
+      hints.add('✓ Richtig: ${word.word} ist ein Nomen!');
+    }
     
     return _selectHintFromList(hints);
   }
 
-  String _getVerbHint(GermanWord word, Map<String, dynamic>? inflection, bool advanced) {
+  String _getVerbHint(GermanWord word, Map<String, dynamic>? inflection, bool advanced, {bool isCorrect = true}) {
+    final List<String> hints = [];
+    
     if (advanced && inflection != null) {
       final verbData = inflection['analyses']?['verb'];
+      
       if (verbData != null) {
+        // 1. Present tense conjugation
         final conjugation = verbData['conjugation']?['Präsens'];
         if (conjugation != null) {
           final ich = conjugation['ich'];
           final du = conjugation['du'];
+          final er = conjugation['er'] ?? conjugation['sie'] ?? conjugation['es'];
+          
           if (ich != null && du != null) {
-            // Grammar probe: Personalformenprobe
-            return 'Personalformenprobe: $ich, $du';
+            hints.add('✓ Personalformen: $ich / $du');
+          }
+          if (ich != null && er != null) {
+            hints.add('✓ Konjugation: $ich / $er');
           }
         }
         
-        // Grammar probe: Zeitformenprobe
+        // 2. Participles
         final participles = verbData['participles'];
-        if (participles != null && participles['Partizip II'] != null) {
-          return 'Zeitformenprobe: ${word.word} → ${participles['Partizip II']}';
+        if (participles != null) {
+          final partizipII = participles['Partizip II'];
+          if (partizipII != null) {
+            hints.add('✓ Perfekt: ${word.word} → $partizipII');
+          }
+        }
+        
+        // 3. Imperative
+        final imperative = verbData['imperative'];
+        if (imperative != null && imperative['du'] != null) {
+          hints.add('✓ Imperativ: ${imperative['du']}!');
+        }
+        
+        // 4. Past tense
+        final prateritum = verbData['conjugation']?['Präteritum'];
+        if (prateritum != null && prateritum['ich'] != null) {
+          hints.add('✓ Vergangenheit: ${word.word} → ${prateritum['ich']}');
         }
       }
     }
     
-    final hints = [
-      'Verb: ich ${word.word.endsWith('en') ? word.word.substring(0, word.word.length - 2) + 'e' : word.word}',
-      'Verben beschreiben Aktionen: ${word.word}',
-      'Frageprobe: "Was macht man?" → ${word.word}',
-    ];
+    // Basic verb hints
+    final baseForm = word.word.toLowerCase();
+    if (baseForm.endsWith('en')) {
+      final stem = baseForm.substring(0, baseForm.length - 2);
+      hints.add('✓ Verb: ich ${stem}e, du ${stem}st');
+      hints.add('✓ Infinitiv: ${word.word} → ich ${stem}e');
+    }
+    
+    hints.add('✓ Verb: ${word.word} → beschreibt Handlung');
+    hints.add('✓ Frageprobe: "Was tut man?" → ${word.word}');
+    hints.add('✓ Zeitformenprobe: ${word.word} (Präsens)');
+    
+    // Fallback
+    if (hints.isEmpty) {
+      hints.add('✓ Richtig: ${word.word} ist ein Verb!');
+    }
     
     return _selectHintFromList(hints);
   }
 
-  String _getAdjectiveHint(GermanWord word, Map<String, dynamic>? inflection, bool advanced) {
+  String _getAdjectiveHint(GermanWord word, Map<String, dynamic>? inflection, bool advanced, {bool isCorrect = true}) {
+    final List<String> hints = [];
+    
     if (advanced && inflection != null) {
       final adjData = inflection['analyses']?['adjective'];
+      
       if (adjData != null) {
+        // 1. Comparison forms
         final comp = adjData['comparative'];
         final superl = adjData['superlative'];
-        if (comp != null && superl != null) {
-          // Grammar probe: Steigerungsprobe
-          return 'Steigerungsprobe: ${word.word} → $comp → $superl';
+        
+        if (comp != null && superl != null && comp != '-' && superl != '-') {
+          hints.add('✓ Steigerung: ${word.word} → $comp → $superl');
+        }
+        if (comp != null && comp != '-') {
+          hints.add('✓ Komparativ: ${word.word} → $comp');
+        }
+        
+        // 2. Declension in different cases
+        final declension = adjData['declension'];
+        if (declension != null) {
+          final nom = declension['Nominativ']?['maskulin']?['definite'];
+          if (nom != null) {
+            hints.add('✓ Deklination: der ${nom} Mann');
+          }
         }
       }
     }
     
+    // Basic adjective hints
+    hints.add('✓ Adjektiv: ${word.word} → Eigenschaft');
+    hints.add('✓ Sandwichprobe: der ${word.word}e Baum ✓');
+    hints.add('✓ Steigerbar: ${word.word}, ${word.word}er');
+    hints.add('✓ Wie-Frage: "Wie ist es?" → ${word.word}');
+    hints.add('✓ Attributiv: das ${word.word}e Kind');
+    
+    // Fallback
+    if (hints.isEmpty) {
+      hints.add('✓ Richtig: ${word.word} ist ein Adjektiv!');
+    }
+    
+    return _selectHintFromList(hints);
+  }
+
+  String _getAdverbHint(GermanWord word, bool advanced) {
     final hints = [
-      'Adjektiv: ${word.word} beschreibt eine Eigenschaft',
-      'Sandwichprobe: der ${word.word}e Baum ✓',
-      'Adjektive sind steigerbar: ${word.word}',
+      '✓ Adverb: ${word.word} → unveränderlich!',
+      '✓ Wie-Frage: "Wie?" → ${word.word}',
+      '✓ Adverb: beschreibt WIE etwas passiert',
+      '✓ ${word.word} → nicht flektierbar',
     ];
+    
+    if (advanced && word.exampleSentences.isNotEmpty) {
+      hints.add('✓ Beispiel: ${word.exampleSentences.first}');
+    }
+    
+    return _selectHintFromList(hints);
+  }
+
+  String _getPronomenHint(GermanWord word, bool advanced) {
+    final hints = [
+      '✓ Pronomen: ${word.word} → ersetzt Nomen',
+      '✓ ${word.word} → steht für ein Nomen',
+      '✓ Fürwort: ${word.word}',
+    ];
+    
+    // Add case information if available
+    if (word.caseSpacy != null && word.caseSpacy!.isNotEmpty) {
+      final caseMap = {
+        'Nom': 'Nominativ',
+        'Acc': 'Akkusativ', 
+        'Dat': 'Dativ',
+        'Gen': 'Genitiv',
+      };
+      final caseName = caseMap[word.caseSpacy] ?? word.caseSpacy!;
+      hints.add('✓ ${word.word} → $caseName');
+    }
+    
+    // Add pronoun type
+    if (word.pronTypeSpacy != null && word.pronTypeSpacy!.isNotEmpty) {
+      hints.add('✓ ${word.pronTypeSpacy}: ${word.word}');
+    }
     
     return _selectHintFromList(hints);
   }
@@ -455,40 +591,128 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
   String _generateIncorrectHint(GermanWord word, Map<String, dynamic>? inflection, 
       GermanWordType? guessedType, bool advanced) {
     
+    // Show what they guessed wrong
     String wrongPart = guessedType != null 
-        ? '✗ Kein ${_getCategoryNameGerman(guessedType)}\n'
-        : '✗ Falsch\n';
+        ? '✗ Kein ${_getCategoryNameGerman(guessedType)}!\n'
+        : '✗ Falsch!\n';
     
-    String correctPart = '';
-    
-    switch (word.wordType) {
-      case GermanWordType.substantiv:
-        if (word.article != null) {
-          correctPart = '✓ ${word.article} ${word.word} → Nomen (Artikel!)';
-        }
-        break;
-      case GermanWordType.verb:
-        if (inflection != null) {
-          final verbData = inflection['analyses']?['verb'];
-          if (verbData != null) {
-            final conj = verbData['conjugation']?['Präsens'];
-            if (conj != null && conj['ich'] != null) {
-              correctPart = '✓ ${conj['ich']} → Verb (konjugiert!)';
-            }
-          }
-        }
-        if (correctPart.isEmpty) {
-          correctPart = '✓ ${word.word} → Verb (Aktion!)';
-        }
-        break;
-      case GermanWordType.adjektiv:
-        correctPart = '✓ ${word.word} → Adjektiv (Eigenschaft!)';
-        break;
-      default:
-        correctPart = '✓ ${_getCategoryNameGerman(word.wordType)}';
-    }
+    // Show why it's the correct type with detailed explanation
+    String correctPart = _getDetailedCorrectExplanation(word, inflection, guessedType);
     
     return wrongPart + correctPart;
+  }
+
+  String _getDetailedCorrectExplanation(GermanWord word, Map<String, dynamic>? inflection, GermanWordType? guessedType) {
+    switch (word.wordType) {
+      case GermanWordType.substantiv:
+        return _getNounCorrectExplanation(word, inflection, guessedType);
+      case GermanWordType.verb:
+        return _getVerbCorrectExplanation(word, inflection, guessedType);
+      case GermanWordType.adjektiv:
+        return _getAdjectiveCorrectExplanation(word, inflection, guessedType);
+      default:
+        return '✓ ${word.word} → ${_getCategoryNameGerman(word.wordType)}';
+    }
+  }
+
+  String _getNounCorrectExplanation(GermanWord word, Map<String, dynamic>? inflection, GermanWordType? guessedType) {
+    final List<String> reasons = [];
+    
+    // Show article as proof
+    if (word.article != null && word.article!.isNotEmpty) {
+      reasons.add('${word.article} ${word.word}');
+    }
+    
+    // Show why it's NOT what they guessed
+    if (guessedType == GermanWordType.verb) {
+      reasons.add('nicht konjugierbar');
+    } else if (guessedType == GermanWordType.adjektiv) {
+      reasons.add('nicht steigerbar');
+    }
+    
+    // Show plural as proof
+    if (word.plural != null && word.plural!.isNotEmpty && word.plural != '-') {
+      reasons.add('Plural: ${word.plural}');
+    }
+    
+    if (reasons.isEmpty) {
+      return '✓ ${word.word} → Nomen (Großschreibung!)';
+    }
+    
+    return '✓ Nomen: ${reasons.join(' • ')}';
+  }
+
+  String _getVerbCorrectExplanation(GermanWord word, Map<String, dynamic>? inflection, GermanWordType? guessedType) {
+    final List<String> reasons = [];
+    
+    // Show conjugation as proof
+    if (inflection != null) {
+      final verbData = inflection['analyses']?['verb'];
+      if (verbData != null) {
+        final conj = verbData['conjugation']?['Präsens'];
+        if (conj != null) {
+          final ich = conj['ich'];
+          final du = conj['du'];
+          if (ich != null && du != null) {
+            reasons.add('$ich, $du');
+          } else if (ich != null) {
+            reasons.add(ich);
+          }
+        }
+      }
+    }
+    
+    // Show why it's NOT what they guessed
+    if (guessedType == GermanWordType.substantiv) {
+      reasons.add('kein Artikel');
+    } else if (guessedType == GermanWordType.adjektiv) {
+      reasons.add('Aktion, keine Eigenschaft');
+    }
+    
+    // Fallback to simple conjugation
+    if (reasons.isEmpty && word.word.endsWith('en')) {
+      final stem = word.word.substring(0, word.word.length - 2);
+      reasons.add('ich ${stem}e');
+    }
+    
+    if (reasons.isEmpty) {
+      return '✓ Verb: ${word.word} → Handlung!';
+    }
+    
+    return '✓ Verb: ${reasons.join(' • ')}';
+  }
+
+  String _getAdjectiveCorrectExplanation(GermanWord word, Map<String, dynamic>? inflection, GermanWordType? guessedType) {
+    final List<String> reasons = [];
+    
+    // Show comparison as proof
+    if (inflection != null) {
+      final adjData = inflection['analyses']?['adjective'];
+      if (adjData != null) {
+        final comp = adjData['comparative'];
+        final superl = adjData['superlative'];
+        if (comp != null && comp != '-') {
+          reasons.add(comp);
+        }
+        if (superl != null && superl != '-') {
+          reasons.add(superl);
+        }
+      }
+    }
+    
+    // Show why it's NOT what they guessed
+    if (guessedType == GermanWordType.substantiv) {
+      reasons.add('kein Artikel');
+    } else if (guessedType == GermanWordType.verb) {
+      reasons.add('nicht konjugierbar');
+    }
+    
+    // Show sandwich test
+    if (reasons.isEmpty) {
+      reasons.add('der ${word.word}e Mann');
+    }
+    
+    return '✓ Adjektiv: ${reasons.join(' • ')}';
   }
 
   String _selectHintFromList(List<String> hints) {
@@ -568,7 +792,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
               if (_isLoading)
                 const Expanded(child: Center(child: CircularProgressIndicator()))
               else
-                _buildGameContent(),
+                Expanded(child: _buildGameContent()),
             ],
           ),
         ),
@@ -577,65 +801,153 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
   }
 
   Widget _buildGameContent() {
-    return Expanded(
-      child: Stack(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                flex: 2,
-                child: Center(
-                  child: _currentWord == null ? const SizedBox.shrink() : _buildDraggableWord(),
-                ),
-              ),
-              Expanded(
-                flex: 3,
-                child: _buildDropTargets(),
-              ),
-            ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Responsive breakpoint
+        final isWideScreen = constraints.maxWidth > 800;
+        final isTablet = constraints.maxWidth > 600 && constraints.maxWidth <= 800;
+        
+        return Stack(
+          children: [
+            // Main game layout
+            if (isWideScreen)
+              _buildWideScreenLayout()
+            else if (isTablet)
+              _buildTabletLayout()
+            else
+              _buildMobileLayout(),
+            
+            // Non-blocking confetti
+            if (_showConfetti)
+              IgnorePointer(child: _buildCategoryConfetti()),
+            
+            // Non-blocking hint overlay
+            if (_currentHint != null)
+              _buildFloatingHint(),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildWideScreenLayout() {
+    return Row(
+      children: [
+        // Left side: Draggable word (40%)
+        Expanded(
+          flex: 4,
+          child: Center(
+            child: _currentWord == null 
+                ? const SizedBox.shrink() 
+                : _buildDraggableWord(),
           ),
-          // Non-blocking confetti
-          if (_showConfetti)
-            IgnorePointer(child: _buildCategoryConfetti()),
-          // Non-blocking hint overlay (top-right corner)
-          if (_currentHint != null)
-            _buildFloatingHint(),
-        ],
-      ),
+        ),
+        // Right side: Drop targets (60%)
+        Expanded(
+          flex: 6,
+          child: _buildDropTargets(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTabletLayout() {
+    return Row(
+      children: [
+        Expanded(
+          flex: 5,
+          child: Center(
+            child: _currentWord == null 
+                ? const SizedBox.shrink() 
+                : _buildDraggableWord(),
+          ),
+        ),
+        Expanded(
+          flex: 5,
+          child: _buildDropTargets(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMobileLayout() {
+    return Column(
+      children: [
+        // Top: Draggable word
+        Expanded(
+          flex: 4,
+          child: Center(
+            child: _currentWord == null 
+                ? const SizedBox.shrink() 
+                : _buildDraggableWord(),
+          ),
+        ),
+        // Bottom: Drop targets
+        Expanded(
+          flex: 6,
+          child: _buildDropTargets(),
+        ),
+      ],
     );
   }
 
   Widget _buildFloatingHint() {
     return Positioned(
-      top: 16,
-      right: 16,
-      left: 16,
+      top: 8,
+      right: 8,
+      left: 8,
       child: FadeTransition(
         opacity: _hintAnimation,
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: _feedbackState == FeedbackState.correct
-                ? Colors.green.withOpacity(0.9)
-                : Colors.orange.withOpacity(0.9),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.white, width: 2),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.3),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
+        child: ScaleTransition(
+          scale: Tween<double>(begin: 0.8, end: 1.0).animate(
+            CurvedAnimation(parent: _hintController, curve: Curves.elasticOut),
           ),
-          child: Text(
-            _currentHint!,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: _feedbackState == FeedbackState.correct
+                    ? [Colors.green.shade400, Colors.green.shade600]
+                    : [Colors.orange.shade400, Colors.deepOrange.shade600],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.white, width: 2),
+              boxShadow: [
+                BoxShadow(
+                  color: (_feedbackState == FeedbackState.correct 
+                      ? Colors.green 
+                      : Colors.orange).withOpacity(0.5),
+                  blurRadius: 20,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
-            textAlign: TextAlign.center,
+            child: Row(
+              children: [
+                Icon(
+                  _feedbackState == FeedbackState.correct 
+                      ? Icons.check_circle 
+                      : Icons.lightbulb,
+                  color: Colors.white,
+                  size: 28,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    _currentHint!,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      height: 1.3,
+                    ),
+                    textAlign: TextAlign.left,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -682,6 +994,12 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     if (gender == 'Masculine') return Colors.blue;
     if (gender == 'Feminine') return Colors.pink;
     if (gender == 'Neuter') return Colors.green;
+    
+    // Fallback to article
+    if (word.article == 'der') return Colors.blue;
+    if (word.article == 'die') return Colors.pink;
+    if (word.article == 'das') return Colors.green;
+    
     return Colors.grey;
   }
 
@@ -707,7 +1025,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
           border: Border.all(color: borderColor, width: 3),
           boxShadow: isFeedback
               ? [BoxShadow(color: Colors.white.withOpacity(0.3), blurRadius: 20, spreadRadius: 5)]
-              : null,
+              : [BoxShadow(color: borderColor.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))],
         ),
         child: Center(
           child: FittedBox(
@@ -725,20 +1043,29 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
   }
 
   Widget _buildDropTargets() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: _targetCategories.entries.map((entry) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
-          child: _buildDragTarget(
-            targetType: entry.key,
-            label: entry.value.label,
-            icon: entry.value.icon,
-            color: entry.value.color,
-          ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Responsive target sizing
+        final targetHeight = constraints.maxHeight / _targetCategories.length - 16;
+        final clampedHeight = targetHeight.clamp(80.0, 120.0);
+        
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: _targetCategories.entries.map((entry) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: _buildDragTarget(
+                targetType: entry.key,
+                label: entry.value.label,
+                icon: entry.value.icon,
+                color: entry.value.color,
+                height: clampedHeight,
+              ),
+            );
+          }).toList(),
         );
-      }).toList(),
+      },
     );
   }
 
@@ -747,14 +1074,16 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     required String label,
     required IconData icon,
     required Color color,
+    required double height,
   }) {
     return DragTarget<GermanWordType>(
       builder: (context, candidateData, rejectedData) {
         final bool isHighlighted = candidateData.isNotEmpty;
         return AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          height: 100,
-          width: 300,
+          height: height,
+          width: double.infinity,
+          constraints: const BoxConstraints(maxWidth: 400),
           decoration: BoxDecoration(
             color: isHighlighted
                 ? color.withOpacity(0.4)
@@ -766,14 +1095,23 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
             ),
             boxShadow: isHighlighted
                 ? [BoxShadow(color: color.withOpacity(0.5), blurRadius: 15, spreadRadius: 2)]
-                : null,
+                : [BoxShadow(color: color.withOpacity(0.2), blurRadius: 8, offset: const Offset(0, 2))],
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(icon, size: 40, color: color),
               const SizedBox(width: 16),
-              Text(label, style: SpaceTheme.titleStyle.copyWith(color: color, fontSize: 22)),
+              Flexible(
+                child: Text(
+                  label, 
+                  style: SpaceTheme.titleStyle.copyWith(
+                    color: color, 
+                    fontSize: 22,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
             ],
           ),
         );
@@ -816,12 +1154,13 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
 
   String _getCategoryEmoji(GermanWordType? type) {
     if (type == null) return '⭐';
-    final typeStr = type.toString();
-    if (typeStr.contains('substantiv')) return '🏠';
-    if (typeStr.contains('verb')) return '🏃';
-    if (typeStr.contains('adjektiv')) return '🎨';
-    if (typeStr.contains('adverb')) return '⚡';
-    if (typeStr.contains('pronomen')) return '👤';
-    return '⭐';
+    switch (type) {
+      case GermanWordType.substantiv: return '🏠';
+      case GermanWordType.verb: return '🏃';
+      case GermanWordType.adjektiv: return '🎨';
+      case GermanWordType.adverb: return '⚡';
+      case GermanWordType.pronomen: return '👤';
+      default: return '⭐';
+    }
   }
 }

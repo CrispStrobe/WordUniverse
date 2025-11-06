@@ -337,18 +337,32 @@ class VocabularyService with ChangeNotifier {
       final String jsonString = await rootBundle.loadString(
           'lib/features/games/data/grundwortschatz_variations.json');
 
-      // ---
-      // THE FIX IS HERE
-      // ---
       // We decode the file as a Map, not a List
       final Map<String, dynamic> jsonData = json.decode(jsonString);
 
       // Then we get the list of words from the "vocabulary" key inside the map
       final List<dynamic> vocabulary = jsonData['vocabulary'] as List<dynamic>;
-      // --- END FIX ---
-
+      
       for (final wordData in vocabulary) {
         final word = GermanWord.fromJson(wordData as Map<String, dynamic>);
+        
+        // 1. Skip 1-character words (e.g., "%", "a", ".")
+        if (word.word.length <= 1) {
+          continue; 
+        }
+        
+        // 2. Skip malformed lemmata
+        if (word.lemma.contains('(') || word.lemma.contains(')')) {
+          continue; 
+        }
+        
+        // 3. Skip non-content words (symbols, affixes, etc.)
+        final wordType = word.wordType;
+        if (wordType == GermanWordType.andere || 
+            wordType == GermanWordType.affix) {
+          continue; 
+        }   
+        
         _vocabulary[word.id] = word;
       }
 
