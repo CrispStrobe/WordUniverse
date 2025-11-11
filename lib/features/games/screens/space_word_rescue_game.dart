@@ -98,8 +98,23 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
   int _nextLetterToFade = 0;
 
   // --- Adjustable fade start time ---
-  static const double _baseFadeStartTimeFactor = 0.7;
+
+  /// The default start time for fading letters, as a fraction of the total scroll duration.
+  /// 0.7 means the fading will start when the word has completed 70% of its scroll.
+  /// This is the setting for the easiest level (Grade 1).
+  /// (0.5 = mid-screen, 1.0 = bottom of screen).
+  static const double _baseFadeStartTimeFactor = 0.4;
+
+  /// How much earlier fading starts for each grade level above Grade 1.
+  /// 0.05 means for Grade 2, fading starts 5% earlier (at 65% scroll), 
+  /// for Grade 3 it's 10% earlier (at 60% scroll), and so on.
+  /// This makes higher levels progressively harder.
   static const double _fadeFactorPerGrade = 0.05;
+
+  /// The absolute earliest the fading can possibly start, as a fraction of the scroll.
+  /// This acts as a "floor" or "clamp" for high grade levels.
+  /// By setting this to 0.5, we guarantee that fading will
+  /// NEVER start before the word has passed mid-screen (50%).
   static const double _minFadeStartTimeFactor = 0.4;
 
   // Particles for effects
@@ -262,10 +277,14 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
 
     _fadeTimer?.cancel();
 
-    // --- Dynamic fade start time based on grade level ---
+    // --- MODIFIED: Dynamic fade start time based on grade level ---
     final gradePenalty = widget.gradeLevel.index * _fadeFactorPerGrade;
-    final fadeStartTimeFactor = (_baseFadeStartTimeFactor - gradePenalty).clamp(_minFadeStartTimeFactor, _baseFadeStartTimeFactor);
+    final targetFadeFactor = _baseFadeStartTimeFactor - gradePenalty;
 
+    // --- FIX: Correct clamp logic ---
+    // The calculated value is clamped BETWEEN the min and base factors.
+    final fadeStartTimeFactor = targetFadeFactor.clamp(_minFadeStartTimeFactor, _baseFadeStartTimeFactor);
+    
     _fadeTimer = Timer(Duration(milliseconds: (_scrollDuration.inMilliseconds * fadeStartTimeFactor).round()), () {
       _startFadingLetters();
     });
