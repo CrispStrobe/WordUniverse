@@ -25,6 +25,8 @@ import '../../games/widgets/space_background.dart';
 import '../widgets/sri_statistics_dialog.dart';
 import 'custom_subset_screen.dart';
 
+import '../widgets/manage_sets_dialog.dart';
+
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -96,15 +98,15 @@ class _SettingsScreenState extends State<SettingsScreen>
     GameProvider gameProvider,
     VocabularyService vocabService,
   ) {
+    final s = S.of(context)!;
     final customSets = vocabService.getCustomSets();
-    final activeSetId = gameProvider.activeVocabularySetId;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 1. Dropdown to select the active set
+        // 1. Title
         Text(
-          S.of(context)!.taskActiveSetTitle, // You will need to add this to your S file
+          s.taskActiveSetTitle,
           style: SpaceTheme.bodyStyle.copyWith(
             fontWeight: FontWeight.w600,
             fontSize: 16,
@@ -112,65 +114,71 @@ class _SettingsScreenState extends State<SettingsScreen>
         ),
         const SizedBox(height: 4),
         Text(
-          S.of(context)!.taskActiveSetDesc, // You will need to add this to your S file
+          s.taskActiveSetDesc,
           style: SpaceTheme.bodyStyle.copyWith(
             fontSize: 12,
             color: Colors.white60,
           ),
         ),
         const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: BoxDecoration(
-            color: SpaceTheme.deepSpace.withOpacity(0.5),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.white24),
-          ),
-          child: DropdownButton<String?>(
-            value: activeSetId,
-            isExpanded: true,
-            underline: const SizedBox.shrink(), // Remove default underline
-            dropdownColor: SpaceTheme.deepSpace,
-            style: SpaceTheme.bodyStyle,
-            onChanged: (String? newValue) {
-              gameProvider.setActiveVocabularySetId(newValue);
-            },
-            items: [
-              // "None" option
-              DropdownMenuItem<String?>(
-                value: null,
-                child: Text(
-                  S.of(context)!.taskActiveSetNone, // You will need to add this
-                  style: SpaceTheme.bodyStyle.copyWith(fontStyle: FontStyle.italic),
-                ),
-              ),
-              // List of custom sets
-              ...customSets.map((set) {
-                return DropdownMenuItem<String?>(
-                  value: set.id,
-                  child: Text(set.name),
+
+        // 2. List of Checkboxes
+        if (customSets.isEmpty)
+          Center(
+            child: Text(
+              "No custom sets created yet.",
+              style: SpaceTheme.bodyStyle.copyWith(color: Colors.white54, fontStyle: FontStyle.italic),
+            ),
+          )
+        else
+          Container(
+            height: 150, // Constrain height to make it scrollable
+            decoration: BoxDecoration(
+              color: SpaceTheme.deepSpace.withOpacity(0.5),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.white24),
+            ),
+            child: ListView.builder(
+              itemCount: customSets.length,
+              itemBuilder: (context, index) {
+                final set = customSets[index];
+                return CheckboxListTile(
+                  title: Text(set.name, style: SpaceTheme.bodyStyle),
+                  subtitle: Text(
+                    set.description,
+                    style: SpaceTheme.bodyStyle.copyWith(fontSize: 10, color: Colors.white60),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  value: gameProvider.activeVocabularySetIds.contains(set.id),
+                  onChanged: (bool? value) {
+                    gameProvider.toggleActiveVocabularySet(set.id);
+                  },
+                  activeColor: SpaceTheme.alienGreen,
+                  checkColor: Colors.black,
+                  controlAffinity: ListTileControlAffinity.leading,
                 );
-              }).toList(),
-            ],
+              },
+            ),
           ),
-        ),
+        
         const SizedBox(height: 16),
 
-        // 2. Button to manage/create sets
+        // 3. Button to manage/create sets
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
             icon: const Icon(Icons.edit_rounded),
-            label: Text(S.of(context)!.taskManageSets), // You will need to add this
+            label: Text(s.taskManageSets),
             style: ElevatedButton.styleFrom(
               backgroundColor: SpaceTheme.cosmicPink,
               foregroundColor: Colors.white,
             ),
             onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const CustomSubsetScreen(), // Navigate to the new screen
-                ),
+              // --- MODIFIED: Show the new dialog ---
+              showDialog(
+                context: context,
+                builder: (context) => const ManageSetsDialog(),
               );
             },
           ),
@@ -506,8 +514,8 @@ class _SettingsScreenState extends State<SettingsScreen>
       child: Consumer2<GameProvider, VocabularyService>(
         builder: (context, gameProvider, vocabService, child) {
           
-          // NEW: Check if a custom set is active
-          final bool customSetIsActive = gameProvider.activeVocabularySetId != null;
+          // MODIFIED: Check if ANY custom set is active
+          final bool customSetIsActive = gameProvider.activeVocabularySetIds.isNotEmpty;
 
           return _buildSettingsCard(
             title: S.of(context)!.taskCustomizationTitle,
@@ -534,8 +542,9 @@ class _SettingsScreenState extends State<SettingsScreen>
                       children: [
                         const Divider(color: SpaceTheme.nebulaPurple, height: 24),
 
-                        // NEW: Add the custom set manager widget
+                        // --- MODIFIED: This is now the checkbox list ---
                         _buildCustomSetSelector(context, gameProvider, vocabService),
+                        // --- End of modification ---
                         
                         const Divider(color: SpaceTheme.nebulaPurple, height: 24),
 
@@ -544,7 +553,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                           Padding(
                             padding: const EdgeInsets.only(bottom: 16.0),
                             child: Text(
-                              S.of(context)!.taskFiltersDisabled, // Add to S file
+                              S.of(context)!.taskFiltersDisabled,
                               style: SpaceTheme.bodyStyle.copyWith(
                                 color: SpaceTheme.starYellow,
                                 fontSize: 12,
@@ -610,9 +619,9 @@ class _SettingsScreenState extends State<SettingsScreen>
                       ],
                     )
                   : const SizedBox.shrink(), // Empty box when disabled
-              ),
-            ],
-          );
+                ),
+              ],
+            );
         },
       ),
     );

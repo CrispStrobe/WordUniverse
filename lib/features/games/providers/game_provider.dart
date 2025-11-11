@@ -39,15 +39,9 @@ class GameProvider extends ChangeNotifier {
   final ProgressService _progressService;
   final SriService _sriService;
   final CognitiveProfileService _cognitiveProfileService;
-  String? _activeVocabularySetId;
+  Set<String> _activeVocabularySetIds = {};
 
-  String? get activeVocabularySetId => _activeVocabularySetId;
-
-  void setActiveVocabularySetId(String? setId) {
-    _activeVocabularySetId = setId;
-    notifyListeners();
-    _saveProgress();
-  }
+  Set<String> get activeVocabularySetIds => _activeVocabularySetIds;
 
   // --- FIX: Added the missing gameSkillMap ---
   final Map<String, SkillCategory> gameSkillMap = {
@@ -76,15 +70,29 @@ class GameProvider extends ChangeNotifier {
   int _customRangeMin = 1;
   int _customRangeMax = 20;
 
-  // --- NEW: Task Customization Settings ---
+  // Task Customization Settings 
   bool _tasksCustomizationEnabled = false;
   double _taskWordLengthMin = 2; // Use double for RangeSlider
   double _taskWordLengthMax = 10;
   Set<String> _taskIncludedSources = {}; // Empty set = include all
   List<String> _taskIncludeWildcards = [];
   List<String> _taskExcludeWildcards = [];
-  // --- End of New Settings ---
 
+  void toggleActiveVocabularySet(String setId) {
+    if (_activeVocabularySetIds.contains(setId)) {
+      _activeVocabularySetIds.remove(setId);
+    } else {
+      _activeVocabularySetIds.add(setId);
+    }
+    notifyListeners();
+    _saveProgress();
+  }
+
+  void clearActiveVocabularySets() {
+    _activeVocabularySetIds.clear();
+    notifyListeners();
+    _saveProgress();
+  }
 
   GameProvider({
     required ProgressService progressService,
@@ -500,7 +508,7 @@ class GameProvider extends ChangeNotifier {
       'taskIncludeWildcards': _taskIncludeWildcards,
       'taskExcludeWildcards': _taskExcludeWildcards,
       
-      'activeVocabularySetId': _activeVocabularySetId,
+      'activeVocabularySetIds': _activeVocabularySetIds.toList(),
 
   };
   }
@@ -535,16 +543,15 @@ class GameProvider extends ChangeNotifier {
 
     _currentLevelWins = Map<String, int>.from(json['currentLevelWins'] ?? {});
     
-    // --- NEW: Load Task Customization ---
+    // Load Task Customization
     _tasksCustomizationEnabled = json['tasksCustomizationEnabled'] ?? false;
     _taskWordLengthMin = (json['taskWordLengthMin'] as num?)?.toDouble() ?? 2.0;
     _taskWordLengthMax = (json['taskWordLengthMax'] as num?)?.toDouble() ?? 10.0;
     _taskIncludedSources = Set<String>.from(json['taskIncludedSources'] ?? []);
     _taskIncludeWildcards = List<String>.from(json['taskIncludeWildcards'] ?? []);
     _taskExcludeWildcards = List<String>.from(json['taskExcludeWildcards'] ?? []);
-    // --- End of New Load ---
 
-    _activeVocabularySetId = json['activeVocabularySetId'];
+    _activeVocabularySetIds = Set<String>.from(json['activeVocabularySetIds'] ?? []);
 
     notifyListeners();
   }

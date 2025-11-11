@@ -523,27 +523,39 @@ class VocabularyService with ChangeNotifier {
     WordCategory? category,
     GermanWordType? wordType,
   }) {
-    // --- PRIORITY 1: Check for an active custom set ---
-    final activeSetId = settingsProvider.activeVocabularySetId;
-    if (activeSetId != null) {
-      final activeSet = _vocabularySets[activeSetId];
-      if (activeSet != null) {
-        _log('Using active custom set: ${activeSet.name}');
-        // Return only the words from this set
-        return activeSet.wordIds
+    // PRIORITY 1: Check for active custom sets (plural) ---
+    final activeSetIds = settingsProvider.activeVocabularySetIds;
+    if (activeSetIds.isNotEmpty) {
+      final allWordIds = <String>{}; // Use a Set to handle duplicates
+
+      for (final setId in activeSetIds) {
+        final activeSet = _vocabularySets[setId];
+        if (activeSet != null) {
+          allWordIds.addAll(activeSet.wordIds);
+        } else {
+          _log('Warning: Active set $setId not found, falling back.');
+        }
+      }
+
+      if (allWordIds.isNotEmpty) {
+        _log('Using ${allWordIds.length} unique words from ${activeSetIds.length} custom set(s)');
+        // Return only the words from these sets
+        return allWordIds
             .map((id) => _vocabulary[id])
             .whereType<GermanWord>() // Filter out any nulls
             .toList();
       } else {
-        _log('Warning: Active set $activeSetId not found, falling back.');
-        // Fallback: clear the invalid ID
-        settingsProvider.setActiveVocabularySetId(null);
+        // Active set IDs were provided, but they were empty or invalid
+        _log('Warning: Active sets were specified but yielded no words.');
+        // This is a safe fallback; clear the invalid IDs.
+        settingsProvider.clearActiveVocabularySets();
       }
     }
+
     // SZENARIO A (Override): Wenn Filter an sind, ignoriere Stufe/Kategorie/Typ
     if (settingsProvider.tasksCustomizationEnabled) {
       // This now only runs if NO custom set is active
-      return _vocabulary.values.toList(); // Starte mit ALLEN 3269 Wörtern
+      return _vocabulary.values.toList(); // Starte mit ALLEN Wörtern
     }
 
     // SZENARIO B (Normal): Filter sind aus, verwende Stufe/Kategorie/Typ

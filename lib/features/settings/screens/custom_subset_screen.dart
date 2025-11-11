@@ -20,6 +20,7 @@ class CustomSubsetScreen extends StatefulWidget {
 }
 
 class _CustomSubsetScreenState extends State<CustomSubsetScreen> {
+  // ... (all state properties are unchanged)
   final _formKey = GlobalKey<FormState>();
   
   // Form Controllers
@@ -45,6 +46,7 @@ class _CustomSubsetScreenState extends State<CustomSubsetScreen> {
 
   bool _isLoading = true;
   bool get _isEditing => widget.set != null;
+
 
   @override
   void initState() {
@@ -78,6 +80,7 @@ class _CustomSubsetScreenState extends State<CustomSubsetScreen> {
     });
   }
 
+  // ... (dispose, _runFilter, _onWordTapped, _addAllFiltered, _removeAllFiltered are unchanged)
   @override
   void dispose() {
     _nameController.dispose();
@@ -87,7 +90,6 @@ class _CustomSubsetScreenState extends State<CustomSubsetScreen> {
     super.dispose();
   }
 
-  /// The core logic to update the two lists based on filters and search
   void _runFilter() {
     final availableQuery = _availableSearchController.text.toLowerCase();
     final selectedQuery = _selectedSearchController.text.toLowerCase();
@@ -156,7 +158,9 @@ class _CustomSubsetScreenState extends State<CustomSubsetScreen> {
     _runFilter();
   }
 
+
   Future<void> _onSave() async {
+    // ... (this method is unchanged)
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -205,50 +209,11 @@ class _CustomSubsetScreenState extends State<CustomSubsetScreen> {
     }
   }
 
-  Future<void> _onDelete() async {
-    final s = S.of(context)!;
-    final bool? confirmed = await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: SpaceTheme.deepSpace,
-        title: Text(s.customSetDeleteConfirmTitle, style: SpaceTheme.titleStyle),
-        content: Text(
-          s.customSetDeleteConfirmContent(widget.set!.name),
-          style: SpaceTheme.bodyStyle,
-        ),
-        actions: [
-          TextButton(
-            child: Text(S.of(context)!.cancel, style: TextStyle(color: SpaceTheme.moonSilver)),
-            onPressed: () => Navigator.of(context).pop(false),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: SpaceTheme.rocketRed),
-            child: Text(s.customSetDelete, style: TextStyle(color: Colors.white)),
-            onPressed: () => Navigator.of(context).pop(true),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true) {
-      final vocabService = context.read<VocabularyService>();
-      final gameProvider = context.read<GameProvider>();
-      
-      // If this set was the active one, deactivate it
-      if (gameProvider.activeVocabularySetId == widget.set!.id) {
-        gameProvider.setActiveVocabularySetId(null);
-      }
-      
-      await vocabService.deleteCustomSet(widget.set!.id);
-      
-      if (mounted) {
-        Navigator.of(context).pop(); // Go back to settings
-      }
-    }
-  }
+  // --- DELETED: _onDelete() method is removed from this file ---
 
   @override
   Widget build(BuildContext context) {
+    // ... (build method is unchanged, but the header it calls is)
     final s = S.of(context)!;
     return Scaffold(
       body: SpaceBackground(
@@ -296,6 +261,7 @@ class _CustomSubsetScreenState extends State<CustomSubsetScreen> {
     );
   }
 
+  // --- MODIFIED: Header no longer has a Delete button ---
   Widget _buildHeader(S s) {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -316,15 +282,7 @@ class _CustomSubsetScreenState extends State<CustomSubsetScreen> {
               style: SpaceTheme.headlineStyle.copyWith(fontSize: 32),
             ),
           ),
-          if (_isEditing)
-            IconButton(
-              onPressed: _onDelete,
-              icon: const Icon(Icons.delete_forever, color: SpaceTheme.rocketRed),
-              style: IconButton.styleFrom(
-                backgroundColor: SpaceTheme.deepSpace.withOpacity(0.8),
-                padding: const EdgeInsets.all(12),
-              ),
-            ),
+          // --- DELETE BUTTON REMOVED ---
           const SizedBox(width: 10),
           IconButton(
             onPressed: _onSave,
@@ -339,6 +297,7 @@ class _CustomSubsetScreenState extends State<CustomSubsetScreen> {
     );
   }
 
+  // ... (rest of the file is unchanged)
   Widget _buildForm(S s) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
