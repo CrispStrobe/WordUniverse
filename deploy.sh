@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Space Math Academy Deployment Script
+# Vercel Deployment Script
 # Handles Git operations, Flutter build, and Vercel deployment
 
 set -e  # Exit on any error
@@ -196,7 +196,7 @@ show_summary() {
 
 # Main execution
 main() {
-    print_status "Starting Space Math Academy deployment..."
+    print_status "Starting deployment..."
     
     # Pre-flight checks
     check_git_repo
