@@ -117,7 +117,7 @@ class _WordFindGameState extends State<WordFindGame> {
       if (wordString == null) continue;
 
       try {
-        final word = _vocabularyService.allWords.firstWhere(
+        final word = _vocabularyService.getAllWords(_gameProvider).firstWhere(
             (w) => w.word.toLowerCase() == wordString.toLowerCase());
 
         if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
@@ -136,6 +136,7 @@ class _WordFindGameState extends State<WordFindGame> {
       sriService: _sriService,
       grade: widget.gradeLevel,
       limit: newWordCount * 2, // Get extra
+      settingsProvider: _gameProvider,
     );
 
     for (final word in newWords) {
@@ -149,7 +150,7 @@ class _WordFindGameState extends State<WordFindGame> {
     // 3. Fill the rest with RANDOM words (if needed)
     if (wordsForGame.length < wordCount) {
       int randomWordsNeeded = wordCount - wordsForGame.length;
-      final allWords = _vocabularyService.getWordsByGrade(widget.gradeLevel);
+      final allWords = _vocabularyService.getWordsByGrade(widget.gradeLevel, _gameProvider);
       allWords.shuffle();
 
       for (final word in allWords) {

@@ -5,11 +5,9 @@ import '../../../core/config/app_config.dart';
 import '../../../core/models/skill_category.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/cognitive_profile_service.dart';
-// --- FIX: Removed unused math_problem.dart import ---
-// import '../models/math_problem.dart';
 import '../constants/app_constants.dart'; // For MathOperation and NumberRange
 
-// The Achievement data class. It should be at the top-level, NOT inside another class.
+// The Achievement data class.
 class Achievement {
   final String id;
   final DateTime? unlockedAt;
@@ -36,11 +34,20 @@ class Achievement {
   }
 }
 
-// The GameProvider class. There should only be ONE declaration of this.
+// The GameProvider class.
 class GameProvider extends ChangeNotifier {
   final ProgressService _progressService;
   final SriService _sriService;
   final CognitiveProfileService _cognitiveProfileService;
+  String? _activeVocabularySetId;
+
+  String? get activeVocabularySetId => _activeVocabularySetId;
+
+  void setActiveVocabularySetId(String? setId) {
+    _activeVocabularySetId = setId;
+    notifyListeners();
+    _saveProgress();
+  }
 
   // --- FIX: Added the missing gameSkillMap ---
   final Map<String, SkillCategory> gameSkillMap = {
@@ -68,6 +75,16 @@ class GameProvider extends ChangeNotifier {
   Set<String> _customOperations = {'addition', 'subtraction'}; // Default to basic ops
   int _customRangeMin = 1;
   int _customRangeMax = 20;
+
+  // --- NEW: Task Customization Settings ---
+  bool _tasksCustomizationEnabled = false;
+  double _taskWordLengthMin = 2; // Use double for RangeSlider
+  double _taskWordLengthMax = 10;
+  Set<String> _taskIncludedSources = {}; // Empty set = include all
+  List<String> _taskIncludeWildcards = [];
+  List<String> _taskExcludeWildcards = [];
+  // --- End of New Settings ---
+
 
   GameProvider({
     required ProgressService progressService,
@@ -113,6 +130,15 @@ class GameProvider extends ChangeNotifier {
   Set<String> get customOperations => _customOperations;
   int get customRangeMin => _customRangeMin;
   int get customRangeMax => _customRangeMax;
+
+  // --- NEW: Getters for Task Customization ---
+  bool get tasksCustomizationEnabled => _tasksCustomizationEnabled;
+  double get taskWordLengthMin => _taskWordLengthMin;
+  double get taskWordLengthMax => _taskWordLengthMax;
+  Set<String> get taskIncludedSources => _taskIncludedSources;
+  List<String> get taskIncludeWildcards => _taskIncludeWildcards;
+  List<String> get taskExcludeWildcards => _taskExcludeWildcards;
+  // --- End of New Getters ---
 
   Future<void> _saveProgress() async {
     // This is a "fire and forget" call. We don't need to wait for it.
@@ -216,6 +242,40 @@ class GameProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  // --- NEW: Setters for Task Customization ---
+  void setTasksCustomizationEnabled(bool enabled) {
+    _tasksCustomizationEnabled = enabled;
+    notifyListeners();
+    _saveProgress();
+  }
+
+  void setTaskWordLengthRange(double min, double max) {
+    _taskWordLengthMin = min;
+    _taskWordLengthMax = max;
+    notifyListeners();
+    _saveProgress();
+  }
+
+  void setTaskIncludedSources(Set<String> sources) {
+    _taskIncludedSources = sources;
+    notifyListeners();
+    _saveProgress();
+  }
+
+  void setTaskIncludeWildcards(List<String> wildcards) {
+    _taskIncludeWildcards = wildcards;
+    notifyListeners();
+    _saveProgress();
+  }
+
+  void setTaskExcludeWildcards(List<String> wildcards) {
+    _taskExcludeWildcards = wildcards;
+    notifyListeners();
+    _saveProgress();
+  }
+  // --- End of New Setters ---
+
 
   // Score management
   void addScore(int points) {
@@ -433,6 +493,15 @@ class GameProvider extends ChangeNotifier {
       'customRangeMax': _customRangeMax,
       'currentLevelWins': _currentLevelWins,
 
+      'tasksCustomizationEnabled': _tasksCustomizationEnabled,
+      'taskWordLengthMin': _taskWordLengthMin,
+      'taskWordLengthMax': _taskWordLengthMax,
+      'taskIncludedSources': _taskIncludedSources.toList(),
+      'taskIncludeWildcards': _taskIncludeWildcards,
+      'taskExcludeWildcards': _taskExcludeWildcards,
+      
+      'activeVocabularySetId': _activeVocabularySetId,
+
   };
   }
 
@@ -466,6 +535,17 @@ class GameProvider extends ChangeNotifier {
 
     _currentLevelWins = Map<String, int>.from(json['currentLevelWins'] ?? {});
     
+    // --- NEW: Load Task Customization ---
+    _tasksCustomizationEnabled = json['tasksCustomizationEnabled'] ?? false;
+    _taskWordLengthMin = (json['taskWordLengthMin'] as num?)?.toDouble() ?? 2.0;
+    _taskWordLengthMax = (json['taskWordLengthMax'] as num?)?.toDouble() ?? 10.0;
+    _taskIncludedSources = Set<String>.from(json['taskIncludedSources'] ?? []);
+    _taskIncludeWildcards = List<String>.from(json['taskIncludeWildcards'] ?? []);
+    _taskExcludeWildcards = List<String>.from(json['taskExcludeWildcards'] ?? []);
+    // --- End of New Load ---
+
+    _activeVocabularySetId = json['activeVocabularySetId'];
+
     notifyListeners();
   }
 }

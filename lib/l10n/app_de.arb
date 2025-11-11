@@ -293,5 +293,118 @@
     "sriMastered": "Beherrscht",
     "sriLearning": "Im Training",
     "progressMatrixTitle": "Fortschrittsmatrix",
-    "progressMatrixDesc": "Die Farbe zeigt die Beherrschung (grün ist am besten). Die Zahl zeigt die Anzahl der Aufgaben in diesem Bereich."
+    "progressMatrixDesc": "Die Farbe zeigt die Beherrschung (grün ist am besten). Die Zahl zeigt die Anzahl der Aufgaben in diesem Bereich.",
+
+
+    "imprint": "Impressum",
+    "imprintTitle": "Impressum.",
+    "imprintDialog": "Imprint / Legal..",
+    "viewLegalNotice": "Informationen zum Diensteanbieter",
+    "imprintServiceProvider": "Diensteanbieter",
+    "imprintProviderAddress": "Christian Ströbele\nNikolausstr. 5\n70190 Stuttgart\nDeutschland/Germany",
+    "imprintContact": "Kontakt",
+    "imprintContactDetails": "Email: postmaster@crispstro.be\nPhone: 0049 176 6421 8601",
+    "imprintContentResponsible": "Verantwortlich für den Inhalt",
+    "imprintDisclaimer": "Haftungsausschluss",
+    "imprintDisclaimerText": "Diese App wird 'as is' (so wie sie ist) ausschließlich zu Bildungs- und kreativen Zwecken bereitgestellt, ohne jegliche Haftung.",
+    "imprintWebsite": "www.crispstro.be",
+    "close": "Schließen",
+
+    "taskCustomizationTitle": "Aufgaben-Anpassung",
+    "@taskCustomizationTitle": {
+        "description": "Title for the task customization settings card"
+    },
+    "taskCustomizationEnable": "Anpassung aktivieren",
+    "@taskCustomizationEnable": {
+        "description": "Label for the toggle switch to enable task customization"
+    },
+    "taskCustomizationEnableDesc": "Wortschatz für Übungen filtern",
+    "@taskCustomizationEnableDesc": {
+        "description": "Description for the enable toggle"
+    },
+    "taskWordLengthTitle": "Wortlänge",
+    "@taskWordLengthTitle": {
+        "description": "Title for the word length range slider"
+    },
+    "taskWordLengthRange": "Wörter mit {min} bis {max} Buchstaben",
+    "@taskWordLengthRange": {
+        "description": "Label showing the selected min/max word length. e.g. 'Wörter mit 3 bis 8 Buchstaben'",
+        "placeholders": {
+        "min": {
+            "type": "int"
+        },
+        "max": {
+            "type": "int"
+        }
+        }
+    },
+    "taskIncludedSourcesTitle": "Wortquellen",
+    "@taskIncludedSourcesTitle": {
+        "description": "Title for the included sources section"
+    },
+    "taskIncludedSourcesDesc": "Nur Wörter aus den gewählten Quellen anzeigen (leer = alle)",
+    "@taskIncludedSourcesDesc": {
+        "description": "Description for the source selection. (empty = all)"
+    },
+    "taskWildcardIncludeTitle": "Platzhalter-Filter (Einschließen)",
+    "@taskWildcardIncludeTitle": {
+        "description": "Title for the include wildcard filter section"
+    },
+    "taskWildcardIncludeDesc": "Zeige nur Wörter, die passen (z.B. *ung)",
+    "@taskWildcardIncludeDesc": {
+        "description": "Description for include wildcards"
+    },
+    "taskWildcardExcludeTitle": "Platzhalter-Filter (Ausschließen)",
+    "@taskWildcardExcludeTitle": {
+        "description": "Title for the exclude wildcard filter section"
+    },
+    "taskWildcardExcludeDesc": "Verstecke Wörter, die passen (z.B. ge*)",
+    "@taskWildcardExcludeDesc": {
+        "description": "Description for exclude wildcards"
+    },
+    "taskWildcardHint": "Neuen Filter hinzufügen...",
+    "@taskWildcardHint": {
+        "description": "Hint text for the text field to add a new wildcard"
+    },
+    "taskCustomizationWarning": "Filter aktiv! Der Wortschatz ist eingeschränkt.",
+    "@taskCustomizationWarning": {
+        "description": "A warning message shown elsewhere in the app if filters are active"
+    },
+    "taskActiveSetTitle": "Aktives Wortschatz-Set",
+    "taskActiveSetDesc": "Überschreibt alle anderen Filter, wenn aktiv.",
+    "taskActiveSetNone": "Keines (Filter unten verwenden)",
+    "taskManageSets": "Eigene Sets verwalten",
+    "taskFiltersDisabled": "Die Filter unten sind deaktiviert, da ein eigenes Set aktiv ist.",
+    "customSetCreateTitle": "Neues Set erstellen",
+    "customSetEditTitle": "Set bearbeiten",
+    "save": "Speichern",
+    "customSetNameLabel": "Name des Sets",
+    "customSetNameHint": "z.B. 'Schwierige Verben'",
+    "customSetDescriptionLabel": "Beschreibung",
+    "customSetDescriptionHint": "Eine kurze Beschreibung dieses Sets...",
+    "customSetTargetGrade": "Ziel-Klassenstufe",
+    "customSetAvailableWords": "Verfügbare Wörter",
+    "customSetSelectedWords": "Ausgewählte Wörter ({count})",
+    "@customSetSelectedWords": {
+        "placeholders": {
+        "count": {
+            "type": "int"
+        }
+        }
+    },
+    "customSetSearchHint": "Wörter filtern...",
+    "customSetAddAll": "Alle hinzufügen",
+    "customSetRemoveAll": "Alle entfernen",
+    "customSetEmpty": "Noch keine Wörter ausgewählt.",
+    "customSetNoAvailable": "Keine passenden Wörter gefunden.",
+    "customSetDelete": "Set löschen",
+    "customSetDeleteConfirmTitle": "Set löschen?",
+    "customSetDeleteConfirmContent": "Möchtest du das Set {setName} wirklich löschen?",
+    "@customSetDeleteConfirmContent": {
+        "placeholders": {
+        "setName": {
+            "type": "String"
+        }
+        }
+    }             
 }

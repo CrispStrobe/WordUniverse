@@ -1310,6 +1310,294 @@ abstract class S {
   /// In en, this message translates to:
   /// **'Color shows mastery (green is best). Number shows problems tracked in that area.'**
   String get progressMatrixDesc;
+
+  /// No description provided for @imprint.
+  ///
+  /// In en, this message translates to:
+  /// **'Imprint / Legal'**
+  String get imprint;
+
+  /// No description provided for @imprintTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Imprint / Legal.'**
+  String get imprintTitle;
+
+  /// No description provided for @imprintDialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Imprint / Legal..'**
+  String get imprintDialog;
+
+  /// No description provided for @viewLegalNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Info about the Service Provider...'**
+  String get viewLegalNotice;
+
+  /// No description provided for @imprintServiceProvider.
+  ///
+  /// In en, this message translates to:
+  /// **'Service Provider'**
+  String get imprintServiceProvider;
+
+  /// No description provided for @imprintProviderAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Christian Ströbele\nNikolausstr. 5\n70190 Stuttgart\nDeutschland/Germany'**
+  String get imprintProviderAddress;
+
+  /// No description provided for @imprintContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact'**
+  String get imprintContact;
+
+  /// No description provided for @imprintContactDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Email: postmaster@crispstro.be\nPhone: 0049 176 6421 8601'**
+  String get imprintContactDetails;
+
+  /// No description provided for @imprintContentResponsible.
+  ///
+  /// In en, this message translates to:
+  /// **'Responsible for Content'**
+  String get imprintContentResponsible;
+
+  /// No description provided for @imprintDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Disclaimer'**
+  String get imprintDisclaimer;
+
+  /// No description provided for @imprintDisclaimerText.
+  ///
+  /// In en, this message translates to:
+  /// **'This app is provided as is, exclusively for educational and creative purposes, without any liability.'**
+  String get imprintDisclaimerText;
+
+  /// No description provided for @imprintWebsite.
+  ///
+  /// In en, this message translates to:
+  /// **'www.crispstro.be'**
+  String get imprintWebsite;
+
+  /// Title for the task customization settings card
+  ///
+  /// In en, this message translates to:
+  /// **'Task Customization'**
+  String get taskCustomizationTitle;
+
+  /// Label for the toggle switch to enable task customization
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Customization'**
+  String get taskCustomizationEnable;
+
+  /// Description for the enable toggle
+  ///
+  /// In en, this message translates to:
+  /// **'Filter vocabulary for exercises'**
+  String get taskCustomizationEnableDesc;
+
+  /// Title for the word length range slider
+  ///
+  /// In en, this message translates to:
+  /// **'Word Length'**
+  String get taskWordLengthTitle;
+
+  /// Label showing the selected min/max word length. e.g. 'Words with 3 to 8 letters'
+  ///
+  /// In en, this message translates to:
+  /// **'Words with {min} to {max} letters'**
+  String taskWordLengthRange(int min, int max);
+
+  /// Title for the included sources section
+  ///
+  /// In en, this message translates to:
+  /// **'Word Sources'**
+  String get taskIncludedSourcesTitle;
+
+  /// Description for the source selection. (empty = all)
+  ///
+  /// In en, this message translates to:
+  /// **'Only show words from selected sources (empty = all)'**
+  String get taskIncludedSourcesDesc;
+
+  /// Title for the include wildcard filter section
+  ///
+  /// In en, this message translates to:
+  /// **'Wildcard Filters (Include)'**
+  String get taskWildcardIncludeTitle;
+
+  /// Description for include wildcards
+  ///
+  /// In en, this message translates to:
+  /// **'Only show words that match (e.g. *ing)'**
+  String get taskWildcardIncludeDesc;
+
+  /// Title for the exclude wildcard filter section
+  ///
+  /// In en, this message translates to:
+  /// **'Wildcard Filters (Exclude)'**
+  String get taskWildcardExcludeTitle;
+
+  /// Description for exclude wildcards
+  ///
+  /// In en, this message translates to:
+  /// **'Hide words that match (e.g. un*)'**
+  String get taskWildcardExcludeDesc;
+
+  /// Hint text for the text field to add a new wildcard
+  ///
+  /// In en, this message translates to:
+  /// **'Add new filter...'**
+  String get taskWildcardHint;
+
+  /// A warning message shown elsewhere in the app if filters are active
+  ///
+  /// In en, this message translates to:
+  /// **'Filters active! Vocabulary is limited.'**
+  String get taskCustomizationWarning;
+
+  /// No description provided for @taskActiveSetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Active Vocabulary Set'**
+  String get taskActiveSetTitle;
+
+  /// No description provided for @taskActiveSetDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Overrides all other filters when active.'**
+  String get taskActiveSetDesc;
+
+  /// No description provided for @taskActiveSetNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None (Use filters below)'**
+  String get taskActiveSetNone;
+
+  /// No description provided for @taskManageSets.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Custom Sets'**
+  String get taskManageSets;
+
+  /// No description provided for @taskFiltersDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'The filters below are disabled because a custom set is active.'**
+  String get taskFiltersDisabled;
+
+  /// No description provided for @customSetCreateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create New Set'**
+  String get customSetCreateTitle;
+
+  /// No description provided for @customSetEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Set'**
+  String get customSetEditTitle;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @customSetNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Set Name'**
+  String get customSetNameLabel;
+
+  /// No description provided for @customSetNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., \'Tricky Verbs\''**
+  String get customSetNameHint;
+
+  /// No description provided for @customSetDescriptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get customSetDescriptionLabel;
+
+  /// No description provided for @customSetDescriptionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A short description of this set...'**
+  String get customSetDescriptionHint;
+
+  /// No description provided for @customSetTargetGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Target Grade'**
+  String get customSetTargetGrade;
+
+  /// No description provided for @customSetAvailableWords.
+  ///
+  /// In en, this message translates to:
+  /// **'Available Words'**
+  String get customSetAvailableWords;
+
+  /// No description provided for @customSetSelectedWords.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected Words ({count})'**
+  String customSetSelectedWords(int count);
+
+  /// No description provided for @customSetSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter words...'**
+  String get customSetSearchHint;
+
+  /// No description provided for @customSetAddAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Add All'**
+  String get customSetAddAll;
+
+  /// No description provided for @customSetRemoveAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove All'**
+  String get customSetRemoveAll;
+
+  /// No description provided for @customSetEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No words selected yet.'**
+  String get customSetEmpty;
+
+  /// No description provided for @customSetNoAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching words found.'**
+  String get customSetNoAvailable;
+
+  /// No description provided for @customSetDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Set'**
+  String get customSetDelete;
+
+  /// No description provided for @customSetDeleteConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Set?'**
+  String get customSetDeleteConfirmTitle;
+
+  /// No description provided for @customSetDeleteConfirmContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete {setName}?'**
+  String customSetDeleteConfirmContent(String setName);
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

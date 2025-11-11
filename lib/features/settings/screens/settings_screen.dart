@@ -9,14 +9,21 @@ import '../../../core/theme/space_theme.dart';
 import '../../../core/services/debug_provider.dart';
 import '../../../core/services/progress_service.dart';
 
+// Import VocabularyService to get sources
+import '../../../core/services/vocabulary_service.dart';
+import '../../../core/services/sri_service.dart';
+
+import '../../../shared/widgets/imprint_dialog.dart';
+
 import '../../../generated/l10n.dart';
 
-// FIX: We import this for the Grade definitions
+// We import this for the Grade definitions
 import '../../../core/models/skill_category.dart';
 import '../../games/providers/game_provider.dart';
 import '../../games/widgets/space_background.dart';
-// FIX: Import the dialog separately
+// We import the dialog separately
 import '../widgets/sri_statistics_dialog.dart';
+import 'custom_subset_screen.dart';
 
 
 class SettingsScreen extends StatefulWidget {
@@ -34,7 +41,16 @@ class _SettingsScreenState extends State<SettingsScreen>
   String currentLocale = 'en'; // Safe default
   bool _isLoading = false;
   bool _hasLoadedLocale = false; 
+
+  // NEW: State for dynamic vocabulary sources
+  Set<String> _availableSources = {};
+  bool _sourcesLoaded = false;
   
+  // NEW: Controllers for wildcard text fields
+  final TextEditingController _includeController = TextEditingController();
+  final TextEditingController _excludeController = TextEditingController();
+
+
   @override
   void initState() {
     super.initState();
@@ -45,8 +61,8 @@ class _SettingsScreenState extends State<SettingsScreen>
       vsync: this,
     );
 
-    // FIX: Reduced list size because we are removing one card
-    _settingAnimations = List.generate(6, (index) { // Was 7
+    // FIX: Increased list size to 7 for the new settings card
+    _settingAnimations = List.generate(7, (index) { // Was 6
       return Tween<Offset>(
         begin: const Offset(-1.0, 0.0),
         end: Offset.zero,
@@ -60,7 +76,7 @@ class _SettingsScreenState extends State<SettingsScreen>
       ));
     });
     
-    debugPrint("[SETTINGS] 🔧 initState() completed - animations ready");
+    debugPrint("[SETTINGS] 🔧 initState() completed - 7 animations ready");
     _slideController.forward();
   }
   
@@ -74,11 +90,124 @@ class _SettingsScreenState extends State<SettingsScreen>
       _hasLoadedLocale = true;
     }
   }
+
+  Widget _buildCustomSetSelector(
+    BuildContext context,
+    GameProvider gameProvider,
+    VocabularyService vocabService,
+  ) {
+    final customSets = vocabService.getCustomSets();
+    final activeSetId = gameProvider.activeVocabularySetId;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 1. Dropdown to select the active set
+        Text(
+          S.of(context)!.taskActiveSetTitle, // You will need to add this to your S file
+          style: SpaceTheme.bodyStyle.copyWith(
+            fontWeight: FontWeight.w600,
+            fontSize: 16,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          S.of(context)!.taskActiveSetDesc, // You will need to add this to your S file
+          style: SpaceTheme.bodyStyle.copyWith(
+            fontSize: 12,
+            color: Colors.white60,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: SpaceTheme.deepSpace.withOpacity(0.5),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.white24),
+          ),
+          child: DropdownButton<String?>(
+            value: activeSetId,
+            isExpanded: true,
+            underline: const SizedBox.shrink(), // Remove default underline
+            dropdownColor: SpaceTheme.deepSpace,
+            style: SpaceTheme.bodyStyle,
+            onChanged: (String? newValue) {
+              gameProvider.setActiveVocabularySetId(newValue);
+            },
+            items: [
+              // "None" option
+              DropdownMenuItem<String?>(
+                value: null,
+                child: Text(
+                  S.of(context)!.taskActiveSetNone, // You will need to add this
+                  style: SpaceTheme.bodyStyle.copyWith(fontStyle: FontStyle.italic),
+                ),
+              ),
+              // List of custom sets
+              ...customSets.map((set) {
+                return DropdownMenuItem<String?>(
+                  value: set.id,
+                  child: Text(set.name),
+                );
+              }).toList(),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // 2. Button to manage/create sets
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            icon: const Icon(Icons.edit_rounded),
+            label: Text(S.of(context)!.taskManageSets), // You will need to add this
+            style: ElevatedButton.styleFrom(
+              backgroundColor: SpaceTheme.cosmicPink,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const CustomSubsetScreen(), // Navigate to the new screen
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  // NEW: Helper to load vocab sources
+  Future<void> _loadVocabularySources() async {
+    if (_sourcesLoaded) return;
+    
+    try {
+      final vocabService = context.read<VocabularyService>();
+      final sources = vocabService.getAllAvailableSources();
+      
+      // Sort sources alphabetically for consistent display
+      final sortedSources = sources.toList()..sort();
+      
+      if (mounted) {
+        setState(() {
+          _availableSources = sortedSources.toSet();
+          _sourcesLoaded = true;
+        });
+        debugPrint("[SETTINGS] 📚 Loaded ${_availableSources.length} vocab sources");
+      }
+    } catch (e) {
+      debugPrint("[SETTINGS] ❌ Error loading vocab sources: $e");
+    }
+  }
   
   @override
   void dispose() {
     debugPrint("[SETTINGS] 🗑️ Disposing settings screen");
     _slideController.dispose();
+    _includeController.dispose();
+    _excludeController.dispose();
     super.dispose();
   }
 
@@ -100,6 +229,9 @@ class _SettingsScreenState extends State<SettingsScreen>
       debugPrint("[SETTINGS] ✅ Final locale set to: $currentLocale");
       
       await _loadAllSettings();
+      
+      // NEW: Load vocab sources *after* locale is set
+      await _loadVocabularySources();
       
     } catch (e, stackTrace) {
       debugPrint("[SETTINGS] ❌ Error loading locale/settings: $e");
@@ -163,7 +295,9 @@ class _SettingsScreenState extends State<SettingsScreen>
                       const SizedBox(height: 20),
                       _buildGameplaySettings(),
                       const SizedBox(height: 20),
-                      // FIX: Removed the problem customization card
+                      // NEW: Add the task customization card
+                      _buildTaskCustomizationSettings(),
+                      const SizedBox(height: 20),
                       _buildLanguageSettings(),
                       const SizedBox(height: 20),
                       _buildDifficultySettings(),
@@ -365,6 +499,341 @@ class _SettingsScreenState extends State<SettingsScreen>
     );
   }
   
+  Widget _buildTaskCustomizationSettings() {
+    return SlideTransition(
+      position: _settingAnimations[2], // Use the 3rd animation
+      // MODIFIED: Use Consumer2 to get GameProvider AND VocabularyService
+      child: Consumer2<GameProvider, VocabularyService>(
+        builder: (context, gameProvider, vocabService, child) {
+          
+          // NEW: Check if a custom set is active
+          final bool customSetIsActive = gameProvider.activeVocabularySetId != null;
+
+          return _buildSettingsCard(
+            title: S.of(context)!.taskCustomizationTitle,
+            icon: Icons.filter_list,
+            children: [
+              _buildSwitchTile(
+                title: S.of(context)!.taskCustomizationEnable,
+                subtitle: S.of(context)!.taskCustomizationEnableDesc,
+                value: gameProvider.tasksCustomizationEnabled,
+                onChanged: (value) {
+                  debugPrint("[SETTINGS] 🛠️ Task Customization changed to: $value");
+                  gameProvider.setTasksCustomizationEnabled(value);
+                },
+                icon: Icons.edit_note,
+              ),
+
+              // Conditionally show the rest of the settings
+              AnimatedSize(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+                child: gameProvider.tasksCustomizationEnabled
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Divider(color: SpaceTheme.nebulaPurple, height: 24),
+
+                        // NEW: Add the custom set manager widget
+                        _buildCustomSetSelector(context, gameProvider, vocabService),
+                        
+                        const Divider(color: SpaceTheme.nebulaPurple, height: 24),
+
+                        // NEW: Add a helper text if a set is active
+                        if (customSetIsActive)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 16.0),
+                            child: Text(
+                              S.of(context)!.taskFiltersDisabled, // Add to S file
+                              style: SpaceTheme.bodyStyle.copyWith(
+                                color: SpaceTheme.starYellow,
+                                fontSize: 12,
+                                fontStyle: FontStyle.italic,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        
+                        // MODIFIED: Wrap existing filters in IgnorePointer and Opacity
+                        // These will be disabled if a custom set is active
+                        IgnorePointer(
+                          ignoring: customSetIsActive,
+                          child: Opacity(
+                            opacity: customSetIsActive ? 0.5 : 1.0,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // --- Word Length Slider ---
+                                _buildWordLengthSlider(gameProvider),
+                                const SizedBox(height: 20),
+
+                                // --- Included Sources ---
+                                _buildSourceSelector(gameProvider),
+                                const SizedBox(height: 20),
+
+                                // --- Include Wildcards ---
+                                _buildWildcardInputSection(
+                                  title: S.of(context)!.taskWildcardIncludeTitle,
+                                  desc: S.of(context)!.taskWildcardIncludeDesc,
+                                  controller: _includeController,
+                                  currentFilters: gameProvider.taskIncludeWildcards,
+                                  onAdd: (filter) {
+                                    final newList = List<String>.from(gameProvider.taskIncludeWildcards)..add(filter);
+                                    gameProvider.setTaskIncludeWildcards(newList);
+                                  },
+                                  onRemove: (filter) {
+                                    final newList = List<String>.from(gameProvider.taskIncludeWildcards)..remove(filter);
+                                    gameProvider.setTaskIncludeWildcards(newList);
+                                  },
+                                ),
+                                const SizedBox(height: 20),
+                                
+                                // --- Exclude Wildcards ---
+                                _buildWildcardInputSection(
+                                  title: S.of(context)!.taskWildcardExcludeTitle,
+                                  desc: S.of(context)!.taskWildcardExcludeDesc,
+                                  controller: _excludeController,
+                                  currentFilters: gameProvider.taskExcludeWildcards,
+                                  onAdd: (filter) {
+                                    final newList = List<String>.from(gameProvider.taskExcludeWildcards)..add(filter);
+                                    gameProvider.setTaskExcludeWildcards(newList);
+                                  },
+                                  onRemove: (filter) {
+                                    final newList = List<String>.from(gameProvider.taskExcludeWildcards)..remove(filter);
+                                    gameProvider.setTaskExcludeWildcards(newList);
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  : const SizedBox.shrink(), // Empty box when disabled
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  // --- NEW: Helper for Word Length Slider ---
+  Widget _buildWordLengthSlider(GameProvider gameProvider) {
+    final min = gameProvider.taskWordLengthMin;
+    final max = gameProvider.taskWordLengthMax;
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          S.of(context)!.taskWordLengthTitle,
+          style: SpaceTheme.bodyStyle.copyWith(
+            fontWeight: FontWeight.w600,
+            fontSize: 16,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Text(
+              "2",
+              style: SpaceTheme.bodyStyle.copyWith(color: SpaceTheme.moonSilver),
+            ),
+            Expanded(
+              child: RangeSlider(
+                min: 2,
+                max: 20, // Max word length to filter
+                divisions: 18,
+                values: RangeValues(min, max),
+                activeColor: SpaceTheme.alienGreen,
+                inactiveColor: SpaceTheme.deepSpace,
+                labels: RangeLabels(
+                  min.round().toString(),
+                  max.round().toString(),
+                ),
+                onChanged: (values) {
+                  gameProvider.setTaskWordLengthRange(values.start, values.end);
+                },
+              ),
+            ),
+            Text(
+              "20",
+              style: SpaceTheme.bodyStyle.copyWith(color: SpaceTheme.moonSilver),
+            ),
+          ],
+        ),
+        Center(
+          child: Text(
+            S.of(context)!.taskWordLengthRange(min.round(), max.round()),
+            style: SpaceTheme.bodyStyle.copyWith(
+              fontSize: 12,
+              color: Colors.white70,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // --- NEW: Helper for Source Selector Chips ---
+  Widget _buildSourceSelector(GameProvider gameProvider) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          S.of(context)!.taskIncludedSourcesTitle,
+          style: SpaceTheme.bodyStyle.copyWith(
+            fontWeight: FontWeight.w600,
+            fontSize: 16,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          S.of(context)!.taskIncludedSourcesDesc,
+          style: SpaceTheme.bodyStyle.copyWith(
+            fontSize: 12,
+            color: Colors.white60,
+          ),
+        ),
+        const SizedBox(height: 12),
+        !_sourcesLoaded
+          ? const Center(child: CircularProgressIndicator())
+          : _availableSources.isEmpty
+            ? Center(
+                child: Text(
+                  "Keine Quellen gefunden", // Should not happen
+                  style: SpaceTheme.bodyStyle.copyWith(color: Colors.white54),
+                ),
+              )
+            : Wrap(
+                spacing: 8.0,
+                runSpacing: 4.0,
+                children: _availableSources.map((source) {
+                  final isSelected = gameProvider.taskIncludedSources.contains(source);
+                  return FilterChip(
+                    label: Text(source),
+                    selected: isSelected,
+                    onSelected: (selected) {
+                      final currentSources = Set<String>.from(gameProvider.taskIncludedSources);
+                      if (selected) {
+                        currentSources.add(source);
+                      } else {
+                        currentSources.remove(source);
+                      }
+                      gameProvider.setTaskIncludedSources(currentSources);
+                    },
+                    backgroundColor: SpaceTheme.deepSpace.withOpacity(0.8),
+                    selectedColor: SpaceTheme.alienGreen.withOpacity(0.3),
+                    labelStyle: TextStyle(
+                      color: isSelected ? SpaceTheme.alienGreen : Colors.white,
+                    ),
+                    checkmarkColor: SpaceTheme.alienGreen,
+                    shape: StadiumBorder(
+                      side: BorderSide(
+                        color: isSelected ? SpaceTheme.alienGreen : Colors.white24,
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+      ],
+    );
+  }
+
+  // --- NEW: Helper for Wildcard Input ---
+  Widget _buildWildcardInputSection({
+    required String title,
+    required String desc,
+    required TextEditingController controller,
+    required List<String> currentFilters,
+    required Function(String) onAdd,
+    required Function(String) onRemove,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: SpaceTheme.bodyStyle.copyWith(
+            fontWeight: FontWeight.w600,
+            fontSize: 16,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          desc,
+          style: SpaceTheme.bodyStyle.copyWith(
+            fontSize: 12,
+            color: Colors.white60,
+          ),
+        ),
+        const SizedBox(height: 12),
+        // Text field for adding new filters
+        TextField(
+          controller: controller,
+          style: SpaceTheme.bodyStyle,
+          decoration: InputDecoration(
+            hintText: S.of(context)!.taskWildcardHint,
+            hintStyle: SpaceTheme.bodyStyle.copyWith(color: Colors.white38),
+            filled: true,
+            fillColor: SpaceTheme.deepSpace.withOpacity(0.5),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.white24),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.white24),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: SpaceTheme.alienGreen),
+            ),
+            suffixIcon: IconButton(
+              icon: const Icon(Icons.add_circle, color: SpaceTheme.alienGreen),
+              onPressed: () {
+                final text = controller.text.trim();
+                if (text.isNotEmpty && !currentFilters.contains(text)) {
+                  onAdd(text);
+                  controller.clear();
+                }
+              },
+            ),
+          ),
+          onSubmitted: (value) {
+            final text = value.trim();
+            if (text.isNotEmpty && !currentFilters.contains(text)) {
+              onAdd(text);
+              controller.clear();
+            }
+          },
+        ),
+        const SizedBox(height: 8),
+        // Wrap for displaying current filters
+        if (currentFilters.isNotEmpty)
+          Wrap(
+            spacing: 8.0,
+            runSpacing: 4.0,
+            children: currentFilters.map((filter) {
+              return Chip(
+                label: Text(filter),
+                labelStyle: const TextStyle(color: Colors.white),
+                backgroundColor: SpaceTheme.nebulaPurple.withOpacity(0.7),
+                onDeleted: () {
+                  onRemove(filter);
+                },
+                deleteIcon: const Icon(Icons.cancel, size: 18),
+                deleteIconColor: Colors.white70,
+              );
+            }).toList(),
+          ),
+      ],
+    );
+  }
+  // --- END OF NEW WIDGETS ---
+
   Widget _buildFeatureRow({
     required String title,
     required String subtitle,
@@ -421,7 +890,7 @@ class _SettingsScreenState extends State<SettingsScreen>
   
   Widget _buildLanguageSettings() {
     return SlideTransition(
-      position: _settingAnimations[2],
+      position: _settingAnimations[3], // Was 2
       child: _buildSettingsCard(
         title: S.of(context)!.language,
         icon: Icons.language,
@@ -551,7 +1020,7 @@ class _SettingsScreenState extends State<SettingsScreen>
 
   Widget _buildDifficultySettings() {
     return SlideTransition(
-      position: _settingAnimations[3],
+      position: _settingAnimations[4], // Was 3
       child: _buildSettingsCard(
         title: S.of(context)!.difficulty,
         icon: Icons.tune,
@@ -597,7 +1066,7 @@ class _SettingsScreenState extends State<SettingsScreen>
   
   Widget _buildProgressSettings() {
     return SlideTransition(
-      position: _settingAnimations[4],
+      position: _settingAnimations[5], // Was 4
       child: _buildSettingsCard(
         title: S.of(context)!.progress,
         icon: Icons.analytics,
@@ -650,7 +1119,7 @@ class _SettingsScreenState extends State<SettingsScreen>
   
   Widget _buildAboutSection() {
     return SlideTransition(
-      position: _settingAnimations[5],
+      position: _settingAnimations[6], // Was 5
       child: _buildSettingsCard(
         title: S.of(context)!.about,
         icon: Icons.info,
@@ -658,9 +1127,25 @@ class _SettingsScreenState extends State<SettingsScreen>
           _buildInfoRow(S.of(context)!.appVersion, '1.0.0 (Vocabulary)'),
           _buildInfoRow(S.of(context)!.developer, S.of(context)!.developerName),
           _buildInfoRow(S.of(context)!.targetAge, S.of(context)!.targetAgeRange),
-          
+
+          // --- ADD THESE LINES ---
+          const Divider(color: SpaceTheme.nebulaPurple, height: 24),
+          _buildFeatureRow(
+            title: S.of(context)!.imprintTitle,
+            subtitle: S.of(context)!.viewLegalNotice,
+            icon: Icons.gavel_rounded,
+            isLocked: false,
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) => const ImprintDialog(),
+              );
+            },
+          ),
+          // --- END OF ADDED LINES ---
+
           const SizedBox(height: 16),
-          
+
           Text(
             S.of(context)!.aboutApp,
             style: TextStyle(
@@ -1084,7 +1569,7 @@ class _SettingsScreenState extends State<SettingsScreen>
   String _getDifficultyDescription(int grade) {
     switch (grade) {
       case 1:
-        return S.of(context)!.difficultyDescGrade3;
+        return S.of(context)!.difficultyDescGrade3; // Note: Your key names are slightly off
       case 2:
         return S.of(context)!.difficultyDescGrade4;
       case 3:
@@ -1136,6 +1621,8 @@ class _SettingsScreenState extends State<SettingsScreen>
             onPressed: () {
               debugPrint("[SETTINGS] 🗑️ Resetting all game progress");
               context.read<GameProvider>().resetGame();
+              // NEW: Also clear SRI data
+              context.read<SriService>().clearAllData();
               Navigator.of(context).pop();
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(

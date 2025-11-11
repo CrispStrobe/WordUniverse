@@ -108,7 +108,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
   }
 
   void _loadNextPuzzle() {
-    // --- FIX: Check for game over *before* loading the next puzzle ---
+    // --- Check for game over *before* loading the next puzzle ---
     if (_puzzlesCompleted >= _totalPuzzles) {
       _showGameOver();
       return;
@@ -132,7 +132,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
       if (wordString == null) continue;
 
       try {
-        final word = _vocabularyService.allWords.firstWhere(
+        final word = _vocabularyService.getAllWords(_gameProvider).firstWhere(
             (w) => w.word.toLowerCase() == wordString.toLowerCase());
 
         if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
@@ -149,6 +149,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
       sriService: _sriService,
       grade: widget.gradeLevel,
       limit: 10,
+      settingsProvider: _gameProvider,
     );
 
     for (final word in newWords) {
@@ -160,7 +161,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
 
     // Fill with random words if needed
     if (wordsForGame.isEmpty) {
-      final allWords = _vocabularyService.getWordsByGrade(widget.gradeLevel);
+      final allWords = _vocabularyService.getWordsByGrade(widget.gradeLevel, _gameProvider);
       allWords.shuffle();
 
       for (final word in allWords) {
@@ -652,8 +653,9 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
   Widget _buildGameContent(S s) { // --- MODIFIED: Pass S ---
     if (_currentPuzzle == null) return const SizedBox.shrink();
     
-    return Column( // --- MODIFIED: Was Expanded(child: Stack(...)) ---
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Column( 
+      // --- FIX: Remove MainAxisAlignment.center ---
+      // mainAxisAlignment: MainAxisAlignment.center, 
       children: [
         // Progress indicator
         Padding(
@@ -667,11 +669,15 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
           ),
         ),
         
-        // The grid
-        Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: _buildGrid(),
+        // --- FIX: Wrap the grid in Expanded ---
+        // This gives the grid all the remaining space between the 
+        // progress text (top) and the button (bottom).
+        Expanded(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: _buildGrid(),
+            ),
           ),
         ),
 
