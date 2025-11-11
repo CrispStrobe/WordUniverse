@@ -659,8 +659,8 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: Text(
-            // --- FIX: Use _puzzlesCompleted + 1 to show current puzzle ---
-            s.wordSnakePuzzleProgress(_puzzlesCompleted + 1, _totalPuzzles),
+            // --- FIX: Clamp the displayed puzzle number to never exceed the total ---
+            s.wordSnakePuzzleProgress(min(_puzzlesCompleted + 1, _totalPuzzles), _totalPuzzles),
             style: SpaceTheme.titleStyle.copyWith(
               color: SpaceTheme.starYellow,
             ),
