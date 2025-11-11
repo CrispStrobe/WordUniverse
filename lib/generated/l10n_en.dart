@@ -39,6 +39,62 @@ class SEn extends S {
   String get spaceWordRescueInstructions => 'Rescue words from drifting off!';
 
   @override
+  String get wordRescueTitle => 'Word Rescue';
+
+  @override
+  String get wordRescueCardDescription => 'Type words before they escape!';
+
+  @override
+  String get wordRescueTypeWord => 'Type the word to rescue it!';
+
+  @override
+  String get wordRescueTypeHere => 'Type here...';
+
+  @override
+  String get wordRescueFeedbackPerfect => 'Perfect! Word Rescued! 🚀';
+
+  @override
+  String wordRescueFeedbackCommonMistake(String word) {
+    return 'Close enough! $word rescued!';
+  }
+
+  @override
+  String wordRescueFeedbackIncorrect(String word) {
+    return 'Too late! The correct word was: $word';
+  }
+
+  @override
+  String get wordRescueFeedbackLost => 'Word escaped into space! 💫';
+
+  @override
+  String wordRescueGameOverStats(int rescued, int total, int percentage) {
+    return 'You rescued $rescued out of $total words ($percentage%)';
+  }
+
+  @override
+  String get wordSnakeTitle => 'Word Snake';
+
+  @override
+  String get wordSnakeDescription => 'Connect letters to spell the word';
+
+  @override
+  String get wordSnakeInstructions =>
+      'Tap cells in order to form a path that spells the word';
+
+  @override
+  String wordSnakeConnectLetters(int count) {
+    return 'Connect $count letters';
+  }
+
+  @override
+  String get wordSnakeReset => 'Reset';
+
+  @override
+  String wordSnakePuzzleProgress(int current, int total) {
+    return 'Puzzle $current of $total';
+  }
+
+  @override
   String get gameplayHint => 'Hint (-2 Points)';
 
   @override

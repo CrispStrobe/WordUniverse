@@ -13,6 +13,7 @@ import '../widgets/space_background.dart';
 import 'space_word_rescue_game.dart';
 import 'word_find_game.dart';
 import 'word_sort_game.dart';
+import 'word_snake_game.dart';
 
 import '../widgets/debug_panel.dart';
 import '../../settings/screens/settings_screen.dart';
@@ -34,7 +35,7 @@ class _GameMenuScreenState extends State<GameMenuScreen> with TickerProviderStat
   late Animation<double> _floatAnimation;
 
   // for new games, we must manually update game count
-  static const int _gameCount = 3;
+  static const int _gameCount = 4;
 
   @override
   void initState() {
@@ -279,6 +280,13 @@ class _GameMenuScreenState extends State<GameMenuScreen> with TickerProviderStat
             gradient: const LinearGradient(colors: [Color(0xFFf953c6), Color(0xFFb91d73)]), // Pink/Red gradient
             onTap: () => _navigateToGame(WordSortGame(gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
           ),
+          GameInfo(
+              title: s.wordSnakeTitle,
+              description: s.wordSnakeDescription,
+              icon: Icons.timeline,
+              gradient: const LinearGradient(colors: [Color(0xFFFF6B6B), Color(0xFFFFE66D)]),
+              onTap: () => _navigateToGame(WordSnakeGame(gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
+          )
     ];
 
     if (index >= games.length) return const SizedBox.shrink(); // Safety check

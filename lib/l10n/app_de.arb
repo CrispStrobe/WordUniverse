@@ -7,8 +7,70 @@
     "grade4": "Stufe 2",
     "grade5": "Stufe 3",
     "grade6": "Stufe 4",
+
     "spaceWordRescueTitle": "Wort-Rettung",
     "spaceWordRescueInstructions": "Rette Wörter vor dem Abdriften!",
+
+    "wordRescueTitle": "Wort-Rettung",
+    "wordRescueCardDescription": "Tippe Wörter bevor sie entkommen!",
+    "wordRescueTypeWord": "Tippe das Wort um es zu retten!",
+    "wordRescueTypeHere": "Hier tippen...",
+    "wordRescueFeedbackPerfect": "Perfekt! Wort gerettet! 🚀",
+    "wordRescueFeedbackCommonMistake": "Fast! {word} gerettet!",
+    "@wordRescueFeedbackCommonMistake": {
+        "placeholders": {
+        "word": {
+            "type": "String"
+        }
+        }
+    },
+    "wordRescueFeedbackIncorrect": "Zu spät! Das richtige Wort war: {word}",
+    "@wordRescueFeedbackIncorrect": {
+        "placeholders": {
+        "word": {
+            "type": "String"
+        }
+        }
+    },
+    "wordRescueFeedbackLost": "Wort ins All entkommen! 💫",
+    "wordRescueGameOverStats": "Du hast {rescued} von {total} Wörtern gerettet ({percentage}%)",
+    "@wordRescueGameOverStats": {
+        "placeholders": {
+        "rescued": {
+            "type": "int"
+        },
+        "total": {
+            "type": "int"
+        },
+        "percentage": {
+            "type": "int"
+        }
+        }
+    },
+
+    "wordSnakeTitle": "Wortschlange",
+    "wordSnakeDescription": "Verbinde Buchstaben zum Wort",
+    "wordSnakeInstructions": "Tippe Zellen in Reihenfolge an, um einen Pfad zu bilden, der das Wort buchstabiert",
+    "wordSnakeConnectLetters": "Verbinde {count} Buchstaben",
+    "@wordSnakeConnectLetters": {
+        "placeholders": {
+        "count": {
+            "type": "int"
+        }
+        }
+    },
+    "wordSnakeReset": "Zurücksetzen",
+    "wordSnakePuzzleProgress": "Rätsel {current} von {total}",
+    "@wordSnakePuzzleProgress": {
+        "placeholders": {
+        "current": {
+            "type": "int"
+        },
+        "total": {
+            "type": "int"
+        }
+        }
+    },
 
     "wordFindTitle": "Wortsuche",
     "wordFindDescription": "Finde die versteckten Wörter im Buchstaben-Gitter!",

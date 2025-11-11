@@ -1,7 +1,3 @@
-Here is a comprehensive `README.md` file for your "Word Universe" project, based on the codebase you've provided.
-
------
-
 # 🚀 Word Universe (Wort-Universum)
 
 A space-themed Flutter application designed to help primary school students (Grades 1-6) learn German vocabulary, spelling, and grammar in an engaging way.

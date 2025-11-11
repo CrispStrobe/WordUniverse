@@ -10,6 +10,67 @@
 
     "spaceWordRescueTitle": "Word Rescue",
     "spaceWordRescueInstructions": "Rescue words from drifting off!",
+    "wordRescueTitle": "Word Rescue",
+    "wordRescueCardDescription": "Type words before they escape!",
+    "wordRescueTypeWord": "Type the word to rescue it!",
+    "wordRescueTypeHere": "Type here...",
+    "wordRescueFeedbackPerfect": "Perfect! Word Rescued! 🚀",
+    "wordRescueFeedbackCommonMistake": "Close enough! {word} rescued!",
+    "@wordRescueFeedbackCommonMistake": {
+        "placeholders": {
+        "word": {
+            "type": "String"
+        }
+        }
+    },
+    "wordRescueFeedbackIncorrect": "Too late! The correct word was: {word}",
+    "@wordRescueFeedbackIncorrect": {
+        "placeholders": {
+        "word": {
+            "type": "String"
+        }
+        }
+    },
+    "wordRescueFeedbackLost": "Word escaped into space! 💫",
+    "wordRescueGameOverStats": "You rescued {rescued} out of {total} words ({percentage}%)",
+    "@wordRescueGameOverStats": {
+        "placeholders": {
+        "rescued": {
+            "type": "int"
+        },
+        "total": {
+            "type": "int"
+        },
+        "percentage": {
+            "type": "int"
+        }
+        }
+    },
+
+    "wordSnakeTitle": "Word Snake",
+    "wordSnakeDescription": "Connect letters to spell the word",
+    "wordSnakeInstructions": "Tap cells in order to form a path that spells the word",
+    "wordSnakeConnectLetters": "Connect {count} letters",
+    "@wordSnakeConnectLetters": {
+        "placeholders": {
+        "count": {
+            "type": "int"
+        }
+        }
+    },
+    "wordSnakeReset": "Reset",
+    "wordSnakePuzzleProgress": "Puzzle {current} of {total}",
+    "@wordSnakePuzzleProgress": {
+        "placeholders": {
+        "current": {
+            "type": "int"
+        },
+        "total": {
+            "type": "int"
+        }
+        }
+    },
+
     "gameplayHint": "Hint (-2 Points)",
     "gameplayCheck": "Check",
     "gameplayCorrect": "Correct! Well done! 🚀",

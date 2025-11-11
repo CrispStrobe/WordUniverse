@@ -357,11 +357,11 @@ class VocabularyService with ChangeNotifier {
         }
         
         // 3. Skip non-content words (symbols, affixes, etc.)
-        final wordType = word.wordType;
-        if (wordType == GermanWordType.andere || 
-            wordType == GermanWordType.affix) {
-          continue; 
-        }   
+        final wordType = word.wordType;
+        if (wordType == GermanWordType.andere || 
+            wordType == GermanWordType.affix) {
+          continue; 
+        }
         
         _vocabulary[word.id] = word;
       }

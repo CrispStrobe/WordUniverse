@@ -39,6 +39,62 @@ class SDe extends S {
   String get spaceWordRescueInstructions => 'Rette Wörter vor dem Abdriften!';
 
   @override
+  String get wordRescueTitle => 'Wort-Rettung';
+
+  @override
+  String get wordRescueCardDescription => 'Tippe Wörter bevor sie entkommen!';
+
+  @override
+  String get wordRescueTypeWord => 'Tippe das Wort um es zu retten!';
+
+  @override
+  String get wordRescueTypeHere => 'Hier tippen...';
+
+  @override
+  String get wordRescueFeedbackPerfect => 'Perfekt! Wort gerettet! 🚀';
+
+  @override
+  String wordRescueFeedbackCommonMistake(String word) {
+    return 'Fast! $word gerettet!';
+  }
+
+  @override
+  String wordRescueFeedbackIncorrect(String word) {
+    return 'Zu spät! Das richtige Wort war: $word';
+  }
+
+  @override
+  String get wordRescueFeedbackLost => 'Wort ins All entkommen! 💫';
+
+  @override
+  String wordRescueGameOverStats(int rescued, int total, int percentage) {
+    return 'Du hast $rescued von $total Wörtern gerettet ($percentage%)';
+  }
+
+  @override
+  String get wordSnakeTitle => 'Wortschlange';
+
+  @override
+  String get wordSnakeDescription => 'Verbinde Buchstaben zum Wort';
+
+  @override
+  String get wordSnakeInstructions =>
+      'Tippe Zellen in Reihenfolge an, um einen Pfad zu bilden, der das Wort buchstabiert';
+
+  @override
+  String wordSnakeConnectLetters(int count) {
+    return 'Verbinde $count Buchstaben';
+  }
+
+  @override
+  String get wordSnakeReset => 'Zurücksetzen';
+
+  @override
+  String wordSnakePuzzleProgress(int current, int total) {
+    return 'Rätsel $current von $total';
+  }
+
+  @override
   String get gameplayHint => 'Hinweis (-2 Punkte)';
 
   @override
