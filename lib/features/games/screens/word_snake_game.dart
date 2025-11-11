@@ -107,6 +107,25 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
     _loadNextPuzzle();
   }
 
+  /// Dynamically adjusts the puzzle difficulty based on word length
+  SnakeDifficulty _getAdjustedDifficulty(String word, SnakeDifficulty baseDifficulty) {
+    final length = word.length;
+
+    if (length > 7) {
+        // 8-letter words (like Quittung) NEED a hard (large) grid
+        return SnakeDifficulty.hard;
+    }
+    if (length > 5) {
+        // 6-7 letter words need at least a medium grid
+        return (baseDifficulty == SnakeDifficulty.hard) 
+            ? SnakeDifficulty.hard 
+            : SnakeDifficulty.medium;
+    }
+    
+    // For 4-5 letter words, the base difficulty is fine
+    return baseDifficulty;
+  }
+
   void _loadNextPuzzle() {
     // --- Check for game over *before* loading the next puzzle ---
     if (_puzzlesCompleted >= _totalPuzzles) {
@@ -178,9 +197,20 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
     WordSnakeGrid? puzzle;
     GermanWord? selectedWord;
 
-    final difficulty = _getDifficultyForGrade();
+    final baseDifficulty = _getDifficultyForGrade(); // Get the grade-based difficulty
+    
     for (final word in wordsForGame) {
-      puzzle = WordSnakeGenerator().generate(word.word, difficulty);
+      // NEW: Adjust difficulty based on word length
+      final adjustedDifficulty = _getAdjustedDifficulty(word.word, baseDifficulty);
+      
+      puzzle = WordSnakeGenerator().generate(word.word, adjustedDifficulty);
+      
+      // NEW: Add check for invalid grid dimensions
+      if (puzzle != null && (puzzle.rows < 2 || puzzle.cols < 2)) {
+        debugPrint("WordSnakeGenerator created an invalid 1-D grid. Discarding.");
+        puzzle = null; // Treat it as a failed generation
+      }
+      
       if (puzzle != null) {
         selectedWord = word;
         break;
