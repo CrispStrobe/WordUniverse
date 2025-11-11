@@ -361,9 +361,9 @@ class _WordFindGameState extends State<WordFindGame> {
         // Always show plural if available
         if (word.plural != null && word.plural!.isNotEmpty && word.plural != '-') {
           infoParts.add('Plural: ${word.plural}');
-        } else if (word.nurImPlural) {
+        } /* else if (word.nurImPlural) {
           infoParts.add('nur Plural');
-        }
+        } */
         
         // Show genus as fallback or additional info
         if (word.genus != null && word.genus!.isNotEmpty) {

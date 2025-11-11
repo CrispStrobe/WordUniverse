@@ -46,10 +46,13 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
   Point? _dragStart;
   Point? _dragCurrent;
   
+  // --- MODIFIED: Feedback State ---
   FeedbackState _feedbackState = FeedbackState.none;
-  Timer? _feedbackTimer;
+  Timer? _feedbackTimer; // This timer is for failure reset
+  Timer? _hintTimer; // This timer is for the hint toast
   bool _showConfetti = false;
-  String _educationalInfo = '';
+  String _educationalInfo = ''; // This is the success hint
+  String _feedbackMessage = ''; // This is the failure/success message
 
   @override
   void initState() {
@@ -62,6 +65,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
   @override
   void dispose() {
     _feedbackTimer?.cancel();
+    _hintTimer?.cancel(); // --- FIX: Cancel the new hint timer ---
     super.dispose();
   }
 
@@ -104,6 +108,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
   }
 
   void _loadNextPuzzle() {
+    // --- FIX: Check for game over *before* loading the next puzzle ---
     if (_puzzlesCompleted >= _totalPuzzles) {
       _showGameOver();
       return;
@@ -166,8 +171,8 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
         }
       }
     }
+    // --- END ADAPTIVE SELECTION ---
 
-    // Try to generate a puzzle with one of the words
     wordsForGame.shuffle();
     WordSnakeGrid? puzzle;
     GermanWord? selectedWord;
@@ -182,9 +187,11 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
     }
 
     if (puzzle == null || selectedWord == null) {
-      // Fallback: couldn't generate puzzle
       debugPrint("Could not generate word snake puzzle");
-      Navigator.of(context).pop();
+      // --- FIX: Check mounted before popping ---
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
       return;
     }
 
@@ -192,8 +199,9 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
       _currentPuzzle = puzzle;
       _currentWord = selectedWord;
       _selectedPath.clear();
-      _feedbackState = FeedbackState.none;
-      _educationalInfo = '';
+      // --- REMOVED: Feedback is cleared by hint timer or _resetPath ---
+      // _feedbackState = FeedbackState.none;
+      // _educationalInfo = ''; 
       _isLoading = false;
     });
   }
@@ -315,6 +323,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
 
   void _checkPath() {
     if (_currentPuzzle == null || _currentWord == null) return;
+    final s = S.of(context)!;
 
     // Build the word from the selected path
     String formedWord = '';
@@ -336,6 +345,10 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
       },
     );
 
+    // --- FIX: Cancel any old timers ---
+    _feedbackTimer?.cancel();
+    _hintTimer?.cancel();
+
     if (isCorrect) {
       _audioService.playSound('correct.mp3');
       _gameProvider.addScore(20);
@@ -345,232 +358,170 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
       
       setState(() {
         _score += 20;
+        // --- FIX: Increment counter *after* success ---
         _puzzlesCompleted++;
         _feedbackState = FeedbackState.correct;
-        _showConfetti = true;
+        _showConfetti = true; // This can be used for particle effects
+        _feedbackMessage = '✓ ${_currentWord!.word.toUpperCase()}';
         _educationalInfo = eduInfo;
       });
 
-      // Show success feedback, then load next puzzle
-      _feedbackTimer = Timer(const Duration(milliseconds: 2500), () {
-        setState(() {
-          _showConfetti = false;
-        });
-        _loadNextPuzzle();
+      // --- FIX: Non-blocking flow ---
+      // 1. Show hint toast for 4 seconds
+      _hintTimer = Timer(const Duration(seconds: 4), () {
+        if (mounted) {
+          setState(() {
+            _feedbackMessage = '';
+            _educationalInfo = '';
+            _feedbackState = FeedbackState.none;
+          });
+        }
       });
+      
+      // 2. After a short particle delay, load the next puzzle
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (mounted) {
+          setState(() { _showConfetti = false; });
+          _loadNextPuzzle(); // This will handle the game over check
+        }
+      });
+
     } else {
       _audioService.playSound('incorrect.mp3');
       
       setState(() {
         _feedbackState = FeedbackState.incorrect;
+        _feedbackMessage = '✗ ${s.tryAgain}';
+        _educationalInfo = '';
       });
 
-      // Show error feedback, then reset
+      // --- FIX: Non-blocking flow ---
+      // 1. Show failure toast for 2 seconds
+      _hintTimer = Timer(const Duration(seconds: 2), () {
+        if (mounted) {
+          setState(() {
+            _feedbackMessage = '';
+            _feedbackState = FeedbackState.none;
+          });
+        }
+      });
+
+      // 2. After 1 second, reset the path
       _feedbackTimer = Timer(const Duration(milliseconds: 1000), () {
-        setState(() {
-          _selectedPath.clear();
-          _feedbackState = FeedbackState.none;
-        });
+        if (mounted) {
+          _resetPath();
+        }
       });
     }
   }
 
-  /// Generates educational info for the word
+  /// --- MODIFIED: More instructive hints using inflectionData ---
   String _getEducationalInfo(GermanWord word) {
     final List<String> infoParts = [];
-    /*
-    // Add CEFR level from sources (A1, A2, B1, etc.)
-    if (word.sources.isNotEmpty) {
-      final levels = word.sources.where((s) => s.startsWith('A') || s.startsWith('B'));
-      if (levels.isNotEmpty) {
-        infoParts.add('Niveau: ${levels.first}');
-      }
-    }*/
     
     // Add Grundwortschatz badge
     if (word.isGrundwortschatzBW) {
-      infoParts.add('⭐ ');
+      infoParts.add('⭐ Grundwortschatz');
     }
     
     switch (word.wordType) {
       case GermanWordType.substantiv:
+        String nounInfo = 'Nomen';
         if (word.article != null && word.article!.isNotEmpty) {
-          infoParts.add(word.article!);
+          nounInfo += ' (${word.article})';
         }
-        
-        // Add number (Singular/Plural)
-        if (word.numberSpacy != null && word.numberSpacy!.isNotEmpty) {
-          final numberMap = {
-            'Sing': 'Singular',
-            'Plur': 'Plural',
-          };
-          infoParts.add(numberMap[word.numberSpacy] ?? word.numberSpacy!);
-        }
-        
-        if (word.plural != null && word.plural!.isNotEmpty && word.plural != '-') {
-          infoParts.add('Plural: ${word.plural}');
-        }
+        infoParts.add(nounInfo);
         
         if (word.genus != null && word.genus!.isNotEmpty) {
-          infoParts.add(word.genus!.toLowerCase());
+          infoParts.add('Genus: ${word.genus}');
+        }
+
+        if (word.plural != null && word.plural!.isNotEmpty && word.plural != '-') {
+          infoParts.add('Plural: ${word.plural}');
         }
         break;
         
       case GermanWordType.verb:
-        // Try to show conjugation from inflectionData
-        if (word.inflectionData != null && word.inflectionData!.isNotEmpty) {
-          final conjugation = _getRandomVerbConjugation(word.inflectionData!);
-          if (conjugation != null) {
-            infoParts.add(conjugation);
-          }
-        }
-        
-        // Show verb form info
-        if (word.verbFormSpacy != null && word.verbFormSpacy!.isNotEmpty) {
-          final verbFormMap = {
-            'Inf': 'Infinitiv',
-            'Fin': 'finit',
-            'Part': 'Partizip',
-          };
-          final verbForm = verbFormMap[word.verbFormSpacy] ?? word.verbFormSpacy!;
-          if (infoParts.isEmpty || !infoParts.any((p) => p.contains(':'))) {
-            infoParts.add(verbForm);
-          }
-        }
-        
-        // Show forms if available (conjugations)
-        if (infoParts.length <= 2 && word.forms != null && word.forms!.isNotEmpty) {
-          final formsList = word.forms!.split(',').take(2);
-          for (final form in formsList) {
-            final trimmed = form.trim();
-            if (trimmed.isNotEmpty) {
-              infoParts.add(trimmed);
+        infoParts.add('Verb (Tun-Wort)');
+        String? ichForm, duForm, erForm;
+
+        if (word.inflectionData != null) {
+          try {
+            final conjugations = word.inflectionData!['analyses']?['verb']?['conjugation']?['Präsens'] as Map<String, dynamic>?;
+            if (conjugations != null) {
+              ichForm = conjugations['ich'] as String?;
+              duForm = conjugations['du'] as String?;
+              erForm = conjugations['er/sie/es'] as String?;
             }
+          } catch (e) {
+            debugPrint('Error parsing verb inflectionData for ${word.word}: $e');
           }
         }
         
-        if (infoParts.isEmpty || (infoParts.length == 1 && infoParts[0].startsWith('Niveau'))) {
-          infoParts.add('Verb');
+        if (ichForm != null && duForm != null && erForm != null) {
+          infoParts.add('z.B. ich $ichForm, du $duForm, er $erForm');
+        } 
+        else if (word.forms != null && word.forms!.isNotEmpty) {
+          infoParts.add('Formen: ${word.forms}');
         }
         break;
         
       case GermanWordType.adjektiv:
-        // Try to show comparative and superlative from inflectionData
+        String adjInfo = 'Adjektiv (Wie-Wort)';
+        if (word.degreeSpacy != null && word.degreeSpacy == 'Pos') {
+          adjInfo = 'Adjektiv (Positiv)';
+        }
+        infoParts.add(adjInfo);
+        
+        String? komparativ, superlativ;
+        
         if (word.inflectionData != null) {
-          final comparative = word.inflectionData!['comparative'];
-          final superlative = word.inflectionData!['superlative'];
-          
-          if (comparative != null && comparative.toString().isNotEmpty && comparative != '-') {
-            infoParts.add(comparative.toString());
-          }
-          if (superlative != null && superlative.toString().isNotEmpty && superlative != '-') {
-            infoParts.add(superlative.toString());
-          }
-        }
-        
-        // Show degree info if available
-        if (word.degreeSpacy != null && word.degreeSpacy!.isNotEmpty && infoParts.length <= 2) {
-          final degreeMap = {
-            'Pos': 'Positiv',
-            'Cmp': 'Komparativ',
-            'Sup': 'Superlativ',
-          };
-          final degreeLabel = degreeMap[word.degreeSpacy] ?? word.degreeSpacy!;
-          if (!infoParts.any((p) => p.contains('er') || p.contains('sten'))) {
-            infoParts.add(degreeLabel);
-          }
-        }
-        
-        // Show forms if available (comparative/superlative)
-        if (infoParts.length <= 2 && word.forms != null && word.forms!.isNotEmpty) {
-          final formsList = word.forms!.split(',').take(2);
-          for (final form in formsList) {
-            final trimmed = form.trim();
-            if (trimmed.isNotEmpty) {
-              infoParts.add(trimmed);
+           try {
+              final comparison = word.inflectionData!['analyses']?['adjektiv']?['comparison'] as Map<String, dynamic>?;
+              if (comparison != null) {
+                komparativ = comparison['Komparativ'] as String?;
+                superlativ = comparison['Superlativ'] as String?;
+              }
+            } catch (e) {
+               debugPrint('Error parsing adj inflectionData for ${word.word}: $e');
             }
-          }
         }
-        
-        if (infoParts.isEmpty || (infoParts.length == 1 && infoParts[0].startsWith('Niveau'))) {
-          infoParts.add('Adjektiv');
+
+        if (komparativ != null && superlativ != null && komparativ.isNotEmpty && superlativ.isNotEmpty) {
+          infoParts.add('Steigerung: ${word.word}, $komparativ, $superlativ');
+        } 
+        else if (word.forms != null && word.forms!.isNotEmpty) {
+          infoParts.add('Steigerung: ${word.forms}');
         }
         break;
         
       case GermanWordType.pronomen:
-        // Show case if available
+        infoParts.add('Pronomen');
         if (word.caseSpacy != null && word.caseSpacy!.isNotEmpty) {
-          final caseMap = {
-            'Nom': 'Nominativ',
-            'Acc': 'Akkusativ',
-            'Dat': 'Dativ',
-            'Gen': 'Genitiv',
-          };
+          final caseMap = {'Nom': 'Nominativ', 'Acc': 'Akkusativ', 'Dat': 'Dativ', 'Gen': 'Genitiv'};
           infoParts.add(caseMap[word.caseSpacy] ?? word.caseSpacy!);
         }
-        
-        // Show number
-        if (word.numberSpacy != null && word.numberSpacy!.isNotEmpty) {
-          final numberMap = {
-            'Sing': 'Singular',
-            'Plur': 'Plural',
-          };
-          infoParts.add(numberMap[word.numberSpacy] ?? word.numberSpacy!);
-        }
-        
-        // Show pronoun type
         if (word.pronTypeSpacy != null && word.pronTypeSpacy!.isNotEmpty) {
           infoParts.add(word.pronTypeSpacy!);
-        }
-        
-        if (infoParts.isEmpty || (infoParts.length == 1 && infoParts[0].startsWith('Niveau'))) {
-          infoParts.add('Pronomen');
         }
         break;
         
       case GermanWordType.artikel:
-        // Show case and gender info
+        infoParts.add('Artikel');
         if (word.caseSpacy != null && word.caseSpacy!.isNotEmpty) {
-          final caseMap = {
-            'Nom': 'Nominativ',
-            'Acc': 'Akkusativ',
-            'Dat': 'Dativ',
-            'Gen': 'Genitiv',
-          };
+          final caseMap = {'Nom': 'Nominativ', 'Acc': 'Akkusativ', 'Dat': 'Dativ', 'Gen': 'Genitiv'};
           infoParts.add(caseMap[word.caseSpacy] ?? word.caseSpacy!);
         }
-        
         if (word.genus != null && word.genus!.isNotEmpty) {
           infoParts.add(word.genus!.toLowerCase());
         }
-        
-        if (word.numberSpacy != null && word.numberSpacy!.isNotEmpty) {
-          final numberMap = {
-            'Sing': 'Singular',
-            'Plur': 'Plural',
-          };
-          infoParts.add(numberMap[word.numberSpacy] ?? word.numberSpacy!);
-        }
-        
-        if (infoParts.isEmpty || (infoParts.length == 1 && infoParts[0].startsWith('Niveau'))) {
-          infoParts.add('Artikel');
-        }
-        break;
-        
-      case GermanWordType.adverb:
-        infoParts.add('Adverb');
-        break;
-        
-      case GermanWordType.praeposition:
-        infoParts.add('Präposition');
-        break;
-        
-      case GermanWordType.konjunktion:
-        infoParts.add('Konjunktion');
         break;
         
       default:
         final typeMap = {
+          GermanWordType.adverb: 'Adverb',
+          GermanWordType.praeposition: 'Präposition',
+          GermanWordType.konjunktion: 'Konjunktion',
           GermanWordType.partikel: 'Partikel',
           GermanWordType.numerale: 'Numerale',
         };
@@ -580,73 +531,24 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
         }
     }
     
-    // Add one example sentence if available (keep it short)
-    if (word.exampleSentences.isNotEmpty && infoParts.length < 4) {
+    // Add one example sentence if available
+    if (word.exampleSentences.isNotEmpty) {
       final example = word.exampleSentences[0];
-      if (example.length <= 50) {
-        infoParts.add('z.B.: $example');
-      }
+      infoParts.add('z.B.: $example');
     }
     
-    /* 
-    // Add common mistakes if available
-    if (word.commonMistakes != null && word.commonMistakes!.isNotEmpty && infoParts.length < 5) {
-      final mistakes = word.commonMistakes!.take(2).join(', ');
-      infoParts.add('⚠️ nicht: $mistakes');
-    } */
-    
-    if (infoParts.isEmpty) return '';
+    if (infoParts.isEmpty) return '✓ ${word.word.toUpperCase()}';
     return infoParts.join(' • ');
   }
 
-  /// Gets a random verb conjugation from inflectionData
-  String? _getRandomVerbConjugation(Map<String, dynamic> inflectionData) {
-    final random = Random();
-    
-    final options = [
-      ('Präsens', ['ich', 'du', 'er', 'sie', 'es', 'wir', 'ihr']),
-      ('Präteritum', ['ich', 'du', 'er', 'sie', 'es']),
-      ('Perfekt', ['ich', 'du', 'er']),
-    ];
-    
-    options.shuffle(random);
-    
-    for (final (tense, persons) in options) {
-      final tenseKeys = [
-        tense,
-        tense.toLowerCase(),
-        tense.replaceAll('ä', 'a').replaceAll('ü', 'u'),
-        'present',
-        'past',
-        'perfect',
-      ];
-      
-      for (final tenseKey in tenseKeys) {
-        if (inflectionData.containsKey(tenseKey)) {
-          final tenseData = inflectionData[tenseKey];
-          if (tenseData is Map) {
-            final shuffledPersons = List<String>.from(persons)..shuffle(random);
-            
-            for (final person in shuffledPersons) {
-              if (tenseData.containsKey(person)) {
-                final form = tenseData[person];
-                if (form != null && form.toString().isNotEmpty && form != '-') {
-                  return '$person: $form';
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    
-    return null;
-  }
+  // --- REMOVED: _getRandomVerbConjugation (logic moved into _getEducationalInfo) ---
 
   void _resetPath() {
     setState(() {
       _selectedPath.clear();
       _feedbackState = FeedbackState.none;
+      _feedbackMessage = '';
+      _educationalInfo = '';
     });
   }
 
@@ -719,7 +621,27 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
               if (_isLoading)
                 const Expanded(child: Center(child: CircularProgressIndicator()))
               else
-                _buildGameContent(),
+                // --- MODIFIED: Wrap game content in a Stack for the toast ---
+                Expanded(
+                  child: Stack(
+                    children: [
+                      _buildGameContent(s),
+                      
+                      // --- NEW: Non-blocking feedback toast ---
+                      AnimatedPositioned(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeOutCubic,
+                        top: _feedbackMessage.isNotEmpty ? 20.0 : -150.0,
+                        right: 20.0,
+                        left: 20.0,
+                        child: Align(
+                          alignment: Alignment.topRight,
+                          child: _buildFeedbackToast(s),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
             ],
           ),
         ),
@@ -727,151 +649,113 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
     );
   }
 
-  Widget _buildGameContent() {
+  Widget _buildGameContent(S s) { // --- MODIFIED: Pass S ---
     if (_currentPuzzle == null) return const SizedBox.shrink();
-    final s = S.of(context)!;
+    
+    return Column( // --- MODIFIED: Was Expanded(child: Stack(...)) ---
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        // Progress indicator
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Text(
+            // --- FIX: Use _puzzlesCompleted + 1 to show current puzzle ---
+            s.wordSnakePuzzleProgress(_puzzlesCompleted + 1, _totalPuzzles),
+            style: SpaceTheme.titleStyle.copyWith(
+              color: SpaceTheme.starYellow,
+            ),
+          ),
+        ),
+        
+        // The grid
+        Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: _buildGrid(),
+          ),
+        ),
 
-    return Expanded(
-      child: Stack(
-        children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+        // Hint and reset button
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
             children: [
-              // Progress indicator
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  s.wordSnakePuzzleProgress(_puzzlesCompleted + 1, _totalPuzzles),
-                  style: SpaceTheme.titleStyle.copyWith(
-                    color: SpaceTheme.starYellow,
-                  ),
-                ),
+              Text(
+                s.wordSnakeConnectLetters(_currentPuzzle!.word.length),
+                style: SpaceTheme.bodyStyle,
               ),
-              
-              // The grid
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: _buildGrid(),
-                ),
-              ),
-
-              // Hint and reset button
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    Text(
-                      s.wordSnakeConnectLetters(_currentPuzzle!.word.length),
-                      style: SpaceTheme.bodyStyle,
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton.icon(
-                      onPressed: _feedbackState == FeedbackState.none ? _resetPath : null,
-                      icon: const Icon(Icons.refresh),
-                      label: Text(s.wordSnakeReset),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: SpaceTheme.cosmicPink,
-                      ),
-                    ),
-                  ],
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: _feedbackState == FeedbackState.none ? _resetPath : null,
+                icon: const Icon(Icons.refresh),
+                label: Text(s.wordSnakeReset),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: SpaceTheme.cosmicPink,
                 ),
               ),
             ],
           ),
-          
-          // Success overlay with educational info
-          if (_feedbackState == FeedbackState.correct)
-            Center(
-              child: Container(
-                padding: const EdgeInsets.all(24),
-                margin: const EdgeInsets.symmetric(horizontal: 40),
-                decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.95),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: SpaceTheme.starYellow, width: 2),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '✓ ${_currentWord!.word.toUpperCase()}',
-                      style: SpaceTheme.headlineStyle.copyWith(fontSize: 32),
-                    ),
-                    if (_educationalInfo.isNotEmpty) ...[
-                      const SizedBox(height: 12),
-                      Text(
-                        _educationalInfo,
-                        style: SpaceTheme.bodyStyle.copyWith(
-                          fontSize: 16,
-                          color: SpaceTheme.starYellow,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                    if (_showConfetti) ...[
-                      const SizedBox(height: 16),
-                      const Text(
-                        '🎉',
-                        style: TextStyle(fontSize: 60),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ),
-
-          // Failure overlay
-          if (_feedbackState == FeedbackState.incorrect)
-            Center(
-              child: Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.9),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Text(
-                  '✗ ${s.tryAgain}',
-                  style: SpaceTheme.headlineStyle.copyWith(fontSize: 32),
-                ),
-              ),
-            ),
-        ],
-      ),
+        ),
+        
+        // --- REMOVED: All the old feedback overlays ---
+      ],
     );
   }
 
   Widget _buildGrid() {
     final puzzle = _currentPuzzle!;
-    final cellSize = 80.0;
+    
+    // --- Responsive Cell Size ---
+    // Use LayoutBuilder to get the available space
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Find the largest possible square cell size
+        final double maxWidth = constraints.maxWidth;
+        final double maxHeight = constraints.maxHeight; // Not always available, but good to check
+        
+        // Calculate cell size based on width
+        double cellSize = (maxWidth / puzzle.cols) - 4; // 4 for spacing
+        
+        // If height is constrained, check against that too
+        if (maxHeight.isFinite && maxHeight > 0) {
+          final double cellHeight = (maxHeight / puzzle.rows) - 4;
+          cellSize = min(cellSize, cellHeight);
+        }
+        
+        // Set a max cell size
+        cellSize = min(cellSize, 80.0);
 
-    return GestureDetector(
-      key: _gridKey,
-      onPanStart: _onPanStart,
-      onPanUpdate: _onPanUpdate,
-      onPanEnd: _onPanEnd,
-      child: SizedBox(
-        width: puzzle.cols * cellSize,
-        height: puzzle.rows * cellSize,
-        child: GridView.builder(
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: puzzle.cols,
-            mainAxisSpacing: 4,
-            crossAxisSpacing: 4,
+        return GestureDetector(
+          key: _gridKey,
+          onPanStart: _onPanStart,
+          onPanUpdate: _onPanUpdate,
+          onPanEnd: _onPanEnd,
+          child: SizedBox(
+            width: puzzle.cols * (cellSize + 4),
+            height: puzzle.rows * (cellSize + 4),
+            child: GridView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: puzzle.cols,
+                mainAxisSpacing: 4,
+                crossAxisSpacing: 4,
+                childAspectRatio: 1.0, // Ensure cells are square
+              ),
+              itemCount: puzzle.rows * puzzle.cols,
+              itemBuilder: (context, index) {
+                final row = index ~/ puzzle.cols;
+                final col = index % puzzle.cols;
+                // --- Pass cell size to _buildCell ---
+                return _buildCell(row, col, cellSize);
+              },
+            ),
           ),
-          itemCount: puzzle.rows * puzzle.cols,
-          itemBuilder: (context, index) {
-            final row = index ~/ puzzle.cols;
-            final col = index % puzzle.cols;
-            return _buildCell(row, col);
-          },
-        ),
-      ),
+        );
+      }
     );
   }
 
-  Widget _buildCell(int row, int col) {
+  Widget _buildCell(int row, int col, double cellSize) {
     final puzzle = _currentPuzzle!;
     final letter = puzzle.grid[row][col];
     final point = Point(col, row);
@@ -882,6 +766,11 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
     Color bgColor;
     Color textColor = Colors.white;
     String? orderText;
+    
+    // --- Dynamic font size ---
+    final fontSize = cellSize * 0.4; // 40% of cell size
+    final orderCircleSize = cellSize * 0.25; // 25% of cell size
+    final orderFontSize = cellSize * 0.15; // 15% of cell size
 
     if (_feedbackState == FeedbackState.correct && isSelected) {
       bgColor = SpaceTheme.alienGreen;
@@ -926,7 +815,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
               child: Text(
                 letter,
                 style: TextStyle(
-                  fontSize: 32,
+                  fontSize: fontSize, // Dynamic font size
                   fontWeight: FontWeight.bold,
                   color: textColor,
                   shadows: const [
@@ -940,8 +829,8 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
                 top: 4,
                 right: 4,
                 child: Container(
-                  width: 20,
-                  height: 20,
+                  width: orderCircleSize, // Dynamic size
+                  height: orderCircleSize, // Dynamic size
                   decoration: BoxDecoration(
                     color: SpaceTheme.starYellow,
                     shape: BoxShape.circle,
@@ -950,7 +839,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
                     child: Text(
                       orderText,
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: orderFontSize, // Dynamic font size
                         fontWeight: FontWeight.bold,
                         color: SpaceTheme.deepSpace,
                       ),
@@ -958,6 +847,64 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
                   ),
                 ),
               ),
+          ],
+        ),
+      ),
+    );
+  }
+  
+  /// --- NEW: Feedback Toast Widget ---
+  Widget _buildFeedbackToast(S s) {
+    if (_feedbackMessage.isEmpty) { 
+      return const SizedBox.shrink();
+    }
+    
+    final isSuccess = _feedbackState == FeedbackState.correct;
+    
+    final color = isSuccess ? Colors.green : SpaceTheme.rocketRed;
+    final icon = isSuccess ? Icons.check_circle : Icons.cancel;
+
+    return Material(
+      color: Colors.transparent,
+      child: Container(
+        width: 300,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: SpaceTheme.deepSpace.withOpacity(0.95),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color, width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: color.withOpacity(0.5),
+              blurRadius: 10,
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 32, color: color),
+            const SizedBox(height: 8),
+            Text(
+              _feedbackMessage,
+              style: SpaceTheme.bodyStyle.copyWith(fontSize: 16, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            if (_educationalInfo.isNotEmpty) ...[
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: Divider(color: Colors.white24),
+              ),
+              Text(
+                _educationalInfo,
+                style: SpaceTheme.bodyStyle.copyWith(
+                  fontSize: 14, 
+                  fontStyle: FontStyle.italic,
+                  color: Colors.white70
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ]
           ],
         ),
       ),
