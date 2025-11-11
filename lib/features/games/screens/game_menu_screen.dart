@@ -20,6 +20,7 @@ import '../../settings/screens/settings_screen.dart';
 import '../../achievements/screens/achievements_screen.dart';
 import '../../../shared/widgets/purchase_dialog.dart';
 import '../../../shared/widgets/parental_gate.dart';
+import '../../../shared/widgets/imprint_dialog.dart';
 
 class GameMenuScreen extends StatefulWidget {
   const GameMenuScreen({super.key});
@@ -128,7 +129,6 @@ class _GameMenuScreenState extends State<GameMenuScreen> with TickerProviderStat
     );
   }
   
-  // Header remains the same... (Code omitted for brevity)
   Widget _buildHeader() {
     final debugProvider = context.watch<DebugProvider>();
     return Container(
@@ -167,6 +167,7 @@ class _GameMenuScreenState extends State<GameMenuScreen> with TickerProviderStat
               ],
             ),
           ),
+          // This Consumer is just for the Score
           Consumer<GameProvider>(
             builder: (context, gameProvider, child) {
               return Container(
@@ -189,6 +190,7 @@ class _GameMenuScreenState extends State<GameMenuScreen> with TickerProviderStat
               );
             },
           ),
+          // This Row holds all the action icons
           const SizedBox(width: 8),
           Row(
             mainAxisSize: MainAxisSize.min,
@@ -201,6 +203,23 @@ class _GameMenuScreenState extends State<GameMenuScreen> with TickerProviderStat
                 style: IconButton.styleFrom(backgroundColor: SpaceTheme.deepSpace.withOpacity(0.8)),
               ),
               const SizedBox(width: 4),
+
+              // --- ADDED IMPRINT BUTTON ---
+              IconButton(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => const ImprintDialog(),
+                  );
+                },
+                icon: const Icon(Icons.gavel_rounded),
+                color: SpaceTheme.moonSilver, // Match settings icon
+                tooltip: S.of(context)!.imprintTitle,
+                style: IconButton.styleFrom(backgroundColor: SpaceTheme.deepSpace.withOpacity(0.8)),
+              ),
+              const SizedBox(width: 4),
+              // --- END OF ADDED BUTTON ---
+
               IconButton(
                 onPressed: _navigateToSettings,
                 icon: const Icon(Icons.settings),

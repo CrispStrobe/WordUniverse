@@ -9,14 +9,14 @@ import '../../../generated/l10n.dart';
 import '../../achievements/screens/achievements_screen.dart';
 import '../../games/providers/game_provider.dart';
 import '../../games/widgets/space_background.dart';
-// Note: This file (animated_logo.dart) is duplicated in your file list.
-// I am using the one from features/home/widgets/
+
 import '../widgets/animated_logo.dart'; 
 import '../widgets/grade_selector.dart';
 import '../widgets/stats_card.dart';
 import '../../games/screens/game_menu_screen.dart';
 import '../../settings/screens/settings_screen.dart';
 import '../../games/widgets/debug_panel.dart';
+import '../../../shared/widgets/imprint_dialog.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -193,19 +193,49 @@ class _HomeScreenState extends State<HomeScreen>
             ),
             ),
         ),
-        
-        IconButton(
-            onPressed: _navigateToSettings,
-            icon: const Icon(
-            Icons.settings,
-            color: Colors.white,
-            size: 28,
+
+        // --- MODIFICATION START ---
+        // Wrap icons in a Row
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => const ImprintDialog(),
+                );
+              },
+              icon: const Icon(
+                Icons.gavel_rounded,
+                color: Colors.white, // Match settings icon
+                size: 28,
+              ),
+              style: IconButton.styleFrom(
+                backgroundColor: SpaceTheme.deepSpace.withOpacity(0.8),
+                padding: const EdgeInsets.all(12),
+              ),
+              tooltip: S.of(context)!.imprintTitle,
             ),
-            style: IconButton.styleFrom(
-            backgroundColor: SpaceTheme.deepSpace.withOpacity(0.8),
-            padding: const EdgeInsets.all(12),
+
+            const SizedBox(width: 4), // Spacing
+
+            // Existing Settings Button
+            IconButton(
+                onPressed: _navigateToSettings,
+                icon: const Icon(
+                Icons.settings,
+                color: Colors.white,
+                size: 28,
+                ),
+                style: IconButton.styleFrom(
+                backgroundColor: SpaceTheme.deepSpace.withOpacity(0.8),
+                padding: const EdgeInsets.all(12),
+                ),
             ),
-        ),
+          ],
+        )
+        // --- MODIFICATION END ---
         ],
     );
   }

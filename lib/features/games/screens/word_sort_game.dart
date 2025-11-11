@@ -179,7 +179,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       if (wordString == null) continue;
 
       try {
-        final word = _vocabularyService.allWords.firstWhere(
+        final word = _vocabularyService.getAllWords(_gameProvider).firstWhere(
             (w) => w.word.toLowerCase() == wordString.toLowerCase());
 
         if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
@@ -194,6 +194,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       sriService: _sriService,
       grade: widget.gradeLevel,
       limit: (_wordsTotal - wordsForGame.length) * 2,
+      settingsProvider: _gameProvider,
     );
 
     for (final word in newWords) {
@@ -205,7 +206,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     }
 
     if (wordsForGame.length < _wordsTotal) {
-      final allWords = _vocabularyService.getWordsByGrade(widget.gradeLevel);
+      final allWords = _vocabularyService.getWordsByGrade(widget.gradeLevel, _gameProvider);
       allWords.shuffle();
 
       for (final word in allWords) {

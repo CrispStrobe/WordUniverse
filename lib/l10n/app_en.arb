@@ -351,5 +351,119 @@
     "sriMastered": "Mastered",
     "sriLearning": "Learning",
     "progressMatrixTitle": "Progress Matrix",
-    "progressMatrixDesc": "Color shows mastery (green is best). Number shows problems tracked in that area."
+    "progressMatrixDesc": "Color shows mastery (green is best). Number shows problems tracked in that area.",
+
+
+    "imprint": "Imprint / Legal",
+    "imprintTitle": "Imprint / Legal.",
+    "imprintDialog": "Imprint / Legal..",
+    "viewLegalNotice": "Info about the Service Provider...",
+    "imprintServiceProvider": "Service Provider",
+    "imprintProviderAddress": "Christian Ströbele\nNikolausstr. 5\n70190 Stuttgart\nDeutschland/Germany",
+    "imprintContact": "Contact",
+    "imprintContactDetails": "Email: postmaster@crispstro.be\nPhone: 0049 176 6421 8601",
+    "imprintContentResponsible": "Responsible for Content",
+    "imprintDisclaimer": "Disclaimer",
+    "imprintDisclaimerText": "This app is provided as is, exclusively for educational and creative purposes, without any liability.",
+    "imprintWebsite": "www.crispstro.be",
+    "close": "Close",
+
+    "taskCustomizationTitle": "Task Customization",
+    "@taskCustomizationTitle": {
+        "description": "Title for the task customization settings card"
+    },
+    "taskCustomizationEnable": "Enable Customization",
+    "@taskCustomizationEnable": {
+        "description": "Label for the toggle switch to enable task customization"
+    },
+    "taskCustomizationEnableDesc": "Filter vocabulary for exercises",
+    "@taskCustomizationEnableDesc": {
+        "description": "Description for the enable toggle"
+    },
+    "taskWordLengthTitle": "Word Length",
+    "@taskWordLengthTitle": {
+        "description": "Title for the word length range slider"
+    },
+    "taskWordLengthRange": "Words with {min} to {max} letters",
+    "@taskWordLengthRange": {
+        "description": "Label showing the selected min/max word length. e.g. 'Words with 3 to 8 letters'",
+        "placeholders": {
+        "min": {
+            "type": "int"
+        },
+        "max": {
+            "type": "int"
+        }
+        }
+    },
+    "taskIncludedSourcesTitle": "Word Sources",
+    "@taskIncludedSourcesTitle": {
+        "description": "Title for the included sources section"
+    },
+    "taskIncludedSourcesDesc": "Only show words from selected sources (empty = all)",
+    "@taskIncludedSourcesDesc": {
+        "description": "Description for the source selection. (empty = all)"
+    },
+    "taskWildcardIncludeTitle": "Wildcard Filters (Include)",
+    "@taskWildcardIncludeTitle": {
+        "description": "Title for the include wildcard filter section"
+    },
+    "taskWildcardIncludeDesc": "Only show words that match (e.g. *ing)",
+    "@taskWildcardIncludeDesc": {
+        "description": "Description for include wildcards"
+    },
+    "taskWildcardExcludeTitle": "Wildcard Filters (Exclude)",
+    "@taskWildcardExcludeTitle": {
+        "description": "Title for the exclude wildcard filter section"
+    },
+    "taskWildcardExcludeDesc": "Hide words that match (e.g. un*)",
+    "@taskWildcardExcludeDesc": {
+        "description": "Description for exclude wildcards"
+    },
+    "taskWildcardHint": "Add new filter...",
+    "@taskWildcardHint": {
+        "description": "Hint text for the text field to add a new wildcard"
+    },
+    "taskCustomizationWarning": "Filters active! Vocabulary is limited.",
+    "@taskCustomizationWarning": {
+        "description": "A warning message shown elsewhere in the app if filters are active"
+    },
+    
+    "taskActiveSetTitle": "Active Vocabulary Set",
+    "taskActiveSetDesc": "Overrides all other filters when active.",
+    "taskActiveSetNone": "None (Use filters below)",
+    "taskManageSets": "Manage Custom Sets",
+    "taskFiltersDisabled": "The filters below are disabled because a custom set is active.",
+    "customSetCreateTitle": "Create New Set",
+    "customSetEditTitle": "Edit Set",
+    "save": "Save",
+    "customSetNameLabel": "Set Name",
+    "customSetNameHint": "e.g., 'Tricky Verbs'",
+    "customSetDescriptionLabel": "Description",
+    "customSetDescriptionHint": "A short description of this set...",
+    "customSetTargetGrade": "Target Grade",
+    "customSetAvailableWords": "Available Words",
+    "customSetSelectedWords": "Selected Words ({count})",
+    "@customSetSelectedWords": {
+        "placeholders": {
+        "count": {
+            "type": "int"
+        }
+        }
+    },
+    "customSetSearchHint": "Filter words...",
+    "customSetAddAll": "Add All",
+    "customSetRemoveAll": "Remove All",
+    "customSetEmpty": "No words selected yet.",
+    "customSetNoAvailable": "No matching words found.",
+    "customSetDelete": "Delete Set",
+    "customSetDeleteConfirmTitle": "Delete Set?",
+    "customSetDeleteConfirmContent": "Are you sure you want to delete {setName}?",
+    "@customSetDeleteConfirmContent": {
+        "placeholders": {
+        "setName": {
+            "type": "String"
+        }
+        }
+    }
 }

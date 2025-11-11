@@ -674,4 +674,161 @@ class SEn extends S {
   @override
   String get progressMatrixDesc =>
       'Color shows mastery (green is best). Number shows problems tracked in that area.';
+
+  @override
+  String get imprint => 'Imprint / Legal';
+
+  @override
+  String get imprintTitle => 'Imprint / Legal.';
+
+  @override
+  String get imprintDialog => 'Imprint / Legal..';
+
+  @override
+  String get viewLegalNotice => 'Info about the Service Provider...';
+
+  @override
+  String get imprintServiceProvider => 'Service Provider';
+
+  @override
+  String get imprintProviderAddress =>
+      'Christian Ströbele\nNikolausstr. 5\n70190 Stuttgart\nDeutschland/Germany';
+
+  @override
+  String get imprintContact => 'Contact';
+
+  @override
+  String get imprintContactDetails =>
+      'Email: postmaster@crispstro.be\nPhone: 0049 176 6421 8601';
+
+  @override
+  String get imprintContentResponsible => 'Responsible for Content';
+
+  @override
+  String get imprintDisclaimer => 'Disclaimer';
+
+  @override
+  String get imprintDisclaimerText =>
+      'This app is provided as is, exclusively for educational and creative purposes, without any liability.';
+
+  @override
+  String get imprintWebsite => 'www.crispstro.be';
+
+  @override
+  String get taskCustomizationTitle => 'Task Customization';
+
+  @override
+  String get taskCustomizationEnable => 'Enable Customization';
+
+  @override
+  String get taskCustomizationEnableDesc => 'Filter vocabulary for exercises';
+
+  @override
+  String get taskWordLengthTitle => 'Word Length';
+
+  @override
+  String taskWordLengthRange(int min, int max) {
+    return 'Words with $min to $max letters';
+  }
+
+  @override
+  String get taskIncludedSourcesTitle => 'Word Sources';
+
+  @override
+  String get taskIncludedSourcesDesc =>
+      'Only show words from selected sources (empty = all)';
+
+  @override
+  String get taskWildcardIncludeTitle => 'Wildcard Filters (Include)';
+
+  @override
+  String get taskWildcardIncludeDesc =>
+      'Only show words that match (e.g. *ing)';
+
+  @override
+  String get taskWildcardExcludeTitle => 'Wildcard Filters (Exclude)';
+
+  @override
+  String get taskWildcardExcludeDesc => 'Hide words that match (e.g. un*)';
+
+  @override
+  String get taskWildcardHint => 'Add new filter...';
+
+  @override
+  String get taskCustomizationWarning =>
+      'Filters active! Vocabulary is limited.';
+
+  @override
+  String get taskActiveSetTitle => 'Active Vocabulary Set';
+
+  @override
+  String get taskActiveSetDesc => 'Overrides all other filters when active.';
+
+  @override
+  String get taskActiveSetNone => 'None (Use filters below)';
+
+  @override
+  String get taskManageSets => 'Manage Custom Sets';
+
+  @override
+  String get taskFiltersDisabled =>
+      'The filters below are disabled because a custom set is active.';
+
+  @override
+  String get customSetCreateTitle => 'Create New Set';
+
+  @override
+  String get customSetEditTitle => 'Edit Set';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get customSetNameLabel => 'Set Name';
+
+  @override
+  String get customSetNameHint => 'e.g., \'Tricky Verbs\'';
+
+  @override
+  String get customSetDescriptionLabel => 'Description';
+
+  @override
+  String get customSetDescriptionHint => 'A short description of this set...';
+
+  @override
+  String get customSetTargetGrade => 'Target Grade';
+
+  @override
+  String get customSetAvailableWords => 'Available Words';
+
+  @override
+  String customSetSelectedWords(int count) {
+    return 'Selected Words ($count)';
+  }
+
+  @override
+  String get customSetSearchHint => 'Filter words...';
+
+  @override
+  String get customSetAddAll => 'Add All';
+
+  @override
+  String get customSetRemoveAll => 'Remove All';
+
+  @override
+  String get customSetEmpty => 'No words selected yet.';
+
+  @override
+  String get customSetNoAvailable => 'No matching words found.';
+
+  @override
+  String get customSetDelete => 'Delete Set';
+
+  @override
+  String get customSetDeleteConfirmTitle => 'Delete Set?';
+
+  @override
+  String customSetDeleteConfirmContent(String setName) {
+    return 'Are you sure you want to delete $setName?';
+  }
 }

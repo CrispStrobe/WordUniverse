@@ -682,4 +682,164 @@ class SDe extends S {
   @override
   String get progressMatrixDesc =>
       'Die Farbe zeigt die Beherrschung (grün ist am besten). Die Zahl zeigt die Anzahl der Aufgaben in diesem Bereich.';
+
+  @override
+  String get imprint => 'Impressum';
+
+  @override
+  String get imprintTitle => 'Impressum.';
+
+  @override
+  String get imprintDialog => 'Imprint / Legal..';
+
+  @override
+  String get viewLegalNotice => 'Informationen zum Diensteanbieter';
+
+  @override
+  String get imprintServiceProvider => 'Diensteanbieter';
+
+  @override
+  String get imprintProviderAddress =>
+      'Christian Ströbele\nNikolausstr. 5\n70190 Stuttgart\nDeutschland/Germany';
+
+  @override
+  String get imprintContact => 'Kontakt';
+
+  @override
+  String get imprintContactDetails =>
+      'Email: postmaster@crispstro.be\nPhone: 0049 176 6421 8601';
+
+  @override
+  String get imprintContentResponsible => 'Verantwortlich für den Inhalt';
+
+  @override
+  String get imprintDisclaimer => 'Haftungsausschluss';
+
+  @override
+  String get imprintDisclaimerText =>
+      'Diese App wird \'as is\' (so wie sie ist) ausschließlich zu Bildungs- und kreativen Zwecken bereitgestellt, ohne jegliche Haftung.';
+
+  @override
+  String get imprintWebsite => 'www.crispstro.be';
+
+  @override
+  String get taskCustomizationTitle => 'Aufgaben-Anpassung';
+
+  @override
+  String get taskCustomizationEnable => 'Anpassung aktivieren';
+
+  @override
+  String get taskCustomizationEnableDesc => 'Wortschatz für Übungen filtern';
+
+  @override
+  String get taskWordLengthTitle => 'Wortlänge';
+
+  @override
+  String taskWordLengthRange(int min, int max) {
+    return 'Wörter mit $min bis $max Buchstaben';
+  }
+
+  @override
+  String get taskIncludedSourcesTitle => 'Wortquellen';
+
+  @override
+  String get taskIncludedSourcesDesc =>
+      'Nur Wörter aus den gewählten Quellen anzeigen (leer = alle)';
+
+  @override
+  String get taskWildcardIncludeTitle => 'Platzhalter-Filter (Einschließen)';
+
+  @override
+  String get taskWildcardIncludeDesc =>
+      'Zeige nur Wörter, die passen (z.B. *ung)';
+
+  @override
+  String get taskWildcardExcludeTitle => 'Platzhalter-Filter (Ausschließen)';
+
+  @override
+  String get taskWildcardExcludeDesc =>
+      'Verstecke Wörter, die passen (z.B. ge*)';
+
+  @override
+  String get taskWildcardHint => 'Neuen Filter hinzufügen...';
+
+  @override
+  String get taskCustomizationWarning =>
+      'Filter aktiv! Der Wortschatz ist eingeschränkt.';
+
+  @override
+  String get taskActiveSetTitle => 'Aktives Wortschatz-Set';
+
+  @override
+  String get taskActiveSetDesc =>
+      'Überschreibt alle anderen Filter, wenn aktiv.';
+
+  @override
+  String get taskActiveSetNone => 'Keines (Filter unten verwenden)';
+
+  @override
+  String get taskManageSets => 'Eigene Sets verwalten';
+
+  @override
+  String get taskFiltersDisabled =>
+      'Die Filter unten sind deaktiviert, da ein eigenes Set aktiv ist.';
+
+  @override
+  String get customSetCreateTitle => 'Neues Set erstellen';
+
+  @override
+  String get customSetEditTitle => 'Set bearbeiten';
+
+  @override
+  String get save => 'Speichern';
+
+  @override
+  String get customSetNameLabel => 'Name des Sets';
+
+  @override
+  String get customSetNameHint => 'z.B. \'Schwierige Verben\'';
+
+  @override
+  String get customSetDescriptionLabel => 'Beschreibung';
+
+  @override
+  String get customSetDescriptionHint =>
+      'Eine kurze Beschreibung dieses Sets...';
+
+  @override
+  String get customSetTargetGrade => 'Ziel-Klassenstufe';
+
+  @override
+  String get customSetAvailableWords => 'Verfügbare Wörter';
+
+  @override
+  String customSetSelectedWords(int count) {
+    return 'Ausgewählte Wörter ($count)';
+  }
+
+  @override
+  String get customSetSearchHint => 'Wörter filtern...';
+
+  @override
+  String get customSetAddAll => 'Alle hinzufügen';
+
+  @override
+  String get customSetRemoveAll => 'Alle entfernen';
+
+  @override
+  String get customSetEmpty => 'Noch keine Wörter ausgewählt.';
+
+  @override
+  String get customSetNoAvailable => 'Keine passenden Wörter gefunden.';
+
+  @override
+  String get customSetDelete => 'Set löschen';
+
+  @override
+  String get customSetDeleteConfirmTitle => 'Set löschen?';
+
+  @override
+  String customSetDeleteConfirmContent(String setName) {
+    return 'Möchtest du das Set $setName wirklich löschen?';
+  }
 }

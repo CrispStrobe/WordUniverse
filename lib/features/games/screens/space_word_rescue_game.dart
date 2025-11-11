@@ -258,10 +258,11 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
       sriService: _sriService,
       grade: widget.gradeLevel,
       limit: 5,
+      settingsProvider: _gameProvider,
     );
 
     if (words.isEmpty) {
-      final allWords = _vocabularyService.getWordsByGrade(widget.gradeLevel);
+      final allWords = _vocabularyService.getWordsByGrade(widget.gradeLevel, _gameProvider);
       if (allWords.isNotEmpty) {
         words.add(allWords[Random().nextInt(allWords.length)]);
       }
