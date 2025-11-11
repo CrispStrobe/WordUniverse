@@ -31,6 +31,7 @@ import 'features/achievements/screens/achievements_screen.dart';
 import 'features/games/screens/space_word_rescue_game.dart';
 import 'features/games/screens/word_find_game.dart';
 import 'features/games/screens/word_sort_game.dart';
+import 'features/games/screens/word_snake_game.dart';
 
 // --- UTILS & GENERATED ---
 import 'shared/utils/app_utilities.dart';
@@ -261,6 +262,7 @@ class AppRoutes {
   static const String spaceWordRescue = '/games/space-word-rescue';
   static const String wordFind = '/games/word-find';
   static const String wordSort = '/games/word-sort';
+  static const String wordSnake = '/games/word-snake'; 
 
   static const String settings = '/settings';
   static const String achievements = '/achievements';
@@ -322,6 +324,21 @@ class AppRoutes {
             default: gradeLevel = GradeLevel.grade1;
           }
           return _createRoute(WordSortGame(gradeLevel: gradeLevel));
+
+        case wordSnake:
+          final grade = args?['grade'] as int? ?? 1;
+          GradeLevel gradeLevel;
+          switch (grade) {
+            case 1: gradeLevel = GradeLevel.grade1; break;
+            case 2: gradeLevel = GradeLevel.grade2; break;
+            case 3: gradeLevel = GradeLevel.grade3; break;
+            case 4: gradeLevel = GradeLevel.grade4; break;
+            case 5: gradeLevel = GradeLevel.grade5; break;
+            case 6: gradeLevel = GradeLevel.grade6; break;
+            default: gradeLevel = GradeLevel.grade1;
+          }
+          return _createRoute(WordSnakeGame(gradeLevel: gradeLevel));
+          
           
         case AppRoutes.settings:
           return _createRoute(const SettingsScreen());

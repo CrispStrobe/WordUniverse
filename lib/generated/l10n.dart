@@ -157,6 +157,96 @@ abstract class S {
   /// **'Rescue words from drifting off!'**
   String get spaceWordRescueInstructions;
 
+  /// No description provided for @wordRescueTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Word Rescue'**
+  String get wordRescueTitle;
+
+  /// No description provided for @wordRescueCardDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Type words before they escape!'**
+  String get wordRescueCardDescription;
+
+  /// No description provided for @wordRescueTypeWord.
+  ///
+  /// In en, this message translates to:
+  /// **'Type the word to rescue it!'**
+  String get wordRescueTypeWord;
+
+  /// No description provided for @wordRescueTypeHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Type here...'**
+  String get wordRescueTypeHere;
+
+  /// No description provided for @wordRescueFeedbackPerfect.
+  ///
+  /// In en, this message translates to:
+  /// **'Perfect! Word Rescued! 🚀'**
+  String get wordRescueFeedbackPerfect;
+
+  /// No description provided for @wordRescueFeedbackCommonMistake.
+  ///
+  /// In en, this message translates to:
+  /// **'Close enough! {word} rescued!'**
+  String wordRescueFeedbackCommonMistake(String word);
+
+  /// No description provided for @wordRescueFeedbackIncorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'Too late! The correct word was: {word}'**
+  String wordRescueFeedbackIncorrect(String word);
+
+  /// No description provided for @wordRescueFeedbackLost.
+  ///
+  /// In en, this message translates to:
+  /// **'Word escaped into space! 💫'**
+  String get wordRescueFeedbackLost;
+
+  /// No description provided for @wordRescueGameOverStats.
+  ///
+  /// In en, this message translates to:
+  /// **'You rescued {rescued} out of {total} words ({percentage}%)'**
+  String wordRescueGameOverStats(int rescued, int total, int percentage);
+
+  /// No description provided for @wordSnakeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Word Snake'**
+  String get wordSnakeTitle;
+
+  /// No description provided for @wordSnakeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect letters to spell the word'**
+  String get wordSnakeDescription;
+
+  /// No description provided for @wordSnakeInstructions.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap cells in order to form a path that spells the word'**
+  String get wordSnakeInstructions;
+
+  /// No description provided for @wordSnakeConnectLetters.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect {count} letters'**
+  String wordSnakeConnectLetters(int count);
+
+  /// No description provided for @wordSnakeReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get wordSnakeReset;
+
+  /// No description provided for @wordSnakePuzzleProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Puzzle {current} of {total}'**
+  String wordSnakePuzzleProgress(int current, int total);
+
   /// No description provided for @gameplayHint.
   ///
   /// In en, this message translates to:
