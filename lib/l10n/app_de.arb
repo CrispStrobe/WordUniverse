@@ -516,7 +516,7 @@
     "@wordWhirlRound": {
         "description": "Round number label"
     },
-    "wordWhirlTapAll": "Tippe alle {wordType}!",
+    "wordWhirlTapAll": "Tippe auf alle Worte der Wortart {wordType}!",
     "@wordWhirlTapAll": {
         "description": "Instruction to tap all words of a type",
         "placeholders": {

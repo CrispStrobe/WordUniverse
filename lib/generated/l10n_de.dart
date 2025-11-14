@@ -934,7 +934,7 @@ class SDe extends S {
 
   @override
   String wordWhirlTapAll(String wordType) {
-    return 'Tippe alle $wordType!';
+    return 'Tippe auf alle Worte der Wortart $wordType!';
   }
 
   @override

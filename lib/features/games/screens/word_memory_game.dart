@@ -460,38 +460,60 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
                       // Game grid
                       Expanded(
                         child: Center(
-                          child: LayoutBuilder(
+                            child: LayoutBuilder(
                             builder: (context, constraints) {
-                              // Calculate optimal grid layout
-                              final crossAxisCount = _totalPairs <= 4 ? 2 : (_totalPairs <= 6 ? 3 : 4);
-                              
-                              // Calculate card size to fit screen
-                              final availableWidth = constraints.maxWidth - 48;
-                              final availableHeight = constraints.maxHeight - 48;
-                              
-                              final cardWidth = (availableWidth / crossAxisCount) - 12;
-                              final rows = (_cards.length / crossAxisCount).ceil();
-                              final cardHeight = (availableHeight / rows) - 12;
-                              
-                              final cardSize = min(cardWidth, cardHeight).clamp(80.0, 150.0);
-                              
-                              return SingleChildScrollView(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(24.0),
-                                  child: Wrap(
-                                    spacing: 12,
-                                    runSpacing: 12,
-                                    alignment: WrapAlignment.center,
-                                    children: _cards.map((card) {
-                                      return _buildMemoryCard(card, cardSize);
-                                    }).toList(),
-                                  ),
+                                // Calculate optimal grid layout based on number of pairs
+                                int crossAxisCount;
+                                if (_totalPairs <= 4) {
+                                crossAxisCount = 2; // 2x4 grid for 4 pairs (8 cards)
+                                } else if (_totalPairs <= 6) {
+                                crossAxisCount = 3; // 3x4 grid for 6 pairs (12 cards)
+                                } else {
+                                crossAxisCount = 4; // 4x4 grid for 8 pairs (16 cards)
+                                }
+                                
+                                // Calculate card size to fit screen with proper spacing
+                                final availableWidth = constraints.maxWidth - 48;
+                                final availableHeight = constraints.maxHeight - 48;
+                                
+                                final rows = (_cards.length / crossAxisCount).ceil();
+                                
+                                // Calculate max card size that fits
+                                final cardWidth = (availableWidth / crossAxisCount) - 12;
+                                final cardHeight = (availableHeight / rows) - 12;
+                                
+                                final cardSize = min(cardWidth, cardHeight).clamp(80.0, 150.0);
+                                
+                                // Calculate actual grid dimensions
+                                final gridWidth = (cardSize + 12) * crossAxisCount;
+                                final gridHeight = (cardSize + 12) * rows;
+                                
+                                return SingleChildScrollView(
+                                child: Center(
+                                    child: SizedBox(
+                                    width: gridWidth,
+                                    height: gridHeight,
+                                    child: GridView.builder(
+                                        physics: const NeverScrollableScrollPhysics(),
+                                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: crossAxisCount,
+                                        mainAxisSpacing: 12,
+                                        crossAxisSpacing: 12,
+                                        childAspectRatio: 1.0,
+                                        ),
+                                        itemCount: _cards.length,
+                                        itemBuilder: (context, index) {
+                                        return _buildMemoryCard(_cards[index], cardSize);
+                                        },
+                                    ),
+                                    ),
                                 ),
-                              );
-                            },
-                          ),
-                        ),
-                      ),
+                                );
+                            }, // builder
+                            ), // LayoutBuilder
+                        ), // Center
+                        ), // game grid Expanded
+
                     ],
                   ),
                 ),
@@ -536,69 +558,95 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
   Widget _buildMemoryCard(MemoryCard card, double size) {
     final isSelected = card == _firstSelected || card == _secondSelected;
     final shouldShake = isSelected && _shakeController.isAnimating && !card.isMatched;
+    
+    // Check if we should use advanced flip (Grade 4, level 15+)
+    final useAdvancedFlip = widget.gradeLevel.index >= 3 && _pairsFound >= 15;
 
     return AnimatedBuilder(
-      animation: Listenable.merge([_flipController, _matchController, _shakeController]),
-      builder: (context, child) {
+        animation: Listenable.merge([_flipController, _matchController, _shakeController]),
+        builder: (context, child) {
         // Shake animation
         double shakeOffset = 0;
         if (shouldShake) {
-          shakeOffset = sin(_shakeController.value * pi * 4) * 8;
+            shakeOffset = sin(_shakeController.value * pi * 4) * 8;
         }
 
         // Match pulse animation
         double scale = 1.0;
         if (card.isMatched && _matchController.isAnimating) {
-          scale = 1.0 + (sin(_matchController.value * pi) * 0.2);
+            scale = 1.0 + (sin(_matchController.value * pi) * 0.3);
         }
 
+        final isFlipped = card.isFlipped || card.isMatched;
+
         return Transform.translate(
-          offset: Offset(shakeOffset, 0),
-          child: Transform.scale(
+            offset: Offset(shakeOffset, 0),
+            child: Transform.scale(
             scale: scale,
             child: GestureDetector(
-              onTap: () => _onCardTapped(card),
-              child: AnimatedContainer(
+                onTap: () => _onCardTapped(card),
+                child: AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 width: size,
                 height: size,
                 decoration: BoxDecoration(
-                  color: card.isFlipped || card.isMatched
-                      ? (card.isMatched
-                          ? SpaceTheme.alienGreen.withOpacity(0.9)
-                          : SpaceTheme.planetOrange.withOpacity(0.9))
-                      : SpaceTheme.deepSpace.withOpacity(0.8),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
+                    gradient: isFlipped
+                        ? (card.isMatched
+                            ? LinearGradient(
+                                colors: [
+                                SpaceTheme.alienGreen,
+                                SpaceTheme.alienGreen.withOpacity(0.7),
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                            )
+                            : LinearGradient(
+                                colors: [
+                                SpaceTheme.planetOrange,
+                                SpaceTheme.planetOrange.withOpacity(0.7),
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                            ))
+                        : LinearGradient(
+                            colors: [
+                            SpaceTheme.deepSpace.withOpacity(0.9),
+                            SpaceTheme.nebulaPurple.withOpacity(0.7),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                        ),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
                     color: card.isMatched
                         ? SpaceTheme.alienGreen
                         : (isSelected
                             ? SpaceTheme.starYellow
                             : SpaceTheme.nebulaPurple.withOpacity(0.5)),
-                    width: card.isMatched || isSelected ? 3 : 2,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: (card.isMatched
-                              ? SpaceTheme.alienGreen
-                              : (isSelected
-                                  ? SpaceTheme.starYellow
-                                  : SpaceTheme.nebulaPurple))
-                          .withOpacity(0.3),
-                      blurRadius: card.isMatched || isSelected ? 15 : 8,
-                      spreadRadius: card.isMatched || isSelected ? 2 : 0,
+                    width: card.isMatched || isSelected ? 4 : 2,
                     ),
-                  ],
+                    boxShadow: [
+                    BoxShadow(
+                        color: (card.isMatched
+                                ? SpaceTheme.alienGreen
+                                : (isSelected
+                                    ? SpaceTheme.starYellow
+                                    : SpaceTheme.nebulaPurple))
+                            .withOpacity(card.isMatched || isSelected ? 0.6 : 0.3),
+                        blurRadius: card.isMatched || isSelected ? 25 : 15,
+                        spreadRadius: card.isMatched || isSelected ? 5 : 2,
+                    ),
+                    ],
                 ),
-                child: card.isFlipped || card.isMatched
+                child: isFlipped
                     ? Center(
                         child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: FittedBox(
+                            padding: const EdgeInsets.all(8.0),
+                            child: FittedBox(
                             fit: BoxFit.scaleDown,
                             child: Text(
-                              card.word,
-                              style: TextStyle(
+                                card.word,
+                                style: TextStyle(
                                 fontFamily: card.fontFamily,
                                 fontSize: size * 0.25,
                                 fontWeight: FontWeight.bold,
@@ -606,31 +654,103 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
                                     ? SpaceTheme.deepSpace
                                     : Colors.white,
                                 shadows: [
-                                  Shadow(
-                                    blurRadius: 4,
+                                    Shadow(
+                                    blurRadius: 8,
                                     color: card.isMatched
-                                        ? Colors.black26
-                                        : Colors.black54,
-                                  ),
+                                        ? Colors.black38
+                                        : SpaceTheme.starYellow.withOpacity(0.5),
+                                    ),
                                 ],
-                              ),
-                              textAlign: TextAlign.center,
+                                ),
+                                textAlign: TextAlign.center,
                             ),
-                          ),
+                            ),
                         ),
-                      )
-                    : Center(
-                        child: Icon(
-                          Icons.psychology,
-                          size: size * 0.4,
-                          color: SpaceTheme.cosmicPink.withOpacity(0.6),
+                        )
+                    : Stack(
+                        children: [
+                            // Animated background pattern
+                            Positioned.fill(
+                            child: CustomPaint(
+                                painter: _CardBackPainter(
+                                animation: _flipController.view,
+                                ),
+                            ),
+                            ),
+                            Center(
+                            child: Icon(
+                                Icons.psychology,
+                                size: size * 0.4,
+                                color: SpaceTheme.cosmicPink.withOpacity(0.8),
+                                shadows: [
+                                Shadow(
+                                    blurRadius: 15,
+                                    color: SpaceTheme.cosmicPink.withOpacity(0.5),
+                                ),
+                                ],
+                            ),
+                            ),
+                        ],
                         ),
-                      ),
-              ),
+                ),
             ),
-          ),
+            ),
         );
-      },
+        },
     );
+    }
+
+}
+
+class _CardBackPainter extends CustomPainter {
+  final Animation<double> animation;
+  
+  _CardBackPainter({required this.animation}) : super(repaint: animation);
+  
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+    
+    // Draw animated concentric circles
+    for (int i = 0; i < 3; i++) {
+      final radius = (size.width / 2) * (0.3 + i * 0.2);
+      final opacity = 0.3 + (sin(animation.value * 2 * pi + i) * 0.2);
+      paint.color = SpaceTheme.starYellow.withOpacity(opacity);
+      canvas.drawCircle(
+        Offset(size.width / 2, size.height / 2),
+        radius,
+        paint,
+      );
+    }
+    
+    // Draw rotating star pattern
+    paint.style = PaintingStyle.fill;
+    paint.color = SpaceTheme.nebulaPurple.withOpacity(0.2);
+    final center = Offset(size.width / 2, size.height / 2);
+    final starPath = Path();
+    final numPoints = 5;
+    final outerRadius = size.width * 0.25;
+    final innerRadius = outerRadius * 0.5;
+    final rotation = animation.value * 2 * pi;
+    
+    for (int i = 0; i < numPoints * 2; i++) {
+      final radius = i.isEven ? outerRadius : innerRadius;
+      final angle = (i * pi / numPoints) + rotation;
+      final x = center.dx + radius * cos(angle);
+      final y = center.dy + radius * sin(angle);
+      
+      if (i == 0) {
+        starPath.moveTo(x, y);
+      } else {
+        starPath.lineTo(x, y);
+      }
+    }
+    starPath.close();
+    canvas.drawPath(starPath, paint);
   }
+  
+  @override
+  bool shouldRepaint(_CardBackPainter oldDelegate) => true;
 }
