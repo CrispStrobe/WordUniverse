@@ -3,10 +3,10 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:collection'; // For Queue
 
 import '../../../core/services/audio_service.dart';
 import '../../../core/models/skill_category.dart';
-import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart';
 import '../../../core/theme/space_theme.dart';
@@ -26,12 +26,12 @@ class WordTypeWhirlGame extends StatefulWidget {
 class WhirlingWord {
   final GermanWord word;
   final double angle;
-  final double radius;
+  final double radius; // This will now be relative (0.0 to 1.0)
   final double speed;
   bool isTapped;
   bool isCorrect;
   bool shouldRemove;
-  
+
   WhirlingWord({
     required this.word,
     required this.angle,
@@ -48,7 +48,7 @@ class RoundStats {
   int correctTaps;
   int incorrectTaps;
   int missedWords;
-  
+
   RoundStats({
     required this.targetType,
     this.correctTaps = 0,
@@ -57,7 +57,18 @@ class RoundStats {
   });
 }
 
-class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProviderStateMixin {
+// --- NEW: Class to hold hint data ---
+class HintMessage {
+  final String text;
+  final bool isError;
+  final String id; // Unique ID for AnimatedList
+
+  HintMessage({required this.text, required this.isError})
+      : id = UniqueKey().toString();
+}
+
+class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
+    with TickerProviderStateMixin {
   // Services
   late VocabularyService _vocabularyService;
   late SriService _sriService;
@@ -76,11 +87,13 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
   double _baseSpeed = 1.0;
   bool _isEndingRound = false;
 
-  Timer? _hintTimer;
-  bool _showHints = false;
-  static const _hintDelay = 7; // Show hints after 7 seconds of no correct taps
+  // --- MODIFIED: Auto-hint system ---
+  Timer? _autoHintTimer; // This replaces the old _hintTimer
+  bool _showAutoHints = false; // This replaces the old _showHints
+  static const _autoHintDelay =
+      7; // Show auto-hints after 7 seconds of no correct taps
   int _secondsSinceLastCorrectTap = 0;
-  
+
   // Round management
   Timer? _roundTimer;
   int _roundTimeRemaining = 15;
@@ -91,10 +104,22 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
   late AnimationController _pulseController;
   Timer? _spawnTimer;
   final Stopwatch _whirlStopwatch = Stopwatch();
-  
+
+  // --- NEW: Responsive layout state ---
+  Size _whirlAreaSize = Size.zero; // Size of the whirl area for responsiveness
+
+  // --- NEW: Non-blocking hint queue system ---
+  final Queue<HintMessage> _hintQueue = Queue<HintMessage>();
+  HintMessage? _currentHintMessage;
+  Timer? _hintDisplayTimer;
+  final GlobalKey<AnimatedListState> _hintListKey =
+      GlobalKey<AnimatedListState>();
+  final List<HintMessage> _visibleHints = [];
+
   // Available word types based on grade
-  late Map<GermanWordType, ({String label, IconData icon, Color color})> _wordTypes;
-  
+  late Map<GermanWordType, ({String label, IconData icon, Color color})>
+      _wordTypes;
+
   // Word pool for current session
   List<GermanWord> _wordPool = [];
   int _wordPoolIndex = 0;
@@ -102,12 +127,12 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
   @override
   void initState() {
     super.initState();
-    
+
     _whirlController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 4), // larger numbers make it easier
     )..repeat();
-    
+
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 200),
@@ -124,7 +149,7 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
   void didChangeDependencies() {
     super.didChangeDependencies();
     final s = S.of(context)!;
-    
+
     // Basic word types for all grades
     _wordTypes = {
       GermanWordType.substantiv: (
@@ -143,22 +168,18 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
         color: SpaceTheme.cosmicPink
       ),
     };
-    
+
     // Add advanced types for higher grades
-    if (widget.gradeLevel.index >= 2) { // Grade 3+
-      _wordTypes[GermanWordType.adverb] = (
-        label: 'Adverb',
-        icon: Icons.speed,
-        color: Colors.purple
-      );
+    if (widget.gradeLevel.index >= 2) {
+      // Grade 3+
+      _wordTypes[GermanWordType.adverb] =
+          (label: 'Adverb', icon: Icons.speed, color: Colors.purple);
     }
-    
-    if (widget.gradeLevel.index >= 3) { // Grade 4+
-      _wordTypes[GermanWordType.pronomen] = (
-        label: 'Pronomen',
-        icon: Icons.person,
-        color: Colors.teal
-      );
+
+    if (widget.gradeLevel.index >= 3) {
+      // Grade 4+
+      _wordTypes[GermanWordType.pronomen] =
+          (label: 'Pronomen', icon: Icons.person, color: Colors.teal);
     }
   }
 
@@ -168,7 +189,8 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
     _pulseController.dispose();
     _roundTimer?.cancel();
     _spawnTimer?.cancel();
-    _hintTimer?.cancel();
+    _autoHintTimer?.cancel(); // Modified
+    _hintDisplayTimer?.cancel(); // New
     _whirlStopwatch.stop();
     super.dispose();
   }
@@ -219,8 +241,10 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
       if (wordString == null) continue;
 
       try {
-        final word = _vocabularyService.getAllWords(_gameProvider).firstWhere(
-            (w) => w.word.toLowerCase() == wordString.toLowerCase());
+        final word = _vocabularyService
+            .getAllWords(_gameProvider)
+            .firstWhere(
+                (w) => w.word.toLowerCase() == wordString.toLowerCase());
 
         if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
           wordsForGame.add(word);
@@ -248,7 +272,8 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
 
     // Fill with random words if needed
     if (wordsForGame.length < 60) {
-      final allWords = _vocabularyService.getWordsByGrade(widget.gradeLevel, _gameProvider);
+      final allWords =
+          _vocabularyService.getWordsByGrade(widget.gradeLevel, _gameProvider);
       allWords.shuffle();
 
       for (final word in allWords) {
@@ -264,19 +289,22 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
     // CRITICAL FIX: Ensure we have words of all types
     final wordsByType = <GermanWordType, List<GermanWord>>{};
     for (final type in _wordTypes.keys) {
-      wordsByType[type] = wordsForGame.where((w) => w.wordType == type).toList();
+      wordsByType[type] =
+          wordsForGame.where((w) => w.wordType == type).toList();
     }
 
     // If any type has too few words, add more
     for (final type in _wordTypes.keys) {
       if ((wordsByType[type]?.length ?? 0) < 10) {
         final allWords = _vocabularyService.getAllWords(_gameProvider);
-        final moreWords = allWords.where((w) => 
-          w.wordType == type && 
-          _isWordValidForGame(w) && 
-          !addedWordIds.contains(w.id)
-        ).take(15).toList();
-        
+        final moreWords = allWords
+            .where((w) =>
+                w.wordType == type &&
+                _isWordValidForGame(w) &&
+                !addedWordIds.contains(w.id))
+            .take(15)
+            .toList();
+
         wordsForGame.addAll(moreWords);
         addedWordIds.addAll(moreWords.map((w) => w.id));
       }
@@ -285,7 +313,7 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
     wordsForGame.shuffle();
     _wordPool = wordsForGame;
     _wordPoolIndex = 0;
-    
+
     debugPrint('[WHIRL] Word pool loaded: ${_wordPool.length} total words');
     for (final type in _wordTypes.keys) {
       final count = _wordPool.where((w) => w.wordType == type).length;
@@ -302,6 +330,10 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
       _baseSpeed = 1.0;
       _roundHistory.clear();
       _isLoading = false;
+      // --- NEW: Clear hint queue ---
+      _hintQueue.clear();
+      _visibleHints.clear();
+      _currentHintMessage = null;
     });
 
     _startRound();
@@ -316,7 +348,7 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
 
     // Pick random target word type
     final types = _wordTypes.keys.toList()..shuffle();
-    
+
     GermanWordType? selectedType;
     for (final type in types) {
       if (_hasEnoughWordsOfType(type)) {
@@ -324,7 +356,7 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
         break;
       }
     }
-    
+
     _currentTargetType = selectedType ?? types.first;
 
     // Set round time based on grade
@@ -344,8 +376,21 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
     _baseSpeed = 1.0 + (_round - 1) * 0.08;
 
     // CRITICAL FIX: Reset hint system BEFORE setState
-    _showHints = false;
+    _showAutoHints = false;
     _secondsSinceLastCorrectTap = 0;
+    // --- NEW: Clear hints between rounds ---
+    _hintQueue.clear();
+    _hintDisplayTimer?.cancel();
+    _currentHintMessage = null;
+    // Clear visible list
+    for (int i = _visibleHints.length - 1; i >= 0; i--) {
+      _hintListKey.currentState?.removeItem(
+        0,
+        (context, animation) => const SizedBox.shrink(),
+      );
+    }
+    _visibleHints.clear();
+    // --- End New ---
 
     setState(() {
       _whirlingWords.clear();
@@ -354,10 +399,11 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
 
     _startRoundTimer();
     _startWordSpawning();
-    
+
     _audioService.playSound('tap');
-    
-    debugPrint('[WHIRL] Round $_round started - Target: $_currentTargetType - Hints: $_showHints');
+
+    debugPrint(
+        '[WHIRL] Round $_round started - Target: $_currentTargetType - AutoHints: $_showAutoHints');
   }
 
   void _startRoundTimer() {
@@ -366,16 +412,16 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
       if (_roundTimeRemaining > 0) {
         setState(() {
           _roundTimeRemaining--;
-          
+
           // Track time since last correct tap for hints
-          if (!_showHints) {
+          if (!_showAutoHints) {
             _secondsSinceLastCorrectTap++;
-            if (_secondsSinceLastCorrectTap >= _hintDelay) {
-              _showHints = true;
+            if (_secondsSinceLastCorrectTap >= _autoHintDelay) {
+              _showAutoHints = true;
             }
           }
         });
-        
+
         // CRITICAL FIX: Check if all target words are tapped
         _checkRoundCompletion();
       } else {
@@ -387,10 +433,9 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
   // Add this new method after _startRoundTimer
   void _checkRoundCompletion() {
     // Check if any target words remain
-    final hasTargetWords = _whirlingWords.any((w) => 
-      !w.isTapped && w.word.wordType == _currentTargetType
-    );
-    
+    final hasTargetWords = _whirlingWords
+        .any((w) => !w.isTapped && w.word.wordType == _currentTargetType);
+
     if (!hasTargetWords && _whirlingWords.isNotEmpty) {
       // All target words tapped! Auto-complete round
       debugPrint('[WHIRL] All target words tapped! Auto-completing round.');
@@ -400,10 +445,10 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
 
   void _startWordSpawning() {
     _spawnTimer?.cancel();
-    
+
     // Spawn interval decreases with difficulty
     final spawnInterval = (1500 ~/ _baseSpeed).clamp(600, 2000);
-    
+
     _spawnTimer = Timer.periodic(Duration(milliseconds: spawnInterval), (timer) {
       if (_roundTimeRemaining > 0 && _whirlingWords.length < 12) {
         _spawnWord();
@@ -435,15 +480,23 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
       _wordPool.shuffle();
       _wordPoolIndex = 0;
     }
+    // --- NEW: Check if layout is ready ---
+    final maxRadius = min(_whirlAreaSize.width, _whirlAreaSize.height) / 2.0;
+    if (maxRadius <= 50) {
+      // Area not laid out yet or too small, skip spawning
+      return;
+    }
+    // --- END NEW ---
 
     final random = Random();
-    
+
     // --- Make check case/whitespace-insensitive ---
-    final Set<String> onScreenWords = _whirlingWords.map((w) => w.word.word.trim().toLowerCase()).toSet();
-    
+    final Set<String> onScreenWords =
+        _whirlingWords.map((w) => w.word.word.trim().toLowerCase()).toSet();
+
     // Ensure 40% of words are the target type
     final shouldSpawnTarget = random.nextDouble() < 0.4;
-    
+
     GermanWord? selectedWord;
     int searchStartIndex = _wordPoolIndex;
     int maxAttempts = _wordPool.length; // Max search iteration
@@ -455,7 +508,7 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
         final candidateWord = _wordPool[currentIndex];
         final cleanWord = candidateWord.word.trim().toLowerCase();
 
-        if (candidateWord.wordType == _currentTargetType && 
+        if (candidateWord.wordType == _currentTargetType &&
             !onScreenWords.contains(cleanWord)) {
           selectedWord = candidateWord;
           _wordPoolIndex = currentIndex + 1; // Set index for next spawn
@@ -463,7 +516,7 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
         }
       }
     }
-    
+
     // If still no target word found, or we want a non-target word
     if (selectedWord == null) {
       // --- Try to find a non-target word NOT on screen ---
@@ -472,7 +525,7 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
         final candidateWord = _wordPool[currentIndex];
         final cleanWord = candidateWord.word.trim().toLowerCase();
 
-        if (candidateWord.wordType != _currentTargetType && 
+        if (candidateWord.wordType != _currentTargetType &&
             !onScreenWords.contains(cleanWord)) {
           selectedWord = candidateWord;
           _wordPoolIndex = currentIndex + 1;
@@ -480,10 +533,10 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
         }
       }
     }
-    
+
     // Fallback: If STILL no word, find the *first available* word of *any* type
     if (selectedWord == null) {
-       // --- Fallback to ANY word NOT on screen ---
+      // --- Fallback to ANY word NOT on screen ---
       for (int i = 0; i < maxAttempts; i++) {
         int currentIndex = (searchStartIndex + i) % _wordPool.length;
         final candidateWord = _wordPool[currentIndex];
@@ -502,46 +555,59 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
       debugPrint("[WHIRL] Could not find a unique word to spawn. Skipping.");
       return;
     }
-    
-    // --- FIX for overlap: Create two distinct bands ---
+
+    // --- MODIFIED: Use relative radii based on maxRadius ---
+    // Use 25% to 50% of radius for inner band
+    final innerRadiusMin = 0.25;
+    final innerRadiusMax = 0.50;
+
+    // Use 60% to 90% of radius for outer band
+    final outerRadiusMin = 0.60;
+    final outerRadiusMax = 0.90;
+    // --- END MODIFIED ---
+
     final double radius;
     final bool isInnerBand; // Need to know which band we're in
     if (random.nextBool()) {
       // Inner band
-      radius = 110.0 + random.nextDouble() * 30.0; // Range: 110-140
+      radius =
+          innerRadiusMin + random.nextDouble() * (innerRadiusMax - innerRadiusMin);
       isInnerBand = true;
     } else {
       // Outer band
-      radius = 190.0 + random.nextDouble() * 30.0; // Range: 190-220
+      radius =
+          outerRadiusMin + random.nextDouble() * (outerRadiusMax - outerRadiusMin);
       isInnerBand = false;
     }
-    
+
     // --- NEW FIX: Check for angular collision in the *same band* ---
     double newAngle;
     int attempt = 0;
     bool collision;
 
-    // A 100px-wide card at radius 110 (inner) subtends an angle of
-    // 2 * asin( (100/2) / 110 ) approx 0.92 radians.
-    // We'll use 1.0 rad (~57 deg) as a safe minimum separation.
-    const minAngleSeparation = 1.0; 
+    // --- MODIFIED: Dynamic card width and angle separation ---
+    final cardWidth = (maxRadius * 0.4).clamp(80.0, 120.0);
+    // Calculate minimum separation based on the *inner* band for safety
+    final minAngleSeparation =
+        2 * asin((cardWidth / 2) / (innerRadiusMin * maxRadius));
+    // --- END MODIFIED ---
 
     do {
       collision = false;
       newAngle = random.nextDouble() * 2 * pi;
-      
+
       // Check against all existing words
       for (final existingWord in _whirlingWords) {
-        // Are they in the same band? (use 150 as midpoint)
-        final bool existingIsInner = existingWord.radius < 150; 
-        
+        // Are they in the same band? (use 0.55 as midpoint)
+        final bool existingIsInner = existingWord.radius < 0.55;
+
         if (isInnerBand == existingIsInner) {
           // Yes. Check their angle separation.
           double angleDiff = (newAngle - existingWord.angle).abs();
           if (angleDiff > pi) {
             angleDiff = 2 * pi - angleDiff; // Get shortest arc
           }
-          
+
           if (angleDiff < minAngleSeparation) {
             collision = true;
             break; // Collision found, break inner loop to try new angle
@@ -557,11 +623,11 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
       debugPrint("[WHIRL] Could not find a non-colliding spot. Skipping.");
       return;
     }
-    
+
     final whirlingWord = WhirlingWord(
       word: selectedWord,
       angle: newAngle, // Use the collision-checked angle
-      radius: radius, 
+      radius: radius, // Store the RELATIVE radius
       speed: (0.5 + random.nextDouble() * 0.5) * _baseSpeed,
     );
 
@@ -569,7 +635,6 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
       _whirlingWords.add(whirlingWord);
     });
   }
-
 
   void _onWordTapped(WhirlingWord whirlingWord) {
     if (whirlingWord.isTapped) return;
@@ -598,21 +663,136 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
     });
   }
 
+  // --- NEW: Hint Generation Logic ---
+  String _generateEducationalHint(GermanWord word,
+      {required bool isCorrect, GermanWordType? tappedTargetType}) {
+    final typeName = _wordTypes[word.wordType]?.label ?? 'Wort';
+    final targetName = tappedTargetType != null
+        ? (_wordTypes[tappedTargetType]?.label ?? 'Wort')
+        : '';
+
+    if (isCorrect) {
+      // --- SUCCESS HINTS ---
+      switch (word.wordType) {
+        case GermanWordType.substantiv:
+          if (word.article != null && word.article!.isNotEmpty) {
+            return '✓ Richtig! ${word.article} ${word.word} (Nomen)';
+          }
+          if (word.plural != null && word.plural!.isNotEmpty && word.plural != '-') {
+            return '✓ ${typeName}! Plural: ${word.plural}';
+          }
+          return '✓ Richtig! ${word.word} ist ein ${typeName}';
+        case GermanWordType.verb:
+          String? ichForm;
+          if (word.inflectionData != null) {
+            try {
+              ichForm = word.inflectionData!['analyses']?['verb']
+                  ?['conjugation']?['Präsens']?['ich'] as String?;
+            } catch (e) {
+              /* ignore */
+            }
+          }
+          if (ichForm != null) {
+            return '✓ ${typeName}! (z.B. ich ${ichForm})';
+          }
+          return '✓ Richtig! ${word.word} ist ein ${typeName}';
+        case GermanWordType.adjektiv:
+          String? komparativ;
+          if (word.inflectionData != null) {
+            try {
+              komparativ = word.inflectionData!['analyses']?['adjektiv']
+                  ?['comparison']?['Komparativ'] as String?;
+            } catch (e) {
+              /* ignore */
+            }
+          }
+          if (komparativ != null && komparativ.isNotEmpty && komparativ != '-') {
+            return '✓ ${typeName}! (z.B. ${komparativ})';
+          }
+          return '✓ Richtig! ${word.word} ist ein ${typeName} (Wie-Wort)';
+        default:
+          return '✓ Richtig! ${word.word} ist ein ${typeName}';
+      }
+    } else {
+      // --- FAILURE HINTS ---
+      // User tapped `word` (e.g., a Noun) but the target was `tappedTargetType` (e.g., a Verb)
+      final correctTypeName = _wordTypes[_currentTargetType!]?.label ?? 'Wort';
+      switch (word.wordType) {
+        case GermanWordType.substantiv:
+          if (word.article != null && word.article!.isNotEmpty) {
+            return "✗ ${word.article} ${word.word} ist ein Nomen (hat Artikel), kein ${correctTypeName}";
+          }
+          return '✗ ${word.word} ist ein Nomen (groß), kein ${correctTypeName}';
+        case GermanWordType.verb:
+          return '✗ ${word.word} ist ein Verb (Tun-Wort), kein ${correctTypeName}';
+        case GermanWordType.adjektiv:
+          return '✗ ${word.word} ist ein Adjektiv (Wie-Wort), kein ${correctTypeName}';
+        default:
+          return '✗ ${word.word} ist ein ${typeName}, kein ${correctTypeName}';
+      }
+    }
+  }
+
+  // --- NEW: Hint Queue Processing Logic ---
+  void _showHint(String message, bool isError) {
+    final newHint = HintMessage(text: message, isError: isError);
+    _hintQueue.add(newHint);
+    if (_currentHintMessage == null) {
+      _processHintQueue();
+    }
+  }
+
+  void _processHintQueue() {
+    if (_currentHintMessage != null || _hintQueue.isEmpty) {
+      return; // A hint is already showing, or queue is empty
+    }
+
+    _hintDisplayTimer?.cancel();
+    _currentHintMessage = _hintQueue.removeFirst();
+    
+    // Add to visible list for animation
+    _visibleHints.insert(0, _currentHintMessage!);
+    _hintListKey.currentState?.insertItem(0, duration: const Duration(milliseconds: 400));
+
+    _hintDisplayTimer = Timer(const Duration(milliseconds: 2800), () {
+      if (!mounted) return;
+      
+      // Remove from visible list for animation
+      final removedHint = _visibleHints.removeAt(0);
+      _hintListKey.currentState?.removeItem(
+        0,
+        (context, animation) => _buildHintToast(removedHint, animation, isRemoving: true),
+        duration: const Duration(milliseconds: 300)
+      );
+      
+      _currentHintMessage = null;
+      _processHintQueue(); // Check for the next hint
+    });
+  }
+  // --- END NEW HINT LOGIC ---
+
   void _onCorrectTap(WhirlingWord whirlingWord) {
     _audioService.playSound('success');
     _pulseController.forward(from: 0);
 
-    // CRITICAL FIX: Reset hint system IMMEDIATELY
+    // CRITICAL FIX: Reset auto-hint system IMMEDIATELY
     _secondsSinceLastCorrectTap = 0;
-    _showHints = false;
+    _showAutoHints = false;
+
+    // --- NEW: Show educational hint ---
+    _showHint(
+      _generateEducationalHint(whirlingWord.word, isCorrect: true),
+      false, // isError = false
+    );
+    // --- END NEW ---
 
     setState(() {
       _streak++;
       if (_streak > _maxStreak) _maxStreak = _streak;
-      
+
       final multiplier = min(1 + (_streak ~/ 3) * 0.5, 3.0);
       _score += (10 * multiplier).round();
-      
+
       _roundHistory.last.correctTaps++;
     });
 
@@ -626,7 +806,7 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
         'streak': _streak,
       },
     );
-    
+
     Future.delayed(const Duration(milliseconds: 500), () {
       if (mounted) _checkRoundCompletion();
     });
@@ -634,6 +814,17 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
 
   void _onIncorrectTap(WhirlingWord whirlingWord) {
     _audioService.playSound('failure');
+
+    // --- NEW: Show educational hint ---
+    _showHint(
+      _generateEducationalHint(
+        whirlingWord.word,
+        isCorrect: false,
+        tappedTargetType: _currentTargetType,
+      ),
+      true, // isError = true
+    );
+    // --- END NEW ---
 
     setState(() {
       _streak = 0;
@@ -654,20 +845,21 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
   }
 
   void _endRound() {
-    if (_isEndingRound) return; 
+    if (_isEndingRound) return;
     _isEndingRound = true;
     _roundTimer?.cancel();
     _spawnTimer?.cancel();
 
-    // CRITICAL FIX: Force reset hints before next round
-    _showHints = false;
+    // CRITICAL FIX: Force reset auto-hints before next round
+    _showAutoHints = false;
     _secondsSinceLastCorrectTap = 0;
 
     // Count missed target words
-    final missedCount = _whirlingWords.where((w) => 
-      !w.isTapped && w.word.wordType == _currentTargetType
-    ).length;
-    
+    final missedCount = _whirlingWords
+        .where(
+            (w) => !w.isTapped && w.word.wordType == _currentTargetType)
+        .length;
+
     _roundHistory.last.missedWords = missedCount;
 
     // Brief pause before next round
@@ -684,18 +876,22 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
   void _showGameOver() {
     _roundTimer?.cancel();
     _spawnTimer?.cancel();
-    
+
     final s = S.of(context)!;
-    
+
     // Calculate performance
-    final totalCorrect = _roundHistory.fold<int>(0, (sum, stats) => sum + stats.correctTaps);
-    final totalIncorrect = _roundHistory.fold<int>(0, (sum, stats) => sum + stats.incorrectTaps);
-    final totalMissed = _roundHistory.fold<int>(0, (sum, stats) => sum + stats.missedWords);
+    final totalCorrect = _roundHistory.fold<int>(
+        0, (sum, stats) => sum + stats.correctTaps);
+    final totalIncorrect = _roundHistory.fold<int>(
+        0, (sum, stats) => sum + stats.incorrectTaps);
+    final totalMissed =
+        _roundHistory.fold<int>(0, (sum, stats) => sum + stats.missedWords);
     final total = totalCorrect + totalIncorrect + totalMissed;
     final accuracy = total > 0 ? (totalCorrect / total * 100).round() : 0;
-    
+
     int stars = 1;
-    if (accuracy >= 85) stars = 3;
+    if (accuracy >= 85)
+      stars = 3;
     else if (accuracy >= 70) stars = 2;
 
     showDialog(
@@ -706,7 +902,8 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
-            const Icon(Icons.emoji_events, color: SpaceTheme.starYellow, size: 32),
+            const Icon(Icons.emoji_events,
+                color: SpaceTheme.starYellow, size: 32),
             const SizedBox(width: 12),
             Text(
               s.wordWhirlGameOver,
@@ -768,7 +965,8 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
             },
             child: Text(
               s.gameReplay,
-              style: SpaceTheme.bodyStyle.copyWith(color: SpaceTheme.alienGreen),
+              style:
+                  SpaceTheme.bodyStyle.copyWith(color: SpaceTheme.alienGreen),
             ),
           ),
           ElevatedButton(
@@ -792,43 +990,51 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
   @override
   Widget build(BuildContext context) {
     final s = S.of(context)!;
-    final selectedFontFamily = context.watch<GameProvider>().selectedFontFamily;
+    final selectedFontFamily =
+        context.watch<GameProvider>().selectedFontFamily;
 
     return Scaffold(
       body: SpaceBackground(
         child: SafeArea(
-          child: Column(
+          // --- MODIFIED: Wrap in Stack for hint overlay ---
+          child: Stack(
             children: [
-              GameUI(
-                title: s.wordWhirlTitle,
-                level: widget.gradeLevel.index + 1,
-                onBack: () {
-                  _roundTimer?.cancel();
-                  _spawnTimer?.cancel();
-                  Navigator.of(context).pop();
-                },
-              ),
-              if (_isLoading)
-                const Expanded(
-                  child: Center(child: CircularProgressIndicator()),
-                )
-              else
-                Expanded(
-                  child: Column(
-                    children: [
-                      // Stats bar
-                      _buildStatsBar(s),
-                      
-                      // Target instruction
-                      _buildTargetBanner(s, selectedFontFamily),
-                      
-                      // Whirl area
-                      Expanded(
-                        child: _buildWhirlArea(selectedFontFamily),
-                      ),
-                    ],
+              Column(
+                children: [
+                  GameUI(
+                    title: s.wordWhirlTitle,
+                    level: widget.gradeLevel.index + 1,
+                    onBack: () {
+                      _roundTimer?.cancel();
+                      _spawnTimer?.cancel();
+                      Navigator.of(context).pop();
+                    },
                   ),
-                ),
+                  if (_isLoading)
+                    const Expanded(
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  else
+                    Expanded(
+                      child: Column(
+                        children: [
+                          // Stats bar
+                          _buildStatsBar(s),
+
+                          // Target instruction
+                          _buildTargetBanner(s, selectedFontFamily),
+
+                          // Whirl area
+                          Expanded(
+                            child: _buildWhirlArea(selectedFontFamily),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+              // --- NEW: Non-blocking hint overlay ---
+              _buildHintOverlay(),
             ],
           ),
         ),
@@ -837,26 +1043,42 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
   }
 
   Widget _buildStatsBar(S s) {
-    final timeColor = _roundTimeRemaining < 5 
-        ? SpaceTheme.rocketRed 
-        : (_roundTimeRemaining < 10 ? SpaceTheme.planetOrange : SpaceTheme.alienGreen);
+    final timeColor = _roundTimeRemaining < 5
+        ? SpaceTheme.rocketRed
+        : (_roundTimeRemaining < 10
+            ? SpaceTheme.planetOrange
+            : SpaceTheme.alienGreen);
 
+    // --- MODIFIED: Use Flexible for responsiveness ---
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildStatItem(s.gameScore, _score.toString(), Icons.stars, SpaceTheme.starYellow),
-          _buildStatItem(s.wordWhirlRound, '$_round/$_totalRounds', Icons.replay, SpaceTheme.cosmicPink),
-          _buildStatItem(s.wordWhirlStreak, _streak.toString(), Icons.local_fire_department, 
-            _streak > 5 ? SpaceTheme.starYellow : Colors.orange),
-          _buildStatItem(s.wordBuilderTime, '${_roundTimeRemaining}s', Icons.timer, timeColor),
+          Flexible(
+            child: _buildStatItem(s.gameScore, _score.toString(), Icons.stars,
+                SpaceTheme.starYellow),
+          ),
+          Flexible(
+            child: _buildStatItem(s.wordWhirlRound, '$_round/$_totalRounds',
+                Icons.replay, SpaceTheme.cosmicPink),
+          ),
+          Flexible(
+            child: _buildStatItem(s.wordWhirlStreak, _streak.toString(),
+                Icons.local_fire_department,
+                _streak > 5 ? SpaceTheme.starYellow : Colors.orange),
+          ),
+          Flexible(
+            child: _buildStatItem(s.wordBuilderTime, '${_roundTimeRemaining}s',
+                Icons.timer, timeColor),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildStatItem(String label, String value, IconData icon, Color color) {
+  Widget _buildStatItem(
+      String label, String value, IconData icon, Color color) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -876,6 +1098,8 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
             fontSize: 11,
             color: Colors.white70,
           ),
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
         ),
       ],
     );
@@ -883,14 +1107,14 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
 
   Widget _buildTargetBanner(S s, String selectedFontFamily) {
     if (_currentTargetType == null) return const SizedBox.shrink();
-    
+
     final typeInfo = _wordTypes[_currentTargetType!]!;
-    
+
     return AnimatedBuilder(
       animation: _pulseController,
       builder: (context, child) {
         final scale = 1.0 + (_pulseController.value * 0.1);
-        
+
         return Transform.scale(
           scale: scale,
           child: Container(
@@ -933,14 +1157,15 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
                     ),
                   ],
                 ),
-                // CRITICAL FIX: Show hint indicator
-                if (_showHints)
+                // CRITICAL FIX: Show auto-hint indicator
+                if (_showAutoHints)
                   Padding(
                     padding: const EdgeInsets.only(top: 8.0),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.lightbulb, color: SpaceTheme.starYellow, size: 16),
+                        Icon(Icons.lightbulb,
+                            color: SpaceTheme.starYellow, size: 16),
                         const SizedBox(width: 4),
                         Text(
                           'Hinweise aktiv!',
@@ -961,23 +1186,121 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
     );
   }
 
+  // --- NEW: Hint Overlay Widget ---
+  Widget _buildHintOverlay() {
+    // This Align widget ensures the hint list is positioned correctly
+    // and doesn't interfere with other UI elements.
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Container(
+        // Constrain the width on large screens
+        constraints: const BoxConstraints(maxWidth: 500),
+        // Use padding to keep it off the edges
+        padding: const EdgeInsets.only(bottom: 20, left: 20, right: 20),
+        // Ignore pointer events so taps fall through to the game
+        child: AnimatedList(
+          key: _hintListKey,
+          initialItemCount: _visibleHints.length,
+          itemBuilder: (context, index, animation) {
+            // Get the hint from the *visible* list
+            return _buildHintToast(_visibleHints[index], animation);
+          },
+          shrinkWrap: true,
+          reverse: true,
+        ),
+      ),
+    );
+  }
+
+  // --- NEW: Individual Hint Toast Widget ---
+  Widget _buildHintToast(HintMessage hint, Animation<double> animation, {bool isRemoving = false}) {
+    final color = hint.isError ? SpaceTheme.rocketRed : SpaceTheme.alienGreen;
+    final icon = hint.isError ? Icons.cancel_outlined : Icons.check_circle_outline;
+
+    // Use a SlideTransition and FadeTransition for smooth entry/exit
+    return Padding(
+      padding: const EdgeInsets.only(top: 8.0),
+      child: SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(0, -0.5), // Slide down
+          end: const Offset(0, 0),
+        ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic)),
+        child: FadeTransition(
+          opacity: CurvedAnimation(parent: animation, curve: isRemoving ? Curves.easeOut : Curves.easeIn),
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: SpaceTheme.deepSpace.withOpacity(0.95),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: color, width: 2),
+                boxShadow: [
+                  BoxShadow(
+                    color: color.withOpacity(0.4),
+                    blurRadius: 8,
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Icon(icon, color: color, size: 24),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      hint.text,
+                      style: SpaceTheme.bodyStyle.copyWith(
+                        fontSize: 14,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildWhirlArea(String selectedFontFamily) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final centerX = constraints.maxWidth / 2;
-        final centerY = constraints.maxHeight / 2;
-        
+        // --- MODIFIED: Update responsive size ---
+        // Use postFrameCallback to avoid setState during build
+        if (constraints.biggest != _whirlAreaSize) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              setState(() {
+                _whirlAreaSize = constraints.biggest;
+              });
+            }
+          });
+        }
+        // --- END MODIFIED ---
+
+        // --- MODIFIED: Use state variable for size ---
+        final centerX = _whirlAreaSize.width / 2;
+        final centerY = _whirlAreaSize.height / 2;
+        final maxRadius = min(_whirlAreaSize.width, _whirlAreaSize.height) / 2.0;
+        // --- END MODIFIED ---
+
+        // Prevent division by zero if layout is 0
+        if (maxRadius <= 0) return const SizedBox.shrink();
+
         return AnimatedBuilder(
           animation: _whirlController,
           builder: (context, child) {
-            
             // --- FIX for jumpy animation ---
             // Use total elapsed time for a continuous, non-jumping rotation
-            final double elapsedSeconds = _whirlStopwatch.elapsedMilliseconds / 1000.0;
+            final double elapsedSeconds =
+                _whirlStopwatch.elapsedMilliseconds / 1000.0;
             // Base speed: one full rotation (2*pi) every 8 seconds
-            final double baseRadsPerSec = pi / 4; 
+            final double baseRadsPerSec = pi / 4;
 
             return Stack(
+              clipBehavior: Clip.none, // Allow cards to go to the edge
               children: [
                 // Center vortex decoration
                 Positioned(
@@ -1004,31 +1327,41 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
                     ),
                   ),
                 ),
-                
+
                 // Whirling words
                 ..._whirlingWords.map((whirlingWord) {
-                  
                   // --- FIX for jumpy animation ---
                   // The angle is now based on the elapsed time and the word's speed
-                  final currentAngle = whirlingWord.angle + 
-                    (elapsedSeconds * baseRadsPerSec * whirlingWord.speed);
+                  final currentAngle = whirlingWord.angle +
+                      (elapsedSeconds * baseRadsPerSec * whirlingWord.speed);
+
+                  // --- MODIFIED: Calculate position using relative radius ---
+                  final x = centerX +
+                      cos(currentAngle) * (whirlingWord.radius * maxRadius);
+                  final y = centerY +
+                      sin(currentAngle) * (whirlingWord.radius * maxRadius);
+                  // --- END MODIFIED ---
                   
-                  final x = centerX + cos(currentAngle) * whirlingWord.radius;
-                  final y = centerY + sin(currentAngle) * whirlingWord.radius;
-                  
+                  // --- MODIFIED: Responsive card size ---
+                  final cardWidth = (maxRadius * 0.4).clamp(90.0, 130.0);
+                  final cardHeight = (cardWidth * 0.5).clamp(45.0, 65.0);
+                  // --- END MODIFIED ---
+
                   return Positioned(
                     // --- THIS IS THE FIX ---
                     // Give each word a unique key based on its text.
                     // This stops Flutter from reusing the wrong widget state.
-                    key: ValueKey<String>(whirlingWord.word.word),
+                    key: ValueKey<String>(whirlingWord.word.id), // Use unique ID
                     // --- END OF FIX ---
-                    
-                    left: x - 50,
-                    top: y - 25,
+
+                    left: x - (cardWidth / 2),
+                    top: y - (cardHeight / 2),
                     child: _buildWhirlingWordWidget(
                       whirlingWord,
                       selectedFontFamily,
                       currentAngle,
+                      cardWidth,
+                      cardHeight,
                     ),
                   );
                 }).toList(),
@@ -1044,18 +1377,20 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
     WhirlingWord whirlingWord,
     String selectedFontFamily,
     double currentAngle,
+    double cardWidth,
+    double cardHeight,
   ) {
     final typeInfo = _wordTypes[whirlingWord.word.wordType];
     final isTarget = whirlingWord.word.wordType == _currentTargetType;
-    
+
     // Apply hint highlighting
     // This variable is key: it's only true if it's a target, hints are on, and it's not tapped
-    final shouldHighlight = isTarget && _showHints && !whirlingWord.isTapped;
-    
+    final shouldHighlight = isTarget && _showAutoHints && !whirlingWord.isTapped;
+
     Color backgroundColor;
     Color borderColor;
     Color textColor = Colors.white;
-    
+
     if (whirlingWord.isTapped) {
       if (whirlingWord.isCorrect) {
         backgroundColor = SpaceTheme.alienGreen.withOpacity(0.9);
@@ -1084,8 +1419,8 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
       onTap: () => _onWordTapped(whirlingWord),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        width: 100,
-        height: 50,
+        width: cardWidth, // Responsive
+        height: cardHeight, // Responsive
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(12),
@@ -1093,20 +1428,21 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
             color: borderColor,
             // --- FIX #3 ---
             // Width is 5 if highlighted, otherwise a standard 2
-            width: shouldHighlight ? 5 : 2, 
+            width: shouldHighlight ? 4 : 2, // Slightly thinner highlight
           ),
           boxShadow: [
             // --- FIX #4 ---
             // ONLY show the glow effect if shouldHighlight is true
             if (shouldHighlight)
               BoxShadow(
-                color: borderColor.withOpacity(0.9), 
-                blurRadius: 20,
-                spreadRadius: 5,
+                color: borderColor.withOpacity(0.7),
+                blurRadius: 12,
+                spreadRadius: 2,
               ),
           ],
         ),
         child: Stack(
+          clipBehavior: Clip.none,
           children: [
             // This pulsing indicator is already correct
             if (shouldHighlight)
@@ -1134,7 +1470,8 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
                       fontFamily: selectedFontFamily,
                       fontSize: 16,
                       // These style changes are also correct as they depend on shouldHighlight
-                      fontWeight: shouldHighlight ? FontWeight.w900 : FontWeight.bold,
+                      fontWeight:
+                          shouldHighlight ? FontWeight.w900 : FontWeight.bold,
                       color: textColor,
                       shadows: [
                         Shadow(
@@ -1155,6 +1492,4 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame> with TickerProvid
       ),
     );
   }
-
-
 }
