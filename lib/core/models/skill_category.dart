@@ -7,8 +7,8 @@ enum GradeLevel {
   grade2,  // Klasse 2 (Age 7-8)  
   grade3,  // Klasse 3 (Age 8-9)
   grade4,  // Klasse 4 (Age 9-10)
-  grade5,  // Klasse 5 (Age 10-11) - sometimes still Grundschule
-  grade6,  // Klasse 6 (Age 11-12) - sometimes still Grundschule
+  grade5,  // Klasse 5 (Age 10-11)
+  grade6,  // Klasse 6 (Age 11-12)
 }
 
 // Language skill categories aligned with German curriculum

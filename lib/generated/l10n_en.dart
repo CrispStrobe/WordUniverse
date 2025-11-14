@@ -33,10 +33,23 @@ class SEn extends S {
   String get grade6 => 'Level 4';
 
   @override
+  String get licensesTitle => 'Licenses';
+
+  @override
+  String get viewOssLicenses => 'View open-source licenses';
+
+  @override
+  String get appName => 'Word Universe';
+
+  @override
+  String get appLegalese => '© 2025 CrispStrobe';
+
+  @override
   String get spaceWordRescueTitle => 'Word Rescue';
 
   @override
-  String get spaceWordRescueInstructions => 'Rescue words from drifting off!';
+  String get spaceWordRescueInstructions =>
+      'Rescue words from drifting off into space! Type them in.';
 
   @override
   String get wordRescueTitle => 'Word Rescue';
@@ -75,7 +88,8 @@ class SEn extends S {
   String get wordSnakeTitle => 'Word Snake';
 
   @override
-  String get wordSnakeDescription => 'Connect letters to spell the word';
+  String get wordSnakeDescription =>
+      'Identify and trace the words: Connect letters in the correct to spell the word.';
 
   @override
   String get wordSnakeInstructions =>
@@ -129,7 +143,8 @@ class SEn extends S {
   String get wordFindTitle => 'Word-Find';
 
   @override
-  String get wordFindDescription => 'Find the hidden words in the letter grid!';
+  String get wordFindDescription =>
+      'Spot the hidden words in the letter grid! Drag to mark them.';
 
   @override
   String get wordFindWordsToFind => 'Words to Find:';
@@ -831,4 +846,94 @@ class SEn extends S {
   String customSetDeleteConfirmContent(String setName) {
     return 'Are you sure you want to delete $setName?';
   }
+
+  @override
+  String get wordMemoryDescription =>
+      'Find matching word pairs in different fonts';
+
+  @override
+  String get wordBuilderDescription => 'Build words from scrambled letters';
+
+  @override
+  String get wordWhirlDescription => 'Tap the correct word types in the whirl!';
+
+  @override
+  String get wordMemoryTitle => 'Memory';
+
+  @override
+  String get wordMemoryComplete => 'Complete!';
+
+  @override
+  String get wordMemoryScore => 'Score';
+
+  @override
+  String get wordMemoryMoves => 'Moves';
+
+  @override
+  String get wordMemoryPairs => 'Pairs';
+
+  @override
+  String get wordBuilderTitle => 'Word Builder';
+
+  @override
+  String get wordBuilderGameOver => 'Game Over!';
+
+  @override
+  String get wordBuilderWords => 'Words';
+
+  @override
+  String get wordBuilderTimeBonus => 'Time Bonus';
+
+  @override
+  String get wordBuilderBuildWord => 'Build the word:';
+
+  @override
+  String get wordBuilderLetters => 'Letters:';
+
+  @override
+  String get wordBuilderHint => 'Hint (-10)';
+
+  @override
+  String get wordBuilderSkip => 'Skip';
+
+  @override
+  String get wordBuilderTime => 'Time';
+
+  @override
+  String get wordWhirlTitle => 'Word Type Whirl';
+
+  @override
+  String get wordWhirlGameOver => 'Whirl Complete!';
+
+  @override
+  String get wordWhirlAccuracy => 'Accuracy';
+
+  @override
+  String get wordWhirlBestStreak => 'Best Streak';
+
+  @override
+  String get wordWhirlCorrect => 'Correct';
+
+  @override
+  String get wordWhirlIncorrect => 'Incorrect';
+
+  @override
+  String get wordWhirlStreak => 'Streak';
+
+  @override
+  String get wordWhirlRound => 'Round';
+
+  @override
+  String wordWhirlTapAll(String wordType) {
+    return 'Tap all $wordType!';
+  }
+
+  @override
+  String get gameReplay => 'Play Again';
+
+  @override
+  String get gameDone => 'Done';
+
+  @override
+  String get gameScore => 'Score';
 }

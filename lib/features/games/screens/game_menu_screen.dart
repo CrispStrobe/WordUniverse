@@ -14,6 +14,9 @@ import 'space_word_rescue_game.dart';
 import 'word_find_game.dart';
 import 'word_sort_game.dart';
 import 'word_snake_game.dart';
+import 'word_memory_game.dart';
+import 'word_builder_game.dart';
+import 'word_type_whirl_game.dart';
 
 import '../widgets/debug_panel.dart';
 import '../../settings/screens/settings_screen.dart';
@@ -36,7 +39,7 @@ class _GameMenuScreenState extends State<GameMenuScreen> with TickerProviderStat
   late Animation<double> _floatAnimation;
 
   // for new games, we must manually update game count
-  static const int _gameCount = 4;
+  static const int _gameCount = 7;
 
   @override
   void initState() {
@@ -277,36 +280,58 @@ class _GameMenuScreenState extends State<GameMenuScreen> with TickerProviderStat
     final s = S.of(context)!;
 
     final games = [
-        
         GameInfo(
-            title: s.spaceWordRescueTitle ?? 'Weltraum-Wort-Rettung',
-            description: s.spaceWordRescueInstructions ?? 'Rette Wörter vor dem Abdriften ins All!',
-            icon: Icons.rocket_launch, // Rocket rescuing words
-            gradient: const LinearGradient(colors: [Color(0xFF4A00E0), Color(0xFF8E2DE2)]), // Purple space gradient
-            onTap: () => _navigateToGame(SpaceWordRescueGame(gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
+          title: s.spaceWordRescueTitle ?? 'Weltraum-Wort-Rettung',
+          description: s.spaceWordRescueInstructions ?? 'Rette Wörter vor dem Abdriften ins All!',
+          icon: Icons.rocket_launch,
+          gradient: const LinearGradient(colors: [Color(0xFF4A00E0), Color(0xFF8E2DE2)]),
+          onTap: () => _navigateToGame(SpaceWordRescueGame(gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
         ),
         GameInfo(
-            title: s.wordFindTitle, 
-            description: s.wordFindDescription,
-            icon: Icons.grid_on,
-            gradient: const LinearGradient(colors: [Color(0xFF00C9FF), Color(0xFF92FE9D)]), 
-            onTap: () => _navigateToGame(WordFindGame(gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
-          ),
-          GameInfo(
-            title: s.wordSortTitle,
-            description: s.wordSortDescription,
-            icon: Icons.sort_by_alpha,
-            gradient: const LinearGradient(colors: [Color(0xFFf953c6), Color(0xFFb91d73)]), // Pink/Red gradient
-            onTap: () => _navigateToGame(WordSortGame(gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
-          ),
-          GameInfo(
-              title: s.wordSnakeTitle,
-              description: s.wordSnakeDescription,
-              icon: Icons.timeline,
-              gradient: const LinearGradient(colors: [Color(0xFFFF6B6B), Color(0xFFFFE66D)]),
-              onTap: () => _navigateToGame(WordSnakeGame(gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
-          )
-    ];
+          title: s.wordFindTitle ?? 'Wortsuche', 
+          description: s.wordFindDescription ?? 'Finde versteckte Wörter im Buchstabengitter',
+          icon: Icons.grid_on,
+          gradient: const LinearGradient(colors: [Color(0xFF00C9FF), Color(0xFF92FE9D)]), 
+          onTap: () => _navigateToGame(WordFindGame(gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
+        ),
+        GameInfo(
+          title: s.wordSortTitle ?? 'Wort-Sortierung',
+          description: s.wordSortDescription ?? 'Sortiere Wörter nach Wortarten',
+          icon: Icons.sort_by_alpha,
+          gradient: const LinearGradient(colors: [Color(0xFFf953c6), Color(0xFFb91d73)]),
+          onTap: () => _navigateToGame(WordSortGame(gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
+        ),
+        GameInfo(
+          title: s.wordSnakeTitle ?? 'Wort-Schlange',
+          description: s.wordSnakeDescription ?? 'Verbinde Buchstaben zu Wörtern',
+          icon: Icons.timeline,
+          gradient: const LinearGradient(colors: [Color(0xFFFF6B6B), Color(0xFFFFE66D)]),
+          onTap: () => _navigateToGame(WordSnakeGame(gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
+        ),
+        // NEW GAMES:
+        GameInfo(
+          title: s.wordMemoryTitle ?? 'Memory',
+          description: s.wordMemoryDescription ?? 'Finde passende Wortpaare in verschiedenen Schriften',
+          icon: Icons.psychology,
+          gradient: const LinearGradient(colors: [Color(0xFFFA8BFF), Color(0xFF2BD2FF)]),
+          onTap: () => _navigateToGame(WordMemoryGame(gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
+        ),
+        GameInfo(
+          title: s.wordBuilderTitle ?? 'Wort-Baumeister',
+          description: s.wordBuilderDescription ?? 'Baue Wörter aus durcheinander gewürfelten Buchstaben',
+          icon: Icons.construction,
+          gradient: const LinearGradient(colors: [Color(0xFFFFA500), Color(0xFFFF6347)]),
+          onTap: () => _navigateToGame(WordBuilderGame(gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
+        ),
+        GameInfo(
+          title: s.wordWhirlTitle ?? 'Wortarten-Wirbel',
+          description: s.wordWhirlDescription ?? 'Tippe die richtigen Wortarten im Wirbel!',
+          icon: Icons.tornado,
+          gradient: const LinearGradient(colors: [Color(0xFF667eea), Color(0xFF764ba2)]),
+          onTap: () => _navigateToGame(WordTypeWhirlGame(gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
+        ),
+      ];
+
 
     if (index >= games.length) return const SizedBox.shrink(); // Safety check
 

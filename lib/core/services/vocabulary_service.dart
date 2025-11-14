@@ -8,8 +8,9 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:csv/csv.dart';
 
-// NEW: Import GameProvider to access settings
+// Import GameProvider to access settings
 import '../../features/games/providers/game_provider.dart';
+
 import '../models/skill_category.dart';
 import 'sri_service.dart';
 
@@ -523,42 +524,44 @@ class VocabularyService with ChangeNotifier {
     WordCategory? category,
     GermanWordType? wordType,
   }) {
-    // PRIORITY 1: Check for active custom sets (plural) ---
-    final activeSetIds = settingsProvider.activeVocabularySetIds;
-    if (activeSetIds.isNotEmpty) {
-      final allWordIds = <String>{}; // Use a Set to handle duplicates
+    
+    // --- PRIORITY 1: Is the entire feature enabled? ---
+    if (settingsProvider.tasksCustomizationEnabled) {
+      
+      // --- PRIORITY 1A: Are custom sets active? ---
+      final activeSetIds = settingsProvider.activeVocabularySetIds;
+      if (activeSetIds.isNotEmpty) {
+        final allWordIds = <String>{};
+        for (final setId in activeSetIds) {
+          final activeSet = _vocabularySets[setId];
+          if (activeSet != null) {
+            allWordIds.addAll(activeSet.wordIds);
+          } else {
+            _log('Warning: Active set $setId not found.');
+          }
+        }
 
-      for (final setId in activeSetIds) {
-        final activeSet = _vocabularySets[setId];
-        if (activeSet != null) {
-          allWordIds.addAll(activeSet.wordIds);
+        if (allWordIds.isNotEmpty) {
+          _log('Using ${allWordIds.length} unique words from ${activeSetIds.length} custom set(s)');
+          // Return only the words from these sets
+          return allWordIds
+              .map((id) => _vocabulary[id])
+              .whereType<GermanWord>()
+              .toList();
         } else {
-          _log('Warning: Active set $setId not found, falling back.');
+          _log('Warning: Active sets were specified but yielded no words.');
+          // Fallback: clear the invalid IDs and use automatic filters
+          settingsProvider.clearActiveVocabularySets();
         }
       }
 
-      if (allWordIds.isNotEmpty) {
-        _log('Using ${allWordIds.length} unique words from ${activeSetIds.length} custom set(s)');
-        // Return only the words from these sets
-        return allWordIds
-            .map((id) => _vocabulary[id])
-            .whereType<GermanWord>() // Filter out any nulls
-            .toList();
-      } else {
-        // Active set IDs were provided, but they were empty or invalid
-        _log('Warning: Active sets were specified but yielded no words.');
-        // This is a safe fallback; clear the invalid IDs.
-        settingsProvider.clearActiveVocabularySets();
-      }
-    }
-
-    // SZENARIO A (Override): Wenn Filter an sind, ignoriere Stufe/Kategorie/Typ
-    if (settingsProvider.tasksCustomizationEnabled) {
-      // This now only runs if NO custom set is active
+      // --- PRIORITY 1B: No custom sets, use automatic filters ---
+      _log('Task customization enabled, using all words as base list.');
       return _vocabulary.values.toList(); // Starte mit ALLEN Wörtern
     }
 
-    // SZENARIO B (Normal): Filter sind aus, verwende Stufe/Kategorie/Typ
+    // --- PRIORITY 2: Feature is OFF. Use standard grade/category logic ---
+    _log('Task customization disabled, using standard filters (grade/category).');
     var filtered = _vocabulary.values.toList();
 
     if (grade != null) {
@@ -570,7 +573,7 @@ class VocabularyService with ChangeNotifier {
           break;
         case GradeLevel.grade3:
         case GradeLevel.grade4:
-          targetGradeLevel = 2; // Das ist die Zuordnung
+          targetGradeLevel = 2;
           break;
         default:
           targetGradeLevel = 3;

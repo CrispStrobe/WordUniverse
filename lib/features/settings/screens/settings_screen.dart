@@ -9,6 +9,8 @@ import '../../../core/theme/space_theme.dart';
 import '../../../core/services/debug_provider.dart';
 import '../../../core/services/progress_service.dart';
 
+import '../../../core/theme/app_fonts.dart';
+
 // Import VocabularyService to get sources
 import '../../../core/services/vocabulary_service.dart';
 import '../../../core/services/sri_service.dart';
@@ -27,6 +29,8 @@ import 'custom_subset_screen.dart';
 
 import '../widgets/manage_sets_dialog.dart';
 
+import 'package:flutter/foundation.dart'; // For LicenseRegistry
+import 'package:flutter/services.dart' show rootBundle;
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -43,6 +47,8 @@ class _SettingsScreenState extends State<SettingsScreen>
   String currentLocale = 'en'; // Safe default
   bool _isLoading = false;
   bool _hasLoadedLocale = false; 
+
+  bool _customLicensesAdded = false;
 
   // NEW: State for dynamic vocabulary sources
   Set<String> _availableSources = {};
@@ -80,8 +86,107 @@ class _SettingsScreenState extends State<SettingsScreen>
     
     debugPrint("[SETTINGS] 🔧 initState() completed - 7 animations ready");
     _slideController.forward();
+    _addCustomFontLicenses();
   }
-  
+
+  // --- REPLACE your old method with this ---
+  Future<void> _addCustomFontLicenses() async {
+    // Only run this once per app session.
+    if (_customLicensesAdded) return;
+
+    try {
+      // 1. Load the common OFL.txt file
+      final oflLicense = await rootBundle.loadString('assets/fonts/OFL.txt');
+
+      // 2. Add license for Grundschrift (Unique Author)
+      LicenseRegistry.addLicense(() {
+        return Stream<LicenseEntry>.fromIterable([
+          LicenseEntryWithLineBreaks(
+            ['Grundschrift'], // The package name from pubspec
+            'Credit: Christian Urff\n'
+            'License: SIL Open Font License, Version 1.1\n\n'
+            '------------------------------------\n\n'
+            '$oflLicense', // The license text
+          ),
+        ]);
+      });
+
+      // 3. Add license for Didact Gothic (Unique Authors)
+      LicenseRegistry.addLicense(() {
+        return Stream<LicenseEntry>.fromIterable([
+          LicenseEntryWithLineBreaks(
+            ['DidactGothic'], // The package name from pubspec
+            'Authors: Daniel Johnson, Cyreal\n'
+            'License: SIL Open Font License, Version 1.1\n\n'
+            '------------------------------------\n\n'
+            '$oflLicense', // The license text
+          ),
+        ]);
+      });
+
+      // 4. Add license for LetsTrace (Unique Author)
+      LicenseRegistry.addLicense(() {
+        return Stream<LicenseEntry>.fromIterable([
+          LicenseEntryWithLineBreaks(
+            ['LetsTrace'], // The package name from pubspec
+            'Author: James Kilfiger\n'
+            'License: SIL Open Font License, Version 1.1\n\n'
+            '------------------------------------\n\n'
+            '$oflLicense', // The license text
+          ),
+        ]);
+      });
+      
+      // 5. Add license for SASBienchen (assuming OFL)
+      LicenseRegistry.addLicense(() {
+        return Stream<LicenseEntry>.fromIterable([
+          LicenseEntryWithLineBreaks(
+            ['SASBienchen'], // The package name from pubspec
+            'License: SIL Open Font License, Version 1.1\n\n'
+            '------------------------------------\n\n'
+            '$oflLicense', // The license text
+          ),
+        ]);
+      });
+
+      // 6. Add all Peter Wiegel fonts
+      // We can do this in a loop to save space
+      final peterWiegelFonts = [
+        'BernerBasisschrift',
+        'EuroScript',
+        'Gruenewald',
+        'SchulfibelNord',
+        'Schulkursiv',
+        'SimplePrint',
+      ];
+
+      final peterWiegelLicense = 
+          'Author: Peter Wiegel\n'
+          'License: SIL Open Font License, Version 1.1\n\n'
+          '------------------------------------\n\n'
+          '$oflLicense';
+
+      for (final fontFamily in peterWiegelFonts) {
+        LicenseRegistry.addLicense(() {
+          return Stream<LicenseEntry>.fromIterable([
+            LicenseEntryWithLineBreaks(
+              [fontFamily], // The package name from pubspec
+              peterWiegelLicense,
+            ),
+          ]);
+        });
+      }
+      
+      setState(() {
+        _customLicensesAdded = true;
+      });
+      debugPrint("[SETTINGS] 📚 Successfully added all custom font licenses.");
+
+    } catch (e) {
+      debugPrint("[SETTINGS] ❌ Error loading custom font licenses: $e");
+    }
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -91,6 +196,62 @@ class _SettingsScreenState extends State<SettingsScreen>
       _loadCurrentLocaleAndSettings();
       _hasLoadedLocale = true;
     }
+  }
+
+  Widget _buildFontSelector(GameProvider gameProvider) {
+    // TODO: add these strings to S.of(context) files
+    final s = S.of(context)!;
+    final String title = "Schriftart"; // s.fontFamilyTitle
+    final String subtitle = "Wähle eine Schriftart für Lerninhalte"; // s.fontFamilySubtitle
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        children: [
+          const Icon(Icons.font_download, color: SpaceTheme.alienGreen, size: 24),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: SpaceTheme.bodyStyle.copyWith(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  style: SpaceTheme.bodyStyle.copyWith(
+                    fontSize: 12,
+                    color: Colors.white60,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // The Dropdown Button
+          DropdownButton<String>(
+            value: gameProvider.selectedFontFamily,
+            dropdownColor: SpaceTheme.deepSpace,
+            style: SpaceTheme.bodyStyle,
+            onChanged: (String? newValue) {
+              if (newValue != null) {
+                gameProvider.setSelectedFontFamily(newValue);
+              }
+            },
+            items: AppFonts.selectableFonts.entries.map((entry) {
+              return DropdownMenuItem<String>(
+                value: entry.key, // e.g., "SASBienchen"
+                child: Text(entry.value), // e.g., "SAS Bienchen"
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildCustomSetSelector(
@@ -498,6 +659,9 @@ class _SettingsScreenState extends State<SettingsScreen>
                     },
                     ),
 
+                  const Divider(color: SpaceTheme.nebulaPurple, height: 24),
+                  _buildFontSelector(gameProvider),
+
                 ],
               );
             },
@@ -528,6 +692,15 @@ class _SettingsScreenState extends State<SettingsScreen>
                 onChanged: (value) {
                   debugPrint("[SETTINGS] 🛠️ Task Customization changed to: $value");
                   gameProvider.setTasksCustomizationEnabled(value);
+
+                  // --- ADD THIS LOGIC ---
+                  // If the user just turned the feature OFF,
+                  // clear all active sets for them.
+                  if (value == false) {
+                    gameProvider.clearActiveVocabularySets();
+                    debugPrint("[SETTINGS] 🧹 Cleared active vocabulary sets.");
+                  }
+                  // --- END OF ADDED LOGIC ---
                 },
                 icon: Icons.edit_note,
               ),
@@ -1126,6 +1299,8 @@ class _SettingsScreenState extends State<SettingsScreen>
     );
   }
   
+  // ... inside _SettingsScreenState class ...
+
   Widget _buildAboutSection() {
     return SlideTransition(
       position: _settingAnimations[6], // Was 5
@@ -1133,11 +1308,10 @@ class _SettingsScreenState extends State<SettingsScreen>
         title: S.of(context)!.about,
         icon: Icons.info,
         children: [
-          _buildInfoRow(S.of(context)!.appVersion, '1.0.0 (Vocabulary)'),
+          _buildInfoRow(S.of(context)!.appVersion, '1.0.3 (Vocabulary)'), // From your pubspec
           _buildInfoRow(S.of(context)!.developer, S.of(context)!.developerName),
           _buildInfoRow(S.of(context)!.targetAge, S.of(context)!.targetAgeRange),
 
-          // --- ADD THESE LINES ---
           const Divider(color: SpaceTheme.nebulaPurple, height: 24),
           _buildFeatureRow(
             title: S.of(context)!.imprintTitle,
@@ -1151,7 +1325,29 @@ class _SettingsScreenState extends State<SettingsScreen>
               );
             },
           ),
-          // --- END OF ADDED LINES ---
+          
+          _buildFeatureRow(
+            title: S.of(context)!.licensesTitle, 
+            subtitle: S.of(context)!.viewOssLicenses, 
+            icon: Icons.article_rounded,
+            isLocked: false,
+            onTap: () {
+              showLicensePage(
+                context: context,
+                applicationName: S.of(context)!.appName, 
+                applicationVersion: '1.0.3', // From pubspec
+                applicationLegalese: S.of(context)!.appLegalese, 
+                applicationIcon: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Icon(
+                    Icons.rocket_launch, // Fits theme
+                    size: 48,
+                    color: SpaceTheme.starYellow,
+                  ),
+                ),
+              );
+            },
+          ),
 
           const SizedBox(height: 16),
 
@@ -1578,7 +1774,7 @@ class _SettingsScreenState extends State<SettingsScreen>
   String _getDifficultyDescription(int grade) {
     switch (grade) {
       case 1:
-        return S.of(context)!.difficultyDescGrade3; // Note: Your key names are slightly off
+        return S.of(context)!.difficultyDescGrade3; // Note: key names are slightly off
       case 2:
         return S.of(context)!.difficultyDescGrade4;
       case 3:
