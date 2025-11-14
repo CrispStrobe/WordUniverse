@@ -6,7 +6,8 @@ import 'package:provider/provider.dart';
 
 import '../../../core/services/audio_service.dart';
 import '../../../core/models/skill_category.dart';
-import '../../../core/services/audio_service.dart';
+// --- FIX: Removed duplicate import ---
+// import '../../../core/services/audio_service.dart'; 
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart';
 import '../../../core/theme/space_theme.dart';
@@ -60,6 +61,12 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
   Timer? _feedbackTimer;
   bool _showHint = false;
 
+  // --- FIX: State for educational info flow ---
+  String _educationalInfoText = "";
+  bool _showEducationalInfo = false;
+  Timer? _educationalInfoTimer;
+  // --- END FIX ---
+
   // Time tracking
   Timer? _gameTimer;
   int _secondsRemaining = 60;
@@ -98,6 +105,7 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
   void dispose() {
     _feedbackTimer?.cancel();
     _gameTimer?.cancel();
+    _educationalInfoTimer?.cancel(); // --- FIX: Dispose timer ---
     _successController.dispose();
     _shakeController.dispose();
     _hintController.dispose();
@@ -291,29 +299,48 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
       _buildArea = List.filled(letters.length, null);
       _feedbackState = FeedbackState.none;
       _showHint = false;
+      _hintController.reset(); // --- FIX: Reset hint controller to prevent "ghost hint" ---
     });
   }
 
-  void _onTileDraggedToBuildArea(LetterTile tile, int position) {
-    if (tile.isPlaced) return;
+  // --- FIX: Updated logic to handle grid-to-grid dragging ---
+  void _onTileDraggedToBuildArea(LetterTile draggedTile, int targetPosition) {
+    if (_feedbackState == FeedbackState.correct) return;
+
+    final int? sourcePosition = draggedTile.placedPosition;
+    final LetterTile? tileInTargetSlot = _buildArea[targetPosition];
 
     setState(() {
-      // Remove from previous position if any
-      for (int i = 0; i < _buildArea.length; i++) {
-        if (_buildArea[i] == tile) {
-          _buildArea[i] = null;
-        }
+      // 1. Clear the source slot (if it was in the grid)
+      if (sourcePosition != null) {
+        _buildArea[sourcePosition] = null;
       }
 
-      // Place in new position
-      _buildArea[position] = tile;
-      tile.isPlaced = true;
-      tile.placedPosition = position;
+      // 2. Place the dragged tile in the target slot
+      _buildArea[targetPosition] = draggedTile;
+      draggedTile.isPlaced = true;
+      draggedTile.placedPosition = targetPosition;
+
+      // 3. Handle the tile that was *in* the target slot (if any)
+      if (tileInTargetSlot != null) {
+        if (sourcePosition != null) {
+          // Case: Grid-to-Grid SWAP
+          // Move the displaced tile to the dragged tile's original slot
+          _buildArea[sourcePosition] = tileInTargetSlot;
+          tileInTargetSlot.placedPosition = sourcePosition;
+        } else {
+          // Case: Pool-to-Full-Grid
+          // Return the displaced tile to the pool
+          tileInTargetSlot.isPlaced = false;
+          tileInTargetSlot.placedPosition = null;
+        }
+      }
     });
 
     _audioService.playSound('tap');
     _checkWord();
   }
+  // --- END FIX ---
 
   void _onTileReturnedToPool(LetterTile tile) {
     setState(() {
@@ -374,6 +401,25 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
         'hints_used': _hintsUsed,
       },
     );
+
+    // --- FIX: Show educational info on a timer ---
+    final eduInfo = _getEducationalInfo(_currentWord!);
+    if (eduInfo.isNotEmpty) {
+      setState(() {
+        _educationalInfoText = '${_currentWord!.word}$eduInfo';
+        _showEducationalInfo = true;
+      });
+
+      _educationalInfoTimer?.cancel();
+      _educationalInfoTimer = Timer(const Duration(milliseconds: 3500), () {
+        if (mounted) {
+          setState(() {
+            _showEducationalInfo = false;
+          });
+        }
+      });
+    }
+    // --- END FIX ---
 
     // Load next word after delay
     Future.delayed(const Duration(milliseconds: 1500), () {
@@ -458,9 +504,11 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
         }
     }
     
-    if (word.article != null) {
+    // --- FIX: Check if article is not null AND not empty ---
+    if (word.article != null && word.article!.isNotEmpty) {
         parts.add(word.article!);
     }
+    // --- END FIX ---
     
     return parts.isEmpty ? '' : ' (${parts.join(', ')})';
     }
@@ -598,8 +646,8 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
                                         // Educational info
-                                        if (_currentWord != null)
-                                          _buildWordInfo(selectedFontFamily),
+                                        // --- FIX: Using new state for educational info ---
+                                        _buildWordInfo(selectedFontFamily),
                                         
                                         const SizedBox(height: 24),
                                         
@@ -691,11 +739,10 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
     );
   }
 
+  // --- FIX: Updated widget to use new state variables for info ---
   Widget _buildWordInfo(String selectedFontFamily) {
-    final eduInfo = _getEducationalInfo(_currentWord!);
-    
     return AnimatedOpacity(
-      opacity: _feedbackState == FeedbackState.correct ? 1.0 : 0.0,
+      opacity: _showEducationalInfo ? 1.0 : 0.0,
       duration: const Duration(milliseconds: 300),
       child: Container(
         padding: const EdgeInsets.all(16),
@@ -705,7 +752,7 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
           border: Border.all(color: SpaceTheme.alienGreen),
         ),
         child: Text(
-          '${_currentWord!.word}$eduInfo',
+          _educationalInfoText,
           style: SpaceTheme.bodyStyle.copyWith(
             fontFamily: selectedFontFamily,
             fontSize: 16,
@@ -717,6 +764,7 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
       ),
     );
   }
+  // --- END FIX ---
 
   Widget _buildConstructionArea(S s, String selectedFontFamily) {
     return AnimatedBuilder(
@@ -789,87 +837,127 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
     );
   }
 
+  // --- FIX: Helper widget for empty drop slot ---
+  Widget _buildEmptySlot(int position, {bool isHighlighted = false}) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      width: 60,
+      height: 70,
+      decoration: BoxDecoration(
+        color: isHighlighted
+                ? SpaceTheme.nebulaPurple.withOpacity(0.5)
+                : SpaceTheme.deepSpace.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isHighlighted
+              ? SpaceTheme.starYellow
+              : SpaceTheme.nebulaPurple.withOpacity(0.5),
+          width: isHighlighted ? 3 : 2,
+        ),
+      ),
+      child: Center(
+        child: Text(
+          '${position + 1}',
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.white.withOpacity(0.3),
+          ),
+        ),
+      ),
+    );
+  }
+  // --- END FIX ---
+
+  // --- FIX: Rebuilt widget to be a DragTarget that contains either a Draggable tile or an EmptySlot ---
   Widget _buildDropSlot(int position, String selectedFontFamily) {
     final tile = _buildArea[position];
     
     return DragTarget<LetterTile>(
-      onWillAccept: (data) => _feedbackState != FeedbackState.correct,
+      onWillAccept: (data) => _feedbackState != FeedbackState.correct && data != tile, // Don't accept drop on self
       onAccept: (data) => _onTileDraggedToBuildArea(data, position),
       builder: (context, candidateData, rejectedData) {
         final isHighlighted = candidateData.isNotEmpty;
         
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          width: 60,
-          height: 70,
-          decoration: BoxDecoration(
-            color: tile != null
-                ? SpaceTheme.planetOrange.withOpacity(0.8)
-                : (isHighlighted
-                    ? SpaceTheme.nebulaPurple.withOpacity(0.5)
-                    : SpaceTheme.deepSpace.withOpacity(0.3)),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: isHighlighted
-                  ? SpaceTheme.starYellow
-                  : SpaceTheme.nebulaPurple.withOpacity(0.5),
-              width: isHighlighted ? 3 : 2,
+        if (tile != null) {
+          // Slot is FULL - show the draggable tile
+          return Draggable<LetterTile>(
+            data: tile,
+            feedback: Material(
+              color: Colors.transparent,
+              child: Opacity(
+                opacity: 0.8,
+                child: _buildTileWidget(tile, selectedFontFamily, isDragging: true),
+              ),
             ),
-          ),
-          child: tile != null
-              ? GestureDetector(
-                  onTap: () => _onTileReturnedToPool(tile),
-                  child: Center(
-                    child: Text(
-                      tile.letter,
-                      style: TextStyle(
-                        fontFamily: selectedFontFamily,
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                )
-              : Center(
-                  child: Text(
-                    '${position + 1}',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.white.withOpacity(0.3),
-                    ),
-                  ),
-                ),
-        );
+            childWhenDragging: _buildEmptySlot(position, isHighlighted: true), // Show empty slot while dragging
+            onDragStarted: () {
+              // Clear feedback when starting to drag a tile
+              if (_feedbackState == FeedbackState.incorrect) {
+                setState(() {
+                  _feedbackState = FeedbackState.none;
+                });
+              }
+            },
+            child: GestureDetector(
+              onTap: () {
+                if (_feedbackState != FeedbackState.correct) {
+                  _onTileReturnedToPool(tile);
+                }
+              },
+              child: _buildTileWidget(tile, selectedFontFamily),
+            ),
+          );
+        } else {
+          // Slot is EMPTY - show the drop zone
+          return _buildEmptySlot(position, isHighlighted: isHighlighted);
+        }
       },
     );
   }
+  // --- END FIX ---
 
   Widget _buildLetterPool(S s, String selectedFontFamily) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: SpaceTheme.cardDecoration,
-      child: Column(
-        children: [
-          Text(
-            s.wordBuilderLetters,
-            style: SpaceTheme.bodyStyle.copyWith(
-              fontSize: 14,
-              color: Colors.white70,
-            ),
+    // --- FIX: Wrap pool in a DragTarget to accept tiles back from the grid ---
+    return DragTarget<LetterTile>(
+      // --- FIX: Added null check for 'data' ---
+      onWillAccept: (data) => data?.isPlaced ?? false, // Only accept tiles *from* the build grid
+      onAccept: (data) => _onTileReturnedToPool(data),
+      builder: (context, candidateData, rejectedData) {
+        final isHighlighted = candidateData.isNotEmpty;
+
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.all(20),
+          decoration: SpaceTheme.cardDecoration.copyWith(
+            border: isHighlighted 
+              ? Border.all(color: SpaceTheme.starYellow, width: 2)
+              : Border.all(color: SpaceTheme.nebulaPurple.withOpacity(0.5))
           ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            alignment: WrapAlignment.center,
-            children: _tiles.where((tile) => !tile.isPlaced).map((tile) {
-              return _buildDraggableTile(tile, selectedFontFamily);
-            }).toList(),
+          child: Column(
+            children: [
+              Text(
+                s.wordBuilderLetters,
+                style: SpaceTheme.bodyStyle.copyWith(
+                  fontSize: 14,
+                  color: Colors.white70,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                alignment: WrapAlignment.center,
+                // Only show tiles that are not placed
+                children: _tiles.where((tile) => !tile.isPlaced).map((tile) {
+                  return _buildDraggableTile(tile, selectedFontFamily);
+                }).toList(),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      }
     );
+    // --- END FIX ---
   }
 
   Widget _buildDraggableTile(LetterTile tile, String selectedFontFamily) {
@@ -886,6 +974,14 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
         opacity: 0.3,
         child: _buildTileWidget(tile, selectedFontFamily),
       ),
+      onDragStarted: () {
+        // Clear feedback when starting to drag a tile
+        if (_feedbackState == FeedbackState.incorrect) {
+          setState(() {
+            _feedbackState = FeedbackState.none;
+          });
+        }
+      },
       child: _buildTileWidget(tile, selectedFontFamily),
     );
   }
