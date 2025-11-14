@@ -145,6 +145,30 @@ abstract class S {
   /// **'Level 4'**
   String get grade6;
 
+  /// No description provided for @licensesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Licenses'**
+  String get licensesTitle;
+
+  /// No description provided for @viewOssLicenses.
+  ///
+  /// In en, this message translates to:
+  /// **'View open-source licenses'**
+  String get viewOssLicenses;
+
+  /// No description provided for @appName.
+  ///
+  /// In en, this message translates to:
+  /// **'Word Universe'**
+  String get appName;
+
+  /// No description provided for @appLegalese.
+  ///
+  /// In en, this message translates to:
+  /// **'© 2025 CrispStrobe'**
+  String get appLegalese;
+
   /// No description provided for @spaceWordRescueTitle.
   ///
   /// In en, this message translates to:
@@ -154,7 +178,7 @@ abstract class S {
   /// No description provided for @spaceWordRescueInstructions.
   ///
   /// In en, this message translates to:
-  /// **'Rescue words from drifting off!'**
+  /// **'Rescue words from drifting off into space! Type them in.'**
   String get spaceWordRescueInstructions;
 
   /// No description provided for @wordRescueTitle.
@@ -220,7 +244,7 @@ abstract class S {
   /// No description provided for @wordSnakeDescription.
   ///
   /// In en, this message translates to:
-  /// **'Connect letters to spell the word'**
+  /// **'Identify and trace the words: Connect letters in the correct to spell the word.'**
   String get wordSnakeDescription;
 
   /// No description provided for @wordSnakeInstructions.
@@ -310,7 +334,7 @@ abstract class S {
   /// No description provided for @wordFindDescription.
   ///
   /// In en, this message translates to:
-  /// **'Find the hidden words in the letter grid!'**
+  /// **'Spot the hidden words in the letter grid! Drag to mark them.'**
   String get wordFindDescription;
 
   /// No description provided for @wordFindWordsToFind.
@@ -1598,6 +1622,180 @@ abstract class S {
   /// In en, this message translates to:
   /// **'Are you sure you want to delete {setName}?'**
   String customSetDeleteConfirmContent(String setName);
+
+  /// Description for memory game in menu
+  ///
+  /// In en, this message translates to:
+  /// **'Find matching word pairs in different fonts'**
+  String get wordMemoryDescription;
+
+  /// Description for word builder game in menu
+  ///
+  /// In en, this message translates to:
+  /// **'Build words from scrambled letters'**
+  String get wordBuilderDescription;
+
+  /// Description for word whirl game in menu
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the correct word types in the whirl!'**
+  String get wordWhirlDescription;
+
+  /// Title for memory matching game
+  ///
+  /// In en, this message translates to:
+  /// **'Memory'**
+  String get wordMemoryTitle;
+
+  /// Memory game completion message
+  ///
+  /// In en, this message translates to:
+  /// **'Complete!'**
+  String get wordMemoryComplete;
+
+  /// Score label
+  ///
+  /// In en, this message translates to:
+  /// **'Score'**
+  String get wordMemoryScore;
+
+  /// Number of moves made
+  ///
+  /// In en, this message translates to:
+  /// **'Moves'**
+  String get wordMemoryMoves;
+
+  /// Number of pairs found
+  ///
+  /// In en, this message translates to:
+  /// **'Pairs'**
+  String get wordMemoryPairs;
+
+  /// Title for word builder game
+  ///
+  /// In en, this message translates to:
+  /// **'Word Builder'**
+  String get wordBuilderTitle;
+
+  /// Game over message
+  ///
+  /// In en, this message translates to:
+  /// **'Game Over!'**
+  String get wordBuilderGameOver;
+
+  /// Words completed label
+  ///
+  /// In en, this message translates to:
+  /// **'Words'**
+  String get wordBuilderWords;
+
+  /// Time bonus label
+  ///
+  /// In en, this message translates to:
+  /// **'Time Bonus'**
+  String get wordBuilderTimeBonus;
+
+  /// Instruction to build the word
+  ///
+  /// In en, this message translates to:
+  /// **'Build the word:'**
+  String get wordBuilderBuildWord;
+
+  /// Letters pool label
+  ///
+  /// In en, this message translates to:
+  /// **'Letters:'**
+  String get wordBuilderLetters;
+
+  /// Hint button text
+  ///
+  /// In en, this message translates to:
+  /// **'Hint (-10)'**
+  String get wordBuilderHint;
+
+  /// Skip button text
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get wordBuilderSkip;
+
+  /// Time label
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get wordBuilderTime;
+
+  /// Title for word type whirl game
+  ///
+  /// In en, this message translates to:
+  /// **'Word Type Whirl'**
+  String get wordWhirlTitle;
+
+  /// Whirl game over message
+  ///
+  /// In en, this message translates to:
+  /// **'Whirl Complete!'**
+  String get wordWhirlGameOver;
+
+  /// Accuracy percentage
+  ///
+  /// In en, this message translates to:
+  /// **'Accuracy'**
+  String get wordWhirlAccuracy;
+
+  /// Best streak achieved
+  ///
+  /// In en, this message translates to:
+  /// **'Best Streak'**
+  String get wordWhirlBestStreak;
+
+  /// Correct taps label
+  ///
+  /// In en, this message translates to:
+  /// **'Correct'**
+  String get wordWhirlCorrect;
+
+  /// Incorrect taps label
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect'**
+  String get wordWhirlIncorrect;
+
+  /// Current streak label
+  ///
+  /// In en, this message translates to:
+  /// **'Streak'**
+  String get wordWhirlStreak;
+
+  /// Round number label
+  ///
+  /// In en, this message translates to:
+  /// **'Round'**
+  String get wordWhirlRound;
+
+  /// Instruction to tap all words of a type
+  ///
+  /// In en, this message translates to:
+  /// **'Tap all {wordType}!'**
+  String wordWhirlTapAll(String wordType);
+
+  /// Replay button text
+  ///
+  /// In en, this message translates to:
+  /// **'Play Again'**
+  String get gameReplay;
+
+  /// Done/Exit button text
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get gameDone;
+
+  /// Score label used across games
+  ///
+  /// In en, this message translates to:
+  /// **'Score'**
+  String get gameScore;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

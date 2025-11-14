@@ -138,7 +138,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
   void initState() {
     super.initState();
 
-    final baseScrollSeconds = 10.0;
+    final baseScrollSeconds = 12.0;
     final scrollDifficultyFactor = 1.0 - (widget.gradeLevel.index * 0.1);
     final adjustedScrollSeconds = (baseScrollSeconds * scrollDifficultyFactor).clamp(5.0, 10.0);
     _scrollDuration = Duration(milliseconds: (adjustedScrollSeconds * 1000).round());
@@ -853,6 +853,8 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
     final s = S.of(context)!;
     final screenHeight = MediaQuery.of(context).size.height;
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+
+    final String selectedFontFamily = context.watch<GameProvider>().selectedFontFamily;
     
     return Scaffold(
       resizeToAvoidBottomInset: false, 
@@ -899,7 +901,10 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
                                         alignment: Alignment.center,
                                         child: Opacity(
                                           opacity: opacity,
-                                          child: _buildScrollingWord(isLandscape: isLandscape),
+                                          child: _buildScrollingWord(
+                                            isLandscape: isLandscape,
+                                            selectedFontFamily: selectedFontFamily,
+                                          ),
                                         ),
                                       ),
                                     );
@@ -912,7 +917,11 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
                                 left: 20,
                                 right: 20,
                                 bottom: keyboardHeight > 0 ? keyboardHeight + 10 : 20,
-                                child: _buildInputArea(s, isLandscape: isLandscape),
+                                child: _buildInputArea(
+                                  s,
+                                  isLandscape: isLandscape,
+                                  selectedFontFamily: selectedFontFamily,
+                                ),
                               ),
                             ],
                           ),
@@ -928,7 +937,10 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
                 curve: Curves.easeOutCubic,
                 top: _feedbackMessage.isNotEmpty ? (MediaQuery.of(context).padding.top + 100) : -200.0,
                 right: 20.0,
-                child: _buildFeedbackToast(s),
+                child: _buildFeedbackToast(
+                  s,
+                  selectedFontFamily: selectedFontFamily,
+                ),
               ),
             ],
           ),
@@ -1092,7 +1104,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
     return 1.0;
   }
 
-  Widget _buildScrollingWord({required bool isLandscape}) {
+  Widget _buildScrollingWord({required bool isLandscape, required String selectedFontFamily}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
       decoration: BoxDecoration(
@@ -1113,6 +1125,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
       child: Text(
         _buildPartialWord(),
         style: SpaceTheme.headlineStyle.copyWith(
+          fontFamily: selectedFontFamily,
           fontSize: isLandscape ? 36 : 48,
           color: SpaceTheme.starYellow,
           fontWeight: FontWeight.bold,
@@ -1141,7 +1154,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
     return result;
   }
 
-  Widget _buildInputArea(S s, {required bool isLandscape}) {
+  Widget _buildInputArea(S s, {required bool isLandscape, required String selectedFontFamily}) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -1188,6 +1201,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
             },
             onSubmitted: (_) => _checkAnswer(),
             style: SpaceTheme.headlineStyle.copyWith(
+              fontFamily: selectedFontFamily,
               fontSize: isLandscape ? 20 : 24,
               color: Colors.white,
             ),
@@ -1260,6 +1274,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
                   Text(
                     _currentHintText,
                     style: SpaceTheme.bodyStyle.copyWith(
+                      fontFamily: selectedFontFamily,
                       color: SpaceTheme.starYellow,
                       fontWeight: FontWeight.bold,
                       fontSize: 14,
@@ -1323,8 +1338,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
     );
   }
 
-  // --- MODIFIED: Feedback Toast now shows educational hint ---
-  Widget _buildFeedbackToast(S s) {
+  Widget _buildFeedbackToast(S s, {required String selectedFontFamily}) {
     if (_feedbackMessage.isEmpty) { 
       return const SizedBox.shrink();
     }
@@ -1363,10 +1377,12 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
             const SizedBox(height: 8),
             Text(
               _feedbackMessage,
-              style: SpaceTheme.bodyStyle.copyWith(fontSize: 16, fontWeight: FontWeight.bold),
+              style: SpaceTheme.bodyStyle.copyWith(
+                fontFamily: selectedFontFamily,
+                fontSize: 16, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
-            // --- NEW: Display the educational hint ---
+            // --- Display the educational hint ---
             if (_educationalHint.isNotEmpty) ...[
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 8.0),
@@ -1375,6 +1391,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
               Text(
                 _educationalHint,
                 style: SpaceTheme.bodyStyle.copyWith(
+                  fontFamily: selectedFontFamily,
                   fontSize: 14, 
                   fontStyle: FontStyle.italic,
                   color: Colors.white70

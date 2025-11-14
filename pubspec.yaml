@@ -61,12 +61,71 @@ flutter:
     - assets/fonts/
     - lib/features/games/data/ 
     - lib/features/games/data/grundwortschatz_variations.json
+    - assets/fonts/OFL.txt
     
   fonts:
     - family: SpaceGrotesk
       fonts:
         - asset: assets/fonts/SpaceGrotesk-Regular.ttf
         - asset: assets/fonts/SpaceGrotesk-Bold.ttf
+          weight: 700
+    
+    - family: Grundschrift
+      fonts:
+        - asset: assets/fonts/Grundschrift-Regular.otf
+        - asset: assets/fonts/Grundschrift-Bold.otf
+          weight: 700
+        - asset: assets/fonts/Grundschrift-Light.otf
+          weight: 300
+        - asset: assets/fonts/Grundschrift-Kontur.otf
+        - asset: assets/fonts/Grundschrift-Punkt.otf
+
+    - family: SASBienchen
+      fonts:
+        - asset: assets/fonts/BienchenSASOpenType.ttf
+
+    - family: BernerBasisschrift
+      fonts:
+        - asset: assets/fonts/BernerBasisschrift1.ttf
+        - asset: assets/fonts/BernerBasisschrift2.ttf
+          # You may need to add weight/style hints here if one is bold
+
+    - family: DidactGothic
+      fonts:
+        - asset: assets/fonts/DidactGothic-Regular.otf
+        # - asset: assets/fonts/DidactGothic-Regular.ttf # Duplicate, using .otf
+
+    - family: EuroScript
+      fonts:
+        - asset: assets/fonts/EuroScript.ttf
+        - asset: assets/fonts/EuroScriptBold.ttf
+          weight: 700
+
+    - family: Gruenewald
+      fonts:
+        - asset: assets/fonts/Gruenewald VA normal.ttf
+        - asset: assets/fonts/Gruenewald VA 1K.ttf
+        - asset: assets/fonts/Gruenewald VA 3K.ttf
+          
+    - family: LetsTrace
+      fonts:
+        - asset: assets/fonts/letstrace.s-trace-basic.otf
+        - asset: assets/fonts/letstrace.s-trace-italic.otf
+          style: italic
+        - asset: assets/fonts/letstrace.s-trace-ruled.otf
+
+    - family: SchulfibelNord
+      fonts:
+        - asset: assets/fonts/Schulfibel Nord Linie 2.ttf
+
+    - family: Schulkursiv
+      fonts:
+        - asset: assets/fonts/Schulkursiv.ttf
+
+    - family: SimplePrint
+      fonts:
+        - asset: assets/fonts/Simple Print.ttf
+        - asset: assets/fonts/Simple Print_Bold.ttf
           weight: 700
 
 flutter_launcher_icons:

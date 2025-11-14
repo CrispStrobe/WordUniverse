@@ -7,9 +7,13 @@
     "grade4": "Level 2",
     "grade5": "Level 3",
     "grade6": "Level 4",
+    "licensesTitle": "Licenses",
+    "viewOssLicenses": "View open-source licenses",
+    "appName": "Word Universe",
+    "appLegalese": "© 2025 CrispStrobe",
 
     "spaceWordRescueTitle": "Word Rescue",
-    "spaceWordRescueInstructions": "Rescue words from drifting off!",
+    "spaceWordRescueInstructions": "Rescue words from drifting off into space! Type them in.",
     "wordRescueTitle": "Word Rescue",
     "wordRescueCardDescription": "Type words before they escape!",
     "wordRescueTypeWord": "Type the word to rescue it!",
@@ -48,7 +52,7 @@
     },
 
     "wordSnakeTitle": "Word Snake",
-    "wordSnakeDescription": "Connect letters to spell the word",
+    "wordSnakeDescription": "Identify and trace the words: Connect letters in the correct to spell the word.",
     "wordSnakeInstructions": "Tap cells in order to form a path that spells the word",
     "wordSnakeConnectLetters": "Connect {count} letters",
     "@wordSnakeConnectLetters": {
@@ -82,7 +86,7 @@
     "gameplayFeedbackIncorrect": "Sorry, that's wrong! Correct is: {correctWord}",
 
     "wordFindTitle": "Word-Find",
-    "wordFindDescription": "Find the hidden words in the letter grid!",
+    "wordFindDescription": "Spot the hidden words in the letter grid! Drag to mark them.",
     "wordFindWordsToFind": "Words to Find:",
 
     "wordSortTitle": "Word Sort Game",
@@ -465,5 +469,132 @@
             "type": "String"
         }
         }
+    },
+
+    "wordMemoryDescription": "Find matching word pairs in different fonts",
+    "@wordMemoryDescription": {
+        "description": "Description for memory game in menu"
+    },
+    "wordBuilderDescription": "Build words from scrambled letters",
+    "@wordBuilderDescription": {
+        "description": "Description for word builder game in menu"
+    },
+    "wordWhirlDescription": "Tap the correct word types in the whirl!",
+    "@wordWhirlDescription": {
+        "description": "Description for word whirl game in menu"
+    },
+
+    "wordMemoryTitle": "Memory",
+    "@wordMemoryTitle": {
+        "description": "Title for memory matching game"
+    },
+    "wordMemoryComplete": "Complete!",
+    "@wordMemoryComplete": {
+        "description": "Memory game completion message"
+    },
+    "wordMemoryScore": "Score",
+    "@wordMemoryScore": {
+        "description": "Score label"
+    },
+    "wordMemoryMoves": "Moves",
+    "@wordMemoryMoves": {
+        "description": "Number of moves made"
+    },
+    "wordMemoryPairs": "Pairs",
+    "@wordMemoryPairs": {
+        "description": "Number of pairs found"
+    },
+    
+    "wordBuilderTitle": "Word Builder",
+    "@wordBuilderTitle": {
+        "description": "Title for word builder game"
+    },
+    "wordBuilderGameOver": "Game Over!",
+    "@wordBuilderGameOver": {
+        "description": "Game over message"
+    },
+    "wordBuilderWords": "Words",
+    "@wordBuilderWords": {
+        "description": "Words completed label"
+    },
+    "wordBuilderTimeBonus": "Time Bonus",
+    "@wordBuilderTimeBonus": {
+        "description": "Time bonus label"
+    },
+    "wordBuilderBuildWord": "Build the word:",
+    "@wordBuilderBuildWord": {
+        "description": "Instruction to build the word"
+    },
+    "wordBuilderLetters": "Letters:",
+    "@wordBuilderLetters": {
+        "description": "Letters pool label"
+    },
+    "wordBuilderHint": "Hint (-10)",
+    "@wordBuilderHint": {
+        "description": "Hint button text"
+    },
+    "wordBuilderSkip": "Skip",
+    "@wordBuilderSkip": {
+        "description": "Skip button text"
+    },
+    "wordBuilderTime": "Time",
+    "@wordBuilderTime": {
+        "description": "Time label"
+    },
+    
+    "wordWhirlTitle": "Word Type Whirl",
+    "@wordWhirlTitle": {
+        "description": "Title for word type whirl game"
+    },
+    "wordWhirlGameOver": "Whirl Complete!",
+    "@wordWhirlGameOver": {
+        "description": "Whirl game over message"
+    },
+    "wordWhirlAccuracy": "Accuracy",
+    "@wordWhirlAccuracy": {
+        "description": "Accuracy percentage"
+    },
+    "wordWhirlBestStreak": "Best Streak",
+    "@wordWhirlBestStreak": {
+        "description": "Best streak achieved"
+    },
+    "wordWhirlCorrect": "Correct",
+    "@wordWhirlCorrect": {
+        "description": "Correct taps label"
+    },
+    "wordWhirlIncorrect": "Incorrect",
+    "@wordWhirlIncorrect": {
+        "description": "Incorrect taps label"
+    },
+    "wordWhirlStreak": "Streak",
+    "@wordWhirlStreak": {
+        "description": "Current streak label"
+    },
+    "wordWhirlRound": "Round",
+    "@wordWhirlRound": {
+        "description": "Round number label"
+    },
+    "wordWhirlTapAll": "Tap all {wordType}!",
+    "@wordWhirlTapAll": {
+        "description": "Instruction to tap all words of a type",
+        "placeholders": {
+        "wordType": {
+            "type": "String",
+            "example": "Nouns"
+        }
+        }
+    },
+    
+    "gameReplay": "Play Again",
+    "@gameReplay": {
+        "description": "Replay button text"
+    },
+    "gameDone": "Done",
+    "@gameDone": {
+        "description": "Done/Exit button text"
+    },
+    "gameScore": "Score",
+    "@gameScore": {
+        "description": "Score label used across games"
     }
 }

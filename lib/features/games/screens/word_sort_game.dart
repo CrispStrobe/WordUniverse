@@ -780,6 +780,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
+    final String selectedFontFamily = context.watch<GameProvider>().selectedFontFamily;
     return Scaffold(
       body: SpaceBackground(
         child: SafeArea(
@@ -793,7 +794,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
               if (_isLoading)
                 const Expanded(child: Center(child: CircularProgressIndicator()))
               else
-                Expanded(child: _buildGameContent()),
+                Expanded(child: _buildGameContent(selectedFontFamily)),
             ],
           ),
         ),
@@ -801,7 +802,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     );
   }
 
-  Widget _buildGameContent() {
+  Widget _buildGameContent(String selectedFontFamily) {
     return LayoutBuilder(
       builder: (context, constraints) {
         // Responsive breakpoint
@@ -812,11 +813,11 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
           children: [
             // Main game layout
             if (isWideScreen)
-              _buildWideScreenLayout()
+              _buildWideScreenLayout(selectedFontFamily)
             else if (isTablet)
-              _buildTabletLayout()
+              _buildTabletLayout(selectedFontFamily)
             else
-              _buildMobileLayout(),
+              _buildMobileLayout(selectedFontFamily),
             
             // Non-blocking confetti
             if (_showConfetti)
@@ -824,14 +825,14 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
             
             // Non-blocking hint overlay
             if (_currentHint != null)
-              _buildFloatingHint(),
+              _buildFloatingHint(selectedFontFamily),
           ],
         );
       },
     );
   }
 
-  Widget _buildWideScreenLayout() {
+  Widget _buildWideScreenLayout(String selectedFontFamily) {
     return Row(
       children: [
         // Left side: Draggable word (40%)
@@ -840,7 +841,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
           child: Center(
             child: _currentWord == null 
                 ? const SizedBox.shrink() 
-                : _buildDraggableWord(),
+                : _buildDraggableWord(selectedFontFamily),
           ),
         ),
         // Right side: Drop targets (60%)
@@ -852,7 +853,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     );
   }
 
-  Widget _buildTabletLayout() {
+  Widget _buildTabletLayout(String selectedFontFamily) {
     return Row(
       children: [
         Expanded(
@@ -860,7 +861,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
           child: Center(
             child: _currentWord == null 
                 ? const SizedBox.shrink() 
-                : _buildDraggableWord(),
+                : _buildDraggableWord(selectedFontFamily),
           ),
         ),
         Expanded(
@@ -871,7 +872,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     );
   }
 
-  Widget _buildMobileLayout() {
+  Widget _buildMobileLayout(String selectedFontFamily) {
     return Column(
       children: [
         // Top: Draggable word
@@ -880,7 +881,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
           child: Center(
             child: _currentWord == null 
                 ? const SizedBox.shrink() 
-                : _buildDraggableWord(),
+                : _buildDraggableWord(selectedFontFamily),
           ),
         ),
         // Bottom: Drop targets
@@ -892,7 +893,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     );
   }
 
-  Widget _buildFloatingHint() {
+  Widget _buildFloatingHint(String selectedFontFamily) {
     return Positioned(
       top: 8,
       right: 8,
@@ -938,7 +939,8 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
                 Expanded(
                   child: Text(
                     _currentHint!,
-                    style: const TextStyle(
+                    style: TextStyle(
+                      fontFamily: selectedFontFamily,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -955,7 +957,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     );
   }
 
-  Widget _buildDraggableWord() {
+  Widget _buildDraggableWord(String selectedFontFamily) {
     final showArticle = _feedbackState != FeedbackState.none &&
         _currentWord!.wordType == GermanWordType.substantiv &&
         _currentWord!.article != null;
@@ -971,6 +973,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
               child: Text(
                 _currentWord!.article!,
                 style: TextStyle(
+                  fontFamily: selectedFontFamily,
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
                   color: _getGenderColor(_currentWord!),
@@ -981,9 +984,9 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
             data: _currentWord!.wordType,
             onDragStarted: () => setState(() => _isDragging = true),
             onDragEnd: (details) => setState(() => _isDragging = false),
-            feedback: _buildWordCard(_currentWord!.word, isFeedback: true),
-            childWhenDragging: _buildWordCard(_currentWord!.word, isPlaceholder: true),
-            child: _buildWordCard(_currentWord!.word),
+            feedback: _buildWordCard(_currentWord!.word, selectedFontFamily, isFeedback: true),
+            childWhenDragging: _buildWordCard(_currentWord!.word, selectedFontFamily, isPlaceholder: true),
+            child: _buildWordCard(_currentWord!.word, selectedFontFamily),
           ),
         ],
       ),
@@ -1004,7 +1007,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     return Colors.grey;
   }
 
-  Widget _buildWordCard(String word, {bool isFeedback = false, bool isPlaceholder = false}) {
+  Widget _buildWordCard(String word, String selectedFontFamily, {bool isFeedback = false, bool isPlaceholder = false}) {
     Color borderColor = SpaceTheme.planetOrange;
     if (_feedbackState == FeedbackState.correct) {
       borderColor = Colors.green;
@@ -1033,7 +1036,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
             fit: BoxFit.scaleDown,
             child: Text(
               word,
-              style: SpaceTheme.headlineStyle.copyWith(fontSize: 32),
+              style: SpaceTheme.headlineStyle.copyWith(fontFamily: selectedFontFamily, fontSize: 32),
               maxLines: 2,
               textAlign: TextAlign.center,
             ),

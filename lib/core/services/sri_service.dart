@@ -177,7 +177,7 @@ class SriService with ChangeNotifier {
     return isMastered;
   }
 
-  /// MODIFIED: Calculate detailed breakdown by skill type and grade level
+  /// Calculate detailed breakdown by skill type and grade level
   Map<LanguageSkillType, Map<int, CompetenceStat>> getDetailedBreakdown() {
     _log('Calculating detailed language skills breakdown...');
     
@@ -240,7 +240,7 @@ class SriService with ChangeNotifier {
     return finalBreakdown;
   }
 
-  /// MODIFIED: Get breakdown by word type competence
+  /// Get breakdown by word type competence
   Map<GermanWordType, CompetenceStat> getWordTypeBreakdown() {
     final breakdown = <GermanWordType, Map<String, dynamic>>{}; 
 

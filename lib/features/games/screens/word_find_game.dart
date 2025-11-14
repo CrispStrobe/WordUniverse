@@ -599,6 +599,8 @@ class _WordFindGameState extends State<WordFindGame> {
   Widget build(BuildContext context) {
     final s = S.of(context)!;
 
+    final String selectedFontFamily = context.watch<GameProvider>().selectedFontFamily;
+
     return Scaffold(
       body: SpaceBackground(
         child: SafeArea(
@@ -632,7 +634,7 @@ class _WordFindGameState extends State<WordFindGame> {
                             child: SizedBox(
                               width: gridSize,
                               height: gridSize,
-                              child: _buildGridWidget(),
+                              child: _buildGridWidget(selectedFontFamily),
                             ),
                           ),
                         );
@@ -648,13 +650,13 @@ class _WordFindGameState extends State<WordFindGame> {
                             child: SizedBox(
                               width: gridSize,
                               height: gridSize,
-                              child: _buildGridWidget(),
+                              child: _buildGridWidget(selectedFontFamily),
                             ),
                           ),
                         );
                       }
 
-                      final wordListWidget = _buildWordsToFindList();
+                      final wordListWidget = _buildWordsToFindList(selectedFontFamily);
 
                       if (constraints.maxWidth < breakpoint) {
                         // Small screen: Column layout
@@ -685,7 +687,7 @@ class _WordFindGameState extends State<WordFindGame> {
   }
 
   // Extract grid building into separate method
-  Widget _buildGridWidget() {
+  Widget _buildGridWidget(String selectedFontFamily) {
     return GestureDetector(
       key: _gridKey,
       onPanStart: _onPanStart,
@@ -705,14 +707,14 @@ class _WordFindGameState extends State<WordFindGame> {
           itemBuilder: (context, index) {
             final row = index ~/ _gridSize;
             final col = index % _gridSize;
-            return _buildCell(row, col);
+            return _buildCell(row, col, selectedFontFamily);
           },
         ),
       ),
     );
   }
 
-  Widget _buildCell(int row, int col) {
+  Widget _buildCell(int row, int col, String selectedFontFamily) {
     final pos = GridPosition(row, col);
     final isSelected = _selectedCells.contains(pos);
     final isFound = _foundCells.contains(pos);
@@ -742,6 +744,7 @@ class _WordFindGameState extends State<WordFindGame> {
           child: Text(
             _grid[row][col],
             style: TextStyle(
+              fontFamily: selectedFontFamily,
               fontSize: 18, // This is a *maximum* size
               fontWeight: FontWeight.bold,
               color: textColor,
@@ -755,7 +758,7 @@ class _WordFindGameState extends State<WordFindGame> {
     );
   }
 
-  Widget _buildWordsToFindList() {
+  Widget _buildWordsToFindList(String selectedFontFamily) {
     final s = S.of(context)!;
     
     // Only show words that were actually placed in the grid
@@ -796,6 +799,7 @@ class _WordFindGameState extends State<WordFindGame> {
                         TextSpan(
                           text: word.word,
                           style: SpaceTheme.bodyStyle.copyWith(
+                            fontFamily: selectedFontFamily,
                             fontSize: 16,
                             color: isFound ? SpaceTheme.alienGreen : Colors.white70,
                             decoration: isFound
@@ -810,6 +814,7 @@ class _WordFindGameState extends State<WordFindGame> {
                           TextSpan(
                             text: eduInfo,
                             style: SpaceTheme.bodyStyle.copyWith(
+                              fontFamily: selectedFontFamily,
                               fontSize: 13,
                               color: SpaceTheme.starYellow.withOpacity(0.9),
                               fontStyle: FontStyle.italic,

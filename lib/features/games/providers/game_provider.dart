@@ -6,6 +6,7 @@ import '../../../core/models/skill_category.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/cognitive_profile_service.dart';
 import '../constants/app_constants.dart'; // For MathOperation and NumberRange
+import '../../../core/theme/app_fonts.dart';
 
 // The Achievement data class.
 class Achievement {
@@ -41,16 +42,33 @@ class GameProvider extends ChangeNotifier {
   final CognitiveProfileService _cognitiveProfileService;
   Set<String> _activeVocabularySetIds = {};
 
+  String _selectedFontFamily = AppFonts.standard;
+
+  // Getter
+  String get selectedFontFamily => _selectedFontFamily;
+
+  // Setter
+  void setSelectedFontFamily(String fontFamily) {
+    if (AppFonts.selectableFonts.containsKey(fontFamily)) {
+      _selectedFontFamily = fontFamily;
+      notifyListeners();
+      _saveProgress(); // Save the user's choice
+    }
+  }
+
   Set<String> get activeVocabularySetIds => _activeVocabularySetIds;
 
-  // --- FIX: Added the missing gameSkillMap ---
+  // --- gameSkillMap ---
   final Map<String, SkillCategory> gameSkillMap = {
-    // Assuming the game key 'space_word_rescue' is used in the game screen
+    // We use the game key, e.g. 'space_word_rescue', as used in the game screen
     'space_word_rescue': SkillCategories.getById('basic_spelling')!,
     'word_snake_game': SkillCategories.getById('basic_spelling')!,
     'word_find_game': SkillCategories.getById('basic_vocab')!, 
     'word_sort_game': SkillCategories.getById('word_types')!,
-    // We add other games here as we create them
+    'word_memory_game': SkillCategories.getById('basic_spelling')!,
+    'word_builder_game': SkillCategories.getById('basic_spelling')!,
+    'word_type_whirl_game': SkillCategories.getById('word_types')!,
+      // We add other games here as we create them
   };
 
   int _score = 0;
@@ -509,6 +527,7 @@ class GameProvider extends ChangeNotifier {
       'taskExcludeWildcards': _taskExcludeWildcards,
       
       'activeVocabularySetIds': _activeVocabularySetIds.toList(),
+      'selectedFontFamily': _selectedFontFamily,
 
   };
   }
@@ -552,6 +571,12 @@ class GameProvider extends ChangeNotifier {
     _taskExcludeWildcards = List<String>.from(json['taskExcludeWildcards'] ?? []);
 
     _activeVocabularySetIds = Set<String>.from(json['activeVocabularySetIds'] ?? []);
+
+    _selectedFontFamily = json['selectedFontFamily'] ?? AppFonts.standard;
+    // Ensure the loaded font is valid, otherwise reset to default
+    if (!AppFonts.selectableFonts.containsKey(_selectedFontFamily)) {
+      _selectedFontFamily = AppFonts.standard;
+    }
 
     notifyListeners();
   }

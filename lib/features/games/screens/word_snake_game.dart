@@ -133,7 +133,10 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
       return;
     }
 
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      
+    });
 
     // --- ADAPTIVE WORD SELECTION ---
     final List<GermanWord> wordsForGame = [];
@@ -397,8 +400,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
         _educationalInfo = eduInfo;
       });
 
-      // --- FIX: Non-blocking flow ---
-      // 1. Show hint toast for 4 seconds
+      // 1. Show hint toast for 4 seconds (non-blocking)
       _hintTimer = Timer(const Duration(seconds: 4), () {
         if (mounted) {
           setState(() {
@@ -409,13 +411,16 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
         }
       });
       
-      // 2. After a short particle delay, load the next puzzle
-      Future.delayed(const Duration(milliseconds: 500), () {
+      // 2. Show confetti for 500ms (non-blocking)
+      // This timer just turns *off* the confetti, it doesn't block loading
+      Timer(const Duration(milliseconds: 500), () {
         if (mounted) {
           setState(() { _showConfetti = false; });
-          _loadNextPuzzle(); // This will handle the game over check
         }
       });
+
+      // 3. Load next puzzle IMMEDIATELY
+      _loadNextPuzzle(); // This will handle the game over check
 
     } else {
       _audioService.playSound('incorrect.mp3');
@@ -638,6 +643,8 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
   @override
   Widget build(BuildContext context) {
     final s = S.of(context)!;
+    final String selectedFontFamily = context.watch<GameProvider>().selectedFontFamily;
+    debugPrint('selectedFontFamily = ${selectedFontFamily}.');
 
     return Scaffold(
       body: SpaceBackground(
@@ -656,7 +663,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
                 Expanded(
                   child: Stack(
                     children: [
-                      _buildGameContent(s),
+                      _buildGameContent(s, selectedFontFamily),
                       
                       // --- NEW: Non-blocking feedback toast ---
                       AnimatedPositioned(
@@ -680,7 +687,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
     );
   }
 
-  Widget _buildGameContent(S s) { // --- MODIFIED: Pass S ---
+  Widget _buildGameContent(S s, String selectedFontFamily) {
     if (_currentPuzzle == null) return const SizedBox.shrink();
     
     return Column( 
@@ -706,7 +713,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
           child: Center(
             child: Padding(
               padding: const EdgeInsets.all(24.0),
-              child: _buildGrid(),
+              child: _buildGrid(selectedFontFamily),
             ),
           ),
         ),
@@ -738,7 +745,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
     );
   }
 
-  Widget _buildGrid() {
+  Widget _buildGrid(String selectedFontFamily) {
     final puzzle = _currentPuzzle!;
     
     // --- Responsive Cell Size ---
@@ -782,7 +789,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
                 final row = index ~/ puzzle.cols;
                 final col = index % puzzle.cols;
                 // --- Pass cell size to _buildCell ---
-                return _buildCell(row, col, cellSize);
+                return _buildCell(row, col, cellSize, selectedFontFamily);
               },
             ),
           ),
@@ -791,9 +798,16 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
     );
   }
 
-  Widget _buildCell(int row, int col, double cellSize) {
+  Widget _buildCell(int row, int col, double cellSize, String selectedFontFamily) {
     final puzzle = _currentPuzzle!;
     final letter = puzzle.grid[row][col];
+
+    debugPrint('selectedFontFamily: ${selectedFontFamily}.');
+
+    final String selectedFont = context.read<GameProvider>().selectedFontFamily;
+
+    debugPrint('selectedFont: ${selectedFont}.');
+
     final point = Point(col, row);
     
     final isSelected = _selectedPath.contains(point);
@@ -851,6 +865,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
               child: Text(
                 letter,
                 style: TextStyle(
+                  fontFamily: selectedFontFamily,
                   fontSize: fontSize, // Dynamic font size
                   fontWeight: FontWeight.bold,
                   color: textColor,
@@ -889,7 +904,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
     );
   }
   
-  /// --- NEW: Feedback Toast Widget ---
+  /// --- Feedback Toast Widget ---
   Widget _buildFeedbackToast(S s) {
     if (_feedbackMessage.isEmpty) { 
       return const SizedBox.shrink();
@@ -925,6 +940,9 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
               _feedbackMessage,
               style: SpaceTheme.bodyStyle.copyWith(fontSize: 16, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              
             ),
             if (_educationalInfo.isNotEmpty) ...[
               const Padding(
@@ -939,6 +957,9 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
                   color: Colors.white70
                 ),
                 textAlign: TextAlign.center,
+                maxLines: 5, // Allow up to 5 lines for the hint
+                overflow: TextOverflow.ellipsis, // Fade out if longer
+                
               ),
             ]
           ],

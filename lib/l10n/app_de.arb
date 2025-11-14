@@ -8,8 +8,26 @@
     "grade5": "Stufe 3",
     "grade6": "Stufe 4",
 
+    "licensesTitle": "Lizenzen",
+    "viewOssLicenses": "Zeite die open-source Lizenzen",
+    "appName": "Wort-Universum",
+    "appLegalese": "© 2025 CrispStrobe",
+
     "spaceWordRescueTitle": "Wort-Rettung",
     "spaceWordRescueInstructions": "Rette Wörter vor dem Abdriften!",
+
+    "wordMemoryDescription": "Finde passende Wortpaare in verschiedenen Schriften",
+    "@wordMemoryDescription": {
+        "description": "Description for memory game in menu"
+    },
+    "wordBuilderDescription": "Baue Wörter aus durcheinander gewürfelten Buchstaben",
+    "@wordBuilderDescription": {
+        "description": "Description for word builder game in menu"
+    },
+    "wordWhirlDescription": "Tippe die richtigen Wortarten im Wirbel!",
+    "@wordWhirlDescription": {
+        "description": "Description for word whirl game in menu"
+    },
 
     "wordRescueTitle": "Wort-Rettung",
     "wordRescueCardDescription": "Tippe Wörter bevor sie entkommen!",
@@ -406,5 +424,120 @@
             "type": "String"
         }
         }
-    }             
+    },
+
+    "wordMemoryTitle": "Memory",
+    "@wordMemoryTitle": {
+        "description": "Title for memory matching game"
+        },
+    "wordMemoryComplete": "Geschafft!",
+    "@wordMemoryComplete": {
+        "description": "Memory game completion message"
+    },
+    "wordMemoryScore": "Punkte",
+    "@wordMemoryScore": {
+        "description": "Score label"
+    },
+    "wordMemoryMoves": "Züge",
+    "@wordMemoryMoves": {
+        "description": "Number of moves made"
+    },
+    "wordMemoryPairs": "Paare",
+    "@wordMemoryPairs": {
+        "description": "Number of pairs found"
+    },
+
+    "wordBuilderTitle": "Wort-Baumeister",
+    "@wordBuilderTitle": {
+        "description": "Title for word builder game"
+    },
+    "wordBuilderGameOver": "Spiel Beendet!",
+    "@wordBuilderGameOver": {
+        "description": "Game over message"
+    },
+    "wordBuilderWords": "Wörter",
+    "@wordBuilderWords": {
+        "description": "Words completed label"
+    },
+    "wordBuilderTimeBonus": "Zeitbonus",
+    "@wordBuilderTimeBonus": {
+        "description": "Time bonus label"
+    },
+    "wordBuilderBuildWord": "Baue das Wort:",
+    "@wordBuilderBuildWord": {
+        "description": "Instruction to build the word"
+    },
+    "wordBuilderLetters": "Buchstaben:",
+    "@wordBuilderLetters": {
+        "description": "Letters pool label"
+    },
+    "wordBuilderHint": "Hinweis (-10)",
+    "@wordBuilderHint": {
+        "description": "Hint button text"
+    },
+    "wordBuilderSkip": "Überspringen",
+    "@wordBuilderSkip": {
+        "description": "Skip button text"
+    },
+    "wordBuilderTime": "Zeit",
+    "@wordBuilderTime": {
+        "description": "Time label"
+    },
+
+    "wordWhirlTitle": "Wortarten-Wirbel",
+    "@wordWhirlTitle": {
+        "description": "Title for word type whirl game"
+    },
+    "wordWhirlGameOver": "Wirbel Beendet!",
+    "@wordWhirlGameOver": {
+        "description": "Whirl game over message"
+    },
+    "wordWhirlAccuracy": "Genauigkeit",
+    "@wordWhirlAccuracy": {
+        "description": "Accuracy percentage"
+    },
+    "wordWhirlBestStreak": "Beste Serie",
+    "@wordWhirlBestStreak": {
+        "description": "Best streak achieved"
+    },
+    "wordWhirlCorrect": "Richtig",
+    "@wordWhirlCorrect": {
+        "description": "Correct taps label"
+    },
+    "wordWhirlIncorrect": "Falsch",
+    "@wordWhirlIncorrect": {
+        "description": "Incorrect taps label"
+    },
+    "wordWhirlStreak": "Serie",
+    "@wordWhirlStreak": {
+        "description": "Current streak label"
+    },
+    "wordWhirlRound": "Runde",
+    "@wordWhirlRound": {
+        "description": "Round number label"
+    },
+    "wordWhirlTapAll": "Tippe alle {wordType}!",
+    "@wordWhirlTapAll": {
+        "description": "Instruction to tap all words of a type",
+        "placeholders": {
+        "wordType": {
+            "type": "String",
+            "example": "Nomen"
+        }
+        }
+    },
+
+    "gameReplay": "Nochmal",
+    "@gameReplay": {
+        "description": "Replay button text"
+    },
+    "gameDone": "Fertig",
+    "@gameDone": {
+        "description": "Done/Exit button text"
+    },
+    "gameScore": "Punkte",
+    "@gameScore": {
+        "description": "Score label used across games"
+    }
+
 }

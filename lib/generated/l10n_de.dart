@@ -33,6 +33,18 @@ class SDe extends S {
   String get grade6 => 'Stufe 4';
 
   @override
+  String get licensesTitle => 'Lizenzen';
+
+  @override
+  String get viewOssLicenses => 'Zeite die open-source Lizenzen';
+
+  @override
+  String get appName => 'Wort-Universum';
+
+  @override
+  String get appLegalese => '© 2025 CrispStrobe';
+
+  @override
   String get spaceWordRescueTitle => 'Wort-Rettung';
 
   @override
@@ -842,4 +854,95 @@ class SDe extends S {
   String customSetDeleteConfirmContent(String setName) {
     return 'Möchtest du das Set $setName wirklich löschen?';
   }
+
+  @override
+  String get wordMemoryDescription =>
+      'Finde passende Wortpaare in verschiedenen Schriften';
+
+  @override
+  String get wordBuilderDescription =>
+      'Baue Wörter aus durcheinander gewürfelten Buchstaben';
+
+  @override
+  String get wordWhirlDescription => 'Tippe die richtigen Wortarten im Wirbel!';
+
+  @override
+  String get wordMemoryTitle => 'Memory';
+
+  @override
+  String get wordMemoryComplete => 'Geschafft!';
+
+  @override
+  String get wordMemoryScore => 'Punkte';
+
+  @override
+  String get wordMemoryMoves => 'Züge';
+
+  @override
+  String get wordMemoryPairs => 'Paare';
+
+  @override
+  String get wordBuilderTitle => 'Wort-Baumeister';
+
+  @override
+  String get wordBuilderGameOver => 'Spiel Beendet!';
+
+  @override
+  String get wordBuilderWords => 'Wörter';
+
+  @override
+  String get wordBuilderTimeBonus => 'Zeitbonus';
+
+  @override
+  String get wordBuilderBuildWord => 'Baue das Wort:';
+
+  @override
+  String get wordBuilderLetters => 'Buchstaben:';
+
+  @override
+  String get wordBuilderHint => 'Hinweis (-10)';
+
+  @override
+  String get wordBuilderSkip => 'Überspringen';
+
+  @override
+  String get wordBuilderTime => 'Zeit';
+
+  @override
+  String get wordWhirlTitle => 'Wortarten-Wirbel';
+
+  @override
+  String get wordWhirlGameOver => 'Wirbel Beendet!';
+
+  @override
+  String get wordWhirlAccuracy => 'Genauigkeit';
+
+  @override
+  String get wordWhirlBestStreak => 'Beste Serie';
+
+  @override
+  String get wordWhirlCorrect => 'Richtig';
+
+  @override
+  String get wordWhirlIncorrect => 'Falsch';
+
+  @override
+  String get wordWhirlStreak => 'Serie';
+
+  @override
+  String get wordWhirlRound => 'Runde';
+
+  @override
+  String wordWhirlTapAll(String wordType) {
+    return 'Tippe alle $wordType!';
+  }
+
+  @override
+  String get gameReplay => 'Nochmal';
+
+  @override
+  String get gameDone => 'Fertig';
+
+  @override
+  String get gameScore => 'Punkte';
 }
