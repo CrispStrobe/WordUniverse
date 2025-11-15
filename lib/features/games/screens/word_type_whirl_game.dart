@@ -7,10 +7,12 @@ import 'dart:collection'; // For Queue
 
 import '../../../core/services/audio_service.dart';
 import '../../../core/models/skill_category.dart';
-import '../../../core/models/vocabulary_models.dart';
+import '../../../core/models/vocabulary_models.dart'; // <-- FIX: This is the correct source for models
 
 import '../../../core/services/sri_service.dart';
-import '../../../core/services/vocabulary_service.dart';
+// --- FIX: Use 'as' to prevent class name conflict ---
+import '../../../core/services/vocabulary_service.dart' as vocab_service;
+// --- END FIX ---
 
 import '../../../core/theme/space_theme.dart';
 import '../../../generated/l10n.dart';
@@ -73,7 +75,9 @@ class HintMessage {
 class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
     with TickerProviderStateMixin {
   // Services
-  late VocabularyService _vocabularyService;
+  // --- FIX: Use the aliased service type ---
+  late vocab_service.VocabularyService _vocabularyService;
+  // --- END FIX ---
   late SriService _sriService;
   late AudioService _audioService;
   late GameProvider _gameProvider;
@@ -91,10 +95,9 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
   bool _isEndingRound = false;
 
   // --- MODIFIED: Auto-hint system ---
-  Timer? _autoHintTimer; // This replaces the old _hintTimer
-  bool _showAutoHints = false; // This replaces the old _showHints
-  static const _autoHintDelay =
-      7; // Show auto-hints after 7 seconds of no correct taps
+  Timer? _autoHintTimer; 
+  bool _showAutoHints = false; 
+  static const _autoHintDelay = 7; 
   int _secondsSinceLastCorrectTap = 0;
 
   // Round management
@@ -109,7 +112,7 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
   final Stopwatch _whirlStopwatch = Stopwatch();
 
   // --- NEW: Responsive layout state ---
-  Size _whirlAreaSize = Size.zero; // Size of the whirl area for responsiveness
+  Size _whirlAreaSize = Size.zero; 
 
   // --- NEW: Non-blocking hint queue system ---
   final Queue<HintMessage> _hintQueue = Queue<HintMessage>();
@@ -133,7 +136,7 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
 
     _whirlController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 4), // larger numbers make it easier
+      duration: const Duration(seconds: 4), 
     )..repeat();
 
     _pulseController = AnimationController(
@@ -192,8 +195,8 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
     _pulseController.dispose();
     _roundTimer?.cancel();
     _spawnTimer?.cancel();
-    _autoHintTimer?.cancel(); // Modified
-    _hintDisplayTimer?.cancel(); // New
+    _autoHintTimer?.cancel(); 
+    _hintDisplayTimer?.cancel(); 
     _whirlStopwatch.stop();
     super.dispose();
   }
@@ -201,7 +204,9 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
   Future<void> _initializeGame() async {
     setState(() => _isLoading = true);
 
-    _vocabularyService = context.read<VocabularyService>();
+    // --- FIX: Use the aliased service type ---
+    _vocabularyService = context.read<vocab_service.VocabularyService>();
+    // --- END FIX ---
     _sriService = context.read<SriService>();
     _audioService = context.read<AudioService>();
     _gameProvider = context.read<GameProvider>();
@@ -220,19 +225,32 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
     return null;
   }
 
-  bool _isWordValidForGame(GermanWord word) {
-    return _wordTypes.containsKey(word.wordType) &&
-        !word.word.contains(" ") &&
+  // --- OPTIMIZATION: Check for API data but allow fallback ---
+  bool _isWordValidForGame(GermanWord word, {bool requireApiData = false}) {
+    final bool hasValidType = _wordTypes.containsKey(word.wordType);
+    final bool isCleanWord = !word.word.contains(" ") &&
         word.word.length >= 3 &&
         word.word.length <= 10;
+    
+    if (requireApiData) {
+      // For prioritized lists, we demand successful enrichment
+      // This line is now safe because 'GermanWord' is from vocabulary_models.dart
+      return hasValidType && isCleanWord && word.apiEnrichment?.enrichmentStatus == 'success';
+    }
+    
+    // For general use, just check type and cleanliness
+    return hasValidType && isCleanWord;
   }
+  // --- END OPTIMIZATION ---
 
   void _loadWordPool() {
-    // --- ADAPTIVE WORD SELECTION ---
     final List<GermanWord> wordsForGame = [];
     final Set<String> addedWordIds = {};
-
-    // Get review words (50%)
+    
+    // --- OPTIMIZATION: Prioritize enriched words ---
+    final List<GermanWord> enrichedReviewWords = [];
+    final List<GermanWord> nonEnrichedReviewWords = [];
+    
     final reviewItemIds = _sriService.getItemsForReview(
       limit: 50,
       skillTypeFilter: LanguageSkillType.wordType,
@@ -249,45 +267,69 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
             .firstWhere(
                 (w) => w.word.toLowerCase() == wordString.toLowerCase());
 
-        if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
-          wordsForGame.add(word);
-          addedWordIds.add(word.id);
+        if (!addedWordIds.contains(word.id)) {
+           if (_isWordValidForGame(word, requireApiData: true)) {
+             enrichedReviewWords.add(word);
+             addedWordIds.add(word.id);
+           } else if (_isWordValidForGame(word)) {
+             nonEnrichedReviewWords.add(word);
+             addedWordIds.add(word.id);
+           }
         }
       } catch (e) {
         // Word from SRI not in vocab, skip
       }
     }
+    
+    // Add prioritized review words
+    wordsForGame.addAll(enrichedReviewWords);
 
-    // Get new words
+    // Get new words, split by enrichment
     final newWords = _vocabularyService.getNewWords(
       sriService: _sriService,
       grade: widget.gradeLevel,
-      limit: 50,
+      limit: 100, // Get a larger pool to filter
       settingsProvider: _gameProvider,
     );
-
+    
+    final List<GermanWord> enrichedNewWords = [];
+    final List<GermanWord> nonEnrichedNewWords = [];
+    
     for (final word in newWords) {
-      if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
-        wordsForGame.add(word);
-        addedWordIds.add(word.id);
-      }
-    }
-
-    // Fill with random words if needed
-    if (wordsForGame.length < 60) {
-      final allWords =
-          _vocabularyService.getWordsByGrade(widget.gradeLevel, _gameProvider);
-      allWords.shuffle();
-
-      for (final word in allWords) {
-        if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
-          wordsForGame.add(word);
+      if (!addedWordIds.contains(word.id)) {
+        if (_isWordValidForGame(word, requireApiData: true)) {
+          enrichedNewWords.add(word);
           addedWordIds.add(word.id);
-          if (wordsForGame.length >= 100) break;
+        } else if (_isWordValidForGame(word)) {
+          nonEnrichedNewWords.add(word);
+          addedWordIds.add(word.id);
         }
       }
     }
-    // --- END ADAPTIVE SELECTION ---
+    
+    // Add prioritized new words
+    wordsForGame.addAll(enrichedNewWords);
+
+    // Fill with remaining words (non-enriched review, then non-enriched new)
+    wordsForGame.addAll(nonEnrichedReviewWords);
+    wordsForGame.addAll(nonEnrichedNewWords);
+
+    // Fill with random words if needed (prioritizing enriched)
+    if (wordsForGame.length < 60) {
+      final allWords = _vocabularyService.getWordsByGrade(widget.gradeLevel, _gameProvider);
+      allWords.shuffle();
+      
+      final allEnriched = allWords.where((w) => _isWordValidForGame(w, requireApiData: true) && !addedWordIds.contains(w.id)).toList();
+      wordsForGame.addAll(allEnriched);
+      addedWordIds.addAll(allEnriched.map((w) => w.id));
+
+      if (wordsForGame.length < 60) {
+         final allNonEnriched = allWords.where((w) => _isWordValidForGame(w) && !addedWordIds.contains(w.id)).toList();
+         wordsForGame.addAll(allNonEnriched);
+         addedWordIds.addAll(allNonEnriched.map((w) => w.id));
+      }
+    }
+    // --- END OPTIMIZATION ---
 
     // CRITICAL FIX: Ensure we have words of all types
     final wordsByType = <GermanWordType, List<GermanWord>>{};
@@ -303,7 +345,7 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
         final moreWords = allWords
             .where((w) =>
                 w.wordType == type &&
-                _isWordValidForGame(w) &&
+                _isWordValidForGame(w) && // Use non-strict check for fill
                 !addedWordIds.contains(w.id))
             .take(15)
             .toList();
@@ -324,6 +366,7 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
     }
   }
 
+
   void _loadLevel() {
     setState(() {
       _score = 0;
@@ -333,7 +376,6 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
       _baseSpeed = 1.0;
       _roundHistory.clear();
       _isLoading = false;
-      // --- NEW: Clear hint queue ---
       _hintQueue.clear();
       _visibleHints.clear();
       _currentHintMessage = null;
@@ -349,7 +391,6 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
       return;
     }
 
-    // Pick random target word type
     final types = _wordTypes.keys.toList()..shuffle();
 
     GermanWordType? selectedType;
@@ -362,7 +403,6 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
 
     _currentTargetType = selectedType ?? types.first;
 
-    // Set round time based on grade
     switch (widget.gradeLevel) {
       case GradeLevel.grade1:
       case GradeLevel.grade2:
@@ -378,14 +418,12 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
 
     _baseSpeed = 1.0 + (_round - 1) * 0.08;
 
-    // CRITICAL FIX: Reset hint system BEFORE setState
     _showAutoHints = false;
     _secondsSinceLastCorrectTap = 0;
-    // --- NEW: Clear hints between rounds ---
     _hintQueue.clear();
     _hintDisplayTimer?.cancel();
     _currentHintMessage = null;
-    // Clear visible list
+    
     for (int i = _visibleHints.length - 1; i >= 0; i--) {
       _hintListKey.currentState?.removeItem(
         0,
@@ -393,7 +431,6 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
       );
     }
     _visibleHints.clear();
-    // --- End New ---
 
     setState(() {
       _whirlingWords.clear();
@@ -416,7 +453,6 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
         setState(() {
           _roundTimeRemaining--;
 
-          // Track time since last correct tap for hints
           if (!_showAutoHints) {
             _secondsSinceLastCorrectTap++;
             if (_secondsSinceLastCorrectTap >= _autoHintDelay) {
@@ -425,7 +461,6 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
           }
         });
 
-        // CRITICAL FIX: Check if all target words are tapped
         _checkRoundCompletion();
       } else {
         _endRound();
@@ -433,14 +468,11 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
     });
   }
 
-  // Add this new method after _startRoundTimer
   void _checkRoundCompletion() {
-    // Check if any target words remain
     final hasTargetWords = _whirlingWords
         .any((w) => !w.isTapped && w.word.wordType == _currentTargetType);
 
     if (!hasTargetWords && _whirlingWords.isNotEmpty) {
-      // All target words tapped! Auto-complete round
       debugPrint('[WHIRL] All target words tapped! Auto-completing round.');
       _endRound();
     }
@@ -449,7 +481,6 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
   void _startWordSpawning() {
     _spawnTimer?.cancel();
 
-    // Spawn interval decreases with difficulty
     final spawnInterval = (1500 ~/ _baseSpeed).clamp(600, 2000);
 
     _spawnTimer = Timer.periodic(Duration(milliseconds: spawnInterval), (timer) {
@@ -458,9 +489,6 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
       }
     });
 
-    // --- FIX: Simplify initial spawn ---
-    // Just call _spawnWord(), which already has all the
-    // correct logic for radius, uniqueness, and target-rate.
     final random = Random();
     for (int i = 0; i < 6; i++) {
       Future.delayed(Duration(milliseconds: i * 250 + random.nextInt(100)), () {
@@ -471,7 +499,7 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
 
   bool _hasEnoughWordsOfType(GermanWordType type) {
     final count = _wordPool.where((w) => w.wordType == type).length;
-    return count >= 5; // Need at least 5 words of each type
+    return count >= 5; 
   }
 
   void _spawnWord() {
@@ -479,29 +507,26 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
       _wordPool.shuffle();
       _wordPoolIndex = 0;
     }
-    // --- NEW: Check if layout is ready ---
+    
     final maxRadius = min(_whirlAreaSize.width, _whirlAreaSize.height) / 2.0;
     if (maxRadius <= 50) {
-      // Area not laid out yet or too small, skip spawning
       return;
     }
-    // --- END NEW ---
 
     final random = Random();
 
-    // --- Make check case/whitespace-insensitive ---
+    // --- FIX: Explicitly cast to Set<String> ---
     final Set<String> onScreenWords =
-        _whirlingWords.map((w) => w.word.word.trim().toLowerCase()).toSet();
+        Set<String>.from(_whirlingWords.map((w) => w.word.word.trim().toLowerCase()));
+    // --- END FIX ---
 
-    // Ensure 40% of words are the target type
     final shouldSpawnTarget = random.nextDouble() < 0.4;
 
     GermanWord? selectedWord;
     int searchStartIndex = _wordPoolIndex;
-    int maxAttempts = _wordPool.length; // Max search iteration
+    int maxAttempts = _wordPool.length; 
 
     if (shouldSpawnTarget) {
-      // --- Try to find a word of the target type NOT on screen ---
       for (int i = 0; i < maxAttempts; i++) {
         int currentIndex = (searchStartIndex + i) % _wordPool.length;
         final candidateWord = _wordPool[currentIndex];
@@ -510,15 +535,13 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
         if (candidateWord.wordType == _currentTargetType &&
             !onScreenWords.contains(cleanWord)) {
           selectedWord = candidateWord;
-          _wordPoolIndex = currentIndex + 1; // Set index for next spawn
+          _wordPoolIndex = currentIndex + 1; 
           break;
         }
       }
     }
 
-    // If still no target word found, or we want a non-target word
     if (selectedWord == null) {
-      // --- Try to find a non-target word NOT on screen ---
       for (int i = 0; i < maxAttempts; i++) {
         int currentIndex = (searchStartIndex + i) % _wordPool.length;
         final candidateWord = _wordPool[currentIndex];
@@ -533,9 +556,7 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
       }
     }
 
-    // Fallback: If STILL no word, find the *first available* word of *any* type
     if (selectedWord == null) {
-      // --- Fallback to ANY word NOT on screen ---
       for (int i = 0; i < maxAttempts; i++) {
         int currentIndex = (searchStartIndex + i) % _wordPool.length;
         final candidateWord = _wordPool[currentIndex];
@@ -549,84 +570,71 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
       }
     }
 
-    // If no unique word could be found at all
     if (selectedWord == null) {
       debugPrint("[WHIRL] Could not find a unique word to spawn. Skipping.");
       return;
     }
 
-    // --- MODIFIED: Use relative radii based on maxRadius ---
-    // Use 25% to 50% of radius for inner band
     final innerRadiusMin = 0.25;
     final innerRadiusMax = 0.50;
-
-    // Use 60% to 90% of radius for outer band
     final outerRadiusMin = 0.60;
     final outerRadiusMax = 0.90;
-    // --- END MODIFIED ---
 
     final double radius;
-    final bool isInnerBand; // Need to know which band we're in
+    final bool isInnerBand; 
     if (random.nextBool()) {
-      // Inner band
       radius =
           innerRadiusMin + random.nextDouble() * (innerRadiusMax - innerRadiusMin);
       isInnerBand = true;
     } else {
-      // Outer band
       radius =
           outerRadiusMin + random.nextDouble() * (outerRadiusMax - outerRadiusMin);
       isInnerBand = false;
     }
 
-    // --- NEW FIX: Check for angular collision in the *same band* ---
     double newAngle;
     int attempt = 0;
     bool collision;
 
-    // --- MODIFIED: Dynamic card width and angle separation ---
     final cardWidth = (maxRadius * 0.4).clamp(80.0, 120.0);
-    // Calculate minimum separation based on the *inner* band for safety
-    final minAngleSeparation =
-        2 * asin((cardWidth / 2) / (innerRadiusMin * maxRadius));
-    // --- END MODIFIED ---
+    
+    // --- FIX: Add check for maxRadius > 0 ---
+    final minAngleSeparation = (maxRadius > 0 && innerRadiusMin > 0) 
+      ? 2 * asin((cardWidth / 2) / (innerRadiusMin * maxRadius))
+      : 0.5; // Fallback if radius is 0
+    // --- END FIX ---
 
     do {
       collision = false;
       newAngle = random.nextDouble() * 2 * pi;
 
-      // Check against all existing words
       for (final existingWord in _whirlingWords) {
-        // Are they in the same band? (use 0.55 as midpoint)
         final bool existingIsInner = existingWord.radius < 0.55;
 
         if (isInnerBand == existingIsInner) {
-          // Yes. Check their angle separation.
           double angleDiff = (newAngle - existingWord.angle).abs();
           if (angleDiff > pi) {
-            angleDiff = 2 * pi - angleDiff; // Get shortest arc
+            angleDiff = 2 * pi - angleDiff; 
           }
 
           if (angleDiff < minAngleSeparation) {
             collision = true;
-            break; // Collision found, break inner loop to try new angle
+            break; 
           }
         }
       }
       attempt++;
-    } while (collision && attempt < 40); // Try 40 times to find a free spot
+    } while (collision && attempt < 40); 
 
     if (collision) {
-      // Still colliding after 40 attempts, band is likely full.
-      // Don't spawn the word.
       debugPrint("[WHIRL] Could not find a non-colliding spot. Skipping.");
       return;
     }
 
     final whirlingWord = WhirlingWord(
       word: selectedWord,
-      angle: newAngle, // Use the collision-checked angle
-      radius: radius, // Store the RELATIVE radius
+      angle: newAngle, 
+      radius: radius, 
       speed: (0.5 + random.nextDouble() * 0.5) * _baseSpeed,
     );
 
@@ -651,7 +659,6 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
       _onIncorrectTap(whirlingWord);
     }
 
-    // Remove word after animation
     Future.delayed(const Duration(milliseconds: 400), () {
       if (mounted) {
         setState(() {
@@ -662,77 +669,104 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
     });
   }
 
-  // --- NEW: Hint Generation Logic ---
+  // --- OPTIMIZATION: Swapped to use new API data with fallbacks ---
   String _generateEducationalHint(GermanWord word,
       {required bool isCorrect, GermanWordType? tappedTargetType}) {
+        
     final typeName = _wordTypes[word.wordType]?.label ?? 'Wort';
     final targetName = tappedTargetType != null
         ? (_wordTypes[tappedTargetType]?.label ?? 'Wort')
         : '';
 
+    // Get the new, reliable API data
+    final apiData = word.apiEnrichment;
+    // Get the Pattern.de data map
+    final patternData = apiData?.inflectionsPattern; 
+    // Get the Wiktionary data list (not used for hints, but available)
+    // final wiktData = apiData?.inflections; 
+    // Fallback to old data
+    final oldInflectionData = word.inflectionData;
+
     if (isCorrect) {
-      // --- SUCCESS HINTS ---
+      // --- SUCCESS HINTS (using API data) ---
       switch (word.wordType) {
         case GermanWordType.substantiv:
-          if (word.article != null && word.article!.isNotEmpty) {
-            return '✓ Richtig! ${word.article} ${word.word} (Nomen)';
+          String? plural;
+          // 1. Try to get plural from Pattern.de data
+          if (patternData?['plural'] is String) {
+            plural = patternData!['plural'] as String;
           }
-          if (word.plural != null && word.plural!.isNotEmpty && word.plural != '-') {
-            return '✓ ${typeName}! Plural: ${word.plural}';
+          // 2. Fallback to old plural data
+          else if (word.plural != null && word.plural!.isNotEmpty && word.plural != '-') {
+            plural = word.plural;
           }
-          return '✓ Richtig! ${word.word} ist ein ${typeName}';
+          
+          if (plural != null && plural.isNotEmpty && plural != word.word) {
+            return '✓ ${typeName}! Mehrzahl: ${plural}';
+          }
+          // Use displayName to show article
+          return '✓ Richtig! ${word.displayName} (Nomen)';
+          
         case GermanWordType.verb:
           String? ichForm;
-          if (word.inflectionData != null) {
-            try {
-              ichForm = word.inflectionData!['analyses']?['verb']
-                  ?['conjugation']?['Präsens']?['ich'] as String?;
-            } catch (e) {
-              /* ignore */
-            }
+          // 1. Try to get conjugation from Pattern.de data
+          if (patternData?['conjugation']?['Präsens']?['ich'] is String) {
+            ichForm = patternData!['conjugation']['Präsens']['ich'] as String;
+          }
+          // 2. Fallback to old inflectionData (which was Pattern.de)
+          else if (oldInflectionData?['analyses']?['verb']?['conjugation']?['Präsens']?['ich'] is String) {
+             ichForm = oldInflectionData!['analyses']!['verb']!['conjugation']!['Präsens']!['ich'] as String;
           }
           if (ichForm != null) {
             return '✓ ${typeName}! (z.B. ich ${ichForm})';
           }
-          return '✓ Richtig! ${word.word} ist ein ${typeName}';
+          return '✓ Richtig! ${word.word} ist ein ${typeName} (Tun-Wort)';
+          
         case GermanWordType.adjektiv:
           String? komparativ;
-          if (word.inflectionData != null) {
-            try {
-              komparativ = word.inflectionData!['analyses']?['adjektiv']
-                  ?['comparison']?['Komparativ'] as String?;
-            } catch (e) {
-              /* ignore */
-            }
+          // 1. Try to get comparison from Pattern.de data
+          if (patternData?['comparative'] is String) {
+            komparativ = patternData!['comparative'] as String;
+          }
+          // 2. Fallback to old inflectionData
+          else if (oldInflectionData?['analyses']?['adjektiv']?['comparison']?['Komparativ'] is String) {
+            komparativ = oldInflectionData!['analyses']!['adjektiv']!['comparison']!['Komparativ'] as String;
           }
           if (komparativ != null && komparativ.isNotEmpty && komparativ != '-') {
             return '✓ ${typeName}! (z.B. ${komparativ})';
           }
           return '✓ Richtig! ${word.word} ist ein ${typeName} (Wie-Wort)';
+          
         default:
+          // Fallback to the first API definition
+          if (apiData?.definitions.isNotEmpty ?? false) {
+             return '✓ ${typeName}! ${apiData!.definitions.first}';
+          }
           return '✓ Richtig! ${word.word} ist ein ${typeName}';
       }
     } else {
-      // --- FAILURE HINTS ---
-      // User tapped `word` (e.g., a Noun) but the target was `tappedTargetType` (e.g., a Verb)
+      // --- FAILURE HINTS (using API data) ---
       final correctTypeName = _wordTypes[_currentTargetType!]?.label ?? 'Wort';
       switch (word.wordType) {
         case GermanWordType.substantiv:
-          if (word.article != null && word.article!.isNotEmpty) {
-            return "✗ ${word.article} ${word.word} ist ein Nomen (hat Artikel), kein ${correctTypeName}";
-          }
-          return '✗ ${word.word} ist ein Nomen (groß), kein ${correctTypeName}';
+          // Use displayName to show article
+          return "✗ ${word.displayName} ist ein Nomen (hat Artikel), kein ${correctTypeName}";
         case GermanWordType.verb:
           return '✗ ${word.word} ist ein Verb (Tun-Wort), kein ${correctTypeName}';
         case GermanWordType.adjektiv:
           return '✗ ${word.word} ist ein Adjektiv (Wie-Wort), kein ${correctTypeName}';
         default:
+          // Fallback to the first API definition
+          if (apiData?.definitions.isNotEmpty ?? false) {
+             return '✗ ${typeName}: "${apiData!.definitions.first}", kein ${correctTypeName}';
+          }
           return '✗ ${word.word} ist ein ${typeName}, kein ${correctTypeName}';
       }
     }
   }
+  // --- END OPTIMIZATION ---
 
-  // --- NEW: Hint Queue Processing Logic ---
+
   void _showHint(String message, bool isError) {
     final newHint = HintMessage(text: message, isError: isError);
     _hintQueue.add(newHint);
@@ -743,47 +777,45 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
 
   void _processHintQueue() {
     if (_currentHintMessage != null || _hintQueue.isEmpty) {
-      return; // A hint is already showing, or queue is empty
+      return; 
     }
 
     _hintDisplayTimer?.cancel();
     _currentHintMessage = _hintQueue.removeFirst();
     
-    // Add to visible list for animation
     _visibleHints.insert(0, _currentHintMessage!);
     _hintListKey.currentState?.insertItem(0, duration: const Duration(milliseconds: 400));
 
     _hintDisplayTimer = Timer(const Duration(milliseconds: 2800), () {
       if (!mounted) return;
       
-      // Remove from visible list for animation
-      final removedHint = _visibleHints.removeAt(0);
-      _hintListKey.currentState?.removeItem(
-        0,
-        (context, animation) => _buildHintToast(removedHint, animation, isRemoving: true),
-        duration: const Duration(milliseconds: 300)
-      );
+      // --- FIX: Check if list is not empty before removing ---
+      if (_visibleHints.isNotEmpty) {
+        final removedHint = _visibleHints.removeAt(0);
+        _hintListKey.currentState?.removeItem(
+          0,
+          (context, animation) => _buildHintToast(removedHint, animation, isRemoving: true),
+          duration: const Duration(milliseconds: 300)
+        );
+      }
+      // --- END FIX ---
       
       _currentHintMessage = null;
-      _processHintQueue(); // Check for the next hint
+      _processHintQueue(); 
     });
   }
-  // --- END NEW HINT LOGIC ---
 
   void _onCorrectTap(WhirlingWord whirlingWord) {
     _audioService.playSound('success');
     _pulseController.forward(from: 0);
 
-    // CRITICAL FIX: Reset auto-hint system IMMEDIATELY
     _secondsSinceLastCorrectTap = 0;
     _showAutoHints = false;
 
-    // --- NEW: Show educational hint ---
     _showHint(
       _generateEducationalHint(whirlingWord.word, isCorrect: true),
-      false, // isError = false
+      false, 
     );
-    // --- END NEW ---
 
     setState(() {
       _streak++;
@@ -803,6 +835,8 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
         'game': 'word_type_whirl',
         'round': _round,
         'streak': _streak,
+        'gradeLevel': widget.gradeLevel.index + 1,
+        'wordType': whirlingWord.word.wordType.toString().split('.').last,
       },
     );
 
@@ -814,16 +848,14 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
   void _onIncorrectTap(WhirlingWord whirlingWord) {
     _audioService.playSound('failure');
 
-    // --- NEW: Show educational hint ---
     _showHint(
       _generateEducationalHint(
         whirlingWord.word,
         isCorrect: false,
         tappedTargetType: _currentTargetType,
       ),
-      true, // isError = true
+      true, 
     );
-    // --- END NEW ---
 
     setState(() {
       _streak = 0;
@@ -831,7 +863,6 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
       _roundHistory.last.incorrectTaps++;
     });
 
-    // Record failure in SRI
     _sriService.recordResponse(
       skillType: LanguageSkillType.wordType,
       baseWord: whirlingWord.word.word,
@@ -839,6 +870,8 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
       metadata: {
         'game': 'word_type_whirl',
         'round': _round,
+        'gradeLevel': widget.gradeLevel.index + 1,
+        'wordType': whirlingWord.word.wordType.toString().split('.').last,
       },
     );
   }
@@ -849,11 +882,9 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
     _roundTimer?.cancel();
     _spawnTimer?.cancel();
 
-    // CRITICAL FIX: Force reset auto-hints before next round
     _showAutoHints = false;
     _secondsSinceLastCorrectTap = 0;
 
-    // Count missed target words
     final missedCount = _whirlingWords
         .where(
             (w) => !w.isTapped && w.word.wordType == _currentTargetType)
@@ -861,7 +892,6 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
 
     _roundHistory.last.missedWords = missedCount;
 
-    // Brief pause before next round
     Future.delayed(const Duration(milliseconds: 1000), () {
       if (mounted) {
         setState(() {
@@ -878,7 +908,6 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
 
     final s = S.of(context)!;
 
-    // Calculate performance
     final totalCorrect = _roundHistory.fold<int>(
         0, (sum, stats) => sum + stats.correctTaps);
     final totalIncorrect = _roundHistory.fold<int>(
@@ -892,6 +921,18 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
     if (accuracy >= 85)
       stars = 3;
     else if (accuracy >= 70) stars = 2;
+    
+    // --- FIX: Use context.read for services in async gaps ---
+    if (mounted) {
+      final gameProvider = context.read<GameProvider>();
+      gameProvider.recordLevelWin(
+        gameType: 'word_type_whirl_game',
+        scoreGained: _score,
+        difficulty: widget.gradeLevel.index + 1,
+        wasSuccessful: accuracy >= 70, // e.g., 2+ stars to pass
+      );
+    }
+    // --- END FIX ---
 
     showDialog(
       context: context,
@@ -995,7 +1036,6 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
     return Scaffold(
       body: SpaceBackground(
         child: SafeArea(
-          // --- MODIFIED: Wrap in Stack for hint overlay ---
           child: Stack(
             children: [
               Column(
@@ -1017,13 +1057,8 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
                     Expanded(
                       child: Column(
                         children: [
-                          // Stats bar
                           _buildStatsBar(s),
-
-                          // Target instruction
                           _buildTargetBanner(s, selectedFontFamily),
-
-                          // Whirl area
                           Expanded(
                             child: _buildWhirlArea(selectedFontFamily),
                           ),
@@ -1032,7 +1067,6 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
                     ),
                 ],
               ),
-              // --- NEW: Non-blocking hint overlay ---
               _buildHintOverlay(),
             ],
           ),
@@ -1048,7 +1082,6 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
             ? SpaceTheme.planetOrange
             : SpaceTheme.alienGreen);
 
-    // --- MODIFIED: Use Flexible for responsiveness ---
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
@@ -1156,7 +1189,6 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
                     ),
                   ],
                 ),
-                // CRITICAL FIX: Show auto-hint indicator
                 if (_showAutoHints)
                   Padding(
                     padding: const EdgeInsets.only(top: 8.0),
@@ -1185,23 +1217,16 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
     );
   }
 
-  // --- NEW: Hint Overlay Widget ---
   Widget _buildHintOverlay() {
-    // This Align widget ensures the hint list is positioned correctly
-    // and doesn't interfere with other UI elements.
     return Align(
       alignment: Alignment.bottomCenter,
       child: Container(
-        // Constrain the width on large screens
         constraints: const BoxConstraints(maxWidth: 500),
-        // Use padding to keep it off the edges
         padding: const EdgeInsets.only(bottom: 20, left: 20, right: 20),
-        // Ignore pointer events so taps fall through to the game
         child: AnimatedList(
           key: _hintListKey,
           initialItemCount: _visibleHints.length,
           itemBuilder: (context, index, animation) {
-            // Get the hint from the *visible* list
             return _buildHintToast(_visibleHints[index], animation);
           },
           shrinkWrap: true,
@@ -1211,17 +1236,15 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
     );
   }
 
-  // --- NEW: Individual Hint Toast Widget ---
   Widget _buildHintToast(HintMessage hint, Animation<double> animation, {bool isRemoving = false}) {
     final color = hint.isError ? SpaceTheme.rocketRed : SpaceTheme.alienGreen;
     final icon = hint.isError ? Icons.cancel_outlined : Icons.check_circle_outline;
 
-    // Use a SlideTransition and FadeTransition for smooth entry/exit
     return Padding(
       padding: const EdgeInsets.only(top: 8.0),
       child: SlideTransition(
         position: Tween<Offset>(
-          begin: const Offset(0, -0.5), // Slide down
+          begin: const Offset(0, -0.5), 
           end: const Offset(0, 0),
         ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic)),
         child: FadeTransition(
@@ -1266,8 +1289,6 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
   Widget _buildWhirlArea(String selectedFontFamily) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        // --- MODIFIED: Update responsive size ---
-        // Use postFrameCallback to avoid setState during build
         if (constraints.biggest != _whirlAreaSize) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) {
@@ -1277,31 +1298,23 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
             }
           });
         }
-        // --- END MODIFIED ---
-
-        // --- MODIFIED: Use state variable for size ---
+        
         final centerX = _whirlAreaSize.width / 2;
         final centerY = _whirlAreaSize.height / 2;
         final maxRadius = min(_whirlAreaSize.width, _whirlAreaSize.height) / 2.0;
-        // --- END MODIFIED ---
 
-        // Prevent division by zero if layout is 0
         if (maxRadius <= 0) return const SizedBox.shrink();
 
         return AnimatedBuilder(
           animation: _whirlController,
           builder: (context, child) {
-            // --- FIX for jumpy animation ---
-            // Use total elapsed time for a continuous, non-jumping rotation
             final double elapsedSeconds =
                 _whirlStopwatch.elapsedMilliseconds / 1000.0;
-            // Base speed: one full rotation (2*pi) every 8 seconds
             final double baseRadsPerSec = pi / 4;
 
             return Stack(
-              clipBehavior: Clip.none, // Allow cards to go to the edge
+              clipBehavior: Clip.none, 
               children: [
-                // Center vortex decoration
                 Positioned(
                   left: centerX - 30,
                   top: centerY - 30,
@@ -1327,32 +1340,20 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
                   ),
                 ),
 
-                // Whirling words
                 ..._whirlingWords.map((whirlingWord) {
-                  // --- FIX for jumpy animation ---
-                  // The angle is now based on the elapsed time and the word's speed
                   final currentAngle = whirlingWord.angle +
                       (elapsedSeconds * baseRadsPerSec * whirlingWord.speed);
 
-                  // --- MODIFIED: Calculate position using relative radius ---
                   final x = centerX +
                       cos(currentAngle) * (whirlingWord.radius * maxRadius);
                   final y = centerY +
                       sin(currentAngle) * (whirlingWord.radius * maxRadius);
-                  // --- END MODIFIED ---
                   
-                  // --- MODIFIED: Responsive card size ---
                   final cardWidth = (maxRadius * 0.4).clamp(90.0, 130.0);
                   final cardHeight = (cardWidth * 0.5).clamp(45.0, 65.0);
-                  // --- END MODIFIED ---
 
                   return Positioned(
-                    // --- THIS IS THE FIX ---
-                    // Give each word a unique key based on its text.
-                    // This stops Flutter from reusing the wrong widget state.
-                    key: ValueKey<String>(whirlingWord.word.id), // Use unique ID
-                    // --- END OF FIX ---
-
+                    key: ValueKey<String>(whirlingWord.word.id), 
                     left: x - (cardWidth / 2),
                     top: y - (cardHeight / 2),
                     child: _buildWhirlingWordWidget(
@@ -1382,8 +1383,6 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
     final typeInfo = _wordTypes[whirlingWord.word.wordType];
     final isTarget = whirlingWord.word.wordType == _currentTargetType;
 
-    // Apply hint highlighting
-    // This variable is key: it's only true if it's a target, hints are on, and it's not tapped
     final shouldHighlight = isTarget && _showAutoHints && !whirlingWord.isTapped;
 
     Color backgroundColor;
@@ -1400,17 +1399,12 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
         borderColor = SpaceTheme.rocketRed;
       }
     } else if (shouldHighlight) {
-      // --- FIX #1 ---
-      // ONLY apply hint styling if shouldHighlight is true
       backgroundColor = SpaceTheme.deepSpace.withOpacity(0.9);
       borderColor = typeInfo?.color ?? SpaceTheme.starYellow;
       textColor = Colors.white;
     } else {
-      // --- FIX #2 ---
-      // This is the new default state for all un-tapped cards
-      // (either non-target, or target with hints OFF)
       backgroundColor = SpaceTheme.deepSpace.withOpacity(0.7);
-      borderColor = Colors.white.withOpacity(0.3); // Neutral border
+      borderColor = Colors.white.withOpacity(0.3); 
       textColor = Colors.white;
     }
 
@@ -1418,20 +1412,16 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
       onTap: () => _onWordTapped(whirlingWord),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        width: cardWidth, // Responsive
-        height: cardHeight, // Responsive
+        width: cardWidth, 
+        height: cardHeight, 
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: borderColor,
-            // --- FIX #3 ---
-            // Width is 5 if highlighted, otherwise a standard 2
-            width: shouldHighlight ? 4 : 2, // Slightly thinner highlight
+            width: shouldHighlight ? 4 : 2, 
           ),
           boxShadow: [
-            // --- FIX #4 ---
-            // ONLY show the glow effect if shouldHighlight is true
             if (shouldHighlight)
               BoxShadow(
                 color: borderColor.withOpacity(0.7),
@@ -1443,7 +1433,6 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
         child: Stack(
           clipBehavior: Clip.none,
           children: [
-            // This pulsing indicator is already correct
             if (shouldHighlight)
               Positioned.fill(
                 child: Container(
@@ -1464,11 +1453,12 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: Text(
-                    whirlingWord.word.word,
+                    // --- OPTIMIZATION: Use displayName to show article ---
+                    whirlingWord.word.displayName,
+                    // --- END OPTIMIZATION ---
                     style: TextStyle(
                       fontFamily: selectedFontFamily,
                       fontSize: 16,
-                      // These style changes are also correct as they depend on shouldHighlight
                       fontWeight:
                           shouldHighlight ? FontWeight.w900 : FontWeight.bold,
                       color: textColor,

@@ -1,16 +1,18 @@
 // lib/features/games/providers/game_provider.dart
-import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';  
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // <-- ADDED
 import '../../../core/services/progress_service.dart';
 import '../../../core/config/app_config.dart';
 import '../../../core/models/skill_category.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/cognitive_profile_service.dart';
+import '../constants/app_constants.dart'; // For MathOperation and NumberRange
 import '../../../core/theme/app_fonts.dart';
 
-// The Achievement data class.
+// (Achievement class is unchanged)
 class Achievement {
+  //...
   final String id;
   final DateTime? unlockedAt;
 
@@ -41,8 +43,9 @@ class GameProvider extends ChangeNotifier {
   final ProgressService _progressService;
   final SriService _sriService;
   final CognitiveProfileService _cognitiveProfileService;
+  final SharedPreferences _prefs; // <-- ADDED
+
   Set<String> _activeVocabularySetIds = {};
-  final SharedPreferences _prefs;
 
   String _selectedFontFamily = AppFonts.standard;
 
@@ -62,15 +65,13 @@ class GameProvider extends ChangeNotifier {
 
   // --- gameSkillMap ---
   final Map<String, SkillCategory> gameSkillMap = {
-    // 'word_types' is a valid ID in SkillCategories ---
     'space_word_rescue': SkillCategories.getById('basic_spelling')!,
     'word_snake_game': SkillCategories.getById('basic_spelling')!,
-    'word_find_game': SkillCategories.getById('basic_vocab')!, 
-    'word_sort_game': SkillCategories.getById('word_types')!, // <-- This ID is valid
+    'word_find_game': SkillCategories.getById('basic_vocab')!,
+    'word_sort_game': SkillCategories.getById('word_types')!, // <-- This line is now safe
     'word_memory_game': SkillCategories.getById('basic_spelling')!,
     'word_builder_game': SkillCategories.getById('basic_spelling')!,
-    'word_type_whirl_game': SkillCategories.getById('word_types')!, // <-- This ID is valid
-      // We add other games here as we create them
+    'word_type_whirl_game': SkillCategories.getById('word_types')!, // <-- This line is now safe
   };
 
   int _score = 0;
@@ -86,15 +87,15 @@ class GameProvider extends ChangeNotifier {
   bool _isFullVersionUnlocked = false;
 
   bool _useCustomProblemSettings = false;
-  Set<String> _customOperations = {'addition', 'subtraction'}; // Default to basic ops
+  Set<String> _customOperations = {'addition', 'subtraction'}; 
   int _customRangeMin = 1;
   int _customRangeMax = 20;
 
   // Task Customization Settings 
   bool _tasksCustomizationEnabled = false;
-  double _taskWordLengthMin = 2; // Use double for RangeSlider
+  double _taskWordLengthMin = 2; 
   double _taskWordLengthMax = 10;
-  Set<String> _taskIncludedSources = {}; // Empty set = include all
+  Set<String> _taskIncludedSources = {}; 
   List<String> _taskIncludeWildcards = [];
   List<String> _taskExcludeWildcards = [];
 
@@ -114,26 +115,26 @@ class GameProvider extends ChangeNotifier {
     _saveProgress();
   }
 
+  // --- FIX: Updated Constructor to accept SharedPreferences ---
   GameProvider({
     required ProgressService progressService,
     required SriService sriService,
     required CognitiveProfileService cognitiveProfileService,
     required SharedPreferences prefs, // <-- ADDED
-  }) : _progressService = progressService,
-       _sriService = sriService,
-       _cognitiveProfileService = cognitiveProfileService,
-       _prefs = prefs { // <-- ADDED
+  })  : _progressService = progressService,
+        _sriService = sriService,
+        _cognitiveProfileService = cognitiveProfileService,
+        _prefs = prefs { // <-- ADDED
     if (!AppConfig.inapps_active) {
       _isFullVersionUnlocked = true;
     }
     // Load settings from prefs immediately
     _loadSettingsFromPrefs();
   }
-
+  // --- END FIX ---
+  
   // --- NEW: Load settings from prefs on init ---
   void _loadSettingsFromPrefs() {
-    // This is the code that was crashing in main.dart / old constructor
-    // It's now safe because _prefs is guaranteed to be initialized.
     _tasksCustomizationEnabled = _prefs.getBool('tasksCustomizationEnabled') ?? false;
     _taskWordLengthMin = _prefs.getDouble('taskWordLengthMin') ?? 2.0;
     _taskWordLengthMax = _prefs.getDouble('taskWordLengthMax') ?? 10.0;
@@ -146,7 +147,6 @@ class GameProvider extends ChangeNotifier {
       _selectedFontFamily = AppFonts.standard;
     }
     
-    // ... load any other settings that were in fromJson()
     _score = _prefs.getInt('score') ?? 0;
     _level = _prefs.getInt('level') ?? 1;
     _grade = _prefs.getInt('grade') ?? 1;
@@ -162,12 +162,22 @@ class GameProvider extends ChangeNotifier {
       _isFullVersionUnlocked = true;
     }
     _useCustomProblemSettings = _prefs.getBool('useCustomProblemSettings') ?? false;
+    // --- FIX: Default value must be a List<String> ---
     _customOperations = Set<String>.from(_prefs.getStringList('customOperations') ?? ['addition', 'subtraction']);
+    // --- END FIX ---
     _customRangeMin = _prefs.getInt('customRangeMin') ?? 1;
     _customRangeMax = _prefs.getInt('customRangeMax') ?? 20;
-    _achievements = (_prefs.getStringList('achievements') ?? [])
-        .map((a) => Achievement.fromJson(jsonDecode(a)))
-        .toList();
+    
+    // Handle achievements loading safely
+    try {
+       _achievements = (_prefs.getStringList('achievements') ?? [])
+          .map((a) => Achievement.fromJson(jsonDecode(a)))
+          .toList();
+    } catch (e) {
+      debugPrint("Error loading achievements, resetting: $e");
+      _achievements = [];
+    }
+
     _currentLevelWins = Map<String, int>.from(
       jsonDecode(_prefs.getString('currentLevelWins') ?? '{}')
     );
@@ -179,19 +189,17 @@ class GameProvider extends ChangeNotifier {
   // Getter
   bool get isFullVersionUnlocked => _isFullVersionUnlocked;
 
-  // Setter - This will be called by your purchase service on success
+  // Setter 
   void unlockFullVersion() {
     _isFullVersionUnlocked = true;
     notifyListeners();
     _saveProgress();
-    // alternatively: We don't save here directly; we let the app lifecycle handle it
-    // to batch save operations.
   }
 
   // Getters
   int get score => _score;
   int get level => _level;
-  int get grade => _grade; // Internally, we'll still call this 'grade'
+  int get grade => _grade; 
   int get lives => _lives;
   bool get soundEnabled => _soundEnabled;
   bool get musicEnabled => _musicEnabled;
@@ -207,18 +215,15 @@ class GameProvider extends ChangeNotifier {
   int get customRangeMin => _customRangeMin;
   int get customRangeMax => _customRangeMax;
 
-  // --- NEW: Getters for Task Customization ---
   bool get tasksCustomizationEnabled => _tasksCustomizationEnabled;
   double get taskWordLengthMin => _taskWordLengthMin;
   double get taskWordLengthMax => _taskWordLengthMax;
   Set<String> get taskIncludedSources => _taskIncludedSources;
   List<String> get taskIncludeWildcards => _taskIncludeWildcards;
   List<String> get taskExcludeWildcards => _taskExcludeWildcards;
-  // --- End of New Getters ---
 
   Future<void> _saveProgress() async {
     // --- FIX: Use the _prefs instance directly ---
-    // This replaces the old ProgressService dependency for these settings
     await _prefs.setBool('tasksCustomizationEnabled', _tasksCustomizationEnabled);
     await _prefs.setDouble('taskWordLengthMin', _taskWordLengthMin);
     await _prefs.setDouble('taskWordLengthMax', _taskWordLengthMax);
@@ -228,7 +233,6 @@ class GameProvider extends ChangeNotifier {
     await _prefs.setStringList('activeVocabularySetIds', _activeVocabularySetIds.toList());
     await _prefs.setString('selectedFontFamily', _selectedFontFamily);
     
-    // Save other game state
     await _prefs.setInt('score', _score);
     await _prefs.setInt('level', _level);
     await _prefs.setInt('grade', _grade);
@@ -245,19 +249,18 @@ class GameProvider extends ChangeNotifier {
     await _prefs.setStringList('achievements', _achievements.map((a) => jsonEncode(a.toJson())).toList());
     await _prefs.setString('currentLevelWins', jsonEncode(_currentLevelWins));
     
-    // You can still call the old ProgressService if it does other things
-    // but the SharedPreferences logic is now self-contained.
+    // Call the old ProgressService (in case it does more than just save to prefs)
     _progressService.saveProgress(this);
     // --- END FIX ---
   }
 
-  // --- FIX: Refactored recordLevelWin ---
+  // ... (rest of the file is unchanged, including recordLevelWin, etc.) ...
+
   bool recordLevelWin({
     required String gameType,
     required int scoreGained,
     required int difficulty,
     required bool wasSuccessful,
-    // Removed MathProblem parameters
   }) {
     debugPrint('[GAME_PROVIDER] 🎯 Recording $gameType result: ${wasSuccessful ? "WIN" : "LOSS"} at difficulty $difficulty');
     
@@ -271,9 +274,6 @@ class GameProvider extends ChangeNotifier {
       return false;
     }
 
-    // Skills like spelling and grammar are recorded by the SRI service
-    // directly from the game screen (e.g., in _checkAnswer).
-    // We only use the CognitiveProfileService for *other* skill types.
     if (skill.category != LanguageCategory.rechtschreibung &&
         skill.category != LanguageCategory.grammatik) {
       _cognitiveProfileService.recordAttempt(skill, difficulty, wasSuccessful);
@@ -298,9 +298,7 @@ class GameProvider extends ChangeNotifier {
     final skill = gameSkillMap[gameType];
     if (skill == null) return false;
 
-    // --- FIX: Check skill.category against LanguageCategory enum ---
     if (skill.category == LanguageCategory.rechtschreibung) {
-      // --- FIX: Renamed method ---
       return _checkSpellingMastery(currentLevel);
     } else {
       return _cognitiveProfileService.hasMastery(skill, currentLevel);
@@ -313,18 +311,14 @@ class GameProvider extends ChangeNotifier {
     _currentLevelWins[gameType] = 0;
   }
 
-  // --- FIX: Renamed and refactored to check SRI spelling stats ---
-  bool _checkSpellingMastery(int difficulty) { // difficulty is the game level
+  bool _checkSpellingMastery(int difficulty) { 
     final breakdown = _sriService.getDetailedBreakdown();
     final gradeStats = breakdown[LanguageSkillType.spelling];
     if (gradeStats == null) return false;
 
-    // Check stats for the *current* grade
-    final stat = gradeStats[_grade]; // _grade is from GameProvider (1-4)
+    final stat = gradeStats[_grade]; 
     if (stat == null) return false;
 
-    // Check mastery for this grade
-    // Needs at least 10 tracked items and 70% success rate
     final hasMastery = stat.tracked >= 10 && stat.successRate >= 0.7;
     debugPrint('[GAME_PROVIDER] Spelling mastery @ Grade $_grade: ${stat.mastered}/${stat.tracked} (${stat.successRate * 100}%) ${hasMastery ? "✓" : "✗"}');
     return hasMastery;
@@ -388,7 +382,7 @@ class GameProvider extends ChangeNotifier {
     _score += points;
     _checkAchievements();
     notifyListeners();
-    _saveProgress();
+    // No _saveProgress() here, it's called by recordLevelWin
   }
 
   void setPuzzleTimer(bool enabled) {
@@ -422,8 +416,8 @@ class GameProvider extends ChangeNotifier {
 
   // Grade/Skill Level management
   void setGrade(int grade) {
-    _grade = grade.clamp(1, 4); // UPDATED: Clamp to 1-4
-    _level = 1; // Reset level when changing grade
+    _grade = grade.clamp(1, 6); 
+    _level = 1; 
     notifyListeners();
     _saveProgress();
   }
@@ -456,21 +450,25 @@ class GameProvider extends ChangeNotifier {
   void toggleSound() {
     _soundEnabled = !_soundEnabled;
     notifyListeners();
+    _saveProgress(); 
   }
 
   void toggleMusic() {
     _musicEnabled = !_musicEnabled;
     notifyListeners();
+    _saveProgress(); 
   }
 
   void setSoundEnabled(bool enabled) {
     _soundEnabled = enabled;
     notifyListeners();
+    _saveProgress();
   }
 
   void setMusicEnabled(bool enabled) {
     _musicEnabled = enabled;
     notifyListeners();
+    _saveProgress();
   }
 
   // Game progress tracking
@@ -494,23 +492,17 @@ class GameProvider extends ChangeNotifier {
     if (_score >= 1000 && !hasAchievement('thousand_club')) { newAchievements.add(Achievement(id: 'thousand_club')); }
     if (_level >= 5 && !hasAchievement('level_explorer')) { newAchievements.add(Achievement(id: 'level_explorer')); }
     if (_level >= 10 && !hasAchievement('space_commander')) { newAchievements.add(Achievement(id: 'space_commander')); }
-    if (getGameProgress('magic_triangles') >= 3 && !hasAchievement('triangle_wizard')) { newAchievements.add(Achievement(id: 'triangle_wizard')); }
-    if (getGameProgress('bubble_math') >= 3 && !hasAchievement('bubble_popper')) { newAchievements.add(Achievement(id: 'bubble_popper')); }
-    if (getGameProgress('puzzle_math') >= 3 && !hasAchievement('puzzle_solver')) { newAchievements.add(Achievement(id: 'puzzle_solver')); }
-    if (getGameProgress('number_walls') >= 3 && !hasAchievement('number_walls_pro')) { newAchievements.add(Achievement(id: 'number_walls_pro')); }
-    if (getGameProgress('codebreaker') >= 3 && !hasAchievement('codebreaker_pro')) { newAchievements.add(Achievement(id: 'codebreaker_pro')); }
+    
+    if ((_gameProgress['word_snake_game'] ?? 0) >= 3 && !hasAchievement('triangle_wizard')) { newAchievements.add(Achievement(id: 'triangle_wizard')); }
+    if ((_gameProgress['word_sort_game'] ?? 0) >= 3 && !hasAchievement('bubble_popper')) { newAchievements.add(Achievement(id: 'bubble_popper')); }
+    if ((_gameProgress['word_find_game'] ?? 0) >= 3 && !hasAchievement('puzzle_solver')) { newAchievements.add(Achievement(id: 'puzzle_solver')); }
+    if ((_gameProgress['word_builder_game'] ?? 0) >= 3 && !hasAchievement('number_walls_pro')) { newAchievements.add(Achievement(id: 'number_walls_pro')); }
+    if ((_gameProgress['space_word_rescue'] ?? 0) >= 3 && !hasAchievement('codebreaker_pro')) { newAchievements.add(Achievement(id: 'codebreaker_pro')); }
 
-    // Arithmetic Ace (Level 5 in both Arithmetic Square and Crosswords)
-    if (getGameProgress('arithmatic_square') >= 5 && // Assuming 'arithmatic_square' is the key
-        getGameProgress('arithmancer_crosswords') >= 5 &&
+    if ((_gameProgress['word_memory_game'] ?? 0) >= 5 && 
+        (_gameProgress['word_type_whirl_game'] ?? 0) >= 5 &&
         !hasAchievement('arithmetic_ace')) { 
         newAchievements.add(Achievement(id: 'arithmetic_ace')); 
-    }
-
-    // Logic Grid Master (Level 5 in Kenken, indicating larger grid complexity)
-    if (getGameProgress('kenken') >= 5 && 
-        !hasAchievement('logic_grid_master')) { 
-        newAchievements.add(Achievement(id: 'logic_grid_master')); 
     }
 
     final gamesCompleted = _gameProgress.values.where((level) => level >= 1).length;
@@ -519,9 +511,14 @@ class GameProvider extends ChangeNotifier {
     }
 
     if (newAchievements.isNotEmpty) {
-      _achievements.addAll(newAchievements);
+      for (var ach in newAchievements) {
+        if (!hasAchievement(ach.id)) {
+          _achievements.add(ach);
+        }
+      }
     }
   }
+
 
   bool hasAchievement(String achievementId) {
     return _achievements.any((achievement) => achievement.id == achievementId);
@@ -532,7 +529,7 @@ class GameProvider extends ChangeNotifier {
     _score = 0;
     _level = 1;
     _lives = 3;
-    _achievements.clear(); // Also clear achievements for a full reset
+    _achievements.clear(); 
     _gameProgress.clear();
     notifyListeners();
     _saveProgress();
@@ -577,87 +574,5 @@ class GameProvider extends ChangeNotifier {
 
       notifyListeners();
     }
-  }
-
-  // Save/Load functionality
-  Map<String, dynamic> toJson() {
-    return {
-      'score': _score,
-      'level': _level,
-      'grade': _grade,
-      'lives': _lives,
-      'soundEnabled': _soundEnabled,
-      'musicEnabled': _musicEnabled,
-      'gameProgress': _gameProgress,
-      'achievements': _achievements.map((a) => a.toJson()).toList(),
-      'useAdaptiveDifficulty': _useAdaptiveDifficulty,
-      'isFullVersionUnlocked': _isFullVersionUnlocked,
-      
-      'useCustomProblemSettings': _useCustomProblemSettings,
-      'customOperations': _customOperations.toList(), // Convert set to list for JSON
-      'customRangeMin': _customRangeMin,
-      'customRangeMax': _customRangeMax,
-      'currentLevelWins': _currentLevelWins,
-
-      'tasksCustomizationEnabled': _tasksCustomizationEnabled,
-      'taskWordLengthMin': _taskWordLengthMin,
-      'taskWordLengthMax': _taskWordLengthMax,
-      'taskIncludedSources': _taskIncludedSources.toList(),
-      'taskIncludeWildcards': _taskIncludeWildcards,
-      'taskExcludeWildcards': _taskExcludeWildcards,
-      
-      'activeVocabularySetIds': _activeVocabularySetIds.toList(),
-      'selectedFontFamily': _selectedFontFamily,
-
-  };
-  }
-
-  void fromJson(Map<String, dynamic> json) {
-    _score = json['score'] ?? 0;
-    _level = json['level'] ?? 1;
-    _grade = json['grade'] ?? 1; // Default is 1
-    _lives = json['lives'] ?? 3;
-    _soundEnabled = json['soundEnabled'] ?? true;
-    _musicEnabled = json['musicEnabled'] ?? true;
-    _gameProgress = Map<String, int>.from(json['gameProgress'] ?? {});
-    _useAdaptiveDifficulty = json['useAdaptiveDifficulty'] ?? false;
-    _isFullVersionUnlocked = json['isFullVersionUnlocked'] ?? false;
-
-    // overridhere to handle loading a saved state where the user hadn't purchased the app yet.
-    if (!AppConfig.inapps_active) {
-      _isFullVersionUnlocked = true;
-    }
-
-    // --- Load custom settings ---
-    _useCustomProblemSettings = json['useCustomProblemSettings'] ?? false;
-    _customOperations = Set<String>.from(json['customOperations'] ?? {'addition', 'subtraction'});
-    _customRangeMin = json['customRangeMin'] ?? 1;
-    _customRangeMax = json['customRangeMax'] ?? 20;
-
-    if (json['achievements'] != null) {
-      _achievements = (json['achievements'] as List)
-          .map((a) => Achievement.fromJson(a))
-          .toList();
-    }
-
-    _currentLevelWins = Map<String, int>.from(json['currentLevelWins'] ?? {});
-    
-    // Load Task Customization
-    _tasksCustomizationEnabled = json['tasksCustomizationEnabled'] ?? false;
-    _taskWordLengthMin = (json['taskWordLengthMin'] as num?)?.toDouble() ?? 2.0;
-    _taskWordLengthMax = (json['taskWordLengthMax'] as num?)?.toDouble() ?? 10.0;
-    _taskIncludedSources = Set<String>.from(json['taskIncludedSources'] ?? []);
-    _taskIncludeWildcards = List<String>.from(json['taskIncludeWildcards'] ?? []);
-    _taskExcludeWildcards = List<String>.from(json['taskExcludeWildcards'] ?? []);
-
-    _activeVocabularySetIds = Set<String>.from(json['activeVocabularySetIds'] ?? []);
-
-    _selectedFontFamily = json['selectedFontFamily'] ?? AppFonts.standard;
-    // Ensure the loaded font is valid, otherwise reset to default
-    if (!AppFonts.selectableFonts.containsKey(_selectedFontFamily)) {
-      _selectedFontFamily = AppFonts.standard;
-    }
-
-    notifyListeners();
   }
 }

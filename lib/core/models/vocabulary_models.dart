@@ -2,9 +2,7 @@
 
 import 'skill_category.dart';
 
-// --- API ENRICHMENT MODELS ---
-// (These are unchanged from our previous discussion)
-
+// --- API ENRICHMENT MODELS (NEW) ---
 class ApiEnrichment {
   final String enrichmentStatus;
   final String? primaryPos;
@@ -147,8 +145,8 @@ class GermanWord {
   final bool isGrundwortschatzBW;
   final String? genus;
   final bool nurImPlural;
-  final Map<String, dynamic>? inflectionData; // Old field
-  final String? ipaPhoneme; // Old field, now superseded by apiEnrichment
+  final Map<String, dynamic>? inflectionData;
+  final String? ipaPhoneme;
   final String? sampaPhoneme;
   final List<GraphematicVariant> graphematicVariants;
   final String? caseSpacy;
@@ -158,10 +156,10 @@ class GermanWord {
   final String? verbFormSpacy;
   final String? plural;
   final List<WordCategory> categories;
-  final List<String> exampleSentences; // Old field, now superseded
+  final List<String> exampleSentences;
   final SpellingDifficulty spellingDifficulty;
   final List<String>? commonMistakes;
-  final String? audioPath; // Old field, now superseded
+  final String? audioPath;
 
   final ApiEnrichment? apiEnrichment;
 
@@ -193,39 +191,8 @@ class GermanWord {
     required this.spellingDifficulty,
     this.commonMistakes,
     this.audioPath,
-    this.apiEnrichment, 
+    this.apiEnrichment,
   });
-
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'word': word,
-        'article': article,
-        'wordType': wordType.toString().split('.').last,
-        'gradeLevel': gradeLevel,
-        'lemma': lemma,
-        'forms': forms,
-        'url': url,
-        'sources': sources,
-        'isGrundwortschatzBW': isGrundwortschatzBW,
-        'genus': genus,
-        'nurImPlural': nurImPlural,
-        'ipaPhoneme': ipaPhoneme,
-        'sampaPhoneme': sampaPhoneme,
-        'graphematicVariants':
-            graphematicVariants.map((v) => v.toJson()).toList(),
-        'caseSpacy': caseSpacy,
-        'numberSpacy': numberSpacy,
-        'degreeSpacy': degreeSpacy,
-        'pronTypeSpacy': pronTypeSpacy,
-        'verbFormSpacy': verbFormSpacy,
-        'plural': plural,
-        'categories':
-            categories.map((c) => c.toString().split('.').last).toList(),
-        'exampleSentences': exampleSentences,
-        'spellingDifficulty': spellingDifficulty.index,
-        'commonMistakes': commonMistakes,
-        'audioPath': audioPath,
-      };
 
   factory GermanWord.fromJson(Map<String, dynamic> json) {
     final apiData = json['apiEnrichment'] != null
@@ -300,6 +267,43 @@ class GermanWord {
     }
     return word;
   }
+
+  // --- FIX 1: ADDED THIS METHOD ---
+  // This method was missing, causing an error in vocabulary_service.dart
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'word': word,
+        'article': article,
+        'wordType': wordType.toString().split('.').last,
+        'gradeLevel': gradeLevel,
+        'lemma': lemma,
+        'forms': forms,
+        'url': url,
+        'sources': sources,
+        'isGrundwortschatzBW': isGrundwortschatzBW,
+        'genus': genus,
+        'nurImPlural': nurImPlural,
+        'inflectionData': inflectionData,
+        'ipaPhoneme': ipaPhoneme,
+        'sampaPhoneme': sampaPhoneme,
+        'graphematicVariants':
+            graphematicVariants.map((v) => v.toJson()).toList(),
+        'caseSpacy': caseSpacy,
+        'numberSpacy': numberSpacy,
+        'degreeSpacy': degreeSpacy,
+        'pronTypeSpacy': pronTypeSpacy,
+        'verbFormSpacy': verbFormSpacy,
+        'plural': plural,
+        'categories':
+            categories.map((c) => c.toString().split('.').last).toList(),
+        'exampleSentences': exampleSentences,
+        'spellingDifficulty': spellingDifficulty.index,
+        'commonMistakes': commonMistakes,
+        'audioPath': audioPath,
+        // apiEnrichment is intentionally not saved back,
+        // as it's loaded from the enriched asset.
+      };
+  // --- END FIX 1 ---
 }
 
 class GrammarExercise {
@@ -357,17 +361,19 @@ class VocabularySet {
       required this.createdAt,
       this.isCustom = false});
 
+  // --- FIX 2: REPLACED THIS ENTIRE METHOD ---
+  // The old method was trying to serialize GermanWord fields,
+  // causing numerous 'getter not defined' errors.
   Map<String, dynamic> toJson() => {
         'id': id,
         'name': name,
         'description': description,
         'wordIds': wordIds,
         'targetGrade': targetGrade.index,
-        // --- FIX: Added parentheses to call the method ---
-        'createdAt': createdAt.toIso8601String(), 
-        // --- END FIX ---
+        'createdAt': createdAt.toIso8601String(),
         'isCustom': isCustom,
       };
+  // --- END FIX 2 ---
 
   factory VocabularySet.fromJson(Map<String, dynamic> json) {
     return VocabularySet(

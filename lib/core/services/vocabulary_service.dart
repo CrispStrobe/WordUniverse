@@ -13,8 +13,20 @@ import '../../features/games/providers/game_provider.dart';
 
 // --- CLEAN IMPORTS ---
 import '../models/skill_category.dart';
+
 import '../models/vocabulary_models.dart';
 import 'sri_service.dart';
+
+// --- FIX: REMOVED ALL DUPLICATE CLASS DEFINITIONS ---
+// The following classes were removed from this file because
+// they now exist in 'vocabulary_models.dart':
+// - GraphematicVariant
+// - GermanWord
+// - SpellingDifficulty
+// - GrammarExercise
+// - VocabularySet
+// --- END FIX ---
+
 
 // Main vocabulary service
 class VocabularyService with ChangeNotifier {
@@ -53,7 +65,7 @@ class VocabularyService with ChangeNotifier {
 
   Future<void> _loadVocabularyFromAssets() async {
     try {
-      // --- THIS FILENAME MATCHES OUR ENRICHED JSON ---
+      // --- THIS FILENAME MUST MATCH OUR ENRICHED JSON ---
       final String jsonString = await rootBundle.loadString(
           'lib/features/games/data/grundwortschatz_safe.json');
 
