@@ -1,11 +1,12 @@
 // lib/features/games/providers/game_provider.dart
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';  
+import 'dart:convert';
 import '../../../core/services/progress_service.dart';
 import '../../../core/config/app_config.dart';
 import '../../../core/models/skill_category.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/cognitive_profile_service.dart';
-import '../constants/app_constants.dart'; // For MathOperation and NumberRange
 import '../../../core/theme/app_fonts.dart';
 
 // The Achievement data class.
@@ -41,6 +42,7 @@ class GameProvider extends ChangeNotifier {
   final SriService _sriService;
   final CognitiveProfileService _cognitiveProfileService;
   Set<String> _activeVocabularySetIds = {};
+  final SharedPreferences _prefs;
 
   String _selectedFontFamily = AppFonts.standard;
 
@@ -60,14 +62,14 @@ class GameProvider extends ChangeNotifier {
 
   // --- gameSkillMap ---
   final Map<String, SkillCategory> gameSkillMap = {
-    // We use the game key, e.g. 'space_word_rescue', as used in the game screen
+    // 'word_types' is a valid ID in SkillCategories ---
     'space_word_rescue': SkillCategories.getById('basic_spelling')!,
     'word_snake_game': SkillCategories.getById('basic_spelling')!,
     'word_find_game': SkillCategories.getById('basic_vocab')!, 
-    'word_sort_game': SkillCategories.getById('word_types')!,
+    'word_sort_game': SkillCategories.getById('word_types')!, // <-- This ID is valid
     'word_memory_game': SkillCategories.getById('basic_spelling')!,
     'word_builder_game': SkillCategories.getById('basic_spelling')!,
-    'word_type_whirl_game': SkillCategories.getById('word_types')!,
+    'word_type_whirl_game': SkillCategories.getById('word_types')!, // <-- This ID is valid
       // We add other games here as we create them
   };
 
@@ -116,13 +118,61 @@ class GameProvider extends ChangeNotifier {
     required ProgressService progressService,
     required SriService sriService,
     required CognitiveProfileService cognitiveProfileService,
+    required SharedPreferences prefs, // <-- ADDED
   }) : _progressService = progressService,
        _sriService = sriService,
-       _cognitiveProfileService = cognitiveProfileService {
+       _cognitiveProfileService = cognitiveProfileService,
+       _prefs = prefs { // <-- ADDED
     if (!AppConfig.inapps_active) {
       _isFullVersionUnlocked = true;
     }
+    // Load settings from prefs immediately
+    _loadSettingsFromPrefs();
   }
+
+  // --- NEW: Load settings from prefs on init ---
+  void _loadSettingsFromPrefs() {
+    // This is the code that was crashing in main.dart / old constructor
+    // It's now safe because _prefs is guaranteed to be initialized.
+    _tasksCustomizationEnabled = _prefs.getBool('tasksCustomizationEnabled') ?? false;
+    _taskWordLengthMin = _prefs.getDouble('taskWordLengthMin') ?? 2.0;
+    _taskWordLengthMax = _prefs.getDouble('taskWordLengthMax') ?? 10.0;
+    _taskIncludedSources = Set<String>.from(_prefs.getStringList('taskIncludedSources') ?? []);
+    _taskIncludeWildcards = _prefs.getStringList('taskIncludeWildcards') ?? [];
+    _taskExcludeWildcards = _prefs.getStringList('taskExcludeWildcards') ?? [];
+    _activeVocabularySetIds = Set<String>.from(_prefs.getStringList('activeVocabularySetIds') ?? []);
+    _selectedFontFamily = _prefs.getString('selectedFontFamily') ?? AppFonts.standard;
+    if (!AppFonts.selectableFonts.containsKey(_selectedFontFamily)) {
+      _selectedFontFamily = AppFonts.standard;
+    }
+    
+    // ... load any other settings that were in fromJson()
+    _score = _prefs.getInt('score') ?? 0;
+    _level = _prefs.getInt('level') ?? 1;
+    _grade = _prefs.getInt('grade') ?? 1;
+    _lives = _prefs.getInt('lives') ?? 3;
+    _soundEnabled = _prefs.getBool('soundEnabled') ?? true;
+    _musicEnabled = _prefs.getBool('musicEnabled') ?? true;
+    _gameProgress = Map<String, int>.from(
+      jsonDecode(_prefs.getString('gameProgress') ?? '{}')
+    );
+    _useAdaptiveDifficulty = _prefs.getBool('useAdaptiveDifficulty') ?? false;
+    _isFullVersionUnlocked = _prefs.getBool('isFullVersionUnlocked') ?? false;
+    if (!AppConfig.inapps_active) {
+      _isFullVersionUnlocked = true;
+    }
+    _useCustomProblemSettings = _prefs.getBool('useCustomProblemSettings') ?? false;
+    _customOperations = Set<String>.from(_prefs.getStringList('customOperations') ?? ['addition', 'subtraction']);
+    _customRangeMin = _prefs.getInt('customRangeMin') ?? 1;
+    _customRangeMax = _prefs.getInt('customRangeMax') ?? 20;
+    _achievements = (_prefs.getStringList('achievements') ?? [])
+        .map((a) => Achievement.fromJson(jsonDecode(a)))
+        .toList();
+    _currentLevelWins = Map<String, int>.from(
+      jsonDecode(_prefs.getString('currentLevelWins') ?? '{}')
+    );
+  }
+  // --- END NEW ---
 
   Map<String, int> _currentLevelWins = {};
 
@@ -167,8 +217,38 @@ class GameProvider extends ChangeNotifier {
   // --- End of New Getters ---
 
   Future<void> _saveProgress() async {
-    // This is a "fire and forget" call. We don't need to wait for it.
+    // --- FIX: Use the _prefs instance directly ---
+    // This replaces the old ProgressService dependency for these settings
+    await _prefs.setBool('tasksCustomizationEnabled', _tasksCustomizationEnabled);
+    await _prefs.setDouble('taskWordLengthMin', _taskWordLengthMin);
+    await _prefs.setDouble('taskWordLengthMax', _taskWordLengthMax);
+    await _prefs.setStringList('taskIncludedSources', _taskIncludedSources.toList());
+    await _prefs.setStringList('taskIncludeWildcards', _taskIncludeWildcards);
+    await _prefs.setStringList('taskExcludeWildcards', _taskExcludeWildcards);
+    await _prefs.setStringList('activeVocabularySetIds', _activeVocabularySetIds.toList());
+    await _prefs.setString('selectedFontFamily', _selectedFontFamily);
+    
+    // Save other game state
+    await _prefs.setInt('score', _score);
+    await _prefs.setInt('level', _level);
+    await _prefs.setInt('grade', _grade);
+    await _prefs.setInt('lives', _lives);
+    await _prefs.setBool('soundEnabled', _soundEnabled);
+    await _prefs.setBool('musicEnabled', _musicEnabled);
+    await _prefs.setString('gameProgress', jsonEncode(_gameProgress));
+    await _prefs.setBool('useAdaptiveDifficulty', _useAdaptiveDifficulty);
+    await _prefs.setBool('isFullVersionUnlocked', _isFullVersionUnlocked);
+    await _prefs.setBool('useCustomProblemSettings', _useCustomProblemSettings);
+    await _prefs.setStringList('customOperations', _customOperations.toList());
+    await _prefs.setInt('customRangeMin', _customRangeMin);
+    await _prefs.setInt('customRangeMax', _customRangeMax);
+    await _prefs.setStringList('achievements', _achievements.map((a) => jsonEncode(a.toJson())).toList());
+    await _prefs.setString('currentLevelWins', jsonEncode(_currentLevelWins));
+    
+    // You can still call the old ProgressService if it does other things
+    // but the SharedPreferences logic is now self-contained.
     _progressService.saveProgress(this);
+    // --- END FIX ---
   }
 
   // --- FIX: Refactored recordLevelWin ---

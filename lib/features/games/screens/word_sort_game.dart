@@ -5,10 +5,15 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+// --- FIX: Corrected Imports ---
 import '../../../core/models/skill_category.dart';
+import '../../../core/models/vocabulary_models.dart'; 
+
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart';
+// --- END FIX ---
+
 import '../../../core/theme/space_theme.dart';
 import '../../../generated/l10n.dart';
 import '../providers/game_provider.dart';
@@ -152,11 +157,15 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     return null;
   }
 
+  // --- OPTIMIZATION: Use apiEnrichment status ---
   bool _isWordValidForGame(GermanWord word) {
     return _targetCategories.containsKey(word.wordType) &&
         !word.word.contains(" ") &&
-        word.wordType != GermanWordType.andere;
+        word.wordType != GermanWordType.andere &&
+        // Only use words that have successful, rich data from our API.
+        word.apiEnrichment?.enrichmentStatus == 'success';
   }
+  // --- END OPTIMIZATION ---
 
   void _loadLevel() {
     _score = 0;
@@ -182,6 +191,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
         final word = _vocabularyService.getAllWords(_gameProvider).firstWhere(
             (w) => w.word.toLowerCase() == wordString.toLowerCase());
 
+        // _isWordValidForGame already checks apiEnrichment status
         if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
           wordsForGame.add(word);
           addedWordIds.add(word.id);
@@ -198,6 +208,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     );
 
     for (final word in newWords) {
+      // _isWordValidForGame already checks apiEnrichment status
       if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
         wordsForGame.add(word);
         addedWordIds.add(word.id);
@@ -210,6 +221,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       allWords.shuffle();
 
       for (final word in allWords) {
+        // _isWordValidForGame already checks apiEnrichment status
         if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
           wordsForGame.add(word);
           addedWordIds.add(word.id);
@@ -221,9 +233,9 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     _wordQueue = Queue.from(wordsForGame);
 
     if (_wordQueue.isEmpty) {
-      debugPrint("No words found for WordSortGame");
+      debugPrint("No words found for WordSortGame (check apiEnrichment status)");
       setState(() => _isLoading = false);
-      Navigator.of(context).pop();
+      if (mounted) Navigator.of(context).pop();
       return;
     }
 
@@ -312,8 +324,12 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     });
   }
 
+  // --- OPTIMIZATION: Pass the full apiEnrichment block ---
   void _showSmartHint(GermanWord word, {required bool isCorrect, GermanWordType? guessedType}) {
-    String hint = _generateSmartHint(word, isCorrect: isCorrect, guessedType: guessedType);
+    // We can safely access apiEnrichment because _isWordValidForGame guarantees it.
+    final apiData = word.apiEnrichment; 
+    
+    String hint = _generateSmartHint(word, apiData, isCorrect: isCorrect, guessedType: guessedType);
     
     // Track hint usage
     _hintUsageCount[hint] = (_hintUsageCount[hint] ?? 0) + 1;
@@ -335,68 +351,55 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     });
   }
 
-  String _generateSmartHint(GermanWord word, {required bool isCorrect, GermanWordType? guessedType}) {
-    final inflection = word.inflectionData;
+  // --- OPTIMIZATION: Use ApiEnrichment data ---
+  String _generateSmartHint(GermanWord word, ApiEnrichment? apiData, {required bool isCorrect, GermanWordType? guessedType}) {
+    // Get the specific Pattern.de inflection data
+    final patternData = apiData?.inflectionsPattern; 
     
-    // Track hint diversity - check if we're using too many similar hints
+    // Track hint diversity
     final genericHintCount = _hintUsageCount.values.where((count) => count >= 2).length;
     final shouldUseAdvancedHints = genericHintCount >= 1 || _wordsCorrect >= 3;
     
     if (isCorrect) {
-      return _generateCorrectHint(word, inflection, shouldUseAdvancedHints);
+      return _generateCorrectHint(word, apiData, patternData, shouldUseAdvancedHints);
     } else {
-      return _generateIncorrectHint(word, inflection, guessedType, shouldUseAdvancedHints);
+      return _generateIncorrectHint(word, apiData, patternData, guessedType, shouldUseAdvancedHints);
     }
   }
 
-  String _generateCorrectHint(GermanWord word, Map<String, dynamic>? inflection, bool advanced) {
+  // --- OPTIMIZATION: Use ApiEnrichment and Pattern.de data ---
+  String _generateCorrectHint(GermanWord word, ApiEnrichment? apiData, Map<String, dynamic>? patternData, bool advanced) {
     switch (word.wordType) {
       case GermanWordType.substantiv:
-        return _getNounHint(word, inflection, advanced, isCorrect: true);
+        return _getNounHint(word, apiData, patternData, advanced, isCorrect: true);
       case GermanWordType.verb:
-        return _getVerbHint(word, inflection, advanced, isCorrect: true);
+        return _getVerbHint(word, apiData, patternData, advanced, isCorrect: true);
       case GermanWordType.adjektiv:
-        return _getAdjectiveHint(word, inflection, advanced, isCorrect: true);
+        return _getAdjectiveHint(word, apiData, patternData, advanced, isCorrect: true);
       case GermanWordType.adverb:
-        return _getAdverbHint(word, advanced);
+        return _getAdverbHint(word, apiData, advanced);
       case GermanWordType.pronomen:
-        return _getPronomenHint(word, advanced);
+        return _getPronomenHint(word, apiData, advanced);
       default:
         return '✓ Richtig!';
     }
   }
 
-  String _getNounHint(GermanWord word, Map<String, dynamic>? inflection, bool advanced, {bool isCorrect = true}) {
+  // --- OPTIMIZATION: Use ApiEnrichment and Pattern.de data ---
+  String _getNounHint(GermanWord word, ApiEnrichment? apiData, Map<String, dynamic>? patternData, bool advanced, {bool isCorrect = true}) {
     final List<String> hints = [];
     
-    if (advanced && inflection != null) {
-      final nounData = inflection['analyses']?['noun'];
-      
-      if (nounData != null) {
-        // 1. Declension patterns
-        final declension = nounData['declension'];
-        if (declension != null) {
-          final nom = declension['Nominativ Singular']?['definite'];
-          final gen = declension['Genitiv Singular']?['definite'];
-          final dat = declension['Dativ Singular']?['definite'];
-          
-          if (nom != null && dat != null) {
-            hints.add('✓ Maskulinprobe: $nom → $dat (Dativ)');
-          }
-          if (nom != null && gen != null) {
-            hints.add('✓ Artikelprobe: $nom (Nom.) → $gen (Gen.)');
-          }
+    if (advanced && patternData != null) {
+      try {
+        // 1. Plural formation from API
+        final plural = patternData['plural'];
+        if (plural != null && plural is String && plural.isNotEmpty && plural != word.word && plural != '-') {
+          hints.add('✓ Mehrzahl: ${word.word} → $plural');
         }
         
-        // 2. Plural formation
-        final plural = nounData['plural'];
-        if (plural != null && plural != word.word && plural != '-') {
-          hints.add('✓ Plural: ${word.word} → $plural');
-        }
-        
-        // 3. Gender information
-        final gender = nounData['gender'];
-        if (gender != null) {
+        // 2. Gender information from API
+        final gender = patternData['gender'];
+        if (gender != null && gender is String) {
           final genderMap = {
             'Masculine': 'maskulin (der)',
             'Feminine': 'feminin (die)',
@@ -405,31 +408,22 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
           final genderLabel = genderMap[gender] ?? gender;
           hints.add('✓ Genus: $genderLabel');
         }
-      }
+      } catch (e) { /* Data might not be uniform, fail silently */ }
     }
     
-    // Article-based hints
+    // Article-based hints (from base data)
     if (word.article != null && word.article!.isNotEmpty) {
-      hints.add('✓ Nomen: ${word.article} ${word.word} → Artikel zeigt\'s!');
-      hints.add('✓ Sandwichprobe: ${word.article} große ${word.word} ✓');
-      hints.add('✓ Artikelprobe: ${word.article} ${word.word}');
+      hints.add('✓ Nomen: ${word.article} ${word.word}');
     }
     
-    // Plural hints
-    if (word.plural != null && word.plural!.isNotEmpty && word.plural != '-') {
-      hints.add('✓ Mehrzahl: ${word.word} → ${word.plural}');
-    } else if (word.nurImPlural) {
-      hints.add('✓ Nur Plural: ${word.word}');
+    // API Definition as fallback hint
+    if (apiData?.definitions.isNotEmpty ?? false) {
+      hints.add('✓ ${apiData!.definitions.first}');
     }
     
     // Capitalization rule
     hints.add('✓ Nomen groß: ${word.word} (Großschreibung!)');
-    
-    // Genus info
-    if (word.genus != null && word.genus!.isNotEmpty) {
-      hints.add('✓ ${word.genus}: ${word.word}');
-    }
-    
+        
     // Fallback
     if (hints.isEmpty) {
       hints.add('✓ Richtig: ${word.word} ist ein Nomen!');
@@ -438,62 +432,46 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     return _selectHintFromList(hints);
   }
 
-  String _getVerbHint(GermanWord word, Map<String, dynamic>? inflection, bool advanced, {bool isCorrect = true}) {
+  // --- OPTIMIZATION: Use ApiEnrichment and Pattern.de data ---
+  String _getVerbHint(GermanWord word, ApiEnrichment? apiData, Map<String, dynamic>? patternData, bool advanced, {bool isCorrect = true}) {
     final List<String> hints = [];
     
-    if (advanced && inflection != null) {
-      final verbData = inflection['analyses']?['verb'];
-      
-      if (verbData != null) {
-        // 1. Present tense conjugation
-        final conjugation = verbData['conjugation']?['Präsens'];
-        if (conjugation != null) {
+    if (advanced && patternData != null) {
+      try {
+        // 1. Present tense conjugation from API
+        final conjugation = patternData['conjugation']?['Präsens'];
+        if (conjugation != null && conjugation is Map) {
           final ich = conjugation['ich'];
           final du = conjugation['du'];
-          final er = conjugation['er'] ?? conjugation['sie'] ?? conjugation['es'];
           
           if (ich != null && du != null) {
-            hints.add('✓ Personalformen: $ich / $du');
-          }
-          if (ich != null && er != null) {
-            hints.add('✓ Konjugation: $ich / $er');
+            hints.add('✓ Personalformen: ich $ich, du $du');
           }
         }
         
-        // 2. Participles
-        final participles = verbData['participles'];
-        if (participles != null) {
-          final partizipII = participles['Partizip II'];
-          if (partizipII != null) {
-            hints.add('✓ Perfekt: ${word.word} → $partizipII');
+        // 2. Participles from API
+        final participles = patternData['participles'];
+        if (participles != null && participles is Map) {
+          final partizipII = participles['Partizip Perfekt']; // Corrected key from "Partizip II"
+          if (partizipII != null && partizipII is String) {
+            hints.add('✓ Perfekt: $partizipII');
           }
         }
         
-        // 3. Imperative
-        final imperative = verbData['imperative'];
-        if (imperative != null && imperative['du'] != null) {
-          hints.add('✓ Imperativ: ${imperative['du']}!');
+        // 3. Past tense from API
+        final prateritum = patternData['conjugation']?['Präteritum'];
+        if (prateritum != null && prateritum is Map && prateritum['ich'] != null) {
+          hints.add('✓ Präteritum: ich ${prateritum['ich']}');
         }
-        
-        // 4. Past tense
-        final prateritum = verbData['conjugation']?['Präteritum'];
-        if (prateritum != null && prateritum['ich'] != null) {
-          hints.add('✓ Vergangenheit: ${word.word} → ${prateritum['ich']}');
-        }
-      }
+      } catch (e) { /* Data might not be uniform, fail silently */ }
     }
     
-    // Basic verb hints
-    final baseForm = word.word.toLowerCase();
-    if (baseForm.endsWith('en')) {
-      final stem = baseForm.substring(0, baseForm.length - 2);
-      hints.add('✓ Verb: ich ${stem}e, du ${stem}st');
-      hints.add('✓ Infinitiv: ${word.word} → ich ${stem}e');
+    // API Definition as fallback hint
+    if (apiData?.definitions.isNotEmpty ?? false) {
+      hints.add('✓ ${apiData!.definitions.first}');
     }
-    
+
     hints.add('✓ Verb: ${word.word} → beschreibt Handlung');
-    hints.add('✓ Frageprobe: "Was tut man?" → ${word.word}');
-    hints.add('✓ Zeitformenprobe: ${word.word} (Präsens)');
     
     // Fallback
     if (hints.isEmpty) {
@@ -503,41 +481,31 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     return _selectHintFromList(hints);
   }
 
-  String _getAdjectiveHint(GermanWord word, Map<String, dynamic>? inflection, bool advanced, {bool isCorrect = true}) {
+  // --- OPTIMIZATION: Use ApiEnrichment and Pattern.de data ---
+  String _getAdjectiveHint(GermanWord word, ApiEnrichment? apiData, Map<String, dynamic>? patternData, bool advanced, {bool isCorrect = true}) {
     final List<String> hints = [];
     
-    if (advanced && inflection != null) {
-      final adjData = inflection['analyses']?['adjective'];
-      
-      if (adjData != null) {
-        // 1. Comparison forms
-        final comp = adjData['comparative'];
-        final superl = adjData['superlative'];
+    if (advanced && patternData != null) {
+      try {
+        // 1. Comparison forms from API
+        final comp = patternData['comparative'];
+        final superl = patternData['superlative'];
         
-        if (comp != null && superl != null && comp != '-' && superl != '-') {
+        if (comp != null && superl != null && comp is String && superl is String && comp.isNotEmpty && superl.isNotEmpty) {
           hints.add('✓ Steigerung: ${word.word} → $comp → $superl');
-        }
-        if (comp != null && comp != '-') {
+        } else if (comp != null && comp is String && comp.isNotEmpty) {
           hints.add('✓ Komparativ: ${word.word} → $comp');
         }
-        
-        // 2. Declension in different cases
-        final declension = adjData['declension'];
-        if (declension != null) {
-          final nom = declension['Nominativ']?['maskulin']?['definite'];
-          if (nom != null) {
-            hints.add('✓ Deklination: der ${nom} Mann');
-          }
-        }
-      }
+      } catch (e) { /* Data might not be uniform, fail silently */ }
     }
     
-    // Basic adjective hints
+    // API Definition as fallback hint
+    if (apiData?.definitions.isNotEmpty ?? false) {
+      hints.add('✓ ${apiData!.definitions.first}');
+    }
+
     hints.add('✓ Adjektiv: ${word.word} → Eigenschaft');
-    hints.add('✓ Sandwichprobe: der ${word.word}e Baum ✓');
-    hints.add('✓ Steigerbar: ${word.word}, ${word.word}er');
     hints.add('✓ Wie-Frage: "Wie ist es?" → ${word.word}');
-    hints.add('✓ Attributiv: das ${word.word}e Kind');
     
     // Fallback
     if (hints.isEmpty) {
@@ -547,94 +515,86 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     return _selectHintFromList(hints);
   }
 
-  String _getAdverbHint(GermanWord word, bool advanced) {
+  // --- OPTIMIZATION: Use ApiEnrichment data ---
+  String _getAdverbHint(GermanWord word, ApiEnrichment? apiData, bool advanced) {
     final hints = [
       '✓ Adverb: ${word.word} → unveränderlich!',
       '✓ Wie-Frage: "Wie?" → ${word.word}',
-      '✓ Adverb: beschreibt WIE etwas passiert',
-      '✓ ${word.word} → nicht flektierbar',
     ];
     
-    if (advanced && word.exampleSentences.isNotEmpty) {
-      hints.add('✓ Beispiel: ${word.exampleSentences.first}');
+    if (advanced && (apiData?.definitions.isNotEmpty ?? false)) {
+      hints.add('✓ ${apiData!.definitions.first}');
     }
     
     return _selectHintFromList(hints);
   }
 
-  String _getPronomenHint(GermanWord word, bool advanced) {
+  // --- OPTIMIZATION: Use ApiEnrichment data ---
+  String _getPronomenHint(GermanWord word, ApiEnrichment? apiData, bool advanced) {
     final hints = [
       '✓ Pronomen: ${word.word} → ersetzt Nomen',
       '✓ ${word.word} → steht für ein Nomen',
-      '✓ Fürwort: ${word.word}',
     ];
     
-    // Add case information if available
-    if (word.caseSpacy != null && word.caseSpacy!.isNotEmpty) {
-      final caseMap = {
-        'Nom': 'Nominativ',
-        'Acc': 'Akkusativ', 
-        'Dat': 'Dativ',
-        'Gen': 'Genitiv',
-      };
-      final caseName = caseMap[word.caseSpacy] ?? word.caseSpacy!;
-      hints.add('✓ ${word.word} → $caseName');
-    }
-    
-    // Add pronoun type
-    if (word.pronTypeSpacy != null && word.pronTypeSpacy!.isNotEmpty) {
-      hints.add('✓ ${word.pronTypeSpacy}: ${word.word}');
+    if (advanced && (apiData?.definitions.isNotEmpty ?? false)) {
+      hints.add('✓ ${apiData!.definitions.first}');
     }
     
     return _selectHintFromList(hints);
   }
 
-  String _generateIncorrectHint(GermanWord word, Map<String, dynamic>? inflection, 
+  // --- OPTIMIZATION: Use ApiEnrichment data ---
+  String _generateIncorrectHint(GermanWord word, ApiEnrichment? apiData, Map<String, dynamic>? patternData, 
       GermanWordType? guessedType, bool advanced) {
     
-    // Show what they guessed wrong
     String wrongPart = guessedType != null 
         ? '✗ Kein ${_getCategoryNameGerman(guessedType)}!\n'
         : '✗ Falsch!\n';
     
-    // Show why it's the correct type with detailed explanation
-    String correctPart = _getDetailedCorrectExplanation(word, inflection, guessedType);
+    String correctPart = _getDetailedCorrectExplanation(word, apiData, patternData, guessedType);
     
     return wrongPart + correctPart;
   }
 
-  String _getDetailedCorrectExplanation(GermanWord word, Map<String, dynamic>? inflection, GermanWordType? guessedType) {
+  // --- OPTIMIZATION: Use ApiEnrichment data ---
+  String _getDetailedCorrectExplanation(GermanWord word, ApiEnrichment? apiData, Map<String, dynamic>? patternData, GermanWordType? guessedType) {
     switch (word.wordType) {
       case GermanWordType.substantiv:
-        return _getNounCorrectExplanation(word, inflection, guessedType);
+        return _getNounCorrectExplanation(word, apiData, patternData, guessedType);
       case GermanWordType.verb:
-        return _getVerbCorrectExplanation(word, inflection, guessedType);
+        return _getVerbCorrectExplanation(word, apiData, patternData, guessedType);
       case GermanWordType.adjektiv:
-        return _getAdjectiveCorrectExplanation(word, inflection, guessedType);
+        return _getAdjectiveCorrectExplanation(word, apiData, patternData, guessedType);
       default:
+        // Use API definition as a high-quality fallback
+        if(apiData?.definitions.isNotEmpty ?? false) {
+          return '✓ ${_getCategoryNameGerman(word.wordType)}: "${apiData!.definitions.first}"';
+        }
         return '✓ ${word.word} → ${_getCategoryNameGerman(word.wordType)}';
     }
   }
 
-  String _getNounCorrectExplanation(GermanWord word, Map<String, dynamic>? inflection, GermanWordType? guessedType) {
+  // --- OPTIMIZATION: Use ApiEnrichment and Pattern.de data ---
+  String _getNounCorrectExplanation(GermanWord word, ApiEnrichment? apiData, Map<String, dynamic>? patternData, GermanWordType? guessedType) {
     final List<String> reasons = [];
     
-    // Show article as proof
     if (word.article != null && word.article!.isNotEmpty) {
       reasons.add('${word.article} ${word.word}');
     }
     
-    // Show why it's NOT what they guessed
     if (guessedType == GermanWordType.verb) {
       reasons.add('nicht konjugierbar');
     } else if (guessedType == GermanWordType.adjektiv) {
       reasons.add('nicht steigerbar');
     }
     
-    // Show plural as proof
-    if (word.plural != null && word.plural!.isNotEmpty && word.plural != '-') {
-      reasons.add('Plural: ${word.plural}');
-    }
+    // Get plural from API data
+    try {
+      final plural = patternData?['plural'];
+      if (plural != null && plural is String && plural.isNotEmpty && plural != word.word && plural != '-') {
+        reasons.add('Plural: $plural');
+      }
+    } catch (e) { /* fail silently */ }
     
     if (reasons.isEmpty) {
       return '✓ ${word.word} → Nomen (Großschreibung!)';
@@ -643,37 +603,26 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     return '✓ Nomen: ${reasons.join(' • ')}';
   }
 
-  String _getVerbCorrectExplanation(GermanWord word, Map<String, dynamic>? inflection, GermanWordType? guessedType) {
+  // --- OPTIMIZATION: Use ApiEnrichment and Pattern.de data ---
+  String _getVerbCorrectExplanation(GermanWord word, ApiEnrichment? apiData, Map<String, dynamic>? patternData, GermanWordType? guessedType) {
     final List<String> reasons = [];
     
-    // Show conjugation as proof
-    if (inflection != null) {
-      final verbData = inflection['analyses']?['verb'];
-      if (verbData != null) {
-        final conj = verbData['conjugation']?['Präsens'];
-        if (conj != null) {
-          final ich = conj['ich'];
-          final du = conj['du'];
-          if (ich != null && du != null) {
-            reasons.add('$ich, $du');
-          } else if (ich != null) {
-            reasons.add(ich);
-          }
+    // Get conjugation from API data
+    try {
+      final conj = patternData?['conjugation']?['Präsens'];
+      if (conj != null && conj is Map) {
+        final ich = conj['ich'];
+        final du = conj['du'];
+        if (ich != null && du != null) {
+          reasons.add('ich $ich, du $du');
+        } else if (ich != null) {
+          reasons.add('z.B. ich $ich');
         }
       }
-    }
+    } catch (e) { /* fail silently */ }
     
-    // Show why it's NOT what they guessed
     if (guessedType == GermanWordType.substantiv) {
       reasons.add('kein Artikel');
-    } else if (guessedType == GermanWordType.adjektiv) {
-      reasons.add('Aktion, keine Eigenschaft');
-    }
-    
-    // Fallback to simple conjugation
-    if (reasons.isEmpty && word.word.endsWith('en')) {
-      final stem = word.word.substring(0, word.word.length - 2);
-      reasons.add('ich ${stem}e');
     }
     
     if (reasons.isEmpty) {
@@ -683,45 +632,37 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     return '✓ Verb: ${reasons.join(' • ')}';
   }
 
-  String _getAdjectiveCorrectExplanation(GermanWord word, Map<String, dynamic>? inflection, GermanWordType? guessedType) {
+  // --- OPTIMIZATION: Use ApiEnrichment and Pattern.de data ---
+  String _getAdjectiveCorrectExplanation(GermanWord word, ApiEnrichment? apiData, Map<String, dynamic>? patternData, GermanWordType? guessedType) {
     final List<String> reasons = [];
     
-    // Show comparison as proof
-    if (inflection != null) {
-      final adjData = inflection['analyses']?['adjective'];
-      if (adjData != null) {
-        final comp = adjData['comparative'];
-        final superl = adjData['superlative'];
-        if (comp != null && comp != '-') {
-          reasons.add(comp);
-        }
-        if (superl != null && superl != '-') {
-          reasons.add(superl);
-        }
+    // Get comparison from API data
+    try {
+      final comp = patternData?['comparative'];
+      if (comp != null && comp is String && comp.isNotEmpty) {
+        reasons.add('steigerbar: $comp');
       }
-    }
+    } catch (e) { /* fail silently */ }
     
-    // Show why it's NOT what they guessed
     if (guessedType == GermanWordType.substantiv) {
       reasons.add('kein Artikel');
-    } else if (guessedType == GermanWordType.verb) {
-      reasons.add('nicht konjugierbar');
     }
     
-    // Show sandwich test
     if (reasons.isEmpty) {
       reasons.add('der ${word.word}e Mann');
     }
     
     return '✓ Adjektiv: ${reasons.join(' • ')}';
   }
-
+  
+  // (This method is unchanged)
   String _selectHintFromList(List<String> hints) {
     // Find least-used hint
     hints.sort((a, b) => (_hintUsageCount[a] ?? 0).compareTo(_hintUsageCount[b] ?? 0));
     return hints.first;
   }
 
+  // (This method is unchanged)
   String _getCategoryNameGerman(GermanWordType type) {
     switch (type) {
       case GermanWordType.substantiv: return 'Nomen';
@@ -729,7 +670,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       case GermanWordType.adjektiv: return 'Adjektiv';
       case GermanWordType.adverb: return 'Adverb';
       case GermanWordType.pronomen: return 'Pronomen';
-      default: return type.toString();
+      default: return type.toString().split('.').last;
     }
   }
 
@@ -824,8 +765,15 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
               IgnorePointer(child: _buildCategoryConfetti()),
             
             // Non-blocking hint overlay
-            if (_currentHint != null)
-              _buildFloatingHint(selectedFontFamily),
+            Positioned(
+              top: 8,
+              right: 8,
+              left: 8,
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: _buildFloatingHint(selectedFontFamily)
+              )
+            ),
           ],
         );
       },
@@ -894,118 +842,118 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
   }
 
   Widget _buildFloatingHint(String selectedFontFamily) {
-    return Positioned(
-      top: 8,
-      right: 8,
-      left: 8,
-      child: FadeTransition(
-        opacity: _hintAnimation,
-        child: ScaleTransition(
-          scale: Tween<double>(begin: 0.8, end: 1.0).animate(
-            CurvedAnimation(parent: _hintController, curve: Curves.elasticOut),
-          ),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: _feedbackState == FeedbackState.correct
-                    ? [Colors.green.shade400, Colors.green.shade600]
-                    : [Colors.orange.shade400, Colors.deepOrange.shade600],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.white, width: 2),
-              boxShadow: [
-                BoxShadow(
-                  color: (_feedbackState == FeedbackState.correct 
-                      ? Colors.green 
-                      : Colors.orange).withOpacity(0.5),
-                  blurRadius: 20,
-                  offset: const Offset(0, 4),
+    // This FadeTransition handles the hint's appearance and disappearance
+    return FadeTransition(
+      opacity: _hintAnimation,
+      child: ScaleTransition(
+        scale: Tween<double>(begin: 0.8, end: 1.0).animate(
+          CurvedAnimation(parent: _hintController, curve: Curves.elasticOut),
+        ),
+        // Constrain the width of the hint toast
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 500), 
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          // --- FIX: Show hint only when _currentHint is not null ---
+          child: _currentHint == null 
+            ? const SizedBox.shrink() 
+            : Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: _feedbackState == FeedbackState.correct
+                      ? [Colors.green.shade400, Colors.green.shade600]
+                      : [Colors.orange.shade400, Colors.deepOrange.shade600],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  _feedbackState == FeedbackState.correct 
-                      ? Icons.check_circle 
-                      : Icons.lightbulb,
-                  color: Colors.white,
-                  size: 28,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    _currentHint!,
-                    style: TextStyle(
-                      fontFamily: selectedFontFamily,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      height: 1.3,
-                    ),
-                    textAlign: TextAlign.left,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.white, width: 2),
+                boxShadow: [
+                  BoxShadow(
+                    color: (_feedbackState == FeedbackState.correct 
+                        ? Colors.green 
+                        : Colors.orange).withOpacity(0.5),
+                    blurRadius: 20,
+                    offset: const Offset(0, 4),
                   ),
-                ),
-              ],
+                ],
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    _feedbackState == FeedbackState.correct 
+                        ? Icons.check_circle 
+                        : Icons.lightbulb,
+                    color: Colors.white,
+                    size: 28,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      _currentHint!, // Use _currentHint
+                      style: TextStyle(
+                        fontFamily: selectedFontFamily,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        height: 1.3,
+                      ),
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
         ),
       ),
     );
   }
 
+
   Widget _buildDraggableWord(String selectedFontFamily) {
-    final showArticle = _feedbackState != FeedbackState.none &&
-        _currentWord!.wordType == GermanWordType.substantiv &&
-        _currentWord!.article != null;
+    // --- OPTIMIZATION: Use displayName to show article ---
+    final bool showArticle = _currentWord!.displayName != _currentWord!.word;
+    // --- END OPTIMIZATION ---
 
     return Opacity(
       opacity: _isDragging ? 0.0 : 1.0,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          if (showArticle)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: Text(
-                _currentWord!.article!,
-                style: TextStyle(
-                  fontFamily: selectedFontFamily,
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: _getGenderColor(_currentWord!),
-                ),
-              ),
-            ),
+          // Use the word's displayName
           Draggable<GermanWordType>(
             data: _currentWord!.wordType,
             onDragStarted: () => setState(() => _isDragging = true),
             onDragEnd: (details) => setState(() => _isDragging = false),
-            feedback: _buildWordCard(_currentWord!.word, selectedFontFamily, isFeedback: true),
-            childWhenDragging: _buildWordCard(_currentWord!.word, selectedFontFamily, isPlaceholder: true),
-            child: _buildWordCard(_currentWord!.word, selectedFontFamily),
+            feedback: _buildWordCard(_currentWord!.displayName, selectedFontFamily, isFeedback: true),
+            childWhenDragging: _buildWordCard(_currentWord!.displayName, selectedFontFamily, isPlaceholder: true),
+            child: _buildWordCard(_currentWord!.displayName, selectedFontFamily),
           ),
         ],
       ),
     );
   }
 
+  // --- OPTIMIZATION: Use API data for gender color ---
   Color _getGenderColor(GermanWord word) {
-    final gender = word.inflectionData?['analyses']?['noun']?['gender'];
+    String? gender;
+    try {
+      // Get gender from the 'inflectionsPattern' block
+      gender = word.apiEnrichment?.inflectionsPattern?['gender'] as String?;
+    } catch (e) { /* fail silently */ }
+    
     if (gender == 'Masculine') return Colors.blue;
     if (gender == 'Feminine') return Colors.pink;
     if (gender == 'Neuter') return Colors.green;
+    // --- END OPTIMIZATION ---
     
-    // Fallback to article
+    // Fallback to article (existing logic)
     if (word.article == 'der') return Colors.blue;
     if (word.article == 'die') return Colors.pink;
     if (word.article == 'das') return Colors.green;
     
     return Colors.grey;
   }
+  // --- END OPTIMIZATION ---
 
   Widget _buildWordCard(String word, String selectedFontFamily, {bool isFeedback = false, bool isPlaceholder = false}) {
     Color borderColor = SpaceTheme.planetOrange;
@@ -1035,7 +983,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
           child: FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(
-              word,
+              word, // This will now show "das Haus"
               style: SpaceTheme.headlineStyle.copyWith(fontFamily: selectedFontFamily, fontSize: 32),
               maxLines: 2,
               textAlign: TextAlign.center,

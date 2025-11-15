@@ -11,257 +11,10 @@ import 'package:csv/csv.dart';
 // Import GameProvider to access settings
 import '../../features/games/providers/game_provider.dart';
 
+// --- CLEAN IMPORTS ---
 import '../models/skill_category.dart';
+import '../models/vocabulary_models.dart';
 import 'sri_service.dart';
-
-// (GraphematicVariant class remains unchanged)
-class GraphematicVariant {
-  final String spelling;
-  final double probability;
-
-  GraphematicVariant({required this.spelling, required this.probability});
-
-  factory GraphematicVariant.fromJson(Map<String, dynamic> json) {
-    return GraphematicVariant(
-      spelling: json['spelling'],
-      probability: (json['probability'] as num).toDouble(),
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-        'spelling': spelling,
-        'probability': probability,
-      };
-}
-
-// (GermanWord class remains unchanged)
-class GermanWord {
-  final String id;
-  final String word;
-  final String? article;
-  final GermanWordType wordType;
-  final int gradeLevel;
-  final String lemma;
-  final String? forms;
-  final String? url;
-  final List<String> sources;
-  final bool isGrundwortschatzBW;
-  final String? genus;
-  final bool nurImPlural;
-  final Map<String, dynamic>? inflectionData;
-  final String? ipaPhoneme;
-  final String? sampaPhoneme;
-  final List<GraphematicVariant> graphematicVariants;
-  final String? caseSpacy;
-  final String? numberSpacy;
-  final String? degreeSpacy;
-  final String? pronTypeSpacy;
-  final String? verbFormSpacy;
-  final String? plural;
-  final List<WordCategory> categories;
-  final List<String> exampleSentences;
-  final SpellingDifficulty spellingDifficulty;
-  final List<String>? commonMistakes;
-  final String? audioPath;
-
-  GermanWord({
-    required this.id,
-    required this.word,
-    this.article,
-    required this.wordType,
-    required this.gradeLevel,
-    required this.lemma,
-    this.forms,
-    this.url,
-    required this.sources,
-    required this.isGrundwortschatzBW,
-    this.genus,
-    required this.nurImPlural,
-    this.inflectionData,
-    this.ipaPhoneme,
-    this.sampaPhoneme,
-    required this.graphematicVariants,
-    this.caseSpacy,
-    this.numberSpacy,
-    this.degreeSpacy,
-    this.pronTypeSpacy,
-    this.verbFormSpacy,
-    this.plural,
-    required this.categories,
-    required this.exampleSentences,
-    required this.spellingDifficulty,
-    this.commonMistakes,
-    this.audioPath,
-  });
-
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'word': word,
-        'article': article,
-        'wordType': wordType.toString().split('.').last,
-        'gradeLevel': gradeLevel,
-        'lemma': lemma,
-        'forms': forms,
-        'url': url,
-        'sources': sources,
-        'isGrundwortschatzBW': isGrundwortschatzBW,
-        'genus': genus,
-        'nurImPlural': nurImPlural,
-        'ipaPhoneme': ipaPhoneme,
-        'sampaPhoneme': sampaPhoneme,
-        'graphematicVariants':
-            graphematicVariants.map((v) => v.toJson()).toList(),
-        'caseSpacy': caseSpacy,
-        'numberSpacy': numberSpacy,
-        'degreeSpacy': degreeSpacy,
-        'pronTypeSpacy': pronTypeSpacy,
-        'verbFormSpacy': verbFormSpacy,
-        'plural': plural,
-        'categories':
-            categories.map((c) => c.toString().split('.').last).toList(),
-        'exampleSentences': exampleSentences,
-        'spellingDifficulty': spellingDifficulty.index,
-        'commonMistakes': commonMistakes,
-        'audioPath': audioPath,
-      };
-
-  factory GermanWord.fromJson(Map<String, dynamic> json) {
-    final variantsList = (json['graphematicVariants'] as List<dynamic>?) ?? [];
-    final variants = variantsList
-        .map((v) => GraphematicVariant.fromJson(v as Map<String, dynamic>))
-        .toList();
-    return GermanWord(
-      id: json['id'],
-      word: json['word'],
-      article: json['article'],
-      wordType: GermanWordType.values.firstWhere(
-        (e) => e.toString().split('.').last == json['wordType'],
-        orElse: () => GermanWordType.andere,
-      ),
-      gradeLevel: json['gradeLevel'] ?? 1,
-      lemma: json['lemma'] ?? json['word'],
-      forms: json['forms'],
-      url: json['url'],
-      sources: List<String>.from(json['sources'] ?? []),
-      isGrundwortschatzBW: json['isGrundwortschatzBW'] ?? false,
-      genus: json['genus'],
-      nurImPlural: json['nurImPlural'] ?? false,
-      inflectionData: json['inflectionData'] as Map<String, dynamic>?,
-      ipaPhoneme: json['ipaPhoneme'],
-      sampaPhoneme: json['sampaPhoneme'],
-      graphematicVariants: variants,
-      caseSpacy: json['caseSpacy'],
-      numberSpacy: json['numberSpacy'],
-      degreeSpacy: json['degreeSpacy'],
-      pronTypeSpacy: json['pronTypeSpacy'],
-      verbFormSpacy: json['verbFormSpacy'],
-      plural: json['plural'],
-      categories: (json['categories'] as List<dynamic>?)
-              ?.map((c) => WordCategory.values.firstWhere(
-                    (e) => e.toString().split('.').last == c,
-                    orElse: () => WordCategory.schule,
-                  ))
-              .toList() ??
-          [],
-      exampleSentences: List<String>.from(json['exampleSentences'] ?? []),
-      spellingDifficulty:
-          SpellingDifficulty.values[json['spellingDifficulty'] ?? 0],
-      commonMistakes: json['commonMistakes'] != null
-          ? List<String>.from(json['commonMistakes'])
-          : null,
-      audioPath: json['audioPath'],
-    );
-  }
-  String get displayName {
-    if (wordType == GermanWordType.substantiv &&
-        article != null &&
-        article!.isNotEmpty) {
-      return '$article $word';
-    }
-    return word;
-  }
-}
-
-enum SpellingDifficulty { easy, medium, hard, expert }
-
-// (GrammarExercise class remains unchanged)
-class GrammarExercise {
-  final String id;
-  final GrammarTopic topic;
-  final GradeLevel gradeLevel;
-  final String instruction;
-  final String sentence;
-  final List<String> options;
-  final String correctAnswer;
-  final String explanation;
-
-  GrammarExercise(
-      {required this.id,
-      required this.topic,
-      required this.gradeLevel,
-      required this.instruction,
-      required this.sentence,
-      required this.options,
-      required this.correctAnswer,
-      required this.explanation});
-
-  factory GrammarExercise.fromJson(Map<String, dynamic> json) {
-    return GrammarExercise(
-      id: json['id'],
-      topic: GrammarTopic.values.firstWhere(
-        (e) => e.toString().split('.').last == json['topic'],
-      ),
-      gradeLevel: GradeLevel.values[json['gradeLevel'] ?? 0],
-      instruction: json['instruction'],
-      sentence: json['sentence'],
-      options: List<String>.from(json['options']),
-      correctAnswer: json['correctAnswer'],
-      explanation: json['explanation'],
-    );
-  }
-}
-
-// (VocabularySet class remains unchanged)
-class VocabularySet {
-  final String id;
-  final String name;
-  final String description;
-  final List<String> wordIds;
-  final GradeLevel targetGrade;
-  final DateTime createdAt;
-  final bool isCustom;
-
-  VocabularySet(
-      {required this.id,
-      required this.name,
-      required this.description,
-      required this.wordIds,
-      required this.targetGrade,
-      required this.createdAt,
-      this.isCustom = false});
-
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'description': description,
-        'wordIds': wordIds,
-        'targetGrade': targetGrade.index,
-        'createdAt': createdAt.toIso8601String(),
-        'isCustom': isCustom,
-      };
-
-  factory VocabularySet.fromJson(Map<String, dynamic> json) {
-    return VocabularySet(
-      id: json['id'],
-      name: json['name'],
-      description: json['description'],
-      wordIds: List<String>.from(json['wordIds']),
-      targetGrade: GradeLevel.values[json['targetGrade'] ?? 0],
-      createdAt: DateTime.parse(json['createdAt']),
-      isCustom: json['isCustom'] ?? false,
-    );
-  }
-}
 
 // Main vocabulary service
 class VocabularyService with ChangeNotifier {
@@ -300,8 +53,11 @@ class VocabularyService with ChangeNotifier {
 
   Future<void> _loadVocabularyFromAssets() async {
     try {
+      // --- MAKE SURE THIS FILENAME MATCHES YOUR ENRICHED JSON ---
       final String jsonString = await rootBundle.loadString(
-          'lib/features/games/data/grundwortschatz_variations.json');
+          'lib/features/games/data/grundwortschatz_enriched_v22.json');
+      // --- END FILENAME CHECK ---
+
       final Map<String, dynamic> jsonData = json.decode(jsonString);
       final List<dynamic> vocabulary = jsonData['vocabulary'] as List<dynamic>;
       for (final wordData in vocabulary) {
@@ -325,7 +81,7 @@ class VocabularyService with ChangeNotifier {
     } catch (e) {
       _log('Warning: Could not load vocabulary from assets: $e');
       _log(
-          'Check that "lib/features/games/data/grundwortschatz_variations.json" is in your pubspec.yaml');
+          'Check that "lib/features/games/data/grundwortschatz_enriched_v22.json" is in your pubspec.yaml');
       _initializeSampleVocabulary();
     }
   }
@@ -382,21 +138,40 @@ class VocabularyService with ChangeNotifier {
   Map<String, GermanWord> _initializeSampleVocabulary() {
     _vocabulary = {
       'word_001': GermanWord(
-        id: 'word_001', word: 'Haus', article: 'das', wordType: GermanWordType.substantiv,
-        gradeLevel: 1, lemma: 'Haus', caseSpacy: 'Nom', numberSpacy: 'Sing',
-        plural: 'Häuser', categories: [WordCategory.zuhause],
+        id: 'word_001',
+        word: 'Haus',
+        article: 'das',
+        wordType: GermanWordType.substantiv,
+        gradeLevel: 1,
+        lemma: 'Haus',
+        caseSpacy: 'Nom',
+        numberSpacy: 'Sing',
+        plural: 'Häuser',
+        categories: [WordCategory.zuhause],
         exampleSentences: ['Das Haus ist groß.'],
-        spellingDifficulty: SpellingDifficulty.easy, commonMistakes: ['Hauss'],
-        sources: ["A1"], isGrundwortschatzBW: true, nurImPlural: false,
-        graphematicVariants: [GraphematicVariant(spelling: "Hauss", probability: 0.5)],
+        spellingDifficulty: SpellingDifficulty.easy,
+        commonMistakes: ['Hauss'],
+        sources: ["A1"],
+        isGrundwortschatzBW: true,
+        nurImPlural: false,
+        graphematicVariants: [
+          GraphematicVariant(spelling: "Hauss", probability: 0.5)
+        ],
       ),
       'word_002': GermanWord(
-        id: 'word_002', word: 'spielen', wordType: GermanWordType.verb,
-        gradeLevel: 1, lemma: 'spielen', verbFormSpacy: 'Inf',
+        id: 'word_002',
+        word: 'spielen',
+        wordType: GermanWordType.verb,
+        gradeLevel: 1,
+        lemma: 'spielen',
+        verbFormSpacy: 'Inf',
         categories: [WordCategory.aktivitaeten],
         exampleSentences: ['Die Kinder spielen im Garten.'],
-        spellingDifficulty: SpellingDifficulty.easy, article: null,
-        sources: ["A1"], isGrundwortschatzBW: true, nurImPlural: false,
+        spellingDifficulty: SpellingDifficulty.easy,
+        article: null,
+        sources: ["A1"],
+        isGrundwortschatzBW: true,
+        nurImPlural: false,
         graphematicVariants: [],
       ),
     };
@@ -524,10 +299,8 @@ class VocabularyService with ChangeNotifier {
     WordCategory? category,
     GermanWordType? wordType,
   }) {
-    
     // --- PRIORITY 1: Is the entire feature enabled? ---
     if (settingsProvider.tasksCustomizationEnabled) {
-      
       // --- PRIORITY 1A: Are custom sets active? ---
       final activeSetIds = settingsProvider.activeVocabularySetIds;
       if (activeSetIds.isNotEmpty) {
@@ -542,7 +315,8 @@ class VocabularyService with ChangeNotifier {
         }
 
         if (allWordIds.isNotEmpty) {
-          _log('Using ${allWordIds.length} unique words from ${activeSetIds.length} custom set(s)');
+          _log(
+              'Using ${allWordIds.length} unique words from ${activeSetIds.length} custom set(s)');
           // Return only the words from these sets
           return allWordIds
               .map((id) => _vocabulary[id])
@@ -650,7 +424,7 @@ class VocabularyService with ChangeNotifier {
     GradeLevel? gradeFilter,
   }) {
     final reviewIds = sriService.getItemsForReview(
-      limit: limit * 5, 
+      limit: limit * 5,
       skillTypeFilter: LanguageSkillType.spelling,
       gradeLevelFilter: gradeFilter != null ? (gradeFilter.index + 1) : null,
     );
@@ -690,9 +464,8 @@ class VocabularyService with ChangeNotifier {
         studiedWords.add(word.id);
       }
     }
-    var unstudiedWords = newWords
-        .where((word) => !studiedWords.contains(word.id))
-        .toList();
+    var unstudiedWords =
+        newWords.where((word) => !studiedWords.contains(word.id)).toList();
 
     unstudiedWords.shuffle();
     return unstudiedWords.take(limit).toList();
@@ -800,7 +573,7 @@ class VocabularyService with ChangeNotifier {
     final similar = <GermanWord>[];
     final variantSpellings =
         baseWord.graphematicVariants.map((v) => v.spelling.toLowerCase()).toSet();
-    
+
     final allFilteredWords =
         _applyVocabularyFilters(_vocabulary.values.toList(), settingsProvider);
 
@@ -818,7 +591,8 @@ class VocabularyService with ChangeNotifier {
       similar.addAll(allWords.take(count - similar.length));
     }
     if (similar.length < count) {
-      final gradeEnum = GradeLevel.values[baseWord.gradeLevel.clamp(0, 5)];
+      final gradeEnum =
+          GradeLevel.values[baseWord.gradeLevel.clamp(0, 5)];
       final random = getRandomWords(
         count: count - similar.length,
         settingsProvider: settingsProvider,
@@ -846,7 +620,7 @@ class VocabularyService with ChangeNotifier {
   }) {
     var baseWords = _getBaseWordList(settingsProvider, grade: grade);
     var filtered = _applyVocabularyFilters(baseWords, settingsProvider);
-    
+
     filtered = filtered.where((w) {
       if (w.wordType != GermanWordType.pronomen &&
           w.wordType != GermanWordType.artikel) return false;
@@ -871,7 +645,7 @@ class VocabularyService with ChangeNotifier {
     filtered = filtered.where((w) {
       return w.wordType == GermanWordType.verb && w.verbFormSpacy == 'Inf';
     }).toList();
-    
+
     filtered.shuffle();
     return filtered.take(count).toList();
   }
@@ -883,7 +657,7 @@ class VocabularyService with ChangeNotifier {
   }) {
     var baseWords = _getBaseWordList(settingsProvider, grade: grade);
     var filtered = _applyVocabularyFilters(baseWords, settingsProvider);
-    
+
     filtered = filtered.where((w) {
       return w.wordType == GermanWordType.adjektiv && w.degreeSpacy == 'Pos';
     }).toList();

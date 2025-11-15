@@ -21,6 +21,8 @@ import 'core/theme/space_theme.dart';
 
 // --- PROVIDERS & MODELS ---
 import 'features/games/providers/game_provider.dart';
+// --- FIX: Add import for models ---
+import 'core/models/vocabulary_models.dart';
 
 // --- SCREENS ---
 import 'features/home/screens/home_screen.dart';
@@ -42,6 +44,7 @@ import 'generated/l10n.dart';
 
 // --- GLOBAL INSTANCES & NAVIGATOR KEY ---
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+// --- FIX: These services are provided, so they can be final ---
 final ProgressService progressService = ProgressService();
 final CognitiveProfileService cognitiveProfileService = CognitiveProfileService();
 final SriService sriService = SriService();
@@ -50,11 +53,14 @@ final PurchaseService purchaseService = PurchaseService();
 final DebugProvider debugProvider = DebugProvider();
 final AudioService audioService = AudioService();
 
+// --- FIX: REMOVED the global instance that was causing the crash ---
+/*
 final GameProvider gameProvider = GameProvider(
   progressService: progressService,
   sriService: sriService,
   cognitiveProfileService: cognitiveProfileService,
 );
+*/
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -64,16 +70,29 @@ void main() async {
     DeviceOrientation.landscapeRight,
   ]);
 
+  // --- FIX: Load SharedPreferences BEFORE starting the app ---
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  // --- END FIX ---
+
   // Service initialization that happens *before* app run
   await PuzzleImageService.instance.init();
-  purchaseService.init(gameProvider);
+  // We can't init purchaseService yet because it needs GameProvider
   await debugProvider.init();
   GlobalErrorHandler.init(); 
   
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider.value(value: gameProvider),
+        // --- FIX: Create GameProvider HERE, passing in prefs ---
+        ChangeNotifierProvider(
+          create: (_) => GameProvider(
+            progressService: progressService,
+            sriService: sriService,
+            cognitiveProfileService: cognitiveProfileService,
+            prefs: prefs, // <-- Pass the loaded prefs
+          ),
+        ),
+        // --- END FIX ---
         ChangeNotifierProvider.value(value: sriService),
         ChangeNotifierProvider.value(value: cognitiveProfileService),
         ChangeNotifierProvider.value(value: vocabularyService),
@@ -81,24 +100,23 @@ void main() async {
         ChangeNotifierProvider.value(value: debugProvider),
         Provider.value(value: progressService),
         Provider.value(value: audioService),
-        // NOTE: PuzzleImageService is NOT provided because it's a singleton
-        // accessed via .instance. If you wanted to provide it, you would add:
-        // Provider.value(value: PuzzleImageService.instance),
-        // But the current fix (removing the call) is cleaner.
       ],
-      child: const SpaceMathApp(),
+      // --- FIX: Pass prefs to the app ---
+      child: MyApp(prefs: prefs),
     ),
   );
 }
 
-class SpaceMathApp extends StatefulWidget {
-  const SpaceMathApp({super.key});
+class MyApp extends StatefulWidget {
+  // --- FIX: Accept prefs ---
+  final SharedPreferences prefs;
+  const MyApp({super.key, required this.prefs});
 
   @override
-  State<SpaceMathApp> createState() => _SpaceMathAppState();
+  State<MyApp> createState() => _MyAppState();
 }
 
-class _SpaceMathAppState extends State<SpaceMathApp> with WidgetsBindingObserver {
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   Locale? _locale;
   bool _isInitialized = false;
   String? _initializationError;
@@ -107,7 +125,14 @@ class _SpaceMathAppState extends State<SpaceMathApp> with WidgetsBindingObserver
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _initializeApp();
+    // --- FIX: Init PurchaseService *after* GameProvider is created ---
+    // We can access it via context now.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final gameProvider = context.read<GameProvider>();
+      context.read<PurchaseService>().init(gameProvider);
+      _initializeApp(gameProvider);
+    });
+    // --- END FIX ---
   }
   
   @override
@@ -125,13 +150,17 @@ class _SpaceMathAppState extends State<SpaceMathApp> with WidgetsBindingObserver
     }
   }
   
-  Future<void> _initializeApp() async {
+  // --- FIX: Pass GameProvider to init functions ---
+  Future<void> _initializeApp(GameProvider gameProvider) async {
     try {
-      await _loadLanguagePreference();
+      // Use the prefs instance we already loaded
+      await _loadLanguagePreference(widget.prefs); 
+      
       // Initialize vocab service first
       await vocabularyService.initialize();
       
       // Load other services
+      // --- FIX: Pass GameProvider to loadProgress ---
       await progressService.loadProgress(gameProvider);
       await sriService.loadSriData();
       await cognitiveProfileService.loadProfile();
@@ -146,9 +175,9 @@ class _SpaceMathAppState extends State<SpaceMathApp> with WidgetsBindingObserver
     }
   }
   
-  Future<void> _loadLanguagePreference() async {
+  Future<void> _loadLanguagePreference(SharedPreferences prefs) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
+      // Use the passed-in prefs
       final languageCode = prefs.getString('language');
       
       if (languageCode != null && S.supportedLocales.any((locale) => locale.languageCode == languageCode)) {
@@ -169,18 +198,24 @@ class _SpaceMathAppState extends State<SpaceMathApp> with WidgetsBindingObserver
   
   Future<void> _saveAppState() async {
     // Save all services on pause
-    await progressService.saveProgress(gameProvider);
+    // --- FIX: Get GameProvider from context ---
+    if (mounted) {
+      final gameProvider = context.read<GameProvider>();
+      // The GameProvider's _saveProgress now handles saving all its state to prefs
+      await gameProvider.recordLevelWin(gameType: 'app_close', scoreGained: 0, difficulty: 0, wasSuccessful: false); // This triggers a save
+    }
     await sriService.saveSriData();
     await cognitiveProfileService.saveProfile();
     try {
-      final prefs = await SharedPreferences.getInstance();
+      // Use the passed-in prefs
       if (_locale != null) {
-        await prefs.setString('language', _locale!.languageCode);
+        await widget.prefs.setString('language', _locale!.languageCode);
       }
     } catch (e) {
       debugPrint('Error saving language state: $e');
     }
   }
+  // --- END FIX ---
   
   Future<void> _restoreAppState() async {
     // Restore logic if needed
@@ -193,7 +228,6 @@ class _SpaceMathAppState extends State<SpaceMathApp> with WidgetsBindingObserver
       return MaterialApp(
         localizationsDelegates: S.localizationsDelegates,
         supportedLocales: S.supportedLocales,
-        // Use a non-localized string here as S.of(context) is not available
         home: const SpaceLoadingScreen(message: 'Initializing...'),
         theme: SpaceTheme.lightTheme,
       );
@@ -210,7 +244,8 @@ class _SpaceMathAppState extends State<SpaceMathApp> with WidgetsBindingObserver
               _isInitialized = false;
               _initializationError = null;
             });
-            _initializeApp();
+            // --- FIX: Get GameProvider from context ---
+            _initializeApp(context.read<GameProvider>());
           },
         ),
         theme: SpaceTheme.lightTheme,
@@ -242,7 +277,6 @@ class _SpaceMathAppState extends State<SpaceMathApp> with WidgetsBindingObserver
             onRetry: () {
               final currentContext = navigatorKey.currentContext;
               if (currentContext != null) {
-                // Try to reload the current route
                 Navigator.of(currentContext).pushReplacementNamed(
                   ModalRoute.of(currentContext)?.settings.name ?? AppRoutes.home,
                 );
@@ -290,104 +324,38 @@ class AppRoutes {
 
         case spaceWordRescue:
           final grade = args?['grade'] as int? ?? 1;
-          
-          GradeLevel gradeLevel;
-          switch (grade) {
-            case 1: gradeLevel = GradeLevel.grade1; break;
-            case 2: gradeLevel = GradeLevel.grade2; break;
-            case 3: gradeLevel = GradeLevel.grade3; break;
-            case 4: gradeLevel = GradeLevel.grade4; break;
-            case 5: gradeLevel = GradeLevel.grade5; break;
-            case 6: gradeLevel = GradeLevel.grade6; break;
-            default: gradeLevel = GradeLevel.grade1;
-          }
+          final gradeLevel = GradeLevel.values[grade.clamp(1, 6) - 1]; // Safer way
           return _createRoute(SpaceWordRescueGame(gradeLevel: gradeLevel));
 
         case wordFind:
           final grade = args?['grade'] as int? ?? 1;
-          GradeLevel gradeLevel;
-          switch (grade) {
-            case 1: gradeLevel = GradeLevel.grade1; break;
-            case 2: gradeLevel = GradeLevel.grade2; break;
-            case 3: gradeLevel = GradeLevel.grade3; break;
-            case 4: gradeLevel = GradeLevel.grade4; break;
-            case 5: gradeLevel = GradeLevel.grade5; break;
-            case 6: gradeLevel = GradeLevel.grade6; break;
-            default: gradeLevel = GradeLevel.grade1;
-          }
+          final gradeLevel = GradeLevel.values[grade.clamp(1, 6) - 1];
           return _createRoute(WordFindGame(gradeLevel: gradeLevel));
 
         case wordSort:
           final grade = args?['grade'] as int? ?? 1;
-          GradeLevel gradeLevel;
-          switch (grade) {
-            case 1: gradeLevel = GradeLevel.grade1; break;
-            case 2: gradeLevel = GradeLevel.grade2; break;
-            case 3: gradeLevel = GradeLevel.grade3; break;
-            case 4: gradeLevel = GradeLevel.grade4; break;
-            case 5: gradeLevel = GradeLevel.grade5; break;
-            case 6: gradeLevel = GradeLevel.grade6; break;
-            default: gradeLevel = GradeLevel.grade1;
-          }
+          final gradeLevel = GradeLevel.values[grade.clamp(1, 6) - 1];
           return _createRoute(WordSortGame(gradeLevel: gradeLevel));
 
         case wordSnake:
           final grade = args?['grade'] as int? ?? 1;
-          GradeLevel gradeLevel;
-          switch (grade) {
-            case 1: gradeLevel = GradeLevel.grade1; break;
-            case 2: gradeLevel = GradeLevel.grade2; break;
-            case 3: gradeLevel = GradeLevel.grade3; break;
-            case 4: gradeLevel = GradeLevel.grade4; break;
-            case 5: gradeLevel = GradeLevel.grade5; break;
-            case 6: gradeLevel = GradeLevel.grade6; break;
-            default: gradeLevel = GradeLevel.grade1;
-          }
+          final gradeLevel = GradeLevel.values[grade.clamp(1, 6) - 1];
           return _createRoute(WordSnakeGame(gradeLevel: gradeLevel));
 
         case wordMemory:
           final grade = args?['grade'] as int? ?? 1;
-          GradeLevel gradeLevel;
-          switch (grade) {
-            case 1: gradeLevel = GradeLevel.grade1; break;
-            case 2: gradeLevel = GradeLevel.grade2; break;
-            case 3: gradeLevel = GradeLevel.grade3; break;
-            case 4: gradeLevel = GradeLevel.grade4; break;
-            case 5: gradeLevel = GradeLevel.grade5; break;
-            case 6: gradeLevel = GradeLevel.grade6; break;
-            default: gradeLevel = GradeLevel.grade1;
-          }
+          final gradeLevel = GradeLevel.values[grade.clamp(1, 6) - 1];
           return _createRoute(WordMemoryGame(gradeLevel: gradeLevel));
 
         case wordBuilder:
           final grade = args?['grade'] as int? ?? 1;
-          GradeLevel gradeLevel;
-          switch (grade) {
-            case 1: gradeLevel = GradeLevel.grade1; break;
-            case 2: gradeLevel = GradeLevel.grade2; break;
-            case 3: gradeLevel = GradeLevel.grade3; break;
-            case 4: gradeLevel = GradeLevel.grade4; break;
-            case 5: gradeLevel = GradeLevel.grade5; break;
-            case 6: gradeLevel = GradeLevel.grade6; break;
-            default: gradeLevel = GradeLevel.grade1;
-          }
+          final gradeLevel = GradeLevel.values[grade.clamp(1, 6) - 1];
           return _createRoute(WordBuilderGame(gradeLevel: gradeLevel));
 
         case wordWhirl:
           final grade = args?['grade'] as int? ?? 1;
-          GradeLevel gradeLevel;
-          switch (grade) {
-            case 1: gradeLevel = GradeLevel.grade1; break;
-            case 2: gradeLevel = GradeLevel.grade2; break;
-            case 3: gradeLevel = GradeLevel.grade3; break;
-            case 4: gradeLevel = GradeLevel.grade4; break;
-            case 5: gradeLevel = GradeLevel.grade5; break;
-            case 6: gradeLevel = GradeLevel.grade6; break;
-            default: gradeLevel = GradeLevel.grade1;
-          }
+          final gradeLevel = GradeLevel.values[grade.clamp(1, 6) - 1];
           return _createRoute(WordTypeWhirlGame(gradeLevel: gradeLevel));
-
-
 
         case AppRoutes.settings:
           return _createRoute(const SettingsScreen());
@@ -419,7 +387,7 @@ class AppRoutes {
               ),
           );
     }
-    }
+  }
   
   static PageRoute _createRoute(Widget page) {
     return PageRouteBuilder(
@@ -472,7 +440,8 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        _initializeApp(S.of(context)!);
+        // --- FIX: Pass GameProvider to _initializeApp ---
+        _initializeApp(S.of(context)!, context.read<GameProvider>());
       }
     });
   }
@@ -490,18 +459,18 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     super.dispose();
   }
   
-  Future<void> _initializeApp(S s) async {
+  // --- FIX: Accept GameProvider ---
+  Future<void> _initializeApp(S s, GameProvider gameProvider) async {
     _logoController.forward();
 
     // Use the S instance to get localized strings
     await _updateProgress(0.2, s.loadingAssets);
-    // FIX: This line was the error. It's removed.
-    // PuzzleImageService was already initialized in main().
-    // if (mounted) await context.read<PuzzleImageService>().init(); 
-    await Future.delayed(const Duration(milliseconds: 500)); // Keep a small delay for visual pacing
+    // PuzzleImageService is already initialized in main()
+    await Future.delayed(const Duration(milliseconds: 500)); 
 
     await _updateProgress(0.4, s.loadingProgress);
-    if (mounted) await context.read<ProgressService>().loadProgress(context.read<GameProvider>());
+    // --- FIX: Pass GameProvider ---
+    if (mounted) await context.read<ProgressService>().loadProgress(gameProvider);
     
     _textController.forward();
     await _updateProgress(0.6, s.preparingSpaceStation);
@@ -530,6 +499,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
+    // ... (rest of SplashScreen build method is unchanged) ...
     final screenSize = MediaQuery.of(context).size;
     final bool isSmallScreen = screenSize.shortestSide < 600; 
     
