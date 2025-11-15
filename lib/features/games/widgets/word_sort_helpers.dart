@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import '../../../core/services/vocabulary_service.dart';
 import '../../../core/theme/space_theme.dart';
 import '../models/word_sort_types.dart';
+import '../../../core/models/vocabulary_models.dart';
+
 
 class GenderColors {
   static const masculine = Colors.blue;

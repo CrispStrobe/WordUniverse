@@ -4,37 +4,12 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// Enum for different types of language skills we track
-enum LanguageSkillType {
-  spelling,          // Spelling individual words
-  articleSelection,  // Der/die/das selection
-  pluralForm,       // Singular to plural conversion
-  wordType,         // Identifying noun/verb/adjective etc.
-  sentenceStructure,// Understanding sentence construction
-  punctuation,      // Comma placement, etc.
-  capitalization,   // German capitalization rules
-  verbConjugation,  // Verb forms
-  caseUsage,        // Nominativ/Akkusativ/Dativ/Genitiv
-}
+// --- FIX: Import enums from the single source of truth ---
+import '../models/skill_category.dart';
+// --- END FIX ---
 
-// Enum for word types in German
-enum GermanWordType {
-  substantiv,   // Nomen
-  verb,
-  adjektiv,
-  adverb,
-  artikel,
-  pronomen,
-  praeposition,
-  konjunktion,
-  partikel,
-  numerale,
-  kardinalzahlwort,
-  ordinalzahlwort,
-  affix,
-  mehrwortausdruck,
-  andere, // Fallback for 'Symbol', 'X', etc.
-}
+// --- FIX: REMOVED duplicate enum LanguageSkillType ---
+// --- FIX: REMOVED duplicate enum GermanWordType ---
 
 // Data model for each tracked skill/problem
 class SriLanguageData {
@@ -202,14 +177,17 @@ class SriService with ChangeNotifier {
       final skillType = data.skillType;
       
       if (gradeLevel >= 1 && gradeLevel <= 6) {
-        final stats = breakdown[skillType]![gradeLevel]!;
-        stats['tracked'] = (stats['tracked'] as int) + 1;
-        stats['totalEFactor'] = (stats['totalEFactor'] as double) + data.easinessFactor;
-        stats['totalAttempts'] = (stats['totalAttempts'] as int) + data.successCount + data.failureCount;
-        stats['successfulAttempts'] = (stats['successfulAttempts'] as int) + data.successCount;
-        
-        if (isItemMastered(itemId)) {
-          stats['mastered'] = (stats['mastered'] as int) + 1;
+        // Safety check for old/invalid skill types
+        if (breakdown.containsKey(skillType)) {
+          final stats = breakdown[skillType]![gradeLevel]!;
+          stats['tracked'] = (stats['tracked'] as int) + 1;
+          stats['totalEFactor'] = (stats['totalEFactor'] as double) + data.easinessFactor;
+          stats['totalAttempts'] = (stats['totalAttempts'] as int) + data.successCount + data.failureCount;
+          stats['successfulAttempts'] = (stats['successfulAttempts'] as int) + data.successCount;
+          
+          if (isItemMastered(itemId)) {
+            stats['mastered'] = (stats['mastered'] as int) + 1;
+          }
         }
       }
     });
@@ -228,7 +206,6 @@ class SriService with ChangeNotifier {
         finalBreakdown[skill]![grade] = CompetenceStat(
           tracked: tracked,
           mastered: mastered,
-          // --- FIX: Added parentheses around the division ---
           averageEasiness: tracked > 0 ? (totalEFactor / tracked) : 2.5,
           totalAttempts: totalAttempts,
           successRate: totalAttempts > 0 ? successfulAttempts / totalAttempts : 0.0,
@@ -263,7 +240,6 @@ class SriService with ChangeNotifier {
         if (wordType != null) {
           final enumType = GermanWordType.values.firstWhere(
             (e) => e.toString().split('.').last == wordType,
-            // FIXED: Use 'andere' as the fallback instead of 'nomen'
             orElse: () => GermanWordType.andere,
           );
           
@@ -286,7 +262,6 @@ class SriService with ChangeNotifier {
       final totalAttempts = stats['totalAttempts'] as int;
       final successfulAttempts = stats['successfulAttempts'] as int;
       
-      // --- FIX: Added missing parameters to constructor ---
       return MapEntry(wordType, CompetenceStat(
         tracked: tracked,
         mastered: stats['mastered'] as int,
@@ -561,13 +536,15 @@ class SriService with ChangeNotifier {
   List<String> getMostChallengingWords({int limit = 10}) {
     final spellingItems = _sriDatabase.values
         .where((data) => data.skillType == LanguageSkillType.spelling)
-        .where((data) => data.failureCount > 0) // Ensures denominator > 0
+        .where((data) => (data.successCount + data.failureCount) > 0) // Check for any attempts
         .toList();
     
     spellingItems.sort((a, b) {
-      // This is safe because failureCount > 0
-      final aFailureRate = a.failureCount / (a.successCount + a.failureCount);
-      final bFailureRate = b.failureCount / (b.successCount + b.failureCount);
+      final aTotal = a.successCount + a.failureCount;
+      final bTotal = b.successCount + b.failureCount;
+      
+      final aFailureRate = aTotal > 0 ? a.failureCount / aTotal : 0.0;
+      final bFailureRate = bTotal > 0 ? b.failureCount / bTotal : 0.0;
       
       if (aFailureRate != bFailureRate) {
         return bFailureRate.compareTo(aFailureRate); // Higher failure rate first

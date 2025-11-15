@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/services/vocabulary_service.dart';
+import '../../../core/models/vocabulary_models.dart';
+
 import '../../../core/theme/space_theme.dart';
 import '../../../generated/l10n.dart';
 import '../screens/custom_subset_screen.dart';

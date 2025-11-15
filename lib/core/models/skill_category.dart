@@ -1,67 +1,115 @@
 // lib/core/models/skill_category.dart
 import 'package:flutter/material.dart';
 
+// --- ENUMS FOR VOCABULARY & GRAMMAR MODELS ---
+// This is now the SINGLE source of truth for these enums.
+
+// Represents the type of word (Part-of-Speech)
+enum GermanWordType {
+  substantiv,
+  verb,
+  adjektiv,
+  adverb,
+  artikel,
+  pronomen,
+  praeposition,
+  konjunktion,
+  partikel,
+  numerale,
+  kardinalzahlwort,
+  ordinalzahlwort,
+  affix,
+  mehrwortausdruck,
+  andere, // Fallback type
+}
+
+// Represents the difficulty of a word's spelling
+enum SpellingDifficulty { 
+  easy, 
+  medium, 
+  hard, 
+  expert 
+}
+
+// Represents the specific language skill being practiced
+enum LanguageSkillType {
+  spelling,          // Spelling individual words
+  articleSelection,  // Der/die/das selection
+  pluralForm,       // Singular to plural conversion
+  wordType,         // Identifying noun/verb/adjective etc.
+  sentenceStructure,// Understanding sentence construction
+  punctuation,      // Comma placement, etc.
+  capitalization,   // German capitalization rules
+  verbConjugation,  // Verb forms
+  caseUsage,        // Nominativ/Akkusativ/Dativ/Genitiv
+}
+
+
+// --- ENUMS FROM YOUR PROVIDED FILE ---
+
 // Grade levels for German primary school (Grundschule)
 enum GradeLevel {
-  grade1,  // Klasse 1 (Age 6-7)
-  grade2,  // Klasse 2 (Age 7-8)  
-  grade3,  // Klasse 3 (Age 8-9)
-  grade4,  // Klasse 4 (Age 9-10)
-  grade5,  // Klasse 5 (Age 10-11)
-  grade6,  // Klasse 6 (Age 11-12)
+  grade1, // Klasse 1 (Age 6-7)
+  grade2, // Klasse 2 (Age 7-8)
+  grade3, // Klasse 3 (Age 8-9)
+  grade4, // Klasse 4 (Age 9-10)
+  grade5, // Klasse 5 (Age 10-11)
+  grade6, // Klasse 6 (Age 11-12)
 }
 
 // Language skill categories aligned with German curriculum
 enum LanguageCategory {
-  rechtschreibung,    // Spelling & Orthography
-  grammatik,          // Grammar
-  wortschatz,         // Vocabulary
-  textverstaendnis,   // Reading Comprehension
-  ausdruck,           // Expression & Writing
+  rechtschreibung, // Spelling & Orthography
+  grammatik, // Grammar
+  wortschatz, // Vocabulary
+  textverstaendnis, // Reading Comprehension
+  ausdruck, // Expression & Writing
 }
 
 // Specific German grammar topics
 enum GrammarTopic {
-  artikel,            // Der, die, das
-  mehrzahl,          // Plural forms
-  wortarten,         // Word types (noun, verb, etc.)
-  satzglieder,       // Sentence parts
-  zeitformen,        // Verb tenses
-  faelle,            // Cases (Nominativ, Akkusativ, Dativ, Genitiv)
-  grossschreibung,   // Capitalization rules
-  zeichensetzung,    // Punctuation
+  artikel, // Der, die, das
+  mehrzahl, // Plural forms
+  wortarten, // Word types (noun, verb, etc.)
+  satzglieder, // Sentence parts
+  zeitformen, // Verb tenses
+  faelle, // Cases (Nominativ, Akkusativ, Dativ, Genitiv)
+  grossschreibung, // Capitalization rules
+  zeichensetzung, // Punctuation
 }
 
 // Spelling focus areas
 enum SpellingTopic {
-  grundwoerter,      // Basic sight words
-  silben,            // Syllables
+  grundwoerter, // Basic sight words
+  silben, // Syllables
   doppelkonsonanten, // Double consonants
-  dehnungs_h,        // Silent h (Dehnungs-h)
-  umlaute,           // Ä, Ö, Ü
-  scharfes_s,        // ß usage
-  ie_schreibung,     // ie vs i
-  endungen,          // Word endings (-ung, -heit, -keit)
+  dehnungs_h, // Silent h (Dehnungs-h)
+  umlaute, // Ä, Ö, Ü
+  scharfes_s, // ß usage
+  ie_schreibung, // ie vs i
+  endungen, // Word endings (-ung, -heit, -keit)
 }
 
 // Word categories for vocabulary learning
 enum WordCategory {
-  menschen,          // People & family
-  tiere,             // Animals
-  schule,            // School
-  zuhause,           // Home
-  essen,             // Food
-  koerper,           // Body parts
-  kleidung,          // Clothing
-  natur,             // Nature
-  fahrzeuge,         // Vehicles
-  zeit,              // Time & calendar
-  gefuehle,          // Emotions
-  aktivitaeten,      // Activities
-  farben,            // Colors
-  zahlen,            // Numbers
-  formen,            // Shapes
+  menschen, // People & family
+  tiere, // Animals
+  schule, // School
+  zuhause, // Home
+  essen, // Food
+  koerper, // Body parts
+  kleidung, // Clothing
+  natur, // Nature
+  fahrzeuge, // Vehicles
+  zeit, // Time & calendar
+  gefuehle, // Emotions
+  aktivitaeten, // Activities
+  farben, // Colors
+  zahlen, // Numbers
+  formen, // Shapes
 }
+
+// --- DATA CLASSES FROM YOUR PROVIDED FILE ---
 
 // Data class for skill categories
 class SkillCategory {
@@ -286,8 +334,8 @@ class SkillCategories {
     return all.where((skill) {
       final gradeIndex = GradeLevel.values.indexOf(grade);
       final minIndex = GradeLevel.values.indexOf(skill.minGrade);
-      final maxIndex = skill.maxGrade != null 
-          ? GradeLevel.values.indexOf(skill.maxGrade!) 
+      final maxIndex = skill.maxGrade != null
+          ? GradeLevel.values.indexOf(skill.maxGrade!)
           : GradeLevel.values.length - 1;
       return gradeIndex >= minIndex && gradeIndex <= maxIndex;
     }).toList();
@@ -309,8 +357,10 @@ class SkillCategories {
     switch (grade) {
       case GradeLevel.grade1:
         return '1. Klasse';
+      // --- THIS WAS THE TYPO ---
       case GradeLevel.grade2:
         return '2. Klasse';
+      // --- END FIX ---
       case GradeLevel.grade3:
         return '3. Klasse';
       case GradeLevel.grade4:
