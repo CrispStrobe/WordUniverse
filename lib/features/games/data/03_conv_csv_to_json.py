@@ -30,41 +30,60 @@ def parse_sources(source_str):
     """
     Parses the Source column and returns:
     - A list of all sources (e.g., ['A1', 'BW3', 'LEEDS', 'BUCHMEIER'])
-    - The highest grade level found
+    - The *lowest* applicable grade level based on priority
     - Whether it's part of BW Grundwortschatz
     """
     if not source_str:
-        return [], 1, False
-    
+        return [], 5, False  # Default grade 1 if no sources
+
     sources = [s.strip() for s in source_str.split(',')]
     
-    grade_levels = []
+    school_grades = []
+    cefr_grades = []
     is_bw = False
     
     for source in sources:
-        if source == 'A1':
-            grade_levels.append(1)
-        elif source == 'A2':
-            grade_levels.append(2)
-        elif source == 'B1':
-            grade_levels.append(3)
-        elif source == 'B2':
-            grade_levels.append(4)
-        elif source == 'C1':
-            grade_levels.append(5)
-        elif source == 'C2':
-            grade_levels.append(6)
-        elif source == 'BW1':
-            grade_levels.append(1)  # Grades 1&2
+        # --- School Grade Lists (Highest Priority) ---
+        if source == 'BW1':
+            school_grades.append(1)  # Grades 1&2
             is_bw = True
         elif source == 'BW3':
-            grade_levels.append(3)  # Grades 3&4
+            school_grades.append(3)  # Grades 3&4
             is_bw = True
+        elif source == 'NRW111':
+            school_grades.append(1)  # Merkwörter (sight words), assume Grade 1
+        # Add other school lists like 'NRW422' here if needed
+        # elif source == 'NRW422':
+        #     school_grades.append(2) # Nachdenkwörter
+            
+        # --- CEFR Levels (Secondary) ---
+        # These are only used if no school grades are found
+        elif source == 'A1':
+            cefr_grades.append(4)  # Per your request
+        elif source == 'A2':
+            cefr_grades.append(5)  # Per your request
+        elif source == 'B1':
+            cefr_grades.append(6)  # Per your request
+        elif source == 'B2':
+            cefr_grades.append(7)  # Extrapolated
+        elif source == 'C1':
+            cefr_grades.append(8)  # Extrapolated
+        elif source == 'C2':
+            cefr_grades.append(9)  # Extrapolated
     
-    # Use the highest grade level found
-    max_grade = max(grade_levels) if grade_levels else 1
+    final_grade = 5  # Default if no grade-specific source is found
     
-    return sources, max_grade, is_bw
+    if school_grades:
+        # If any school source exists, use the lowest school grade
+        final_grade = min(school_grades)
+    elif cefr_grades:
+        # Otherwise, if any CEFR source exists, use the lowest CEFR grade
+        final_grade = min(cefr_grades)
+    
+    # If neither list was populated (e.g., only 'HERMIT', 'LEEDS'),
+    # the grade remains the default of 5.
+        
+    return sources, final_grade, is_bw
 
 def safe_int(value):
     """Convert value to int, return None if empty/invalid"""
