@@ -17,7 +17,14 @@ class ApiEnrichment {
   final String? apiInfo;
   final List<Map<String, dynamic>>? inflections; // Raw Wiktionary table
   final Map<String, dynamic>? inflectionsPattern; // Pattern.de table
+  final List<String> hyphenation;
 
+  final List<ApiTranslation>? translations;
+  final List<String>? derivedTerms;
+  final List<String>? relatedTerms;
+  
+  final List<ApiSemanticRelation> semanticRelations; 
+  
   ApiEnrichment({
     required this.enrichmentStatus,
     this.primaryPos,
@@ -32,6 +39,11 @@ class ApiEnrichment {
     this.apiInfo,
     this.inflections,
     this.inflectionsPattern,
+    required this.semanticRelations,
+    required this.hyphenation,
+    required this.translations,
+    required this.derivedTerms,
+    required this.relatedTerms,
   });
 
   factory ApiEnrichment.fromJson(Map<String, dynamic> json) {
@@ -61,6 +73,21 @@ class ApiEnrichment {
       inflections:
           List<Map<String, dynamic>>.from(json['inflections'] ?? []),
       inflectionsPattern: json['inflections_pattern'] as Map<String, dynamic>?,
+      
+      // --- NEW: Parsing for semantic_relations ---
+      semanticRelations: (json['semantic_relations'] as List<dynamic>?)
+              ?.map((r) =>
+                  ApiSemanticRelation.fromJson(r as Map<String, dynamic>))
+              .toList() ??
+          [],
+      hyphenation: List<String>.from(json['hyphenation'] ?? []),
+      translations: (json['wiktionary_translations'] as List<dynamic>?)
+              ?.map((t) =>
+                  ApiTranslation.fromJson(t as Map<String, dynamic>))
+              .toList() ??
+          [],
+      derivedTerms: List<String>.from(json['wiktionary_derived_terms'] ?? []),
+      relatedTerms: List<String>.from(json['wiktionary_related_terms'] ?? []),
     );
   }
 }
@@ -110,6 +137,25 @@ class ApiAlternativeAnalysis {
     );
   }
 }
+
+// --- NEW: Class for semantic_relations ---
+class ApiSemanticRelation {
+  final String? definition;
+  final List<String> synonyms;
+  final List<String> antonyms;
+
+  ApiSemanticRelation({this.definition, required this.synonyms, required this.antonyms});
+
+  factory ApiSemanticRelation.fromJson(Map<String, dynamic> json) {
+    return ApiSemanticRelation(
+      definition: json['definition'],
+      synonyms: List<String>.from(json['synonyms'] ?? []),
+      antonyms: List<String>.from(json['antonyms'] ?? []),
+    );
+  }
+}
+// --- END NEW ---
+
 
 // --- CORE VOCABULARY MODELS ---
 
@@ -162,6 +208,19 @@ class GermanWord {
   final String? audioPath;
 
   final ApiEnrichment? apiEnrichment;
+  
+  final Map<String, dynamic>? frequencyData;
+  final double? averageRank;
+  final Map<String, dynamic>? artikelDetailsNRW;
+  final Map<String, dynamic>? morphematischesPrinzip;
+  final List<String>? hyphenation;
+  final List<Map<String, dynamic>>? wiktionaryInflections;
+
+  // --- FIX: ADDED MISSING CLASS FIELDS ---
+  final List<ApiTranslation>? translations;
+  final List<String>? derivedTerms;
+  final List<String>? relatedTerms;
+  // --- END FIX ---
 
   GermanWord({
     required this.id,
@@ -192,6 +251,15 @@ class GermanWord {
     this.commonMistakes,
     this.audioPath,
     this.apiEnrichment,
+    this.frequencyData,
+    this.averageRank,
+    this.artikelDetailsNRW,
+    this.morphematischesPrinzip,
+    this.hyphenation,
+    this.wiktionaryInflections,
+    this.translations, // This was correctly in the constructor
+    this.derivedTerms, // This was correctly in the constructor
+    this.relatedTerms, // This was correctly in the constructor
   });
 
   factory GermanWord.fromJson(Map<String, dynamic> json) {
@@ -220,8 +288,11 @@ class GermanWord {
       isGrundwortschatzBW: json['isGrundwortschatzBW'] ?? false,
       genus: json['genus'],
       nurImPlural: json['nurImPlural'] ?? false,
+
+      // This line now acts as a fallback if wiktionaryInflections is missing
       inflectionData: apiData?.inflectionsPattern ??
           json['inflectionData'] as Map<String, dynamic>?,
+      
       ipaPhoneme: apiData?.pronunciation
               .firstWhere((p) => p.ipa != null,
                   orElse: () => ApiPronunciation())
@@ -256,6 +327,20 @@ class GermanWord {
               .audio ??
           json['audioPath'],
       apiEnrichment: apiData,
+      hyphenation: apiData?.hyphenation,
+
+      // This is the new, primary source for inflection data
+      wiktionaryInflections: apiData?.inflections,
+      translations: apiData?.translations,
+      derivedTerms: apiData?.derivedTerms,
+      relatedTerms: apiData?.relatedTerms,
+      
+      frequencyData: json['frequencyData'] as Map<String, dynamic>?,
+      averageRank: (json['averageRank'] as num?)?.toDouble(),
+      artikelDetailsNRW: json['artikelDetailsNRW'] as Map<String, dynamic>?,
+      // Note: The key in the JSON has a space.
+      morphematischesPrinzip: json['morphematisches Prinzip'] as Map<String, dynamic>?, 
+      
     );
   }
 
@@ -268,8 +353,7 @@ class GermanWord {
     return word;
   }
 
-  // --- FIX 1: ADDED THIS METHOD ---
-  // This method was missing, causing an error in vocabulary_service.dart
+  // --- MODIFIED: Added new fields to toJson ---
   Map<String, dynamic> toJson() => {
         'id': id,
         'word': word,
@@ -300,10 +384,22 @@ class GermanWord {
         'spellingDifficulty': spellingDifficulty.index,
         'commonMistakes': commonMistakes,
         'audioPath': audioPath,
+        
+        'frequencyData': frequencyData,
+        'averageRank': averageRank,
+        'artikelDetailsNRW': artikelDetailsNRW,
+        'morphematisches Prinzip': morphematischesPrinzip,
+        'hyphenation': hyphenation,
+        'wiktionaryInflections': wiktionaryInflections,
+
+        'translations': translations?.map((t) => t.toJson()).toList(), 
+        'derivedTerms': derivedTerms,
+        'relatedTerms': relatedTerms,
+
         // apiEnrichment is intentionally not saved back,
         // as it's loaded from the enriched asset.
       };
-  // --- END FIX 1 ---
+  // --- END MODIFIED ---
 }
 
 class GrammarExercise {
@@ -361,9 +457,6 @@ class VocabularySet {
       required this.createdAt,
       this.isCustom = false});
 
-  // --- FIX 2: REPLACED THIS ENTIRE METHOD ---
-  // The old method was trying to serialize GermanWord fields,
-  // causing numerous 'getter not defined' errors.
   Map<String, dynamic> toJson() => {
         'id': id,
         'name': name,
@@ -373,7 +466,6 @@ class VocabularySet {
         'createdAt': createdAt.toIso8601String(),
         'isCustom': isCustom,
       };
-  // --- END FIX 2 ---
 
   factory VocabularySet.fromJson(Map<String, dynamic> json) {
     return VocabularySet(
@@ -386,4 +478,30 @@ class VocabularySet {
       isCustom: json['isCustom'] ?? false,
     );
   }
+}
+
+class ApiTranslation {
+  final String? lang;
+  final String? langCode;
+  final String? word;
+  final String? tags;
+
+  ApiTranslation({this.lang, this.langCode, this.word, this.tags});
+
+  factory ApiTranslation.fromJson(Map<String, dynamic> json) {
+    return ApiTranslation(
+      lang: json['lang'],
+      langCode: json['lang_code'],
+      word: json['word'],
+      tags: json['tags'],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'lang': lang,
+    'lang_code': langCode,
+    'word': word,
+    'tags': tags,
+  };
+  
 }
