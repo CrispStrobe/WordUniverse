@@ -60,7 +60,6 @@ flutter:
     - assets/images/
     - assets/fonts/
     - lib/features/games/data/ 
-    - lib/features/games/data/grundwortschatz_variations.json
     - assets/fonts/OFL.txt
     
   fonts:

@@ -53,10 +53,9 @@ class VocabularyService with ChangeNotifier {
 
   Future<void> _loadVocabularyFromAssets() async {
     try {
-      // --- MAKE SURE THIS FILENAME MATCHES YOUR ENRICHED JSON ---
+      // --- THIS FILENAME MATCHES OUR ENRICHED JSON ---
       final String jsonString = await rootBundle.loadString(
-          'lib/features/games/data/grundwortschatz_enriched_v22.json');
-      // --- END FILENAME CHECK ---
+          'lib/features/games/data/grundwortschatz_safe.json');
 
       final Map<String, dynamic> jsonData = json.decode(jsonString);
       final List<dynamic> vocabulary = jsonData['vocabulary'] as List<dynamic>;
@@ -81,7 +80,7 @@ class VocabularyService with ChangeNotifier {
     } catch (e) {
       _log('Warning: Could not load vocabulary from assets: $e');
       _log(
-          'Check that "lib/features/games/data/grundwortschatz_enriched_v22.json" is in your pubspec.yaml');
+          'Check that the grundwortschatz json is in your pubspec.yaml');
       _initializeSampleVocabulary();
     }
   }
