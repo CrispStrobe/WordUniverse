@@ -188,8 +188,10 @@ class SkillCategories {
       keywords: ['der', 'die', 'das', 'artikel'],
       difficultyLevel: 2,
     ),
+    
+    // --- THIS IS THE FIX for the crash ---
     SkillCategory(
-      id: 'word_types',
+      id: 'word_types', // This ID matches 'word_types' in game_provider.dart
       name: 'Wortarten',
       description: 'Nomen, Verben und Adjektive erkennen',
       icon: Icons.category,
@@ -199,6 +201,8 @@ class SkillCategories {
       keywords: ['nomen', 'verben', 'adjektive'],
       difficultyLevel: 3,
     ),
+    // --- END FIX ---
+
     SkillCategory(
       id: 'plural',
       name: 'Mehrzahl bilden',
@@ -357,10 +361,8 @@ class SkillCategories {
     switch (grade) {
       case GradeLevel.grade1:
         return '1. Klasse';
-      // --- THIS WAS THE TYPO ---
       case GradeLevel.grade2:
         return '2. Klasse';
-      // --- END FIX ---
       case GradeLevel.grade3:
         return '3. Klasse';
       case GradeLevel.grade4:
