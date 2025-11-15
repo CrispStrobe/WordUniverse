@@ -15,11 +15,11 @@ import traceback
 #           The default 'http://127.0.0.1:7860/' assumes you are
 #           running the app locally.
 # GRADIO_API_URL = "http://127.0.0.1:7860/"
-GRADIO_API_URL = "cstr/WiktionaryDE" # Old V1 URL
+GRADIO_API_URL = "cstr/WiktionaryDE" # online API
 
 # --- File Configuration ---
-INPUT_JSON = 'grundwortschatz_merged.json'
-OUTPUT_JSON = 'grundwortschatz_enriched_v22.json'
+INPUT_JSON = 'grundwortschatz_safe.json'
+OUTPUT_JSON = 'grundwortschatz_safe_enriched_v22a.json'
 CHECKPOINT_FILE = 'enrichment_checkpoint_v22.json'
 
 # --- Performance Configuration ---
