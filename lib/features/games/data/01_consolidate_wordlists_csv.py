@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import re # Import regex for cleaning
 
 # --- Helper functions from previous step ---
 
@@ -142,6 +143,97 @@ def load_hermitdave_freq(filename, max_words=10000):
         print(f"Error processing {filename}: {e}")
         return pd.DataFrame(columns=['Source', 'Word', 'Rank', 'Frequency'])
 
+# --- NEW: Loaders for new pedagogical files ---
+
+def load_plain_txt_list(filename, source_label):
+    """
+    Loads a simple text file with one word per line.
+    Also strips parenthetical content, e.g., "word (explanation)".
+    """
+    try:
+        words = []
+        with open(filename, 'r', encoding='utf-8') as f:
+            for line in f:
+                # Clean line: remove explanations like (von sein), , etc.
+                cleaned_line = re.sub(r'\[.*?\]', '', line) # Remove tags
+                cleaned_line = re.sub(r'\(.*?\)', '', cleaned_line) # Remove (von sein)
+                word = cleaned_line.strip()
+                if word:
+                    words.append({'Word': word})
+        
+        df = pd.DataFrame(words)
+        df['Source'] = source_label
+        return df[['Source', 'Word']]
+    except FileNotFoundError:
+        print(f"Warning: File not found {filename}. Skipping.")
+        return pd.DataFrame(columns=['Source', 'Word'])
+    except Exception as e:
+        print(f"Error processing {filename}: {e}")
+        return pd.DataFrame(columns=['Source', 'Word'])
+
+def load_fehler_csv(filename, source_label, col_name):
+    """
+    Loads a CSV file, takes one column, and splits words by '/'.
+    e.g., "gucken/kucken" -> "gucken" and "kucken"
+    """
+    try:
+        df = pd.read_csv(filename, delimiter=',')
+        # Handle cases where the delimiter is wrong, e.g., 200Fehler.csv uses ',' but 100Fehler.csv might use ';'
+        # Let's try to be more robust, but for now assume ',' works for header detection
+        if col_name not in df.columns:
+            # Try semicolon
+            df = pd.read_csv(filename, delimiter=';')
+            if col_name not in df.columns:
+                print(f"Error: Column '{col_name}' not found in {filename} with ',' or ';' delimiter.")
+                return pd.DataFrame(columns=['Source', 'Word'])
+
+        df = df[[col_name]].dropna()
+        # Split words by '/' and create a new row for each
+        df = df.assign(Word=df[col_name].str.split('/')).explode('Word')
+        df['Word'] = df['Word'].str.strip()
+        df['Source'] = source_label
+        return df[['Source', 'Word']]
+    except FileNotFoundError:
+        print(f"Warning: File not found {filename}. Skipping.")
+        return pd.DataFrame(columns=['Source', 'Word'])
+    except Exception as e:
+        print(f"Error processing {filename}: {e}")
+        return pd.DataFrame(columns=['Source', 'Word'])
+
+def load_leo_csv(filename, source_label):
+    """
+    Loads the 739Leo.csv file.
+    Parses the "Wort" column, which sometimes contains articles ("das Auto").
+    """
+    try:
+        df = pd.read_csv(filename, delimiter=',', usecols=['Wort'])
+        df = df.dropna(subset=['Wort'])
+        df['Word_Raw'] = df['Wort'].str.strip()
+        
+        data = []
+        valid_articles = ['der', 'die', 'das']
+        
+        for word_raw in df['Word_Raw']:
+            parts = word_raw.split()
+            article = np.nan
+            word = word_raw
+            
+            if len(parts) > 1 and parts[0] in valid_articles:
+                article = parts[0]
+                word = ' '.join(parts[1:])
+            
+            data.append({'Article': article, 'Word': word})
+        
+        df_processed = pd.DataFrame(data)
+        df_processed['Source'] = source_label
+        return df_processed[['Source', 'Word', 'Article']]
+    except FileNotFoundError:
+        print(f"Warning: File not found {filename}. Skipping.")
+        return pd.DataFrame(columns=['Source', 'Word', 'Article'])
+    except Exception as e:
+        print(f"Error processing {filename}: {e}")
+        return pd.DataFrame(columns=['Source', 'Word', 'Article'])
+
 # --- Aggregation helper ---
 
 def get_first_valid(series):
@@ -177,7 +269,7 @@ def aggregate_word_group(group):
     """
     Aggregate a group of rows with the same word (case-insensitive).
     Priority for capitalization:
-    1. Pedagogical sources (A1, A2, B1, BW1, BW3)
+    1. Pedagogical sources (A1, A2, B1, BW1, BW3, LEO739, etc.)
     2. BUCHMEIER
     3. LEEDS
     4. LEIPZIG
@@ -185,7 +277,12 @@ def aggregate_word_group(group):
     """
     result = {}
     
-    pedagogical_sources = ['A1', 'A2', 'B1', 'BW1', 'BW3']
+    # UPDATED: Add all new pedagogical sources to the priority list
+    pedagogical_sources = [
+        'A1', 'A2', 'B1', 'BW1', 'BW3', 
+        'LEO739', 'FEHLER400', 'FEHLER200', 'FEHLER100', 'FEHLER300', 
+        'NRW422', 'NRW111'
+    ]
     
     # Source - join all unique
     result['Source'] = ','.join(sorted(group['Source'].dropna().astype(str).unique()))
@@ -295,7 +392,33 @@ for fname, label in files_to_load:
 
 df_levels = pd.concat(level_dfs, ignore_index=True)
 
-# 3. Process frequency lists
+# 3. NEW: Process other pedagogical files
+print("\n=== Processing new pedagogical files ===")
+new_ped_files = [
+    {'func': load_leo_csv, 'args': ('739Leo.csv', 'LEO739')},
+    {'func': load_plain_txt_list, 'args': ('400Fehler.txt', 'FEHLER400')},
+    {'func': load_fehler_csv, 'args': ('200Fehler.csv', 'FEHLER200', 'RICHTIG')},
+    {'func': load_fehler_csv, 'args': ('100Fehler.csv', 'FEHLER100', 'Übungswort')},
+    {'func': load_fehler_csv, 'args': ('300Fehler.csv', 'FEHLER300', 'Übungswort')},
+    {'func': load_plain_txt_list, 'args': ('422_NRW_Nachdenkwörter.txt', 'NRW422')},
+    {'func': load_plain_txt_list, 'args': ('111_NRW_Merkwörter.txt', 'NRW111')},
+]
+
+new_ped_dfs = []
+for file_info in new_ped_files:
+    label = file_info['args'][1]
+    df = file_info['func'](*file_info['args'])
+    
+    before = len(df)
+    # Apply pedagogical filter
+    df = df[df['Word'].apply(is_valid_pedagogical_word)].copy()
+    print(f"  {label}: {before} words (before filter), {len(df)} words (after filter)")
+    
+    new_ped_dfs.append(df)
+
+df_new_ped = pd.concat(new_ped_dfs, ignore_index=True)
+
+# 4. Process frequency lists
 print("\n=== Processing frequency list files ===")
 df_buchmeier = load_buchmeier_freq('Buchmeier20k.txt', max_words=10000)
 df_leeds = load_leeds_freq('leeds_freq.num', max_words=10000)
@@ -310,17 +433,18 @@ print(f"  HERMIT: {len(df_hermit)} words loaded")
 # Mark source type for later filtering
 df_bw['SourceType'] = 'pedagogical'
 df_levels['SourceType'] = 'pedagogical'
+df_new_ped['SourceType'] = 'pedagogical' # NEW
 df_buchmeier['SourceType'] = 'frequency'
 df_leeds['SourceType'] = 'frequency'
 df_leipzig['SourceType'] = 'frequency'
 df_hermit['SourceType'] = 'frequency'
 
-# 4. Concatenate all data
+# 5. Concatenate all data
 print("\n=== Consolidating all sources ===")
 cols_all = ['Source', 'Word', 'Article', 'Forms', 'Wortart', 'Genus', 'URL', 'nur_im_Plural', 'SourceType']
 
 # Add Rank and Frequency columns (will be NaN for pedagogical sources)
-for df in [df_bw, df_levels]:
+for df in [df_bw, df_levels, df_new_ped]: # UPDATED
     df['Rank'] = np.nan
     df['Frequency'] = np.nan
 
@@ -344,7 +468,9 @@ for df in [df_buchmeier, df_leeds, df_leipzig, df_hermit]:
         df['Frequency'] = np.nan
 
 cols_all_with_freq = cols_all + ['Rank', 'Frequency']
-df_all = pd.concat([df_bw, df_levels, df_buchmeier, df_leeds, df_leipzig, df_hermit], 
+
+# UPDATED: Add df_new_ped to the concatenation
+df_all = pd.concat([df_bw, df_levels, df_new_ped, df_buchmeier, df_leeds, df_leipzig, df_hermit], 
                    ignore_index=True, sort=False)[cols_all_with_freq]
 
 # Clean Word column
@@ -357,13 +483,13 @@ df_all['Word_lower'] = df_all['Word'].str.lower()
 
 print(f"  Total rows before deduplication: {len(df_all)}")
 
-# 5. Group by lowercase word and aggregate WITH SOURCE PRIORITY
+# 6. Group by lowercase word and aggregate WITH SOURCE PRIORITY
 print("\n=== Grouping by normalized (lowercase) words ===")
 df_final = df_all.groupby('Word_lower').apply(aggregate_word_group).reset_index(drop=True)
 
 print(f"  Unique words after case-insensitive grouping: {len(df_final)}")
 
-# 6. Apply filtering logic
+# 7. Apply filtering logic
 print("\n=== Applying filtering logic ===")
 
 # Count how many sources each word appears in
@@ -395,7 +521,7 @@ print(f"  Words removed: {before_filter - len(df_final)}")
 # Clean up helper columns
 df_final = df_final.drop(['source_count', 'SourceType', 'keep'], axis=1)
 
-# 7. Filter ALL words to be pure alphabetic, at least 2 characters
+# 8. Filter ALL words to be pure alphabetic, at least 2 characters
 print("\n=== Filtering all words: must be ≥2 chars and alphabetic only ===")
 
 def is_valid_word_final(word):
@@ -413,12 +539,12 @@ print(f"  Words before alphabetic filter: {before_alpha_filter}")
 print(f"  Words after alphabetic filter: {len(df_final)}")
 print(f"  Words removed: {before_alpha_filter - len(df_final)}")
 
-# 8. Apply final rules
+# 9. Apply final rules
 print("\n=== Applying business rules ===")
 valid_articles = ['der', 'die', 'das']
 df_final.loc[df_final['Article'].isin(valid_articles), 'Wortart'] = 'Substantiv'
 
-# 9. Clean up and Save
+# 10. Clean up and Save
 final_cols = ['Source', 'Word', 'Article', 'Forms', 'Wortart', 'Genus', 'URL', 'nur_im_Plural',
               'BUCHMEIER_rank', 'BUCHMEIER_freq', 'LEEDS_rank', 'LEEDS_freq', 
               'LEIPZIG_rank', 'HERMIT_rank', 'HERMIT_freq']
