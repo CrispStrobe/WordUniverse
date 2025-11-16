@@ -9,7 +9,7 @@ class ApiEnrichment {
   final String? primaryLemma;
   final List<String> definitions;
   final List<ApiPronunciation> pronunciation;
-  final List<String> examples;
+  final List<ApiExample> examples; // <-- FIX: Changed from List<String>
   final List<String> synonyms;
   final List<String> antonyms;
   final List<ApiConceptNetRelation> conceptnet;
@@ -22,9 +22,9 @@ class ApiEnrichment {
   final List<ApiTranslation>? translations;
   final List<String>? derivedTerms;
   final List<String>? relatedTerms;
-  
-  final List<ApiSemanticRelation> semanticRelations; 
-  
+
+  final List<ApiSemanticRelation> semanticRelations;
+
   ApiEnrichment({
     required this.enrichmentStatus,
     this.primaryPos,
@@ -56,7 +56,11 @@ class ApiEnrichment {
               ?.map((p) => ApiPronunciation.fromJson(p as Map<String, dynamic>))
               .toList() ??
           [],
-      examples: List<String>.from(json['examples'] ?? []),
+      // <-- FIX: Parse List<ApiExample> instead of List<String>
+      examples: (json['examples'] as List<dynamic>?)
+              ?.map((e) => ApiExample.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
       synonyms: List<String>.from(json['synonyms'] ?? []),
       antonyms: List<String>.from(json['antonyms'] ?? []),
       conceptnet: (json['conceptnet'] as List<dynamic>?)
@@ -73,7 +77,7 @@ class ApiEnrichment {
       inflections:
           List<Map<String, dynamic>>.from(json['inflections'] ?? []),
       inflectionsPattern: json['inflections_pattern'] as Map<String, dynamic>?,
-      
+
       // --- NEW: Parsing for semantic_relations ---
       semanticRelations: (json['semantic_relations'] as List<dynamic>?)
               ?.map((r) =>
@@ -88,6 +92,21 @@ class ApiEnrichment {
           [],
       derivedTerms: List<String>.from(json['wiktionary_derived_terms'] ?? []),
       relatedTerms: List<String>.from(json['wiktionary_related_terms'] ?? []),
+    );
+  }
+}
+
+// <-- FIX: Added new class for example objects
+class ApiExample {
+  final String? text;
+  final String? ref;
+
+  ApiExample({this.text, this.ref});
+
+  factory ApiExample.fromJson(Map<String, dynamic> json) {
+    return ApiExample(
+      text: json['text'],
+      ref: json['ref'],
     );
   }
 }
@@ -144,7 +163,8 @@ class ApiSemanticRelation {
   final List<String> synonyms;
   final List<String> antonyms;
 
-  ApiSemanticRelation({this.definition, required this.synonyms, required this.antonyms});
+  ApiSemanticRelation(
+      {this.definition, required this.synonyms, required this.antonyms});
 
   factory ApiSemanticRelation.fromJson(Map<String, dynamic> json) {
     return ApiSemanticRelation(
@@ -155,7 +175,6 @@ class ApiSemanticRelation {
   }
 }
 // --- END NEW ---
-
 
 // --- CORE VOCABULARY MODELS ---
 
@@ -208,7 +227,7 @@ class GermanWord {
   final String? audioPath;
 
   final ApiEnrichment? apiEnrichment;
-  
+
   final Map<String, dynamic>? frequencyData;
   final double? averageRank;
   final Map<String, dynamic>? artikelDetailsNRW;
@@ -292,7 +311,7 @@ class GermanWord {
       // This line now acts as a fallback if wiktionaryInflections is missing
       inflectionData: apiData?.inflectionsPattern ??
           json['inflectionData'] as Map<String, dynamic>?,
-      
+
       ipaPhoneme: apiData?.pronunciation
               .firstWhere((p) => p.ipa != null,
                   orElse: () => ApiPronunciation())
@@ -313,8 +332,12 @@ class GermanWord {
                   ))
               .toList() ??
           [],
+      // <-- FIX: Map List<ApiExample> to List<String>
       exampleSentences: (apiData?.examples.isNotEmpty ?? false)
           ? apiData!.examples
+              .map((e) => e.text ?? '')
+              .where((t) => t.isNotEmpty)
+              .toList()
           : List<String>.from(json['exampleSentences'] ?? []),
       spellingDifficulty:
           SpellingDifficulty.values[json['spellingDifficulty'] ?? 0],
@@ -334,13 +357,13 @@ class GermanWord {
       translations: apiData?.translations,
       derivedTerms: apiData?.derivedTerms,
       relatedTerms: apiData?.relatedTerms,
-      
+
       frequencyData: json['frequencyData'] as Map<String, dynamic>?,
       averageRank: (json['averageRank'] as num?)?.toDouble(),
       artikelDetailsNRW: json['artikelDetailsNRW'] as Map<String, dynamic>?,
       // Note: The key in the JSON has a space.
-      morphematischesPrinzip: json['morphematisches Prinzip'] as Map<String, dynamic>?, 
-      
+      morphematischesPrinzip:
+          json['morphematisches Prinzip'] as Map<String, dynamic>?,
     );
   }
 
@@ -384,7 +407,7 @@ class GermanWord {
         'spellingDifficulty': spellingDifficulty.index,
         'commonMistakes': commonMistakes,
         'audioPath': audioPath,
-        
+
         'frequencyData': frequencyData,
         'averageRank': averageRank,
         'artikelDetailsNRW': artikelDetailsNRW,
@@ -392,7 +415,7 @@ class GermanWord {
         'hyphenation': hyphenation,
         'wiktionaryInflections': wiktionaryInflections,
 
-        'translations': translations?.map((t) => t.toJson()).toList(), 
+        'translations': translations?.map((t) => t.toJson()).toList(),
         'derivedTerms': derivedTerms,
         'relatedTerms': relatedTerms,
 
@@ -498,10 +521,9 @@ class ApiTranslation {
   }
 
   Map<String, dynamic> toJson() => {
-    'lang': lang,
-    'lang_code': langCode,
-    'word': word,
-    'tags': tags,
-  };
-  
+        'lang': lang,
+        'lang_code': langCode,
+        'word': word,
+        'tags': tags,
+      };
 }
