@@ -1,18 +1,17 @@
 // lib/features/games/providers/game_provider.dart
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // <-- ADDED
+import 'package:shared_preferences/shared_preferences.dart'; 
 import '../../../core/services/progress_service.dart';
 import '../../../core/config/app_config.dart';
 import '../../../core/models/skill_category.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/cognitive_profile_service.dart';
-import '../constants/app_constants.dart'; // For MathOperation and NumberRange
+import '../constants/app_constants.dart'; 
 import '../../../core/theme/app_fonts.dart';
 
-// (Achievement class is unchanged)
+// Achievement class
 class Achievement {
-  //...
   final String id;
   final DateTime? unlockedAt;
 
@@ -43,7 +42,7 @@ class GameProvider extends ChangeNotifier {
   final ProgressService _progressService;
   final SriService _sriService;
   final CognitiveProfileService _cognitiveProfileService;
-  final SharedPreferences _prefs; // <-- ADDED
+  final SharedPreferences _prefs; 
 
   Set<String> _activeVocabularySetIds = {};
 
@@ -57,7 +56,7 @@ class GameProvider extends ChangeNotifier {
     if (AppFonts.selectableFonts.containsKey(fontFamily)) {
       _selectedFontFamily = fontFamily;
       notifyListeners();
-      _saveProgress(); // Save the user's choice
+      _saveProgress(); 
     }
   }
 
@@ -68,10 +67,10 @@ class GameProvider extends ChangeNotifier {
     'space_word_rescue': SkillCategories.getById('basic_spelling')!,
     'word_snake_game': SkillCategories.getById('basic_spelling')!,
     'word_find_game': SkillCategories.getById('basic_vocab')!,
-    'word_sort_game': SkillCategories.getById('word_types')!, // <-- This line is now safe
+    'word_sort_game': SkillCategories.getById('word_types')!, 
     'word_memory_game': SkillCategories.getById('basic_spelling')!,
     'word_builder_game': SkillCategories.getById('basic_spelling')!,
-    'word_type_whirl_game': SkillCategories.getById('word_types')!, // <-- This line is now safe
+    'word_type_whirl_game': SkillCategories.getById('word_types')!, 
   };
 
   int _score = 0;
@@ -115,25 +114,24 @@ class GameProvider extends ChangeNotifier {
     _saveProgress();
   }
 
-  // --- FIX: Updated Constructor to accept SharedPreferences ---
+  // Constructor
   GameProvider({
     required ProgressService progressService,
     required SriService sriService,
     required CognitiveProfileService cognitiveProfileService,
-    required SharedPreferences prefs, // <-- ADDED
+    required SharedPreferences prefs, 
   })  : _progressService = progressService,
         _sriService = sriService,
         _cognitiveProfileService = cognitiveProfileService,
-        _prefs = prefs { // <-- ADDED
+        _prefs = prefs { 
     if (!AppConfig.inapps_active) {
       _isFullVersionUnlocked = true;
     }
     // Load settings from prefs immediately
     _loadSettingsFromPrefs();
   }
-  // --- END FIX ---
   
-  // --- NEW: Load settings from prefs on init ---
+  // Load settings from prefs on init
   void _loadSettingsFromPrefs() {
     _tasksCustomizationEnabled = _prefs.getBool('tasksCustomizationEnabled') ?? false;
     _taskWordLengthMin = _prefs.getDouble('taskWordLengthMin') ?? 2.0;
@@ -162,9 +160,7 @@ class GameProvider extends ChangeNotifier {
       _isFullVersionUnlocked = true;
     }
     _useCustomProblemSettings = _prefs.getBool('useCustomProblemSettings') ?? false;
-    // --- FIX: Default value must be a List<String> ---
     _customOperations = Set<String>.from(_prefs.getStringList('customOperations') ?? ['addition', 'subtraction']);
-    // --- END FIX ---
     _customRangeMin = _prefs.getInt('customRangeMin') ?? 1;
     _customRangeMax = _prefs.getInt('customRangeMax') ?? 20;
     
@@ -182,7 +178,6 @@ class GameProvider extends ChangeNotifier {
       jsonDecode(_prefs.getString('currentLevelWins') ?? '{}')
     );
   }
-  // --- END NEW ---
 
   Map<String, int> _currentLevelWins = {};
 
@@ -223,7 +218,6 @@ class GameProvider extends ChangeNotifier {
   List<String> get taskExcludeWildcards => _taskExcludeWildcards;
 
   Future<void> _saveProgress() async {
-    // --- FIX: Use the _prefs instance directly ---
     await _prefs.setBool('tasksCustomizationEnabled', _tasksCustomizationEnabled);
     await _prefs.setDouble('taskWordLengthMin', _taskWordLengthMin);
     await _prefs.setDouble('taskWordLengthMax', _taskWordLengthMax);
@@ -251,10 +245,7 @@ class GameProvider extends ChangeNotifier {
     
     // Call the old ProgressService (in case it does more than just save to prefs)
     _progressService.saveProgress(this);
-    // --- END FIX ---
   }
-
-  // ... (rest of the file is unchanged, including recordLevelWin, etc.) ...
 
   bool recordLevelWin({
     required String gameType,
@@ -283,6 +274,11 @@ class GameProvider extends ChangeNotifier {
     if (wasSuccessful && canAdvanceToNextLevel(gameType, _gameProgress[gameType] ?? 1)) {
        advanceLevel(gameType);
        didAdvance = true;
+    }
+    
+    // Notify listeners to update UI (e.g. current wins counter) even if level didn't advance
+    if (!didAdvance) {
+      notifyListeners();
     }
 
     _saveProgress();
@@ -343,7 +339,7 @@ class GameProvider extends ChangeNotifier {
     }
   }
 
-  // --- NEW: Setters for Task Customization ---
+  // --- Setters for Task Customization ---
   void setTasksCustomizationEnabled(bool enabled) {
     _tasksCustomizationEnabled = enabled;
     notifyListeners();
@@ -374,15 +370,12 @@ class GameProvider extends ChangeNotifier {
     notifyListeners();
     _saveProgress();
   }
-  // --- End of New Setters ---
-
 
   // Score management
   void addScore(int points) {
     _score += points;
     _checkAchievements();
     notifyListeners();
-    // No _saveProgress() here, it's called by recordLevelWin
   }
 
   void setPuzzleTimer(bool enabled) {

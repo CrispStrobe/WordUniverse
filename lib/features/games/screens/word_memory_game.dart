@@ -5,16 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/services/audio_service.dart';
-
 import '../../../core/models/skill_category.dart';
 import '../../../core/models/vocabulary_models.dart';
-
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart';
 import '../../../core/theme/space_theme.dart';
 import '../../../generated/l10n.dart';
 import '../providers/game_provider.dart';
-import '../widgets/game_ui.dart';
 import '../widgets/space_background.dart';
 
 class WordMemoryGame extends StatefulWidget {
@@ -42,31 +39,28 @@ class MemoryCard {
 }
 
 class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStateMixin {
-  // Services
   late VocabularyService _vocabularyService;
   late SriService _sriService;
   late AudioService _audioService;
   late GameProvider _gameProvider;
 
-  // Game State
   bool _isLoading = true;
   List<MemoryCard> _cards = [];
+  
+  // Game Stats
   int _score = 0;
   int _moves = 0;
   int _pairsFound = 0;
   int _totalPairs = 0;
 
-  // Selection state
   MemoryCard? _firstSelected;
   MemoryCard? _secondSelected;
   bool _isChecking = false;
 
-  // Animation
   late AnimationController _flipController;
   late AnimationController _matchController;
   late AnimationController _shakeController;
 
-  // Fonts to use for memory pairs
   final List<String> _availableFonts = [
     'SpaceGrotesk',
     'Grundschrift',
@@ -110,7 +104,6 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
 
   Future<void> _initializeGame() async {
     setState(() => _isLoading = true);
-
     _vocabularyService = context.read<VocabularyService>();
     _sriService = context.read<SriService>();
     _audioService = context.read<AudioService>();
@@ -130,10 +123,7 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
   }
 
   bool _isWordValidForGame(GermanWord word) {
-    // Words should be short enough to read easily in cards
-    return word.word.length >= 3 &&
-        word.word.length <= 8 &&
-        !word.word.contains(" ");
+    return word.word.length >= 3 && word.word.length <= 8 && !word.word.contains(" ");
   }
 
   void _loadLevel() {
@@ -141,28 +131,23 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
     _moves = 0;
     _pairsFound = 0;
 
-    // Determine number of pairs based on grade
     switch (widget.gradeLevel) {
       case GradeLevel.grade1:
       case GradeLevel.grade2:
-        _totalPairs = 4; // 8 cards
+        _totalPairs = 4; 
         break;
       case GradeLevel.grade3:
       case GradeLevel.grade4:
-        _totalPairs = 6; // 12 cards
+        _totalPairs = 6; 
         break;
       default:
-        _totalPairs = 8; // 16 cards
+        _totalPairs = 8; 
     }
 
-    // --- ADAPTIVE WORD SELECTION ---
     final List<GermanWord> wordsForGame = [];
     final Set<String> addedWordIds = {};
 
     int reviewWordCount = (_totalPairs * 0.5).ceil();
-    int newWordCount = _totalPairs - reviewWordCount;
-
-    // Get review words
     final reviewItemIds = _sriService.getItemsForReview(
       limit: reviewWordCount * 2,
       gradeLevelFilter: widget.gradeLevel.index + 1,
@@ -171,7 +156,6 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
     for (final id in reviewItemIds) {
       final wordString = _extractBaseWordFromSriId(id);
       if (wordString == null) continue;
-
       try {
         final word = _vocabularyService.getAllWords(_gameProvider).firstWhere(
             (w) => w.word.toLowerCase() == wordString.toLowerCase());
@@ -181,17 +165,13 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
           addedWordIds.add(word.id);
           if (wordsForGame.length >= reviewWordCount) break;
         }
-      } catch (e) {
-        // Word from SRI not in vocab, skip
-      }
+      } catch (e) {}
     }
 
-    // Get new words
-    newWordCount = _totalPairs - wordsForGame.length;
     final newWords = _vocabularyService.getNewWords(
       sriService: _sriService,
       grade: widget.gradeLevel,
-      limit: newWordCount * 2,
+      limit: (_totalPairs - wordsForGame.length) * 2,
       settingsProvider: _gameProvider,
     );
 
@@ -203,11 +183,9 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
       }
     }
 
-    // Fill with random words if needed
     if (wordsForGame.length < _totalPairs) {
       final allWords = _vocabularyService.getWordsByGrade(widget.gradeLevel, _gameProvider);
       allWords.shuffle();
-
       for (final word in allWords) {
         if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
           wordsForGame.add(word);
@@ -216,34 +194,17 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
         }
       }
     }
-    // --- END ADAPTIVE SELECTION ---
 
-    // Create card pairs with different fonts
     final List<MemoryCard> cards = [];
     final random = Random();
     
     for (int i = 0; i < wordsForGame.length && i < _totalPairs; i++) {
       final word = wordsForGame[i];
-      
-      // Pick two different random fonts for this word pair
       final shuffledFonts = List<String>.from(_availableFonts)..shuffle(random);
-      final font1 = shuffledFonts[0];
-      final font2 = shuffledFonts[1];
-
-      cards.add(MemoryCard(
-        word: word.word,
-        fontFamily: font1,
-        id: i * 2,
-      ));
-      
-      cards.add(MemoryCard(
-        word: word.word,
-        fontFamily: font2,
-        id: i * 2 + 1,
-      ));
+      cards.add(MemoryCard(word: word.word, fontFamily: shuffledFonts[0], id: i * 2));
+      cards.add(MemoryCard(word: word.word, fontFamily: shuffledFonts[1], id: i * 2 + 1));
     }
 
-    // Shuffle all cards
     cards.shuffle(random);
 
     setState(() {
@@ -278,13 +239,11 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
     if (_firstSelected == null || _secondSelected == null) return;
 
     setState(() => _isChecking = true);
-
     await Future.delayed(const Duration(milliseconds: 600));
 
     final bool isMatch = _firstSelected!.word == _secondSelected!.word;
 
     if (isMatch) {
-      // Match found!
       setState(() {
         _firstSelected!.isMatched = true;
         _secondSelected!.isMatched = true;
@@ -295,7 +254,6 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
       _audioService.playSound('success');
       _matchController.forward(from: 0);
 
-      // Record successful match in SRI
       _sriService.recordResponse(
         skillType: LanguageSkillType.spelling,
         baseWord: _firstSelected!.word,
@@ -303,19 +261,13 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
         metadata: {'game': 'memory', 'moves': _moves},
       );
 
-      // Check if game is complete
       if (_pairsFound == _totalPairs) {
         await Future.delayed(const Duration(milliseconds: 800));
-        if (mounted) {
-          _showGameOver();
-        }
+        if (mounted) _showGameOver();
       }
     } else {
-      // No match - shake and flip back
       _audioService.playSound('failure');
-      
       await _shakeController.forward(from: 0);
-      
       await Future.delayed(const Duration(milliseconds: 300));
       
       if (mounted) {
@@ -325,7 +277,6 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
         });
       }
 
-      // Record unsuccessful attempt in SRI
       _sriService.recordResponse(
         skillType: LanguageSkillType.spelling,
         baseWord: _firstSelected!.word,
@@ -345,15 +296,10 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
 
   void _showGameOver() {
     final s = S.of(context)!;
-    
-    // Calculate star rating based on moves
     int stars = 3;
-    final perfectMoves = _totalPairs; // One move per pair is perfect
-    if (_moves > perfectMoves * 2) {
-      stars = 1;
-    } else if (_moves > perfectMoves * 1.5) {
-      stars = 2;
-    }
+    final perfectMoves = _totalPairs;
+    if (_moves > perfectMoves * 2) stars = 1;
+    else if (_moves > perfectMoves * 1.5) stars = 2;
 
     showDialog(
       context: context,
@@ -365,10 +311,7 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
           children: [
             const Icon(Icons.emoji_events, color: SpaceTheme.starYellow, size: 32),
             const SizedBox(width: 12),
-            Text(
-              s.wordMemoryComplete,
-              style: SpaceTheme.titleStyle,
-            ),
+            Text(s.wordMemoryComplete, style: SpaceTheme.titleStyle),
           ],
         ),
         content: Column(
@@ -376,23 +319,15 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(3, (index) {
-                return Icon(
-                  index < stars ? Icons.star : Icons.star_border,
-                  color: SpaceTheme.starYellow,
-                  size: 40,
-                );
-              }),
+              children: List.generate(3, (index) => Icon(
+                index < stars ? Icons.star : Icons.star_border,
+                color: SpaceTheme.starYellow,
+                size: 40,
+              )),
             ),
             const SizedBox(height: 20),
-            Text(
-              '${s.wordMemoryScore}: $_score',
-              style: SpaceTheme.bodyStyle.copyWith(fontSize: 18),
-            ),
-            Text(
-              '${s.wordMemoryMoves}: $_moves',
-              style: SpaceTheme.bodyStyle.copyWith(fontSize: 18),
-            ),
+            Text('${s.wordMemoryScore}: $_score', style: SpaceTheme.bodyStyle.copyWith(fontSize: 18)),
+            Text('${s.wordMemoryMoves}: $_moves', style: SpaceTheme.bodyStyle.copyWith(fontSize: 18)),
           ],
         ),
         actions: [
@@ -401,23 +336,15 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
               Navigator.of(context).pop();
               _loadLevel();
             },
-            child: Text(
-              s.gameReplay,
-              style: SpaceTheme.bodyStyle.copyWith(color: SpaceTheme.alienGreen),
-            ),
+            child: Text(s.gameReplay, style: SpaceTheme.bodyStyle.copyWith(color: SpaceTheme.alienGreen)),
           ),
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
               Navigator.of(context).pop();
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: SpaceTheme.planetOrange,
-            ),
-            child: Text(
-              s.gameDone,
-              style: SpaceTheme.bodyStyle.copyWith(color: Colors.white),
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: SpaceTheme.planetOrange),
+            child: Text(s.gameDone, style: SpaceTheme.bodyStyle.copyWith(color: Colors.white)),
           ),
         ],
       ),
@@ -426,98 +353,17 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
 
   @override
   Widget build(BuildContext context) {
-    final s = S.of(context)!;
-
     return Scaffold(
       body: SpaceBackground(
         child: SafeArea(
           child: Column(
             children: [
-              GameUI(
-                title: s.wordMemoryTitle,
-                level: widget.gradeLevel.index + 1,
-                onBack: () => Navigator.of(context).pop(),
-              ),
+              if (!_isLoading) _buildAllInOneHeader(context),
               if (_isLoading)
-                const Expanded(
-                  child: Center(child: CircularProgressIndicator()),
-                )
+                const Expanded(child: Center(child: CircularProgressIndicator()))
               else
                 Expanded(
-                  child: Column(
-                    children: [
-                      // Stats bar
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            _buildStatCard(s.wordMemoryScore, _score.toString(), Icons.stars),
-                            _buildStatCard(s.wordMemoryMoves, _moves.toString(), Icons.touch_app),
-                            _buildStatCard(s.wordMemoryPairs, '$_pairsFound/$_totalPairs', Icons.check_circle),
-                          ],
-                        ),
-                      ),
-                      
-                      // Game grid
-                      Expanded(
-                        child: Center(
-                            child: LayoutBuilder(
-                            builder: (context, constraints) {
-                                // Calculate optimal grid layout based on number of pairs
-                                int crossAxisCount;
-                                if (_totalPairs <= 4) {
-                                crossAxisCount = 2; // 2x4 grid for 4 pairs (8 cards)
-                                } else if (_totalPairs <= 6) {
-                                crossAxisCount = 3; // 3x4 grid for 6 pairs (12 cards)
-                                } else {
-                                crossAxisCount = 4; // 4x4 grid for 8 pairs (16 cards)
-                                }
-                                
-                                // Calculate card size to fit screen with proper spacing
-                                final availableWidth = constraints.maxWidth - 48;
-                                final availableHeight = constraints.maxHeight - 48;
-                                
-                                final rows = (_cards.length / crossAxisCount).ceil();
-                                
-                                // Calculate max card size that fits
-                                final cardWidth = (availableWidth / crossAxisCount) - 12;
-                                final cardHeight = (availableHeight / rows) - 12;
-                                
-                                final cardSize = min(cardWidth, cardHeight).clamp(80.0, 150.0);
-                                
-                                // Calculate actual grid dimensions
-                                final gridWidth = (cardSize + 12) * crossAxisCount;
-                                final gridHeight = (cardSize + 12) * rows;
-                                
-                                return SingleChildScrollView(
-                                child: Center(
-                                    child: SizedBox(
-                                    width: gridWidth,
-                                    height: gridHeight,
-                                    child: GridView.builder(
-                                        physics: const NeverScrollableScrollPhysics(),
-                                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                        crossAxisCount: crossAxisCount,
-                                        mainAxisSpacing: 12,
-                                        crossAxisSpacing: 12,
-                                        childAspectRatio: 1.0,
-                                        ),
-                                        itemCount: _cards.length,
-                                        itemBuilder: (context, index) {
-                                        return _buildMemoryCard(_cards[index], cardSize);
-                                        },
-                                    ),
-                                    ),
-                                ),
-                                );
-                            }, // builder
-                            ), // LayoutBuilder
-                        ), // Center
-                        ), // game grid Expanded
-
-                    ],
-                  ),
+                  child: _buildGameGrid(),
                 ),
             ],
           ),
@@ -526,34 +372,184 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
     );
   }
 
-  Widget _buildStatCard(String label, String value, IconData icon) {
+  // --- NEW: The "Everything in ONE top bar" Widget ---
+  // --- FIX: Corrected 'score' getter and optimized layout ---
+  Widget _buildAllInOneHeader(BuildContext context) {
+    // 1. Get the global score correctly using the getter 'score'
+    final totalGems = context.watch<GameProvider>().score; 
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.fromLTRB(8, 8, 12, 8),
       decoration: BoxDecoration(
-        color: SpaceTheme.deepSpace.withOpacity(0.7),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: SpaceTheme.nebulaPurple.withOpacity(0.5)),
+        color: SpaceTheme.deepSpace.withOpacity(0.95),
+        border: Border(bottom: BorderSide(color: SpaceTheme.nebulaPurple.withOpacity(0.5), width: 2)),
+        boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 12, offset: Offset(0, 4))],
       ),
-      child: Column(
+      child: SafeArea(
+        bottom: false,
+        child: Row(
+          children: [
+            // --- LEFT SECTION: Back & Level ---
+            IconButton(
+              icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+              onPressed: () => Navigator.of(context).pop(),
+              padding: EdgeInsets.zero,
+              visualDensity: VisualDensity.compact,
+              constraints: const BoxConstraints(),
+            ),
+            const SizedBox(width: 12),
+            _buildMiniBadge(
+              Icons.emoji_events_rounded, 
+              '${widget.gradeLevel.index + 1}', 
+              SpaceTheme.starYellow
+            ),
+            
+            const Spacer(), // Pushes center content to middle
+
+            // --- CENTER SECTION: Game Stats (Points, Moves, Pairs) ---
+            // FittedBox ensures this scales down on small phones instead of overflowing
+            Flexible(
+              flex: 10,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: Colors.white.withOpacity(0.15)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Local Score (Current Game)
+                      _buildStatItem(Icons.star_rounded, '$_score', SpaceTheme.starYellow),
+                      _buildVerticalDivider(),
+                      // Moves
+                      _buildStatItem(Icons.touch_app_rounded, '$_moves', SpaceTheme.alienGreen),
+                      _buildVerticalDivider(),
+                      // Pairs Found
+                      _buildStatItem(Icons.check_circle_rounded, '$_pairsFound/$_totalPairs', SpaceTheme.cosmicPink),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            const Spacer(), // Pushes right content to end
+
+            // --- RIGHT SECTION: Global Gems ---
+            _buildMiniBadge(
+              Icons.diamond_rounded, 
+              '$totalGems', // Corrected from totalScore
+              Colors.cyanAccent
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVerticalDivider() {
+    return Container(
+      height: 20,
+      width: 1.5,
+      color: Colors.white24,
+      margin: const EdgeInsets.symmetric(horizontal: 12),
+    );
+  }
+
+  Widget _buildMiniBadge(IconData icon, String text, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.5)),
+      ),
+      child: Row(
         children: [
-          Icon(icon, color: SpaceTheme.starYellow, size: 20),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: SpaceTheme.bodyStyle.copyWith(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          Text(
-            label,
-            style: SpaceTheme.bodyStyle.copyWith(
-              fontSize: 12,
-              color: Colors.white70,
-            ),
-          ),
+          Icon(icon, size: 16, color: color),
+          const SizedBox(width: 4),
+          Text(text, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
         ],
       ),
+    );
+  }
+
+  Widget _buildStatItem(IconData icon, String text, Color color) {
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: color),
+        const SizedBox(width: 4),
+        Text(text, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+      ],
+    );
+  }
+
+  Widget _buildDivider() {
+    return Container(
+      height: 16,
+      width: 1,
+      color: Colors.white24,
+      margin: const EdgeInsets.symmetric(horizontal: 12),
+    );
+  }
+
+  Widget _buildGameGrid() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isLandscape = constraints.maxWidth > constraints.maxHeight;
+        
+        // Determine Grid Dimensions
+        int columns;
+        int rows;
+
+        if (_totalPairs <= 4) { // 8 cards
+          columns = isLandscape ? 4 : 2;
+          rows = isLandscape ? 2 : 4;
+        } else if (_totalPairs <= 6) { // 12 cards
+          columns = isLandscape ? 4 : 3;
+          rows = isLandscape ? 3 : 4;
+        } else { // 16 cards
+          columns = 4;
+          rows = 4;
+        }
+
+        const double padding = 16.0;
+        const double spacing = 12.0;
+        
+        final availableWidth = constraints.maxWidth - (padding * 2);
+        final availableHeight = constraints.maxHeight - (padding * 2);
+        
+        final widthPerCard = (availableWidth - (spacing * (columns - 1))) / columns;
+        final heightPerCard = (availableHeight - (spacing * (rows - 1))) / rows;
+        
+        final cardSize = min(widthPerCard, heightPerCard);
+        
+        final gridWidth = (cardSize * columns) + (spacing * (columns - 1));
+        final gridHeight = (cardSize * rows) + (spacing * (rows - 1));
+
+        return Center(
+          child: SizedBox(
+            width: gridWidth,
+            height: gridHeight,
+            child: GridView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: columns,
+                mainAxisSpacing: spacing,
+                crossAxisSpacing: spacing,
+                childAspectRatio: 1.0,
+              ),
+              itemCount: _cards.length,
+              itemBuilder: (context, index) {
+                return _buildMemoryCard(_cards[index], cardSize);
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -561,198 +557,98 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
     final isSelected = card == _firstSelected || card == _secondSelected;
     final shouldShake = isSelected && _shakeController.isAnimating && !card.isMatched;
     
-    // Check if we should use advanced flip (Grade 4, level 15+)
-    final useAdvancedFlip = widget.gradeLevel.index >= 3 && _pairsFound >= 15;
-
     return AnimatedBuilder(
-        animation: Listenable.merge([_flipController, _matchController, _shakeController]),
-        builder: (context, child) {
-        // Shake animation
+      animation: Listenable.merge([_flipController, _matchController, _shakeController]),
+      builder: (context, child) {
         double shakeOffset = 0;
-        if (shouldShake) {
-            shakeOffset = sin(_shakeController.value * pi * 4) * 8;
-        }
+        if (shouldShake) shakeOffset = sin(_shakeController.value * pi * 4) * 8;
 
-        // Match pulse animation
         double scale = 1.0;
         if (card.isMatched && _matchController.isAnimating) {
-            scale = 1.0 + (sin(_matchController.value * pi) * 0.3);
+          scale = 1.0 + (sin(_matchController.value * pi) * 0.3);
         }
 
         final isFlipped = card.isFlipped || card.isMatched;
 
         return Transform.translate(
-            offset: Offset(shakeOffset, 0),
-            child: Transform.scale(
+          offset: Offset(shakeOffset, 0),
+          child: Transform.scale(
             scale: scale,
             child: GestureDetector(
-                onTap: () => _onCardTapped(card),
-                child: AnimatedContainer(
+              onTap: () => _onCardTapped(card),
+              child: AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 width: size,
                 height: size,
                 decoration: BoxDecoration(
-                    gradient: isFlipped
-                        ? (card.isMatched
-                            ? LinearGradient(
-                                colors: [
-                                SpaceTheme.alienGreen,
-                                SpaceTheme.alienGreen.withOpacity(0.7),
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                            )
-                            : LinearGradient(
-                                colors: [
-                                SpaceTheme.planetOrange,
-                                SpaceTheme.planetOrange.withOpacity(0.7),
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                            ))
-                        : LinearGradient(
-                            colors: [
-                            SpaceTheme.deepSpace.withOpacity(0.9),
-                            SpaceTheme.nebulaPurple.withOpacity(0.7),
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                        ),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
+                  gradient: isFlipped
+                      ? (card.isMatched
+                          ? LinearGradient(colors: [SpaceTheme.alienGreen, SpaceTheme.alienGreen.withOpacity(0.7)])
+                          : LinearGradient(colors: [SpaceTheme.planetOrange, SpaceTheme.planetOrange.withOpacity(0.7)]))
+                      : LinearGradient(colors: [SpaceTheme.deepSpace.withOpacity(0.9), SpaceTheme.nebulaPurple.withOpacity(0.7)]),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
                     color: card.isMatched
                         ? SpaceTheme.alienGreen
-                        : (isSelected
-                            ? SpaceTheme.starYellow
-                            : SpaceTheme.nebulaPurple.withOpacity(0.5)),
-                    width: card.isMatched || isSelected ? 4 : 2,
-                    ),
-                    boxShadow: [
+                        : (isSelected ? SpaceTheme.starYellow : SpaceTheme.nebulaPurple.withOpacity(0.5)),
+                    width: card.isMatched || isSelected ? 3 : 2,
+                  ),
+                  boxShadow: [
                     BoxShadow(
-                        color: (card.isMatched
-                                ? SpaceTheme.alienGreen
-                                : (isSelected
-                                    ? SpaceTheme.starYellow
-                                    : SpaceTheme.nebulaPurple))
-                            .withOpacity(card.isMatched || isSelected ? 0.6 : 0.3),
-                        blurRadius: card.isMatched || isSelected ? 25 : 15,
-                        spreadRadius: card.isMatched || isSelected ? 5 : 2,
+                      color: (card.isMatched ? SpaceTheme.alienGreen : (isSelected ? SpaceTheme.starYellow : SpaceTheme.nebulaPurple))
+                          .withOpacity(card.isMatched || isSelected ? 0.6 : 0.2),
+                      blurRadius: card.isMatched || isSelected ? 15 : 8,
                     ),
-                    ],
+                  ],
                 ),
                 child: isFlipped
                     ? Center(
                         child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: FittedBox(
+                          padding: const EdgeInsets.all(4.0),
+                          child: FittedBox(
                             fit: BoxFit.scaleDown,
                             child: Text(
-                                card.word,
-                                style: TextStyle(
+                              card.word,
+                              style: TextStyle(
                                 fontFamily: card.fontFamily,
-                                fontSize: size * 0.25,
+                                fontSize: size * 0.3,
                                 fontWeight: FontWeight.bold,
-                                color: card.isMatched
-                                    ? SpaceTheme.deepSpace
-                                    : Colors.white,
-                                shadows: [
-                                    Shadow(
-                                    blurRadius: 8,
-                                    color: card.isMatched
-                                        ? Colors.black38
-                                        : SpaceTheme.starYellow.withOpacity(0.5),
-                                    ),
-                                ],
-                                ),
-                                textAlign: TextAlign.center,
+                                color: card.isMatched ? SpaceTheme.deepSpace : Colors.white,
+                              ),
+                              textAlign: TextAlign.center,
                             ),
-                            ),
+                          ),
                         ),
-                        )
+                      )
                     : Stack(
                         children: [
-                            // Animated background pattern
-                            Positioned.fill(
-                            child: CustomPaint(
-                                painter: _CardBackPainter(
-                                animation: _flipController.view,
-                                ),
-                            ),
-                            ),
-                            Center(
-                            child: Icon(
-                                Icons.psychology,
-                                size: size * 0.4,
-                                color: SpaceTheme.cosmicPink.withOpacity(0.8),
-                                shadows: [
-                                Shadow(
-                                    blurRadius: 15,
-                                    color: SpaceTheme.cosmicPink.withOpacity(0.5),
-                                ),
-                                ],
-                            ),
-                            ),
+                          Positioned.fill(child: CustomPaint(painter: _CardBackPainter(animation: _flipController.view))),
+                          Center(child: Icon(Icons.psychology, size: size * 0.4, color: SpaceTheme.cosmicPink.withOpacity(0.8))),
                         ],
-                        ),
-                ),
+                      ),
+              ),
             ),
-            ),
+          ),
         );
-        },
+      },
     );
-    }
-
+  }
 }
 
 class _CardBackPainter extends CustomPainter {
   final Animation<double> animation;
-  
   _CardBackPainter({required this.animation}) : super(repaint: animation);
   
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-    
-    // Draw animated concentric circles
+    final paint = Paint()..style = PaintingStyle.stroke..strokeWidth = 2;
     for (int i = 0; i < 3; i++) {
       final radius = (size.width / 2) * (0.3 + i * 0.2);
       final opacity = 0.3 + (sin(animation.value * 2 * pi + i) * 0.2);
       paint.color = SpaceTheme.starYellow.withOpacity(opacity);
-      canvas.drawCircle(
-        Offset(size.width / 2, size.height / 2),
-        radius,
-        paint,
-      );
+      canvas.drawCircle(Offset(size.width / 2, size.height / 2), radius, paint);
     }
-    
-    // Draw rotating star pattern
-    paint.style = PaintingStyle.fill;
-    paint.color = SpaceTheme.nebulaPurple.withOpacity(0.2);
-    final center = Offset(size.width / 2, size.height / 2);
-    final starPath = Path();
-    final numPoints = 5;
-    final outerRadius = size.width * 0.25;
-    final innerRadius = outerRadius * 0.5;
-    final rotation = animation.value * 2 * pi;
-    
-    for (int i = 0; i < numPoints * 2; i++) {
-      final radius = i.isEven ? outerRadius : innerRadius;
-      final angle = (i * pi / numPoints) + rotation;
-      final x = center.dx + radius * cos(angle);
-      final y = center.dy + radius * sin(angle);
-      
-      if (i == 0) {
-        starPath.moveTo(x, y);
-      } else {
-        starPath.lineTo(x, y);
-      }
-    }
-    starPath.close();
-    canvas.drawPath(starPath, paint);
   }
-  
   @override
   bool shouldRepaint(_CardBackPainter oldDelegate) => true;
 }

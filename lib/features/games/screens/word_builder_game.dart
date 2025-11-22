@@ -8,14 +8,11 @@ import '../../../core/services/audio_service.dart';
 import '../../../core/models/skill_category.dart';
 import '../../../core/models/vocabulary_models.dart';
 
-// --- FIX: Removed duplicate import ---
-// import '../../../core/services/audio_service.dart'; 
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart';
 import '../../../core/theme/space_theme.dart';
 import '../../../generated/l10n.dart';
 import '../providers/game_provider.dart';
-import '../widgets/game_ui.dart';
 import '../widgets/space_background.dart';
 
 class WordBuilderGame extends StatefulWidget {
@@ -63,11 +60,14 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
   Timer? _feedbackTimer;
   bool _showHint = false;
 
-  // --- FIX: State for educational info flow ---
+  // Educational info flow
   String _educationalInfoText = "";
   bool _showEducationalInfo = false;
   Timer? _educationalInfoTimer;
-  // --- END FIX ---
+
+  // Control for "Baue das Wort:" instruction
+  bool _showBuildInstruction = true;
+  Timer? _instructionTimer;
 
   // Time tracking
   Timer? _gameTimer;
@@ -107,7 +107,8 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
   void dispose() {
     _feedbackTimer?.cancel();
     _gameTimer?.cancel();
-    _educationalInfoTimer?.cancel(); // --- FIX: Dispose timer ---
+    _educationalInfoTimer?.cancel();
+    _instructionTimer?.cancel();
     _successController.dispose();
     _shakeController.dispose();
     _hintController.dispose();
@@ -138,7 +139,6 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
   bool _isWordValidForGame(GermanWord word) {
     final length = word.word.length;
     
-    // Grade-appropriate word lengths
     switch (widget.gradeLevel) {
       case GradeLevel.grade1:
       case GradeLevel.grade2:
@@ -156,7 +156,6 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
     _wordsCompleted = 0;
     _hintsUsed = 0;
     
-    // Set time based on grade
     switch (widget.gradeLevel) {
       case GradeLevel.grade1:
       case GradeLevel.grade2:
@@ -172,6 +171,15 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
 
     _loadNextWord();
     _startTimer();
+    
+    _instructionTimer?.cancel();
+    _instructionTimer = Timer(const Duration(seconds: 3), () {
+      if (mounted) {
+        setState(() {
+          _showBuildInstruction = false;
+        });
+      }
+    });
     
     setState(() => _isLoading = false);
   }
@@ -199,11 +207,9 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
       return;
     }
 
-    // --- ADAPTIVE WORD SELECTION ---
     final List<GermanWord> candidateWords = [];
     final Set<String> addedWordIds = {};
 
-    // Get review words (50%)
     final reviewItemIds = _sriService.getItemsForReview(
       limit: 20,
       skillTypeFilter: LanguageSkillType.spelling,
@@ -227,7 +233,6 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
       }
     }
 
-    // Get new words
     final newWords = _vocabularyService.getNewWords(
       sriService: _sriService,
       grade: widget.gradeLevel,
@@ -242,7 +247,6 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
       }
     }
 
-    // Fill with random words if needed
     if (candidateWords.length < 10) {
       final allWords = _vocabularyService.getWordsByGrade(widget.gradeLevel, _gameProvider);
       allWords.shuffle();
@@ -255,7 +259,6 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
         }
       }
     }
-    // --- END ADAPTIVE SELECTION ---
 
     if (candidateWords.isEmpty) {
       debugPrint("No words found for WordBuilderGame");
@@ -268,7 +271,6 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
     candidateWords.shuffle();
     final selectedWord = candidateWords.first;
 
-    // Create scrambled letter tiles
     final letters = selectedWord.word.toUpperCase().split('');
     final List<LetterTile> tiles = [];
     
@@ -279,12 +281,10 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
       ));
     }
 
-    // Scramble the tiles (ensure it's actually scrambled)
     final random = Random();
     for (int attempt = 0; attempt < 10; attempt++) {
       tiles.shuffle(random);
       
-      // Check if scrambled (not in original order)
       bool isDifferent = false;
       for (int i = 0; i < tiles.length; i++) {
         if (tiles[i].originalIndex != i) {
@@ -301,11 +301,10 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
       _buildArea = List.filled(letters.length, null);
       _feedbackState = FeedbackState.none;
       _showHint = false;
-      _hintController.reset(); // --- FIX: Reset hint controller to prevent "ghost hint" ---
+      _hintController.reset();
     });
   }
 
-  // --- FIX: Updated logic to handle grid-to-grid dragging ---
   void _onTileDraggedToBuildArea(LetterTile draggedTile, int targetPosition) {
     if (_feedbackState == FeedbackState.correct) return;
 
@@ -313,26 +312,19 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
     final LetterTile? tileInTargetSlot = _buildArea[targetPosition];
 
     setState(() {
-      // 1. Clear the source slot (if it was in the grid)
       if (sourcePosition != null) {
         _buildArea[sourcePosition] = null;
       }
 
-      // 2. Place the dragged tile in the target slot
       _buildArea[targetPosition] = draggedTile;
       draggedTile.isPlaced = true;
       draggedTile.placedPosition = targetPosition;
 
-      // 3. Handle the tile that was *in* the target slot (if any)
       if (tileInTargetSlot != null) {
         if (sourcePosition != null) {
-          // Case: Grid-to-Grid SWAP
-          // Move the displaced tile to the dragged tile's original slot
           _buildArea[sourcePosition] = tileInTargetSlot;
           tileInTargetSlot.placedPosition = sourcePosition;
         } else {
-          // Case: Pool-to-Full-Grid
-          // Return the displaced tile to the pool
           tileInTargetSlot.isPlaced = false;
           tileInTargetSlot.placedPosition = null;
         }
@@ -342,7 +334,6 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
     _audioService.playSound('tap');
     _checkWord();
   }
-  // --- END FIX ---
 
   void _onTileReturnedToPool(LetterTile tile) {
     setState(() {
@@ -358,12 +349,10 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
   }
 
   void _checkWord() {
-    // Check if all positions are filled
     if (_buildArea.any((tile) => tile == null)) {
       return;
     }
 
-    // Build the constructed word
     final constructedWord = _buildArea.map((tile) => tile!.letter).join('');
     final targetWord = _currentWord!.word.toUpperCase();
 
@@ -381,7 +370,6 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
       _feedbackState = FeedbackState.correct;
       _wordsCompleted++;
       
-      // Calculate score with time bonus
       int baseScore = 100;
       _timeBonus = (_secondsRemaining > 45) ? 50 : ((_secondsRemaining > 30) ? 25 : 0);
       int hintPenalty = _hintsUsed * 10;
@@ -392,7 +380,6 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
 
     _successController.forward(from: 0);
 
-    // Record success in SRI
     _sriService.recordResponse(
       skillType: LanguageSkillType.spelling,
       baseWord: _currentWord!.word,
@@ -404,7 +391,6 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
       },
     );
 
-    // --- FIX: Show educational info on a timer ---
     final eduInfo = _getEducationalInfo(_currentWord!);
     if (eduInfo.isNotEmpty) {
       setState(() {
@@ -421,9 +407,7 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
         }
       });
     }
-    // --- END FIX ---
 
-    // Load next word after delay
     Future.delayed(const Duration(milliseconds: 1500), () {
       if (mounted) {
         _loadNextWord();
@@ -440,7 +424,6 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
 
     _shakeController.forward(from: 0);
 
-    // Record failure in SRI
     _sriService.recordResponse(
       skillType: LanguageSkillType.spelling,
       baseWord: _currentWord!.word,
@@ -448,7 +431,6 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
       metadata: {'game': 'word_builder'},
     );
 
-    // Reset after delay
     _feedbackTimer?.cancel();
     _feedbackTimer = Timer(const Duration(milliseconds: 800), () {
       if (mounted) {
@@ -475,7 +457,6 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
   void _skipWord() {
     _audioService.playSound('tap');
     
-    // Record as incorrect in SRI
     _sriService.recordResponse(
       skillType: LanguageSkillType.spelling,
       baseWord: _currentWord!.word,
@@ -506,19 +487,16 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
         }
     }
     
-    // --- FIX: Check if article is not null AND not empty ---
     if (word.article != null && word.article!.isNotEmpty) {
         parts.add(word.article!);
     }
-    // --- END FIX ---
     
     return parts.isEmpty ? '' : ' (${parts.join(', ')})';
-    }
+  }
 
   void _showGameOver() {
     final s = S.of(context)!;
     
-    // Calculate performance
     final percentage = (_wordsCompleted / _totalWords * 100).round();
     int stars = 1;
     if (percentage >= 90) stars = 3;
@@ -611,70 +589,57 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
         child: SafeArea(
           child: Column(
             children: [
-              GameUI(
-                title: s.wordBuilderTitle,
-                level: widget.gradeLevel.index + 1,
-                onBack: () {
-                  _gameTimer?.cancel();
-                  Navigator.of(context).pop();
-                },
-              ),
+              // Unified compact top bar
+              _buildUnifiedTopBar(s),
+              
               if (_isLoading)
                 const Expanded(
                   child: Center(child: CircularProgressIndicator()),
                 )
               else
                 Expanded(
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      final isWide = constraints.maxWidth > 600;
-                      
-                      return Column(
-                        children: [
-                          // Stats bar
-                          _buildStatsBar(s),
-                          
-                          // Main game area
-                          Expanded(
-                            child: SingleChildScrollView(
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Center(
-                                  child: ConstrainedBox(
-                                    constraints: BoxConstraints(
-                                      maxWidth: isWide ? 800 : constraints.maxWidth,
-                                    ),
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        // Educational info
-                                        // --- FIX: Using new state for educational info ---
-                                        _buildWordInfo(selectedFontFamily),
-                                        
-                                        const SizedBox(height: 24),
-                                        
-                                        // Build area with hint
-                                        _buildConstructionArea(s, selectedFontFamily),
-                                        
-                                        const SizedBox(height: 32),
-                                        
-                                        // Letter tiles pool
-                                        _buildLetterPool(s, selectedFontFamily),
-                                        
-                                        const SizedBox(height: 24),
-                                        
-                                        // Action buttons
-                                        _buildActionButtons(s),
-                                      ],
-                                    ),
-                                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    child: Column(
+                      children: [
+                        // Educational info (floating)
+                        if (_showEducationalInfo)
+                          _buildWordInfo(selectedFontFamily),
+                        
+                        // Build instruction (floating, disappears after 3s)
+                        if (_showBuildInstruction)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8, bottom: 4),
+                            child: AnimatedOpacity(
+                              opacity: 1.0,
+                              duration: const Duration(milliseconds: 300),
+                              child: Text(
+                                s.wordBuilderBuildWord,
+                                style: SpaceTheme.bodyStyle.copyWith(
+                                  fontSize: 14,
+                                  color: SpaceTheme.starYellow,
                                 ),
                               ),
                             ),
                           ),
-                        ],
-                      );
-                    },
+                        
+                        // Main game area
+                        Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // Build area with hint
+                              _buildConstructionArea(selectedFontFamily),
+                              
+                              const SizedBox(height: 16),
+                              
+                              // Letter tiles pool
+                              _buildLetterPool(selectedFontFamily),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
             ],
@@ -684,80 +649,184 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
     );
   }
 
-  Widget _buildStatsBar(S s) {
+  // NEW: Unified compact top bar with icon buttons
+  Widget _buildUnifiedTopBar(S s) {
     final timeColor = _secondsRemaining < 10 
         ? SpaceTheme.rocketRed 
         : (_secondsRemaining < 30 ? SpaceTheme.planetOrange : SpaceTheme.alienGreen);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: SpaceTheme.deepSpace.withOpacity(0.8),
+        border: Border(
+          bottom: BorderSide(
+            color: SpaceTheme.nebulaPurple.withOpacity(0.5),
+            width: 2,
+          ),
+        ),
+      ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildStatItem(s.gameScore, _score.toString(), Icons.stars, SpaceTheme.starYellow),
-          _buildStatItem(s.wordBuilderWords, '$_wordsCompleted/$_totalWords', Icons.spellcheck, SpaceTheme.cosmicPink),
-          _buildStatItem(s.wordBuilderTime, '${_secondsRemaining}s', Icons.timer, timeColor),
+          // Back button
+          IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
+            onPressed: () {
+              _gameTimer?.cancel();
+              Navigator.of(context).pop();
+            },
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+          ),
+          
+          const SizedBox(width: 8),
+          
+          // Hint button (icon only)
+          IconButton(
+            icon: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Icon(
+                  Icons.lightbulb_outline,
+                  color: (_feedbackState == FeedbackState.correct || _showHint)
+                      ? Colors.grey
+                      : SpaceTheme.starYellow,
+                  size: 24,
+                ),
+                if (_hintsUsed > 0)
+                  Positioned(
+                    right: -4,
+                    top: -4,
+                    child: Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: const BoxDecoration(
+                        color: SpaceTheme.rocketRed,
+                        shape: BoxShape.circle,
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 16,
+                        minHeight: 16,
+                      ),
+                      child: Text(
+                        '$_hintsUsed',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            onPressed: (_feedbackState == FeedbackState.correct || _showHint)
+                ? null
+                : _useHint,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            tooltip: '${s.wordBuilderHint} (-10)',
+          ),
+          
+          const SizedBox(width: 4),
+          
+          // Skip button (icon only)
+          IconButton(
+            icon: Icon(
+              Icons.skip_next,
+              color: _feedbackState == FeedbackState.correct
+                  ? Colors.grey
+                  : SpaceTheme.rocketRed,
+              size: 24,
+            ),
+            onPressed: _feedbackState == FeedbackState.correct ? null : _skipWord,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            tooltip: s.wordBuilderSkip,
+          ),
+          
+          const SizedBox(width: 12),
+          
+          // Level
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: SpaceTheme.nebulaPurple.withOpacity(0.3),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: SpaceTheme.nebulaPurple.withOpacity(0.5)),
+            ),
+            child: Text(
+              'Lvl ${widget.gradeLevel.index + 1}',
+              style: SpaceTheme.bodyStyle.copyWith(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: SpaceTheme.nebulaPurple,
+              ),
+            ),
+          ),
+          
+          const SizedBox(width: 8),
+          
+          // Score
+          _buildCompactStat(Icons.stars, _score.toString(), SpaceTheme.starYellow),
+          
+          const SizedBox(width: 8),
+          
+          // Words
+          _buildCompactStat(Icons.spellcheck, '$_wordsCompleted/$_totalWords', SpaceTheme.cosmicPink),
+          
+          const Spacer(),
+          
+          // Time
+          _buildCompactStat(Icons.timer, '${_secondsRemaining}s', timeColor),
         ],
       ),
     );
   }
 
-  Widget _buildStatItem(String label, String value, IconData icon, Color color) {
+  Widget _buildCompactStat(IconData icon, String value, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: SpaceTheme.deepSpace.withOpacity(0.7),
-        borderRadius: BorderRadius.circular(12),
+        color: color.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: color.withOpacity(0.5)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: color, size: 20),
-          const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                value,
-                style: SpaceTheme.bodyStyle.copyWith(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
-              ),
-              Text(
-                label,
-                style: SpaceTheme.bodyStyle.copyWith(
-                  fontSize: 11,
-                  color: Colors.white70,
-                ),
-              ),
-            ],
+          Icon(icon, color: color, size: 16),
+          const SizedBox(width: 4),
+          Text(
+            value,
+            style: SpaceTheme.bodyStyle.copyWith(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
           ),
         ],
       ),
     );
   }
 
-  // --- FIX: Updated widget to use new state variables for info ---
   Widget _buildWordInfo(String selectedFontFamily) {
     return AnimatedOpacity(
       opacity: _showEducationalInfo ? 1.0 : 0.0,
       duration: const Duration(milliseconds: 300),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: SpaceTheme.alienGreen.withOpacity(0.2),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(10),
           border: Border.all(color: SpaceTheme.alienGreen),
         ),
         child: Text(
           _educationalInfoText,
           style: SpaceTheme.bodyStyle.copyWith(
             fontFamily: selectedFontFamily,
-            fontSize: 16,
+            fontSize: 14,
             color: SpaceTheme.alienGreen,
             fontWeight: FontWeight.bold,
           ),
@@ -766,9 +835,8 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
       ),
     );
   }
-  // --- END FIX ---
 
-  Widget _buildConstructionArea(S s, String selectedFontFamily) {
+  Widget _buildConstructionArea(String selectedFontFamily) {
     return AnimatedBuilder(
       animation: _shakeController,
       builder: (context, child) {
@@ -777,8 +845,10 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
         return Transform.translate(
           offset: Offset(shakeOffset, 0),
           child: Container(
-            padding: const EdgeInsets.all(20),
-            decoration: SpaceTheme.cardDecoration.copyWith(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: SpaceTheme.deepSpace.withOpacity(0.5),
+              borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: _feedbackState == FeedbackState.correct
                     ? SpaceTheme.alienGreen
@@ -789,16 +859,8 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
               ),
             ),
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  s.wordBuilderBuildWord,
-                  style: SpaceTheme.bodyStyle.copyWith(
-                    fontSize: 16,
-                    color: Colors.white70,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                
                 // Hint text (faded word)
                 if (_showHint)
                   AnimatedBuilder(
@@ -806,26 +868,27 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
                     builder: (context, child) {
                       return Opacity(
                         opacity: 0.3 + (_hintController.value * 0.2),
-                        child: Text(
-                          _currentWord!.word.toUpperCase(),
-                          style: TextStyle(
-                            fontFamily: selectedFontFamily,
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                            color: SpaceTheme.starYellow,
-                            letterSpacing: 8,
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Text(
+                            _currentWord!.word.toUpperCase(),
+                            style: TextStyle(
+                              fontFamily: selectedFontFamily,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: SpaceTheme.starYellow,
+                              letterSpacing: 6,
+                            ),
                           ),
                         ),
                       );
                     },
                   ),
                 
-                const SizedBox(height: 8),
-                
                 // Build slots
                 Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
+                  spacing: 6,
+                  runSpacing: 6,
                   alignment: WrapAlignment.center,
                   children: List.generate(_buildArea.length, (index) {
                     return _buildDropSlot(index, selectedFontFamily);
@@ -839,49 +902,45 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
     );
   }
 
-  // --- FIX: Helper widget for empty drop slot ---
   Widget _buildEmptySlot(int position, {bool isHighlighted = false}) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
-      width: 60,
-      height: 70,
+      width: 50,
+      height: 60,
       decoration: BoxDecoration(
         color: isHighlighted
                 ? SpaceTheme.nebulaPurple.withOpacity(0.5)
                 : SpaceTheme.deepSpace.withOpacity(0.3),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(
           color: isHighlighted
               ? SpaceTheme.starYellow
               : SpaceTheme.nebulaPurple.withOpacity(0.5),
-          width: isHighlighted ? 3 : 2,
+          width: isHighlighted ? 2 : 1.5,
         ),
       ),
       child: Center(
         child: Text(
           '${position + 1}',
           style: TextStyle(
-            fontSize: 14,
+            fontSize: 12,
             color: Colors.white.withOpacity(0.3),
           ),
         ),
       ),
     );
   }
-  // --- END FIX ---
 
-  // --- FIX: Rebuilt widget to be a DragTarget that contains either a Draggable tile or an EmptySlot ---
   Widget _buildDropSlot(int position, String selectedFontFamily) {
     final tile = _buildArea[position];
     
     return DragTarget<LetterTile>(
-      onWillAccept: (data) => _feedbackState != FeedbackState.correct && data != tile, // Don't accept drop on self
+      onWillAccept: (data) => _feedbackState != FeedbackState.correct && data != tile,
       onAccept: (data) => _onTileDraggedToBuildArea(data, position),
       builder: (context, candidateData, rejectedData) {
         final isHighlighted = candidateData.isNotEmpty;
         
         if (tile != null) {
-          // Slot is FULL - show the draggable tile
           return Draggable<LetterTile>(
             data: tile,
             feedback: Material(
@@ -891,9 +950,8 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
                 child: _buildTileWidget(tile, selectedFontFamily, isDragging: true),
               ),
             ),
-            childWhenDragging: _buildEmptySlot(position, isHighlighted: true), // Show empty slot while dragging
+            childWhenDragging: _buildEmptySlot(position, isHighlighted: true),
             onDragStarted: () {
-              // Clear feedback when starting to drag a tile
               if (_feedbackState == FeedbackState.incorrect) {
                 setState(() {
                   _feedbackState = FeedbackState.none;
@@ -910,56 +968,40 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
             ),
           );
         } else {
-          // Slot is EMPTY - show the drop zone
           return _buildEmptySlot(position, isHighlighted: isHighlighted);
         }
       },
     );
   }
-  // --- END FIX ---
 
-  Widget _buildLetterPool(S s, String selectedFontFamily) {
-    // --- FIX: Wrap pool in a DragTarget to accept tiles back from the grid ---
+  Widget _buildLetterPool(String selectedFontFamily) {
     return DragTarget<LetterTile>(
-      // --- FIX: Added null check for 'data' ---
-      onWillAccept: (data) => data?.isPlaced ?? false, // Only accept tiles *from* the build grid
+      onWillAccept: (data) => data?.isPlaced ?? false,
       onAccept: (data) => _onTileReturnedToPool(data),
       builder: (context, candidateData, rejectedData) {
         final isHighlighted = candidateData.isNotEmpty;
 
         return AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.all(20),
-          decoration: SpaceTheme.cardDecoration.copyWith(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: SpaceTheme.deepSpace.withOpacity(0.5),
+            borderRadius: BorderRadius.circular(12),
             border: isHighlighted 
               ? Border.all(color: SpaceTheme.starYellow, width: 2)
-              : Border.all(color: SpaceTheme.nebulaPurple.withOpacity(0.5))
+              : Border.all(color: SpaceTheme.nebulaPurple.withOpacity(0.5)),
           ),
-          child: Column(
-            children: [
-              Text(
-                s.wordBuilderLetters,
-                style: SpaceTheme.bodyStyle.copyWith(
-                  fontSize: 14,
-                  color: Colors.white70,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                alignment: WrapAlignment.center,
-                // Only show tiles that are not placed
-                children: _tiles.where((tile) => !tile.isPlaced).map((tile) {
-                  return _buildDraggableTile(tile, selectedFontFamily);
-                }).toList(),
-              ),
-            ],
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            alignment: WrapAlignment.center,
+            children: _tiles.where((tile) => !tile.isPlaced).map((tile) {
+              return _buildDraggableTile(tile, selectedFontFamily);
+            }).toList(),
           ),
         );
       }
     );
-    // --- END FIX ---
   }
 
   Widget _buildDraggableTile(LetterTile tile, String selectedFontFamily) {
@@ -977,7 +1019,6 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
         child: _buildTileWidget(tile, selectedFontFamily),
       ),
       onDragStarted: () {
-        // Clear feedback when starting to drag a tile
         if (_feedbackState == FeedbackState.incorrect) {
           setState(() {
             _feedbackState = FeedbackState.none;
@@ -999,8 +1040,8 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
         return Transform.scale(
           scale: scale,
           child: Container(
-            width: 60,
-            height: 70,
+            width: 50,
+            height: 60,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
@@ -1010,12 +1051,12 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.white.withOpacity(0.3), width: 2),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: Colors.white.withOpacity(0.3), width: 1.5),
               boxShadow: [
                 BoxShadow(
                   color: SpaceTheme.cosmicPink.withOpacity(0.4),
-                  blurRadius: isDragging ? 20 : 8,
+                  blurRadius: isDragging ? 16 : 6,
                   spreadRadius: isDragging ? 2 : 0,
                 ),
               ],
@@ -1025,11 +1066,11 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
                 tile.letter,
                 style: TextStyle(
                   fontFamily: selectedFontFamily,
-                  fontSize: 28,
+                  fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                   shadows: const [
-                    Shadow(blurRadius: 4, color: Colors.black54),
+                    Shadow(blurRadius: 3, color: Colors.black54),
                   ],
                 ),
               ),
@@ -1037,35 +1078,6 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
           ),
         );
       },
-    );
-  }
-
-  Widget _buildActionButtons(S s) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        ElevatedButton.icon(
-          onPressed: (_feedbackState == FeedbackState.correct || _showHint) ? null : _useHint,
-          icon: const Icon(Icons.lightbulb_outline),
-          label: Text(s.wordBuilderHint),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: SpaceTheme.starYellow,
-            foregroundColor: SpaceTheme.deepSpace,
-            disabledBackgroundColor: Colors.grey,
-          ),
-        ),
-        const SizedBox(width: 16),
-        ElevatedButton.icon(
-          onPressed: _feedbackState == FeedbackState.correct ? null : _skipWord,
-          icon: const Icon(Icons.skip_next),
-          label: Text(s.wordBuilderSkip),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: SpaceTheme.rocketRed,
-            foregroundColor: Colors.white,
-            disabledBackgroundColor: Colors.grey,
-          ),
-        ),
-      ],
     );
   }
 }

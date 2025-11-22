@@ -1,7 +1,7 @@
 {
     "appTitle": "Wort-Universum",
     "welcome": "Entdecke das Wort-Universum!",
-    "startAdventure": "Starte dein Wort-Abenteuer",
+    "startAdventure": "Starte Wort-Abenteuer",
     "chooseGrade": "Wähle deine Stufe",
     "grade3": "Stufe 1",
     "grade4": "Stufe 2",
@@ -9,7 +9,7 @@
     "grade6": "Stufe 4",
 
     "licensesTitle": "Lizenzen",
-    "viewOssLicenses": "Zeite die open-source Lizenzen",
+    "viewOssLicenses": "Zeige die open-source Lizenzen",
     "appName": "Wort-Universum",
     "appLegalese": "© 2025 CrispStrobe",
 
@@ -219,10 +219,10 @@
     "about": "Über",
     "appVersion": "App-Version",
     "developer": "Entwickler",
-    "developerName": "Wort-Universum Team",
+    "developerName": "CrispStrobe",
     "targetAge": "Zielalter",
     "targetAgeRange": "6-12 Jahre (Klasse 1-6)",
-    "aboutApp": "Wort-Universum hilft Grundschülern, Rechtschreibung und Wortschatz durch fesselnde Weltraum-Spiele zu lernen.",
+    "aboutApp": "Wort-Universum hilft Schülern, Rechtschreibung und Wortschatz durch fesselnde Spiele zu lernen.",
     "debugPanelTitle": "Debug-Panel",
     "debugForceUnlock": "Vollversion erzwingen",
     "debugApplyAndClose": "Anwenden & Schließen",

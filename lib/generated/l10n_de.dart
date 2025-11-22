@@ -15,7 +15,7 @@ class SDe extends S {
   String get welcome => 'Entdecke das Wort-Universum!';
 
   @override
-  String get startAdventure => 'Starte dein Wort-Abenteuer';
+  String get startAdventure => 'Starte Wort-Abenteuer';
 
   @override
   String get chooseGrade => 'Wähle deine Stufe';
@@ -36,7 +36,7 @@ class SDe extends S {
   String get licensesTitle => 'Lizenzen';
 
   @override
-  String get viewOssLicenses => 'Zeite die open-source Lizenzen';
+  String get viewOssLicenses => 'Zeige die open-source Lizenzen';
 
   @override
   String get appName => 'Wort-Universum';
@@ -420,7 +420,7 @@ class SDe extends S {
   String get developer => 'Entwickler';
 
   @override
-  String get developerName => 'Wort-Universum Team';
+  String get developerName => 'CrispStrobe';
 
   @override
   String get targetAge => 'Zielalter';
@@ -430,7 +430,7 @@ class SDe extends S {
 
   @override
   String get aboutApp =>
-      'Wort-Universum hilft Grundschülern, Rechtschreibung und Wortschatz durch fesselnde Weltraum-Spiele zu lernen.';
+      'Wort-Universum hilft Schülern, Rechtschreibung und Wortschatz durch fesselnde Spiele zu lernen.';
 
   @override
   String get debugPanelTitle => 'Debug-Panel';

@@ -69,8 +69,7 @@ class _SettingsScreenState extends State<SettingsScreen>
       vsync: this,
     );
 
-    // FIX: Increased list size to 7 for the new settings card
-    _settingAnimations = List.generate(7, (index) { // Was 6
+    _settingAnimations = List.generate(7, (index) {
       return Tween<Offset>(
         begin: const Offset(-1.0, 0.0),
         end: Offset.zero,
@@ -86,27 +85,31 @@ class _SettingsScreenState extends State<SettingsScreen>
     
     debugPrint("[SETTINGS] 🔧 initState() completed - 7 animations ready");
     _slideController.forward();
-    _addCustomFontLicenses();
+    _addCustomLicenses();
   }
 
-  // --- REPLACE your old method with this ---
-  Future<void> _addCustomFontLicenses() async {
+  /// Adds custom font, data source, and library licenses to the app's license registry.
+  /// This method ensures all third-party components are properly attributed in the
+  /// "About" section of the app.
+  Future<void> _addCustomLicenses() async {
     // Only run this once per app session.
     if (_customLicensesAdded) return;
 
     try {
-      // 1. Load the common OFL.txt file
+      // 1. Load the common OFL.txt file for fonts
       final oflLicense = await rootBundle.loadString('assets/fonts/OFL.txt');
 
+      // ==================== FONT LICENSES ====================
+      
       // 2. Add license for Grundschrift (Unique Author)
       LicenseRegistry.addLicense(() {
         return Stream<LicenseEntry>.fromIterable([
           LicenseEntryWithLineBreaks(
-            ['Grundschrift'], // The package name from pubspec
+            ['Grundschrift'],
             'Credit: Christian Urff\n'
             'License: SIL Open Font License, Version 1.1\n\n'
             '------------------------------------\n\n'
-            '$oflLicense', // The license text
+            '$oflLicense',
           ),
         ]);
       });
@@ -115,11 +118,11 @@ class _SettingsScreenState extends State<SettingsScreen>
       LicenseRegistry.addLicense(() {
         return Stream<LicenseEntry>.fromIterable([
           LicenseEntryWithLineBreaks(
-            ['DidactGothic'], // The package name from pubspec
+            ['DidactGothic'],
             'Authors: Daniel Johnson, Cyreal\n'
             'License: SIL Open Font License, Version 1.1\n\n'
             '------------------------------------\n\n'
-            '$oflLicense', // The license text
+            '$oflLicense',
           ),
         ]);
       });
@@ -128,29 +131,28 @@ class _SettingsScreenState extends State<SettingsScreen>
       LicenseRegistry.addLicense(() {
         return Stream<LicenseEntry>.fromIterable([
           LicenseEntryWithLineBreaks(
-            ['LetsTrace'], // The package name from pubspec
+            ['LetsTrace'],
             'Author: James Kilfiger\n'
             'License: SIL Open Font License, Version 1.1\n\n'
             '------------------------------------\n\n'
-            '$oflLicense', // The license text
+            '$oflLicense',
           ),
         ]);
       });
       
-      // 5. Add license for SASBienchen (assuming OFL)
+      // 5. Add license for SASBienchen
       LicenseRegistry.addLicense(() {
         return Stream<LicenseEntry>.fromIterable([
           LicenseEntryWithLineBreaks(
-            ['SASBienchen'], // The package name from pubspec
+            ['SASBienchen'],
             'License: SIL Open Font License, Version 1.1\n\n'
             '------------------------------------\n\n'
-            '$oflLicense', // The license text
+            '$oflLicense',
           ),
         ]);
       });
 
       // 6. Add all Peter Wiegel fonts
-      // We can do this in a loop to save space
       final peterWiegelFonts = [
         'BernerBasisschrift',
         'EuroScript',
@@ -170,20 +172,198 @@ class _SettingsScreenState extends State<SettingsScreen>
         LicenseRegistry.addLicense(() {
           return Stream<LicenseEntry>.fromIterable([
             LicenseEntryWithLineBreaks(
-              [fontFamily], // The package name from pubspec
+              [fontFamily],
               peterWiegelLicense,
             ),
           ]);
         });
       }
+
+      // ==================== DATA SOURCE LICENSES ====================
+      
+      // 7. Wiktionary (Updated to CC-BY-SA 4.0)
+      LicenseRegistry.addLicense(() {
+        return Stream<LicenseEntry>.fromIterable([
+          LicenseEntryWithLineBreaks(
+            ['Wiktionary'],
+            'Source: Wiktionary (https://www.wiktionary.org/)\n'
+            'License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)\n'
+            'URL: https://creativecommons.org/licenses/by-sa/4.0/\n\n'
+            'This work contains data from Wiktionary, which is made available under the '
+            'Creative Commons Attribution-ShareAlike 4.0 International License.\n\n'
+            'Under CC BY-SA 4.0, you are free to:\n'
+            '• Share — copy and redistribute the material in any medium or format for any purpose, even commercially\n'
+            '• Adapt — remix, transform, and build upon the material for any purpose, even commercially\n\n'
+            'Under the following terms:\n'
+            '• Attribution — You must give appropriate credit, provide a link to the license, '
+            'and indicate if changes were made. You may do so in any reasonable manner, but not in any way '
+            'that suggests the licensor endorses you or your use.\n'
+            '• ShareAlike — If you remix, transform, or build upon the material, you must distribute '
+            'your contributions under the same license as the original.\n'
+            '• No additional restrictions — You may not apply legal terms or technological measures '
+            'that legally restrict others from doing anything the license permits.\n\n'
+            'To view the full license, visit: https://creativecommons.org/licenses/by-sa/4.0/legalcode',
+          ),
+        ]);
+      });
+
+      // 8. OdeNet (Open German WordNet)
+      LicenseRegistry.addLicense(() {
+        return Stream<LicenseEntry>.fromIterable([
+          LicenseEntryWithLineBreaks(
+            ['OdeNet'],
+            'Source: OdeNet - Open German WordNet\n'
+            'Authors: Universität Hamburg, Language Technology Group\n'
+            'License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)\n'
+            'URL: https://creativecommons.org/licenses/by-sa/4.0/\n\n'
+            'This work contains data from OdeNet, which is made available under the '
+            'Creative Commons Attribution-ShareAlike 4.0 International License.\n\n'
+            'Under CC BY-SA 4.0, you are free to:\n'
+            '• Share — copy and redistribute the material in any medium or format for any purpose, even commercially\n'
+            '• Adapt — remix, transform, and build upon the material for any purpose, even commercially\n\n'
+            'Under the following terms:\n'
+            '• Attribution — You must give appropriate credit, provide a link to the license, '
+            'and indicate if changes were made.\n'
+            '• ShareAlike — If you remix, transform, or build upon the material, you must distribute '
+            'your contributions under the same license as the original.\n'
+            '• No additional restrictions — You may not apply legal terms or technological measures '
+            'that legally restrict others from doing anything the license permits.',
+          ),
+        ]);
+      });
+
+      // 9. ConceptNet
+      LicenseRegistry.addLicense(() {
+        return Stream<LicenseEntry>.fromIterable([
+          LicenseEntryWithLineBreaks(
+            ['ConceptNet'],
+            'Source: ConceptNet 5\n'
+            'Authors: Luminoso Technologies, Inc. and contributors\n'
+            'License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)\n'
+            'URL: https://creativecommons.org/licenses/by-sa/4.0/\n'
+            'Project URL: https://conceptnet.io/\n\n'
+            'ConceptNet is a multilingual knowledge graph that connects words and phrases of natural '
+            'language with labeled edges. This work uses data from ConceptNet 5.\n\n'
+            'Under CC BY-SA 4.0, you are free to:\n'
+            '• Share — copy and redistribute the material in any medium or format for any purpose, even commercially\n'
+            '• Adapt — remix, transform, and build upon the material for any purpose, even commercially\n\n'
+            'Under the following terms:\n'
+            '• Attribution — You must give appropriate credit, provide a link to the license, '
+            'and indicate if changes were made.\n'
+            '• ShareAlike — If you remix, transform, or build upon the material, you must distribute '
+            'your contributions under the same license as the original.\n'
+            '• No additional restrictions — You may not apply legal terms or technological measures '
+            'that legally restrict others from doing anything the license permits.',
+          ),
+        ]);
+      });
+
+      // ==================== LIBRARY LICENSES ====================
+
+      // 10. spaCy
+      LicenseRegistry.addLicense(() {
+        return Stream<LicenseEntry>.fromIterable([
+          LicenseEntryWithLineBreaks(
+            ['spaCy'],
+            'spaCy: Industrial-strength Natural Language Processing (NLP) in Python\n'
+            'Copyright © 2016-2024 ExplosionAI GmbH\n'
+            'License: MIT License\n'
+            'URL: https://spacy.io/\n\n'
+            'The MIT License (MIT)\n\n'
+            'Permission is hereby granted, free of charge, to any person obtaining a copy '
+            'of this software and associated documentation files (the "Software"), to deal '
+            'in the Software without restriction, including without limitation the rights '
+            'to use, copy, modify, merge, publish, distribute, sublicense, and/or sell '
+            'copies of the Software, and to permit persons to whom the Software is '
+            'furnished to do so, subject to the following conditions:\n\n'
+            'The above copyright notice and this permission notice shall be included in all '
+            'copies or substantial portions of the Software.\n\n'
+            'THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR '
+            'IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, '
+            'FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE '
+            'AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER '
+            'LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, '
+            'OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE '
+            'SOFTWARE.',
+          ),
+        ]);
+      });
+
+      // 11. pattern-de
+      LicenseRegistry.addLicense(() {
+        return Stream<LicenseEntry>.fromIterable([
+          LicenseEntryWithLineBreaks(
+            ['pattern-de', 'Pattern'],
+            'Pattern: Web mining module for Python\n'
+            'Copyright (c) 2010 University of Antwerp, Belgium\n'
+            'Authors: Tom De Smedt, Walter Daelemans\n'
+            'License: BSD-3-Clause License\n'
+            'URL: https://github.com/clips/pattern\n\n'
+            'BSD 3-Clause License\n\n'
+            'Redistribution and use in source and binary forms, with or without '
+            'modification, are permitted provided that the following conditions are met:\n\n'
+            '1. Redistributions of source code must retain the above copyright notice, this '
+            'list of conditions and the following disclaimer.\n\n'
+            '2. Redistributions in binary form must reproduce the above copyright notice, '
+            'this list of conditions and the following disclaimer in the documentation '
+            'and/or other materials provided with the distribution.\n\n'
+            '3. Neither the name of the copyright holder nor the names of its contributors '
+            'may be used to endorse or promote products derived from this software without '
+            'specific prior written permission.\n\n'
+            'THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" '
+            'AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE '
+            'IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE '
+            'DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE '
+            'FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL '
+            'DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR '
+            'SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER '
+            'CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, '
+            'OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE '
+            'OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.',
+          ),
+        ]);
+      });
+
+      // 12. PatternLight
+      LicenseRegistry.addLicense(() {
+        return Stream<LicenseEntry>.fromIterable([
+          LicenseEntryWithLineBreaks(
+            ['PatternLight'],
+            'PatternLight: Lightweight fork of the Pattern library\n'
+            'Based on Pattern by University of Antwerp, Belgium\n'
+            'License: BSD-3-Clause License\n\n'
+            'BSD 3-Clause License\n\n'
+            'Redistribution and use in source and binary forms, with or without '
+            'modification, are permitted provided that the following conditions are met:\n\n'
+            '1. Redistributions of source code must retain the above copyright notice, this '
+            'list of conditions and the following disclaimer.\n\n'
+            '2. Redistributions in binary form must reproduce the above copyright notice, '
+            'this list of conditions and the following disclaimer in the documentation '
+            'and/or other materials provided with the distribution.\n\n'
+            '3. Neither the name of the copyright holder nor the names of its contributors '
+            'may be used to endorse or promote products derived from this software without '
+            'specific prior written permission.\n\n'
+            'THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" '
+            'AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE '
+            'IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE '
+            'DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE '
+            'FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL '
+            'DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR '
+            'SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER '
+            'CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, '
+            'OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE '
+            'OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.',
+          ),
+        ]);
+      });
       
       setState(() {
         _customLicensesAdded = true;
       });
-      debugPrint("[SETTINGS] 📚 Successfully added all custom font licenses.");
+      debugPrint("[SETTINGS] 📚 Successfully added all custom licenses (fonts + data sources + libraries).");
 
     } catch (e) {
-      debugPrint("[SETTINGS] ❌ Error loading custom font licenses: $e");
+      debugPrint("[SETTINGS] ❌ Error loading custom licenses: $e");
     }
   }
 
@@ -336,7 +516,6 @@ class _SettingsScreenState extends State<SettingsScreen>
               foregroundColor: Colors.white,
             ),
             onPressed: () {
-              // --- MODIFIED: Show the new dialog ---
               showDialog(
                 context: context,
                 builder: (context) => const ManageSetsDialog(),
@@ -464,7 +643,6 @@ class _SettingsScreenState extends State<SettingsScreen>
                       const SizedBox(height: 20),
                       _buildGameplaySettings(),
                       const SizedBox(height: 20),
-                      // NEW: Add the task customization card
                       _buildTaskCustomizationSettings(),
                       const SizedBox(height: 20),
                       _buildLanguageSettings(),
@@ -673,12 +851,10 @@ class _SettingsScreenState extends State<SettingsScreen>
   
   Widget _buildTaskCustomizationSettings() {
     return SlideTransition(
-      position: _settingAnimations[2], // Use the 3rd animation
-      // MODIFIED: Use Consumer2 to get GameProvider AND VocabularyService
+      position: _settingAnimations[2],
       child: Consumer2<GameProvider, VocabularyService>(
         builder: (context, gameProvider, vocabService, child) {
           
-          // MODIFIED: Check if ANY custom set is active
           final bool customSetIsActive = gameProvider.activeVocabularySetIds.isNotEmpty;
 
           return _buildSettingsCard(
@@ -693,19 +869,14 @@ class _SettingsScreenState extends State<SettingsScreen>
                   debugPrint("[SETTINGS] 🛠️ Task Customization changed to: $value");
                   gameProvider.setTasksCustomizationEnabled(value);
 
-                  // --- ADD THIS LOGIC ---
-                  // If the user just turned the feature OFF,
-                  // clear all active sets for them.
                   if (value == false) {
                     gameProvider.clearActiveVocabularySets();
                     debugPrint("[SETTINGS] 🧹 Cleared active vocabulary sets.");
                   }
-                  // --- END OF ADDED LOGIC ---
                 },
                 icon: Icons.edit_note,
               ),
 
-              // Conditionally show the rest of the settings
               AnimatedSize(
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeInOut,
@@ -715,13 +886,10 @@ class _SettingsScreenState extends State<SettingsScreen>
                       children: [
                         const Divider(color: SpaceTheme.nebulaPurple, height: 24),
 
-                        // --- MODIFIED: This is now the checkbox list ---
                         _buildCustomSetSelector(context, gameProvider, vocabService),
-                        // --- End of modification ---
                         
                         const Divider(color: SpaceTheme.nebulaPurple, height: 24),
 
-                        // NEW: Add a helper text if a set is active
                         if (customSetIsActive)
                           Padding(
                             padding: const EdgeInsets.only(bottom: 16.0),
@@ -736,8 +904,6 @@ class _SettingsScreenState extends State<SettingsScreen>
                             ),
                           ),
                         
-                        // MODIFIED: Wrap existing filters in IgnorePointer and Opacity
-                        // These will be disabled if a custom set is active
                         IgnorePointer(
                           ignoring: customSetIsActive,
                           child: Opacity(
@@ -745,15 +911,12 @@ class _SettingsScreenState extends State<SettingsScreen>
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // --- Word Length Slider ---
                                 _buildWordLengthSlider(gameProvider),
                                 const SizedBox(height: 20),
 
-                                // --- Included Sources ---
                                 _buildSourceSelector(gameProvider),
                                 const SizedBox(height: 20),
 
-                                // --- Include Wildcards ---
                                 _buildWildcardInputSection(
                                   title: S.of(context)!.taskWildcardIncludeTitle,
                                   desc: S.of(context)!.taskWildcardIncludeDesc,
@@ -770,7 +933,6 @@ class _SettingsScreenState extends State<SettingsScreen>
                                 ),
                                 const SizedBox(height: 20),
                                 
-                                // --- Exclude Wildcards ---
                                 _buildWildcardInputSection(
                                   title: S.of(context)!.taskWildcardExcludeTitle,
                                   desc: S.of(context)!.taskWildcardExcludeDesc,
@@ -791,7 +953,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                         ),
                       ],
                     )
-                  : const SizedBox.shrink(), // Empty box when disabled
+                  : const SizedBox.shrink(),
                 ),
               ],
             );
@@ -800,7 +962,6 @@ class _SettingsScreenState extends State<SettingsScreen>
     );
   }
 
-  // --- NEW: Helper for Word Length Slider ---
   Widget _buildWordLengthSlider(GameProvider gameProvider) {
     final min = gameProvider.taskWordLengthMin;
     final max = gameProvider.taskWordLengthMax;
@@ -825,7 +986,7 @@ class _SettingsScreenState extends State<SettingsScreen>
             Expanded(
               child: RangeSlider(
                 min: 2,
-                max: 20, // Max word length to filter
+                max: 20,
                 divisions: 18,
                 values: RangeValues(min, max),
                 activeColor: SpaceTheme.alienGreen,
@@ -858,7 +1019,6 @@ class _SettingsScreenState extends State<SettingsScreen>
     );
   }
 
-  // --- NEW: Helper for Source Selector Chips ---
   Widget _buildSourceSelector(GameProvider gameProvider) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -884,7 +1044,7 @@ class _SettingsScreenState extends State<SettingsScreen>
           : _availableSources.isEmpty
             ? Center(
                 child: Text(
-                  "Keine Quellen gefunden", // Should not happen
+                  "Keine Quellen gefunden",
                   style: SpaceTheme.bodyStyle.copyWith(color: Colors.white54),
                 ),
               )
@@ -923,7 +1083,6 @@ class _SettingsScreenState extends State<SettingsScreen>
     );
   }
 
-  // --- NEW: Helper for Wildcard Input ---
   Widget _buildWildcardInputSection({
     required String title,
     required String desc,
@@ -951,7 +1110,6 @@ class _SettingsScreenState extends State<SettingsScreen>
           ),
         ),
         const SizedBox(height: 12),
-        // Text field for adding new filters
         TextField(
           controller: controller,
           style: SpaceTheme.bodyStyle,
@@ -993,7 +1151,6 @@ class _SettingsScreenState extends State<SettingsScreen>
           },
         ),
         const SizedBox(height: 8),
-        // Wrap for displaying current filters
         if (currentFilters.isNotEmpty)
           Wrap(
             spacing: 8.0,
@@ -1014,7 +1171,6 @@ class _SettingsScreenState extends State<SettingsScreen>
       ],
     );
   }
-  // --- END OF NEW WIDGETS ---
 
   Widget _buildFeatureRow({
     required String title,
@@ -1024,7 +1180,7 @@ class _SettingsScreenState extends State<SettingsScreen>
     required VoidCallback onTap,
     }) {
     return InkWell(
-      onTap: isLocked ? null : onTap, // Disable tap if locked
+      onTap: isLocked ? null : onTap,
       borderRadius: BorderRadius.circular(12),
       child: Opacity(
       opacity: isLocked ? 0.6 : 1.0,
@@ -1072,7 +1228,7 @@ class _SettingsScreenState extends State<SettingsScreen>
   
   Widget _buildLanguageSettings() {
     return SlideTransition(
-      position: _settingAnimations[3], // Was 2
+      position: _settingAnimations[3],
       child: _buildSettingsCard(
         title: S.of(context)!.language,
         icon: Icons.language,
@@ -1202,7 +1358,7 @@ class _SettingsScreenState extends State<SettingsScreen>
 
   Widget _buildDifficultySettings() {
     return SlideTransition(
-      position: _settingAnimations[4], // Was 3
+      position: _settingAnimations[4],
       child: _buildSettingsCard(
         title: S.of(context)!.difficulty,
         icon: Icons.tune,
@@ -1248,7 +1404,7 @@ class _SettingsScreenState extends State<SettingsScreen>
   
   Widget _buildProgressSettings() {
     return SlideTransition(
-      position: _settingAnimations[5], // Was 4
+      position: _settingAnimations[5],
       child: _buildSettingsCard(
         title: S.of(context)!.progress,
         icon: Icons.analytics,
@@ -1299,16 +1455,14 @@ class _SettingsScreenState extends State<SettingsScreen>
     );
   }
   
-  // ... inside _SettingsScreenState class ...
-
   Widget _buildAboutSection() {
     return SlideTransition(
-      position: _settingAnimations[6], // Was 5
+      position: _settingAnimations[6],
       child: _buildSettingsCard(
         title: S.of(context)!.about,
         icon: Icons.info,
         children: [
-          _buildInfoRow(S.of(context)!.appVersion, '1.0.3 (Vocabulary)'), // From your pubspec
+          _buildInfoRow(S.of(context)!.appVersion, '1.0.3 (Vocabulary)'),
           _buildInfoRow(S.of(context)!.developer, S.of(context)!.developerName),
           _buildInfoRow(S.of(context)!.targetAge, S.of(context)!.targetAgeRange),
 
@@ -1335,12 +1489,12 @@ class _SettingsScreenState extends State<SettingsScreen>
               showLicensePage(
                 context: context,
                 applicationName: S.of(context)!.appName, 
-                applicationVersion: '1.0.3', // From pubspec
+                applicationVersion: '1.0.3',
                 applicationLegalese: S.of(context)!.appLegalese, 
                 applicationIcon: Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: Icon(
-                    Icons.rocket_launch, // Fits theme
+                    Icons.rocket_launch,
                     size: 48,
                     color: SpaceTheme.starYellow,
                   ),
@@ -1454,7 +1608,7 @@ class _SettingsScreenState extends State<SettingsScreen>
           
           Switch(
             value: value,
-            onChanged: isLocked ? null : onChanged, // Disable if locked
+            onChanged: isLocked ? null : onChanged,
             activeColor: SpaceTheme.alienGreen,
             inactiveThumbColor: SpaceTheme.moonSilver,
             inactiveTrackColor: SpaceTheme.deepSpace,
@@ -1536,7 +1690,6 @@ class _SettingsScreenState extends State<SettingsScreen>
     );
   }
 
-  // SAVE INDIVIDUAL SETTING WITH LOGGING
   Future<void> _saveSetting(String key, dynamic value) async {
     debugPrint("[SETTINGS] 💾 Saving setting: $key = $value");
     
@@ -1774,7 +1927,7 @@ class _SettingsScreenState extends State<SettingsScreen>
   String _getDifficultyDescription(int grade) {
     switch (grade) {
       case 1:
-        return S.of(context)!.difficultyDescGrade3; // Note: key names are slightly off
+        return S.of(context)!.difficultyDescGrade3;
       case 2:
         return S.of(context)!.difficultyDescGrade4;
       case 3:
@@ -1826,7 +1979,6 @@ class _SettingsScreenState extends State<SettingsScreen>
             onPressed: () {
               debugPrint("[SETTINGS] 🗑️ Resetting all game progress");
               context.read<GameProvider>().resetGame();
-              // NEW: Also clear SRI data
               context.read<SriService>().clearAllData();
               Navigator.of(context).pop();
               ScaffoldMessenger.of(context).showSnackBar(

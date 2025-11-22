@@ -112,7 +112,7 @@ abstract class S {
   /// No description provided for @startAdventure.
   ///
   /// In en, this message translates to:
-  /// **'Start Your Word Adventure'**
+  /// **'Start Word Adventure'**
   String get startAdventure;
 
   /// No description provided for @chooseGrade.

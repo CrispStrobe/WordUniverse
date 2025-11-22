@@ -15,7 +15,7 @@ class SEn extends S {
   String get welcome => 'Discover the Word Universe!';
 
   @override
-  String get startAdventure => 'Start Your Word Adventure';
+  String get startAdventure => 'Start Word Adventure';
 
   @override
   String get chooseGrade => 'Choose Your Level';
