@@ -41,6 +41,7 @@ dependencies:
   csv: ^5.0.2
   http: ^1.2.1
   sqlite3: ^2.1.0
+  sqflite_common_ffi_web: ^0.4.0
   archive: ^3.6.1
 
   # Development
@@ -64,7 +65,7 @@ flutter:
     - lib/features/games/data/ 
     - assets/fonts/OFL.txt
     - assets/grundwortschatz.db.gz
-    - assets/grundwortschatz.db
+    #- assets/grundwortschatz.db
     
   fonts:
     - family: SpaceGrotesk

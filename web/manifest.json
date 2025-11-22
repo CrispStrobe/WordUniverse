@@ -1,11 +1,11 @@
 {
-    "name": "Space Math Academy",
-    "short_name": "Space Math",
+    "name": "Word-Universe",
+    "short_name": "Word Universe",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0a0a2a",
     "theme_color": "#0a0a2a",
-    "description": "A space-themed math learning app for primary school students.",
+    "description": "A space-themed grammar and vocabulary learning app for primary school students.",
     "orientation": "landscape-primary",
     "prefer_related_applications": false,
     "icons": [
