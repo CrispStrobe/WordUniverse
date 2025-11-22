@@ -1,20 +1,17 @@
 // lib/features/games/screens/space_word_rescue_game.dart
 
 import 'package:flutter/material.dart';
-// import 'package:flutter/services.dart';
 import 'dart:math';
 import 'dart:async';
 import 'package:provider/provider.dart';
 
 import '../../../core/services/vocabulary_service.dart';
 import '../../../core/models/vocabulary_models.dart';
-
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/theme/space_theme.dart';
 import '../../../core/models/skill_category.dart';
 import '../widgets/space_background.dart';
-// import '../widgets/game_ui.dart'; // No longer used, replaced by _buildTopBar
 import '../../../generated/l10n.dart';
 import '../providers/game_provider.dart';
 
@@ -72,7 +69,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
   static const int _totalWords = 10;
   bool _showInputHint = true;
 
-  // --- MERGED: Streak system from HEAD ---
+  // Streak system
   int _currentStreak = 0;
   int _maxStreak = 0;
 
@@ -81,7 +78,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
   String _feedbackMessage = '';
   String _educationalHint = '';
 
-  // --- MERGED: Progressive hint system from HEAD ---
+  // Progressive hint system
   int _hintsUsed = 0;
   String _currentHintText = '';
 
@@ -90,34 +87,19 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
   late AnimationController _fadeController;
   late AnimationController _explosionController;
   late AnimationController _rescueController;
-  late AnimationController _streakController; // From HEAD
+  late AnimationController _streakController;
   late Animation<double> _scrollAnimation;
   late Animation<double> _perspectiveAnimation;
-  late Animation<double> _streakAnimation; // From HEAD
+  late Animation<double> _streakAnimation;
 
   // Word scrolling & Fading
   double _wordPosition = 0.0;
   Timer? _fadeTimer;
   int _nextLetterToFade = 0;
 
-  // --- Adjustable fade start time ---
-
-  /// The default start time for fading letters, as a fraction of the total scroll duration.
-  /// 0.7 means the fading will start when the word has completed 70% of its scroll.
-  /// This is the setting for the easiest level (Grade 1).
-  /// (0.5 = mid-screen, 1.0 = bottom of screen).
+  // Adjustable fade start time
   static const double _baseFadeStartTimeFactor = 0.4;
-
-  /// How much earlier fading starts for each grade level above Grade 1.
-  /// 0.05 means for Grade 2, fading starts 5% earlier (at 65% scroll), 
-  /// for Grade 3 it's 10% earlier (at 60% scroll), and so on.
-  /// This makes higher levels progressively harder.
   static const double _fadeFactorPerGrade = 0.05;
-
-  /// The absolute earliest the fading can possibly start, as a fraction of the scroll.
-  /// This acts as a "floor" or "clamp" for high grade levels.
-  /// By setting this to 0.5, we guarantee that fading will
-  /// NEVER start before the word has passed mid-screen (50%).
   static const double _minFadeStartTimeFactor = 0.4;
 
   // Particles for effects
@@ -132,10 +114,29 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
   late Duration _scrollDuration;
   late Duration _letterFadeInterval;
 
-  // --- MODIFIED: Timers for non-blocking flow ---
+  // Timers for non-blocking flow
   Timer? _hintTimer;
-  static const Duration _transitionDelay = Duration(milliseconds: 500); // For particles
-  static const Duration _hintDisplayDuration = Duration(seconds: 4); // Hint stays on screen
+  static const Duration _transitionDelay = Duration(milliseconds: 500);
+  static const Duration _hintDisplayDuration = Duration(seconds: 4);
+
+  // Screen detection helpers
+  bool _isSmallScreen(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final shortestSide = size.shortestSide;
+    return shortestSide < 600;
+  }
+
+  bool _isPortrait(BuildContext context) {
+    return MediaQuery.of(context).orientation == Orientation.portrait;
+  }
+
+  bool _isCompactMode(BuildContext context) {
+    return _isSmallScreen(context) && _isPortrait(context);
+  }
+
+  bool _isLandscapeMode(BuildContext context) {
+    return MediaQuery.of(context).orientation == Orientation.landscape;
+  }
 
   @override
   void initState() {
@@ -151,15 +152,14 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
     final adjustedFadeMs = (baseFadeMs * fadeDifficultyFactor).clamp(300.0, 700.0);
     _letterFadeInterval = Duration(milliseconds: adjustedFadeMs.round());
 
-    // --- Core game animations from 2c4a04c ---
     _scrollController = AnimationController(
       duration: _scrollDuration,
       vsync: this,
     );
 
     _scrollAnimation = Tween<double>(
-      begin: 1.2, // Start below screen
-      end: -0.5, // End above screen
+      begin: 1.2,
+      end: -0.5,
     ).animate(CurvedAnimation(
       parent: _scrollController,
       curve: Curves.linear,
@@ -191,7 +191,6 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
     _scrollController.addListener(_checkWordPosition);
     _scrollController.addStatusListener(_handleScrollComplete);
 
-    // --- MERGED: Streak animation from HEAD ---
     _streakController = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
@@ -222,7 +221,6 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
 
     _loadNextWord();
 
-    // Timer to hide the initial input hint
     Timer(const Duration(seconds: 10), () {
       if (mounted) {
         setState(() {
@@ -242,15 +240,12 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
       _userInput = '';
       _textController.clear();
       _isAnswerChecked = false;
-      // Note: We don't clear feedback/hint message here to let it overlap
       _nextLetterToFade = 0;
       _particles.clear();
-      // --- MERGED: Reset hint/streak state from HEAD ---
       _hintsUsed = 0;
       _currentHintText = '';
     });
 
-    // Aggressively request focus every time a new word is loaded
     Future.delayed(const Duration(milliseconds: 50), () {
       if (mounted) {
         _focusNode.requestFocus();
@@ -281,12 +276,8 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
 
     _fadeTimer?.cancel();
 
-    // --- MODIFIED: Dynamic fade start time based on grade level ---
     final gradePenalty = widget.gradeLevel.index * _fadeFactorPerGrade;
     final targetFadeFactor = _baseFadeStartTimeFactor - gradePenalty;
-
-    // --- FIX: Correct clamp logic ---
-    // The calculated value is clamped BETWEEN the min and base factors.
     final fadeStartTimeFactor = targetFadeFactor.clamp(_minFadeStartTimeFactor, _baseFadeStartTimeFactor);
     
     _fadeTimer = Timer(Duration(milliseconds: (_scrollDuration.inMilliseconds * fadeStartTimeFactor).round()), () {
@@ -341,11 +332,10 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
     try {
       s = S.of(context)!;
     } catch (e) {
-      return ''; // Can't generate hints if context is gone
+      return '';
     }
 
     if (isPerfect) {
-      // Positive reinforcement with educational content
       switch (word.wordType) {
         case GermanWordType.substantiv:
           if (word.article != null) {
@@ -440,7 +430,6 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
     return hints.join(' • ');
   }
 
-
   void _wordLost() {
     if (_isAnswerChecked) return;
     
@@ -454,7 +443,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
       _feedbackMessage = s.wordRescueFeedbackLost;
       _answerResult = AnswerResultType.incorrect;
       _educationalHint = _generateEducationalHint(_currentWord!, isIncorrect: true);
-      _currentStreak = 0; // --- MERGED: Reset streak ---
+      _currentStreak = 0;
     });
     
     _hintTimer = Timer(_hintDisplayDuration, () {
@@ -463,7 +452,6 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
           _feedbackMessage = '';
           _educationalHint = '';
         });
-        // CRITICAL: Request focus after word disappears
         Future.delayed(const Duration(milliseconds: 100), () {
           if (mounted) {
             _focusNode.requestFocus();
@@ -472,7 +460,6 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
       }
     });
     
-    // CRITICAL: Request focus immediately
     Future.delayed(const Duration(milliseconds: 100), () {
       if (mounted) {
         _focusNode.requestFocus();
@@ -541,7 +528,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
         position: Offset(centerX, centerY),
         velocity: Offset(
           cos(angle) * speed,
-          sin(angle) * speed - 2.0, // Upward bias
+          sin(angle) * speed - 2.0,
         ),
         color: [SpaceTheme.alienGreen, SpaceTheme.starYellow][random.nextInt(2)],
         size: 3.0 + random.nextDouble() * 5.0,
@@ -569,7 +556,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
           particle.position += particle.velocity;
           particle.velocity = Offset(
             particle.velocity.dx,
-            particle.velocity.dy + 0.2, // Gravity
+            particle.velocity.dy + 0.2,
           );
           particle.life -= 0.02;
         }
@@ -601,15 +588,13 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
         _educationalHint = _generateEducationalHint(_currentWord!, isPerfect: true);
         wasCorrectForSRI = true;
         
-        // --- MERGED: Scoring logic from HEAD ---
-        scoreGained = 10 - (_hintsUsed * 2); // Penalty for using hints
-        scoreGained = max(5, scoreGained); // Minimum 5 points
+        scoreGained = 10 - (_hintsUsed * 2);
+        scoreGained = max(5, scoreGained);
         
-        // Streak bonus
         _currentStreak++;
         if (_currentStreak > _maxStreak) _maxStreak = _currentStreak;
         if (_currentStreak >= 3) {
-          scoreGained += 5; // Streak bonus
+          scoreGained += 5;
           _streakController.forward(from: 0.0);
         }
     } else {
@@ -626,11 +611,9 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
         _educationalHint = _generateEducationalHint(_currentWord!, isCommonMistake: true);
         wasCorrectForSRI = true;
 
-        // --- MERGED: Scoring logic from HEAD ---
         scoreGained = 5 - (_hintsUsed * 1);
         scoreGained = max(2, scoreGained);
         
-        // Break streak on common mistake
         _currentStreak = 0;
       } else {
         _answerResult = AnswerResultType.incorrect;
@@ -639,7 +622,6 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
         wasCorrectForSRI = false;
         scoreGained = 0;
         
-        // --- MERGED: Break streak from HEAD ---
         _currentStreak = 0;
       }
     }
@@ -699,7 +681,6 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
     }
   }
 
-  // --- MERGED: Method from HEAD ---
   void _showProgressiveHint() {
     if (_currentWord == null || _isAnswerChecked) return;
     
@@ -707,32 +688,23 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
       _hintsUsed++;
       
       if (_hintsUsed == 1) {
-        // First hint: Repeat audio
         _audioService.speak(_displayedWord);
         _currentHintText = 'Wort noch einmal angehört!';
       } else if (_hintsUsed == 2) {
-        // Second hint: Show first letter(s)
         final word = _currentWord!.word;
         final firstPart = word.length > 3 ? word.substring(0, 2) : word.substring(0, 1);
         _currentHintText = 'Beginnt mit: $firstPart...';
       } else if (_hintsUsed == 3) {
-        // Third hint: Show length
         _currentHintText = '${_currentWord!.word.length} Buchstaben';
       } else {
-        // Final hint: Show the word with blanks
         final word = _currentWord!.word;
         final hint = word.split('').asMap().entries.map((e) {
           return e.key % 2 == 0 ? e.value : '_';
         }).join();
         _currentHintText = hint;
       }
-      
-      // Penalty
-      // _score = max(0, _score - 2); // Penalty is applied on answer
-      // context.read<GameProvider>().addScore(-2);
     });
     
-    // Clear hint after a delay
     Timer(const Duration(seconds: 2), () {
       if (mounted) {
         setState(() {
@@ -743,7 +715,6 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
     });
   }
 
-  // --- MERGED: Method from HEAD ---
   void _resetGame() {
     setState(() {
       _score = 0;
@@ -789,7 +760,6 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
                   : SpaceTheme.planetOrange,
             ),
             
-            // --- MERGED: Show Max Streak from HEAD ---
             if (_maxStreak > 1) ...[
               const SizedBox(height: 8),
               Text(
@@ -821,7 +791,6 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
             child: Text(s.backToMenu),
           ),
           ElevatedButton(
-            // --- MERGED: Use _resetGame from HEAD ---
             onPressed: () {
               Navigator.of(context).pop();
               _resetGame();
@@ -842,7 +811,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
     _fadeController.dispose();
     _explosionController.dispose();
     _rescueController.dispose();
-    _streakController.dispose(); // --- MERGED: from HEAD ---
+    _streakController.dispose();
     _fadeTimer?.cancel();
     _particleTimer?.cancel();
     _textController.dispose();
@@ -888,9 +857,15 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
                                 AnimatedBuilder(
                                   animation: _scrollController,
                                   builder: (context, child) {
-                                    final yPos = screenHeight * _scrollAnimation.value;
-                                    final scale = _perspectiveAnimation.value;
-                                    final opacity = _calculateOpacity(_scrollAnimation.value);
+                                    final isCompact = _isCompactMode(context);
+                                    final scrollValue = _scrollAnimation.value;
+                                    final adjustedScrollValue = isCompact 
+                                        ? scrollValue * 0.7
+                                        : scrollValue;
+                                    
+                                    final yPos = screenHeight * adjustedScrollValue;
+                                    final scale = _perspectiveAnimation.value * (isCompact ? 0.8 : 1.0);
+                                    final opacity = _calculateOpacity(adjustedScrollValue);
                                     
                                     return Positioned(
                                       left: 0,
@@ -898,8 +873,8 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
                                       top: yPos,
                                       child: Transform(
                                         transform: Matrix4.identity()
-                                          ..setEntry(3, 2, 0.001) // Perspective
-                                          ..rotateX(-0.3) // Tilt back
+                                          ..setEntry(3, 2, 0.001)
+                                          ..rotateX(isCompact ? -0.2 : -0.3)
                                           ..scale(scale),
                                         alignment: Alignment.center,
                                         child: Opacity(
@@ -917,9 +892,13 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
                               AnimatedPositioned(
                                 duration: const Duration(milliseconds: 100),
                                 curve: Curves.easeOut,
-                                left: 20,
-                                right: 20,
-                                bottom: keyboardHeight > 0 ? keyboardHeight + 10 : 20,
+                                left: _isCompactMode(context) ? 10 : (_isLandscapeMode(context) ? 16 : 20),
+                                right: _isCompactMode(context) ? 10 : (_isLandscapeMode(context) ? 16 : 20),
+                                bottom: _isCompactMode(context) 
+                                    ? (keyboardHeight > 0 ? keyboardHeight + 5 : 10)
+                                    : (_isLandscapeMode(context) 
+                                        ? (keyboardHeight > 0 ? keyboardHeight + 8 : 12)
+                                        : (keyboardHeight > 0 ? keyboardHeight + 10 : 20)),
                                 child: _buildInputArea(
                                   s,
                                   isLandscape: isLandscape,
@@ -938,7 +917,9 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
               AnimatedPositioned(
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeOutCubic,
-                top: _feedbackMessage.isNotEmpty ? (MediaQuery.of(context).padding.top + 100) : -200.0,
+                top: _feedbackMessage.isNotEmpty 
+                    ? (MediaQuery.of(context).padding.top + (_isLandscapeMode(context) ? 60 : 100))
+                    : -200.0,
                 right: 20.0,
                 child: _buildFeedbackToast(
                   s,
@@ -953,7 +934,110 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
   }
 
   Widget _buildTopBar(S s) {
-    final totalScore = context.watch<GameProvider>().score; 
+    final totalScore = context.watch<GameProvider>().score;
+    final isCompact = _isCompactMode(context);
+    final isLandscapeLayout = _isLandscapeMode(context);
+    
+    if (isCompact) {
+      return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        decoration: BoxDecoration(
+          color: SpaceTheme.deepSpace.withOpacity(0.9),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: SpaceTheme.alienGreen, width: 1.5),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white, size: 18),
+              onPressed: () => Navigator.of(context).pop(),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+            ),
+            _buildCompactStat(Icons.stars, '$_score', SpaceTheme.starYellow),
+            if (_currentStreak >= 2)
+              _buildCompactStat(Icons.local_fire_department, '$_currentStreak', SpaceTheme.planetOrange),
+            _buildCompactStat(Icons.check_circle, '$_wordsRescued/$_totalWords', SpaceTheme.alienGreen),
+            _buildCompactStat(Icons.military_tech, '${widget.gradeLevel.index + 1}', SpaceTheme.planetOrange),
+          ],
+        ),
+      );
+    }
+    
+    if (isLandscapeLayout) {
+      return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: SpaceTheme.deepSpace.withOpacity(0.85),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: SpaceTheme.alienGreen, width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: SpaceTheme.alienGreen.withOpacity(0.3),
+              blurRadius: 10,
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
+              onPressed: () => Navigator.of(context).pop(),
+              tooltip: s.backToMenu,
+              padding: const EdgeInsets.all(8),
+            ),
+            
+            Text(
+              s.wordRescueTitle,
+              style: SpaceTheme.titleStyle.copyWith(fontSize: 16),
+            ),
+            
+            const Spacer(),
+            
+            _buildCompactStat(Icons.stars, '$_score', SpaceTheme.starYellow),
+            const SizedBox(width: 8),
+            
+            if (_currentStreak >= 2) ...[
+              ScaleTransition(
+                scale: _streakAnimation,
+                child: _buildCompactStat(Icons.local_fire_department, '$_currentStreak', SpaceTheme.planetOrange),
+              ),
+              const SizedBox(width: 8),
+            ],
+            
+            _buildCompactStat(Icons.check_circle, '$_wordsRescued', SpaceTheme.alienGreen),
+            const SizedBox(width: 4),
+            _buildCompactStat(Icons.cancel, '$_wordsLost', SpaceTheme.rocketRed),
+            const SizedBox(width: 8),
+            
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: SpaceTheme.planetOrange.withOpacity(0.8),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.military_tech, color: Colors.white, size: 14),
+                  const SizedBox(width: 4),
+                  Text(
+                    '${widget.gradeLevel.index + 1}',
+                    style: SpaceTheme.bodyStyle.copyWith(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
     
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -1042,7 +1126,6 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
                 ],
               ),
               
-              // --- MERGED: Streak indicator from HEAD ---
               if (_currentStreak >= 2)
                 ScaleTransition(
                   scale: _streakAnimation,
@@ -1096,6 +1179,31 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
     );
   }
 
+  Widget _buildCompactStat(IconData icon, String text, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withOpacity(0.5), width: 1),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: color, size: 14),
+          const SizedBox(width: 3),
+          Text(
+            text,
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.bold,
+              fontSize: 11,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   double _calculateOpacity(double position) {
     if (position < -0.2) {
@@ -1108,20 +1216,26 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
   }
 
   Widget _buildScrollingWord({required bool isLandscape, required String selectedFontFamily}) {
+    final isCompact = _isCompactMode(context);
+    final isLandscapeLayout = _isLandscapeMode(context);
+    
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+      padding: EdgeInsets.symmetric(
+        horizontal: isCompact ? 20 : (isLandscapeLayout ? 30 : 40),
+        vertical: isCompact ? 10 : (isLandscapeLayout ? 15 : 20),
+      ),
       decoration: BoxDecoration(
-        color: SpaceTheme.deepSpace.withOpacity(0.8),
-        borderRadius: BorderRadius.circular(20),
+        color: SpaceTheme.deepSpace.withOpacity(isLandscapeLayout ? 0.95 : 0.8),
+        borderRadius: BorderRadius.circular(isCompact ? 12 : (isLandscapeLayout ? 16 : 20)),
         border: Border.all(
           color: SpaceTheme.starYellow,
-          width: 3,
+          width: isCompact ? 2 : (isLandscapeLayout ? 3 : 3),
         ),
         boxShadow: [
           BoxShadow(
-            color: SpaceTheme.starYellow.withOpacity(0.5),
-            blurRadius: 30,
-            spreadRadius: 5,
+            color: SpaceTheme.starYellow.withOpacity(0.6),
+            blurRadius: isCompact ? 15 : (isLandscapeLayout ? 25 : 30),
+            spreadRadius: isCompact ? 2 : (isLandscapeLayout ? 4 : 5),
           ),
         ],
       ),
@@ -1129,14 +1243,14 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
         _buildPartialWord(),
         style: SpaceTheme.headlineStyle.copyWith(
           fontFamily: selectedFontFamily,
-          fontSize: isLandscape ? 36 : 48,
+          fontSize: isCompact ? 28 : (isLandscapeLayout ? 40 : 48),
           color: SpaceTheme.starYellow,
           fontWeight: FontWeight.bold,
-          letterSpacing: 4,
+          letterSpacing: isCompact ? 2 : (isLandscapeLayout ? 3 : 4),
           shadows: [
             Shadow(
               color: SpaceTheme.starYellow.withOpacity(0.8),
-              blurRadius: 20,
+              blurRadius: isCompact ? 10 : (isLandscapeLayout ? 20 : 20),
             ),
           ],
         ),
@@ -1158,184 +1272,199 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
   }
 
   Widget _buildInputArea(S s, {required bool isLandscape, required String selectedFontFamily}) {
+    final isCompact = _isCompactMode(context);
+    final isLandscapeLayout = _isLandscapeMode(context);
+    
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.symmetric(
+        horizontal: isCompact ? 12 : (isLandscapeLayout ? 16 : 20),
+        vertical: isCompact ? 8 : (isLandscapeLayout ? 10 : 20),
+      ),
       decoration: BoxDecoration(
-        color: SpaceTheme.deepSpace.withOpacity(0.9),
-        borderRadius: BorderRadius.circular(20),
+        color: SpaceTheme.deepSpace.withOpacity(isLandscapeLayout ? 0.85 : 0.95),
+        borderRadius: BorderRadius.circular(isCompact ? 12 : (isLandscapeLayout ? 16 : 20)),
         border: Border.all(
           color: SpaceTheme.alienGreen,
-          width: 2,
+          width: isCompact ? 1.5 : 2,
         ),
         boxShadow: [
           BoxShadow(
             color: SpaceTheme.alienGreen.withOpacity(0.3),
-            blurRadius: 20,
+            blurRadius: isCompact ? 10 : 20,
           ),
         ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          AnimatedOpacity(
-            opacity: _showInputHint ? 1.0 : 0.0,
-            duration: const Duration(milliseconds: 300),
-            child: AnimatedContainer(
+          if (!isCompact && !isLandscapeLayout && _showInputHint) ...[
+            AnimatedOpacity(
+              opacity: _showInputHint ? 1.0 : 0.0,
               duration: const Duration(milliseconds: 300),
-              height: _showInputHint ? null : 0,
               child: Text(
                 s.wordRescueTypeWord,
                 style: SpaceTheme.bodyStyle.copyWith(
                   color: SpaceTheme.starYellow,
-                  fontSize: 16,
+                  fontSize: 14,
                 ),
               ),
             ),
-          ),
-          if (_showInputHint) const SizedBox(height: 12),
-          TextField(
-            controller: _textController,
-            focusNode: _focusNode,
-            enabled: !_isAnswerChecked,
-            onChanged: (value) {
-              setState(() {
-                _userInput = value;
-              });
-            },
-            onSubmitted: (_) => _checkAnswer(),
-            style: SpaceTheme.headlineStyle.copyWith(
-              fontFamily: selectedFontFamily,
-              fontSize: isLandscape ? 20 : 24,
-              color: Colors.white,
-            ),
-            decoration: InputDecoration(
-              hintText: s.wordRescueTypeHere,
-              hintStyle: SpaceTheme.bodyStyle.copyWith(
-                color: Colors.white38,
-              ),
-              filled: true,
-              fillColor: SpaceTheme.deepSpace.withOpacity(0.5),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
-                  color: SpaceTheme.alienGreen,
-                  width: 2,
+            const SizedBox(height: 12),
+          ],
+          
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _textController,
+                  focusNode: _focusNode,
+                  enabled: !_isAnswerChecked,
+                  onChanged: (value) {
+                    setState(() {
+                      _userInput = value;
+                    });
+                  },
+                  onSubmitted: (_) => _checkAnswer(),
+                  style: SpaceTheme.headlineStyle.copyWith(
+                    fontFamily: selectedFontFamily,
+                    fontSize: isCompact ? 18 : (isLandscapeLayout ? 20 : 24),
+                    color: Colors.white,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: s.wordRescueTypeHere,
+                    hintStyle: SpaceTheme.bodyStyle.copyWith(
+                      color: Colors.white38,
+                      fontSize: isCompact ? 14 : (isLandscapeLayout ? 16 : 16),
+                    ),
+                    filled: true,
+                    fillColor: SpaceTheme.deepSpace.withOpacity(0.5),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: isCompact ? 12 : (isLandscapeLayout ? 16 : 16),
+                      vertical: isCompact ? 10 : (isLandscapeLayout ? 12 : 16),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(isCompact ? 8 : (isLandscapeLayout ? 10 : 12)),
+                      borderSide: BorderSide(
+                        color: SpaceTheme.alienGreen,
+                        width: 2,
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(isCompact ? 8 : (isLandscapeLayout ? 10 : 12)),
+                      borderSide: BorderSide(
+                        color: SpaceTheme.alienGreen,
+                        width: 2,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(isCompact ? 8 : (isLandscapeLayout ? 10 : 12)),
+                      borderSide: BorderSide(
+                        color: SpaceTheme.starYellow,
+                        width: 3,
+                      ),
+                    ),
+                    prefixIcon: Icon(
+                      Icons.edit,
+                      color: SpaceTheme.alienGreen,
+                      size: isCompact ? 18 : (isLandscapeLayout ? 20 : 24),
+                    ),
+                    suffixIcon: _userInput.isNotEmpty && !_isAnswerChecked
+                        ? IconButton(
+                            icon: Icon(Icons.send, color: SpaceTheme.alienGreen, size: isCompact ? 18 : (isLandscapeLayout ? 20 : 24)),
+                            onPressed: _checkAnswer,
+                            padding: EdgeInsets.zero,
+                          )
+                        : null,
+                  ),
+                  textAlign: TextAlign.center,
+                  autocorrect: false,
+                  enableSuggestions: false,
                 ),
               ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
-                  color: SpaceTheme.alienGreen,
-                  width: 2,
-                ),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
+              
+              if (!_isAnswerChecked) ...[
+                const SizedBox(width: 8),
+                
+                Material(
                   color: SpaceTheme.starYellow,
-                  width: 3,
+                  borderRadius: BorderRadius.circular(8),
+                  child: InkWell(
+                    onTap: _showProgressiveHint,
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      padding: EdgeInsets.all(isCompact ? 8 : (isLandscapeLayout ? 10 : 12)),
+                      child: Icon(
+                        Icons.lightbulb_outline,
+                        color: SpaceTheme.deepSpace,
+                        size: isCompact ? 18 : (isLandscapeLayout ? 20 : 22),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-              prefixIcon: Icon(
-                Icons.edit,
-                color: SpaceTheme.alienGreen,
-              ),
-              suffixIcon: _userInput.isNotEmpty && !_isAnswerChecked
-                  ? IconButton(
-                      icon: Icon(Icons.send, color: SpaceTheme.alienGreen),
-                      onPressed: _checkAnswer,
-                    )
-                  : null,
-            ),
-            textAlign: TextAlign.center,
-            autocorrect: false,
-            enableSuggestions: false,
+                
+                const SizedBox(width: 6),
+                
+                Material(
+                  color: SpaceTheme.cosmicPink,
+                  borderRadius: BorderRadius.circular(8),
+                  child: InkWell(
+                    onTap: () {
+                      _audioService.speak(_displayedWord);
+                      _focusNode.requestFocus();
+                    },
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      padding: EdgeInsets.all(isCompact ? 8 : (isLandscapeLayout ? 10 : 12)),
+                      child: Icon(
+                        Icons.volume_up,
+                        color: Colors.white,
+                        size: isCompact ? 18 : (isLandscapeLayout ? 20 : 22),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ],
           ),
 
-          // --- MERGED: Progressive hint display from HEAD ---
           if (_currentHintText.isNotEmpty)
             Container(
-              margin: const EdgeInsets.only(top: 12),
-              padding: const EdgeInsets.all(8),
+              margin: EdgeInsets.only(top: isCompact ? 6 : (isLandscapeLayout ? 8 : 12)),
+              padding: EdgeInsets.symmetric(
+                horizontal: isCompact ? 8 : (isLandscapeLayout ? 10 : 12),
+                vertical: isCompact ? 4 : (isLandscapeLayout ? 6 : 8),
+              ),
               decoration: BoxDecoration(
                 color: SpaceTheme.starYellow.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: SpaceTheme.starYellow,
-                ),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: SpaceTheme.starYellow),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.lightbulb,
                     color: SpaceTheme.starYellow,
-                    size: 16,
+                    size: isCompact ? 14 : (isLandscapeLayout ? 14 : 16),
                   ),
-                  const SizedBox(width: 8),
-                  Text(
-                    _currentHintText,
-                    style: SpaceTheme.bodyStyle.copyWith(
-                      fontFamily: selectedFontFamily,
-                      color: SpaceTheme.starYellow,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      _currentHintText,
+                      style: SpaceTheme.bodyStyle.copyWith(
+                        fontFamily: selectedFontFamily,
+                        color: SpaceTheme.starYellow,
+                        fontWeight: FontWeight.bold,
+                        fontSize: isCompact ? 12 : (isLandscapeLayout ? 12 : 14),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
               ),
             ),
-
-          // --- MERGED: Action buttons from HEAD ---
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            alignment: WrapAlignment.center,
-            children: [
-              // Hint button
-              if (!_isAnswerChecked)
-                ElevatedButton.icon(
-                  onPressed: _showProgressiveHint,
-                  icon: const Icon(Icons.lightbulb_outline, size: 18),
-                  label: Text(
-                    '${s.gameplayHint} (-2)',
-                    style: const TextStyle(fontSize: 12),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: SpaceTheme.starYellow,
-                    foregroundColor: SpaceTheme.deepSpace,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 10,
-                    ),
-                  ),
-                ),
-
-              // Repeat word button
-              if (!_isAnswerChecked)
-                ElevatedButton.icon(
-                  onPressed: () {
-                    _audioService.speak(_displayedWord);
-                    _focusNode.requestFocus();
-                  },
-                  icon: const Icon(Icons.volume_up, size: 18),
-                  label: const Text(
-                    'Hören',
-                    style: TextStyle(fontSize: 12),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: SpaceTheme.cosmicPink,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 10,
-                    ),
-                  ),
-                ),
-            ],
-          ),
         ],
       ),
     );
@@ -1360,7 +1489,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
     return Material(
       color: Colors.transparent,
       child: Container(
-        width: 300, // Increased width for longer hints
+        width: 300,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: SpaceTheme.deepSpace.withOpacity(0.95),
@@ -1385,7 +1514,6 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
                 fontSize: 16, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
-            // --- Display the educational hint ---
             if (_educationalHint.isNotEmpty) ...[
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 8.0),
@@ -1409,7 +1537,6 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
   }
 }
 
-// Particle painter for explosion/success effects
 class ParticlePainter extends CustomPainter {
   final List<WordParticle> particles;
   
@@ -1434,7 +1561,6 @@ class ParticlePainter extends CustomPainter {
   bool shouldRepaint(ParticlePainter oldDelegate) => true;
 }
 
-// Menu card widget
 class SpaceWordRescueCard extends StatelessWidget {
   final VoidCallback onTap;
 

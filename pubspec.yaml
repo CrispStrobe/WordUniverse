@@ -40,6 +40,8 @@ dependencies:
   uuid: ^4.1.0
   csv: ^5.0.2
   http: ^1.2.1
+  sqlite3: ^2.1.0
+  archive: ^3.6.1
 
   # Development
   flutter_launcher_icons: ^0.13.1
@@ -61,6 +63,8 @@ flutter:
     - assets/fonts/
     - lib/features/games/data/ 
     - assets/fonts/OFL.txt
+    - assets/grundwortschatz.db.gz
+    - assets/grundwortschatz.db
     
   fonts:
     - family: SpaceGrotesk

@@ -1,29 +1,103 @@
 // lib/core/models/vocabulary_models.dart
 
-import 'skill_category.dart';
+import 'skill_category.dart'; // SINGLE Source of Truth for Enums
 
-// --- API ENRICHMENT MODELS (NEW) ---
+// --- HELPER FOR ROBUST PARSING ---
+// Even though we fixed the DB, these prevent crashes if bad data slips in.
+num? _parseNum(dynamic value) {
+  if (value == null) return null;
+  if (value is num) return value;
+  if (value is String) return num.tryParse(value);
+  return null;
+}
+
+int _parseInt(dynamic value, int defaultValue) {
+  return _parseNum(value)?.toInt() ?? defaultValue;
+}
+
+double _parseDouble(dynamic value, double defaultValue) {
+  return _parseNum(value)?.toDouble() ?? defaultValue;
+}
+// ---------------------------------
+
+// -----------------------------------------------------------------------------
+// PART 1: API ENRICHMENT MODELS (V24)
+// -----------------------------------------------------------------------------
+
+class ApiExpression {
+  final String? expression;
+  final String? senseIndex;
+
+  ApiExpression({this.expression, this.senseIndex});
+
+  factory ApiExpression.fromJson(Map<String, dynamic> json) {
+    return ApiExpression(
+      expression: json['expression'],
+      senseIndex: json['sense_index'],
+    );
+  }
+}
+
+class ApiProverb {
+  final String? proverb;
+  final String? senseIndex;
+
+  ApiProverb({this.proverb, this.senseIndex});
+
+  factory ApiProverb.fromJson(Map<String, dynamic> json) {
+    return ApiProverb(
+      proverb: json['proverb'],
+      senseIndex: json['sense_index'],
+    );
+  }
+}
+
+class ApiSemanticTerm {
+  final String? word;
+  final String? senseIndex;
+
+  ApiSemanticTerm({this.word, this.senseIndex});
+
+  factory ApiSemanticTerm.fromJson(Map<String, dynamic> json) {
+    return ApiSemanticTerm(
+      word: json['hypernym_word'] ??
+          json['hyponym_word'] ??
+          json['holonym_word'] ??
+          json['meronym_word'] ??
+          json['coordinate_word'] ??
+          json['word'],
+      senseIndex: json['sense_index'],
+    );
+  }
+}
+
 class ApiEnrichment {
   final String enrichmentStatus;
   final String? primaryPos;
   final String? primaryLemma;
   final List<String> definitions;
   final List<ApiPronunciation> pronunciation;
-  final List<ApiExample> examples; // <-- FIX: Changed from List<String>
+  final List<ApiExample> examples;
   final List<String> synonyms;
   final List<String> antonyms;
   final List<ApiConceptNetRelation> conceptnet;
   final List<ApiAlternativeAnalysis> alternativeAnalyses;
   final String? apiInfo;
-  final List<Map<String, dynamic>>? inflections; // Raw Wiktionary table
-  final Map<String, dynamic>? inflectionsPattern; // Pattern.de table
+  final List<Map<String, dynamic>> inflections;
+  final Map<String, dynamic>? inflectionsPattern;
   final List<String> hyphenation;
-
-  final List<ApiTranslation>? translations;
-  final List<String>? derivedTerms;
-  final List<String>? relatedTerms;
-
+  final List<ApiTranslation> translations;
+  final List<String> derivedTerms;
+  final List<String> relatedTerms;
   final List<ApiSemanticRelation> semanticRelations;
+  final List<ApiExpression> expressions;
+  final List<ApiProverb> proverbs;
+  final List<String> entryNotes;
+  final List<ApiSemanticTerm> hypernyms;
+  final List<ApiSemanticTerm> hyponyms;
+  final List<ApiSemanticTerm> holonyms;
+  final List<ApiSemanticTerm> meronyms;
+  final List<ApiSemanticTerm> coordinateTerms;
 
   ApiEnrichment({
     required this.enrichmentStatus,
@@ -37,16 +111,44 @@ class ApiEnrichment {
     required this.conceptnet,
     required this.alternativeAnalyses,
     this.apiInfo,
-    this.inflections,
+    required this.inflections,
     this.inflectionsPattern,
     required this.semanticRelations,
     required this.hyphenation,
     required this.translations,
     required this.derivedTerms,
     required this.relatedTerms,
+    required this.expressions,
+    required this.proverbs,
+    required this.entryNotes,
+    required this.hypernyms,
+    required this.hyponyms,
+    required this.holonyms,
+    required this.meronyms,
+    required this.coordinateTerms,
   });
 
   factory ApiEnrichment.fromJson(Map<String, dynamic> json) {
+    List<ApiSemanticTerm> parseTerms(String key) {
+      return (json[key] as List<dynamic>?)
+              ?.map((t) => ApiSemanticTerm.fromJson(t as Map<String, dynamic>))
+              .toList() ??
+          [];
+    }
+
+    List<String> parseTermList(String key, String wordKey) {
+      return (json[key] as List<dynamic>?)
+              ?.map((t) {
+                if (t is Map<String, dynamic>) return t[wordKey] as String?;
+                if (t is String) return t;
+                return null;
+              })
+              .where((t) => t != null)
+              .cast<String>()
+              .toList() ??
+          [];
+    }
+
     return ApiEnrichment(
       enrichmentStatus: json['enrichment_status'] ?? 'unknown',
       primaryPos: json['primary_pos'],
@@ -56,7 +158,6 @@ class ApiEnrichment {
               ?.map((p) => ApiPronunciation.fromJson(p as Map<String, dynamic>))
               .toList() ??
           [],
-      // <-- FIX: Parse List<ApiExample> instead of List<String>
       examples: (json['examples'] as List<dynamic>?)
               ?.map((e) => ApiExample.fromJson(e as Map<String, dynamic>))
               .toList() ??
@@ -74,11 +175,8 @@ class ApiEnrichment {
               .toList() ??
           [],
       apiInfo: json['api_info'],
-      inflections:
-          List<Map<String, dynamic>>.from(json['inflections'] ?? []),
+      inflections: List<Map<String, dynamic>>.from(json['inflections'] ?? []),
       inflectionsPattern: json['inflections_pattern'] as Map<String, dynamic>?,
-
-      // --- NEW: Parsing for semantic_relations ---
       semanticRelations: (json['semantic_relations'] as List<dynamic>?)
               ?.map((r) =>
                   ApiSemanticRelation.fromJson(r as Map<String, dynamic>))
@@ -86,27 +184,46 @@ class ApiEnrichment {
           [],
       hyphenation: List<String>.from(json['hyphenation'] ?? []),
       translations: (json['wiktionary_translations'] as List<dynamic>?)
-              ?.map((t) =>
-                  ApiTranslation.fromJson(t as Map<String, dynamic>))
+              ?.map(
+                  (t) => ApiTranslation.fromJson(t as Map<String, dynamic>))
               .toList() ??
           [],
-      derivedTerms: List<String>.from(json['wiktionary_derived_terms'] ?? []),
-      relatedTerms: List<String>.from(json['wiktionary_related_terms'] ?? []),
+      derivedTerms: parseTermList('wiktionary_derived_terms', 'derived_word'),
+      relatedTerms: parseTermList('wiktionary_related_terms', 'related_word'),
+      expressions: (json['expressions'] as List<dynamic>?)
+              ?.map((e) => ApiExpression.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      proverbs: (json['proverbs'] as List<dynamic>?)
+              ?.map((p) => ApiProverb.fromJson(p as Map<String, dynamic>))
+              .toList() ??
+          [],
+      entryNotes: List<String>.from(json['entry_notes'] ?? []),
+      hypernyms: parseTerms('hypernyms'),
+      hyponyms: parseTerms('hyponyms'),
+      holonyms: parseTerms('holonyms'),
+      meronyms: parseTerms('meronyms'),
+      coordinateTerms: parseTerms('coordinate_terms'),
     );
   }
 }
 
-// <-- FIX: Added new class for example objects
 class ApiExample {
   final String? text;
   final String? ref;
+  final String? author;
+  final String? title;
+  final int? year;
 
-  ApiExample({this.text, this.ref});
+  ApiExample({this.text, this.ref, this.author, this.title, this.year});
 
   factory ApiExample.fromJson(Map<String, dynamic> json) {
     return ApiExample(
       text: json['text'],
       ref: json['ref'],
+      author: json['author'],
+      title: json['title'],
+      year: _parseNum(json['year'])?.toInt(),
     );
   }
 }
@@ -114,13 +231,17 @@ class ApiExample {
 class ApiPronunciation {
   final String? ipa;
   final String? audio;
+  final String? mp3Url;
+  final String? oggUrl;
 
-  ApiPronunciation({this.ipa, this.audio});
+  ApiPronunciation({this.ipa, this.audio, this.mp3Url, this.oggUrl});
 
   factory ApiPronunciation.fromJson(Map<String, dynamic> json) {
     return ApiPronunciation(
       ipa: json['ipa'],
       audio: json['audio'],
+      mp3Url: json['mp3_url'],
+      oggUrl: json['ogg_url'],
     );
   }
 }
@@ -136,7 +257,7 @@ class ApiConceptNetRelation {
     return ApiConceptNetRelation(
       relation: json['relation'],
       target: json['target'],
-      weight: (json['weight'] as num?)?.toDouble(),
+      weight: _parseDouble(json['weight'], 0.0),
     );
   }
 }
@@ -157,7 +278,6 @@ class ApiAlternativeAnalysis {
   }
 }
 
-// --- NEW: Class for semantic_relations ---
 class ApiSemanticRelation {
   final String? definition;
   final List<String> synonyms;
@@ -174,9 +294,47 @@ class ApiSemanticRelation {
     );
   }
 }
-// --- END NEW ---
 
-// --- CORE VOCABULARY MODELS ---
+class ApiTranslation {
+  final String? lang;
+  final String? langCode;
+  final String? word;
+  final String? senseText;
+  final String? roman;
+  final String? tags;
+
+  ApiTranslation(
+      {this.lang,
+      this.langCode,
+      this.word,
+      this.senseText,
+      this.roman,
+      this.tags});
+
+  factory ApiTranslation.fromJson(Map<String, dynamic> json) {
+    return ApiTranslation(
+      lang: json['lang'],
+      langCode: json['lang_code'],
+      word: json['word'],
+      senseText: json['sense_text'],
+      roman: json['roman'],
+      tags: json['tags'],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'lang': lang,
+        'lang_code': langCode,
+        'word': word,
+        'sense_text': senseText,
+        'roman': roman,
+        'tags': tags,
+      };
+}
+
+// -----------------------------------------------------------------------------
+// PART 2: CORE VOCABULARY MODELS
+// -----------------------------------------------------------------------------
 
 class GraphematicVariant {
   final String spelling;
@@ -187,7 +345,7 @@ class GraphematicVariant {
   factory GraphematicVariant.fromJson(Map<String, dynamic> json) {
     return GraphematicVariant(
       spelling: json['spelling'],
-      probability: (json['probability'] as num).toDouble(),
+      probability: _parseDouble(json['probability'], 0.0),
     );
   }
 
@@ -228,18 +386,26 @@ class GermanWord {
 
   final ApiEnrichment? apiEnrichment;
 
+  // Consolidated V24 Fields
+  final List<ApiExample> examples;
+  final List<String> hyphenation;
+  final List<Map<String, dynamic>> wiktionaryInflections;
+  final List<ApiTranslation> translations;
+  final List<String> derivedTerms;
+  final List<String> relatedTerms;
+  final List<ApiExpression> expressions;
+  final List<ApiProverb> proverbs;
+  final List<String> entryNotes;
+  final List<ApiSemanticTerm> hypernyms;
+  final List<ApiSemanticTerm> hyponyms;
+  final List<ApiSemanticTerm> holonyms;
+  final List<ApiSemanticTerm> meronyms;
+  final List<ApiSemanticTerm> coordinateTerms;
+
   final Map<String, dynamic>? frequencyData;
   final double? averageRank;
   final Map<String, dynamic>? artikelDetailsNRW;
   final Map<String, dynamic>? morphematischesPrinzip;
-  final List<String>? hyphenation;
-  final List<Map<String, dynamic>>? wiktionaryInflections;
-
-  // --- FIX: ADDED MISSING CLASS FIELDS ---
-  final List<ApiTranslation>? translations;
-  final List<String>? derivedTerms;
-  final List<String>? relatedTerms;
-  // --- END FIX ---
 
   GermanWord({
     required this.id,
@@ -274,11 +440,20 @@ class GermanWord {
     this.averageRank,
     this.artikelDetailsNRW,
     this.morphematischesPrinzip,
-    this.hyphenation,
-    this.wiktionaryInflections,
-    this.translations, // This was correctly in the constructor
-    this.derivedTerms, // This was correctly in the constructor
-    this.relatedTerms, // This was correctly in the constructor
+    required this.examples,
+    required this.hyphenation,
+    required this.wiktionaryInflections,
+    required this.translations,
+    required this.derivedTerms,
+    required this.relatedTerms,
+    required this.expressions,
+    required this.proverbs,
+    required this.entryNotes,
+    required this.hypernyms,
+    required this.hyponyms,
+    required this.holonyms,
+    required this.meronyms,
+    required this.coordinateTerms,
   });
 
   factory GermanWord.fromJson(Map<String, dynamic> json) {
@@ -291,15 +466,76 @@ class GermanWord {
         .map((v) => GraphematicVariant.fromJson(v as Map<String, dynamic>))
         .toList();
 
+    // Audio Path Logic
+    String? resolvedAudioPath;
+    if (apiData?.pronunciation.isNotEmpty ?? false) {
+      ApiPronunciation? mp3Pron = apiData!.pronunciation
+          .firstWhere((p) => p.mp3Url != null,
+              orElse: () => ApiPronunciation());
+      if (mp3Pron?.mp3Url != null) {
+        resolvedAudioPath = mp3Pron!.mp3Url;
+      } else {
+        ApiPronunciation? oggPron = apiData.pronunciation.firstWhere(
+            (p) => p.audio != null,
+            orElse: () => ApiPronunciation());
+        if (oggPron?.audio != null) {
+          resolvedAudioPath = oggPron!.audio;
+        }
+      }
+    }
+    resolvedAudioPath ??= json['audioPath'];
+
+    // Example Sentences Logic
+    final List<ApiExample> v24Examples = apiData?.examples ?? [];
+    final List<String> oldExampleStrings =
+        List<String>.from(json['exampleSentences'] ?? []);
+
+    final List<String> exampleStrings = v24Examples.isNotEmpty
+        ? v24Examples
+            .map((e) => e.text ?? '')
+            .where((t) => t.isNotEmpty)
+            .toList()
+        : oldExampleStrings;
+
+    // Parsing Helpers for Enums
+    GermanWordType parseWordType(String? typeStr) {
+      if (typeStr == null) return GermanWordType.andere;
+      try {
+        return GermanWordType.values.firstWhere(
+          (e) =>
+              e.toString().split('.').last.toLowerCase() ==
+              typeStr.toLowerCase(),
+        );
+      } catch (e) {
+        return GermanWordType.andere;
+      }
+    }
+
+    WordCategory parseCategory(String? catStr) {
+      // FIX: 'sonstiges' was invalid. Falling back to 'schule'.
+      if (catStr == null) return WordCategory.schule; 
+      try {
+        return WordCategory.values.firstWhere(
+          (e) =>
+              e.toString().split('.').last.toLowerCase() ==
+              catStr.toLowerCase(),
+        );
+      } catch (e) {
+        return WordCategory.schule; 
+      }
+    }
+
+    // SAFELY Parse Indices
+    int diffIndex = _parseInt(json['spellingDifficulty'], 0);
+    SpellingDifficulty diff = SpellingDifficulty.values[
+        diffIndex.clamp(0, SpellingDifficulty.values.length - 1)];
+
     return GermanWord(
-      id: json['id'],
-      word: json['word'],
+      id: json['id']?.toString() ?? '',
+      word: json['word'] ?? '',
       article: json['article'],
-      wordType: GermanWordType.values.firstWhere(
-        (e) => e.toString().split('.').last == json['wordType'],
-        orElse: () => GermanWordType.andere,
-      ),
-      gradeLevel: json['gradeLevel'] ?? 1,
+      wordType: parseWordType(json['wordType']),
+      gradeLevel: _parseInt(json['gradeLevel'], 1), // SAFE PARSE
       lemma: apiData?.primaryLemma ?? json['lemma'] ?? json['word'],
       forms: json['forms'],
       url: json['url'],
@@ -307,11 +543,8 @@ class GermanWord {
       isGrundwortschatzBW: json['isGrundwortschatzBW'] ?? false,
       genus: json['genus'],
       nurImPlural: json['nurImPlural'] ?? false,
-
-      // This line now acts as a fallback if wiktionaryInflections is missing
       inflectionData: apiData?.inflectionsPattern ??
           json['inflectionData'] as Map<String, dynamic>?,
-
       ipaPhoneme: apiData?.pronunciation
               .firstWhere((p) => p.ipa != null,
                   orElse: () => ApiPronunciation())
@@ -326,42 +559,36 @@ class GermanWord {
       verbFormSpacy: json['verbFormSpacy'],
       plural: json['plural'],
       categories: (json['categories'] as List<dynamic>?)
-              ?.map((c) => WordCategory.values.firstWhere(
-                    (e) => e.toString().split('.').last == c,
-                    orElse: () => WordCategory.schule,
-                  ))
+              ?.map((c) => parseCategory(c.toString()))
               .toList() ??
           [],
-      // <-- FIX: Map List<ApiExample> to List<String>
-      exampleSentences: (apiData?.examples.isNotEmpty ?? false)
-          ? apiData!.examples
-              .map((e) => e.text ?? '')
-              .where((t) => t.isNotEmpty)
-              .toList()
-          : List<String>.from(json['exampleSentences'] ?? []),
-      spellingDifficulty:
-          SpellingDifficulty.values[json['spellingDifficulty'] ?? 0],
+      exampleSentences: exampleStrings,
+      spellingDifficulty: diff,
       commonMistakes: json['commonMistakes'] != null
           ? List<String>.from(json['commonMistakes'])
           : null,
-      audioPath: apiData?.pronunciation
-              .firstWhere((p) => p.audio != null,
-                  orElse: () => ApiPronunciation())
-              .audio ??
-          json['audioPath'],
+      audioPath: resolvedAudioPath,
       apiEnrichment: apiData,
-      hyphenation: apiData?.hyphenation,
 
-      // This is the new, primary source for inflection data
-      wiktionaryInflections: apiData?.inflections,
-      translations: apiData?.translations,
-      derivedTerms: apiData?.derivedTerms,
-      relatedTerms: apiData?.relatedTerms,
+      examples: v24Examples,
+      hyphenation:
+          apiData?.hyphenation ?? List<String>.from(json['hyphenation'] ?? []),
+      wiktionaryInflections: apiData?.inflections ?? [],
+      translations: apiData?.translations ?? [],
+      derivedTerms: apiData?.derivedTerms ?? [],
+      relatedTerms: apiData?.relatedTerms ?? [],
+      expressions: apiData?.expressions ?? [],
+      proverbs: apiData?.proverbs ?? [],
+      entryNotes: apiData?.entryNotes ?? [],
+      hypernyms: apiData?.hypernyms ?? [],
+      hyponyms: apiData?.hyponyms ?? [],
+      holonyms: apiData?.holonyms ?? [],
+      meronyms: apiData?.meronyms ?? [],
+      coordinateTerms: apiData?.coordinateTerms ?? [],
 
       frequencyData: json['frequencyData'] as Map<String, dynamic>?,
-      averageRank: (json['averageRank'] as num?)?.toDouble(),
+      averageRank: _parseDouble(json['averageRank'], 0.0), // SAFE PARSE
       artikelDetailsNRW: json['artikelDetailsNRW'] as Map<String, dynamic>?,
-      // Note: The key in the JSON has a space.
       morphematischesPrinzip:
           json['morphematisches Prinzip'] as Map<String, dynamic>?,
     );
@@ -376,7 +603,6 @@ class GermanWord {
     return word;
   }
 
-  // --- MODIFIED: Added new fields to toJson ---
   Map<String, dynamic> toJson() => {
         'id': id,
         'word': word,
@@ -403,64 +629,21 @@ class GermanWord {
         'plural': plural,
         'categories':
             categories.map((c) => c.toString().split('.').last).toList(),
-        'exampleSentences': exampleSentences,
+        'exampleSentences': exampleSentences, // FIXED: Use class field
         'spellingDifficulty': spellingDifficulty.index,
         'commonMistakes': commonMistakes,
         'audioPath': audioPath,
-
         'frequencyData': frequencyData,
         'averageRank': averageRank,
         'artikelDetailsNRW': artikelDetailsNRW,
         'morphematisches Prinzip': morphematischesPrinzip,
         'hyphenation': hyphenation,
-        'wiktionaryInflections': wiktionaryInflections,
-
-        'translations': translations?.map((t) => t.toJson()).toList(),
-        'derivedTerms': derivedTerms,
-        'relatedTerms': relatedTerms,
-
-        // apiEnrichment is intentionally not saved back,
-        // as it's loaded from the enriched asset.
       };
-  // --- END MODIFIED ---
 }
 
-class GrammarExercise {
-  final String id;
-  final GrammarTopic topic;
-  final GradeLevel gradeLevel;
-  final String instruction;
-  final String sentence;
-  final List<String> options;
-  final String correctAnswer;
-  final String explanation;
-
-  GrammarExercise(
-      {required this.id,
-      required this.topic,
-      required this.gradeLevel,
-      required this.instruction,
-      required this.sentence,
-      required this.options,
-      required this.correctAnswer,
-      required this.explanation});
-
-  factory GrammarExercise.fromJson(Map<String, dynamic> json) {
-    return GrammarExercise(
-      id: json['id'],
-      topic: GrammarTopic.values.firstWhere(
-        (e) => e.toString().split('.').last == json['topic'],
-        orElse: () => GrammarTopic.satzglieder,
-      ),
-      gradeLevel: GradeLevel.values[json['gradeLevel'] ?? 0],
-      instruction: json['instruction'],
-      sentence: json['sentence'],
-      options: List<String>.from(json['options']),
-      correctAnswer: json['correctAnswer'],
-      explanation: json['explanation'],
-    );
-  }
-}
+// -----------------------------------------------------------------------------
+// PART 3: STRUCTURES FOR SETS & GRAMMAR
+// -----------------------------------------------------------------------------
 
 class VocabularySet {
   final String id;
@@ -471,59 +654,109 @@ class VocabularySet {
   final DateTime createdAt;
   final bool isCustom;
 
-  VocabularySet(
-      {required this.id,
-      required this.name,
-      required this.description,
-      required this.wordIds,
-      required this.targetGrade,
-      required this.createdAt,
-      this.isCustom = false});
+  VocabularySet({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.wordIds,
+    required this.targetGrade,
+    required this.createdAt,
+    this.isCustom = false,
+  });
+
+  factory VocabularySet.fromJson(Map<String, dynamic> json) {
+    GradeLevel parseGrade(dynamic val) {
+      if (val == null) return GradeLevel.grade1;
+      final str = val.toString();
+      try {
+        return GradeLevel.values
+            .firstWhere((e) => e.toString().split('.').last == str);
+      } catch (_) {
+        return GradeLevel.grade1;
+      }
+    }
+
+    return VocabularySet(
+      id: json['id'],
+      name: json['name'],
+      description: json['description'],
+      wordIds: List<String>.from(json['wordIds']),
+      targetGrade: parseGrade(json['targetGrade']),
+      createdAt: DateTime.parse(json['createdAt']),
+      isCustom: json['isCustom'] ?? false,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         'id': id,
         'name': name,
         'description': description,
         'wordIds': wordIds,
-        'targetGrade': targetGrade.index,
+        'targetGrade': targetGrade.toString().split('.').last,
         'createdAt': createdAt.toIso8601String(),
         'isCustom': isCustom,
       };
+}
 
-  factory VocabularySet.fromJson(Map<String, dynamic> json) {
-    return VocabularySet(
+class GrammarQuestion {
+  final String id;
+  final String question;
+  final List<String> options;
+  final String correctOption;
+  final String? explanation;
+
+  GrammarQuestion({
+    required this.id,
+    required this.question,
+    required this.options,
+    required this.correctOption,
+    this.explanation,
+  });
+
+  factory GrammarQuestion.fromJson(Map<String, dynamic> json) {
+    return GrammarQuestion(
       id: json['id'],
-      name: json['name'],
-      description: json['description'],
-      wordIds: List<String>.from(json['wordIds']),
-      targetGrade: GradeLevel.values[json['targetGrade'] ?? 0],
-      createdAt: DateTime.parse(json['createdAt']),
-      isCustom: json['isCustom'] ?? false,
+      question: json['question'],
+      options: List<String>.from(json['options']),
+      correctOption: json['correctOption'],
+      explanation: json['explanation'],
     );
   }
 }
 
-class ApiTranslation {
-  final String? lang;
-  final String? langCode;
-  final String? word;
-  final String? tags;
+class GrammarExercise {
+  final String id;
+  final String title;
+  final String description;
+  final GrammarTopic topic;
+  final GradeLevel gradeLevel;
+  final List<GrammarQuestion> questions;
 
-  ApiTranslation({this.lang, this.langCode, this.word, this.tags});
+  GrammarExercise({
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.topic,
+    required this.gradeLevel,
+    required this.questions,
+  });
 
-  factory ApiTranslation.fromJson(Map<String, dynamic> json) {
-    return ApiTranslation(
-      lang: json['lang'],
-      langCode: json['lang_code'],
-      word: json['word'],
-      tags: json['tags'],
+  factory GrammarExercise.fromJson(Map<String, dynamic> json) {
+    return GrammarExercise(
+      id: json['id'],
+      title: json['title'],
+      description: json['description'],
+      topic: GrammarTopic.values.firstWhere(
+        (e) => e.toString().split('.').last == json['topic'],
+        orElse: () => GrammarTopic.satzglieder,
+      ),
+      gradeLevel: GradeLevel.values.firstWhere(
+        (e) => e.index == _parseInt(json['gradeLevel'], 1) - 1, // SAFE PARSE
+        orElse: () => GradeLevel.grade1,
+      ),
+      questions: (json['questions'] as List)
+          .map((q) => GrammarQuestion.fromJson(q))
+          .toList(),
     );
   }
-
-  Map<String, dynamic> toJson() => {
-        'lang': lang,
-        'lang_code': langCode,
-        'word': word,
-        'tags': tags,
-      };
 }
