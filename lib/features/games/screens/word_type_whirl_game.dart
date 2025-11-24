@@ -639,8 +639,9 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
   }
 
   String _generateSimpleHint(GermanWord word, bool isCorrect) {
-     if (isCorrect) return "✓ Richtig! ${word.displayName}";
-     return "✗ Falsch! ${word.displayName} ist kein ${_wordTypes[_currentTargetType]?.label}";
+    final displayWord = _getDisplayWord(word);
+    if (isCorrect) return "✓ Richtig! $displayWord";
+    return "✗ Falsch! $displayWord ist kein ${_wordTypes[_currentTargetType]?.label}";
   }
 
   void _onCorrectTap(WhirlingWord whirlingWord) {
@@ -1053,6 +1054,18 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
     );
   }
 
+  String _getDisplayWord(GermanWord word) {
+    if (word.wordType == GermanWordType.substantiv) {
+      final text = word.displayName;
+      if (text.startsWith('der ') || 
+          text.startsWith('die ') || 
+          text.startsWith('das ')) {
+        return text.split(' ')[1];
+      }
+    }
+    return word.displayName;
+  }
+
   Widget _buildWhirlingWordWidget(
     WhirlingWord whirlingWord,
     String selectedFontFamily,
@@ -1100,7 +1113,7 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Text(
-                whirlingWord.word.displayName,
+                _getDisplayWord(whirlingWord.word),
                 style: TextStyle(
                   fontFamily: selectedFontFamily,
                   fontSize: 16,
