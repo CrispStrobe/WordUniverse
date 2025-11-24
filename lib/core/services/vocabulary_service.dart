@@ -40,29 +40,40 @@ class VocabularyService with ChangeNotifier {
   }
 
   /// Initializes the service by loading data from SQLite and SharedPrefs
-  Future<void> initialize() async {
+  Future<void> initialize({
+    void Function(double progress, String message)? onProgress,
+  }) async {
     if (_isInitialized) return;
     _log('Initializing vocabulary service...');
     try {
-      // 1. Initialize DB
-      await _dbService.initialize();
+      // 1. Initialize DB with progress tracking
+      onProgress?.call(0.0, 'Preparing vocabulary database...');
+      await _dbService.initialize(
+        onProgress: (dbProgress, dbMessage) {
+          // Map DB progress (0.0-1.0) to vocabulary service progress (0.0-0.6)
+          onProgress?.call(dbProgress * 0.6, dbMessage);
+        },
+      );
 
       // 2. Load Words from SQLite
+      onProgress?.call(0.6, 'Loading words...');
       await _loadVocabularyFromDB();
 
-      // 3. Load Grammar (from JSON asset)
+      // 3. Load Grammar
+      onProgress?.call(0.8, 'Loading grammar exercises...');
       await _loadGrammarExercises();
 
       // 4. Load User Customizations
+      onProgress?.call(0.9, 'Loading your customizations...');
       await _loadCustomContent();
       await _loadVocabularySets();
 
+      onProgress?.call(1.0, 'Ready!');
       _isInitialized = true;
       _log('✅ Vocabulary service initialized with ${_vocabulary.length} words');
       notifyListeners();
     } catch (e) {
       _log('❌ Error initializing vocabulary service: $e');
-      // Fallback to empty state rather than crashing app
       _isInitialized = true; 
       notifyListeners();
     }

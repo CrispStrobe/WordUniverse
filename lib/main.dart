@@ -118,21 +118,21 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   Locale? _locale;
-  bool _isInitialized = false;
-  String? _initializationError;
   
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    // --- FIX: Init PurchaseService *after* GameProvider is created ---
-    // We can access it via context now.
+    
+    // Initialize PurchaseService and load language preference ONLY
+    // All other initialization happens in SplashScreen
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final gameProvider = context.read<GameProvider>();
-      context.read<PurchaseService>().init(gameProvider);
-      _initializeApp(gameProvider);
+      if (mounted) {
+        final gameProvider = context.read<GameProvider>();
+        context.read<PurchaseService>().init(gameProvider);
+        _loadLanguagePreference(widget.prefs);
+      }
     });
-    // --- END FIX ---
   }
   
   @override
@@ -145,132 +145,96 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    if (state == AppLifecycleState.paused || state == AppLifecycleState.detached) {
+    if (state == AppLifecycleState.paused || 
+        state == AppLifecycleState.detached) {
       _saveAppState();
     }
   }
   
-  // --- FIX: Pass GameProvider to init functions ---
-  Future<void> _initializeApp(GameProvider gameProvider) async {
-    try {
-      // Use the prefs instance we already loaded
-      await _loadLanguagePreference(widget.prefs); 
-      
-      // Initialize vocab service first
-      await vocabularyService.initialize();
-      
-      // Load other services
-      // --- FIX: Pass GameProvider to loadProgress ---
-      await progressService.loadProgress(gameProvider);
-      await sriService.loadSriData();
-      await cognitiveProfileService.loadProfile();
-      
-      setState(() => _isInitialized = true);
-    } catch (e, s) {
-      debugPrint('Initialization Error: $e\n$s');
-      setState(() {
-        _initializationError = e.toString();
-        _isInitialized = true; // Set to true to show the error screen
-      });
-    }
-  }
-  
+  /// Load language preference from SharedPreferences
   Future<void> _loadLanguagePreference(SharedPreferences prefs) async {
     try {
-      // Use the passed-in prefs
       final languageCode = prefs.getString('language');
       
-      if (languageCode != null && S.supportedLocales.any((locale) => locale.languageCode == languageCode)) {
-        setState(() => _locale = Locale(languageCode));
+      if (languageCode != null && 
+          S.supportedLocales.any((locale) => locale.languageCode == languageCode)) {
+        if (mounted) {
+          setState(() => _locale = Locale(languageCode));
+        }
       } else {
+        // Use system locale or default to English
         final systemLocale = WidgetsBinding.instance.platformDispatcher.locale;
         if (S.supportedLocales.any((l) => l.languageCode == systemLocale.languageCode)) {
-           setState(() => _locale = systemLocale);
+          if (mounted) {
+            setState(() => _locale = systemLocale);
+          }
         } else {
-           setState(() => _locale = const Locale('en')); // Default fallback
+          if (mounted) {
+            setState(() => _locale = const Locale('en'));
+          }
         }
       }
     } catch (e) {
-      // Fallback in case of any error
-      setState(() => _locale = const Locale('en'));
+      debugPrint('Error loading language preference: $e');
+      // Fallback to English
+      if (mounted) {
+        setState(() => _locale = const Locale('en'));
+      }
     }
   }
   
+  /// Save app state when pausing/closing
   Future<void> _saveAppState() async {
-    // Save all services on pause
-    // --- FIX: Get GameProvider from context ---
-    if (mounted) {
-      final gameProvider = context.read<GameProvider>();
-      // The GameProvider's _saveProgress now handles saving all its state to prefs
-      await gameProvider.recordLevelWin(gameType: 'app_close', scoreGained: 0, difficulty: 0, wasSuccessful: false); // This triggers a save
-    }
-    await sriService.saveSriData();
-    await cognitiveProfileService.saveProfile();
+    if (!mounted) return;
+    
     try {
-      // Use the passed-in prefs
+      final gameProvider = context.read<GameProvider>();
+      
+      // Trigger a save through GameProvider
+      await gameProvider.recordLevelWin(
+        gameType: 'app_close',
+        scoreGained: 0,
+        difficulty: 0,
+        wasSuccessful: false,
+      );
+      
+      // Save other services
+      await sriService.saveSriData();
+      await cognitiveProfileService.saveProfile();
+      
+      // Save language preference
       if (_locale != null) {
         await widget.prefs.setString('language', _locale!.languageCode);
       }
+      
+      debugPrint('[APP] State saved successfully');
     } catch (e) {
-      debugPrint('Error saving language state: $e');
+      debugPrint('[APP] Error saving app state: $e');
     }
-  }
-  // --- END FIX ---
-  
-  Future<void> _restoreAppState() async {
-    // Restore logic if needed
   }
 
   @override
   Widget build(BuildContext context) {
-    // Show splash/loading screen
-    if (!_isInitialized) {
-      return MaterialApp(
-        localizationsDelegates: S.localizationsDelegates,
-        supportedLocales: S.supportedLocales,
-        home: const SpaceLoadingScreen(message: 'Initializing...'),
-        theme: SpaceTheme.lightTheme,
-      );
-    }
-    
-    // Show error screen if initialization failed
-    if (_initializationError != null) {
-      return MaterialApp(
-        home: SpaceErrorScreen(
-          title: 'Initialization Error',
-          message: 'Failed to start the app: $_initializationError',
-          onRetry: () {
-            setState(() {
-              _isInitialized = false;
-              _initializationError = null;
-            });
-            // --- FIX: Get GameProvider from context ---
-            _initializeApp(context.read<GameProvider>());
-          },
-        ),
-        theme: SpaceTheme.lightTheme,
-      );
-    }
-
-    // App is ready, launch!
+    // No loading screen, no initialization checks - just launch the app!
+    // SplashScreen will handle all initialization
     return MaterialApp(
       title: 'Word Universe',
-      navigatorKey: navigatorKey, 
+      navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       locale: _locale,
       localizationsDelegates: S.localizationsDelegates,
       supportedLocales: S.supportedLocales,
       theme: SpaceTheme.lightTheme,
       darkTheme: SpaceTheme.darkTheme,
-      themeMode: ThemeMode.light, // Force light theme
-      initialRoute: AppRoutes.splash, // Start at splash
+      themeMode: ThemeMode.light,
+      initialRoute: AppRoutes.splash, // Start at splash - it handles everything
       onGenerateRoute: AppRoutes.generateRoute,
       builder: (context, child) {
         // Global error widget builder
         ErrorWidget.builder = (FlutterErrorDetails errorDetails) {
-          // Log the full error
-          debugPrint("Caught Flutter Error: ${errorDetails.exception}");
+          debugPrint("[APP] Caught Flutter Error: ${errorDetails.exception}");
           debugPrintStack(stackTrace: errorDetails.stack);
+          
           return SpaceErrorScreen(
             title: 'Oops! Something went wrong',
             message: 'Our space engineers are working on it!\n${errorDetails.exception}',
@@ -420,35 +384,39 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
   late Animation<double> _textOpacity;
   late Animation<double> _progressAnimation;
 
-  String _loadingMessage = 'Initializing...'; // Non-localized default
+  String _loadingMessage = 'Initializing...';
+  String _detailMessage = ''; // NEW: More detailed sub-message
   double _progress = 0.0;
   
   @override
   void initState() {
     super.initState();
     
-    _logoController = AnimationController(duration: const Duration(milliseconds: 2000), vsync: this);
-    _textController = AnimationController(duration: const Duration(milliseconds: 1000), vsync: this);
-    _progressController = AnimationController(duration: const Duration(milliseconds: 3000), vsync: this);
+    _logoController = AnimationController(
+      duration: const Duration(milliseconds: 2000), 
+      vsync: this
+    );
+    _textController = AnimationController(
+      duration: const Duration(milliseconds: 1000), 
+      vsync: this
+    );
+    _progressController = AnimationController(
+      duration: const Duration(milliseconds: 300), // Faster updates
+      vsync: this
+    );
 
     _logoScale = Tween<double>(begin: 0.0, end: 1.0)
         .animate(CurvedAnimation(parent: _logoController, curve: Curves.elasticOut));
     _textOpacity = Tween<double>(begin: 0.0, end: 1.0)
         .animate(CurvedAnimation(parent: _textController, curve: Curves.easeIn));
     _progressAnimation = Tween<double>(begin: 0.0, end: 1.0)
-        .animate(CurvedAnimation(parent: _progressController, curve: Curves.easeInOut));
+        .animate(CurvedAnimation(parent: _progressController, curve: Curves.easeOut));
     
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        // --- FIX: Pass GameProvider to _initializeApp ---
         _initializeApp(S.of(context)!, context.read<GameProvider>());
       }
     });
-  }
-  
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
   }
   
   @override
@@ -459,47 +427,138 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     super.dispose();
   }
   
-  // --- FIX: Accept GameProvider ---
   Future<void> _initializeApp(S s, GameProvider gameProvider) async {
-    _logoController.forward();
+    try {
+      _logoController.forward();
 
-    // Use the S instance to get localized strings
-    await _updateProgress(0.2, s.loadingAssets);
-    // PuzzleImageService is already initialized in main()
-    await Future.delayed(const Duration(milliseconds: 500)); 
+      // PHASE 1: Vocabulary Service (0.0 - 0.6) - THIS IS THE LONG PART
+      await _updateProgress(0.0, s.preparingSpaceStation, s.preparingMission);
+      
+      if (mounted) {
+        await context.read<VocabularyService>().initialize(
+          onProgress: (vocabProgress, vocabMessage) {
+            // Map vocabulary progress (0.0-1.0) to overall progress (0.0-0.6)
+            final overallProgress = vocabProgress * 0.6;
+            _updateProgress(
+              overallProgress,
+              s.preparingSpaceStation,
+              vocabMessage,
+            );
+          },
+        );
+      }
 
-    await _updateProgress(0.4, s.loadingProgress);
-    // --- FIX: Pass GameProvider ---
-    if (mounted) await context.read<ProgressService>().loadProgress(gameProvider);
-    
-    _textController.forward();
-    await _updateProgress(0.6, s.preparingSpaceStation);
-    if (mounted) await context.read<SriService>().loadSriData();
-    
-    await _updateProgress(0.8, s.calibratingNav);
-    if (mounted) await context.read<CognitiveProfileService>().loadProfile();
-    
-    await _updateProgress(1.0, s.readyForLaunch);
-    await Future.delayed(const Duration(milliseconds: 800)); // Short pause on "Ready"
+      // PHASE 2: Progress Service (0.6 - 0.7)
+      _textController.forward();
+      await _updateProgress(0.65, s.loadingProgress, 'Loading your progress...');
+      if (mounted) {
+        await context.read<ProgressService>().loadProgress(gameProvider);
+      }
+      
+      // PHASE 3: SRI Data (0.7 - 0.85)
+      await _updateProgress(0.75, s.calibratingNav, 'Loading learning data...');
+      if (mounted) {
+        await context.read<SriService>().loadSriData();
+      }
+      
+      // PHASE 4: Cognitive Profile (0.85 - 0.95)
+      await _updateProgress(0.9, s.calibratingNav, 'Loading your profile...');
+      if (mounted) {
+        await context.read<CognitiveProfileService>().loadProfile();
+      }
+      
+      // PHASE 5: Complete (0.95 - 1.0)
+      await _updateProgress(1.0, s.readyForLaunch, '');
+      await Future.delayed(const Duration(milliseconds: 500));
 
-    if (mounted) {
-      Navigator.pushReplacementNamed(context, AppRoutes.home);
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, AppRoutes.home);
+      }
+      
+    } catch (e, stackTrace) {
+      debugPrint('[SPLASH] ❌ Initialization error: $e');
+      debugPrint('[SPLASH] Stack trace: $stackTrace');
+      
+      if (mounted) {
+        // Show error dialog with retry option
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => AlertDialog(
+            backgroundColor: SpaceTheme.deepSpace,
+            title: Row(
+              children: [
+                Icon(Icons.error_outline, color: SpaceTheme.planetOrange),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Initialization Failed',
+                    style: SpaceTheme.headlineStyle.copyWith(fontSize: 18),
+                  ),
+                ),
+              ],
+            ),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Failed to initialize the app:',
+                    style: SpaceTheme.bodyStyle,
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    e.toString(),
+                    style: SpaceTheme.bodyStyle.copyWith(
+                      color: SpaceTheme.starYellow.withOpacity(0.8),
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  // Retry initialization
+                  if (mounted) {
+                    setState(() {
+                      _progress = 0.0;
+                      _loadingMessage = 'Initializing...';
+                      _detailMessage = '';
+                    });
+                    _initializeApp(s, gameProvider);
+                  }
+                },
+                child: Text(
+                  'Retry',
+                  style: SpaceTheme.buttonStyle.copyWith(
+                    color: SpaceTheme.starYellow,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      }
     }
   }
 
-  Future<void> _updateProgress(double progress, String message) async {
+  Future<void> _updateProgress(double progress, String message, [String detail = '']) async {
     if (mounted) {
       setState(() {
         _progress = progress;
         _loadingMessage = message;
+        _detailMessage = detail;
       });
-      _progressController.animateTo(progress);
+      await _progressController.animateTo(progress);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // ... (rest of SplashScreen build method is unchanged) ...
     final screenSize = MediaQuery.of(context).size;
     final bool isSmallScreen = screenSize.shortestSide < 600; 
     
@@ -519,6 +578,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    // Logo
                     AnimatedBuilder(
                       animation: _logoScale,
                       builder: (context, child) {
@@ -547,7 +607,10 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                         );
                       },
                     ),
+                    
                     SizedBox(height: isSmallScreen ? 20 : 40),
+                    
+                    // Title
                     AnimatedBuilder(
                       animation: _textOpacity,
                       builder: (context, child) {
@@ -579,7 +642,10 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                         );
                       },
                     ),
+                    
                     SizedBox(height: isSmallScreen ? 30 : 60),
+                    
+                    // Progress Section
                     AnimatedBuilder(
                       animation: _textOpacity,
                       builder: (context, child) {
@@ -587,8 +653,9 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                           opacity: _textOpacity.value,
                           child: Column(
                             children: [
+                              // Progress Bar
                               SizedBox(
-                                width: isSmallScreen ? 200 : 250,
+                                width: isSmallScreen ? 250 : 300,
                                 child: AnimatedBuilder(
                                   animation: _progressAnimation,
                                   builder: (context, child) {
@@ -598,27 +665,54 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                                       valueColor: const AlwaysStoppedAnimation<Color>(
                                         SpaceTheme.starYellow,
                                       ),
+                                      minHeight: 8,
                                     );
                                   },
                                 ),
                               ),
-                              SizedBox(height: isSmallScreen ? 12 : 16),
+                              
+                              SizedBox(height: isSmallScreen ? 16 : 20),
+                              
+                              // Main Loading Message
                               Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 20),
                                 child: Text(
                                   _loadingMessage,
                                   style: SpaceTheme.bodyStyle.copyWith(
-                                    fontSize: isSmallScreen ? 12 : 14
+                                    fontSize: isSmallScreen ? 14 : 16,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
                               ),
-                              SizedBox(height: isSmallScreen ? 4 : 8),
+                              
+                              // NEW: Detail Message (shows the granular progress)
+                              if (_detailMessage.isNotEmpty) ...[
+                                SizedBox(height: isSmallScreen ? 8 : 12),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                                  child: Text(
+                                    _detailMessage,
+                                    style: SpaceTheme.bodyStyle.copyWith(
+                                      fontSize: isSmallScreen ? 11 : 13,
+                                      color: SpaceTheme.starYellow.withOpacity(0.8),
+                                    ),
+                                    textAlign: TextAlign.center,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                              
+                              SizedBox(height: isSmallScreen ? 8 : 12),
+                              
+                              // Percentage
                               Text(
                                 '${(_progress * 100).toInt()}%',
                                 style: SpaceTheme.bodyStyle.copyWith(
-                                  fontSize: isSmallScreen ? 10 : 12,
+                                  fontSize: isSmallScreen ? 12 : 14,
                                   color: SpaceTheme.starYellow,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ],
@@ -626,6 +720,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                         );
                       },
                     ),
+                    
                     SizedBox(height: isSmallScreen ? 20 : 40),
                   ],
                 ),
