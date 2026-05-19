@@ -315,7 +315,7 @@ class _WordFindGameState extends State<WordFindGame> {
           (placedWord.word == selectedWord || placedWord.word == reversedWord)) {
         
         // --- SUCCESS! ---
-        _audioService.playSound('correct.mp3');
+        _audioService.playSound('success');
         _gameProvider.addScore(10);
         setState(() {
           _score += 10;
@@ -346,7 +346,7 @@ class _WordFindGameState extends State<WordFindGame> {
     }
 
     // --- FAILED ---
-    _audioService.playSound('incorrect.mp3');
+    _audioService.playSound('failure');
   }
 
   /// Generates compact educational info for a found word

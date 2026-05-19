@@ -305,7 +305,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
         _nextLetterToFade++;
       });
 
-      _audioService.playSound('whoosh.mp3');
+      _audioService.playSound('whoosh');
     });
   }
 
@@ -479,7 +479,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
       },
     );
     
-    _audioService.playSound('incorrect.mp3');
+    _audioService.playSound('failure');
     _createExplosion();
     
     Future.delayed(_transitionDelay, () {
@@ -656,7 +656,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
       });
       
       _gameProvider.addScore(scoreGained);
-      _audioService.playSound('correct.mp3');
+      _audioService.playSound('success');
       _audioService.speak(_currentWord!.displayName);
       
       _createRescueEffect();
@@ -671,7 +671,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
         _wordsLost++;
       });
       
-      _audioService.playSound('incorrect.mp3');
+      _audioService.playSound('failure');
       _createExplosion();
       
       Future.delayed(_transitionDelay, () {
