@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // --- FIX: Import enums from the single source of truth ---
 import '../models/skill_category.dart';
+import '../../features/games/tuning.dart';
 // --- END FIX ---
 
 // --- FIX: REMOVED duplicate enum LanguageSkillType ---
@@ -26,7 +27,7 @@ class SriLanguageData {
     required this.skillType,
     this.successCount = 0,
     this.failureCount = 0,
-    this.easinessFactor = 2.5,
+    this.easinessFactor = kSm2InitialEasiness,
     this.repetitions = 0,
     required this.nextReviewDate,
     Map<String, dynamic>? metadata,
@@ -48,7 +49,7 @@ class SriLanguageData {
     skillType: LanguageSkillType.values[json['skillType'] ?? 0],
     successCount: json['s'] ?? 0,
     failureCount: json['f'] ?? 0,
-    easinessFactor: json['ef'] ?? 2.5,
+    easinessFactor: json['ef'] ?? kSm2InitialEasiness,
     repetitions: json['r'] ?? 0,
     nextReviewDate: DateTime.parse(json['next']),
     metadata: json['meta'] ?? {},
@@ -355,7 +356,7 @@ class SriService with ChangeNotifier {
     }
 
     data.easinessFactor = data.easinessFactor + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02));
-    if (data.easinessFactor < 1.3) data.easinessFactor = 1.3;
+    if (data.easinessFactor < kSm2MinimumEasiness) data.easinessFactor = kSm2MinimumEasiness;
 
     // Calculate next review interval
     int intervalInDays;
@@ -530,6 +531,14 @@ class SriService with ChangeNotifier {
   }
 
   int get learningItemCount => totalTrackedItems - masteredItemCount;
+
+  /// Returns the items currently tracked with the lowest easiness factor,
+  /// across all skill types. These are the player's toughest problems.
+  List<SriLanguageData> getMostDifficultItems({int limit = 10}) {
+    final items = _sriDatabase.values.toList();
+    items.sort((a, b) => a.easinessFactor.compareTo(b.easinessFactor));
+    return items.take(limit).toList();
+  }
 
   /// NEW: Get most challenging words (for spelling)
   List<String> getMostChallengingWords({int limit = 10}) {

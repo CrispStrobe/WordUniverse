@@ -103,28 +103,34 @@ have undersized hit areas.
 
 ## Tier 4 — Educational integrity
 
-### [ ] 11. Surface the SRI state
-Spaced-repetition is tracked but invisible. A "X facts due for review"
-chip on the menu + a dedicated review screen would make the SRI
-investment legible.
+### [x] 11. Surface the SRI state
+Added `SriReviewScreen` (read-only) plus a `Badge.count`-style chip on
+the home header that shows the number of items due. Tile lists the
+toughest tracked items (lowest easiness factor). Mirrored across both
+projects.
 
-### [ ] 12. Surface the cognitive profile
-5 skill categories tracked (arithmetic, spatial3d, spatial2d,
-logic, pattern); no UI shows them. This is the actual differentiator
-for adaptive learning — should be a visible feature, not internal
-state.
+### [x] 12. Surface the cognitive profile
+Added `CognitiveProfileScreen` showing per-skill bars + per-difficulty
+chips. Reads from a new `CognitiveProfileService.snapshot` getter
+(returns deep copies so consumers can't mutate). Surfaced via the
+home header. Mirrored.
 
-### [ ] 13. Parental dashboard
-No way for an adult to see what their kid played, struggled with,
-mastered. Even a single "Last 7 days" summary screen would be
-high-value. (Achievements screen already exists for math; voc needs
-one wired.)
+### [x] 13. Parental dashboard
+Added `ParentDashboardScreen` with 4-digit PIN gate (default `1234`,
+changeable from inside the screen, stored in SharedPreferences).
+Aggregates GameProvider game progress, SriService mastery, and
+CognitiveProfileService strongest/weakest skills. Surfaced from
+Settings → About in both projects. Time-bucketing ("last 7 days")
+deferred — current data model doesn't timestamp per-attempt; would
+need new plumbing.
 
-### [ ] 14. Document and centralize tuning constants
-`_currentLevelWins >= 3 → advance`, SRI half-lives, decoy counts,
-difficulty math — all magic numbers scattered through game files. A
-`lib/features/games/tuning.dart` with documented constants would make
-A/B testing tractable.
+### [x] 14. Document and centralize tuning constants
+Created `lib/features/games/tuning.dart` in both projects with named
+constants for `kWinsRequiredForLevelUp`, `kDefaultPassThreshold`,
+`kMinAttemptsForMastery`, `kMinTrackedProblemsForMastery`, plus
+the SM-2 algorithm constants (`kSm2InitialEasiness`,
+`kSm2MinimumEasiness`, etc.). Wired into GameProvider,
+CognitiveProfileService, SriService, GameOutcome.
 
 ---
 

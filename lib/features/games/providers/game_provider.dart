@@ -9,6 +9,7 @@ import '../../../core/services/sri_service.dart';
 import '../../../core/services/cognitive_profile_service.dart';
 import '../../../core/theme/app_fonts.dart';
 import '../models/game_outcome.dart';
+import '../tuning.dart';
 
 // Achievement class
 class Achievement {
@@ -317,8 +318,9 @@ class GameProvider extends ChangeNotifier {
   }
 
   bool canAdvanceToNextLevel(String gameType, int currentLevel) {
-    if ((_currentLevelWins[gameType] ?? 0) < 3) {
-      debugPrint('[GAME_PROVIDER] ❌ $gameType: Only ${_currentLevelWins[gameType] ?? 0}/3 wins');
+    if ((_currentLevelWins[gameType] ?? 0) < kWinsRequiredForLevelUp) {
+      debugPrint('[GAME_PROVIDER] ❌ $gameType: '
+          'Only ${_currentLevelWins[gameType] ?? 0}/$kWinsRequiredForLevelUp wins');
       return false;
     }
 
@@ -346,7 +348,8 @@ class GameProvider extends ChangeNotifier {
     final stat = gradeStats[_grade]; 
     if (stat == null) return false;
 
-    final hasMastery = stat.tracked >= 10 && stat.successRate >= 0.7;
+    final hasMastery = stat.tracked >= kMinTrackedItemsForMastery &&
+        stat.successRate >= kDefaultPassThreshold;
     debugPrint('[GAME_PROVIDER] Spelling mastery @ Grade $_grade: ${stat.mastered}/${stat.tracked} (${stat.successRate * 100}%) ${hasMastery ? "✓" : "✗"}');
     return hasMastery;
   }

@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../features/games/tuning.dart';
 import '../models/skill_category.dart';
 
 class SkillStats {
@@ -18,6 +19,33 @@ class SkillStats {
 
 class CognitiveProfileService extends ChangeNotifier {
   Map<SkillCategory, Map<int, SkillStats>> _skillData = {};
+
+  /// Read-only snapshot of all tracked skill stats. Returns fresh copies
+  /// so consumers can't mutate internal state.
+  Map<SkillCategory, Map<int, SkillStats>> get snapshot {
+    return {
+      for (final entry in _skillData.entries)
+        entry.key: {
+          for (final inner in entry.value.entries)
+            inner.key: SkillStats(
+              attempts: inner.value.attempts,
+              successes: inner.value.successes,
+            ),
+        },
+    };
+  }
+
+  /// Total attempts logged across all skills/difficulties.
+  int get totalAttempts {
+    int n = 0;
+    for (final diffMap in _skillData.values) {
+      for (final stats in diffMap.values) {
+        n += stats.attempts;
+      }
+    }
+    return n;
+  }
+
   static const _storageKey = 'cognitive_profile';
 
   void _log(String message) {
@@ -40,9 +68,10 @@ class CognitiveProfileService extends ChangeNotifier {
     saveProfile();
   }
 
-  bool hasMastery(SkillCategory skill, int difficulty, {double threshold = 0.7}) {
+  bool hasMastery(SkillCategory skill, int difficulty,
+      {double threshold = kDefaultPassThreshold}) {
     final stats = _skillData[skill]?[difficulty];
-    if (stats == null || stats.attempts < 5) {
+    if (stats == null || stats.attempts < kMinAttemptsForMastery) {
       _log('No mastery for ${skill.name} @ $difficulty (insufficient data)');
       return false;
     }
