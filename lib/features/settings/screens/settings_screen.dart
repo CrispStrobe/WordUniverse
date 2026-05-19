@@ -14,6 +14,7 @@ import '../../../core/services/vocabulary_service.dart';
 import '../../../core/services/sri_service.dart';
 
 import '../../../shared/widgets/imprint_dialog.dart';
+import 'diagnostics_screen.dart';
 
 import '../../../generated/l10n.dart';
 
@@ -1476,8 +1477,22 @@ class _SettingsScreenState extends State<SettingsScreen>
           ),
           
           _buildFeatureRow(
-            title: S.of(context)!.licensesTitle, 
-            subtitle: S.of(context)!.viewOssLicenses, 
+            title: 'Diagnostics',
+            subtitle: 'View crash log (stays on device)',
+            icon: Icons.bug_report,
+            isLocked: false,
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const DiagnosticsScreen(),
+                ),
+              );
+            },
+          ),
+
+          _buildFeatureRow(
+            title: S.of(context)!.licensesTitle,
+            subtitle: S.of(context)!.viewOssLicenses,
             icon: Icons.article_rounded,
             isLocked: false,
             onTap: () {
