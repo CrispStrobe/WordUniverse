@@ -7,7 +7,6 @@ import '../../../core/config/app_config.dart';
 import '../../../core/models/skill_category.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/cognitive_profile_service.dart';
-import '../constants/app_constants.dart'; 
 import '../../../core/theme/app_fonts.dart';
 
 // Achievement class
@@ -70,7 +69,10 @@ class GameProvider extends ChangeNotifier {
     'word_sort_game': SkillCategories.getById('word_types')!, 
     'word_memory_game': SkillCategories.getById('basic_spelling')!,
     'word_builder_game': SkillCategories.getById('basic_spelling')!,
-    'word_type_whirl_game': SkillCategories.getById('word_types')!, 
+    'word_type_whirl_game': SkillCategories.getById('word_types')!,
+    'wortbaumeister_game': SkillCategories.getById('word_types')!, 
+    'grossstadt_game': SkillCategories.getById('basic_spelling')!, // Capitalization is spelling rules
+    'grossschreib_game': SkillCategories.getById('word_types')!,
   };
 
   int _score = 0;
@@ -491,6 +493,15 @@ class GameProvider extends ChangeNotifier {
     if ((_gameProgress['word_find_game'] ?? 0) >= 3 && !hasAchievement('puzzle_solver')) { newAchievements.add(Achievement(id: 'puzzle_solver')); }
     if ((_gameProgress['word_builder_game'] ?? 0) >= 3 && !hasAchievement('number_walls_pro')) { newAchievements.add(Achievement(id: 'number_walls_pro')); }
     if ((_gameProgress['space_word_rescue'] ?? 0) >= 3 && !hasAchievement('codebreaker_pro')) { newAchievements.add(Achievement(id: 'codebreaker_pro')); }
+    if ((_gameProgress['wortbaumeister_game'] ?? 0) >= 3 && !hasAchievement('master_builder')) { 
+      newAchievements.add(Achievement(id: 'master_builder')); 
+    }
+    if ((_gameProgress['grossstadt_game'] ?? 0) >= 3 && !hasAchievement('city_planner')) { 
+      newAchievements.add(Achievement(id: 'city_planner')); 
+    }
+    if ((_gameProgress['grossschreib_game'] ?? 0) >= 3 && !hasAchievement('connection_expert')) { 
+      newAchievements.add(Achievement(id: 'connection_expert')); 
+    }
 
     if ((_gameProgress['word_memory_game'] ?? 0) >= 5 && 
         (_gameProgress['word_type_whirl_game'] ?? 0) >= 5 &&
@@ -499,7 +510,7 @@ class GameProvider extends ChangeNotifier {
     }
 
     final gamesCompleted = _gameProgress.values.where((level) => level >= 1).length;
-    if (gamesCompleted >= 3 && !hasAchievement('all_rounder')) {
+    if (gamesCompleted >= 4 && !hasAchievement('all_rounder')) {
       newAchievements.add(Achievement(id: 'all_rounder'));
     }
 

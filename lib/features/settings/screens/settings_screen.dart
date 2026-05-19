@@ -3,11 +3,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:math' as math;
 
 import '../../../core/theme/space_theme.dart';
 import '../../../core/services/debug_provider.dart';
-import '../../../core/services/progress_service.dart';
 
 import '../../../core/theme/app_fonts.dart';
 
@@ -20,16 +18,14 @@ import '../../../shared/widgets/imprint_dialog.dart';
 import '../../../generated/l10n.dart';
 
 // We import this for the Grade definitions
-import '../../../core/models/skill_category.dart';
 import '../../games/providers/game_provider.dart';
 import '../../games/widgets/space_background.dart';
 // We import the dialog separately
 import '../widgets/sri_statistics_dialog.dart';
-import 'custom_subset_screen.dart';
 
 import '../widgets/manage_sets_dialog.dart';
 
-import 'package:flutter/foundation.dart'; // For LicenseRegistry
+// For LicenseRegistry
 import 'package:flutter/services.dart' show rootBundle;
 
 class SettingsScreen extends StatefulWidget {
@@ -380,7 +376,6 @@ class _SettingsScreenState extends State<SettingsScreen>
 
   Widget _buildFontSelector(GameProvider gameProvider) {
     // TODO: add these strings to S.of(context) files
-    final s = S.of(context)!;
     final String title = "Schriftart"; // s.fontFamilyTitle
     final String subtitle = "Wähle eine Schriftart für Lerninhalte"; // s.fontFamilySubtitle
 
@@ -475,7 +470,7 @@ class _SettingsScreenState extends State<SettingsScreen>
           Container(
             height: 150, // Constrain height to make it scrollable
             decoration: BoxDecoration(
-              color: SpaceTheme.deepSpace.withOpacity(0.5),
+              color: SpaceTheme.deepSpace.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: Colors.white24),
             ),
@@ -689,7 +684,7 @@ class _SettingsScreenState extends State<SettingsScreen>
               size: 28,
             ),
             style: IconButton.styleFrom(
-              backgroundColor: SpaceTheme.deepSpace.withOpacity(0.8),
+              backgroundColor: SpaceTheme.deepSpace.withValues(alpha: 0.8),
               padding: const EdgeInsets.all(12),
             ),
           ),
@@ -1065,8 +1060,8 @@ class _SettingsScreenState extends State<SettingsScreen>
                       }
                       gameProvider.setTaskIncludedSources(currentSources);
                     },
-                    backgroundColor: SpaceTheme.deepSpace.withOpacity(0.8),
-                    selectedColor: SpaceTheme.alienGreen.withOpacity(0.3),
+                    backgroundColor: SpaceTheme.deepSpace.withValues(alpha: 0.8),
+                    selectedColor: SpaceTheme.alienGreen.withValues(alpha: 0.3),
                     labelStyle: TextStyle(
                       color: isSelected ? SpaceTheme.alienGreen : Colors.white,
                     ),
@@ -1117,7 +1112,7 @@ class _SettingsScreenState extends State<SettingsScreen>
             hintText: S.of(context)!.taskWildcardHint,
             hintStyle: SpaceTheme.bodyStyle.copyWith(color: Colors.white38),
             filled: true,
-            fillColor: SpaceTheme.deepSpace.withOpacity(0.5),
+            fillColor: SpaceTheme.deepSpace.withValues(alpha: 0.5),
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -1159,7 +1154,7 @@ class _SettingsScreenState extends State<SettingsScreen>
               return Chip(
                 label: Text(filter),
                 labelStyle: const TextStyle(color: Colors.white),
-                backgroundColor: SpaceTheme.nebulaPurple.withOpacity(0.7),
+                backgroundColor: SpaceTheme.nebulaPurple.withValues(alpha: 0.7),
                 onDeleted: () {
                   onRemove(filter);
                 },
@@ -1243,10 +1238,10 @@ class _SettingsScreenState extends State<SettingsScreen>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: SpaceTheme.deepSpace.withOpacity(0.5),
+        color: SpaceTheme.deepSpace.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: SpaceTheme.alienGreen.withOpacity(0.3),
+          color: SpaceTheme.alienGreen.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1308,13 +1303,13 @@ class _SettingsScreenState extends State<SettingsScreen>
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: isSelected 
-              ? SpaceTheme.alienGreen.withOpacity(0.2)
+              ? SpaceTheme.alienGreen.withValues(alpha: 0.2)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: isSelected 
                 ? SpaceTheme.alienGreen 
-                : Colors.white.withOpacity(0.3),
+                : Colors.white.withValues(alpha: 0.3),
             width: 2,
           ),
         ),
@@ -1537,7 +1532,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: SpaceTheme.starYellow.withOpacity(0.2),
+                  color: SpaceTheme.starYellow.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
@@ -1609,7 +1604,7 @@ class _SettingsScreenState extends State<SettingsScreen>
           Switch(
             value: value,
             onChanged: isLocked ? null : onChanged,
-            activeColor: SpaceTheme.alienGreen,
+            activeThumbColor: SpaceTheme.alienGreen,
             inactiveThumbColor: SpaceTheme.moonSilver,
             inactiveTrackColor: SpaceTheme.deepSpace,
           ),
@@ -1874,13 +1869,13 @@ class _SettingsScreenState extends State<SettingsScreen>
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: isSelected 
-                      ? SpaceTheme.starYellow.withOpacity(0.2)
+                      ? SpaceTheme.starYellow.withValues(alpha: 0.2)
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
                     color: isSelected 
                         ? SpaceTheme.starYellow 
-                        : Colors.white.withOpacity(0.3),
+                        : Colors.white.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Row(

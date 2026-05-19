@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'dart:developer' as dev;
 import 'dart:math';
 
 //============================================================================//
@@ -64,7 +63,7 @@ class GradioApiClient {
             ? ['EN', 'en', 'test'] 
             : ['test'];
         
-        final eventId = await _step1_postForEventId(endpoint, testData, silent: true);
+        await _step1_postForEventId(endpoint, testData, silent: true);
         _availableEndpoints.add(endpoint);
         print('${Colors.green}✓${Colors.reset} $endpoint - ${Colors.green}Available${Colors.reset}');
       } catch (e) {
@@ -233,7 +232,7 @@ class GradioApiClient {
       print('${Colors.green}✓ Stream complete${Colors.reset}\n');
 
       _printSpacyResults(outputs as List, testId: testId, saveJson: saveJson);
-    } catch (e, st) {
+    } catch (e) {
       _printError('Test failed', e);
     }
     print('═' * 70 + '\n');
@@ -421,7 +420,7 @@ class GradioApiClient {
 
       final grammarData = (outputs as List)[0];
       _printGrammarResults(grammarData, testId: testId, saveJson: saveJson);
-    } catch (e, st) {
+    } catch (e) {
       _printError('Test failed', e);
     }
     print('═' * 70 + '\n');
@@ -554,7 +553,7 @@ class GradioApiClient {
       final inflectionData = (outputs as List)[0];
       _printInflectionsResults(inflectionData as Map,
           testId: testId, saveJson: saveJson);
-    } catch (e, st) {
+    } catch (e) {
       _printError('Test failed', e);
     }
     print('═' * 70 + '\n');
@@ -760,7 +759,7 @@ class GradioApiClient {
       final thesaurusData = (outputs as List)[0];
       _printThesaurusResults(thesaurusData as Map,
           testId: testId, saveJson: saveJson);
-    } catch (e, st) {
+    } catch (e) {
       _printError('Test failed', e);
     }
     print('═' * 70 + '\n');
@@ -886,7 +885,7 @@ class GradioApiClient {
       final comprehensiveData = (outputs as List)[0];
       _printComprehensiveResults(comprehensiveData as Map,
           testId: testId, saveJson: saveJson);
-    } catch (e, st) {
+    } catch (e) {
       _printError('Test failed', e);
     }
     print('═' * 70 + '\n');

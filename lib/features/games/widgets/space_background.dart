@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme/space_theme.dart';
 
 class SpaceBackground extends StatelessWidget {
   final Widget child;

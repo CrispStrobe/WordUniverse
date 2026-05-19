@@ -1,7 +1,6 @@
 // lib/features/games/widgets/word_sort_helpers.dart
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import '../../../core/services/vocabulary_service.dart';
 import '../../../core/theme/space_theme.dart';
 import '../models/word_sort_types.dart';
 import '../../../core/models/vocabulary_models.dart';
@@ -37,7 +36,7 @@ class ArticleBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.3),
+        color: color.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: color, width: 2),
       ),
@@ -58,7 +57,7 @@ class ArticleBadge extends StatelessWidget {
               gender!,
               style: TextStyle(
                 fontSize: 14,
-                color: color.withOpacity(0.8),
+                color: color.withValues(alpha: 0.8),
               ),
             ),
           ],
@@ -93,15 +92,15 @@ class FeedbackCard extends StatelessWidget {
     IconData icon;
 
     if (state == FeedbackState.correct) {
-      backgroundColor = Colors.green.withOpacity(0.9);
+      backgroundColor = Colors.green.withValues(alpha: 0.9);
       borderColor = Colors.greenAccent;
       icon = Icons.check_circle;
     } else if (state == FeedbackState.incorrect) {
-      backgroundColor = Colors.red.withOpacity(0.9);
+      backgroundColor = Colors.red.withValues(alpha: 0.9);
       borderColor = Colors.redAccent;
       icon = Icons.cancel;
     } else if (state == FeedbackState.hint) {
-      backgroundColor = SpaceTheme.cosmicPink.withOpacity(0.9);
+      backgroundColor = SpaceTheme.cosmicPink.withValues(alpha: 0.9);
       borderColor = SpaceTheme.starYellow;
       icon = Icons.lightbulb;
     } else {
@@ -121,7 +120,7 @@ class FeedbackCard extends StatelessWidget {
             border: Border.all(color: borderColor, width: 3),
             boxShadow: [
               BoxShadow(
-                color: borderColor.withOpacity(0.5),
+                color: borderColor.withValues(alpha: 0.5),
                 blurRadius: 20,
                 spreadRadius: 5,
               ),
@@ -202,7 +201,7 @@ class FeedbackCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
+        color: Colors.white.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -222,7 +221,7 @@ class FeedbackCard extends StatelessWidget {
       border: TableBorder.all(color: Colors.white54),
       children: [
         TableRow(
-          decoration: BoxDecoration(color: Colors.white.withOpacity(0.1)),
+          decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.1)),
           children: ['Fall', 'Singular', 'Plural'].map((header) => Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(header, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white), textAlign: TextAlign.center),
@@ -255,7 +254,7 @@ class FeedbackCard extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: Colors.white.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
       child: Column(
         children: [
           const Text('Konjugation (Präsens)', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
@@ -287,7 +286,7 @@ class FeedbackCard extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: Colors.white.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
       child: Column(
         children: [
           const Text('Steigerung', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),

@@ -1,7 +1,6 @@
 // lib/features/games/screens/game_menu_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'dart:math' as math;
 
 import '../../../core/services/debug_provider.dart';
 import '../../../core/theme/space_theme.dart';
@@ -17,6 +16,9 @@ import 'word_snake_game.dart';
 import 'word_memory_game.dart';
 import 'word_builder_game.dart';
 import 'word_type_whirl_game.dart';
+import 'wortbaumeister_game.dart';
+import 'grossstadt_game.dart';
+import 'grossschreib_game.dart';
 
 import '../widgets/debug_panel.dart';
 import '../../settings/screens/settings_screen.dart';
@@ -40,7 +42,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
   late Animation<double> _floatAnimation;
 
   // for new games, we must manually update game count
-  static const int _gameCount = 7;
+  static const int _gameCount = 10;
 
   @override
   void initState() {
@@ -154,7 +156,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             onPressed: () => Navigator.of(context).pop(),
             icon: const Icon(Icons.arrow_back_ios, color: Colors.white, size: 24), // Slightly smaller
             style: IconButton.styleFrom(
-              backgroundColor: SpaceTheme.deepSpace.withOpacity(0.8),
+              backgroundColor: SpaceTheme.deepSpace.withValues(alpha: 0.8),
               padding: const EdgeInsets.all(10),
             ),
           ),
@@ -192,7 +194,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color: SpaceTheme.deepSpace.withOpacity(0.8),
+                  color: SpaceTheme.deepSpace.withValues(alpha: 0.8),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
@@ -258,7 +260,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
       padding: const EdgeInsets.all(8), // Reduce tap target padding slightly for density
       constraints: const BoxConstraints(), // Remove minimum size constraints
       style: IconButton.styleFrom(
-          backgroundColor: SpaceTheme.deepSpace.withOpacity(0.8)),
+          backgroundColor: SpaceTheme.deepSpace.withValues(alpha: 0.8)),
     );
   }
 
@@ -306,9 +308,8 @@ class _GameMenuScreenState extends State<GameMenuScreen>
 
     final games = [
       GameInfo(
-        title: s.spaceWordRescueTitle ?? 'Weltraum-Wort-Rettung',
-        description: s.spaceWordRescueInstructions ??
-            'Rette Wörter vor dem Abdriften ins All!',
+        title: s.spaceWordRescueTitle,
+        description: s.spaceWordRescueInstructions,
         icon: Icons.rocket_launch,
         gradient: const LinearGradient(
             colors: [Color(0xFF4A00E0), Color(0xFF8E2DE2)]),
@@ -316,9 +317,8 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
-        title: s.wordFindTitle ?? 'Wortsuche',
-        description: s.wordFindDescription ??
-            'Finde versteckte Wörter im Buchstabengitter',
+        title: s.wordFindTitle,
+        description: s.wordFindDescription,
         icon: Icons.grid_on,
         gradient: const LinearGradient(
             colors: [Color(0xFF00C9FF), Color(0xFF92FE9D)]),
@@ -326,9 +326,9 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
-        title: s.wordSortTitle ?? 'Wort-Sortierung',
+        title: s.wordSortTitle,
         description:
-            s.wordSortDescription ?? 'Sortiere Wörter nach Wortarten',
+            s.wordSortDescription,
         icon: Icons.sort_by_alpha,
         gradient: const LinearGradient(
             colors: [Color(0xFFf953c6), Color(0xFFb91d73)]),
@@ -336,8 +336,8 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
-        title: s.wordSnakeTitle ?? 'Wort-Schlange',
-        description: s.wordSnakeDescription ?? 'Verbinde Buchstaben zu Wörtern',
+        title: s.wordSnakeTitle,
+        description: s.wordSnakeDescription,
         icon: Icons.timeline,
         gradient: const LinearGradient(
             colors: [Color(0xFFFF6B6B), Color(0xFFFFE66D)]),
@@ -345,9 +345,8 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
-        title: s.wordMemoryTitle ?? 'Memory',
-        description: s.wordMemoryDescription ??
-            'Finde passende Wortpaare in verschiedenen Schriften',
+        title: s.wordMemoryTitle,
+        description: s.wordMemoryDescription,
         icon: Icons.psychology,
         gradient: const LinearGradient(
             colors: [Color(0xFFFA8BFF), Color(0xFF2BD2FF)]),
@@ -355,9 +354,8 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
-        title: s.wordBuilderTitle ?? 'Wort-Baumeister',
-        description: s.wordBuilderDescription ??
-            'Baue Wörter aus durcheinander gewürfelten Buchstaben',
+        title: s.wordBuilderTitle,
+        description: s.wordBuilderDescription,
         icon: Icons.construction,
         gradient: const LinearGradient(
             colors: [Color(0xFFFFA500), Color(0xFFFF6347)]),
@@ -365,15 +363,39 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
-        title: s.wordWhirlTitle ?? 'Wortarten-Wirbel',
+        title: s.wordWhirlTitle,
         description:
-            s.wordWhirlDescription ?? 'Tippe die richtigen Wortarten im Wirbel!',
+            s.wordWhirlDescription,
         icon: Icons.tornado,
         gradient: const LinearGradient(
             colors: [Color(0xFF667eea), Color(0xFF764ba2)]),
         onTap: () => _navigateToGame(WordTypeWhirlGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
+      GameInfo(
+        title: 'Wort-Stückler', // Or s.wortBaumeisterTitle
+        description: 'Zusammengesetzte Nomen und Verben meistern',
+        icon: Icons.handyman,
+        gradient: const LinearGradient(colors: [Color(0xFFF2994A), Color(0xFFF2C94C)]),
+        onTap: () => _navigateToGame(WortbaumeisterGame(gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
+      ),
+      GameInfo(
+        title: 'Wort-Sortierer',
+        description: 'Groß- und Kleinschreibung auf dem Förderband',
+        icon: Icons.location_city,
+        gradient: const LinearGradient(colors: [Color(0xFF30E8BF), Color(0xFFFF8235)]),
+        onTap: () => _navigateToGame(GrossstadtGame(gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
+      ),
+      GameInfo(
+        title: 'Wort-Galaxie',
+        description: 'Werden Worte im Satz groß oder klein geschrieben?',
+        icon: Icons.call_split,
+        gradient: const LinearGradient(colors: [Color(0xFF11998e), Color(0xFF38ef7d)]),
+        onTap: () => _navigateToGame(GrossschreibungsGalaxieGame(gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
+      ),
+
+
+
     ];
 
     if (index >= games.length) return const SizedBox.shrink();
@@ -403,7 +425,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
                 if (isLocked)
                   Container(
                     decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.6),
+                        color: Colors.black.withValues(alpha: 0.6),
                         borderRadius: BorderRadius.circular(25)),
                   ),
                 if (isLocked)
@@ -412,7 +434,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
                       size: 50,
                       shadows: [
                         Shadow(
-                            color: Colors.black.withOpacity(0.7),
+                            color: Colors.black.withValues(alpha: 0.7),
                             blurRadius: 10)
                       ]),
               ],
@@ -508,12 +530,12 @@ class _GameCardState extends State<GameCard>
                   borderRadius: BorderRadius.circular(25),
                   boxShadow: [
                     BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
+                        color: Colors.black.withValues(alpha: 0.3),
                         blurRadius: 15,
                         offset: const Offset(0, 8)),
                     BoxShadow(
                         color: widget.game.gradient.colors.first
-                            .withOpacity(_glowAnimation.value),
+                            .withValues(alpha: _glowAnimation.value),
                         blurRadius: 25,
                         spreadRadius: 2),
                   ],
@@ -542,7 +564,7 @@ class _GameCardState extends State<GameCard>
                           Container(
                             padding: EdgeInsets.all(isTiny ? 6 : 8),
                             decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
+                                color: Colors.white.withValues(alpha: 0.2),
                                 shape: BoxShape.circle),
                             child: Icon(widget.game.icon,
                                 size: iconSize, color: Colors.white),
@@ -575,7 +597,7 @@ class _GameCardState extends State<GameCard>
                                 horizontal: isTiny ? 8 : 16,
                                 vertical: isTiny ? 4 : 6),
                             decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
+                                color: Colors.white.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(12)),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,

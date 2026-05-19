@@ -92,14 +92,14 @@ class _AnimatedLogoState extends State<AnimatedLogo>
               shape: BoxShape.circle,
               gradient: RadialGradient(
                 colors: [
-                  SpaceTheme.starYellow.withOpacity(_glowAnimation.value),
-                  SpaceTheme.planetOrange.withOpacity(_glowAnimation.value * 0.8),
-                  SpaceTheme.deepSpace.withOpacity(0.3),
+                  SpaceTheme.starYellow.withValues(alpha: _glowAnimation.value),
+                  SpaceTheme.planetOrange.withValues(alpha: _glowAnimation.value * 0.8),
+                  SpaceTheme.deepSpace.withValues(alpha: 0.3),
                 ],
               ),
               boxShadow: [
                 BoxShadow(
-                  color: SpaceTheme.starYellow.withOpacity(_glowAnimation.value * 0.5),
+                  color: SpaceTheme.starYellow.withValues(alpha: _glowAnimation.value * 0.5),
                   blurRadius: 30,
                   spreadRadius: 10,
                 ),
@@ -117,7 +117,7 @@ class _AnimatedLogoState extends State<AnimatedLogo>
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: SpaceTheme.alienGreen.withOpacity(0.6),
+                        color: SpaceTheme.alienGreen.withValues(alpha: 0.6),
                         width: 3,
                       ),
                     ),
@@ -132,7 +132,7 @@ class _AnimatedLogoState extends State<AnimatedLogo>
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: SpaceTheme.cosmicPink.withOpacity(0.6),
+                        color: SpaceTheme.cosmicPink.withValues(alpha: 0.6),
                         width: 2,
                       ),
                     ),
@@ -163,7 +163,7 @@ class _AnimatedLogoState extends State<AnimatedLogo>
                       fontSize: 16,
                       shadows: [
                         Shadow(
-                          color: SpaceTheme.starYellow.withOpacity(0.8),
+                          color: SpaceTheme.starYellow.withValues(alpha: 0.8),
                           blurRadius: 10,
                         ),
                       ],
@@ -235,13 +235,13 @@ class GradeSelector extends StatelessWidget {
                         border: Border.all(
                           color: isSelected
                               ? SpaceTheme.starYellow
-                              : SpaceTheme.moonSilver.withOpacity(0.3),
+                              : SpaceTheme.moonSilver.withValues(alpha: 0.3),
                           width: 2,
                         ),
                         boxShadow: isSelected
                             ? [
                                 BoxShadow(
-                                  color: SpaceTheme.starYellow.withOpacity(0.5),
+                                  color: SpaceTheme.starYellow.withValues(alpha: 0.5),
                                   blurRadius: 10,
                                   spreadRadius: 2,
                                 ),
@@ -421,7 +421,7 @@ class _StatsCardState extends State<StatsCard>
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.2),
+            color: color.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
@@ -469,10 +469,10 @@ class SettingsButton extends StatelessWidget {
       width: 50,
       height: 50,
       decoration: BoxDecoration(
-        color: SpaceTheme.deepSpace.withOpacity(0.8),
+        color: SpaceTheme.deepSpace.withValues(alpha: 0.8),
         borderRadius: BorderRadius.circular(25),
         border: Border.all(
-          color: SpaceTheme.moonSilver.withOpacity(0.3),
+          color: SpaceTheme.moonSilver.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -485,7 +485,7 @@ class SettingsButton extends StatelessWidget {
         onPressed: () {
           // Navigate to settings screen
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+            SnackBar(
               content: Text(S.of(context)!.settingsComingSoon),
               backgroundColor: SpaceTheme.nebulaPurple,
             ),
@@ -536,10 +536,10 @@ class QuickStats extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: SpaceTheme.deepSpace.withOpacity(0.6),
+        color: SpaceTheme.deepSpace.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(15),
         border: Border.all(
-          color: color.withOpacity(0.5),
+          color: color.withValues(alpha: 0.5),
           width: 1,
         ),
       ),

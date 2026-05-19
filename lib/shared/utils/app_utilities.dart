@@ -241,7 +241,7 @@ class SpaceErrorScreen extends StatelessWidget {
                     width: 100,
                     height: 100,
                     decoration: BoxDecoration(
-                      color: SpaceTheme.rocketRed.withOpacity(0.2),
+                      color: SpaceTheme.rocketRed.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(50),
                     ),
                     child: Icon(
@@ -558,7 +558,7 @@ class LoadingStarsPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = SpaceTheme.starYellow.withOpacity(animation)
+      ..color = SpaceTheme.starYellow.withValues(alpha: animation)
       ..style = PaintingStyle.fill;
     
     final random = math.Random(42);
@@ -589,7 +589,7 @@ class OrbitPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = SpaceTheme.alienGreen.withOpacity(0.3)
+      ..color = SpaceTheme.alienGreen.withValues(alpha: 0.3)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
     

@@ -574,7 +574,7 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
         angle: chosenAngle!,
         trackIndex: chosenTrack!,
         // IMPORTANT: All words in this track move at same speed relative to base speed
-        speed: trackSpeeds[chosenTrack!] * _baseSpeed, 
+        speed: trackSpeeds[chosenTrack] * _baseSpeed, 
       ));
     });
   }
@@ -762,15 +762,14 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
   }
 
   Widget _buildTopBar() {
-    final s = S.of(context)!;
     final totalGems = context.watch<GameProvider>().score;
     final timeColor = _roundTimeRemaining < 5 ? SpaceTheme.rocketRed : SpaceTheme.alienGreen;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(8, 8, 12, 8),
       decoration: BoxDecoration(
-        color: SpaceTheme.deepSpace.withOpacity(0.95),
-        border: Border(bottom: BorderSide(color: SpaceTheme.nebulaPurple.withOpacity(0.5), width: 2)),
+        color: SpaceTheme.deepSpace.withValues(alpha: 0.95),
+        border: Border(bottom: BorderSide(color: SpaceTheme.nebulaPurple.withValues(alpha: 0.5), width: 2)),
         boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 12, offset: Offset(0, 4))],
       ),
       child: Row(
@@ -794,7 +793,7 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.08),
+              color: Colors.white.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: Colors.white12),
             ),
@@ -824,9 +823,9 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
+        color: color.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.5)),
+        border: Border.all(color: color.withValues(alpha: 0.5)),
       ),
       child: Row(
         children: [
@@ -867,10 +866,10 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: SpaceTheme.deepSpace.withOpacity(0.8),
+          color: SpaceTheme.deepSpace.withValues(alpha: 0.8),
           borderRadius: BorderRadius.circular(24),
           border: Border.all(color: typeInfo.color, width: 2),
-          boxShadow: [BoxShadow(color: typeInfo.color.withOpacity(0.3), blurRadius: 10)],
+          boxShadow: [BoxShadow(color: typeInfo.color.withValues(alpha: 0.3), blurRadius: 10)],
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -905,10 +904,10 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               decoration: BoxDecoration(
                 // Clean semi-transparent dark background
-                color: SpaceTheme.deepSpace.withOpacity(0.85),
+                color: SpaceTheme.deepSpace.withValues(alpha: 0.85),
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(color: typeInfo.color, width: 2),
-                boxShadow: [BoxShadow(color: typeInfo.color.withOpacity(0.3), blurRadius: 20)],
+                boxShadow: [BoxShadow(color: typeInfo.color.withValues(alpha: 0.3), blurRadius: 20)],
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -967,7 +966,7 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: SpaceTheme.deepSpace.withOpacity(0.95),
+                color: SpaceTheme.deepSpace.withValues(alpha: 0.95),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: color, width: 2),
               ),
@@ -1077,21 +1076,21 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
     final isTarget = whirlingWord.word.wordType == _currentTargetType;
     final shouldHighlight = isTarget && _showAutoHints && !whirlingWord.isTapped;
 
-    Color backgroundColor = SpaceTheme.deepSpace.withOpacity(0.7);
-    Color borderColor = Colors.white.withOpacity(0.3);
+    Color backgroundColor = SpaceTheme.deepSpace.withValues(alpha: 0.7);
+    Color borderColor = Colors.white.withValues(alpha: 0.3);
     Color textColor = Colors.white;
 
     if (whirlingWord.isTapped) {
       if (whirlingWord.isCorrect) {
-        backgroundColor = SpaceTheme.alienGreen.withOpacity(0.9);
+        backgroundColor = SpaceTheme.alienGreen.withValues(alpha: 0.9);
         borderColor = SpaceTheme.alienGreen;
         textColor = SpaceTheme.deepSpace;
       } else {
-        backgroundColor = SpaceTheme.rocketRed.withOpacity(0.9);
+        backgroundColor = SpaceTheme.rocketRed.withValues(alpha: 0.9);
         borderColor = SpaceTheme.rocketRed;
       }
     } else if (shouldHighlight) {
-      backgroundColor = SpaceTheme.deepSpace.withOpacity(0.9);
+      backgroundColor = SpaceTheme.deepSpace.withValues(alpha: 0.9);
       borderColor = typeInfo?.color ?? SpaceTheme.starYellow;
     }
 
@@ -1105,7 +1104,7 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
           color: backgroundColor,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: borderColor, width: shouldHighlight ? 4 : 2),
-          boxShadow: [if (shouldHighlight) BoxShadow(color: borderColor.withOpacity(0.7), blurRadius: 12)],
+          boxShadow: [if (shouldHighlight) BoxShadow(color: borderColor.withValues(alpha: 0.7), blurRadius: 12)],
         ),
         child: Center(
           child: FittedBox(

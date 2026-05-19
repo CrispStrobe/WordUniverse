@@ -80,15 +80,6 @@ Future<Database> initPlatformDatabase({
     // Show progress milestones during decompression
     final List<int> decompressedBytes;
     try {
-      // Start decompression in chunks with progress updates
-      int progressStep = 0;
-      final progressMessages = [
-        'Decompressing database... 30%',
-        'Decompressing database... 45%',
-        'Decompressing database... 60%',
-        'Decompressing database... 75%',
-      ];
-      
       // Since decodeBytes is synchronous, we'll use compute for isolation on mobile
       // to prevent UI blocking, but we can't track progress inside compute easily.
       // For now, just decode and show stepped progress.

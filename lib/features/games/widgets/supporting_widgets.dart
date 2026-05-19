@@ -172,7 +172,7 @@ class GameUI extends StatelessWidget {
               size: 28,
             ),
             style: IconButton.styleFrom(
-              backgroundColor: SpaceTheme.deepSpace.withOpacity(0.8),
+              backgroundColor: SpaceTheme.deepSpace.withValues(alpha: 0.8),
               padding: const EdgeInsets.all(12),
             ),
           ),
@@ -193,7 +193,7 @@ class GameUI extends StatelessWidget {
               // Level
               _buildStatItem(
                 icon: Icons.emoji_events,
-                label: S.of(context).level,
+                label: S.of(context)!.level,
                 value: level.toString(),
                 color: SpaceTheme.starYellow,
               ),
@@ -205,7 +205,7 @@ class GameUI extends StatelessWidget {
                 builder: (context, gameProvider, child) {
                   return _buildStatItem(
                     icon: Icons.star,
-                    label: S.of(context).score,
+                    label: S.of(context)!.score,
                     value: gameProvider.score.toString(),
                     color: SpaceTheme.alienGreen,
                   );
@@ -217,7 +217,7 @@ class GameUI extends StatelessWidget {
                 const SizedBox(width: 20),
                 _buildStatItem(
                   icon: Icons.timer,
-                  label: S.of(context).time,
+                  label: S.of(context)!.time,
                   value: _formatTime(timeLeft!),
                   color: timeLeft! > 10 ? SpaceTheme.cosmicPink : SpaceTheme.rocketRed,
                 ),
@@ -238,10 +238,10 @@ class GameUI extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: SpaceTheme.deepSpace.withOpacity(0.8),
+        color: SpaceTheme.deepSpace.withValues(alpha: 0.8),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: color.withOpacity(0.5),
+          color: color.withValues(alpha: 0.5),
           width: 2,
         ),
       ),
@@ -367,13 +367,13 @@ class _SpaceButtonState extends State<SpaceButton>
                   end: Alignment.bottomRight,
                   colors: [
                     widget.color ?? SpaceTheme.planetOrange,
-                    (widget.color ?? SpaceTheme.planetOrange).withOpacity(0.8),
+                    (widget.color ?? SpaceTheme.planetOrange).withValues(alpha: 0.8),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(30),
                 boxShadow: [
                   BoxShadow(
-                    color: (widget.color ?? SpaceTheme.planetOrange).withOpacity(0.5),
+                    color: (widget.color ?? SpaceTheme.planetOrange).withValues(alpha: 0.5),
                     blurRadius: 15,
                     offset: const Offset(0, 5),
                   ),
@@ -448,7 +448,7 @@ class StarsPainter extends CustomPainter {
     for (final star in stars) {
       final twinkle = math.sin(animation * 2 * math.pi * star.twinkleSpeed) * 0.5 + 0.5;
       final paint = Paint()
-        ..color = SpaceTheme.starYellow.withOpacity(star.opacity * twinkle)
+        ..color = SpaceTheme.starYellow.withValues(alpha: star.opacity * twinkle)
         ..style = PaintingStyle.fill;
       
       canvas.drawCircle(
@@ -494,8 +494,8 @@ class PlanetsPainter extends CustomPainter {
         ..shader = RadialGradient(
           colors: [
             planet.color,
-            planet.color.withOpacity(0.6),
-            planet.color.withOpacity(0.3),
+            planet.color.withValues(alpha: 0.6),
+            planet.color.withValues(alpha: 0.3),
           ],
         ).createShader(Rect.fromCircle(
           center: Offset.zero,
@@ -506,7 +506,7 @@ class PlanetsPainter extends CustomPainter {
       
       // Planet details (rings, spots, etc.)
       final detailPaint = Paint()
-        ..color = Colors.white.withOpacity(0.2)
+        ..color = Colors.white.withValues(alpha: 0.2)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2;
       

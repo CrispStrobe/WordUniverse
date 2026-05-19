@@ -113,7 +113,7 @@ class _ManageSetsDialogState extends State<ManageSetsDialog> {
                       return Container(
                         margin: EdgeInsets.only(bottom: 8),
                         decoration: BoxDecoration(
-                          color: SpaceTheme.deepSpace.withOpacity(0.5),
+                          color: SpaceTheme.deepSpace.withValues(alpha: 0.5),
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(color: Colors.white24),
                         ),

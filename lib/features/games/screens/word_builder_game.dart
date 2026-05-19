@@ -658,10 +658,10 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: SpaceTheme.deepSpace.withOpacity(0.8),
+        color: SpaceTheme.deepSpace.withValues(alpha: 0.8),
         border: Border(
           bottom: BorderSide(
-            color: SpaceTheme.nebulaPurple.withOpacity(0.5),
+            color: SpaceTheme.nebulaPurple.withValues(alpha: 0.5),
             width: 2,
           ),
         ),
@@ -751,9 +751,9 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: SpaceTheme.nebulaPurple.withOpacity(0.3),
+              color: SpaceTheme.nebulaPurple.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: SpaceTheme.nebulaPurple.withOpacity(0.5)),
+              border: Border.all(color: SpaceTheme.nebulaPurple.withValues(alpha: 0.5)),
             ),
             child: Text(
               'Lvl ${widget.gradeLevel.index + 1}',
@@ -788,9 +788,9 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
+        color: color.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.5)),
+        border: Border.all(color: color.withValues(alpha: 0.5)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -818,7 +818,7 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: SpaceTheme.alienGreen.withOpacity(0.2),
+          color: SpaceTheme.alienGreen.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: SpaceTheme.alienGreen),
         ),
@@ -847,7 +847,7 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
           child: Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: SpaceTheme.deepSpace.withOpacity(0.5),
+              color: SpaceTheme.deepSpace.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: _feedbackState == FeedbackState.correct
@@ -909,13 +909,13 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
       height: 60,
       decoration: BoxDecoration(
         color: isHighlighted
-                ? SpaceTheme.nebulaPurple.withOpacity(0.5)
-                : SpaceTheme.deepSpace.withOpacity(0.3),
+                ? SpaceTheme.nebulaPurple.withValues(alpha: 0.5)
+                : SpaceTheme.deepSpace.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
           color: isHighlighted
               ? SpaceTheme.starYellow
-              : SpaceTheme.nebulaPurple.withOpacity(0.5),
+              : SpaceTheme.nebulaPurple.withValues(alpha: 0.5),
           width: isHighlighted ? 2 : 1.5,
         ),
       ),
@@ -924,7 +924,7 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
           '${position + 1}',
           style: TextStyle(
             fontSize: 12,
-            color: Colors.white.withOpacity(0.3),
+            color: Colors.white.withValues(alpha: 0.3),
           ),
         ),
       ),
@@ -935,8 +935,8 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
     final tile = _buildArea[position];
     
     return DragTarget<LetterTile>(
-      onWillAccept: (data) => _feedbackState != FeedbackState.correct && data != tile,
-      onAccept: (data) => _onTileDraggedToBuildArea(data, position),
+      onWillAcceptWithDetails: (details) => _feedbackState != FeedbackState.correct && details.data != tile,
+      onAcceptWithDetails: (details) => _onTileDraggedToBuildArea(details.data, position),
       builder: (context, candidateData, rejectedData) {
         final isHighlighted = candidateData.isNotEmpty;
         
@@ -976,8 +976,8 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
 
   Widget _buildLetterPool(String selectedFontFamily) {
     return DragTarget<LetterTile>(
-      onWillAccept: (data) => data?.isPlaced ?? false,
-      onAccept: (data) => _onTileReturnedToPool(data),
+      onWillAcceptWithDetails: (details) => details.data.isPlaced,
+      onAcceptWithDetails: (details) => _onTileReturnedToPool(details.data),
       builder: (context, candidateData, rejectedData) {
         final isHighlighted = candidateData.isNotEmpty;
 
@@ -985,11 +985,11 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: SpaceTheme.deepSpace.withOpacity(0.5),
+            color: SpaceTheme.deepSpace.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(12),
             border: isHighlighted 
               ? Border.all(color: SpaceTheme.starYellow, width: 2)
-              : Border.all(color: SpaceTheme.nebulaPurple.withOpacity(0.5)),
+              : Border.all(color: SpaceTheme.nebulaPurple.withValues(alpha: 0.5)),
           ),
           child: Wrap(
             spacing: 8,
@@ -1046,16 +1046,16 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
               gradient: LinearGradient(
                 colors: [
                   SpaceTheme.cosmicPink,
-                  SpaceTheme.cosmicPink.withOpacity(0.7),
+                  SpaceTheme.cosmicPink.withValues(alpha: 0.7),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.white.withOpacity(0.3), width: 1.5),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 1.5),
               boxShadow: [
                 BoxShadow(
-                  color: SpaceTheme.cosmicPink.withOpacity(0.4),
+                  color: SpaceTheme.cosmicPink.withValues(alpha: 0.4),
                   blurRadius: isDragging ? 16 : 6,
                   spreadRadius: isDragging ? 2 : 0,
                 ),

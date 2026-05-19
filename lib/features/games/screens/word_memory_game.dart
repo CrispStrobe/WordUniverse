@@ -1,3 +1,4 @@
+// ignore_for_file: unused_element, unused_field
 // lib/features/games/screens/word_memory_game.dart
 import 'dart:async';
 import 'dart:math';
@@ -381,8 +382,8 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
     return Container(
       padding: const EdgeInsets.fromLTRB(8, 8, 12, 8),
       decoration: BoxDecoration(
-        color: SpaceTheme.deepSpace.withOpacity(0.95),
-        border: Border(bottom: BorderSide(color: SpaceTheme.nebulaPurple.withOpacity(0.5), width: 2)),
+        color: SpaceTheme.deepSpace.withValues(alpha: 0.95),
+        border: Border(bottom: BorderSide(color: SpaceTheme.nebulaPurple.withValues(alpha: 0.5), width: 2)),
         boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 12, offset: Offset(0, 4))],
       ),
       child: SafeArea(
@@ -415,9 +416,9 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.08),
+                    color: Colors.white.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: Colors.white.withOpacity(0.15)),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -463,9 +464,9 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
+        color: color.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.5)),
+        border: Border.all(color: color.withValues(alpha: 0.5)),
       ),
       child: Row(
         children: [
@@ -583,20 +584,20 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
                 decoration: BoxDecoration(
                   gradient: isFlipped
                       ? (card.isMatched
-                          ? LinearGradient(colors: [SpaceTheme.alienGreen, SpaceTheme.alienGreen.withOpacity(0.7)])
-                          : LinearGradient(colors: [SpaceTheme.planetOrange, SpaceTheme.planetOrange.withOpacity(0.7)]))
-                      : LinearGradient(colors: [SpaceTheme.deepSpace.withOpacity(0.9), SpaceTheme.nebulaPurple.withOpacity(0.7)]),
+                          ? LinearGradient(colors: [SpaceTheme.alienGreen, SpaceTheme.alienGreen.withValues(alpha: 0.7)])
+                          : LinearGradient(colors: [SpaceTheme.planetOrange, SpaceTheme.planetOrange.withValues(alpha: 0.7)]))
+                      : LinearGradient(colors: [SpaceTheme.deepSpace.withValues(alpha: 0.9), SpaceTheme.nebulaPurple.withValues(alpha: 0.7)]),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: card.isMatched
                         ? SpaceTheme.alienGreen
-                        : (isSelected ? SpaceTheme.starYellow : SpaceTheme.nebulaPurple.withOpacity(0.5)),
+                        : (isSelected ? SpaceTheme.starYellow : SpaceTheme.nebulaPurple.withValues(alpha: 0.5)),
                     width: card.isMatched || isSelected ? 3 : 2,
                   ),
                   boxShadow: [
                     BoxShadow(
                       color: (card.isMatched ? SpaceTheme.alienGreen : (isSelected ? SpaceTheme.starYellow : SpaceTheme.nebulaPurple))
-                          .withOpacity(card.isMatched || isSelected ? 0.6 : 0.2),
+                          .withValues(alpha: card.isMatched || isSelected ? 0.6 : 0.2),
                       blurRadius: card.isMatched || isSelected ? 15 : 8,
                     ),
                   ],
@@ -623,7 +624,7 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
                     : Stack(
                         children: [
                           Positioned.fill(child: CustomPaint(painter: _CardBackPainter(animation: _flipController.view))),
-                          Center(child: Icon(Icons.psychology, size: size * 0.4, color: SpaceTheme.cosmicPink.withOpacity(0.8))),
+                          Center(child: Icon(Icons.psychology, size: size * 0.4, color: SpaceTheme.cosmicPink.withValues(alpha: 0.8))),
                         ],
                       ),
               ),
@@ -645,7 +646,7 @@ class _CardBackPainter extends CustomPainter {
     for (int i = 0; i < 3; i++) {
       final radius = (size.width / 2) * (0.3 + i * 0.2);
       final opacity = 0.3 + (sin(animation.value * 2 * pi + i) * 0.2);
-      paint.color = SpaceTheme.starYellow.withOpacity(opacity);
+      paint.color = SpaceTheme.starYellow.withValues(alpha: opacity);
       canvas.drawCircle(Offset(size.width / 2, size.height / 2), radius, paint);
     }
   }

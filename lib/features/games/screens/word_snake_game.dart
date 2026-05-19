@@ -1,3 +1,4 @@
+// ignore_for_file: unused_element, unused_field
 // lib/features/games/screens/word_snake_game.dart
 import 'dart:async';
 import 'dart:math';
@@ -693,12 +694,12 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
         vertical: isLandscape ? 8 : 12,
       ),
       decoration: BoxDecoration(
-        color: SpaceTheme.deepSpace.withOpacity(0.9),
+        color: SpaceTheme.deepSpace.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(isLandscape ? 16 : 20),
         border: Border.all(color: SpaceTheme.alienGreen, width: 2),
         boxShadow: [
           BoxShadow(
-            color: SpaceTheme.alienGreen.withOpacity(0.3),
+            color: SpaceTheme.alienGreen.withValues(alpha: 0.3),
             blurRadius: 10,
           ),
         ],
@@ -729,7 +730,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: SpaceTheme.starYellow.withOpacity(0.2),
+              color: SpaceTheme.starYellow.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: SpaceTheme.starYellow, width: 1.5),
             ),
@@ -772,7 +773,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: SpaceTheme.alienGreen.withOpacity(0.8),
+              color: SpaceTheme.alienGreen.withValues(alpha: 0.8),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
@@ -892,7 +893,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
       bgColor = SpaceTheme.planetOrange;
       orderText = '${selectionIndex + 1}';
     } else {
-      bgColor = SpaceTheme.nebulaPurple.withOpacity(0.6);
+      bgColor = SpaceTheme.nebulaPurple.withValues(alpha: 0.6);
     }
 
     return GestureDetector(
@@ -905,13 +906,13 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
           border: Border.all(
             color: isSelected
                 ? SpaceTheme.starYellow
-                : SpaceTheme.deepSpace.withOpacity(0.3),
+                : SpaceTheme.deepSpace.withValues(alpha: 0.3),
             width: isSelected ? 3 : 1,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: SpaceTheme.starYellow.withOpacity(0.5),
+                    color: SpaceTheme.starYellow.withValues(alpha: 0.5),
                     blurRadius: 8,
                     spreadRadius: 2,
                   )
@@ -979,12 +980,12 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
         constraints: const BoxConstraints(maxWidth: 400),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: SpaceTheme.deepSpace.withOpacity(0.95),
+          color: SpaceTheme.deepSpace.withValues(alpha: 0.95),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: color, width: 2),
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.5),
+              color: color.withValues(alpha: 0.5),
               blurRadius: 10,
             ),
           ],
@@ -1037,12 +1038,12 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         decoration: BoxDecoration(
-          color: SpaceTheme.deepSpace.withOpacity(0.95),
+          color: SpaceTheme.deepSpace.withValues(alpha: 0.95),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: SpaceTheme.cosmicPink, width: 2),
           boxShadow: [
             BoxShadow(
-              color: SpaceTheme.cosmicPink.withOpacity(0.3),
+              color: SpaceTheme.cosmicPink.withValues(alpha: 0.3),
               blurRadius: 8,
             ),
           ],

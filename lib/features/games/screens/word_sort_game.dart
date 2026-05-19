@@ -1,7 +1,6 @@
 // lib/features/games/screens/word_sort_game.dart
 import 'dart:async';
 import 'dart:collection';
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -813,7 +812,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
                   BoxShadow(
                     color: (_feedbackState == FeedbackState.correct 
                         ? Colors.green 
-                        : Colors.orange).withOpacity(0.5),
+                        : Colors.orange).withValues(alpha: 0.5),
                     blurRadius: 20,
                     offset: const Offset(0, 4),
                   ),
@@ -891,12 +890,12 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
         decoration: BoxDecoration(
           color: isPlaceholder
               ? Colors.transparent
-              : SpaceTheme.deepSpace.withOpacity(isFeedback ? 0.9 : 1.0),
+              : SpaceTheme.deepSpace.withValues(alpha: isFeedback ? 0.9 : 1.0),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: borderColor, width: 3),
           boxShadow: isFeedback
-              ? [BoxShadow(color: Colors.white.withOpacity(0.3), blurRadius: 20, spreadRadius: 5)]
-              : [BoxShadow(color: borderColor.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))],
+              ? [BoxShadow(color: Colors.white.withValues(alpha: 0.3), blurRadius: 20, spreadRadius: 5)]
+              : [BoxShadow(color: borderColor.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 4))],
         ),
         child: Center(
           child: FittedBox(
@@ -954,16 +953,16 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
           // Width is handled by parent column/stretch
           decoration: BoxDecoration(
             color: isHighlighted
-                ? color.withOpacity(0.4)
-                : SpaceTheme.deepSpace.withOpacity(0.6),
+                ? color.withValues(alpha: 0.4)
+                : SpaceTheme.deepSpace.withValues(alpha: 0.6),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: isHighlighted ? color : color.withOpacity(0.5),
+              color: isHighlighted ? color : color.withValues(alpha: 0.5),
               width: 3,
             ),
             boxShadow: isHighlighted
-                ? [BoxShadow(color: color.withOpacity(0.5), blurRadius: 15, spreadRadius: 2)]
-                : [BoxShadow(color: color.withOpacity(0.2), blurRadius: 8, offset: const Offset(0, 2))],
+                ? [BoxShadow(color: color.withValues(alpha: 0.5), blurRadius: 15, spreadRadius: 2)]
+                : [BoxShadow(color: color.withValues(alpha: 0.2), blurRadius: 8, offset: const Offset(0, 2))],
           ),
           child: Center(
             child: LayoutBuilder(
@@ -996,9 +995,9 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
           ),
         );
       },
-      onWillAccept: (data) => true,
-      onAccept: (droppedType) {
-        _handleDrop(droppedType, targetType);
+      onWillAcceptWithDetails: (data) => true,
+      onAcceptWithDetails: (details) {
+        _handleDrop(details.data, targetType);
       },
     );
   }
