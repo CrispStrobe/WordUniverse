@@ -518,6 +518,13 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
     final s = S.of(context);
     if (s == null) return;
 
+    _gameProvider.recordLevelWin(
+      gameType: 'wortbaumeister_game',
+      scoreGained: _score,
+      difficulty: widget.gradeLevel.index + 1,
+      wasSuccessful: _score > 0,
+    );
+
     showDialog(
       context: context,
       barrierDismissible: false,

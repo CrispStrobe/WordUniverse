@@ -299,8 +299,18 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
     final s = S.of(context)!;
     int stars = 3;
     final perfectMoves = _totalPairs;
-    if (_moves > perfectMoves * 2) stars = 1;
-    else if (_moves > perfectMoves * 1.5) stars = 2;
+    if (_moves > perfectMoves * 2) {
+      stars = 1;
+    } else if (_moves > perfectMoves * 1.5) {
+      stars = 2;
+    }
+
+    _gameProvider.recordLevelWin(
+      gameType: 'word_memory_game',
+      scoreGained: _score,
+      difficulty: widget.gradeLevel.index + 1,
+      wasSuccessful: stars >= 2,
+    );
 
     showDialog(
       context: context,

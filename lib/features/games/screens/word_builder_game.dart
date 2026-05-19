@@ -496,11 +496,21 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
 
   void _showGameOver() {
     final s = S.of(context)!;
-    
+
     final percentage = (_wordsCompleted / _totalWords * 100).round();
     int stars = 1;
-    if (percentage >= 90) stars = 3;
-    else if (percentage >= 70) stars = 2;
+    if (percentage >= 90) {
+      stars = 3;
+    } else if (percentage >= 70) {
+      stars = 2;
+    }
+
+    _gameProvider.recordLevelWin(
+      gameType: 'word_builder_game',
+      scoreGained: _score,
+      difficulty: widget.gradeLevel.index + 1,
+      wasSuccessful: percentage >= 70,
+    );
 
     showDialog(
       context: context,

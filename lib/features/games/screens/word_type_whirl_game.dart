@@ -718,7 +718,59 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
   void _showGameOver() {
     _roundTimer?.cancel();
     _spawnTimer?.cancel();
-    Navigator.of(context).pop();
+
+    final totalMissed =
+        _roundHistory.fold<int>(0, (sum, r) => sum + r.missedWords);
+    final wasSuccessful = _score > 0 && totalMissed <= _totalRounds;
+
+    _gameProvider.recordLevelWin(
+      gameType: 'word_type_whirl_game',
+      scoreGained: _score,
+      difficulty: widget.gradeLevel.index + 1,
+      wasSuccessful: wasSuccessful,
+    );
+
+    if (!mounted) return;
+    final s = S.of(context)!;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        backgroundColor: SpaceTheme.deepSpace,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Icon(
+              wasSuccessful ? Icons.emoji_events : Icons.timer_off,
+              color: SpaceTheme.starYellow,
+              size: 32,
+            ),
+            const SizedBox(width: 12),
+            Text(s.gameOver, style: SpaceTheme.headlineStyle),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('${s.gameScore}: $_score',
+                style: SpaceTheme.bodyStyle.copyWith(fontSize: 18)),
+            const SizedBox(height: 8),
+            Text('Streak: $_maxStreak',
+                style: SpaceTheme.bodyStyle.copyWith(fontSize: 16)),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+            },
+            child: Text(s.backToMenu,
+                style: const TextStyle(color: SpaceTheme.starYellow)),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
