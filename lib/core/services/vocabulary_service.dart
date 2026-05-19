@@ -35,6 +35,11 @@ class VocabularyService with ChangeNotifier {
   bool _isInitialized = false;
   bool get isInitialized => _isInitialized;
 
+  /// Set when initialize() fails. Surfaced to the splash screen so the
+  /// retry dialog can be shown instead of silently broken games.
+  Object? _initError;
+  Object? get initError => _initError;
+
   void _log(String message) {
     debugPrint('[VOCABULARY_SERVICE] 📚 $message');
   }
@@ -68,29 +73,38 @@ class VocabularyService with ChangeNotifier {
       await _loadCustomContent();
       await _loadVocabularySets();
 
+      if (_vocabulary.isEmpty) {
+        // Treat empty vocabulary as a hard error so the splash retry
+        // dialog fires instead of letting games launch with no content.
+        throw StateError(
+          'Vocabulary loaded successfully but contains 0 words. '
+          'DB asset may be missing or corrupted.',
+        );
+      }
+
       onProgress?.call(1.0, 'Ready!');
       _isInitialized = true;
+      _initError = null;
       _log('✅ Vocabulary service initialized with ${_vocabulary.length} words');
       notifyListeners();
     } catch (e) {
       _log('❌ Error initializing vocabulary service: $e');
-      _isInitialized = true; 
+      _initError = e;
+      _isInitialized = false;
       notifyListeners();
+      rethrow;
     }
   }
 
-  /// Loads all words from SQLite into memory for game logic performance
+  /// Loads all words from SQLite into memory for game logic performance.
+  /// Errors propagate to [initialize] so they can be surfaced to the user.
   Future<void> _loadVocabularyFromDB() async {
-    try {
-      final words = await _dbService.getAllWords();
-      if (words.isNotEmpty) {
-        _vocabulary = {for (var w in words) w.id: w};
-        _log('Loaded ${_vocabulary.length} words from SQLite DB');
-      } else {
-        _log('⚠️ DB returned 0 words. Checking assets or DB integrity...');
-      }
-    } catch (e) {
-      _log('Error loading from DB: $e');
+    final words = await _dbService.getAllWords();
+    if (words.isNotEmpty) {
+      _vocabulary = {for (var w in words) w.id: w};
+      _log('Loaded ${_vocabulary.length} words from SQLite DB');
+    } else {
+      _log('⚠️ DB returned 0 words. Checking assets or DB integrity...');
     }
   }
 

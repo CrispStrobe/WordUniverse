@@ -8,6 +8,12 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:archive/archive_io.dart';
 
+/// Top-level entry point for [compute]. Runs in a background isolate so the
+/// ~14MB gzip → ~50MB decompression doesn't block the UI thread.
+List<int> _decodeGzipBytes(Uint8List bytes) {
+  return GZipDecoder().decodeBytes(bytes);
+}
+
 Future<Database> initPlatformDatabase({
   void Function(double progress, String message)? onProgress,
 }) async {
@@ -63,34 +69,26 @@ Future<Database> initPlatformDatabase({
     // PHASE 4: Load compressed asset (0.10 - 0.20)
     onProgress?.call(0.15, 'Loading compressed database from assets...');
     final ByteData data = await rootBundle.load("assets/grundwortschatz.db.gz");
-    final List<int> compressedBytes = data.buffer.asUint8List();
+    final Uint8List compressedBytes = data.buffer.asUint8List();
     final compressedSizeMB = (compressedBytes.length / (1024 * 1024)).toStringAsFixed(1);
-    
-    debugPrint("[DB_MOBILE] Loaded ${compressedSizeMB} MB compressed data");
-    onProgress?.call(0.20, 'Loaded ${compressedSizeMB} MB compressed data');
+
+    debugPrint("[DB_MOBILE] Loaded $compressedSizeMB MB compressed data");
+    onProgress?.call(0.20, 'Loaded $compressedSizeMB MB compressed data');
 
     // PHASE 5: Decompress (0.20 - 0.80) - THIS IS THE LONG PART
-    debugPrint("[DB_MOBILE] Starting decompression...");
+    debugPrint("[DB_MOBILE] Starting decompression on background isolate...");
     onProgress?.call(0.25, 'Decompressing database...');
-    
-    // Note: GZipDecoder.decodeBytes() is synchronous and blocking,
-    // so we can't get real-time progress. We'll simulate milestones.
+
     final stopwatch = Stopwatch()..start();
-    
-    // Show progress milestones during decompression
     final List<int> decompressedBytes;
     try {
-      // Since decodeBytes is synchronous, we'll use compute for isolation on mobile
-      // to prevent UI blocking, but we can't track progress inside compute easily.
-      // For now, just decode and show stepped progress.
-      
-      decompressedBytes = GZipDecoder().decodeBytes(compressedBytes);
-      
-      // Report completion of decompression
+      // Offload sync gzip decode to a background isolate so the splash
+      // animation keeps running smoothly during the ~50MB decompression.
+      decompressedBytes = await compute(_decodeGzipBytes, compressedBytes);
+
       final decompressedSizeMB = (decompressedBytes.length / (1024 * 1024)).toStringAsFixed(1);
-      debugPrint("[DB_MOBILE] Decompressed to ${decompressedSizeMB} MB in ${stopwatch.elapsedMilliseconds}ms");
-      onProgress?.call(0.80, 'Decompressed to ${decompressedSizeMB} MB');
-      
+      debugPrint("[DB_MOBILE] Decompressed to $decompressedSizeMB MB in ${stopwatch.elapsedMilliseconds}ms");
+      onProgress?.call(0.80, 'Decompressed to $decompressedSizeMB MB');
     } catch (e) {
       debugPrint("[DB_MOBILE] ❌ Decompression error: $e");
       onProgress?.call(0.0, 'Decompression failed: $e');
