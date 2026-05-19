@@ -17,12 +17,15 @@ WortUniversum (German grammar/vocab); this repo for space_math_academy
 
 ## Tier 1 — Highest leverage (do these first)
 
-### [/] 1. Crash reporting in both apps
-Both ship to App Store / Vercel with zero runtime visibility. Add
-Sentry or Firebase Crashlytics. ~30 min of setup; the next real-user
-`LateInitializationError` becomes a notification instead of silence.
+### [x] 1. Crash reporting in both apps
+Local-first `CrashLogger` that persists `FlutterError.onError` and
+`PlatformDispatcher.instance.onError` to a rotating file in app
+documents. User-facing `DiagnosticsScreen` (Settings → Diagnostics)
+exposes the log read-only with a "Copy to clipboard" action. Nothing
+leaves the device unless the user explicitly copies. DSGVO-clean by
+design — no third-party processor.
 
-### [/] 2. Contract test suite (zero tests currently)
+### [x] 2. Contract test suite (zero tests currently)
 Most game logic is deterministic (puzzle generators, SRI decisions,
 arithmetic generation, separable-verb detection). A `test/contracts/`
 directory of consistency tests would have caught most bugs we just

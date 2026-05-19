@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:ui'; // Import for PlatformDispatcher
 
 // --- CORE SERVICES ---
 import 'core/services/audio_service.dart';
+import 'core/services/crash_logger.dart';
 import 'core/services/debug_provider.dart';
 import 'core/services/progress_service.dart';
 import 'core/services/purchase_service.dart';
@@ -77,11 +77,13 @@ void main() async {
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   // --- END FIX ---
 
+  // Install crash logger before anything else so we catch init failures.
+  await CrashLogger.instance.init();
+
   // Service initialization that happens *before* app run
   await PuzzleImageService.instance.init();
   // We can't init purchaseService yet because it needs GameProvider
   await debugProvider.init();
-  GlobalErrorHandler.init(); 
   
   runApp(
     MultiProvider(
@@ -755,21 +757,3 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
   }
 }
 
-// Global Error Handler
-class GlobalErrorHandler {
-  static void handleError(dynamic error, StackTrace stackTrace) {
-    debugPrint('Global Error: $error');
-    debugPrint('Stack Trace: $stackTrace');
-  }
-  
-  static void init() {
-    FlutterError.onError = (FlutterErrorDetails details) {
-      handleError(details.exception, details.stack ?? StackTrace.empty);
-    };
-    
-    PlatformDispatcher.instance.onError = (error, stack) {
-      handleError(error, stack);
-      return true; // Mark as handled
-    };
-  }
-}
