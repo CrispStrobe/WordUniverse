@@ -14,6 +14,7 @@ import '../../../core/theme/space_theme.dart';
 import '../../../generated/l10n.dart';
 import '../providers/game_provider.dart';
 import '../widgets/space_background.dart';
+import '../models/game_outcome.dart';
 
 class WordMemoryGame extends StatefulWidget {
   final GradeLevel gradeLevel;
@@ -305,12 +306,12 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
       stars = 2;
     }
 
-    _gameProvider.recordLevelWin(
+    _gameProvider.reportOutcome(GameOutcome(
       gameType: 'word_memory_game',
-      scoreGained: _score,
       difficulty: widget.gradeLevel.index + 1,
+      score: _score,
       wasSuccessful: stars >= 2,
-    );
+    ));
 
     showDialog(
       context: context,

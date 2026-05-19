@@ -8,6 +8,7 @@ import '../../../core/models/skill_category.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/cognitive_profile_service.dart';
 import '../../../core/theme/app_fonts.dart';
+import '../models/game_outcome.dart';
 
 // Achievement class
 class Achievement {
@@ -255,42 +256,64 @@ class GameProvider extends ChangeNotifier {
     _progressService.saveProgress(this);
   }
 
-  bool recordLevelWin({
-    required String gameType,
-    required int scoreGained,
-    required int difficulty,
-    required bool wasSuccessful,
-  }) {
-    debugPrint('[GAME_PROVIDER] 🎯 Recording $gameType result: ${wasSuccessful ? "WIN" : "LOSS"} at difficulty $difficulty');
-    
-    if (wasSuccessful) addScore(scoreGained);
+  /// Canonical end-of-level reporting entry point. Every game should
+  /// funnel through here.
+  ///
+  /// Returns true iff the player advanced to the next level as a result
+  /// of this outcome.
+  bool reportOutcome(GameOutcome outcome) {
+    debugPrint(
+        '[GAME_PROVIDER] 🎯 Recording ${outcome.gameType} result: '
+        '${outcome.wasSuccessful ? "WIN" : "LOSS"} at difficulty ${outcome.difficulty}');
 
-    _currentLevelWins[gameType] = (_currentLevelWins[gameType] ?? 0) + (wasSuccessful ? 1 : 0);
+    if (outcome.wasSuccessful) addScore(outcome.score);
 
-    final skill = gameSkillMap[gameType];
+    _currentLevelWins[outcome.gameType] =
+        (_currentLevelWins[outcome.gameType] ?? 0) +
+            (outcome.wasSuccessful ? 1 : 0);
+
+    final skill = gameSkillMap[outcome.gameType];
     if (skill == null) {
-      debugPrint('[GAME_PROVIDER] ⚠️ Unknown game type: $gameType');
+      debugPrint('[GAME_PROVIDER] ⚠️ Unknown game type: ${outcome.gameType}');
       return false;
     }
 
     if (skill.category != LanguageCategory.rechtschreibung &&
         skill.category != LanguageCategory.grammatik) {
-      _cognitiveProfileService.recordAttempt(skill, difficulty, wasSuccessful);
+      _cognitiveProfileService.recordAttempt(
+          skill, outcome.difficulty, outcome.wasSuccessful);
     }
 
     bool didAdvance = false;
-    if (wasSuccessful && canAdvanceToNextLevel(gameType, _gameProgress[gameType] ?? 1)) {
-       advanceLevel(gameType);
-       didAdvance = true;
+    if (outcome.wasSuccessful &&
+        canAdvanceToNextLevel(
+            outcome.gameType, _gameProgress[outcome.gameType] ?? 1)) {
+      advanceLevel(outcome.gameType);
+      didAdvance = true;
     }
-    
-    // Notify listeners to update UI (e.g. current wins counter) even if level didn't advance
+
     if (!didAdvance) {
       notifyListeners();
     }
 
     _saveProgress();
     return didAdvance;
+  }
+
+  /// Legacy shim. Prefer [reportOutcome] with a [GameOutcome] factory.
+  @Deprecated('Use reportOutcome(GameOutcome.win/.loss/.fromRatio(...))')
+  bool recordLevelWin({
+    required String gameType,
+    required int scoreGained,
+    required int difficulty,
+    required bool wasSuccessful,
+  }) {
+    return reportOutcome(GameOutcome(
+      gameType: gameType,
+      difficulty: difficulty,
+      score: scoreGained,
+      wasSuccessful: wasSuccessful,
+    ));
   }
 
   bool canAdvanceToNextLevel(String gameType, int currentLevel) {

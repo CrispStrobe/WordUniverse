@@ -15,6 +15,7 @@ import '../../../core/models/skill_category.dart';
 import '../widgets/space_background.dart';
 import '../../../generated/l10n.dart';
 import '../providers/game_provider.dart';
+import '../models/game_outcome.dart';
 
 class SpaceWordRescueGame extends StatefulWidget {
   final GradeLevel gradeLevel;
@@ -737,12 +738,12 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
     final s = S.of(context)!;
     final percentage = (_wordsRescued / _totalWords * 100).round();
     
-    _gameProvider.recordLevelWin(
+    _gameProvider.reportOutcome(GameOutcome(
       gameType: 'space_word_rescue',
-      scoreGained: _score,
       difficulty: widget.gradeLevel.index + 1,
+      score: _score,
       wasSuccessful: _wordsRescued >= (_totalWords * 0.7),
-    );
+    ));
     
     showDialog(
       context: context,

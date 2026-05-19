@@ -67,12 +67,13 @@ Mixing logic, painters, puzzle generation, and widget building. Pull
 painters into their own files; move puzzle generation into
 `lib/features/games/logic/`.
 
-### [ ] 6. Unify the progression contract
-`recordLevelWin` exists but games call it inconsistently — 5 of them
-don't pass `mathProblems`; success thresholds (`score > 0` vs `>= 70%`
-vs `stars >= 2`) are ad-hoc per game. Define a `GameOutcome` value
-type and a single helper `reportOutcome(GameOutcome)` so every game
-reports identically.
+### [x] 6. Unify the progression contract
+Added `GameOutcome` value type in both projects with `.win` / `.loss`
+/ `.fromRatio` named factories. New `GameProvider.reportOutcome(...)`
+is the canonical entry point; legacy `recordLevelWin(...)` is now a
+deprecated shim. Migrated all 53 call sites (42 space_math, 11 voc)
+via a one-shot Python script. Contract tests updated to accept either
+pattern.
 
 ### [-] 5b. Delete orphan files (`bubble_math_game.dart`)
 Skipped by user — leave the orphan in place.

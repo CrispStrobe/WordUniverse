@@ -13,6 +13,7 @@ import '../../../core/theme/space_theme.dart';
 import '../../../generated/l10n.dart';
 import '../providers/game_provider.dart';
 import '../widgets/space_background.dart';
+import '../models/game_outcome.dart';
 
 /// Großstadt Game - Teaching German capitalization rules
 /// Refactored: Plain "Groß vs Klein" logic, All-Caps display, Contextual highlighting.
@@ -678,12 +679,12 @@ class _GrossstadtGameState extends State<GrossstadtGame>
     final s = S.of(context);
     if (s == null) return;
 
-    _gameProvider.recordLevelWin(
+    _gameProvider.reportOutcome(GameOutcome(
       gameType: 'grossstadt_game',
-      scoreGained: _score,
       difficulty: widget.gradeLevel.index + 1,
+      score: _score,
       wasSuccessful: _score > 0,
-    );
+    ));
 
     showDialog(
       context: context,

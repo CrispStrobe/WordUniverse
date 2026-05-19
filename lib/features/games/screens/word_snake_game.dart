@@ -15,6 +15,7 @@ import '../../../generated/l10n.dart';
 import '../services/word_snake_generator.dart';
 import '../providers/game_provider.dart';
 import '../widgets/space_background.dart';
+import '../models/game_outcome.dart';
 
 class WordSnakeGame extends StatefulWidget {
   final GradeLevel gradeLevel;
@@ -582,12 +583,12 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
 
   void _showGameOver() {
     final s = S.of(context)!;
-    _gameProvider.recordLevelWin(
+    _gameProvider.reportOutcome(GameOutcome(
       gameType: 'word_snake_game',
-      scoreGained: _score,
       difficulty: widget.gradeLevel.index + 1,
+      score: _score,
       wasSuccessful: _puzzlesCompleted >= (_totalPuzzles * 0.7),
-    );
+    ));
 
     showDialog(
       context: context,
