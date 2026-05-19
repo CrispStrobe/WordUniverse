@@ -17,12 +17,12 @@ import '../widgets/space_background.dart';
 
 /// Trennbare Verben Game - Teaching German separable prefix verb rules
 /// Players decide if verb parts should be ZUSAMMEN (together) or GETRENNT (separated)
-class TrennbareVerbenGame extends StatefulWidget {
+class VerbtrennerGame extends StatefulWidget {
   final GradeLevel gradeLevel;
-  const TrennbareVerbenGame({super.key, required this.gradeLevel});
+  const VerbtrennerGame({super.key, required this.gradeLevel});
 
   @override
-  State<TrennbareVerbenGame> createState() => _TrennbareVerbenGameState();
+  State<VerbtrennerGame> createState() => _VerbtrennerGameState();
 }
 
 /// Represents a single word pair challenge
@@ -50,7 +50,7 @@ class VerbPair {
 
 enum FeedbackState { none, correct, incorrect }
 
-class _TrennbareVerbenGameState extends State<TrennbareVerbenGame>
+class _VerbtrennerGameState extends State<VerbtrennerGame>
     with TickerProviderStateMixin {
   // Services
   late VocabularyService _vocabularyService;
@@ -572,6 +572,13 @@ class _TrennbareVerbenGameState extends State<TrennbareVerbenGame>
   void _showGameOver() {
     final s = S.of(context);
     if (s == null) return;
+
+    _gameProvider.recordLevelWin(
+      gameType: 'verbtrenner_game',
+      scoreGained: _score,
+      difficulty: widget.gradeLevel.index + 1,
+      wasSuccessful: _score > 0,
+    );
 
     showDialog(
       context: context,

@@ -73,6 +73,7 @@ class GameProvider extends ChangeNotifier {
     'wortbaumeister_game': SkillCategories.getById('word_types')!, 
     'grossstadt_game': SkillCategories.getById('basic_spelling')!, // Capitalization is spelling rules
     'grossschreib_game': SkillCategories.getById('word_types')!,
+    'verbtrenner_game': SkillCategories.getById('word_types')!, // Separable verbs
   };
 
   int _score = 0;
