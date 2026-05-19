@@ -37,11 +37,13 @@ fixed:
 - provider tree completeness — assert every `context.read<X>()` in a
   game has an X registered in `main.dart`
 
-### [ ] 3. Real (or genuinely absent) audio in voc
-Games call `_audioService.playSound('success')` ~15 times. `assets/sounds/`
-is empty. Either ship 5-10 short audio files + wire `audioplayers` (dep
-already in pubspec), or remove the calls. Current half-state is worst
-of both.
+### [x] 3. Real audio in voc
+Synthesized 5 short royalty-free sounds via ffmpeg (success / failure
+/ tap / levelup / whoosh, ~24 KB total). AudioService now uses
+audioplayers with per-effect AudioPlayer instances (no
+truncation-on-overlap). Normalized call-site names — was a mix of
+`'success'` / `'correct.mp3'` / `'whoosh.mp3'`; all collapsed to bare
+keys. Background music + TTS remain stubbed until needed.
 
 ---
 

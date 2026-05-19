@@ -268,7 +268,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
   }
 
   void _handleCorrectAnswer() {
-    _audioService.playSound('correct.mp3');
+    _audioService.playSound('success');
     _gameProvider.addScore(10);
     
     setState(() {
@@ -292,7 +292,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
   }
 
   void _handleIncorrectAnswer(GermanWordType guessedCategory) {
-    _audioService.playSound('incorrect.mp3');
+    _audioService.playSound('failure');
     
     setState(() {
       _feedbackState = FeedbackState.incorrect;

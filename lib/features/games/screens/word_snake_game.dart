@@ -390,7 +390,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
     _hintTimer?.cancel();
 
     if (isCorrect) {
-      _audioService.playSound('correct.mp3');
+      _audioService.playSound('success');
       _gameProvider.addScore(20);
       
       final eduInfo = _getEducationalInfo(_currentWord!);
@@ -423,7 +423,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
       _loadNextPuzzle();
 
     } else {
-      _audioService.playSound('incorrect.mp3');
+      _audioService.playSound('failure');
       
       setState(() {
         _feedbackState = FeedbackState.incorrect;
