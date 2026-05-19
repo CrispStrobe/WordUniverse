@@ -7,16 +7,11 @@ import 'dart:async';
 import '../../../core/services/debug_provider.dart';
 import '../../../core/theme/space_theme.dart';
 import '../../../generated/l10n.dart';
-import '../../achievements/screens/achievements_screen.dart';
 import '../../games/providers/game_provider.dart';
 import '../../games/widgets/space_background.dart';
 
-import '../widgets/animated_logo.dart'; 
-import '../widgets/grade_selector.dart';
-import '../widgets/stats_card.dart';
 import '../../games/screens/game_menu_screen.dart';
 import '../../settings/screens/settings_screen.dart';
-import '../../games/widgets/debug_panel.dart';
 import '../../../shared/widgets/imprint_dialog.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -223,7 +218,7 @@ class _HomeScreenState extends State<HomeScreen>
                 size: isVerySmall ? 22 : 28,
               ),
               style: IconButton.styleFrom(
-                backgroundColor: SpaceTheme.deepSpace.withOpacity(0.8),
+                backgroundColor: SpaceTheme.deepSpace.withValues(alpha: 0.8),
                 padding: EdgeInsets.all(isVerySmall ? 8 : 12),
               ),
               tooltip: S.of(context)!.imprintTitle,
@@ -239,7 +234,7 @@ class _HomeScreenState extends State<HomeScreen>
                 size: isVerySmall ? 22 : 28,
               ),
               style: IconButton.styleFrom(
-                backgroundColor: SpaceTheme.deepSpace.withOpacity(0.8),
+                backgroundColor: SpaceTheme.deepSpace.withValues(alpha: 0.8),
                 padding: EdgeInsets.all(isVerySmall ? 8 : 12),
               ),
             ),
@@ -425,7 +420,7 @@ class _HomeScreenState extends State<HomeScreen>
         ),
         boxShadow: [
           BoxShadow(
-            color: SpaceTheme.starYellow.withOpacity(0.4),
+            color: SpaceTheme.starYellow.withValues(alpha: 0.4),
             blurRadius: isVerySmall ? 8 : (isSmallScreen ? 10 : 20),
             spreadRadius: 1,
           ),
@@ -534,7 +529,7 @@ class _AnimatedLogoState extends State<AnimatedLogo>
               ),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFFFFD700).withOpacity(0.5),
+                  color: const Color(0xFFFFD700).withValues(alpha: 0.5),
                   blurRadius: 20,
                   spreadRadius: 5,
                 ),
@@ -670,7 +665,7 @@ class CompactStatsCard extends StatelessWidget {
           width: isVerySmall ? 28 : (isSmallScreen ? 32 : 40),
           height: isVerySmall ? 28 : (isSmallScreen ? 32 : 40),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.2),
+            color: color.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(isVerySmall ? 6 : 8),
           ),
           child: Icon(
@@ -932,13 +927,13 @@ class CompactGradeSelector extends StatelessWidget {
                         border: Border.all(
                           color: isSelected
                               ? const Color(0xFFFFD700)
-                              : const Color(0xFFC0C0C0).withOpacity(0.3),
+                              : const Color(0xFFC0C0C0).withValues(alpha: 0.3),
                           width: 1,
                         ),
                         boxShadow: isSelected
                             ? [
                                 BoxShadow(
-                                  color: const Color(0xFFFFD700).withOpacity(0.5),
+                                  color: const Color(0xFFFFD700).withValues(alpha: 0.5),
                                   blurRadius: 8,
                                   spreadRadius: 1,
                                 ),

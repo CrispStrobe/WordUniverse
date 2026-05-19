@@ -51,7 +51,7 @@ class PurchaseDialog extends StatelessWidget {
       ElevatedButton(
         onPressed: service.buyProduct,
         style: SpaceTheme.primaryButtonStyle.copyWith(
-          backgroundColor: MaterialStateProperty.all(SpaceTheme.alienGreen),
+          backgroundColor: WidgetStateProperty.all(SpaceTheme.alienGreen),
         ),
         child: Text("${s.purchaseButton} (${service.product!.price})"),
       ),

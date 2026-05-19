@@ -98,13 +98,13 @@ class GradeSelector extends StatelessWidget {
                         border: Border.all(
                           color: isSelected
                               ? const Color(0xFFFFD700) // starYellow
-                              : const Color(0xFFC0C0C0).withOpacity(0.3), // moonSilver
+                              : const Color(0xFFC0C0C0).withValues(alpha: 0.3), // moonSilver
                           width: 2,
                         ),
                         boxShadow: isSelected
                             ? [
                                 BoxShadow(
-                                  color: const Color(0xFFFFD700).withOpacity(0.5),
+                                  color: const Color(0xFFFFD700).withValues(alpha: 0.5),
                                   blurRadius: 10,
                                   spreadRadius: 2,
                                 ),

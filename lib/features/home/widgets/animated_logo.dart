@@ -57,7 +57,7 @@ class _AnimatedLogoState extends State<AnimatedLogo>
               ),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFFFFD700).withOpacity(0.5),
+                  color: const Color(0xFFFFD700).withValues(alpha: 0.5),
                   blurRadius: 20,
                   spreadRadius: 5,
                 ),

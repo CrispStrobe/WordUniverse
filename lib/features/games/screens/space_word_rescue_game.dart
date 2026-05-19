@@ -1,3 +1,4 @@
+// ignore_for_file: unused_element, unused_field
 // lib/features/games/screens/space_word_rescue_game.dart
 
 import 'package:flutter/material.dart';
@@ -875,7 +876,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
                                         transform: Matrix4.identity()
                                           ..setEntry(3, 2, 0.001)
                                           ..rotateX(isCompact ? -0.2 : -0.3)
-                                          ..scale(scale),
+                                          ..scaleByDouble(scale, scale, scale, 1.0),
                                         alignment: Alignment.center,
                                         child: Opacity(
                                           opacity: opacity,
@@ -943,7 +944,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
         margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
         decoration: BoxDecoration(
-          color: SpaceTheme.deepSpace.withOpacity(0.9),
+          color: SpaceTheme.deepSpace.withValues(alpha: 0.9),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: SpaceTheme.alienGreen, width: 1.5),
         ),
@@ -971,12 +972,12 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
         margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: SpaceTheme.deepSpace.withOpacity(0.85),
+          color: SpaceTheme.deepSpace.withValues(alpha: 0.85),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: SpaceTheme.alienGreen, width: 2),
           boxShadow: [
             BoxShadow(
-              color: SpaceTheme.alienGreen.withOpacity(0.3),
+              color: SpaceTheme.alienGreen.withValues(alpha: 0.3),
               blurRadius: 10,
             ),
           ],
@@ -1016,7 +1017,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: SpaceTheme.planetOrange.withOpacity(0.8),
+                color: SpaceTheme.planetOrange.withValues(alpha: 0.8),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -1043,12 +1044,12 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       decoration: BoxDecoration(
-        color: SpaceTheme.deepSpace.withOpacity(0.9),
+        color: SpaceTheme.deepSpace.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: SpaceTheme.alienGreen, width: 2),
         boxShadow: [
           BoxShadow(
-            color: SpaceTheme.alienGreen.withOpacity(0.3),
+            color: SpaceTheme.alienGreen.withValues(alpha: 0.3),
             blurRadius: 10,
           ),
         ],
@@ -1068,7 +1069,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: SpaceTheme.planetOrange.withOpacity(0.8),
+                  color: SpaceTheme.planetOrange.withValues(alpha: 0.8),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
@@ -1087,7 +1088,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: SpaceTheme.alienGreen.withOpacity(0.8),
+                  color: SpaceTheme.alienGreen.withValues(alpha: 0.8),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
@@ -1106,7 +1107,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
-            child: Divider(color: SpaceTheme.alienGreen.withOpacity(0.3), height: 1),
+            child: Divider(color: SpaceTheme.alienGreen.withValues(alpha: 0.3), height: 1),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -1183,9 +1184,9 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
+        color: color.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.5), width: 1),
+        border: Border.all(color: color.withValues(alpha: 0.5), width: 1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -1225,7 +1226,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
         vertical: isCompact ? 10 : (isLandscapeLayout ? 15 : 20),
       ),
       decoration: BoxDecoration(
-        color: SpaceTheme.deepSpace.withOpacity(isLandscapeLayout ? 0.95 : 0.8),
+        color: SpaceTheme.deepSpace.withValues(alpha: isLandscapeLayout ? 0.95 : 0.8),
         borderRadius: BorderRadius.circular(isCompact ? 12 : (isLandscapeLayout ? 16 : 20)),
         border: Border.all(
           color: SpaceTheme.starYellow,
@@ -1233,7 +1234,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
         ),
         boxShadow: [
           BoxShadow(
-            color: SpaceTheme.starYellow.withOpacity(0.6),
+            color: SpaceTheme.starYellow.withValues(alpha: 0.6),
             blurRadius: isCompact ? 15 : (isLandscapeLayout ? 25 : 30),
             spreadRadius: isCompact ? 2 : (isLandscapeLayout ? 4 : 5),
           ),
@@ -1249,7 +1250,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
           letterSpacing: isCompact ? 2 : (isLandscapeLayout ? 3 : 4),
           shadows: [
             Shadow(
-              color: SpaceTheme.starYellow.withOpacity(0.8),
+              color: SpaceTheme.starYellow.withValues(alpha: 0.8),
               blurRadius: isCompact ? 10 : (isLandscapeLayout ? 20 : 20),
             ),
           ],
@@ -1281,7 +1282,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
         vertical: isCompact ? 8 : (isLandscapeLayout ? 10 : 20),
       ),
       decoration: BoxDecoration(
-        color: SpaceTheme.deepSpace.withOpacity(isLandscapeLayout ? 0.85 : 0.95),
+        color: SpaceTheme.deepSpace.withValues(alpha: isLandscapeLayout ? 0.85 : 0.95),
         borderRadius: BorderRadius.circular(isCompact ? 12 : (isLandscapeLayout ? 16 : 20)),
         border: Border.all(
           color: SpaceTheme.alienGreen,
@@ -1289,7 +1290,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
         ),
         boxShadow: [
           BoxShadow(
-            color: SpaceTheme.alienGreen.withOpacity(0.3),
+            color: SpaceTheme.alienGreen.withValues(alpha: 0.3),
             blurRadius: isCompact ? 10 : 20,
           ),
         ],
@@ -1337,7 +1338,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
                       fontSize: isCompact ? 14 : (isLandscapeLayout ? 16 : 16),
                     ),
                     filled: true,
-                    fillColor: SpaceTheme.deepSpace.withOpacity(0.5),
+                    fillColor: SpaceTheme.deepSpace.withValues(alpha: 0.5),
                     contentPadding: EdgeInsets.symmetric(
                       horizontal: isCompact ? 12 : (isLandscapeLayout ? 16 : 16),
                       vertical: isCompact ? 10 : (isLandscapeLayout ? 12 : 16),
@@ -1435,7 +1436,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
                 vertical: isCompact ? 4 : (isLandscapeLayout ? 6 : 8),
               ),
               decoration: BoxDecoration(
-                color: SpaceTheme.starYellow.withOpacity(0.2),
+                color: SpaceTheme.starYellow.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(6),
                 border: Border.all(color: SpaceTheme.starYellow),
               ),
@@ -1492,12 +1493,12 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
         width: 300,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: SpaceTheme.deepSpace.withOpacity(0.95),
+          color: SpaceTheme.deepSpace.withValues(alpha: 0.95),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: color, width: 2),
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.5),
+              color: color.withValues(alpha: 0.5),
               blurRadius: 10,
             ),
           ],
@@ -1546,7 +1547,7 @@ class ParticlePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     for (var particle in particles) {
       final paint = Paint()
-        ..color = particle.color.withOpacity(particle.life)
+        ..color = particle.color.withValues(alpha: particle.life)
         ..style = PaintingStyle.fill;
       
       canvas.drawCircle(
@@ -1583,14 +1584,14 @@ class SpaceWordRescueCard extends StatelessWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              SpaceTheme.planetOrange.withOpacity(0.8),
-              SpaceTheme.cosmicPink.withOpacity(0.8),
+              SpaceTheme.planetOrange.withValues(alpha: 0.8),
+              SpaceTheme.cosmicPink.withValues(alpha: 0.8),
             ],
           ),
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: SpaceTheme.planetOrange.withOpacity(0.3),
+              color: SpaceTheme.planetOrange.withValues(alpha: 0.3),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),

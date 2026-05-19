@@ -472,14 +472,14 @@ class GermanWord {
       ApiPronunciation? mp3Pron = apiData!.pronunciation
           .firstWhere((p) => p.mp3Url != null,
               orElse: () => ApiPronunciation());
-      if (mp3Pron?.mp3Url != null) {
-        resolvedAudioPath = mp3Pron!.mp3Url;
+      if (mp3Pron.mp3Url != null) {
+        resolvedAudioPath = mp3Pron.mp3Url;
       } else {
         ApiPronunciation? oggPron = apiData.pronunciation.firstWhere(
             (p) => p.audio != null,
             orElse: () => ApiPronunciation());
-        if (oggPron?.audio != null) {
-          resolvedAudioPath = oggPron!.audio;
+        if (oggPron.audio != null) {
+          resolvedAudioPath = oggPron.audio;
         }
       }
     }

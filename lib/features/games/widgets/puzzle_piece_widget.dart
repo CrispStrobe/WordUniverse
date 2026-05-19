@@ -1,5 +1,5 @@
 // lib/features/games/widgets/puzzle_piece_widget.dart
-import 'package.flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 
 // A simple model to hold puzzle piece data
@@ -65,7 +65,7 @@ class PuzzlePiecePainter extends CustomPainter {
     // Draw a semi-transparent overlay to make the number more readable
     canvas.drawRect(
       Rect.fromLTWH(0, 0, size.width, size.height),
-      Paint()..color = Colors.black.withOpacity(0.3),
+      Paint()..color = Colors.black.withValues(alpha: 0.3),
     );
 
     // Draw the number (answer) in the center

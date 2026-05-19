@@ -151,7 +151,6 @@ class _WordFindGameState extends State<WordFindGame> {
 
     // 3. Fill the rest with RANDOM words (if needed)
     if (wordsForGame.length < wordCount) {
-      int randomWordsNeeded = wordCount - wordsForGame.length;
       final allWords = _vocabularyService.getWordsByGrade(widget.gradeLevel, _gameProvider);
       allWords.shuffle();
 
@@ -697,7 +696,7 @@ class _WordFindGameState extends State<WordFindGame> {
       onPanEnd: _onPanEnd,
       child: Container(
         decoration: BoxDecoration(
-          color: SpaceTheme.deepSpace.withOpacity(0.5),
+          color: SpaceTheme.deepSpace.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(12),
         ),
         child: GridView.builder(
@@ -725,19 +724,19 @@ class _WordFindGameState extends State<WordFindGame> {
     Color textColor = Colors.white;
 
     if (isFound) {
-      bgColor = SpaceTheme.alienGreen.withOpacity(0.7);
+      bgColor = SpaceTheme.alienGreen.withValues(alpha: 0.7);
       textColor = SpaceTheme.deepSpace;
     } else if (isSelected) {
-      bgColor = SpaceTheme.planetOrange.withOpacity(0.8);
+      bgColor = SpaceTheme.planetOrange.withValues(alpha: 0.8);
     } else {
-      bgColor = SpaceTheme.nebulaPurple.withOpacity(0.5);
+      bgColor = SpaceTheme.nebulaPurple.withValues(alpha: 0.5);
     }
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 150),
       decoration: BoxDecoration(
         color: bgColor,
-        border: Border.all(color: SpaceTheme.deepSpace.withOpacity(0.3)),
+        border: Border.all(color: SpaceTheme.deepSpace.withValues(alpha: 0.3)),
       ),
       child: Center(
         // Wrap the Text to scale it down if it doesn't fit
@@ -818,7 +817,7 @@ class _WordFindGameState extends State<WordFindGame> {
                             style: SpaceTheme.bodyStyle.copyWith(
                               fontFamily: selectedFontFamily,
                               fontSize: 13,
-                              color: SpaceTheme.starYellow.withOpacity(0.9),
+                              color: SpaceTheme.starYellow.withValues(alpha: 0.9),
                               fontStyle: FontStyle.italic,
                             ),
                           ),

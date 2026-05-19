@@ -1,7 +1,6 @@
 // lib/features/settings/widgets/sri_statistics_dialog.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'dart:math';
 
 import '../../../core/services/sri_service.dart';
 import '../../../core/theme/space_theme.dart';
@@ -32,7 +31,7 @@ class SriStatisticsDialog extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: const Color(0xFF1E2235).withOpacity(0.95),
+          color: const Color(0xFF1E2235).withValues(alpha: 0.95),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: SpaceTheme.nebulaPurple, width: 2),
         ),
@@ -60,8 +59,8 @@ class SriStatisticsDialog extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () => Navigator.of(context).pop(),
                   style: SpaceTheme.primaryButtonStyle.copyWith(
-                    backgroundColor: MaterialStateProperty.all(SpaceTheme.deepSpace),
-                    side: MaterialStateProperty.all(const BorderSide(color: SpaceTheme.cosmicPink)),
+                    backgroundColor: WidgetStateProperty.all(SpaceTheme.deepSpace),
+                    side: WidgetStateProperty.all(const BorderSide(color: SpaceTheme.cosmicPink)),
                   ),
                   child: Text(s.close),
                 ),
@@ -164,7 +163,7 @@ class SriStatisticsDialog extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: SpaceTheme.deepSpace.withOpacity(0.7),
+            color: SpaceTheme.deepSpace.withValues(alpha: 0.7),
             borderRadius: BorderRadius.circular(16),
           ),
           child: Column(
@@ -219,7 +218,7 @@ class SriStatisticsDialog extends StatelessWidget {
                               decoration: BoxDecoration(
                                 color: color,
                                 borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: color.withOpacity(0.5), width: 1)
+                                border: Border.all(color: color.withValues(alpha: 0.5), width: 1)
                               ),
                               child: stat.tracked > 0
                                 ? Center(
@@ -227,8 +226,8 @@ class SriStatisticsDialog extends StatelessWidget {
                                       stat.tracked.toString(),
                                       style: SpaceTheme.titleStyle.copyWith(
                                         fontSize: 14,
-                                        color: color == SpaceTheme.starYellow ? Colors.black.withOpacity(0.7) : Colors.white,
-                                        shadows: [Shadow(color: Colors.black.withOpacity(0.5), blurRadius: 2)],
+                                        color: color == SpaceTheme.starYellow ? Colors.black.withValues(alpha: 0.7) : Colors.white,
+                                        shadows: [Shadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 2)],
                                       ),
                                     ),
                                   )
@@ -269,8 +268,6 @@ class SriStatisticsDialog extends StatelessWidget {
         return 'Verben (Zeitformen)';
       case LanguageSkillType.caseUsage:
         return 'Fälle (Kasus)';
-      default:
-        return skill.toString().split('.').last;
     }
   }
 

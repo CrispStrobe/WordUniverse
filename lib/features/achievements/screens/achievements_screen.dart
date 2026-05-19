@@ -161,7 +161,7 @@ class _AchievementsScreenState extends State<AchievementsScreen>
               size: 28,
             ),
             style: IconButton.styleFrom(
-              backgroundColor: SpaceTheme.deepSpace.withOpacity(0.8),
+              backgroundColor: SpaceTheme.deepSpace.withValues(alpha: 0.8),
               padding: const EdgeInsets.all(12),
             ),
           ),
@@ -228,7 +228,7 @@ class _AchievementsScreenState extends State<AchievementsScreen>
               Container(
                 width: 1,
                 height: 40,
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
               ),
               Expanded(
                 child: _buildStatItem(
@@ -241,7 +241,7 @@ class _AchievementsScreenState extends State<AchievementsScreen>
               Container(
                 width: 1,
                 height: 40,
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
               ),
               Expanded(
                 child: _buildStatItem(
@@ -409,22 +409,22 @@ class _AchievementCardState extends State<AchievementCard>
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          SpaceTheme.deepSpace.withOpacity(0.8),
-                          SpaceTheme.nebulaPurple.withOpacity(0.6),
+                          SpaceTheme.deepSpace.withValues(alpha: 0.8),
+                          SpaceTheme.nebulaPurple.withValues(alpha: 0.6),
                         ],
                       ),
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: widget.isUnlocked
                     ? [
                         BoxShadow(
-                          color: SpaceTheme.starYellow.withOpacity(0.5),
+                          color: SpaceTheme.starYellow.withValues(alpha: 0.5),
                           blurRadius: 15,
                           spreadRadius: 2,
                         ),
                       ]
                     : [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.3),
+                          color: Colors.black.withValues(alpha: 0.3),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -455,8 +455,8 @@ class _AchievementCardState extends State<AchievementCard>
                           height: 60,
                           decoration: BoxDecoration(
                             color: widget.isUnlocked
-                                ? Colors.white.withOpacity(0.2)
-                                : Colors.white.withOpacity(0.1),
+                                ? Colors.white.withValues(alpha: 0.2)
+                                : Colors.white.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(15),
                           ),
                           child: Center(
@@ -502,7 +502,7 @@ class _AchievementCardState extends State<AchievementCard>
                             color: widget.isUnlocked
                                 ? SpaceTheme.alienGreen
                                 // FIX: Use a more subtle color for the locked badge
-                                : Colors.white.withOpacity(0.2),
+                                : Colors.white.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
@@ -526,7 +526,7 @@ class _AchievementCardState extends State<AchievementCard>
                     Positioned.fill(
                       child: Container(
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.3),
+                          color: Colors.black.withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: const Center(
@@ -639,10 +639,8 @@ class SparklePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white.withOpacity(0.8)
+      ..color = Colors.white.withValues(alpha: 0.8)
       ..style = PaintingStyle.fill;
-
-    final random = math.Random(42);
 
     for (int i = 0; i < 8; i++) {
       final angle = (i * 2 * math.pi / 8) + animation;

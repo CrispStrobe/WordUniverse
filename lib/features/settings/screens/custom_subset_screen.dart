@@ -170,8 +170,7 @@ class _CustomSubsetScreenState extends State<CustomSubsetScreen> {
     }
 
     final vocabService = context.read<VocabularyService>();
-    final s = S.of(context)!;
-    
+
     final name = _nameController.text;
     final description = _descriptionController.text;
     final wordIds = _selectedWordIds.toList();
@@ -275,7 +274,7 @@ class _CustomSubsetScreenState extends State<CustomSubsetScreen> {
             onPressed: () => Navigator.of(context).pop(),
             icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
             style: IconButton.styleFrom(
-              backgroundColor: SpaceTheme.deepSpace.withOpacity(0.8),
+              backgroundColor: SpaceTheme.deepSpace.withValues(alpha: 0.8),
               padding: const EdgeInsets.all(12),
             ),
           ),
@@ -292,7 +291,7 @@ class _CustomSubsetScreenState extends State<CustomSubsetScreen> {
             onPressed: _onSave,
             icon: const Icon(Icons.save, color: SpaceTheme.alienGreen),
             style: IconButton.styleFrom(
-              backgroundColor: SpaceTheme.deepSpace.withOpacity(0.8),
+              backgroundColor: SpaceTheme.deepSpace.withValues(alpha: 0.8),
               padding: const EdgeInsets.all(12),
             ),
           ),
@@ -325,7 +324,7 @@ class _CustomSubsetScreenState extends State<CustomSubsetScreen> {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<GradeLevel>(
-              value: _targetGrade,
+              initialValue: _targetGrade,
               items: [
                 DropdownMenuItem(value: GradeLevel.grade1, child: Text(s.gradeN(1))),
                 DropdownMenuItem(value: GradeLevel.grade2, child: Text(s.gradeN(2))),
@@ -356,7 +355,7 @@ class _CustomSubsetScreenState extends State<CustomSubsetScreen> {
       labelStyle: SpaceTheme.bodyStyle.copyWith(color: SpaceTheme.starYellow),
       hintStyle: SpaceTheme.bodyStyle.copyWith(color: Colors.white38),
       filled: true,
-      fillColor: SpaceTheme.deepSpace.withOpacity(0.5),
+      fillColor: SpaceTheme.deepSpace.withValues(alpha: 0.5),
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.white24)),
       enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.white24)),
       focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: SpaceTheme.alienGreen)),
@@ -449,8 +448,8 @@ class _CustomSubsetScreenState extends State<CustomSubsetScreen> {
                 _runFilter();
               });
             },
-            backgroundColor: SpaceTheme.deepSpace.withOpacity(0.8),
-            selectedColor: SpaceTheme.alienGreen.withOpacity(0.3),
+            backgroundColor: SpaceTheme.deepSpace.withValues(alpha: 0.8),
+            selectedColor: SpaceTheme.alienGreen.withValues(alpha: 0.3),
             labelStyle: TextStyle(color: isSelected ? SpaceTheme.alienGreen : Colors.white),
             checkmarkColor: SpaceTheme.alienGreen,
             shape: StadiumBorder(side: BorderSide(color: isSelected ? SpaceTheme.alienGreen : Colors.white24)),

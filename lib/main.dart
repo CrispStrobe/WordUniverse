@@ -22,7 +22,6 @@ import 'core/theme/space_theme.dart';
 // --- PROVIDERS & MODELS ---
 import 'features/games/providers/game_provider.dart';
 // --- FIX: Add import for models ---
-import 'core/models/vocabulary_models.dart';
 
 // --- SCREENS ---
 import 'features/home/screens/home_screen.dart';
@@ -37,6 +36,9 @@ import 'features/games/screens/word_snake_game.dart';
 import 'features/games/screens/word_memory_game.dart';
 import 'features/games/screens/word_builder_game.dart';
 import 'features/games/screens/word_type_whirl_game.dart';
+import 'features/games/screens/wortbaumeister_game.dart';
+import 'features/games/screens/grossstadt_game.dart';
+import 'features/games/screens/grossschreib_game.dart';
 
 // --- UTILS & GENERATED ---
 import 'shared/utils/app_utilities.dart';
@@ -264,9 +266,12 @@ class AppRoutes {
   static const String wordFind = '/games/word-find';
   static const String wordSort = '/games/word-sort';
   static const String wordSnake = '/games/word-snake'; 
-  static const String wordMemory = '/word-memory';
-  static const String wordBuilder = '/word-builder';
-  static const String wordWhirl = '/word-whirl';
+  static const String wordMemory = '/games/word-memory';
+  static const String wordBuilder = '/games/word-builder';
+  static const String wordWhirl = '/games/word-whirl';
+  static const String wortbaumeister = '/games/wortbaumeister';
+  static const String grossstadt = '/games/grossstadt';
+  static const String grossschreib = '/games/grossschreib';
 
   static const String settings = '/settings';
   static const String achievements = '/achievements';
@@ -320,6 +325,21 @@ class AppRoutes {
           final grade = args?['grade'] as int? ?? 1;
           final gradeLevel = GradeLevel.values[grade.clamp(1, 6) - 1];
           return _createRoute(WordTypeWhirlGame(gradeLevel: gradeLevel));
+
+        case wortbaumeister:
+          final grade = args?['grade'] as int? ?? 1;
+          final gradeLevel = GradeLevel.values[grade.clamp(1, 6) - 1];
+          return _createRoute(WortbaumeisterGame(gradeLevel: gradeLevel));
+
+        case grossstadt:
+          final grade = args?['grade'] as int? ?? 1;
+          final gradeLevel = GradeLevel.values[grade.clamp(1, 6) - 1];
+          return _createRoute(GrossstadtGame(gradeLevel: gradeLevel));
+
+        case grossschreib:
+          final grade = args?['grade'] as int? ?? 1;
+          final gradeLevel = GradeLevel.values[grade.clamp(1, 6) - 1];
+          return _createRoute(GrossschreibungsGalaxieGame(gradeLevel: gradeLevel));
 
         case AppRoutes.settings:
           return _createRoute(const SettingsScreen());
@@ -511,7 +531,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                   Text(
                     e.toString(),
                     style: SpaceTheme.bodyStyle.copyWith(
-                      color: SpaceTheme.starYellow.withOpacity(0.8),
+                      color: SpaceTheme.starYellow.withValues(alpha: 0.8),
                       fontSize: 12,
                     ),
                   ),
@@ -592,7 +612,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: SpaceTheme.starYellow.withOpacity(0.5),
+                                  color: SpaceTheme.starYellow.withValues(alpha: 0.5),
                                   blurRadius: isSmallScreen ? 20 : 30,
                                   spreadRadius: isSmallScreen ? 5 : 10,
                                 ),
@@ -695,7 +715,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                                     _detailMessage,
                                     style: SpaceTheme.bodyStyle.copyWith(
                                       fontSize: isSmallScreen ? 11 : 13,
-                                      color: SpaceTheme.starYellow.withOpacity(0.8),
+                                      color: SpaceTheme.starYellow.withValues(alpha: 0.8),
                                     ),
                                     textAlign: TextAlign.center,
                                     maxLines: 2,
