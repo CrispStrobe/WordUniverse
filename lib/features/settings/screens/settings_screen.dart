@@ -15,6 +15,7 @@ import '../../../core/services/sri_service.dart';
 
 import '../../../shared/widgets/imprint_dialog.dart';
 import 'diagnostics_screen.dart';
+import '../../games/screens/parent_dashboard_screen.dart';
 
 import '../../../generated/l10n.dart';
 
@@ -1485,6 +1486,20 @@ class _SettingsScreenState extends State<SettingsScreen>
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (_) => const DiagnosticsScreen(),
+                ),
+              );
+            },
+          ),
+
+          _buildFeatureRow(
+            title: 'Eltern-Übersicht',
+            subtitle: 'Fortschritt, mit PIN geschützt',
+            icon: Icons.family_restroom,
+            isLocked: false,
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const ParentDashboardScreen(),
                 ),
               );
             },

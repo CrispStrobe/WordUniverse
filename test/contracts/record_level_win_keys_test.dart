@@ -34,7 +34,9 @@ void main() {
     expect(mapKeys, isNotEmpty,
         reason: 'gameSkillMap appears empty — extraction failed?');
 
-    final regex = RegExp(r"gameType:\s*'([^']+)'");
+    // Only match single-line literal values — multi-line catches were
+    // pulling debugPrint format strings like '... $gameType: ' ... '.
+    final regex = RegExp(r"gameType:\s*'([^'\n]+)'");
     final usedKeys = <String>{};
 
     final libDir = Directory('lib');

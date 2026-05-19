@@ -5,6 +5,9 @@ import 'package:provider/provider.dart';
 import 'dart:async';
 
 import '../../../core/services/debug_provider.dart';
+import '../../../core/services/sri_service.dart';
+import '../../games/screens/sri_review_screen.dart';
+import '../../games/screens/cognitive_profile_screen.dart';
 import '../../../core/theme/space_theme.dart';
 import '../../../generated/l10n.dart';
 import '../../games/providers/game_provider.dart';
@@ -222,6 +225,55 @@ class _HomeScreenState extends State<HomeScreen>
                 padding: EdgeInsets.all(isVerySmall ? 8 : 12),
               ),
               tooltip: S.of(context)!.imprintTitle,
+            ),
+
+            const SizedBox(width: 4),
+
+            Consumer<SriService>(
+              builder: (context, sri, _) {
+                final due = sri.getAvailableReviewCount();
+                final btn = IconButton(
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => const SriReviewScreen(),
+                    ));
+                  },
+                  icon: Icon(
+                    Icons.menu_book,
+                    color: Colors.white,
+                    size: isVerySmall ? 22 : 28,
+                  ),
+                  tooltip: 'Review',
+                  style: IconButton.styleFrom(
+                    backgroundColor:
+                        SpaceTheme.deepSpace.withValues(alpha: 0.8),
+                    padding: EdgeInsets.all(isVerySmall ? 8 : 12),
+                  ),
+                );
+                return due > 0
+                    ? Badge.count(count: due, child: btn)
+                    : btn;
+              },
+            ),
+
+            const SizedBox(width: 4),
+
+            IconButton(
+              onPressed: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => const CognitiveProfileScreen(),
+                ));
+              },
+              icon: Icon(
+                Icons.psychology,
+                color: Colors.white,
+                size: isVerySmall ? 22 : 28,
+              ),
+              tooltip: 'Lernprofil',
+              style: IconButton.styleFrom(
+                backgroundColor: SpaceTheme.deepSpace.withValues(alpha: 0.8),
+                padding: EdgeInsets.all(isVerySmall ? 8 : 12),
+              ),
             ),
 
             const SizedBox(width: 4),
