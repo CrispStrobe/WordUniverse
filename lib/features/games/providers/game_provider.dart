@@ -220,6 +220,11 @@ class GameProvider extends ChangeNotifier {
   List<String> get taskIncludeWildcards => _taskIncludeWildcards;
   List<String> get taskExcludeWildcards => _taskExcludeWildcards;
 
+  /// Public wrapper so callers (e.g. app lifecycle handlers) can request
+  /// a flush of all GameProvider-owned state to SharedPreferences without
+  /// having to fake a recordLevelWin() call.
+  Future<void> saveProgress() => _saveProgress();
+
   Future<void> _saveProgress() async {
     await _prefs.setBool('tasksCustomizationEnabled', _tasksCustomizationEnabled);
     await _prefs.setDouble('taskWordLengthMin', _taskWordLengthMin);

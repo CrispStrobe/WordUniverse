@@ -192,15 +192,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     
     try {
       final gameProvider = context.read<GameProvider>();
-      
-      // Trigger a save through GameProvider
-      await gameProvider.recordLevelWin(
-        gameType: 'app_close',
-        scoreGained: 0,
-        difficulty: 0,
-        wasSuccessful: false,
-      );
-      
+
+      // Flush all GameProvider state to SharedPreferences.
+      await gameProvider.saveProgress();
+
       // Save other services
       await sriService.saveSriData();
       await cognitiveProfileService.saveProfile();
