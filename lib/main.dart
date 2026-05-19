@@ -39,6 +39,7 @@ import 'features/games/screens/word_type_whirl_game.dart';
 import 'features/games/screens/wortbaumeister_game.dart';
 import 'features/games/screens/grossstadt_game.dart';
 import 'features/games/screens/grossschreib_game.dart';
+import 'features/games/screens/verbtrenner_game.dart';
 
 // --- UTILS & GENERATED ---
 import 'shared/utils/app_utilities.dart';
@@ -272,6 +273,7 @@ class AppRoutes {
   static const String wortbaumeister = '/games/wortbaumeister';
   static const String grossstadt = '/games/grossstadt';
   static const String grossschreib = '/games/grossschreib';
+  static const String verbtrenner = '/games/verbtrenner';
 
   static const String settings = '/settings';
   static const String achievements = '/achievements';
@@ -340,6 +342,11 @@ class AppRoutes {
           final grade = args?['grade'] as int? ?? 1;
           final gradeLevel = GradeLevel.values[grade.clamp(1, 6) - 1];
           return _createRoute(GrossschreibungsGalaxieGame(gradeLevel: gradeLevel));
+
+        case verbtrenner:
+          final grade = args?['grade'] as int? ?? 1;
+          final gradeLevel = GradeLevel.values[grade.clamp(1, 6) - 1];
+          return _createRoute(VerbtrennerGame(gradeLevel: gradeLevel));
 
         case AppRoutes.settings:
           return _createRoute(const SettingsScreen());

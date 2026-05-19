@@ -19,6 +19,7 @@ import 'word_type_whirl_game.dart';
 import 'wortbaumeister_game.dart';
 import 'grossstadt_game.dart';
 import 'grossschreib_game.dart';
+import 'verbtrenner_game.dart';
 
 import '../widgets/debug_panel.dart';
 import '../../settings/screens/settings_screen.dart';
@@ -42,7 +43,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
   late Animation<double> _floatAnimation;
 
   // for new games, we must manually update game count
-  static const int _gameCount = 10;
+  static const int _gameCount = 11;
 
   @override
   void initState() {
@@ -393,9 +394,13 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         gradient: const LinearGradient(colors: [Color(0xFF11998e), Color(0xFF38ef7d)]),
         onTap: () => _navigateToGame(GrossschreibungsGalaxieGame(gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
-
-
-
+      GameInfo(
+        title: 'Verb-Trenner',
+        description: 'Trennbare Verben erkennen: zusammen oder getrennt?',
+        icon: Icons.compare_arrows,
+        gradient: const LinearGradient(colors: [Color(0xFF6A11CB), Color(0xFF2575FC)]),
+        onTap: () => _navigateToGame(VerbtrennerGame(gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
+      ),
     ];
 
     if (index >= games.length) return const SizedBox.shrink();
