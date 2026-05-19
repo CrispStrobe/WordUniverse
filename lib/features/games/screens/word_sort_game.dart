@@ -16,6 +16,7 @@ import '../../../generated/l10n.dart';
 import '../providers/game_provider.dart';
 import '../widgets/game_ui.dart';
 import '../widgets/space_background.dart';
+import '../models/game_outcome.dart';
 
 class WordSortGame extends StatefulWidget {
   final GradeLevel gradeLevel;
@@ -618,12 +619,12 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
   }
 
   void _showGameOver() {
-    _gameProvider.recordLevelWin(
+    _gameProvider.reportOutcome(GameOutcome(
       gameType: 'word_sort_game',
-      scoreGained: _score,
       difficulty: widget.gradeLevel.index + 1,
+      score: _score,
       wasSuccessful: _wordsCorrect >= (_wordsTotal * 0.7),
-    );
+    ));
 
     showDialog(
       context: context,

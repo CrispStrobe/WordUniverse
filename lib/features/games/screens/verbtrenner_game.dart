@@ -14,6 +14,7 @@ import '../../../core/theme/space_theme.dart';
 import '../../../generated/l10n.dart';
 import '../providers/game_provider.dart';
 import '../widgets/space_background.dart';
+import '../models/game_outcome.dart';
 
 /// Trennbare Verben Game - Teaching German separable prefix verb rules
 /// Players decide if verb parts should be ZUSAMMEN (together) or GETRENNT (separated)
@@ -573,12 +574,12 @@ class _VerbtrennerGameState extends State<VerbtrennerGame>
     final s = S.of(context);
     if (s == null) return;
 
-    _gameProvider.recordLevelWin(
+    _gameProvider.reportOutcome(GameOutcome(
       gameType: 'verbtrenner_game',
-      scoreGained: _score,
       difficulty: widget.gradeLevel.index + 1,
+      score: _score,
       wasSuccessful: _score > 0,
-    );
+    ));
 
     showDialog(
       context: context,

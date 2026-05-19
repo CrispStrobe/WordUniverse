@@ -17,6 +17,7 @@ import '../models/word_find_models.dart';
 import '../providers/game_provider.dart';
 import '../widgets/game_ui.dart';
 import '../widgets/space_background.dart';
+import '../models/game_outcome.dart';
 
 class WordFindGame extends StatefulWidget {
   final GradeLevel gradeLevel;
@@ -552,12 +553,11 @@ class _WordFindGameState extends State<WordFindGame> {
 
   void _showGameOver() {
     final s = S.of(context)!;
-    _gameProvider.recordLevelWin(
+    _gameProvider.reportOutcome(GameOutcome.win(
       gameType: 'word_find_game',
-      scoreGained: _score,
       difficulty: widget.gradeLevel.index + 1,
-      wasSuccessful: true,
-    );
+      score: _score,
+    ));
 
     showDialog(
       context: context,

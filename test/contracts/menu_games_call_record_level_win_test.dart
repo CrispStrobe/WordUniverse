@@ -62,7 +62,10 @@ void main() {
         continue;
       }
       final source = file.readAsStringSync();
-      if (!source.contains('recordLevelWin(')) {
+      // Accept either the legacy recordLevelWin(...) shim or the
+      // canonical reportOutcome(GameOutcome.*(...)) form.
+      if (!source.contains('recordLevelWin(') &&
+          !source.contains('reportOutcome(')) {
         missingRecordCalls.add('$cls ($path)');
       }
     }

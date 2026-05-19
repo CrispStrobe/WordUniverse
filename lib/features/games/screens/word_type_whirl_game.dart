@@ -15,6 +15,7 @@ import '../../../core/theme/space_theme.dart';
 import '../../../generated/l10n.dart';
 import '../providers/game_provider.dart';
 import '../widgets/space_background.dart';
+import '../models/game_outcome.dart';
 
 class WordTypeWhirlGame extends StatefulWidget {
   final GradeLevel gradeLevel;
@@ -723,12 +724,12 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
         _roundHistory.fold<int>(0, (sum, r) => sum + r.missedWords);
     final wasSuccessful = _score > 0 && totalMissed <= _totalRounds;
 
-    _gameProvider.recordLevelWin(
+    _gameProvider.reportOutcome(GameOutcome(
       gameType: 'word_type_whirl_game',
-      scoreGained: _score,
       difficulty: widget.gradeLevel.index + 1,
+      score: _score,
       wasSuccessful: wasSuccessful,
-    );
+    ));
 
     if (!mounted) return;
     final s = S.of(context)!;
