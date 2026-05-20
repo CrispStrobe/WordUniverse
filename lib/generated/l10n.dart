@@ -1796,6 +1796,30 @@ abstract class S {
   /// In en, this message translates to:
   /// **'Score'**
   String get gameScore;
+
+  /// Difficulty picker — easy mode (grade - 1)
+  ///
+  /// In en, this message translates to:
+  /// **'Easy'**
+  String get difficultyEasy;
+
+  /// Difficulty picker — normal mode (player's grade)
+  ///
+  /// In en, this message translates to:
+  /// **'Normal'**
+  String get difficultyNormal;
+
+  /// Difficulty picker — challenge mode (grade + 1)
+  ///
+  /// In en, this message translates to:
+  /// **'Challenge'**
+  String get difficultyChallenge;
+
+  /// Plural label for consecutive-day streak
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day} other{{count} days}}'**
+  String streakLabel(int count);
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

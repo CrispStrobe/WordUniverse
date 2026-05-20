@@ -16,6 +16,7 @@ import '../../../generated/l10n.dart';
 import '../providers/game_provider.dart';
 import '../widgets/game_ui.dart';
 import '../widgets/space_background.dart';
+import '../../../shared/widgets/onboarding_overlay.dart';
 import '../models/game_outcome.dart';
 
 class WordSortGame extends StatefulWidget {
@@ -82,6 +83,30 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeGame();
     });
+
+    OnboardingOverlay.maybeShow(
+      context,
+      gameKey: 'word_sort_game',
+      title: 'Wort-Sortierung',
+      steps: const [
+        OnboardingStep(
+          icon: Icons.touch_app,
+          body: 'Ziehe das Wort in die passende Wortart-Kategorie.',
+        ),
+        OnboardingStep(
+          icon: Icons.school,
+          body:
+              'Nomen, Verben und Adjektive sind die Grundbausteine. '
+              'Höhere Klassen bringen Adverbien und Pronomen dazu.',
+        ),
+        OnboardingStep(
+          icon: Icons.tips_and_updates,
+          body:
+              'Brauchst du Hilfe? Warte einen Moment — das Spiel zeigt '
+              'dir nach kurzer Zeit Tipps zum aktuellen Wort.',
+        ),
+      ],
+    );
   }
 
   @override

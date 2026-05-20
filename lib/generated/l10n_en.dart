@@ -936,4 +936,24 @@ class SEn extends S {
 
   @override
   String get gameScore => 'Score';
+
+  @override
+  String get difficultyEasy => 'Easy';
+
+  @override
+  String get difficultyNormal => 'Normal';
+
+  @override
+  String get difficultyChallenge => 'Challenge';
+
+  @override
+  String streakLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days',
+      one: '1 day',
+    );
+    return '$_temp0';
+  }
 }

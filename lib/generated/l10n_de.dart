@@ -945,4 +945,24 @@ class SDe extends S {
 
   @override
   String get gameScore => 'Punkte';
+
+  @override
+  String get difficultyEasy => 'Leicht';
+
+  @override
+  String get difficultyNormal => 'Normal';
+
+  @override
+  String get difficultyChallenge => 'Knifflig';
+
+  @override
+  String streakLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Tage',
+      one: '1 Tag',
+    );
+    return '$_temp0';
+  }
 }

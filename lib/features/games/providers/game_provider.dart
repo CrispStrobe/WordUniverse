@@ -11,6 +11,28 @@ import '../../../core/theme/app_fonts.dart';
 import '../models/game_outcome.dart';
 import '../tuning.dart';
 
+/// User-facing difficulty mode picked from the menu. Shifts the grade
+/// passed into a game so kids can sample easier or harder content
+/// without changing their official grade selection.
+enum DifficultyMode {
+  easy,    // grade - 1 (clamped to 1)
+  normal,  // grade
+  challenge, // grade + 1
+}
+
+extension DifficultyModeShift on DifficultyMode {
+  int get gradeShift {
+    switch (this) {
+      case DifficultyMode.easy:
+        return -1;
+      case DifficultyMode.normal:
+        return 0;
+      case DifficultyMode.challenge:
+        return 1;
+    }
+  }
+}
+
 // Achievement class
 class Achievement {
   final String id;
@@ -90,6 +112,7 @@ class GameProvider extends ChangeNotifier {
   List<Achievement> _achievements = [];
   bool _isFullVersionUnlocked = false;
 
+  DifficultyMode _difficultyMode = DifficultyMode.normal;
   bool _useCustomProblemSettings = false;
   Set<String> _customOperations = {'addition', 'subtraction'}; 
   int _customRangeMin = 1;
@@ -164,6 +187,10 @@ class GameProvider extends ChangeNotifier {
     if (!AppConfig.inapps_active) {
       _isFullVersionUnlocked = true;
     }
+    final difficultyModeIndex = _prefs.getInt('difficultyMode') ??
+        DifficultyMode.normal.index;
+    _difficultyMode = DifficultyMode.values[difficultyModeIndex
+        .clamp(0, DifficultyMode.values.length - 1)];
     _useCustomProblemSettings = _prefs.getBool('useCustomProblemSettings') ?? false;
     _customOperations = Set<String>.from(_prefs.getStringList('customOperations') ?? ['addition', 'subtraction']);
     _customRangeMin = _prefs.getInt('customRangeMin') ?? 1;
@@ -210,6 +237,7 @@ class GameProvider extends ChangeNotifier {
   Map<String, int> get gameProgress => _gameProgress;
   List<Achievement> get achievements => _achievements;
 
+  DifficultyMode get difficultyMode => _difficultyMode;
   bool get useCustomProblemSettings => _useCustomProblemSettings;
   Set<String> get customOperations => _customOperations;
   int get customRangeMin => _customRangeMin;
@@ -246,6 +274,7 @@ class GameProvider extends ChangeNotifier {
     await _prefs.setString('gameProgress', jsonEncode(_gameProgress));
     await _prefs.setBool('useAdaptiveDifficulty', _useAdaptiveDifficulty);
     await _prefs.setBool('isFullVersionUnlocked', _isFullVersionUnlocked);
+    await _prefs.setInt('difficultyMode', _difficultyMode.index);
     await _prefs.setBool('useCustomProblemSettings', _useCustomProblemSettings);
     await _prefs.setStringList('customOperations', _customOperations.toList());
     await _prefs.setInt('customRangeMin', _customRangeMin);
@@ -355,6 +384,13 @@ class GameProvider extends ChangeNotifier {
   }
 
   // --- Setters for Custom Settings ---
+  void setDifficultyMode(DifficultyMode mode) {
+    if (_difficultyMode == mode) return;
+    _difficultyMode = mode;
+    notifyListeners();
+    _saveProgress();
+  }
+
   void setUseCustomSettings(bool value) {
     _useCustomProblemSettings = value;
     notifyListeners();

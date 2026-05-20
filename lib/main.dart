@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'core/services/audio_service.dart';
 import 'core/services/crash_logger.dart';
 import 'core/services/debug_provider.dart';
+import 'core/services/streak_service.dart';
 import 'core/services/progress_service.dart';
 import 'core/services/purchase_service.dart';
 import 'core/services/puzzle_image_service.dart';
@@ -55,6 +56,7 @@ final VocabularyService vocabularyService = VocabularyService();
 final PurchaseService purchaseService = PurchaseService();
 final DebugProvider debugProvider = DebugProvider();
 final AudioService audioService = AudioService();
+final StreakService streakService = StreakService();
 
 // --- FIX: REMOVED the global instance that was causing the crash ---
 /*
@@ -84,6 +86,8 @@ void main() async {
   await PuzzleImageService.instance.init();
   // We can't init purchaseService yet because it needs GameProvider
   await debugProvider.init();
+  await streakService.load();
+  await streakService.markPlayed();
   
   runApp(
     MultiProvider(
@@ -103,6 +107,7 @@ void main() async {
         ChangeNotifierProvider.value(value: vocabularyService),
         ChangeNotifierProvider.value(value: purchaseService),
         ChangeNotifierProvider.value(value: debugProvider),
+        ChangeNotifierProvider.value(value: streakService),
         Provider.value(value: progressService),
         Provider.value(value: audioService),
       ],

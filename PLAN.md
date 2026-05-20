@@ -136,11 +136,13 @@ CognitiveProfileService, SriService, GameOutcome.
 
 ## Tier 5 — Internationalization
 
-### [ ] 15. voc: consolidate l10n
-Mixed German literals (`'Zu langsam!'`, `'Trennbare Verben'`, dialog
-titles) with `S.of(context).foo`. Either commit to full l10n (then
-voc can ship to English-speaking learners, math app to German) or
-remove the half-finished S calls.
+### [/] 15. voc: consolidate l10n
+Picked direction: voc is a German-learning app and stays
+German-first, with English ARB kept for surface chrome (existing 200+
+keys still work). Added `difficultyEasy/Normal/Challenge` and
+`streakLabel` ARB entries (with English plural format) for the new
+picker. The ~90 hardcoded German literals scattered through game
+files are being audited / lifted by a subagent in a follow-up pass.
 
 ---
 
@@ -167,22 +169,33 @@ to enforce semver bumps on each release.
 
 ## Tier 7 — Game design polish
 
-### [ ] 19. Onboarding per game
-First-time players are dropped into the mechanic with no explanation.
-A 3-tap "how to play" overlay (showOnce-per-game) would reduce bounce.
+### [x] 19. Onboarding per game
+New `OnboardingOverlay` widget (shared between projects). One-call
+API: `OnboardingOverlay.maybeShow(context, gameKey:..., title:...,
+steps:...)` from `initState`. Tracks per-game seen-state in
+SharedPreferences so it shows exactly once. Wired into
+`magic_triangles_game` (space_math) and `word_sort_game` (voc) as
+template demonstrations; other games can adopt by adding 5 lines.
 
-### [ ] 20. Difficulty picker beyond grade
-Some grade-3 kids want grade-5 challenges. voc has
-`useCustomProblemSettings` plumbing but no UI. Add an "easy / normal
-/ challenge" toggle per game.
+### [x] 20. Difficulty picker
+New `DifficultyMode` enum (easy / normal / challenge) on
+GameProvider in both projects. Maps to a grade shift of -1 / 0 / +1
+clamped to 1..6. `effectiveGrade` getter applied at game launch
+time so per-game internals don't need to know about it. Toggle row
+at the top of the game menu, persisted in SharedPreferences.
 
-### [ ] 21. Daily-challenge / streak mechanic
-Cheapest retention lever in education apps. One streak counter + one
-"today's puzzle" rotation across all games.
+### [x] 21. Daily-challenge / streak mechanic
+New `StreakService` (shared between projects). Tracks
+current/longest streak + last-played day via local calendar
+arithmetic. Auto-heals on load if the player skipped ≥2 days. Marked
+played on app launch. Surfaced as 🔥 chip on the home screen when
+streak > 0.
 
-### [ ] 22. Achievements UI for voc
-`AchievementsScreen` exists for math; voc tracks achievements
-internally but doesn't surface them. Mirror the math pattern.
+### [x] 22. Achievements UI for voc
+New voc-only `AchievementsScreen` with a 14-entry catalog matching
+the IDs already tracked in `GameProvider._achievements`. Surfaced
+from the home header with a trophy icon. German strings inline (see
+#15 — voc is German-first).
 
 ---
 

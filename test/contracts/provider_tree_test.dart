@@ -18,6 +18,7 @@ const Set<String> registeredProviders = {
   'DebugProvider',
   'ProgressService',
   'AudioService',
+  'StreakService',
 };
 
 void main() {
