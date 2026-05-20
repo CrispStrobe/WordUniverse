@@ -62,15 +62,17 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
 
   late Map<GermanWordType, ({String label, IconData icon, Color color})> _targetCategories;
 
+  bool _onboardingScheduled = false;
+
   @override
   void initState() {
     super.initState();
-    
+
     _confettiController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2000),
     );
-    
+
     _hintController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
@@ -83,37 +85,13 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeGame();
     });
-
-    OnboardingOverlay.maybeShow(
-      context,
-      gameKey: 'word_sort_game',
-      title: 'Wort-Sortierung',
-      steps: const [
-        OnboardingStep(
-          icon: Icons.touch_app,
-          body: 'Ziehe das Wort in die passende Wortart-Kategorie.',
-        ),
-        OnboardingStep(
-          icon: Icons.school,
-          body:
-              'Nomen, Verben und Adjektive sind die Grundbausteine. '
-              'Höhere Klassen bringen Adverbien und Pronomen dazu.',
-        ),
-        OnboardingStep(
-          icon: Icons.tips_and_updates,
-          body:
-              'Brauchst du Hilfe? Warte einen Moment — das Spiel zeigt '
-              'dir nach kurzer Zeit Tipps zum aktuellen Wort.',
-        ),
-      ],
-    );
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _s = S.of(context)!;
-    
+
     // Basic categories for all grades
     _targetCategories = {
       GermanWordType.substantiv: (
@@ -132,21 +110,44 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
         color: SpaceTheme.cosmicPink
       ),
     };
-    
+
     // Add advanced categories for grades > 3
     if (widget.gradeLevel.index >= 2) { // Grade 3+
       _targetCategories[GermanWordType.adverb] = (
-        label: 'Adverb',
+        label: _s.wordSortCategoryAdverb,
         icon: Icons.speed,
         color: Colors.purple
       );
     }
-    
+
     if (widget.gradeLevel.index >= 3) { // Grade 4+
       _targetCategories[GermanWordType.pronomen] = (
-        label: 'Pronomen',
+        label: _s.wordSortCategoryPronoun,
         icon: Icons.person,
         color: Colors.teal
+      );
+    }
+
+    if (!_onboardingScheduled) {
+      _onboardingScheduled = true;
+      OnboardingOverlay.maybeShow(
+        context,
+        gameKey: 'word_sort_game',
+        title: _s.wordSortOnboardingTitle,
+        steps: [
+          OnboardingStep(
+            icon: Icons.touch_app,
+            body: _s.wordSortOnboardingDrag,
+          ),
+          OnboardingStep(
+            icon: Icons.school,
+            body: _s.wordSortOnboardingBuildingBlocks,
+          ),
+          OnboardingStep(
+            icon: Icons.tips_and_updates,
+            body: _s.wordSortOnboardingHints,
+          ),
+        ],
       );
     }
   }
