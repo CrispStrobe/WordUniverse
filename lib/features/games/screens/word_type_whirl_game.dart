@@ -1,8 +1,9 @@
 // lib/features/games/screens/word_type_whirl_game.dart
 import 'dart:async';
 import 'dart:math';
-import 'dart:collection'; 
+import 'dart:collection';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/services/audio_service.dart';
@@ -647,6 +648,7 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
 
   void _onCorrectTap(WhirlingWord whirlingWord) {
     _audioService.playSound('success');
+    HapticFeedback.lightImpact();
     _pulseController.forward(from: 0);
     _secondsSinceLastCorrectTap = 0;
     _showAutoHints = false;
@@ -675,6 +677,7 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
 
   void _onIncorrectTap(WhirlingWord whirlingWord) {
     _audioService.playSound('failure');
+    HapticFeedback.heavyImpact();
     _showHint(_generateSimpleHint(whirlingWord.word, false), true);
 
     setState(() {
@@ -827,20 +830,28 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
       ),
       child: Row(
         children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
-            onPressed: () {
-               _roundTimer?.cancel();
-               _spawnTimer?.cancel();
-               Navigator.of(context).pop();
-            },
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
+          Semantics(
+            label: 'Zurück',
+            button: true,
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+              onPressed: () {
+                 _roundTimer?.cancel();
+                 _spawnTimer?.cancel();
+                 Navigator.of(context).pop();
+              },
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+            ),
           ),
           const SizedBox(width: 8),
-          
-          _buildMiniBadge(Icons.emoji_events_rounded, '${widget.gradeLevel.index + 1}', SpaceTheme.starYellow),
-          
+
+          Semantics(
+            label: 'Stufe ${widget.gradeLevel.index + 1}',
+            container: true,
+            child: _buildMiniBadge(Icons.emoji_events_rounded, '${widget.gradeLevel.index + 1}', SpaceTheme.starYellow),
+          ),
+
           const Spacer(),
 
           Container(
@@ -853,20 +864,40 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _buildStatCompact(Icons.star_rounded, '$_score', SpaceTheme.starYellow),
+                Semantics(
+                  label: 'Punkte: $_score',
+                  liveRegion: true,
+                  child: _buildStatCompact(Icons.star_rounded, '$_score', SpaceTheme.starYellow),
+                ),
                 _buildVerticalDivider(),
-                _buildStatCompact(Icons.replay_rounded, '$_round/$_totalRounds', SpaceTheme.cosmicPink),
+                Semantics(
+                  label: 'Runde: $_round von $_totalRounds',
+                  liveRegion: true,
+                  child: _buildStatCompact(Icons.replay_rounded, '$_round/$_totalRounds', SpaceTheme.cosmicPink),
+                ),
                 _buildVerticalDivider(),
-                _buildStatCompact(Icons.local_fire_department_rounded, '$_streak', Colors.orange),
+                Semantics(
+                  label: 'Serie: $_streak',
+                  liveRegion: true,
+                  child: _buildStatCompact(Icons.local_fire_department_rounded, '$_streak', Colors.orange),
+                ),
                 _buildVerticalDivider(),
-                _buildStatCompact(Icons.timer_rounded, '${_roundTimeRemaining}s', timeColor),
+                Semantics(
+                  label: 'Zeit: $_roundTimeRemaining Sekunden',
+                  liveRegion: true,
+                  child: _buildStatCompact(Icons.timer_rounded, '${_roundTimeRemaining}s', timeColor),
+                ),
               ],
             ),
           ),
 
           const Spacer(),
 
-          _buildMiniBadge(Icons.diamond_rounded, '$totalGems', Colors.cyanAccent),
+          Semantics(
+            label: 'Edelsteine: $totalGems',
+            container: true,
+            child: _buildMiniBadge(Icons.diamond_rounded, '$totalGems', Colors.cyanAccent),
+          ),
         ],
       ),
     );
@@ -1147,33 +1178,60 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
       borderColor = typeInfo?.color ?? SpaceTheme.starYellow;
     }
 
-    return GestureDetector(
-      onTap: () => _onWordTapped(whirlingWord),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        width: cardWidth,
-        height: cardHeight,
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: borderColor, width: shouldHighlight ? 4 : 2),
-          boxShadow: [if (shouldHighlight) BoxShadow(color: borderColor.withValues(alpha: 0.7), blurRadius: 12)],
-        ),
-        child: Center(
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Text(
-                _getDisplayWord(whirlingWord.word),
-                style: TextStyle(
-                  fontFamily: selectedFontFamily,
-                  fontSize: 16,
-                  fontWeight: shouldHighlight ? FontWeight.w900 : FontWeight.bold,
-                  color: textColor,
+    return Semantics(
+      label: 'Wort ${_getDisplayWord(whirlingWord.word)}',
+      hint: 'Tippe wenn es ein ${_wordTypes[_currentTargetType]?.label ?? ''} ist',
+      button: true,
+      child: GestureDetector(
+        onTap: () => _onWordTapped(whirlingWord),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          width: cardWidth,
+          height: cardHeight,
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: borderColor,
+              // Tapped-incorrect gets a thicker border as a shape signal
+              // alongside the rocketRed color.
+              width: whirlingWord.isTapped && !whirlingWord.isCorrect
+                  ? 5
+                  : (shouldHighlight ? 4 : 2),
+            ),
+            boxShadow: [if (shouldHighlight) BoxShadow(color: borderColor.withValues(alpha: 0.7), blurRadius: 12)],
+          ),
+          child: Stack(
+            children: [
+              Center(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Text(
+                      _getDisplayWord(whirlingWord.word),
+                      style: TextStyle(
+                        fontFamily: selectedFontFamily,
+                        fontSize: 16,
+                        fontWeight: shouldHighlight ? FontWeight.w900 : FontWeight.bold,
+                        color: textColor,
+                      ),
+                    ),
+                  ),
                 ),
               ),
-            ),
+              // ✓/✗ icon overlay alongside the color signal.
+              if (whirlingWord.isTapped)
+                Positioned(
+                  top: 2,
+                  right: 2,
+                  child: Icon(
+                    whirlingWord.isCorrect ? Icons.check : Icons.close,
+                    size: 16,
+                    color: textColor,
+                  ),
+                ),
+            ],
           ),
         ),
       ),
