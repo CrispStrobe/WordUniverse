@@ -1820,6 +1820,498 @@ abstract class S {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 day} other{{count} days}}'**
   String streakLabel(int count);
+
+  /// Feedback when a falling/timed item is missed
+  ///
+  /// In en, this message translates to:
+  /// **'Too slow!'**
+  String get gameTooSlow;
+
+  /// Stat line shown in end-of-game dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Level: {level}'**
+  String gameLevelLine(int level);
+
+  /// Stat line shown in end-of-game dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Max Combo: {combo}'**
+  String gameMaxComboLine(int combo);
+
+  /// No description provided for @gameCombo.
+  ///
+  /// In en, this message translates to:
+  /// **'Combo x{combo}'**
+  String gameCombo(int combo);
+
+  /// No description provided for @gameLvlBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Lvl {level}'**
+  String gameLvlBadge(int level);
+
+  /// No description provided for @verbtrennerSeparableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Separable Verbs'**
+  String get verbtrennerSeparableTitle;
+
+  /// No description provided for @verbtrennerCompoundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Noun Compounds'**
+  String get verbtrennerCompoundTitle;
+
+  /// No description provided for @verbtrennerSeparatedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'SEPARATED'**
+  String get verbtrennerSeparatedLabel;
+
+  /// No description provided for @verbtrennerSeparatedExample.
+  ///
+  /// In en, this message translates to:
+  /// **'(stehe auf)'**
+  String get verbtrennerSeparatedExample;
+
+  /// No description provided for @verbtrennerTogetherLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'TOGETHER'**
+  String get verbtrennerTogetherLabel;
+
+  /// No description provided for @verbtrennerTogetherExample.
+  ///
+  /// In en, this message translates to:
+  /// **'(aufstehen)'**
+  String get verbtrennerTogetherExample;
+
+  /// No description provided for @wortbaumeisterSeparatedExample.
+  ///
+  /// In en, this message translates to:
+  /// **'(e.g. stehe auf)'**
+  String get wortbaumeisterSeparatedExample;
+
+  /// No description provided for @wortbaumeisterTogetherExample.
+  ///
+  /// In en, this message translates to:
+  /// **'(e.g. aufstehen)'**
+  String get wortbaumeisterTogetherExample;
+
+  /// No description provided for @grossschreibTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Capitalization Galaxy'**
+  String get grossschreibTitle;
+
+  /// No description provided for @grossschreibClickHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the word!'**
+  String get grossschreibClickHint;
+
+  /// No description provided for @grossschreibCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'CHECK'**
+  String get grossschreibCheck;
+
+  /// No description provided for @grossstadtTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Upper or lower case?'**
+  String get grossstadtTitle;
+
+  /// No description provided for @grossstadtCapital.
+  ///
+  /// In en, this message translates to:
+  /// **'UPPER'**
+  String get grossstadtCapital;
+
+  /// No description provided for @grossstadtLower.
+  ///
+  /// In en, this message translates to:
+  /// **'lower'**
+  String get grossstadtLower;
+
+  /// No description provided for @achievementsBannerProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{unlocked} of {total} achievements unlocked'**
+  String achievementsBannerProgress(int unlocked, int total);
+
+  /// No description provided for @achievementTriangleWizardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Word-Snake Master'**
+  String get achievementTriangleWizardTitle;
+
+  /// No description provided for @achievementTriangleWizardDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Reach Level 3 in Word Snake.'**
+  String get achievementTriangleWizardDesc;
+
+  /// No description provided for @achievementBubblePopperTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sorting Champion'**
+  String get achievementBubblePopperTitle;
+
+  /// No description provided for @achievementBubblePopperDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Reach Level 3 in Word Sort.'**
+  String get achievementBubblePopperDesc;
+
+  /// No description provided for @achievementPuzzleSolverTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Word Finder'**
+  String get achievementPuzzleSolverTitle;
+
+  /// No description provided for @achievementPuzzleSolverDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Reach Level 3 in Word Find.'**
+  String get achievementPuzzleSolverDesc;
+
+  /// No description provided for @achievementNumberWallsProTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Word Builder'**
+  String get achievementNumberWallsProTitle;
+
+  /// No description provided for @achievementNumberWallsProDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Reach Level 3 in Word Builder.'**
+  String get achievementNumberWallsProDesc;
+
+  /// No description provided for @achievementCodebreakerProTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Space Rescuer'**
+  String get achievementCodebreakerProTitle;
+
+  /// No description provided for @achievementCodebreakerProDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Reach Level 3 in Space Word Rescue.'**
+  String get achievementCodebreakerProDesc;
+
+  /// No description provided for @achievementMasterBuilderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Master Builder'**
+  String get achievementMasterBuilderTitle;
+
+  /// No description provided for @achievementMasterBuilderDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Reach Level 3 in Wortbaumeister.'**
+  String get achievementMasterBuilderDesc;
+
+  /// No description provided for @achievementCityPlannerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'City Planner'**
+  String get achievementCityPlannerTitle;
+
+  /// No description provided for @achievementCityPlannerDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Reach Level 3 in Word Sorter.'**
+  String get achievementCityPlannerDesc;
+
+  /// No description provided for @achievementConnectionExpertTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Galaxy Expert'**
+  String get achievementConnectionExpertTitle;
+
+  /// No description provided for @achievementConnectionExpertDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Reach Level 3 in Word Galaxy.'**
+  String get achievementConnectionExpertDesc;
+
+  /// No description provided for @achievementArithmeticAceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Memory Ace'**
+  String get achievementArithmeticAceTitle;
+
+  /// No description provided for @achievementArithmeticAceDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Reach Level 5 in Memory and Word Whirl.'**
+  String get achievementArithmeticAceDesc;
+
+  /// No description provided for @achievementVielseitigTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Versatile'**
+  String get achievementVielseitigTitle;
+
+  /// No description provided for @achievementVielseitigDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Play at least four different games.'**
+  String get achievementVielseitigDesc;
+
+  /// No description provided for @parentDashboardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Parent Overview'**
+  String get parentDashboardTitle;
+
+  /// No description provided for @parentPinTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Parent PIN'**
+  String get parentPinTitle;
+
+  /// No description provided for @parentPinHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the 4-digit code.\nDefault is {pin} until you change it.'**
+  String parentPinHelp(String pin);
+
+  /// No description provided for @parentPinWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong code'**
+  String get parentPinWrong;
+
+  /// No description provided for @parentPinUnlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock'**
+  String get parentPinUnlock;
+
+  /// No description provided for @parentChangePin.
+  ///
+  /// In en, this message translates to:
+  /// **'Change parent PIN'**
+  String get parentChangePin;
+
+  /// No description provided for @parentChangePinDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change PIN'**
+  String get parentChangePinDialogTitle;
+
+  /// No description provided for @parentNewPinLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'New PIN'**
+  String get parentNewPinLabel;
+
+  /// No description provided for @parentConfirmPinLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get parentConfirmPinLabel;
+
+  /// No description provided for @parentPinRequireFour.
+  ///
+  /// In en, this message translates to:
+  /// **'4 digits required'**
+  String get parentPinRequireFour;
+
+  /// No description provided for @parentPinMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Does not match'**
+  String get parentPinMismatch;
+
+  /// No description provided for @parentPinUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'PIN updated'**
+  String get parentPinUpdated;
+
+  /// No description provided for @parentSectionLanguageMastery.
+  ///
+  /// In en, this message translates to:
+  /// **'Language mastery'**
+  String get parentSectionLanguageMastery;
+
+  /// No description provided for @parentItemsTracked.
+  ///
+  /// In en, this message translates to:
+  /// **'Items tracked'**
+  String get parentItemsTracked;
+
+  /// No description provided for @parentItemsMastered.
+  ///
+  /// In en, this message translates to:
+  /// **'Of these mastered'**
+  String get parentItemsMastered;
+
+  /// No description provided for @parentItemsMasteredValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} ({pct}%)'**
+  String parentItemsMasteredValue(int count, int pct);
+
+  /// No description provided for @parentItemsDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Due for review'**
+  String get parentItemsDue;
+
+  /// No description provided for @parentSectionStrengths.
+  ///
+  /// In en, this message translates to:
+  /// **'Strengths & weaknesses'**
+  String get parentSectionStrengths;
+
+  /// No description provided for @parentDataBasis.
+  ///
+  /// In en, this message translates to:
+  /// **'Data basis'**
+  String get parentDataBasis;
+
+  /// No description provided for @parentNoDataYet.
+  ///
+  /// In en, this message translates to:
+  /// **'no data yet'**
+  String get parentNoDataYet;
+
+  /// No description provided for @parentStrongestCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Strongest category'**
+  String get parentStrongestCategory;
+
+  /// No description provided for @parentWeakestCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Weakest category'**
+  String get parentWeakestCategory;
+
+  /// No description provided for @parentCategoryValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} ({pct}%)'**
+  String parentCategoryValue(String name, int pct);
+
+  /// No description provided for @parentTotalAttempts.
+  ///
+  /// In en, this message translates to:
+  /// **'Total attempts'**
+  String get parentTotalAttempts;
+
+  /// No description provided for @parentSectionGameProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Game progress'**
+  String get parentSectionGameProgress;
+
+  /// No description provided for @parentGamesPlayed.
+  ///
+  /// In en, this message translates to:
+  /// **'Games played'**
+  String get parentGamesPlayed;
+
+  /// No description provided for @parentNoneYet.
+  ///
+  /// In en, this message translates to:
+  /// **'none yet'**
+  String get parentNoneYet;
+
+  /// No description provided for @parentLevelValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Level {level}'**
+  String parentLevelValue(int level);
+
+  /// No description provided for @cognitiveProfileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Learning profile'**
+  String get cognitiveProfileTitle;
+
+  /// No description provided for @cognitiveProfileEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Play a few rounds to build up your profile.'**
+  String get cognitiveProfileEmpty;
+
+  /// No description provided for @cognitiveProfileAttempts.
+  ///
+  /// In en, this message translates to:
+  /// **'{attempts} attempts in {areas, plural, =1{1 skill area} other{{areas} skill areas}}'**
+  String cognitiveProfileAttempts(int attempts, int areas);
+
+  /// No description provided for @categorySpelling.
+  ///
+  /// In en, this message translates to:
+  /// **'Spelling'**
+  String get categorySpelling;
+
+  /// No description provided for @categoryGrammar.
+  ///
+  /// In en, this message translates to:
+  /// **'Grammar'**
+  String get categoryGrammar;
+
+  /// No description provided for @categoryVocabulary.
+  ///
+  /// In en, this message translates to:
+  /// **'Vocabulary'**
+  String get categoryVocabulary;
+
+  /// No description provided for @categoryTextComprehension.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading comprehension'**
+  String get categoryTextComprehension;
+
+  /// No description provided for @categoryExpression.
+  ///
+  /// In en, this message translates to:
+  /// **'Expression'**
+  String get categoryExpression;
+
+  /// No description provided for @wordSortOnboardingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Word Sort'**
+  String get wordSortOnboardingTitle;
+
+  /// No description provided for @wordSortOnboardingDrag.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag the word to the matching word-type category.'**
+  String get wordSortOnboardingDrag;
+
+  /// No description provided for @wordSortOnboardingBuildingBlocks.
+  ///
+  /// In en, this message translates to:
+  /// **'Nouns, verbs and adjectives are the building blocks. Higher grades add adverbs and pronouns.'**
+  String get wordSortOnboardingBuildingBlocks;
+
+  /// No description provided for @wordSortOnboardingHints.
+  ///
+  /// In en, this message translates to:
+  /// **'Need help? Wait a moment — the game will show hints for the current word after a short delay.'**
+  String get wordSortOnboardingHints;
+
+  /// No description provided for @wordSortCategoryAdverb.
+  ///
+  /// In en, this message translates to:
+  /// **'Adverb'**
+  String get wordSortCategoryAdverb;
+
+  /// No description provided for @wordSortCategoryPronoun.
+  ///
+  /// In en, this message translates to:
+  /// **'Pronoun'**
+  String get wordSortCategoryPronoun;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

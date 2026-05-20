@@ -555,5 +555,142 @@
     "@streakLabel": {
         "description": "Plural label for consecutive-day streak",
         "placeholders": { "count": { "type": "int" } }
-    }
+    },
+
+    "gameTooSlow": "Zu langsam!",
+    "@gameTooSlow": {
+        "description": "Feedback when a falling/timed item is missed"
+    },
+    "gameLevelLine": "Level: {level}",
+    "@gameLevelLine": {
+        "description": "Stat line shown in end-of-game dialog",
+        "placeholders": { "level": { "type": "int" } }
+    },
+    "gameMaxComboLine": "Max Combo: {combo}",
+    "@gameMaxComboLine": {
+        "description": "Stat line shown in end-of-game dialog",
+        "placeholders": { "combo": { "type": "int" } }
+    },
+    "gameCombo": "Combo x{combo}",
+    "@gameCombo": {
+        "placeholders": { "combo": { "type": "int" } }
+    },
+    "gameLvlBadge": "Lvl {level}",
+    "@gameLvlBadge": {
+        "placeholders": { "level": { "type": "int" } }
+    },
+
+    "verbtrennerSeparableTitle": "Trennbare Verben",
+    "verbtrennerCompoundTitle": "Nomen-Komposita",
+    "verbtrennerSeparatedLabel": "GETRENNT",
+    "verbtrennerSeparatedExample": "(stehe auf)",
+    "verbtrennerTogetherLabel": "ZUSAMMEN",
+    "verbtrennerTogetherExample": "(aufstehen)",
+    "wortbaumeisterSeparatedExample": "(z.B. stehe auf)",
+    "wortbaumeisterTogetherExample": "(z.B. aufstehen)",
+
+    "grossschreibTitle": "Großschreibungs-Galaxie",
+    "grossschreibClickHint": "Klicke auf das Wort!",
+    "grossschreibCheck": "PRÜFEN",
+
+    "grossstadtTitle": "Groß oder klein?",
+    "grossstadtCapital": "GROSS",
+    "grossstadtLower": "klein",
+
+    "achievementsBannerProgress": "{unlocked} von {total} Erfolgen freigeschaltet",
+    "@achievementsBannerProgress": {
+        "placeholders": {
+            "unlocked": { "type": "int" },
+            "total": { "type": "int" }
+        }
+    },
+    "achievementTriangleWizardTitle": "Wort-Schlange-Meister",
+    "achievementTriangleWizardDesc": "Schaffe Level 3 in Wort-Schlange.",
+    "achievementBubblePopperTitle": "Sortier-Champion",
+    "achievementBubblePopperDesc": "Schaffe Level 3 in Wort-Sortierung.",
+    "achievementPuzzleSolverTitle": "Wort-Finder",
+    "achievementPuzzleSolverDesc": "Schaffe Level 3 in Wortsuche.",
+    "achievementNumberWallsProTitle": "Wort-Baumeister",
+    "achievementNumberWallsProDesc": "Schaffe Level 3 in Wort-Stückler.",
+    "achievementCodebreakerProTitle": "Weltraum-Retter",
+    "achievementCodebreakerProDesc": "Schaffe Level 3 in Weltraum-Wort-Rettung.",
+    "achievementMasterBuilderTitle": "Wortbaumeister",
+    "achievementMasterBuilderDesc": "Schaffe Level 3 im Wortbaumeister.",
+    "achievementCityPlannerTitle": "Stadt-Planer",
+    "achievementCityPlannerDesc": "Schaffe Level 3 in Wort-Sortierer.",
+    "achievementConnectionExpertTitle": "Galaxie-Experte",
+    "achievementConnectionExpertDesc": "Schaffe Level 3 in Wort-Galaxie.",
+    "achievementArithmeticAceTitle": "Gedächtnis-Ass",
+    "achievementArithmeticAceDesc": "Erreiche Level 5 in Memory und Wortarten-Wirbel.",
+    "achievementVielseitigTitle": "Vielseitig",
+    "achievementVielseitigDesc": "Spiele mindestens vier verschiedene Spiele.",
+
+    "parentDashboardTitle": "Eltern-Übersicht",
+    "parentPinTitle": "Eltern-PIN",
+    "parentPinHelp": "Gib den 4-stelligen Code ein.\nStandard ist {pin}, bis du ihn änderst.",
+    "@parentPinHelp": {
+        "placeholders": { "pin": { "type": "String" } }
+    },
+    "parentPinWrong": "Falscher Code",
+    "parentPinUnlock": "Entsperren",
+    "parentChangePin": "Eltern-PIN ändern",
+    "parentChangePinDialogTitle": "PIN ändern",
+    "parentNewPinLabel": "Neue PIN",
+    "parentConfirmPinLabel": "Bestätigen",
+    "parentPinRequireFour": "4 Ziffern erforderlich",
+    "parentPinMismatch": "Stimmt nicht überein",
+    "parentPinUpdated": "PIN aktualisiert",
+    "parentSectionLanguageMastery": "Sprach-Beherrschung",
+    "parentItemsTracked": "Items verfolgt",
+    "parentItemsMastered": "Davon gemeistert",
+    "parentItemsMasteredValue": "{count} ({pct}%)",
+    "@parentItemsMasteredValue": {
+        "placeholders": {
+            "count": { "type": "int" },
+            "pct": { "type": "int" }
+        }
+    },
+    "parentItemsDue": "Fällig zur Wiederholung",
+    "parentSectionStrengths": "Stärken & Schwächen",
+    "parentDataBasis": "Datenbasis",
+    "parentNoDataYet": "noch keine Daten",
+    "parentStrongestCategory": "Stärkste Kategorie",
+    "parentWeakestCategory": "Schwächste Kategorie",
+    "parentCategoryValue": "{name} ({pct}%)",
+    "@parentCategoryValue": {
+        "placeholders": {
+            "name": { "type": "String" },
+            "pct": { "type": "int" }
+        }
+    },
+    "parentTotalAttempts": "Gesamtversuche",
+    "parentSectionGameProgress": "Spielfortschritt",
+    "parentGamesPlayed": "Spiele gespielt",
+    "parentNoneYet": "noch keine",
+    "parentLevelValue": "Level {level}",
+    "@parentLevelValue": {
+        "placeholders": { "level": { "type": "int" } }
+    },
+
+    "cognitiveProfileTitle": "Lernprofil",
+    "cognitiveProfileEmpty": "Spiele ein paar Runden, um dein Profil aufzubauen.",
+    "cognitiveProfileAttempts": "{attempts} Versuche in {areas, plural, =1{1 Skill-Bereich} other{{areas} Skill-Bereichen}}",
+    "@cognitiveProfileAttempts": {
+        "placeholders": {
+            "attempts": { "type": "int" },
+            "areas": { "type": "int" }
+        }
+    },
+    "categorySpelling": "Rechtschreibung",
+    "categoryGrammar": "Grammatik",
+    "categoryVocabulary": "Wortschatz",
+    "categoryTextComprehension": "Textverständnis",
+    "categoryExpression": "Ausdruck",
+
+    "wordSortOnboardingTitle": "Wort-Sortierung",
+    "wordSortOnboardingDrag": "Ziehe das Wort in die passende Wortart-Kategorie.",
+    "wordSortOnboardingBuildingBlocks": "Nomen, Verben und Adjektive sind die Grundbausteine. Höhere Klassen bringen Adverbien und Pronomen dazu.",
+    "wordSortOnboardingHints": "Brauchst du Hilfe? Warte einen Moment — das Spiel zeigt dir nach kurzer Zeit Tipps zum aktuellen Wort.",
+    "wordSortCategoryAdverb": "Adverb",
+    "wordSortCategoryPronoun": "Pronomen"
 }

@@ -956,4 +956,282 @@ class SEn extends S {
     );
     return '$_temp0';
   }
+
+  @override
+  String get gameTooSlow => 'Too slow!';
+
+  @override
+  String gameLevelLine(int level) {
+    return 'Level: $level';
+  }
+
+  @override
+  String gameMaxComboLine(int combo) {
+    return 'Max Combo: $combo';
+  }
+
+  @override
+  String gameCombo(int combo) {
+    return 'Combo x$combo';
+  }
+
+  @override
+  String gameLvlBadge(int level) {
+    return 'Lvl $level';
+  }
+
+  @override
+  String get verbtrennerSeparableTitle => 'Separable Verbs';
+
+  @override
+  String get verbtrennerCompoundTitle => 'Noun Compounds';
+
+  @override
+  String get verbtrennerSeparatedLabel => 'SEPARATED';
+
+  @override
+  String get verbtrennerSeparatedExample => '(stehe auf)';
+
+  @override
+  String get verbtrennerTogetherLabel => 'TOGETHER';
+
+  @override
+  String get verbtrennerTogetherExample => '(aufstehen)';
+
+  @override
+  String get wortbaumeisterSeparatedExample => '(e.g. stehe auf)';
+
+  @override
+  String get wortbaumeisterTogetherExample => '(e.g. aufstehen)';
+
+  @override
+  String get grossschreibTitle => 'Capitalization Galaxy';
+
+  @override
+  String get grossschreibClickHint => 'Tap the word!';
+
+  @override
+  String get grossschreibCheck => 'CHECK';
+
+  @override
+  String get grossstadtTitle => 'Upper or lower case?';
+
+  @override
+  String get grossstadtCapital => 'UPPER';
+
+  @override
+  String get grossstadtLower => 'lower';
+
+  @override
+  String achievementsBannerProgress(int unlocked, int total) {
+    return '$unlocked of $total achievements unlocked';
+  }
+
+  @override
+  String get achievementTriangleWizardTitle => 'Word-Snake Master';
+
+  @override
+  String get achievementTriangleWizardDesc => 'Reach Level 3 in Word Snake.';
+
+  @override
+  String get achievementBubblePopperTitle => 'Sorting Champion';
+
+  @override
+  String get achievementBubblePopperDesc => 'Reach Level 3 in Word Sort.';
+
+  @override
+  String get achievementPuzzleSolverTitle => 'Word Finder';
+
+  @override
+  String get achievementPuzzleSolverDesc => 'Reach Level 3 in Word Find.';
+
+  @override
+  String get achievementNumberWallsProTitle => 'Word Builder';
+
+  @override
+  String get achievementNumberWallsProDesc => 'Reach Level 3 in Word Builder.';
+
+  @override
+  String get achievementCodebreakerProTitle => 'Space Rescuer';
+
+  @override
+  String get achievementCodebreakerProDesc =>
+      'Reach Level 3 in Space Word Rescue.';
+
+  @override
+  String get achievementMasterBuilderTitle => 'Master Builder';
+
+  @override
+  String get achievementMasterBuilderDesc => 'Reach Level 3 in Wortbaumeister.';
+
+  @override
+  String get achievementCityPlannerTitle => 'City Planner';
+
+  @override
+  String get achievementCityPlannerDesc => 'Reach Level 3 in Word Sorter.';
+
+  @override
+  String get achievementConnectionExpertTitle => 'Galaxy Expert';
+
+  @override
+  String get achievementConnectionExpertDesc => 'Reach Level 3 in Word Galaxy.';
+
+  @override
+  String get achievementArithmeticAceTitle => 'Memory Ace';
+
+  @override
+  String get achievementArithmeticAceDesc =>
+      'Reach Level 5 in Memory and Word Whirl.';
+
+  @override
+  String get achievementVielseitigTitle => 'Versatile';
+
+  @override
+  String get achievementVielseitigDesc => 'Play at least four different games.';
+
+  @override
+  String get parentDashboardTitle => 'Parent Overview';
+
+  @override
+  String get parentPinTitle => 'Parent PIN';
+
+  @override
+  String parentPinHelp(String pin) {
+    return 'Enter the 4-digit code.\nDefault is $pin until you change it.';
+  }
+
+  @override
+  String get parentPinWrong => 'Wrong code';
+
+  @override
+  String get parentPinUnlock => 'Unlock';
+
+  @override
+  String get parentChangePin => 'Change parent PIN';
+
+  @override
+  String get parentChangePinDialogTitle => 'Change PIN';
+
+  @override
+  String get parentNewPinLabel => 'New PIN';
+
+  @override
+  String get parentConfirmPinLabel => 'Confirm';
+
+  @override
+  String get parentPinRequireFour => '4 digits required';
+
+  @override
+  String get parentPinMismatch => 'Does not match';
+
+  @override
+  String get parentPinUpdated => 'PIN updated';
+
+  @override
+  String get parentSectionLanguageMastery => 'Language mastery';
+
+  @override
+  String get parentItemsTracked => 'Items tracked';
+
+  @override
+  String get parentItemsMastered => 'Of these mastered';
+
+  @override
+  String parentItemsMasteredValue(int count, int pct) {
+    return '$count ($pct%)';
+  }
+
+  @override
+  String get parentItemsDue => 'Due for review';
+
+  @override
+  String get parentSectionStrengths => 'Strengths & weaknesses';
+
+  @override
+  String get parentDataBasis => 'Data basis';
+
+  @override
+  String get parentNoDataYet => 'no data yet';
+
+  @override
+  String get parentStrongestCategory => 'Strongest category';
+
+  @override
+  String get parentWeakestCategory => 'Weakest category';
+
+  @override
+  String parentCategoryValue(String name, int pct) {
+    return '$name ($pct%)';
+  }
+
+  @override
+  String get parentTotalAttempts => 'Total attempts';
+
+  @override
+  String get parentSectionGameProgress => 'Game progress';
+
+  @override
+  String get parentGamesPlayed => 'Games played';
+
+  @override
+  String get parentNoneYet => 'none yet';
+
+  @override
+  String parentLevelValue(int level) {
+    return 'Level $level';
+  }
+
+  @override
+  String get cognitiveProfileTitle => 'Learning profile';
+
+  @override
+  String get cognitiveProfileEmpty =>
+      'Play a few rounds to build up your profile.';
+
+  @override
+  String cognitiveProfileAttempts(int attempts, int areas) {
+    String _temp0 = intl.Intl.pluralLogic(
+      areas,
+      locale: localeName,
+      other: '$areas skill areas',
+      one: '1 skill area',
+    );
+    return '$attempts attempts in $_temp0';
+  }
+
+  @override
+  String get categorySpelling => 'Spelling';
+
+  @override
+  String get categoryGrammar => 'Grammar';
+
+  @override
+  String get categoryVocabulary => 'Vocabulary';
+
+  @override
+  String get categoryTextComprehension => 'Reading comprehension';
+
+  @override
+  String get categoryExpression => 'Expression';
+
+  @override
+  String get wordSortOnboardingTitle => 'Word Sort';
+
+  @override
+  String get wordSortOnboardingDrag =>
+      'Drag the word to the matching word-type category.';
+
+  @override
+  String get wordSortOnboardingBuildingBlocks =>
+      'Nouns, verbs and adjectives are the building blocks. Higher grades add adverbs and pronouns.';
+
+  @override
+  String get wordSortOnboardingHints =>
+      'Need help? Wait a moment — the game will show hints for the current word after a short delay.';
+
+  @override
+  String get wordSortCategoryAdverb => 'Adverb';
+
+  @override
+  String get wordSortCategoryPronoun => 'Pronoun';
 }
