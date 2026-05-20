@@ -693,14 +693,12 @@ class _VerbtrennerGameState extends State<VerbtrennerGame>
           // Score
           Semantics(
             label: 'Punkte: $_score',
-            liveRegion: true,
             child: _buildCompactStat(Icons.stars, '$_score', SpaceTheme.starYellow),
           ),
           const SizedBox(width: 8),
           // Progress
           Semantics(
             label: 'Fortschritt: $_itemsCompleted von $_totalItems',
-            liveRegion: true,
             child: _buildCompactStat(Icons.check_circle_outline, '$_itemsCompleted/$_totalItems', SpaceTheme.cosmicPink),
           ),
           const Spacer(),

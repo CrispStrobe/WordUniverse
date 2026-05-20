@@ -448,21 +448,18 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
                       // Local Score (Current Game)
                       Semantics(
                         label: 'Punkte: $_score',
-                        liveRegion: true,
                         child: _buildStatItem(Icons.star_rounded, '$_score', SpaceTheme.starYellow),
                       ),
                       _buildVerticalDivider(),
                       // Moves
                       Semantics(
                         label: 'Züge: $_moves',
-                        liveRegion: true,
                         child: _buildStatItem(Icons.touch_app_rounded, '$_moves', SpaceTheme.alienGreen),
                       ),
                       _buildVerticalDivider(),
                       // Pairs Found
                       Semantics(
                         label: 'Paare: $_pairsFound von $_totalPairs',
-                        liveRegion: true,
                         child: _buildStatItem(Icons.check_circle_rounded, '$_pairsFound/$_totalPairs', SpaceTheme.cosmicPink),
                       ),
                     ],

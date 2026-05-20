@@ -840,18 +840,15 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
             ),
             Semantics(
               label: 'Punkte: $_score',
-              liveRegion: true,
               child: _buildCompactStat(Icons.stars, '$_score', SpaceTheme.starYellow),
             ),
             if (_currentStreak >= 2)
               Semantics(
                 label: 'Serie: $_currentStreak',
-                liveRegion: true,
                 child: _buildCompactStat(Icons.local_fire_department, '$_currentStreak', SpaceTheme.planetOrange),
               ),
             Semantics(
               label: 'Gerettet: $_wordsRescued von $_totalWords',
-              liveRegion: true,
               child: _buildCompactStat(Icons.check_circle, '$_wordsRescued/$_totalWords', SpaceTheme.alienGreen),
             ),
             Semantics(
