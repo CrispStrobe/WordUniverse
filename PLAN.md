@@ -49,23 +49,35 @@ keys. Background music + TTS remain stubbed until needed.
 
 ## Tier 2 — Architecture & maintainability
 
-### [ ] 4. Extract the voc falling-tile game template
-`grossschreib`, `grossstadt`, `wortbaumeister`, `verbtrenner` share
-~80% of their ~800-line bodies (timer setup, drop animation, score
-state, level-up logic). A `FallingTileGameBase` mixin or
-`FallingTileGameScreen<T>` widget would remove ~2000 lines of
-duplication and make game #5 a thin file.
+### [-] 4. Extract the voc falling-tile game template
+The "~80% duplication" framing turned out to be optimistic. The 4 games
+(`grossschreib`, `grossstadt`, `verbtrenner`, `wortbaumeister`) share
+*structure* — combo tracking, miss handling, level-up triggers — but
+the parameters that differ are intentional pedagogy: different scoring
+curves (constant 100 vs `100 + difficulty*20`), different SRI metadata
+schemas, different timing (1500ms vs 1200ms delays, 0.92× vs 0.85×
+speed multipliers), and meaningfully different UI presentation (falling
+sentence vs conveyor item vs verb pair vs compound word). A base class
+would need 10+ override hooks and a parameterised UI builder. Each
+file already sits comfortably ≤ 1100 LoC and reads standalone — four
+readable copies beats `base + override × 4` indirection.
 
-### [ ] 5. Split game files > 1500 LoC
-- `arithmancer_duel_game.dart` (~3000)
-- `arithmancer_crosswords_game.dart`
-- `codebreaker_game.dart` (2070)
-- `hyperdrive_gates_game.dart`
-- `space_word_rescue_game.dart` (1600)
-- `magic_triangles_game.dart`
-Mixing logic, painters, puzzle generation, and widget building. Pull
-painters into their own files; move puzzle generation into
-`lib/features/games/logic/`.
+### [x] 5. Split game files > 1500 LoC
+Pulled painters, puzzle generation, and game-world models out of six
+oversized screen files into sibling `widgets/` and `services/` files.
+Results (before → after):
+- `magic_triangles_game.dart` 1486 → 973
+- `hyperdrive_gates_game.dart` 1747 → 1111
+- `arithmancer_crosswords_game.dart` 2126 → 1240
+- `codebreaker_game.dart` 2331 → 1143
+- `space_word_rescue_game.dart` (voc) 1625 → 1412
+- `arithmancer_duel_game.dart` 3495 → 2839 (partial; see below)
+arithmancer_duel was reduced by extracting visual effects, mode
+selection, and dialogs. The remaining 2839 LoC is intrinsic
+3-mode card-combat State — further reduction would require converting
+the State's UI builders into stateless widgets with passed-in deps,
+which is architectural work, not a file split, and adds significant
+constructor boilerplate. Left as-is unless maintenance pain is felt.
 
 ### [x] 6. Unify the progression contract
 Added `GameOutcome` value type in both projects with `.win` / `.loss`
