@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:collection';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
@@ -296,6 +297,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
 
   void _handleCorrectAnswer() {
     _audioService.playSound('success');
+    HapticFeedback.lightImpact();
     _gameProvider.addScore(10);
     
     setState(() {
@@ -320,7 +322,8 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
 
   void _handleIncorrectAnswer(GermanWordType guessedCategory) {
     _audioService.playSound('failure');
-    
+    HapticFeedback.heavyImpact();
+
     setState(() {
       _feedbackState = FeedbackState.incorrect;
     });
@@ -887,13 +890,16 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Draggable<GermanWordType>(
-            data: _currentWord!.wordType,
-            onDragStarted: () => setState(() => _isDragging = true),
-            onDragEnd: (details) => setState(() => _isDragging = false),
-            feedback: _buildWordCard(displayWord, selectedFontFamily, isFeedback: true),
-            childWhenDragging: _buildWordCard(displayWord, selectedFontFamily, isPlaceholder: true),
-            child: _buildWordCard(displayWord, selectedFontFamily),
+          Semantics(
+            label: 'Wort: $displayWord. Ziehe es auf die richtige Wortart.',
+            child: Draggable<GermanWordType>(
+              data: _currentWord!.wordType,
+              onDragStarted: () => setState(() => _isDragging = true),
+              onDragEnd: (details) => setState(() => _isDragging = false),
+              feedback: _buildWordCard(displayWord, selectedFontFamily, isFeedback: true),
+              childWhenDragging: _buildWordCard(displayWord, selectedFontFamily, isPlaceholder: true),
+              child: _buildWordCard(displayWord, selectedFontFamily),
+            ),
           ),
         ],
       ),
@@ -902,10 +908,13 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
 
   Widget _buildWordCard(String word, String selectedFontFamily, {bool isFeedback = false, bool isPlaceholder = false}) {
     Color borderColor = SpaceTheme.planetOrange;
+    IconData? feedbackIcon;
     if (_feedbackState == FeedbackState.correct) {
       borderColor = Colors.green;
+      feedbackIcon = Icons.check_circle;
     } else if (_feedbackState == FeedbackState.incorrect) {
       borderColor = Colors.red;
+      feedbackIcon = Icons.cancel;
     }
 
     return Material(
@@ -919,21 +928,33 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
               ? Colors.transparent
               : SpaceTheme.deepSpace.withValues(alpha: isFeedback ? 0.9 : 1.0),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: borderColor, width: 3),
+          // Border style changes on incorrect to add a shape signal
+          // alongside the color (color-blind redundancy).
+          border: Border.all(color: borderColor, width: _feedbackState == FeedbackState.incorrect ? 5 : 3),
           boxShadow: isFeedback
               ? [BoxShadow(color: Colors.white.withValues(alpha: 0.3), blurRadius: 20, spreadRadius: 5)]
               : [BoxShadow(color: borderColor.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 4))],
         ),
-        child: Center(
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              word, 
-              style: SpaceTheme.headlineStyle.copyWith(fontFamily: selectedFontFamily, fontSize: 32),
-              maxLines: 2,
-              textAlign: TextAlign.center,
+        child: Stack(
+          children: [
+            Center(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  word,
+                  style: SpaceTheme.headlineStyle.copyWith(fontFamily: selectedFontFamily, fontSize: 32),
+                  maxLines: 2,
+                  textAlign: TextAlign.center,
+                ),
+              ),
             ),
-          ),
+            if (feedbackIcon != null && !isPlaceholder)
+              Positioned(
+                top: 4,
+                right: 4,
+                child: Icon(feedbackIcon, color: borderColor, size: 24),
+              ),
+          ],
         ),
       ),
     );
@@ -972,7 +993,9 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     required IconData icon,
     required Color color,
   }) {
-    return DragTarget<GermanWordType>(
+    return Semantics(
+      label: 'Ablagebereich: $label',
+      child: DragTarget<GermanWordType>(
       builder: (context, candidateData, rejectedData) {
         final bool isHighlighted = candidateData.isNotEmpty;
         return AnimatedContainer(
@@ -1026,6 +1049,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       onAcceptWithDetails: (details) {
         _handleDrop(details.data, targetType);
       },
+      ),
     );
   }
 
