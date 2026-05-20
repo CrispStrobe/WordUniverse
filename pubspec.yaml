@@ -1,7 +1,7 @@
 name: WortUniversum
 description: An orthography and grammar learning app, from primary/elementary school kids onwards
 publish_to: 'none'
-version: 1.0.3
+version: 1.1.0
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -38,6 +38,7 @@ dependencies:
   intl: ^0.20.2
   equatable: ^2.0.5
   uuid: ^4.1.0
+  package_info_plus: ^8.0.0
   csv: ^5.0.2
   http: ^1.2.1
   sqlite3: ^2.1.0
