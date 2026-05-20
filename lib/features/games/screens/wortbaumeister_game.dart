@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
@@ -432,6 +433,7 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
   void _handleCorrectAnswer() {
     _successController.forward().then((_) => _successController.reset());
     _audioService.playSound('success');
+    HapticFeedback.lightImpact();
 
     _combo++;
     if (_combo > _maxCombo) _maxCombo = _combo;
@@ -468,6 +470,7 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
   void _handleIncorrectAnswer() {
     _errorController.forward().then((_) => _errorController.reset());
     _audioService.playSound('failure');
+    HapticFeedback.heavyImpact();
 
     setState(() {
       _combo = 0;
@@ -501,6 +504,7 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
     });
 
     _audioService.playSound('failure');
+    HapticFeedback.heavyImpact();
 
     Future.delayed(const Duration(milliseconds: 1500), () {
       if (mounted) _showNextChallenge();
@@ -598,51 +602,76 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
       ),
       child: Row(
         children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
-            onPressed: () {
-              _fallingController.stop();
-              Navigator.of(context).pop();
-            },
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+          Semantics(
+            label: 'Zurück',
+            button: true,
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
+              onPressed: () {
+                _fallingController.stop();
+                Navigator.of(context).pop();
+              },
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            ),
           ),
           const SizedBox(width: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: SpaceTheme.nebulaPurple.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: SpaceTheme.nebulaPurple.withValues(alpha: 0.5)),
-            ),
-            child: Text(
-              s.gameLvlBadge(_level),
-              style: SpaceTheme.bodyStyle.copyWith(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: SpaceTheme.nebulaPurple,
+          Semantics(
+            label: 'Stufe $_level',
+            container: true,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: SpaceTheme.nebulaPurple.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: SpaceTheme.nebulaPurple.withValues(alpha: 0.5)),
+              ),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  s.gameLvlBadge(_level),
+                  style: SpaceTheme.bodyStyle.copyWith(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: SpaceTheme.nebulaPurple,
+                  ),
+                ),
               ),
             ),
           ),
           const SizedBox(width: 8),
-          _buildCompactStat(Icons.stars, '$_score', SpaceTheme.starYellow),
+          Semantics(
+            label: 'Punkte: $_score',
+            liveRegion: true,
+            child: _buildCompactStat(Icons.stars, '$_score', SpaceTheme.starYellow),
+          ),
           const SizedBox(width: 8),
-          _buildCompactStat(Icons.check_circle_outline, '$_itemsCompleted/$_totalItems', SpaceTheme.cosmicPink),
+          Semantics(
+            label: 'Fortschritt: $_itemsCompleted von $_totalItems',
+            liveRegion: true,
+            child: _buildCompactStat(Icons.check_circle_outline, '$_itemsCompleted/$_totalItems', SpaceTheme.cosmicPink),
+          ),
           const Spacer(),
           if (_combo > 1)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: SpaceTheme.planetOrange.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: SpaceTheme.planetOrange),
-              ),
-              child: Text(
-                s.gameCombo(_combo),
-                style: SpaceTheme.bodyStyle.copyWith(
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                  color: SpaceTheme.planetOrange,
+            Semantics(
+              label: 'Kombo mal $_combo',
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: SpaceTheme.planetOrange.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: SpaceTheme.planetOrange),
+                ),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    s.gameCombo(_combo),
+                    style: SpaceTheme.bodyStyle.copyWith(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: SpaceTheme.planetOrange,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -664,12 +693,15 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
         children: [
           Icon(icon, color: color, size: 16),
           const SizedBox(width: 4),
-          Text(
-            value,
-            style: SpaceTheme.bodyStyle.copyWith(
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
-              color: color,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              value,
+              style: SpaceTheme.bodyStyle.copyWith(
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
             ),
           ),
         ],
@@ -683,9 +715,12 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
         const SizedBox(height: 20),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Text(
-            _currentMode == GameMode.trennbareVerben ? s.verbtrennerSeparableTitle : s.verbtrennerCompoundTitle,
-            style: SpaceTheme.headlineStyle.copyWith(fontSize: 18),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              _currentMode == GameMode.trennbareVerben ? s.verbtrennerSeparableTitle : s.verbtrennerCompoundTitle,
+              style: SpaceTheme.headlineStyle.copyWith(fontSize: 18),
+            ),
           ),
         ),
         const SizedBox(height: 20),
@@ -807,13 +842,34 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
                   if (_feedbackMessage.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(top: 8),
-                      child: Text(
-                        _feedbackMessage,
-                        style: TextStyle(
-                          color: _feedbackState == FeedbackState.correct
-                              ? SpaceTheme.alienGreen
-                              : SpaceTheme.rocketRed,
-                          fontWeight: FontWeight.bold,
+                      child: Semantics(
+                        liveRegion: true,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              _feedbackState == FeedbackState.correct
+                                  ? Icons.check_circle
+                                  : Icons.cancel,
+                              size: 18,
+                              color: _feedbackState == FeedbackState.correct
+                                  ? SpaceTheme.alienGreen
+                                  : SpaceTheme.rocketRed,
+                            ),
+                            const SizedBox(width: 6),
+                            Flexible(
+                              child: Text(
+                                _feedbackMessage,
+                                style: TextStyle(
+                                  color: _feedbackState == FeedbackState.correct
+                                      ? SpaceTheme.alienGreen
+                                      : SpaceTheme.rocketRed,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -902,50 +958,61 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
     required Color color,
     required VoidCallback onTap,
   }) {
-    return GestureDetector(
-      onTap: _feedbackState == FeedbackState.none ? onTap : null,
-      child: AnimatedOpacity(
-        opacity: _feedbackState == FeedbackState.none ? 1.0 : 0.5,
-        duration: const Duration(milliseconds: 200),
-        child: Container(
-          height: 120,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [color, color.withValues(alpha: 0.7)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+    return Semantics(
+      label: '$label, $subtitle',
+      button: true,
+      enabled: _feedbackState == FeedbackState.none,
+      child: GestureDetector(
+        onTap: _feedbackState == FeedbackState.none ? onTap : null,
+        child: AnimatedOpacity(
+          opacity: _feedbackState == FeedbackState.none ? 1.0 : 0.5,
+          duration: const Duration(milliseconds: 200),
+          child: Container(
+            height: 120,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [color, color.withValues(alpha: 0.7)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 2),
+              boxShadow: [
+                BoxShadow(
+                  color: color.withValues(alpha: 0.4),
+                  blurRadius: 15,
+                  spreadRadius: 2,
+                ),
+              ],
             ),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 2),
-            boxShadow: [
-              BoxShadow(
-                color: color.withValues(alpha: 0.4),
-                blurRadius: 15,
-                spreadRadius: 2,
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: 36, color: Colors.white),
-              const SizedBox(height: 8),
-              Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, size: 36, color: Colors.white),
+                const SizedBox(height: 8),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    label,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
-              ),
-              Text(
-                subtitle,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.white.withValues(alpha: 0.8),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.white.withValues(alpha: 0.8),
+                    ),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
