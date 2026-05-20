@@ -12,7 +12,9 @@ import '../../../core/services/sri_service.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/theme/space_theme.dart';
 import '../../../core/models/skill_category.dart';
+import '../services/space_word_rescue_hints.dart';
 import '../widgets/space_background.dart';
+import '../widgets/space_word_rescue_widgets.dart';
 import '../../../generated/l10n.dart';
 import '../providers/game_provider.dart';
 import '../models/game_outcome.dart';
@@ -27,28 +29,6 @@ class SpaceWordRescueGame extends StatefulWidget {
 
   @override
   State<SpaceWordRescueGame> createState() => _SpaceWordRescueGameState();
-}
-
-enum AnswerResultType {
-  perfect,
-  commonMistake,
-  incorrect
-}
-
-class WordParticle {
-  Offset position;
-  Offset velocity;
-  Color color;
-  double size;
-  double life;
-
-  WordParticle({
-    required this.position,
-    required this.velocity,
-    required this.color,
-    required this.size,
-    this.life = 1.0,
-  });
 }
 
 class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
@@ -324,114 +304,6 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
     }
   }
 
-  String _generateEducationalHint(GermanWord word, {
-    bool isPerfect = false,
-    bool isCommonMistake = false,
-    bool isIncorrect = false
-  }) {
-    final List<String> hints = [];
-    late S s;
-    try {
-      s = S.of(context)!;
-    } catch (e) {
-      return '';
-    }
-
-    if (isPerfect) {
-      switch (word.wordType) {
-        case GermanWordType.substantiv:
-          if (word.article != null) {
-            hints.add('✓ ${word.article} ${word.word}');
-          }
-          if (word.plural != null && word.plural!.isNotEmpty && word.plural != '-') {
-            hints.add('Plural: ${word.plural}');
-          }
-          if (word.genus != null) {
-            hints.add('Genus: ${word.genus}');
-          }
-          break;
-        case GermanWordType.verb:
-            hints.add('Verb (Tun-Wort)');
-            String? ichForm;
-            String? duForm;
-            String? erForm;
-
-            if (word.inflectionData != null) {
-              try {
-                final conjugations = word.inflectionData!['analyses']?['verb']?['conjugation']?['Präsens'] as Map<String, dynamic>?;
-                if (conjugations != null) {
-                  ichForm = conjugations['ich'] as String?;
-                  duForm = conjugations['du'] as String?;
-                  erForm = conjugations['er/sie/es'] as String?;
-                }
-              } catch (e) {
-                debugPrint('Error parsing verb inflectionData for ${word.word}: $e');
-              }
-            }
-
-            if (ichForm != null && duForm != null && erForm != null) {
-              hints.add('z.B. ich $ichForm, du $duForm, er $erForm');
-            }
-            else if (word.forms != null && word.forms!.isNotEmpty) {
-              hints.add('Formen: ${word.forms}');
-            }
-            break;
-        case GermanWordType.adjektiv:
-          hints.add('Adjektiv (Wie-Wort)');
-          String? komparativ;
-          String? superlativ;
-
-          if (word.inflectionData != null) {
-            try {
-              final comparison = word.inflectionData!['analyses']?['adjektiv']?['comparison'] as Map<String, dynamic>?;
-              if (comparison != null) {
-                komparativ = comparison['Komparativ'] as String?;
-                superlativ = comparison['Superlativ'] as String?;
-              }
-            } catch (e) {
-                debugPrint('Error parsing adj inflectionData for ${word.word}: $e');
-            }
-          }
-          
-          if (komparativ != null && superlativ != null) {
-            hints.add('Steigerung: $komparativ, $superlativ');
-          }
-          else if (word.forms != null && word.forms!.isNotEmpty) {
-            hints.add('Steigerung: ${word.forms}');
-          }
-          break;
-        default:
-          break;
-      }
-    } else if (isCommonMistake) {
-      hints.add('Häufiger Fehler! Merke dir: ${word.word}');
-      if (word.graphematicVariants.isNotEmpty) {
-        hints.add('Richtige Schreibweise: ${word.word}');
-      }
-    } else if (isIncorrect) {
-      hints.add('Lerne: ${word.displayName}');
-      final typeMap = {
-        GermanWordType.substantiv: 'Nomen',
-        GermanWordType.verb: 'Verb',
-        GermanWordType.adjektiv: 'Adjektiv',
-      };
-      final type = typeMap[word.wordType];
-      if (type != null) {
-        hints.add(type);
-      }
-    }
-
-    if (word.exampleSentences.isNotEmpty && hints.length < 2) {
-      hints.add('Beispiel: ${word.exampleSentences.first}');
-    }
-    
-    if (hints.isEmpty && isPerfect) {
-      hints.add('✓ ${s.gameplayCorrect}!');
-    }
-
-    return hints.join(' • ');
-  }
-
   void _wordLost() {
     if (_isAnswerChecked) return;
     
@@ -444,7 +316,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
       _wordsLost++;
       _feedbackMessage = s.wordRescueFeedbackLost;
       _answerResult = AnswerResultType.incorrect;
-      _educationalHint = _generateEducationalHint(_currentWord!, isIncorrect: true);
+      _educationalHint = generateEducationalHint(context, _currentWord!, isIncorrect: true);
       _currentStreak = 0;
     });
     
@@ -587,7 +459,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
     if (userInput == correctDisplayName) {
         _answerResult = AnswerResultType.perfect;
         _feedbackMessage = s.gameplayCorrect;
-        _educationalHint = _generateEducationalHint(_currentWord!, isPerfect: true);
+        _educationalHint = generateEducationalHint(context, _currentWord!, isPerfect: true);
         wasCorrectForSRI = true;
         
         scoreGained = 10 - (_hintsUsed * 2);
@@ -610,7 +482,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
           .any((v) => v.spelling.toLowerCase() == userWordPart)) {
         _answerResult = AnswerResultType.commonMistake;
         _feedbackMessage = s.gameplayFeedbackCommonMistake(_currentWord!.displayName);
-        _educationalHint = _generateEducationalHint(_currentWord!, isCommonMistake: true);
+        _educationalHint = generateEducationalHint(context, _currentWord!, isCommonMistake: true);
         wasCorrectForSRI = true;
 
         scoreGained = 5 - (_hintsUsed * 1);
@@ -620,7 +492,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
       } else {
         _answerResult = AnswerResultType.incorrect;
         _feedbackMessage = s.gameplayFeedbackIncorrect(_currentWord!.displayName);
-        _educationalHint = _generateEducationalHint(_currentWord!, isIncorrect: true);
+        _educationalHint = generateEducationalHint(context, _currentWord!, isIncorrect: true);
         wasCorrectForSRI = false;
         scoreGained = 0;
         
@@ -1532,92 +1404,6 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
                 textAlign: TextAlign.center,
               ),
             ]
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class ParticlePainter extends CustomPainter {
-  final List<WordParticle> particles;
-  
-  ParticlePainter(this.particles);
-  
-  @override
-  void paint(Canvas canvas, Size size) {
-    for (var particle in particles) {
-      final paint = Paint()
-        ..color = particle.color.withValues(alpha: particle.life)
-        ..style = PaintingStyle.fill;
-      
-      canvas.drawCircle(
-        particle.position,
-        particle.size * particle.life,
-        paint,
-      );
-    }
-  }
-  
-  @override
-  bool shouldRepaint(ParticlePainter oldDelegate) => true;
-}
-
-class SpaceWordRescueCard extends StatelessWidget {
-  final VoidCallback onTap;
-
-  const SpaceWordRescueCard({
-    Key? key,
-    required this.onTap,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final s = S.of(context)!;
-    
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              SpaceTheme.planetOrange.withValues(alpha: 0.8),
-              SpaceTheme.cosmicPink.withValues(alpha: 0.8),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: SpaceTheme.planetOrange.withValues(alpha: 0.3),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.rocket_launch,
-              size: 48,
-              color: Colors.white,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              s.wordRescueTitle,
-              style: SpaceTheme.titleStyle,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              s.wordRescueCardDescription,
-              style: SpaceTheme.bodyStyle.copyWith(fontSize: 12),
-              textAlign: TextAlign.center,
-            ),
           ],
         ),
       ),
