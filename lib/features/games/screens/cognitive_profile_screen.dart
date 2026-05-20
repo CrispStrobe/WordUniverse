@@ -9,12 +9,14 @@ import 'package:provider/provider.dart';
 import '../../../core/models/skill_category.dart';
 import '../../../core/services/cognitive_profile_service.dart';
 import '../../../core/theme/space_theme.dart';
+import '../../../generated/l10n.dart';
 
 class CognitiveProfileScreen extends StatelessWidget {
   const CognitiveProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final profile = context.watch<CognitiveProfileService>();
     final snapshot = profile.snapshot;
     final totalAttempts = profile.totalAttempts;
@@ -28,18 +30,18 @@ class CognitiveProfileScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: SpaceTheme.deepSpace,
       appBar: AppBar(
-        title: const Text('Lernprofil'),
+        title: Text(s.cognitiveProfileTitle),
         backgroundColor: SpaceTheme.deepSpace,
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           if (totalAttempts == 0)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 48),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 48),
               child: Center(
                 child: Text(
-                  'Spiele ein paar Runden, um dein Profil aufzubauen.',
+                  s.cognitiveProfileEmpty,
                   textAlign: TextAlign.center,
                   style: SpaceTheme.bodyStyle,
                 ),
@@ -47,14 +49,14 @@ class CognitiveProfileScreen extends StatelessWidget {
             )
           else ...[
             Text(
-              '$totalAttempts Versuche in ${snapshot.length} Skill-Bereich${snapshot.length == 1 ? '' : 'en'}',
+              s.cognitiveProfileAttempts(totalAttempts, snapshot.length),
               style: SpaceTheme.bodyStyle
                   .copyWith(fontSize: 13, color: Colors.white70),
             ),
             const SizedBox(height: 16),
             for (final cat in byCategory.entries) ...[
               Text(
-                _categoryLabel(cat.key),
+                _categoryLabel(s, cat.key),
                 style: SpaceTheme.titleStyle.copyWith(fontSize: 18),
               ),
               const SizedBox(height: 8),
@@ -68,18 +70,18 @@ class CognitiveProfileScreen extends StatelessWidget {
     );
   }
 
-  String _categoryLabel(LanguageCategory c) {
+  String _categoryLabel(S s, LanguageCategory c) {
     switch (c) {
       case LanguageCategory.rechtschreibung:
-        return 'Rechtschreibung';
+        return s.categorySpelling;
       case LanguageCategory.grammatik:
-        return 'Grammatik';
+        return s.categoryGrammar;
       case LanguageCategory.wortschatz:
-        return 'Wortschatz';
+        return s.categoryVocabulary;
       case LanguageCategory.textverstaendnis:
-        return 'Textverständnis';
+        return s.categoryTextComprehension;
       case LanguageCategory.ausdruck:
-        return 'Ausdruck';
+        return s.categoryExpression;
     }
   }
 }
