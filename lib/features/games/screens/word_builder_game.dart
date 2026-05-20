@@ -805,7 +805,6 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
           // Score
           Semantics(
             label: 'Punkte: $_score',
-            liveRegion: true,
             child: _buildCompactStat(Icons.stars, _score.toString(), SpaceTheme.starYellow),
           ),
 
@@ -814,16 +813,14 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
           // Words
           Semantics(
             label: 'Wörter: $_wordsCompleted von $_totalWords',
-            liveRegion: true,
             child: _buildCompactStat(Icons.spellcheck, '$_wordsCompleted/$_totalWords', SpaceTheme.cosmicPink),
           ),
 
           const Spacer(),
 
-          // Time
+          // Time (no liveRegion: ticks every second, would spam screen readers).
           Semantics(
             label: 'Zeit: $_secondsRemaining Sekunden',
-            liveRegion: true,
             child: _buildCompactStat(Icons.timer, '${_secondsRemaining}s', timeColor),
           ),
         ],

@@ -866,25 +866,22 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
               children: [
                 Semantics(
                   label: 'Punkte: $_score',
-                  liveRegion: true,
                   child: _buildStatCompact(Icons.star_rounded, '$_score', SpaceTheme.starYellow),
                 ),
                 _buildVerticalDivider(),
                 Semantics(
                   label: 'Runde: $_round von $_totalRounds',
-                  liveRegion: true,
                   child: _buildStatCompact(Icons.replay_rounded, '$_round/$_totalRounds', SpaceTheme.cosmicPink),
                 ),
                 _buildVerticalDivider(),
                 Semantics(
                   label: 'Serie: $_streak',
-                  liveRegion: true,
                   child: _buildStatCompact(Icons.local_fire_department_rounded, '$_streak', Colors.orange),
                 ),
                 _buildVerticalDivider(),
+                // Time (no liveRegion: ticks every second).
                 Semantics(
                   label: 'Zeit: $_roundTimeRemaining Sekunden',
-                  liveRegion: true,
                   child: _buildStatCompact(Icons.timer_rounded, '${_roundTimeRemaining}s', timeColor),
                 ),
               ],

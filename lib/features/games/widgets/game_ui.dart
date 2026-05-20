@@ -120,12 +120,13 @@ class GameUI extends StatelessWidget {
           },
         ),
 
-        // Time (if provided)
+        // Time (if provided). Not a liveRegion: it ticks every second and
+        // would re-announce continuously on VoiceOver/TalkBack. Screen-reader
+        // users can swipe to it on demand.
         if (timeLeft != null) ...[
           SizedBox(width: isCompact ? 8 : 12),
           Semantics(
             label: 'Verbleibende Zeit: ${_formatTime(timeLeft!)}',
-            liveRegion: true,
             child: _buildStatItem(
               icon: Icons.timer,
               label: isCompact ? '' : 'Time', // Hide label if compact
