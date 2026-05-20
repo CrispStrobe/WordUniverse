@@ -94,22 +94,35 @@ Skipped by user — leave the orphan in place.
 
 ## Tier 3 — Accessibility (high stakes for a kids' app)
 
-### [ ] 7. Replace color-only feedback
-Many games flash red/green for wrong/right. ~8% of boys have color
-blindness. Add shape / icon / haptic to every win/fail state.
+### [x] 7. Replace color-only feedback
+Swept all 11 game screens. Each correct/wrong outcome now pairs the
+existing color with at least one of: ✓/✗ icon overlay, thicker border,
+`HapticFeedback.lightImpact/heavyImpact`, and (since voc has real
+audio) `_audioService.playSound('success'/'failure')`. Colors
+unchanged.
 
-### [ ] 8. Add `Semantics` annotations
-Screen readers currently can't describe game state. Math apps in
-particular are near-unusable for low-vision learners. Label every
-interactive element.
+### [x] 8. Add `Semantics` annotations
+Went from 0 → 77 Semantics calls across the 11 games + shared
+`widgets/game_ui.dart`. Wrapped tappable words, draggables, drop
+targets, cards, and game-area gesture detectors. Score/level/combo
+chips and feedback regions marked `liveRegion: true`. Labels are
+inline German per the project's German-first convention (matches
+PLAN.md #15 — English ARB is for "surface chrome" only).
 
-### [ ] 9. Respect OS text scaling
-Fixed `fontSize: 12` (and similar) doesn't scale. Use
-`MediaQuery.textScaler` or `Theme.of(context).textTheme` consistently.
+### [x] 9. Respect OS text scaling
+Added `FittedBox(fit: BoxFit.scaleDown, ...)` to fixed-size top-bar
+badges, score numerals, titles, and choice-button labels across all
+11 games plus shared `game_ui.dart`. Existing `fontSize:` values
+inside FittedBox kept as upper-cap (intentional).
 
-### [ ] 10. Touch targets ≥ 48dp
-Some games (dial gestures in cryptex, falling-tile choice buttons)
-have undersized hit areas.
+### [x] 10. Touch targets ≥ 48dp
+Falling-tile choice buttons in the 4 template games (`grossschreib`,
+`grossstadt`, `verbtrenner`, `wortbaumeister`) were already ≥120dp
+tall. Letter tiles in `word_builder` are 50×60. Only one undersized
+clickable got lifted: the tappable target word in `grossschreib`
+now uses `ConstrainedBox(minWidth: 48, minHeight: 48)` +
+`HitTestBehavior.translucent`. Top-bar IconButtons stayed at 32dp
+in 5 games (widening would push elements off narrow phones).
 
 ---
 
