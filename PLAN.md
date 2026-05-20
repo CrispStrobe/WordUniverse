@@ -136,13 +136,16 @@ CognitiveProfileService, SriService, GameOutcome.
 
 ## Tier 5 — Internationalization
 
-### [/] 15. voc: consolidate l10n
-Picked direction: voc is a German-learning app and stays
-German-first, with English ARB kept for surface chrome (existing 200+
-keys still work). Added `difficultyEasy/Normal/Challenge` and
-`streakLabel` ARB entries (with English plural format) for the new
-picker. The ~90 hardcoded German literals scattered through game
-files are being audited / lifted by a subagent in a follow-up pass.
+### [x] 15. voc: consolidate l10n
+Picked direction: voc is German-first, English ARB kept for surface
+chrome (existing 200+ keys, plus 70 new ones for the polish work
+above). The agent-driven cleanup pass lifted ~68 user-visible German
+literals across 8 game/UI files into ARB with real English
+translations and ICU plurals where needed. Intentionally left inline:
+pedagogical content (grammar rule explanations, German example
+sentences the games generate), Wiktionary inflection tag strings,
+debug-only output. Final state: `flutter analyze` clean, all 3
+contract tests passing.
 
 ---
 
