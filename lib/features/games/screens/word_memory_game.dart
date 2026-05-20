@@ -682,7 +682,7 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
                         )
                       : Stack(
                           children: [
-                            Positioned.fill(child: CustomPaint(painter: _CardBackPainter(animation: _flipController.view))),
+                            Positioned.fill(child: ExcludeSemantics(child: CustomPaint(painter: _CardBackPainter(animation: _flipController.view)))),
                             Center(child: Icon(Icons.psychology, size: size * 0.4, color: SpaceTheme.cosmicPink.withValues(alpha: 0.8))),
                           ],
                         ),

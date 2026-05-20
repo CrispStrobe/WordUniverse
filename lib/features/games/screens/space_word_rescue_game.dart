@@ -714,9 +714,11 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
           child: Stack(
             children: [
               if (_particles.isNotEmpty)
-                CustomPaint(
-                  painter: ParticlePainter(_particles),
-                  size: Size.infinite,
+                ExcludeSemantics(
+                  child: CustomPaint(
+                    painter: ParticlePainter(_particles),
+                    size: Size.infinite,
+                  ),
                 ),
               
               SafeArea(
