@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/services/audio_service.dart';
@@ -366,6 +367,7 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
 
   void _onCorrectWord() {
     _audioService.playSound('success');
+    HapticFeedback.lightImpact();
     
     setState(() {
       _feedbackState = FeedbackState.correct;
@@ -418,6 +420,7 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
 
   void _onIncorrectWord() {
     _audioService.playSound('failure');
+    HapticFeedback.heavyImpact();
     
     setState(() {
       _feedbackState = FeedbackState.incorrect;
@@ -680,116 +683,149 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
       child: Row(
         children: [
           // Back button
-          IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
-            onPressed: () {
-              _gameTimer?.cancel();
-              Navigator.of(context).pop();
-            },
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+          Semantics(
+            label: 'Zurück',
+            button: true,
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
+              onPressed: () {
+                _gameTimer?.cancel();
+                Navigator.of(context).pop();
+              },
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            ),
           ),
           
           const SizedBox(width: 8),
           
           // Hint button (icon only)
-          IconButton(
-            icon: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Icon(
-                  Icons.lightbulb_outline,
-                  color: (_feedbackState == FeedbackState.correct || _showHint)
-                      ? Colors.grey
-                      : SpaceTheme.starYellow,
-                  size: 24,
-                ),
-                if (_hintsUsed > 0)
-                  Positioned(
-                    right: -4,
-                    top: -4,
-                    child: Container(
-                      padding: const EdgeInsets.all(2),
-                      decoration: const BoxDecoration(
-                        color: SpaceTheme.rocketRed,
-                        shape: BoxShape.circle,
-                      ),
-                      constraints: const BoxConstraints(
-                        minWidth: 16,
-                        minHeight: 16,
-                      ),
-                      child: Text(
-                        '$_hintsUsed',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
+          Semantics(
+            label: '${s.wordBuilderHint} ($_hintsUsed verwendet)',
+            button: true,
+            enabled: !(_feedbackState == FeedbackState.correct || _showHint),
+            child: IconButton(
+              icon: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Icon(
+                    Icons.lightbulb_outline,
+                    color: (_feedbackState == FeedbackState.correct || _showHint)
+                        ? Colors.grey
+                        : SpaceTheme.starYellow,
+                    size: 24,
+                  ),
+                  if (_hintsUsed > 0)
+                    Positioned(
+                      right: -4,
+                      top: -4,
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: const BoxDecoration(
+                          color: SpaceTheme.rocketRed,
+                          shape: BoxShape.circle,
                         ),
-                        textAlign: TextAlign.center,
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
+                        child: Text(
+                          '$_hintsUsed',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                     ),
-                  ),
-              ],
+                ],
+              ),
+              onPressed: (_feedbackState == FeedbackState.correct || _showHint)
+                  ? null
+                  : _useHint,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+              tooltip: '${s.wordBuilderHint} (-10)',
             ),
-            onPressed: (_feedbackState == FeedbackState.correct || _showHint)
-                ? null
-                : _useHint,
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-            tooltip: '${s.wordBuilderHint} (-10)',
           ),
-          
+
           const SizedBox(width: 4),
-          
+
           // Skip button (icon only)
-          IconButton(
-            icon: Icon(
-              Icons.skip_next,
-              color: _feedbackState == FeedbackState.correct
-                  ? Colors.grey
-                  : SpaceTheme.rocketRed,
-              size: 24,
+          Semantics(
+            label: s.wordBuilderSkip,
+            button: true,
+            enabled: _feedbackState != FeedbackState.correct,
+            child: IconButton(
+              icon: Icon(
+                Icons.skip_next,
+                color: _feedbackState == FeedbackState.correct
+                    ? Colors.grey
+                    : SpaceTheme.rocketRed,
+                size: 24,
+              ),
+              onPressed: _feedbackState == FeedbackState.correct ? null : _skipWord,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+              tooltip: s.wordBuilderSkip,
             ),
-            onPressed: _feedbackState == FeedbackState.correct ? null : _skipWord,
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-            tooltip: s.wordBuilderSkip,
           ),
           
           const SizedBox(width: 12),
           
           // Level
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: SpaceTheme.nebulaPurple.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: SpaceTheme.nebulaPurple.withValues(alpha: 0.5)),
-            ),
-            child: Text(
-              'Lvl ${widget.gradeLevel.index + 1}',
-              style: SpaceTheme.bodyStyle.copyWith(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: SpaceTheme.nebulaPurple,
+          Semantics(
+            label: 'Stufe ${widget.gradeLevel.index + 1}',
+            container: true,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: SpaceTheme.nebulaPurple.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: SpaceTheme.nebulaPurple.withValues(alpha: 0.5)),
+              ),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  'Lvl ${widget.gradeLevel.index + 1}',
+                  style: SpaceTheme.bodyStyle.copyWith(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: SpaceTheme.nebulaPurple,
+                  ),
+                ),
               ),
             ),
           ),
-          
+
           const SizedBox(width: 8),
-          
+
           // Score
-          _buildCompactStat(Icons.stars, _score.toString(), SpaceTheme.starYellow),
-          
+          Semantics(
+            label: 'Punkte: $_score',
+            liveRegion: true,
+            child: _buildCompactStat(Icons.stars, _score.toString(), SpaceTheme.starYellow),
+          ),
+
           const SizedBox(width: 8),
-          
+
           // Words
-          _buildCompactStat(Icons.spellcheck, '$_wordsCompleted/$_totalWords', SpaceTheme.cosmicPink),
-          
+          Semantics(
+            label: 'Wörter: $_wordsCompleted von $_totalWords',
+            liveRegion: true,
+            child: _buildCompactStat(Icons.spellcheck, '$_wordsCompleted/$_totalWords', SpaceTheme.cosmicPink),
+          ),
+
           const Spacer(),
-          
+
           // Time
-          _buildCompactStat(Icons.timer, '${_secondsRemaining}s', timeColor),
+          Semantics(
+            label: 'Zeit: $_secondsRemaining Sekunden',
+            liveRegion: true,
+            child: _buildCompactStat(Icons.timer, '${_secondsRemaining}s', timeColor),
+          ),
         ],
       ),
     );
@@ -808,12 +844,15 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
         children: [
           Icon(icon, color: color, size: 16),
           const SizedBox(width: 4),
-          Text(
-            value,
-            style: SpaceTheme.bodyStyle.copyWith(
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
-              color: color,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              value,
+              style: SpaceTheme.bodyStyle.copyWith(
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
             ),
           ),
         ],
@@ -866,12 +905,30 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
                     : (_feedbackState == FeedbackState.incorrect
                         ? SpaceTheme.rocketRed
                         : SpaceTheme.nebulaPurple),
-                width: 2,
+                // Border style changes give a shape signal alongside color.
+                width: _feedbackState == FeedbackState.incorrect ? 4 : 2,
               ),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                // ✓/✗ shape signal alongside the color-coded border.
+                if (_feedbackState != FeedbackState.none)
+                  Semantics(
+                    liveRegion: true,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 6),
+                      child: Icon(
+                        _feedbackState == FeedbackState.correct
+                            ? Icons.check_circle
+                            : Icons.cancel,
+                        color: _feedbackState == FeedbackState.correct
+                            ? SpaceTheme.alienGreen
+                            : SpaceTheme.rocketRed,
+                        size: 24,
+                      ),
+                    ),
+                  ),
                 // Hint text (faded word)
                 if (_showHint)
                   AnimatedBuilder(
@@ -1016,27 +1073,31 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
   }
 
   Widget _buildDraggableTile(LetterTile tile, String selectedFontFamily) {
-    return Draggable<LetterTile>(
-      data: tile,
-      feedback: Material(
-        color: Colors.transparent,
-        child: Opacity(
-          opacity: 0.8,
-          child: _buildTileWidget(tile, selectedFontFamily, isDragging: true),
+    return Semantics(
+      label: 'Buchstabenkachel ${tile.letter}',
+      hint: 'Ziehe in den Wortbereich',
+      child: Draggable<LetterTile>(
+        data: tile,
+        feedback: Material(
+          color: Colors.transparent,
+          child: Opacity(
+            opacity: 0.8,
+            child: _buildTileWidget(tile, selectedFontFamily, isDragging: true),
+          ),
         ),
-      ),
-      childWhenDragging: Opacity(
-        opacity: 0.3,
+        childWhenDragging: Opacity(
+          opacity: 0.3,
+          child: _buildTileWidget(tile, selectedFontFamily),
+        ),
+        onDragStarted: () {
+          if (_feedbackState == FeedbackState.incorrect) {
+            setState(() {
+              _feedbackState = FeedbackState.none;
+            });
+          }
+        },
         child: _buildTileWidget(tile, selectedFontFamily),
       ),
-      onDragStarted: () {
-        if (_feedbackState == FeedbackState.incorrect) {
-          setState(() {
-            _feedbackState = FeedbackState.none;
-          });
-        }
-      },
-      child: _buildTileWidget(tile, selectedFontFamily),
     );
   }
 
