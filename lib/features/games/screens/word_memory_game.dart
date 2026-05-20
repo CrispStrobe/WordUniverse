@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/services/audio_service.dart';
@@ -254,6 +255,7 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
       });
 
       _audioService.playSound('success');
+      HapticFeedback.lightImpact();
       _matchController.forward(from: 0);
 
       _sriService.recordResponse(
@@ -269,6 +271,7 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
       }
     } else {
       _audioService.playSound('failure');
+      HapticFeedback.heavyImpact();
       await _shakeController.forward(from: 0);
       await Future.delayed(const Duration(milliseconds: 300));
       
@@ -402,20 +405,28 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
         child: Row(
           children: [
             // --- LEFT SECTION: Back & Level ---
-            IconButton(
-              icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
-              onPressed: () => Navigator.of(context).pop(),
-              padding: EdgeInsets.zero,
-              visualDensity: VisualDensity.compact,
-              constraints: const BoxConstraints(),
+            Semantics(
+              label: 'Zurück',
+              button: true,
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+                onPressed: () => Navigator.of(context).pop(),
+                padding: EdgeInsets.zero,
+                visualDensity: VisualDensity.compact,
+                constraints: const BoxConstraints(),
+              ),
             ),
             const SizedBox(width: 12),
-            _buildMiniBadge(
-              Icons.emoji_events_rounded, 
-              '${widget.gradeLevel.index + 1}', 
-              SpaceTheme.starYellow
+            Semantics(
+              label: 'Stufe ${widget.gradeLevel.index + 1}',
+              container: true,
+              child: _buildMiniBadge(
+                Icons.emoji_events_rounded,
+                '${widget.gradeLevel.index + 1}',
+                SpaceTheme.starYellow,
+              ),
             ),
-            
+
             const Spacer(), // Pushes center content to middle
 
             // --- CENTER SECTION: Game Stats (Points, Moves, Pairs) ---
@@ -435,13 +446,25 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       // Local Score (Current Game)
-                      _buildStatItem(Icons.star_rounded, '$_score', SpaceTheme.starYellow),
+                      Semantics(
+                        label: 'Punkte: $_score',
+                        liveRegion: true,
+                        child: _buildStatItem(Icons.star_rounded, '$_score', SpaceTheme.starYellow),
+                      ),
                       _buildVerticalDivider(),
                       // Moves
-                      _buildStatItem(Icons.touch_app_rounded, '$_moves', SpaceTheme.alienGreen),
+                      Semantics(
+                        label: 'Züge: $_moves',
+                        liveRegion: true,
+                        child: _buildStatItem(Icons.touch_app_rounded, '$_moves', SpaceTheme.alienGreen),
+                      ),
                       _buildVerticalDivider(),
                       // Pairs Found
-                      _buildStatItem(Icons.check_circle_rounded, '$_pairsFound/$_totalPairs', SpaceTheme.cosmicPink),
+                      Semantics(
+                        label: 'Paare: $_pairsFound von $_totalPairs',
+                        liveRegion: true,
+                        child: _buildStatItem(Icons.check_circle_rounded, '$_pairsFound/$_totalPairs', SpaceTheme.cosmicPink),
+                      ),
                     ],
                   ),
                 ),
@@ -451,10 +474,14 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
             const Spacer(), // Pushes right content to end
 
             // --- RIGHT SECTION: Global Gems ---
-            _buildMiniBadge(
-              Icons.diamond_rounded, 
-              '$totalGems', // Corrected from totalScore
-              Colors.cyanAccent
+            Semantics(
+              label: 'Gesamtsumme Edelsteine: $totalGems',
+              container: true,
+              child: _buildMiniBadge(
+                Icons.diamond_rounded,
+                '$totalGems', // Corrected from totalScore
+                Colors.cyanAccent,
+              ),
             ),
           ],
         ),
@@ -586,58 +613,83 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
           offset: Offset(shakeOffset, 0),
           child: Transform.scale(
             scale: scale,
-            child: GestureDetector(
-              onTap: () => _onCardTapped(card),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                width: size,
-                height: size,
-                decoration: BoxDecoration(
-                  gradient: isFlipped
-                      ? (card.isMatched
-                          ? LinearGradient(colors: [SpaceTheme.alienGreen, SpaceTheme.alienGreen.withValues(alpha: 0.7)])
-                          : LinearGradient(colors: [SpaceTheme.planetOrange, SpaceTheme.planetOrange.withValues(alpha: 0.7)]))
-                      : LinearGradient(colors: [SpaceTheme.deepSpace.withValues(alpha: 0.9), SpaceTheme.nebulaPurple.withValues(alpha: 0.7)]),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: card.isMatched
-                        ? SpaceTheme.alienGreen
-                        : (isSelected ? SpaceTheme.starYellow : SpaceTheme.nebulaPurple.withValues(alpha: 0.5)),
-                    width: card.isMatched || isSelected ? 3 : 2,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: (card.isMatched ? SpaceTheme.alienGreen : (isSelected ? SpaceTheme.starYellow : SpaceTheme.nebulaPurple))
-                          .withValues(alpha: card.isMatched || isSelected ? 0.6 : 0.2),
-                      blurRadius: card.isMatched || isSelected ? 15 : 8,
+            child: Semantics(
+              label: card.isMatched
+                  ? 'Karte ${card.word}, gefunden'
+                  : (isFlipped
+                      ? 'Karte ${card.word}, aufgedeckt'
+                      : 'Verdeckte Karte'),
+              button: true,
+              selected: isSelected,
+              child: GestureDetector(
+                onTap: () => _onCardTapped(card),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  width: size,
+                  height: size,
+                  decoration: BoxDecoration(
+                    gradient: isFlipped
+                        ? (card.isMatched
+                            ? LinearGradient(colors: [SpaceTheme.alienGreen, SpaceTheme.alienGreen.withValues(alpha: 0.7)])
+                            : LinearGradient(colors: [SpaceTheme.planetOrange, SpaceTheme.planetOrange.withValues(alpha: 0.7)]))
+                        : LinearGradient(colors: [SpaceTheme.deepSpace.withValues(alpha: 0.9), SpaceTheme.nebulaPurple.withValues(alpha: 0.7)]),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: card.isMatched
+                          ? SpaceTheme.alienGreen
+                          : (isSelected ? SpaceTheme.starYellow : SpaceTheme.nebulaPurple.withValues(alpha: 0.5)),
+                      width: card.isMatched || isSelected ? 3 : 2,
                     ),
-                  ],
-                ),
-                child: isFlipped
-                    ? Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(4.0),
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Text(
-                              card.word,
-                              style: TextStyle(
-                                fontFamily: card.fontFamily,
-                                fontSize: size * 0.3,
-                                fontWeight: FontWeight.bold,
-                                color: card.isMatched ? SpaceTheme.deepSpace : Colors.white,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ),
-                      )
-                    : Stack(
-                        children: [
-                          Positioned.fill(child: CustomPaint(painter: _CardBackPainter(animation: _flipController.view))),
-                          Center(child: Icon(Icons.psychology, size: size * 0.4, color: SpaceTheme.cosmicPink.withValues(alpha: 0.8))),
-                        ],
+                    boxShadow: [
+                      BoxShadow(
+                        color: (card.isMatched ? SpaceTheme.alienGreen : (isSelected ? SpaceTheme.starYellow : SpaceTheme.nebulaPurple))
+                            .withValues(alpha: card.isMatched || isSelected ? 0.6 : 0.2),
+                        blurRadius: card.isMatched || isSelected ? 15 : 8,
                       ),
+                    ],
+                  ),
+                  child: isFlipped
+                      ? Stack(
+                          children: [
+                            Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    card.word,
+                                    style: TextStyle(
+                                      fontFamily: card.fontFamily,
+                                      fontSize: size * 0.3,
+                                      fontWeight: FontWeight.bold,
+                                      color: card.isMatched ? SpaceTheme.deepSpace : Colors.white,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            // ✓ overlay on matched cards (alongside the
+                            // green color) for color-blind redundancy.
+                            if (card.isMatched)
+                              Positioned(
+                                top: 4,
+                                right: 4,
+                                child: Icon(
+                                  Icons.check_circle,
+                                  size: size * 0.22,
+                                  color: SpaceTheme.deepSpace,
+                                ),
+                              ),
+                          ],
+                        )
+                      : Stack(
+                          children: [
+                            Positioned.fill(child: CustomPaint(painter: _CardBackPainter(animation: _flipController.view))),
+                            Center(child: Icon(Icons.psychology, size: size * 0.4, color: SpaceTheme.cosmicPink.withValues(alpha: 0.8))),
+                          ],
+                        ),
+                ),
               ),
             ),
           ),
