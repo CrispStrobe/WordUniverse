@@ -146,10 +146,13 @@ remove the half-finished S calls.
 
 ## Tier 6 — DevOps
 
-### [ ] 16. Add basic CI
-A `.github/workflows/ci.yml` running `flutter analyze && flutter test`
-on every push would have prevented merging the `package.flutter/` typo
-and the 228-error Python-saved-as-Dart file. ~15 minutes to set up.
+### [x] 16. Add basic CI
+`.github/workflows/ci.yml` in both repos runs `flutter analyze
+--fatal-infos` + `flutter test` on push to main and PRs against main.
+Uses subosito/flutter-action@v2 pinned to Flutter 3.38.5 to match the
+local toolchain. Cache is enabled so warm runs are fast. The
+`--fatal-infos` flag locks in the "zero issues at any level" bar we
+just cleared.
 
 ### [ ] 17. Cap Gradle daemon heap
 `org.gradle.jvmargs=-Xmx2G -XX:MaxMetaspaceSize=512m` in
