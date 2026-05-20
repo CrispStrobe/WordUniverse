@@ -2,6 +2,7 @@
 // lib/features/games/screens/space_word_rescue_game.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'dart:math';
 import 'dart:async';
 import 'package:provider/provider.dart';
@@ -353,8 +354,9 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
     );
     
     _audioService.playSound('failure');
+    HapticFeedback.heavyImpact();
     _createExplosion();
-    
+
     Future.delayed(_transitionDelay, () {
       if (!mounted) return;
       _focusNode.requestFocus();
@@ -530,6 +532,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
       
       _gameProvider.addScore(scoreGained);
       _audioService.playSound('success');
+      HapticFeedback.lightImpact();
       _audioService.speak(_currentWord!.displayName);
       
       _createRescueEffect();
@@ -545,6 +548,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
       });
       
       _audioService.playSound('failure');
+      HapticFeedback.heavyImpact();
       _createExplosion();
       
       Future.delayed(_transitionDelay, () {
@@ -824,17 +828,37 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.white, size: 18),
-              onPressed: () => Navigator.of(context).pop(),
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
+            Semantics(
+              label: 'Zurück',
+              button: true,
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.white, size: 18),
+                onPressed: () => Navigator.of(context).pop(),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
             ),
-            _buildCompactStat(Icons.stars, '$_score', SpaceTheme.starYellow),
+            Semantics(
+              label: 'Punkte: $_score',
+              liveRegion: true,
+              child: _buildCompactStat(Icons.stars, '$_score', SpaceTheme.starYellow),
+            ),
             if (_currentStreak >= 2)
-              _buildCompactStat(Icons.local_fire_department, '$_currentStreak', SpaceTheme.planetOrange),
-            _buildCompactStat(Icons.check_circle, '$_wordsRescued/$_totalWords', SpaceTheme.alienGreen),
-            _buildCompactStat(Icons.military_tech, '${widget.gradeLevel.index + 1}', SpaceTheme.planetOrange),
+              Semantics(
+                label: 'Serie: $_currentStreak',
+                liveRegion: true,
+                child: _buildCompactStat(Icons.local_fire_department, '$_currentStreak', SpaceTheme.planetOrange),
+              ),
+            Semantics(
+              label: 'Gerettet: $_wordsRescued von $_totalWords',
+              liveRegion: true,
+              child: _buildCompactStat(Icons.check_circle, '$_wordsRescued/$_totalWords', SpaceTheme.alienGreen),
+            ),
+            Semantics(
+              label: 'Stufe ${widget.gradeLevel.index + 1}',
+              container: true,
+              child: _buildCompactStat(Icons.military_tech, '${widget.gradeLevel.index + 1}', SpaceTheme.planetOrange),
+            ),
           ],
         ),
       );
@@ -857,16 +881,23 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
         ),
         child: Row(
           children: [
-            IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
-              onPressed: () => Navigator.of(context).pop(),
-              tooltip: s.backToMenu,
-              padding: const EdgeInsets.all(8),
+            Semantics(
+              label: 'Zurück',
+              button: true,
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
+                onPressed: () => Navigator.of(context).pop(),
+                tooltip: s.backToMenu,
+                padding: const EdgeInsets.all(8),
+              ),
             ),
-            
-            Text(
-              s.wordRescueTitle,
-              style: SpaceTheme.titleStyle.copyWith(fontSize: 16),
+
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                s.wordRescueTitle,
+                style: SpaceTheme.titleStyle.copyWith(fontSize: 16),
+              ),
             ),
             
             const Spacer(),
@@ -932,12 +963,22 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
         children: [
           Row(
             children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
-                onPressed: () => Navigator.of(context).pop(),
-                tooltip: s.backToMenu,
+              Semantics(
+                label: 'Zurück',
+                button: true,
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
+                  onPressed: () => Navigator.of(context).pop(),
+                  tooltip: s.backToMenu,
+                ),
               ),
-              Text(s.wordRescueTitle, style: SpaceTheme.titleStyle.copyWith(fontSize: 18)),
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(s.wordRescueTitle, style: SpaceTheme.titleStyle.copyWith(fontSize: 18)),
+                ),
+              ),
               const Spacer(),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -1189,7 +1230,10 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
           Row(
             children: [
               Expanded(
-                child: TextField(
+                child: Semantics(
+                  label: 'Tippe das Wort hier ein',
+                  textField: true,
+                  child: TextField(
                   controller: _textController,
                   focusNode: _focusNode,
                   enabled: !_isAnswerChecked,
@@ -1254,45 +1298,54 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
                   autocorrect: false,
                   enableSuggestions: false,
                 ),
+                ),
               ),
-              
+
               if (!_isAnswerChecked) ...[
                 const SizedBox(width: 8),
-                
-                Material(
-                  color: SpaceTheme.starYellow,
-                  borderRadius: BorderRadius.circular(8),
-                  child: InkWell(
-                    onTap: _showProgressiveHint,
+
+                Semantics(
+                  label: 'Tipp anzeigen',
+                  button: true,
+                  child: Material(
+                    color: SpaceTheme.starYellow,
                     borderRadius: BorderRadius.circular(8),
-                    child: Container(
-                      padding: EdgeInsets.all(isCompact ? 8 : (isLandscapeLayout ? 10 : 12)),
-                      child: Icon(
-                        Icons.lightbulb_outline,
-                        color: SpaceTheme.deepSpace,
-                        size: isCompact ? 18 : (isLandscapeLayout ? 20 : 22),
+                    child: InkWell(
+                      onTap: _showProgressiveHint,
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: EdgeInsets.all(isCompact ? 8 : (isLandscapeLayout ? 10 : 12)),
+                        child: Icon(
+                          Icons.lightbulb_outline,
+                          color: SpaceTheme.deepSpace,
+                          size: isCompact ? 18 : (isLandscapeLayout ? 20 : 22),
+                        ),
                       ),
                     ),
                   ),
                 ),
-                
+
                 const SizedBox(width: 6),
-                
-                Material(
-                  color: SpaceTheme.cosmicPink,
-                  borderRadius: BorderRadius.circular(8),
-                  child: InkWell(
-                    onTap: () {
-                      _audioService.speak(_displayedWord);
-                      _focusNode.requestFocus();
-                    },
+
+                Semantics(
+                  label: 'Wort vorlesen',
+                  button: true,
+                  child: Material(
+                    color: SpaceTheme.cosmicPink,
                     borderRadius: BorderRadius.circular(8),
-                    child: Container(
-                      padding: EdgeInsets.all(isCompact ? 8 : (isLandscapeLayout ? 10 : 12)),
-                      child: Icon(
-                        Icons.volume_up,
-                        color: Colors.white,
-                        size: isCompact ? 18 : (isLandscapeLayout ? 20 : 22),
+                    child: InkWell(
+                      onTap: () {
+                        _audioService.speak(_displayedWord);
+                        _focusNode.requestFocus();
+                      },
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: EdgeInsets.all(isCompact ? 8 : (isLandscapeLayout ? 10 : 12)),
+                        child: Icon(
+                          Icons.volume_up,
+                          color: Colors.white,
+                          size: isCompact ? 18 : (isLandscapeLayout ? 20 : 22),
+                        ),
                       ),
                     ),
                   ),
