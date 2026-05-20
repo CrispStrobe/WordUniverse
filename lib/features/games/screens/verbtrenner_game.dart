@@ -546,9 +546,10 @@ class _VerbtrennerGameState extends State<VerbtrennerGame>
   }
 
   void _handleMiss() {
+    final s = S.of(context);
     setState(() {
       _feedbackState = FeedbackState.incorrect;
-      _feedbackMessage = 'Zu langsam!';
+      _feedbackMessage = s?.gameTooSlow ?? 'Zu langsam!';
       _combo = 0;
       _itemsCompleted++;
     });
@@ -665,7 +666,7 @@ class _VerbtrennerGameState extends State<VerbtrennerGame>
               border: Border.all(color: SpaceTheme.nebulaPurple.withValues(alpha: 0.5)),
             ),
             child: Text(
-              'Lvl $_level',
+              s.gameLvlBadge(_level),
               style: SpaceTheme.bodyStyle.copyWith(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
@@ -690,7 +691,7 @@ class _VerbtrennerGameState extends State<VerbtrennerGame>
                 border: Border.all(color: SpaceTheme.planetOrange),
               ),
               child: Text(
-                'Combo x$_combo',
+                s.gameCombo(_combo),
                 style: SpaceTheme.bodyStyle.copyWith(
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
@@ -736,7 +737,7 @@ class _VerbtrennerGameState extends State<VerbtrennerGame>
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Text(
-            'Trennbare Verben',
+            s.verbtrennerSeparableTitle,
             // FIX: headerStyle -> headlineStyle
             style: SpaceTheme.headlineStyle.copyWith(fontSize: 18),
           ),
@@ -1000,8 +1001,8 @@ class _VerbtrennerGameState extends State<VerbtrennerGame>
           Expanded(
             child: _buildChoiceButton(
               icon: Icons.link_off,
-              label: 'GETRENNT',
-              subtitle: '(stehe auf)',
+              label: s.verbtrennerSeparatedLabel,
+              subtitle: s.verbtrennerSeparatedExample,
               color: SpaceTheme.nebulaPurple,
               onTap: () => _handleChoice(true),
             ),
@@ -1010,8 +1011,8 @@ class _VerbtrennerGameState extends State<VerbtrennerGame>
           Expanded(
             child: _buildChoiceButton(
               icon: Icons.link,
-              label: 'ZUSAMMEN',
-              subtitle: '(aufstehen)',
+              label: s.verbtrennerTogetherLabel,
+              subtitle: s.verbtrennerTogetherExample,
               color: SpaceTheme.starYellow,
               onTap: () => _handleChoice(false),
             ),

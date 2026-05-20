@@ -613,5 +613,142 @@
     "@streakLabel": {
         "description": "Plural label for consecutive-day streak",
         "placeholders": { "count": { "type": "int" } }
-    }
+    },
+
+    "gameTooSlow": "Too slow!",
+    "@gameTooSlow": {
+        "description": "Feedback when a falling/timed item is missed"
+    },
+    "gameLevelLine": "Level: {level}",
+    "@gameLevelLine": {
+        "description": "Stat line shown in end-of-game dialog",
+        "placeholders": { "level": { "type": "int" } }
+    },
+    "gameMaxComboLine": "Max Combo: {combo}",
+    "@gameMaxComboLine": {
+        "description": "Stat line shown in end-of-game dialog",
+        "placeholders": { "combo": { "type": "int" } }
+    },
+    "gameCombo": "Combo x{combo}",
+    "@gameCombo": {
+        "placeholders": { "combo": { "type": "int" } }
+    },
+    "gameLvlBadge": "Lvl {level}",
+    "@gameLvlBadge": {
+        "placeholders": { "level": { "type": "int" } }
+    },
+
+    "verbtrennerSeparableTitle": "Separable Verbs",
+    "verbtrennerCompoundTitle": "Noun Compounds",
+    "verbtrennerSeparatedLabel": "SEPARATED",
+    "verbtrennerSeparatedExample": "(stehe auf)",
+    "verbtrennerTogetherLabel": "TOGETHER",
+    "verbtrennerTogetherExample": "(aufstehen)",
+    "wortbaumeisterSeparatedExample": "(e.g. stehe auf)",
+    "wortbaumeisterTogetherExample": "(e.g. aufstehen)",
+
+    "grossschreibTitle": "Capitalization Galaxy",
+    "grossschreibClickHint": "Tap the word!",
+    "grossschreibCheck": "CHECK",
+
+    "grossstadtTitle": "Upper or lower case?",
+    "grossstadtCapital": "UPPER",
+    "grossstadtLower": "lower",
+
+    "achievementsBannerProgress": "{unlocked} of {total} achievements unlocked",
+    "@achievementsBannerProgress": {
+        "placeholders": {
+            "unlocked": { "type": "int" },
+            "total": { "type": "int" }
+        }
+    },
+    "achievementTriangleWizardTitle": "Word-Snake Master",
+    "achievementTriangleWizardDesc": "Reach Level 3 in Word Snake.",
+    "achievementBubblePopperTitle": "Sorting Champion",
+    "achievementBubblePopperDesc": "Reach Level 3 in Word Sort.",
+    "achievementPuzzleSolverTitle": "Word Finder",
+    "achievementPuzzleSolverDesc": "Reach Level 3 in Word Find.",
+    "achievementNumberWallsProTitle": "Word Builder",
+    "achievementNumberWallsProDesc": "Reach Level 3 in Word Builder.",
+    "achievementCodebreakerProTitle": "Space Rescuer",
+    "achievementCodebreakerProDesc": "Reach Level 3 in Space Word Rescue.",
+    "achievementMasterBuilderTitle": "Master Builder",
+    "achievementMasterBuilderDesc": "Reach Level 3 in Wortbaumeister.",
+    "achievementCityPlannerTitle": "City Planner",
+    "achievementCityPlannerDesc": "Reach Level 3 in Word Sorter.",
+    "achievementConnectionExpertTitle": "Galaxy Expert",
+    "achievementConnectionExpertDesc": "Reach Level 3 in Word Galaxy.",
+    "achievementArithmeticAceTitle": "Memory Ace",
+    "achievementArithmeticAceDesc": "Reach Level 5 in Memory and Word Whirl.",
+    "achievementVielseitigTitle": "Versatile",
+    "achievementVielseitigDesc": "Play at least four different games.",
+
+    "parentDashboardTitle": "Parent Overview",
+    "parentPinTitle": "Parent PIN",
+    "parentPinHelp": "Enter the 4-digit code.\nDefault is {pin} until you change it.",
+    "@parentPinHelp": {
+        "placeholders": { "pin": { "type": "String" } }
+    },
+    "parentPinWrong": "Wrong code",
+    "parentPinUnlock": "Unlock",
+    "parentChangePin": "Change parent PIN",
+    "parentChangePinDialogTitle": "Change PIN",
+    "parentNewPinLabel": "New PIN",
+    "parentConfirmPinLabel": "Confirm",
+    "parentPinRequireFour": "4 digits required",
+    "parentPinMismatch": "Does not match",
+    "parentPinUpdated": "PIN updated",
+    "parentSectionLanguageMastery": "Language mastery",
+    "parentItemsTracked": "Items tracked",
+    "parentItemsMastered": "Of these mastered",
+    "parentItemsMasteredValue": "{count} ({pct}%)",
+    "@parentItemsMasteredValue": {
+        "placeholders": {
+            "count": { "type": "int" },
+            "pct": { "type": "int" }
+        }
+    },
+    "parentItemsDue": "Due for review",
+    "parentSectionStrengths": "Strengths & weaknesses",
+    "parentDataBasis": "Data basis",
+    "parentNoDataYet": "no data yet",
+    "parentStrongestCategory": "Strongest category",
+    "parentWeakestCategory": "Weakest category",
+    "parentCategoryValue": "{name} ({pct}%)",
+    "@parentCategoryValue": {
+        "placeholders": {
+            "name": { "type": "String" },
+            "pct": { "type": "int" }
+        }
+    },
+    "parentTotalAttempts": "Total attempts",
+    "parentSectionGameProgress": "Game progress",
+    "parentGamesPlayed": "Games played",
+    "parentNoneYet": "none yet",
+    "parentLevelValue": "Level {level}",
+    "@parentLevelValue": {
+        "placeholders": { "level": { "type": "int" } }
+    },
+
+    "cognitiveProfileTitle": "Learning profile",
+    "cognitiveProfileEmpty": "Play a few rounds to build up your profile.",
+    "cognitiveProfileAttempts": "{attempts} attempts in {areas, plural, =1{1 skill area} other{{areas} skill areas}}",
+    "@cognitiveProfileAttempts": {
+        "placeholders": {
+            "attempts": { "type": "int" },
+            "areas": { "type": "int" }
+        }
+    },
+    "categorySpelling": "Spelling",
+    "categoryGrammar": "Grammar",
+    "categoryVocabulary": "Vocabulary",
+    "categoryTextComprehension": "Reading comprehension",
+    "categoryExpression": "Expression",
+
+    "wordSortOnboardingTitle": "Word Sort",
+    "wordSortOnboardingDrag": "Drag the word to the matching word-type category.",
+    "wordSortOnboardingBuildingBlocks": "Nouns, verbs and adjectives are the building blocks. Higher grades add adverbs and pronouns.",
+    "wordSortOnboardingHints": "Need help? Wait a moment — the game will show hints for the current word after a short delay.",
+    "wordSortCategoryAdverb": "Adverb",
+    "wordSortCategoryPronoun": "Pronoun"
 }

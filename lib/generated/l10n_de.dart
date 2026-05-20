@@ -965,4 +965,288 @@ class SDe extends S {
     );
     return '$_temp0';
   }
+
+  @override
+  String get gameTooSlow => 'Zu langsam!';
+
+  @override
+  String gameLevelLine(int level) {
+    return 'Level: $level';
+  }
+
+  @override
+  String gameMaxComboLine(int combo) {
+    return 'Max Combo: $combo';
+  }
+
+  @override
+  String gameCombo(int combo) {
+    return 'Combo x$combo';
+  }
+
+  @override
+  String gameLvlBadge(int level) {
+    return 'Lvl $level';
+  }
+
+  @override
+  String get verbtrennerSeparableTitle => 'Trennbare Verben';
+
+  @override
+  String get verbtrennerCompoundTitle => 'Nomen-Komposita';
+
+  @override
+  String get verbtrennerSeparatedLabel => 'GETRENNT';
+
+  @override
+  String get verbtrennerSeparatedExample => '(stehe auf)';
+
+  @override
+  String get verbtrennerTogetherLabel => 'ZUSAMMEN';
+
+  @override
+  String get verbtrennerTogetherExample => '(aufstehen)';
+
+  @override
+  String get wortbaumeisterSeparatedExample => '(z.B. stehe auf)';
+
+  @override
+  String get wortbaumeisterTogetherExample => '(z.B. aufstehen)';
+
+  @override
+  String get grossschreibTitle => 'Großschreibungs-Galaxie';
+
+  @override
+  String get grossschreibClickHint => 'Klicke auf das Wort!';
+
+  @override
+  String get grossschreibCheck => 'PRÜFEN';
+
+  @override
+  String get grossstadtTitle => 'Groß oder klein?';
+
+  @override
+  String get grossstadtCapital => 'GROSS';
+
+  @override
+  String get grossstadtLower => 'klein';
+
+  @override
+  String achievementsBannerProgress(int unlocked, int total) {
+    return '$unlocked von $total Erfolgen freigeschaltet';
+  }
+
+  @override
+  String get achievementTriangleWizardTitle => 'Wort-Schlange-Meister';
+
+  @override
+  String get achievementTriangleWizardDesc =>
+      'Schaffe Level 3 in Wort-Schlange.';
+
+  @override
+  String get achievementBubblePopperTitle => 'Sortier-Champion';
+
+  @override
+  String get achievementBubblePopperDesc =>
+      'Schaffe Level 3 in Wort-Sortierung.';
+
+  @override
+  String get achievementPuzzleSolverTitle => 'Wort-Finder';
+
+  @override
+  String get achievementPuzzleSolverDesc => 'Schaffe Level 3 in Wortsuche.';
+
+  @override
+  String get achievementNumberWallsProTitle => 'Wort-Baumeister';
+
+  @override
+  String get achievementNumberWallsProDesc =>
+      'Schaffe Level 3 in Wort-Stückler.';
+
+  @override
+  String get achievementCodebreakerProTitle => 'Weltraum-Retter';
+
+  @override
+  String get achievementCodebreakerProDesc =>
+      'Schaffe Level 3 in Weltraum-Wort-Rettung.';
+
+  @override
+  String get achievementMasterBuilderTitle => 'Wortbaumeister';
+
+  @override
+  String get achievementMasterBuilderDesc =>
+      'Schaffe Level 3 im Wortbaumeister.';
+
+  @override
+  String get achievementCityPlannerTitle => 'Stadt-Planer';
+
+  @override
+  String get achievementCityPlannerDesc => 'Schaffe Level 3 in Wort-Sortierer.';
+
+  @override
+  String get achievementConnectionExpertTitle => 'Galaxie-Experte';
+
+  @override
+  String get achievementConnectionExpertDesc =>
+      'Schaffe Level 3 in Wort-Galaxie.';
+
+  @override
+  String get achievementArithmeticAceTitle => 'Gedächtnis-Ass';
+
+  @override
+  String get achievementArithmeticAceDesc =>
+      'Erreiche Level 5 in Memory und Wortarten-Wirbel.';
+
+  @override
+  String get achievementVielseitigTitle => 'Vielseitig';
+
+  @override
+  String get achievementVielseitigDesc =>
+      'Spiele mindestens vier verschiedene Spiele.';
+
+  @override
+  String get parentDashboardTitle => 'Eltern-Übersicht';
+
+  @override
+  String get parentPinTitle => 'Eltern-PIN';
+
+  @override
+  String parentPinHelp(String pin) {
+    return 'Gib den 4-stelligen Code ein.\nStandard ist $pin, bis du ihn änderst.';
+  }
+
+  @override
+  String get parentPinWrong => 'Falscher Code';
+
+  @override
+  String get parentPinUnlock => 'Entsperren';
+
+  @override
+  String get parentChangePin => 'Eltern-PIN ändern';
+
+  @override
+  String get parentChangePinDialogTitle => 'PIN ändern';
+
+  @override
+  String get parentNewPinLabel => 'Neue PIN';
+
+  @override
+  String get parentConfirmPinLabel => 'Bestätigen';
+
+  @override
+  String get parentPinRequireFour => '4 Ziffern erforderlich';
+
+  @override
+  String get parentPinMismatch => 'Stimmt nicht überein';
+
+  @override
+  String get parentPinUpdated => 'PIN aktualisiert';
+
+  @override
+  String get parentSectionLanguageMastery => 'Sprach-Beherrschung';
+
+  @override
+  String get parentItemsTracked => 'Items verfolgt';
+
+  @override
+  String get parentItemsMastered => 'Davon gemeistert';
+
+  @override
+  String parentItemsMasteredValue(int count, int pct) {
+    return '$count ($pct%)';
+  }
+
+  @override
+  String get parentItemsDue => 'Fällig zur Wiederholung';
+
+  @override
+  String get parentSectionStrengths => 'Stärken & Schwächen';
+
+  @override
+  String get parentDataBasis => 'Datenbasis';
+
+  @override
+  String get parentNoDataYet => 'noch keine Daten';
+
+  @override
+  String get parentStrongestCategory => 'Stärkste Kategorie';
+
+  @override
+  String get parentWeakestCategory => 'Schwächste Kategorie';
+
+  @override
+  String parentCategoryValue(String name, int pct) {
+    return '$name ($pct%)';
+  }
+
+  @override
+  String get parentTotalAttempts => 'Gesamtversuche';
+
+  @override
+  String get parentSectionGameProgress => 'Spielfortschritt';
+
+  @override
+  String get parentGamesPlayed => 'Spiele gespielt';
+
+  @override
+  String get parentNoneYet => 'noch keine';
+
+  @override
+  String parentLevelValue(int level) {
+    return 'Level $level';
+  }
+
+  @override
+  String get cognitiveProfileTitle => 'Lernprofil';
+
+  @override
+  String get cognitiveProfileEmpty =>
+      'Spiele ein paar Runden, um dein Profil aufzubauen.';
+
+  @override
+  String cognitiveProfileAttempts(int attempts, int areas) {
+    String _temp0 = intl.Intl.pluralLogic(
+      areas,
+      locale: localeName,
+      other: '$areas Skill-Bereichen',
+      one: '1 Skill-Bereich',
+    );
+    return '$attempts Versuche in $_temp0';
+  }
+
+  @override
+  String get categorySpelling => 'Rechtschreibung';
+
+  @override
+  String get categoryGrammar => 'Grammatik';
+
+  @override
+  String get categoryVocabulary => 'Wortschatz';
+
+  @override
+  String get categoryTextComprehension => 'Textverständnis';
+
+  @override
+  String get categoryExpression => 'Ausdruck';
+
+  @override
+  String get wordSortOnboardingTitle => 'Wort-Sortierung';
+
+  @override
+  String get wordSortOnboardingDrag =>
+      'Ziehe das Wort in die passende Wortart-Kategorie.';
+
+  @override
+  String get wordSortOnboardingBuildingBlocks =>
+      'Nomen, Verben und Adjektive sind die Grundbausteine. Höhere Klassen bringen Adverbien und Pronomen dazu.';
+
+  @override
+  String get wordSortOnboardingHints =>
+      'Brauchst du Hilfe? Warte einen Moment — das Spiel zeigt dir nach kurzer Zeit Tipps zum aktuellen Wort.';
+
+  @override
+  String get wordSortCategoryAdverb => 'Adverb';
+
+  @override
+  String get wordSortCategoryPronoun => 'Pronomen';
 }
