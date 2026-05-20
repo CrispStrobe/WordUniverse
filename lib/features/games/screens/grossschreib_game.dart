@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
@@ -503,6 +504,7 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
   void _handleCorrectAnswer() {
     _successController.forward().then((_) => _successController.reset());
     _audioService.playSound('success');
+    HapticFeedback.lightImpact();
 
     _combo++;
     if (_combo > _maxCombo) _maxCombo = _combo;
@@ -539,6 +541,7 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
   void _handleIncorrectAnswer() {
     _errorController.forward().then((_) => _errorController.reset());
     _audioService.playSound('failure');
+    HapticFeedback.heavyImpact();
 
     setState(() {
       _combo = 0;
@@ -571,6 +574,7 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
     });
 
     _audioService.playSound('failure');
+    HapticFeedback.heavyImpact();
 
     Future.delayed(const Duration(milliseconds: 1500), () {
       if (mounted) _showNextChallenge();
@@ -663,10 +667,13 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
     return FadeTransition(
       opacity: _titleFadeAnimation,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        child: Text(
-          s.grossschreibTitle,
-          style: SpaceTheme.headlineStyle.copyWith(fontSize: 20),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            s.grossschreibTitle,
+            style: SpaceTheme.headlineStyle.copyWith(fontSize: 20),
+          ),
         ),
       ),
     );
@@ -686,51 +693,76 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
       ),
       child: Row(
         children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
-            onPressed: () {
-              _fallingController.stop();
-              Navigator.of(context).pop();
-            },
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+          Semantics(
+            label: 'Zurück',
+            button: true,
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
+              onPressed: () {
+                _fallingController.stop();
+                Navigator.of(context).pop();
+              },
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            ),
           ),
           const SizedBox(width: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: SpaceTheme.nebulaPurple.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: SpaceTheme.nebulaPurple.withValues(alpha: 0.5)),
-            ),
-            child: Text(
-              s.gameLvlBadge(_level),
-              style: SpaceTheme.bodyStyle.copyWith(
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
-                color: SpaceTheme.nebulaPurple,
+          Semantics(
+            label: 'Stufe $_level',
+            container: true,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: SpaceTheme.nebulaPurple.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: SpaceTheme.nebulaPurple.withValues(alpha: 0.5)),
+              ),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  s.gameLvlBadge(_level),
+                  style: SpaceTheme.bodyStyle.copyWith(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: SpaceTheme.nebulaPurple,
+                  ),
+                ),
               ),
             ),
           ),
           const SizedBox(width: 6),
-          _buildCompactStat(Icons.stars, '$_score', SpaceTheme.starYellow),
+          Semantics(
+            label: 'Punkte: $_score',
+            liveRegion: true,
+            child: _buildCompactStat(Icons.stars, '$_score', SpaceTheme.starYellow),
+          ),
           const SizedBox(width: 6),
-          _buildCompactStat(Icons.check_circle_outline, '$_itemsCompleted/$_totalItems', SpaceTheme.cosmicPink),
+          Semantics(
+            label: 'Fortschritt: $_itemsCompleted von $_totalItems',
+            liveRegion: true,
+            child: _buildCompactStat(Icons.check_circle_outline, '$_itemsCompleted/$_totalItems', SpaceTheme.cosmicPink),
+          ),
           if (_combo > 1) ...[
             const SizedBox(width: 6),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-              decoration: BoxDecoration(
-                color: SpaceTheme.planetOrange.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: SpaceTheme.planetOrange),
-              ),
-              child: Text(
-                'x$_combo',
-                style: SpaceTheme.bodyStyle.copyWith(
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  color: SpaceTheme.planetOrange,
+            Semantics(
+              label: 'Kombo mal $_combo',
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                decoration: BoxDecoration(
+                  color: SpaceTheme.planetOrange.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: SpaceTheme.planetOrange),
+                ),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    'x$_combo',
+                    style: SpaceTheme.bodyStyle.copyWith(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: SpaceTheme.planetOrange,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -765,12 +797,15 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
         children: [
           Icon(icon, color: color, size: 14),
           const SizedBox(width: 3),
-          Text(
-            value,
-            style: SpaceTheme.bodyStyle.copyWith(
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-              color: color,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              value,
+              style: SpaceTheme.bodyStyle.copyWith(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
             ),
           ),
         ],
@@ -885,29 +920,41 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
                           ),
                         
                         // Tappable target word
-                        GestureDetector(
-                          onTap: _cycleWordCase,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: _getWordBackgroundColor(),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.5),
-                                width: 2,
+                        Semantics(
+                          label: 'Wort: ${_getDisplayWord()}. Tippe, um die Schreibweise zu ändern.',
+                          button: true,
+                          child: GestureDetector(
+                            onTap: _cycleWordCase,
+                            behavior: HitTestBehavior.translucent,
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(
+                                minWidth: 48,
+                                minHeight: 48,
                               ),
-                            ),
-                            child: Text(
-                              _getDisplayWord(),
-                              style: TextStyle(
-                                fontFamily: selectedFontFamily,
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                height: 1.4,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: _getWordBackgroundColor(),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.5),
+                                    width: 2,
+                                  ),
+                                ),
+                                child: Text(
+                                  _getDisplayWord(),
+                                  style: TextStyle(
+                                    fontFamily: selectedFontFamily,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                    height: 1.4,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -931,29 +978,46 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
                   // Feedback message
                   if (_feedbackState != FeedbackState.none) ...[
                     const SizedBox(height: 16),
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      margin: const EdgeInsets.symmetric(horizontal: 20),
-                      decoration: BoxDecoration(
-                        color: _feedbackState == FeedbackState.correct
-                            ? Colors.green.withValues(alpha: 0.3)
-                            : Colors.red.withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
+                    Semantics(
+                      liveRegion: true,
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        margin: const EdgeInsets.symmetric(horizontal: 20),
+                        decoration: BoxDecoration(
                           color: _feedbackState == FeedbackState.correct
-                              ? Colors.green
-                              : Colors.red,
-                          width: 2,
+                              ? Colors.green.withValues(alpha: 0.3)
+                              : Colors.red.withValues(alpha: 0.3),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: _feedbackState == FeedbackState.correct
+                                ? Colors.green
+                                : Colors.red,
+                            width: 2,
+                          ),
                         ),
-                      ),
-                      child: Text(
-                        _feedbackMessage,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              _feedbackState == FeedbackState.correct
+                                  ? Icons.check_circle
+                                  : Icons.cancel,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: Text(
+                                _feedbackMessage,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ],
                         ),
-                        textAlign: TextAlign.center,
                       ),
                     ),
                   ],
@@ -1007,46 +1071,51 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
       padding: const EdgeInsets.all(16),
       child: Align(
         alignment: Alignment.bottomRight,
-        child: GestureDetector(
-          onTap: _feedbackState == FeedbackState.none ? _submitChoice : null,
-          child: AnimatedOpacity(
-            opacity: _feedbackState == FeedbackState.none ? 1.0 : 0.5,
-            duration: const Duration(milliseconds: 200),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    SpaceTheme.alienGreen,
-                    SpaceTheme.alienGreen.withValues(alpha: 0.7)
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 2),
-                boxShadow: [
-                  BoxShadow(
-                    color: SpaceTheme.alienGreen.withValues(alpha: 0.4),
-                    blurRadius: 15,
-                    spreadRadius: 2,
+        child: Semantics(
+          label: s.grossschreibCheck,
+          button: true,
+          enabled: _feedbackState == FeedbackState.none,
+          child: GestureDetector(
+            onTap: _feedbackState == FeedbackState.none ? _submitChoice : null,
+            child: AnimatedOpacity(
+              opacity: _feedbackState == FeedbackState.none ? 1.0 : 0.5,
+              duration: const Duration(milliseconds: 200),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      SpaceTheme.alienGreen,
+                      SpaceTheme.alienGreen.withValues(alpha: 0.7)
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-                ],
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.check_circle, size: 28, color: Colors.white),
-                  const SizedBox(width: 10),
-                  Text(
-                    s.grossschreibCheck,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: SpaceTheme.alienGreen.withValues(alpha: 0.4),
+                      blurRadius: 15,
+                      spreadRadius: 2,
                     ),
-                  ),
-                ],
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.check_circle, size: 28, color: Colors.white),
+                    const SizedBox(width: 10),
+                    Text(
+                      s.grossschreibCheck,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
