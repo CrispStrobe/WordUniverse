@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // --- APP IMPORTS ---
@@ -17,7 +16,6 @@ import 'dictionary_database_service.dart';
 class VocabularyService with ChangeNotifier {
   // In-memory cache for fast game logic access
   Map<String, GermanWord> _vocabulary = {};
-  Map<String, GrammarExercise> _grammarExercises = {};
   Map<String, VocabularySet> _vocabularySets = {};
 
   Set<String>? _allSourcesCache;
@@ -28,9 +26,6 @@ class VocabularyService with ChangeNotifier {
   // Storage Keys
   static const _setsStorageKey = 'vocabulary_sets';
   static const _customWordsKey = 'custom_words';
-  
-  // Asset Paths
-  static const _grammarFile = 'lib/features/games/data/grammar_exercises.json';
 
   bool _isInitialized = false;
   bool get isInitialized => _isInitialized;
@@ -64,11 +59,7 @@ class VocabularyService with ChangeNotifier {
       onProgress?.call(0.6, 'Loading words...');
       await _loadVocabularyFromDB();
 
-      // 3. Load Grammar
-      onProgress?.call(0.8, 'Loading grammar exercises...');
-      await _loadGrammarExercises();
-
-      // 4. Load User Customizations
+      // 3. Load User Customizations
       onProgress?.call(0.9, 'Loading your customizations...');
       await _loadCustomContent();
       await _loadVocabularySets();
@@ -105,31 +96,6 @@ class VocabularyService with ChangeNotifier {
       _log('Loaded ${_vocabulary.length} words from SQLite DB');
     } else {
       _log('⚠️ DB returned 0 words. Checking assets or DB integrity...');
-    }
-  }
-
-  /// Loads grammar exercises from a separate lightweight JSON file
-  Future<void> _loadGrammarExercises() async {
-    try {
-      // Check if file exists in bundle first to avoid exceptions
-      try {
-        final String jsonString = await rootBundle.loadString(_grammarFile);
-        final Map<String, dynamic> jsonData = json.decode(jsonString);
-
-        if (jsonData.containsKey('grammarExercises')) {
-          final exercises = jsonData['grammarExercises'] as List<dynamic>;
-          for (final exerciseData in exercises) {
-            final exercise =
-                GrammarExercise.fromJson(exerciseData as Map<String, dynamic>);
-            _grammarExercises[exercise.id] = exercise;
-          }
-          _log('Loaded ${_grammarExercises.length} grammar exercises');
-        }
-      } catch (e) {
-        _log('Grammar file not found or invalid format: $e');
-      }
-    } catch (e) {
-      _log('Warning: Could not load grammar exercises: $e');
     }
   }
 
@@ -610,17 +576,6 @@ class VocabularyService with ChangeNotifier {
     }
     _allSourcesCache = sources;
     return sources;
-  }
-
-  List<GrammarExercise> getGrammarExercises({
-    GrammarTopic? topic,
-    GradeLevel? grade,
-  }) {
-    return _grammarExercises.values.where((exercise) {
-      if (topic != null && exercise.topic != topic) return false;
-      if (grade != null && exercise.gradeLevel != grade) return false;
-      return true;
-    }).toList();
   }
 
   // Specific practice getters (Verbs/Cases/Adjectives)

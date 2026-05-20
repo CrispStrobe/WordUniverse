@@ -11,7 +11,6 @@ import 'core/services/debug_provider.dart';
 import 'core/services/streak_service.dart';
 import 'core/services/progress_service.dart';
 import 'core/services/purchase_service.dart';
-import 'core/services/puzzle_image_service.dart';
 
 import 'core/services/sri_service.dart';
 import 'core/services/cognitive_profile_service.dart';
@@ -82,8 +81,7 @@ void main() async {
   // Install crash logger before anything else so we catch init failures.
   await CrashLogger.instance.init();
 
-  // Service initialization that happens *before* app run
-  await PuzzleImageService.instance.init();
+  // Service initialization that happens *before* app run.
   // We can't init purchaseService yet because it needs GameProvider
   await debugProvider.init();
   await streakService.load();
