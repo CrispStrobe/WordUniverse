@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../core/theme/space_theme.dart';
 import '../../../core/services/debug_provider.dart';
@@ -1461,7 +1462,15 @@ class _SettingsScreenState extends State<SettingsScreen>
         title: S.of(context)!.about,
         icon: Icons.info,
         children: [
-          _buildInfoRow(S.of(context)!.appVersion, '1.0.3 (Vocabulary)'),
+          FutureBuilder<PackageInfo>(
+            future: PackageInfo.fromPlatform(),
+            builder: (context, snap) {
+              final v = snap.data == null
+                  ? '…'
+                  : '${snap.data!.version} (${snap.data!.buildNumber})';
+              return _buildInfoRow(S.of(context)!.appVersion, v);
+            },
+          ),
           _buildInfoRow(S.of(context)!.developer, S.of(context)!.developerName),
           _buildInfoRow(S.of(context)!.targetAge, S.of(context)!.targetAgeRange),
 
