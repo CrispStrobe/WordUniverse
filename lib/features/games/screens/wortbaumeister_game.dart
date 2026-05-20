@@ -491,9 +491,10 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
   }
 
   void _handleMiss() {
+    final s = S.of(context);
     setState(() {
       _feedbackState = FeedbackState.incorrect;
-      _feedbackMessage = 'Zu langsam!';
+      _feedbackMessage = s?.gameTooSlow ?? 'Zu langsam!';
       _showContext = true;
       _combo = 0;
       _itemsCompleted++;
@@ -536,7 +537,7 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
           mainAxisSize: MainAxisSize.min,
           children: [
             Text('${s.gameScore}: $_score', style: SpaceTheme.bodyStyle),
-            Text('Level: $_level', style: SpaceTheme.bodyStyle),
+            Text(s.gameLevelLine(_level), style: SpaceTheme.bodyStyle),
           ],
         ),
         actions: [
@@ -615,7 +616,7 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
               border: Border.all(color: SpaceTheme.nebulaPurple.withValues(alpha: 0.5)),
             ),
             child: Text(
-              'Lvl $_level',
+              s.gameLvlBadge(_level),
               style: SpaceTheme.bodyStyle.copyWith(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
@@ -637,7 +638,7 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
                 border: Border.all(color: SpaceTheme.planetOrange),
               ),
               child: Text(
-                'Combo x$_combo',
+                s.gameCombo(_combo),
                 style: SpaceTheme.bodyStyle.copyWith(
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
@@ -683,7 +684,7 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Text(
-            _currentMode == GameMode.trennbareVerben ? 'Trennbare Verben' : 'Nomen-Komposita',
+            _currentMode == GameMode.trennbareVerben ? s.verbtrennerSeparableTitle : s.verbtrennerCompoundTitle,
             style: SpaceTheme.headlineStyle.copyWith(fontSize: 18),
           ),
         ),
@@ -873,8 +874,8 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
           Expanded(
             child: _buildChoiceButton(
               icon: Icons.link_off,
-              label: 'GETRENNT',
-              subtitle: '(z.B. stehe auf)',
+              label: s.verbtrennerSeparatedLabel,
+              subtitle: s.wortbaumeisterSeparatedExample,
               color: SpaceTheme.nebulaPurple,
               onTap: () => _handleChoice(false),
             ),
@@ -883,8 +884,8 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
           Expanded(
             child: _buildChoiceButton(
               icon: Icons.link,
-              label: 'ZUSAMMEN',
-              subtitle: '(z.B. aufstehen)',
+              label: s.verbtrennerTogetherLabel,
+              subtitle: s.wortbaumeisterTogetherExample,
               color: SpaceTheme.starYellow,
               onTap: () => _handleChoice(true),
             ),
