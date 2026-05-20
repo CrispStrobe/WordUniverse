@@ -1,6 +1,7 @@
 // lib/features/games/screens/word_find_game.dart
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 // import 'dart:collection';
 
@@ -317,6 +318,7 @@ class _WordFindGameState extends State<WordFindGame> {
         
         // --- SUCCESS! ---
         _audioService.playSound('success');
+        HapticFeedback.lightImpact();
         _gameProvider.addScore(10);
         setState(() {
           _score += 10;
@@ -348,6 +350,7 @@ class _WordFindGameState extends State<WordFindGame> {
 
     // --- FAILED ---
     _audioService.playSound('failure');
+    HapticFeedback.heavyImpact();
   }
 
   /// Generates compact educational info for a found word
@@ -689,12 +692,15 @@ class _WordFindGameState extends State<WordFindGame> {
 
   // Extract grid building into separate method
   Widget _buildGridWidget(String selectedFontFamily) {
-    return GestureDetector(
-      key: _gridKey,
-      onPanStart: _onPanStart,
-      onPanUpdate: _onPanUpdate,
-      onPanEnd: _onPanEnd,
-      child: Container(
+    return Semantics(
+      label: 'Wortgitter',
+      hint: 'Ziehe über Buchstaben, um Wörter zu markieren',
+      child: GestureDetector(
+        key: _gridKey,
+        onPanStart: _onPanStart,
+        onPanUpdate: _onPanUpdate,
+        onPanEnd: _onPanEnd,
+        child: Container(
         decoration: BoxDecoration(
           color: SpaceTheme.deepSpace.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(12),
@@ -710,6 +716,7 @@ class _WordFindGameState extends State<WordFindGame> {
             final col = index % _gridSize;
             return _buildCell(row, col, selectedFontFamily);
           },
+        ),
         ),
       ),
     );
@@ -736,25 +743,36 @@ class _WordFindGameState extends State<WordFindGame> {
       duration: const Duration(milliseconds: 150),
       decoration: BoxDecoration(
         color: bgColor,
-        border: Border.all(color: SpaceTheme.deepSpace.withValues(alpha: 0.3)),
+        // Thicker border on found cells adds a shape signal alongside
+        // the alienGreen color.
+        border: Border.all(
+          color: isFound
+              ? SpaceTheme.deepSpace
+              : SpaceTheme.deepSpace.withValues(alpha: 0.3),
+          width: isFound ? 2 : 1,
+        ),
       ),
-      child: Center(
-        // Wrap the Text to scale it down if it doesn't fit
-        child: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text(
-            _grid[row][col],
-            style: TextStyle(
-              fontFamily: selectedFontFamily,
-              fontSize: 18, // This is a *maximum* size
-              fontWeight: FontWeight.bold,
-              color: textColor,
-              shadows: const [
-                Shadow(blurRadius: 4, color: Colors.black54),
-              ],
+      child: Stack(
+        children: [
+          Center(
+            // Wrap the Text to scale it down if it doesn't fit
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                _grid[row][col],
+                style: TextStyle(
+                  fontFamily: selectedFontFamily,
+                  fontSize: 18, // This is a *maximum* size
+                  fontWeight: FontWeight.bold,
+                  color: textColor,
+                  shadows: const [
+                    Shadow(blurRadius: 4, color: Colors.black54),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -793,7 +811,11 @@ class _WordFindGameState extends State<WordFindGame> {
                 
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4.0),
-                  child: RichText(
+                  child: Semantics(
+                    label: isFound
+                        ? '${word.word}, gefunden'
+                        : '${word.word}, noch zu finden',
+                    child: RichText(
                     text: TextSpan(
                       children: [
                         // The main word
@@ -823,6 +845,7 @@ class _WordFindGameState extends State<WordFindGame> {
                           ),
                       ],
                     ),
+                  ),
                   ),
                 );
               },
