@@ -3,15 +3,12 @@
 // Shows the player which achievements they've unlocked from
 // GameProvider._achievements. Read-only — unlocks happen in
 // GameProvider._checkAchievements() on score/progress events.
-//
-// Strings are inline German on purpose: voc is a German learning app
-// and these are surface labels, not the kind of UI chrome where a full
-// English+German split pays off yet.
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme/space_theme.dart';
+import '../../../generated/l10n.dart';
 import '../../games/providers/game_provider.dart';
 
 class _AchievementInfo {
@@ -21,60 +18,111 @@ class _AchievementInfo {
   const _AchievementInfo(this.title, this.description, this.icon);
 }
 
-const Map<String, _AchievementInfo> _kCatalog = {
+// Ordered IDs (drives both display order and total-count math).
+const List<String> _kAchievementIds = [
   // Score-based
-  'first_century': _AchievementInfo(
-      'Erste 100', 'Erreiche 100 Punkte zum ersten Mal.', '💯'),
-  'score_master': _AchievementInfo(
-      'Punkte-Profi', 'Erreiche 500 Punkte.', '⭐'),
-  'thousand_club': _AchievementInfo(
-      'Club der 1000', 'Erreiche 1000 Punkte.', '🚀'),
-
+  'first_century',
+  'score_master',
+  'thousand_club',
   // Level-based
-  'level_explorer': _AchievementInfo(
-      'Level-Forscher', 'Erreiche Level 5 in einem Spiel.', '🌟'),
-  'space_commander': _AchievementInfo(
-      'Weltraum-Kommandant', 'Erreiche Level 10 in einem Spiel.', '👨‍🚀'),
-
+  'level_explorer',
+  'space_commander',
   // Per-game (3 levels)
-  'triangle_wizard': _AchievementInfo(
-      'Wort-Schlange-Meister', 'Schaffe Level 3 in Wort-Schlange.', '🐍'),
-  'bubble_popper': _AchievementInfo(
-      'Sortier-Champion', 'Schaffe Level 3 in Wort-Sortierung.', '🏆'),
-  'puzzle_solver': _AchievementInfo(
-      'Wort-Finder', 'Schaffe Level 3 in Wortsuche.', '🔍'),
-  'number_walls_pro': _AchievementInfo(
-      'Wort-Baumeister', 'Schaffe Level 3 in Wort-Stückler.', '🧱'),
-  'codebreaker_pro': _AchievementInfo(
-      'Weltraum-Retter', 'Schaffe Level 3 in Weltraum-Wort-Rettung.', '🪐'),
-  'master_builder': _AchievementInfo(
-      'Wortbaumeister', 'Schaffe Level 3 im Wortbaumeister.', '🏗️'),
-  'city_planner': _AchievementInfo(
-      'Stadt-Planer', 'Schaffe Level 3 in Wort-Sortierer.', '🏙️'),
-  'connection_expert': _AchievementInfo(
-      'Galaxie-Experte', 'Schaffe Level 3 in Wort-Galaxie.', '🌌'),
-
+  'triangle_wizard',
+  'bubble_popper',
+  'puzzle_solver',
+  'number_walls_pro',
+  'codebreaker_pro',
+  'master_builder',
+  'city_planner',
+  'connection_expert',
   // Cross-game milestones
-  'arithmetic_ace': _AchievementInfo(
-      'Gedächtnis-Ass',
-      'Erreiche Level 5 in Memory und Wortarten-Wirbel.',
-      '🎯'),
-  'all_rounder': _AchievementInfo(
-      'Vielseitig',
-      'Spiele mindestens vier verschiedene Spiele.',
-      '🎮'),
+  'arithmetic_ace',
+  'all_rounder',
+];
+
+// Icon-only catalog (icons aren't localized).
+const Map<String, String> _kAchievementIcons = {
+  'first_century': '💯',
+  'score_master': '⭐',
+  'thousand_club': '🚀',
+  'level_explorer': '🌟',
+  'space_commander': '👨‍🚀',
+  'triangle_wizard': '🐍',
+  'bubble_popper': '🏆',
+  'puzzle_solver': '🔍',
+  'number_walls_pro': '🧱',
+  'codebreaker_pro': '🪐',
+  'master_builder': '🏗️',
+  'city_planner': '🏙️',
+  'connection_expert': '🌌',
+  'arithmetic_ace': '🎯',
+  'all_rounder': '🎮',
 };
+
+_AchievementInfo _infoFor(S s, String id) {
+  switch (id) {
+    case 'first_century':
+      return _AchievementInfo(
+          s.achievementFirstCenturyTitle, s.achievementFirstCenturyDesc, '💯');
+    case 'score_master':
+      return _AchievementInfo(
+          s.achievementScoreMasterTitle, s.achievementScoreMasterDesc, '⭐');
+    case 'thousand_club':
+      return _AchievementInfo(
+          s.achievementThousandClubTitle, s.achievementThousandClubDesc, '🚀');
+    case 'level_explorer':
+      return _AchievementInfo(s.achievementLevelExplorerTitle,
+          s.achievementLevelExplorerDesc, '🌟');
+    case 'space_commander':
+      return _AchievementInfo(s.achievementSpaceCommanderTitle,
+          s.achievementSpaceCommanderDesc, '👨‍🚀');
+    case 'triangle_wizard':
+      return _AchievementInfo(s.achievementTriangleWizardTitle,
+          s.achievementTriangleWizardDesc, '🐍');
+    case 'bubble_popper':
+      return _AchievementInfo(s.achievementBubblePopperTitle,
+          s.achievementBubblePopperDesc, '🏆');
+    case 'puzzle_solver':
+      return _AchievementInfo(s.achievementPuzzleSolverTitle,
+          s.achievementPuzzleSolverDesc, '🔍');
+    case 'number_walls_pro':
+      return _AchievementInfo(s.achievementNumberWallsProTitle,
+          s.achievementNumberWallsProDesc, '🧱');
+    case 'codebreaker_pro':
+      return _AchievementInfo(s.achievementCodebreakerProTitle,
+          s.achievementCodebreakerProDesc, '🪐');
+    case 'master_builder':
+      return _AchievementInfo(s.achievementMasterBuilderTitle,
+          s.achievementMasterBuilderDesc, '🏗️');
+    case 'city_planner':
+      return _AchievementInfo(s.achievementCityPlannerTitle,
+          s.achievementCityPlannerDesc, '🏙️');
+    case 'connection_expert':
+      return _AchievementInfo(s.achievementConnectionExpertTitle,
+          s.achievementConnectionExpertDesc, '🌌');
+    case 'arithmetic_ace':
+      return _AchievementInfo(s.achievementArithmeticAceTitle,
+          s.achievementArithmeticAceDesc, '🎯');
+    case 'all_rounder':
+      return _AchievementInfo(
+          s.achievementVielseitigTitle, s.achievementVielseitigDesc, '🎮');
+    default:
+      return _AchievementInfo(id, '', _kAchievementIcons[id] ?? '🏅');
+  }
+}
 
 class AchievementsScreen extends StatelessWidget {
   const AchievementsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final gp = context.watch<GameProvider>();
     final unlockedById = {
       for (final a in gp.achievements) a.id: a,
     };
-    final allIds = _kCatalog.keys.toList();
+    final allIds = _kAchievementIds;
     final unlockedCount =
         allIds.where(unlockedById.containsKey).length;
     final totalCount = allIds.length;
@@ -82,7 +130,7 @@ class AchievementsScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: SpaceTheme.deepSpace,
       appBar: AppBar(
-        title: const Text('Erfolge'),
+        title: Text(s.achievements),
         backgroundColor: SpaceTheme.deepSpace,
       ),
       body: Column(
@@ -99,7 +147,7 @@ class AchievementsScreen extends StatelessWidget {
               separatorBuilder: (_, __) => const SizedBox(height: 8),
               itemBuilder: (context, i) {
                 final id = allIds[i];
-                final info = _kCatalog[id]!;
+                final info = _infoFor(s, id);
                 final unlocked = unlockedById[id];
                 return _AchievementTile(
                   info: info,
@@ -121,6 +169,7 @@ class _ProgressBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final ratio = total > 0 ? unlocked / total : 0.0;
     return Container(
       padding: const EdgeInsets.all(20),
@@ -133,7 +182,7 @@ class _ProgressBanner extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('$unlocked von $total Erfolgen freigeschaltet',
+          Text(s.achievementsBannerProgress(unlocked, total),
               style: SpaceTheme.headlineStyle.copyWith(fontSize: 20)),
           const SizedBox(height: 8),
           ClipRRect(
