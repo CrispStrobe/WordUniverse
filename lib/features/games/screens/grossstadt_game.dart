@@ -652,9 +652,10 @@ class _GrossstadtGameState extends State<GrossstadtGame>
   }
 
   void _handleMiss() {
+    final s = S.of(context);
     setState(() {
       _feedbackState = FeedbackState.incorrect;
-      _feedbackMessage = 'Zu langsam!';
+      _feedbackMessage = s?.gameTooSlow ?? 'Zu langsam!';
       _combo = 0;
       _itemsCompleted++;
     });
@@ -696,7 +697,7 @@ class _GrossstadtGameState extends State<GrossstadtGame>
           mainAxisSize: MainAxisSize.min,
           children: [
             Text('${s.gameScore}: $_score', style: SpaceTheme.bodyStyle),
-            Text('Max Combo: $_maxCombo', style: SpaceTheme.bodyStyle),
+            Text(s.gameMaxComboLine(_maxCombo), style: SpaceTheme.bodyStyle),
           ],
         ),
         actions: [
@@ -777,7 +778,7 @@ class _GrossstadtGameState extends State<GrossstadtGame>
               border: Border.all(color: SpaceTheme.nebulaPurple.withValues(alpha: 0.5)),
             ),
             child: Text(
-              'Lvl $_level',
+              s.gameLvlBadge(_level),
               style: SpaceTheme.bodyStyle.copyWith(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
@@ -799,7 +800,7 @@ class _GrossstadtGameState extends State<GrossstadtGame>
                 border: Border.all(color: SpaceTheme.planetOrange),
               ),
               child: Text(
-                'Combo x$_combo',
+                s.gameCombo(_combo),
                 style: SpaceTheme.bodyStyle.copyWith(
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
@@ -845,7 +846,7 @@ class _GrossstadtGameState extends State<GrossstadtGame>
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Text(
-            'Groß oder klein?',
+            s.grossstadtTitle,
             style: SpaceTheme.headlineStyle.copyWith(fontSize: 18),
             textAlign: TextAlign.center,
           ),
@@ -999,7 +1000,7 @@ class _GrossstadtGameState extends State<GrossstadtGame>
           Expanded(
             child: _buildSortButton(
               icon: Icons.text_fields,
-              label: 'GROSS',
+              label: s.grossstadtCapital,
               color: SpaceTheme.starYellow,
               onTap: () => _handleChoice(true),
             ),
@@ -1008,7 +1009,7 @@ class _GrossstadtGameState extends State<GrossstadtGame>
           Expanded(
             child: _buildSortButton(
               icon: Icons.text_format,
-              label: 'klein',
+              label: s.grossstadtLower,
               color: SpaceTheme.nebulaPurple,
               onTap: () => _handleChoice(false),
             ),
