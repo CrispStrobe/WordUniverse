@@ -11,6 +11,7 @@ import '../../../core/models/skill_category.dart';
 import '../../../core/services/cognitive_profile_service.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/theme/space_theme.dart';
+import '../../../generated/l10n.dart';
 import '../providers/game_provider.dart';
 
 const _kParentPinKey = 'parent_pin';
@@ -49,7 +50,8 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
         _pinError = null;
       });
     } else {
-      setState(() => _pinError = 'Falscher Code');
+      final s = S.of(context);
+      setState(() => _pinError = s?.parentPinWrong ?? 'Falscher Code');
     }
   }
 
@@ -61,17 +63,18 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Scaffold(
       backgroundColor: SpaceTheme.deepSpace,
       appBar: AppBar(
-        title: const Text('Eltern-Übersicht'),
+        title: Text(s.parentDashboardTitle),
         backgroundColor: SpaceTheme.deepSpace,
       ),
-      body: _unlocked ? _buildDashboard(context) : _buildLockScreen(),
+      body: _unlocked ? _buildDashboard(context, s) : _buildLockScreen(s),
     );
   }
 
-  Widget _buildLockScreen() {
+  Widget _buildLockScreen(S s) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -80,11 +83,10 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
           children: [
             const Icon(Icons.lock, size: 64, color: SpaceTheme.starYellow),
             const SizedBox(height: 16),
-            const Text('Eltern-PIN', style: SpaceTheme.headlineStyle),
+            Text(s.parentPinTitle, style: SpaceTheme.headlineStyle),
             const SizedBox(height: 8),
             Text(
-              'Gib den 4-stelligen Code ein.\n'
-              'Standard ist $_kDefaultParentPin, bis du ihn änderst.',
+              s.parentPinHelp(_kDefaultParentPin),
               textAlign: TextAlign.center,
               style: SpaceTheme.bodyStyle
                   .copyWith(fontSize: 13, color: Colors.white60),
@@ -119,7 +121,7 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _submitPin,
-              child: const Text('Entsperren'),
+              child: Text(s.parentPinUnlock),
             ),
           ],
         ),
@@ -127,7 +129,7 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
     );
   }
 
-  Widget _buildDashboard(BuildContext context) {
+  Widget _buildDashboard(BuildContext context, S s) {
     final gp = context.watch<GameProvider>();
     final cp = context.watch<CognitiveProfileService>();
     final sri = context.watch<SriService>();
@@ -168,55 +170,55 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
       padding: const EdgeInsets.all(16),
       children: [
         _Section(
-          title: 'Sprach-Beherrschung',
+          title: s.parentSectionLanguageMastery,
           children: [
             _StatLine(
-                label: 'Items verfolgt', value: sriTotal.toString()),
+                label: s.parentItemsTracked, value: sriTotal.toString()),
             _StatLine(
-                label: 'Davon gemeistert',
-                value: '$sriMastered ($masteryPct%)'),
+                label: s.parentItemsMastered,
+                value: s.parentItemsMasteredValue(sriMastered, masteryPct)),
             _StatLine(
-                label: 'Fällig zur Wiederholung',
+                label: s.parentItemsDue,
                 value: sriDue.toString()),
           ],
         ),
         const SizedBox(height: 16),
         _Section(
-          title: 'Stärken & Schwächen',
+          title: s.parentSectionStrengths,
           children: [
             if (cp.totalAttempts == 0)
-              const _StatLine(
-                  label: 'Datenbasis', value: 'noch keine Daten'),
+              _StatLine(
+                  label: s.parentDataBasis, value: s.parentNoDataYet),
             if (strongest != null)
               _StatLine(
-                label: 'Stärkste Kategorie',
-                value: '${strongest!.name} '
-                    '(${(bestRatio * 100).round()}%)',
+                label: s.parentStrongestCategory,
+                value: s.parentCategoryValue(
+                    strongest!.name, (bestRatio * 100).round()),
               ),
             if (weakest != null && weakest != strongest)
               _StatLine(
-                label: 'Schwächste Kategorie',
-                value: '${weakest!.name} '
-                    '(${(worstRatio * 100).round()}%)',
+                label: s.parentWeakestCategory,
+                value: s.parentCategoryValue(
+                    weakest!.name, (worstRatio * 100).round()),
               ),
             _StatLine(
-                label: 'Gesamtversuche',
+                label: s.parentTotalAttempts,
                 value: cp.totalAttempts.toString()),
           ],
         ),
         const SizedBox(height: 16),
         _Section(
-          title: 'Spielfortschritt',
+          title: s.parentSectionGameProgress,
           children: activeGames.isEmpty
               ? [
-                  const _StatLine(
-                      label: 'Spiele gespielt', value: 'noch keine'),
+                  _StatLine(
+                      label: s.parentGamesPlayed, value: s.parentNoneYet),
                 ]
               : [
                   for (final entry in activeGames)
                     _StatLine(
                       label: _gameLabel(entry.key),
-                      value: 'Level ${entry.value}',
+                      value: s.parentLevelValue(entry.value),
                     ),
                 ],
         ),
@@ -224,14 +226,15 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
         TextButton.icon(
           onPressed: _changePin,
           icon: const Icon(Icons.lock_reset, color: Colors.white70),
-          label: const Text('Eltern-PIN ändern',
-              style: TextStyle(color: Colors.white70)),
+          label: Text(s.parentChangePin,
+              style: const TextStyle(color: Colors.white70)),
         ),
       ],
     );
   }
 
   Future<void> _changePin() async {
+    final s = S.of(context)!;
     final pinController = TextEditingController();
     final confirmController = TextEditingController();
     final result = await showDialog<String>(
@@ -241,7 +244,7 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
         return StatefulBuilder(
           builder: (context, setSt) => AlertDialog(
             backgroundColor: SpaceTheme.deepSpace,
-            title: const Text('PIN ändern'),
+            title: Text(s.parentChangePinDialogTitle),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -251,7 +254,7 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
                   keyboardType: TextInputType.number,
                   maxLength: 4,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  decoration: const InputDecoration(labelText: 'Neue PIN'),
+                  decoration: InputDecoration(labelText: s.parentNewPinLabel),
                 ),
                 TextField(
                   controller: confirmController,
@@ -260,28 +263,28 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
                   maxLength: 4,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   decoration: InputDecoration(
-                      labelText: 'Bestätigen', errorText: err),
+                      labelText: s.parentConfirmPinLabel, errorText: err),
                 ),
               ],
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Abbrechen'),
+                child: Text(s.cancel),
               ),
               TextButton(
                 onPressed: () {
                   if (pinController.text.length != 4) {
-                    setSt(() => err = '4 Ziffern erforderlich');
+                    setSt(() => err = s.parentPinRequireFour);
                     return;
                   }
                   if (pinController.text != confirmController.text) {
-                    setSt(() => err = 'Stimmt nicht überein');
+                    setSt(() => err = s.parentPinMismatch);
                     return;
                   }
                   Navigator.pop(context, pinController.text);
                 },
-                child: const Text('Speichern'),
+                child: Text(s.save),
               ),
             ],
           ),
@@ -294,7 +297,7 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
       if (mounted) {
         setState(() => _storedPin = result);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('PIN aktualisiert')),
+          SnackBar(content: Text(s.parentPinUpdated)),
         );
       }
     }
