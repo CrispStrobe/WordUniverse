@@ -6,8 +6,10 @@ import 'dart:async';
 
 import '../../../core/services/debug_provider.dart';
 import '../../../core/services/sri_service.dart';
+import '../../../core/services/streak_service.dart';
 import '../../games/screens/sri_review_screen.dart';
 import '../../games/screens/cognitive_profile_screen.dart';
+import '../../achievements/screens/achievements_screen.dart';
 import '../../../core/theme/space_theme.dart';
 import '../../../generated/l10n.dart';
 import '../../games/providers/game_provider.dart';
@@ -229,6 +231,41 @@ class _HomeScreenState extends State<HomeScreen>
 
             const SizedBox(width: 4),
 
+            Consumer<StreakService>(
+              builder: (context, streak, _) {
+                if (!streak.isLoaded || streak.currentStreak == 0) {
+                  return const SizedBox.shrink();
+                }
+                return Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: SpaceTheme.deepSpace.withValues(alpha: 0.8),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                          color: SpaceTheme.rocketRed.withValues(alpha: 0.6)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text('🔥', style: TextStyle(fontSize: 16)),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${streak.currentStreak}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
             Consumer<SriService>(
               builder: (context, sri, _) {
                 final due = sri.getAvailableReviewCount();
@@ -270,6 +307,26 @@ class _HomeScreenState extends State<HomeScreen>
                 size: isVerySmall ? 22 : 28,
               ),
               tooltip: 'Lernprofil',
+              style: IconButton.styleFrom(
+                backgroundColor: SpaceTheme.deepSpace.withValues(alpha: 0.8),
+                padding: EdgeInsets.all(isVerySmall ? 8 : 12),
+              ),
+            ),
+
+            const SizedBox(width: 4),
+
+            IconButton(
+              onPressed: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => const AchievementsScreen(),
+                ));
+              },
+              icon: Icon(
+                Icons.emoji_events,
+                color: Colors.white,
+                size: isVerySmall ? 22 : 28,
+              ),
+              tooltip: 'Erfolge',
               style: IconButton.styleFrom(
                 backgroundColor: SpaceTheme.deepSpace.withValues(alpha: 0.8),
                 padding: EdgeInsets.all(isVerySmall ? 8 : 12),

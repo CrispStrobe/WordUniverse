@@ -122,6 +122,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
           child: Column(
             children: [
               _buildHeader(),
+              _buildDifficultyPicker(),
               Expanded(
                 child: LayoutBuilder(
                   builder: (context, constraints) {
@@ -450,8 +451,51 @@ class _GameMenuScreenState extends State<GameMenuScreen>
     );
   }
 
+  Widget _buildDifficultyPicker() {
+    return Consumer<GameProvider>(
+      builder: (context, gp, _) {
+        final s = S.of(context)!;
+        final mode = gp.difficultyMode;
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _DifficultyButton(
+                label: s.difficultyEasy,
+                icon: Icons.spa,
+                selected: mode == DifficultyMode.easy,
+                onTap: () => gp.setDifficultyMode(DifficultyMode.easy),
+              ),
+              const SizedBox(width: 8),
+              _DifficultyButton(
+                label: s.difficultyNormal,
+                icon: Icons.school,
+                selected: mode == DifficultyMode.normal,
+                onTap: () => gp.setDifficultyMode(DifficultyMode.normal),
+              ),
+              const SizedBox(width: 8),
+              _DifficultyButton(
+                label: s.difficultyChallenge,
+                icon: Icons.local_fire_department,
+                selected: mode == DifficultyMode.challenge,
+                onTap: () => gp.setDifficultyMode(DifficultyMode.challenge),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   GradeLevel _getGradeLevelFromInt(int grade) {
-    switch (grade) {
+    // Apply the current difficulty mode's grade shift so the game
+    // launches one band easier/harder than the player's official grade
+    // when requested.
+    final gameProvider = context.read<GameProvider>();
+    final shifted = (grade + gameProvider.difficultyMode.gradeShift)
+        .clamp(1, 6);
+    switch (shifted) {
       case 1: return GradeLevel.grade1;
       case 2: return GradeLevel.grade2;
       case 3: return GradeLevel.grade3;
@@ -632,6 +676,62 @@ class _GameCardState extends State<GameCard>
           ),
         );
       },
+    );
+  }
+}
+class _DifficultyButton extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final bool selected;
+  final VoidCallback onTap;
+  const _DifficultyButton({
+    required this.label,
+    required this.icon,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: selected
+                ? SpaceTheme.starYellow.withValues(alpha: 0.25)
+                : SpaceTheme.deepSpace.withValues(alpha: 0.6),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: selected
+                  ? SpaceTheme.starYellow
+                  : Colors.white24,
+              width: selected ? 2 : 1,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon,
+                  size: 16,
+                  color: selected ? SpaceTheme.starYellow : Colors.white60),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  color: selected ? Colors.white : Colors.white60,
+                  fontWeight:
+                      selected ? FontWeight.bold : FontWeight.normal,
+                  fontSize: 13,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

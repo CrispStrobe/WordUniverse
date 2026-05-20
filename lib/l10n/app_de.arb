@@ -538,6 +538,22 @@
     "gameScore": "Punkte",
     "@gameScore": {
         "description": "Score label used across games"
+    },
+    "difficultyEasy": "Leicht",
+    "@difficultyEasy": {
+        "description": "Difficulty picker — easy mode (grade - 1)"
+    },
+    "difficultyNormal": "Normal",
+    "@difficultyNormal": {
+        "description": "Difficulty picker — normal mode (player's grade)"
+    },
+    "difficultyChallenge": "Knifflig",
+    "@difficultyChallenge": {
+        "description": "Difficulty picker — challenge mode (grade + 1)"
+    },
+    "streakLabel": "{count, plural, =1{1 Tag} other{{count} Tage}}",
+    "@streakLabel": {
+        "description": "Plural label for consecutive-day streak",
+        "placeholders": { "count": { "type": "int" } }
     }
-
 }
