@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
@@ -392,6 +393,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
 
     if (isCorrect) {
       _audioService.playSound('success');
+      HapticFeedback.lightImpact();
       _gameProvider.addScore(20);
       
       final eduInfo = _getEducationalInfo(_currentWord!);
@@ -425,7 +427,8 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
 
     } else {
       _audioService.playSound('failure');
-      
+      HapticFeedback.heavyImpact();
+
       setState(() {
         _feedbackState = FeedbackState.incorrect;
         _feedbackMessage = '✗ ${s.tryAgain}';
@@ -708,11 +711,15 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
       child: Row(
         children: [
           // Back button
-          IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.white, size: isLandscape ? 20 : 24),
-            onPressed: () => Navigator.of(context).pop(),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
+          Semantics(
+            label: 'Zurück',
+            button: true,
+            child: IconButton(
+              icon: Icon(Icons.arrow_back, color: Colors.white, size: isLandscape ? 20 : 24),
+              onPressed: () => Navigator.of(context).pop(),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+            ),
           ),
           
           const SizedBox(width: 12),
@@ -751,18 +758,23 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
           const SizedBox(width: 8),
           
           // Reset button
-          Material(
-            color: SpaceTheme.cosmicPink,
-            borderRadius: BorderRadius.circular(8),
-            child: InkWell(
-              onTap: _feedbackState == FeedbackState.none ? _resetPath : null,
+          Semantics(
+            label: 'Auswahl zurücksetzen',
+            button: true,
+            enabled: _feedbackState == FeedbackState.none,
+            child: Material(
+              color: SpaceTheme.cosmicPink,
               borderRadius: BorderRadius.circular(8),
-              child: Container(
-                padding: EdgeInsets.all(isLandscape ? 8 : 10),
-                child: Icon(
-                  Icons.refresh,
-                  color: Colors.white,
-                  size: isLandscape ? 18 : 20,
+              child: InkWell(
+                onTap: _feedbackState == FeedbackState.none ? _resetPath : null,
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  padding: EdgeInsets.all(isLandscape ? 8 : 10),
+                  child: Icon(
+                    Icons.refresh,
+                    color: Colors.white,
+                    size: isLandscape ? 18 : 20,
+                  ),
                 ),
               ),
             ),
@@ -771,26 +783,33 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
           const SizedBox(width: 8),
           
           // Score
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: SpaceTheme.alienGreen.withValues(alpha: 0.8),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.star, color: Colors.white, size: isLandscape ? 14 : 16),
-                const SizedBox(width: 4),
-                Text(
-                  '$totalScore',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: isLandscape ? 12 : 14,
+          Semantics(
+            label: 'Punkte: $totalScore',
+            liveRegion: true,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: SpaceTheme.alienGreen.withValues(alpha: 0.8),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.star, color: Colors.white, size: isLandscape ? 14 : 16),
+                  const SizedBox(width: 4),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      '$totalScore',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: isLandscape ? 12 : 14,
+                      ),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
@@ -897,74 +916,99 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
       bgColor = SpaceTheme.nebulaPurple.withValues(alpha: 0.6);
     }
 
-    return GestureDetector(
-      onTap: () => _onCellTapped(row, col),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected
-                ? SpaceTheme.starYellow
-                : SpaceTheme.deepSpace.withValues(alpha: 0.3),
-            width: isSelected ? 3 : 1,
+    return Semantics(
+      label: isSelected
+          ? 'Buchstabe $letter, Position ${selectionIndex + 1}'
+          : 'Buchstabe $letter',
+      button: true,
+      selected: isSelected,
+      child: GestureDetector(
+        onTap: () => _onCellTapped(row, col),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected
+                  ? SpaceTheme.starYellow
+                  : SpaceTheme.deepSpace.withValues(alpha: 0.3),
+              // Thicker border on correct/incorrect adds a shape signal
+              // alongside the color change.
+              width: _feedbackState != FeedbackState.none && isSelected
+                  ? 4
+                  : (isSelected ? 3 : 1),
+            ),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: SpaceTheme.starYellow.withValues(alpha: 0.5),
+                      blurRadius: 8,
+                      spreadRadius: 2,
+                    )
+                  ]
+                : null,
           ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: SpaceTheme.starYellow.withValues(alpha: 0.5),
-                    blurRadius: 8,
-                    spreadRadius: 2,
-                  )
-                ]
-              : null,
-        ),
-        child: Stack(
-          children: [
-            Center(
-              child: Text(
-                letter,
-                style: TextStyle(
-                  fontFamily: selectedFontFamily,
-                  fontSize: fontSize,
-                  fontWeight: FontWeight.bold,
-                  color: textColor,
-                  shadows: const [
-                    Shadow(blurRadius: 4, color: Colors.black54),
-                  ],
+          child: Stack(
+            children: [
+              Center(
+                child: Text(
+                  letter,
+                  style: TextStyle(
+                    fontFamily: selectedFontFamily,
+                    fontSize: fontSize,
+                    fontWeight: FontWeight.bold,
+                    color: textColor,
+                    shadows: const [
+                      Shadow(blurRadius: 4, color: Colors.black54),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            if (orderText != null)
-              Positioned(
-                top: 4,
-                right: 4,
-                child: Container(
-                  width: orderCircleSize,
-                  height: orderCircleSize,
-                  decoration: const BoxDecoration(
-                    color: SpaceTheme.starYellow,
-                    shape: BoxShape.circle,
+              // ✓/✗ icon overlay during correct/incorrect feedback
+              // (shape redundancy for color-blind players).
+              if (isSelected && _feedbackState != FeedbackState.none)
+                Positioned(
+                  bottom: 2,
+                  left: 2,
+                  child: Icon(
+                    _feedbackState == FeedbackState.correct
+                        ? Icons.check
+                        : Icons.close,
+                    color: Colors.white,
+                    size: cellSize * 0.22,
                   ),
-                  child: Center(
-                    child: Text(
-                      orderText,
-                      style: TextStyle(
-                        fontSize: orderFontSize,
-                        fontWeight: FontWeight.bold,
-                        color: SpaceTheme.deepSpace,
+                ),
+              if (orderText != null)
+                Positioned(
+                  top: 4,
+                  right: 4,
+                  child: Container(
+                    width: orderCircleSize,
+                    height: orderCircleSize,
+                    decoration: const BoxDecoration(
+                      color: SpaceTheme.starYellow,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Text(
+                        orderText,
+                        style: TextStyle(
+                          fontSize: orderFontSize,
+                          fontWeight: FontWeight.bold,
+                          color: SpaceTheme.deepSpace,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
-  
+
   Widget _buildFeedbackToast(S s) {
     if (_feedbackMessage.isEmpty) { 
       return const SizedBox.shrink();
@@ -975,37 +1019,38 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
     final color = isSuccess ? Colors.green : SpaceTheme.rocketRed;
     final icon = isSuccess ? Icons.check_circle : Icons.cancel;
 
-    return Material(
-      color: Colors.transparent,
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 400),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: SpaceTheme.deepSpace.withValues(alpha: 0.95),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color, width: 2),
-          boxShadow: [
-            BoxShadow(
-              color: color.withValues(alpha: 0.5),
-              blurRadius: 10,
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 32, color: color),
-            const SizedBox(height: 8),
-            Text(
-              _feedbackMessage,
-              style: SpaceTheme.bodyStyle.copyWith(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+    return Semantics(
+      liveRegion: true,
+      child: Material(
+        color: Colors.transparent,
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 400),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: SpaceTheme.deepSpace.withValues(alpha: 0.95),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: color, width: 2),
+            boxShadow: [
+              BoxShadow(
+                color: color.withValues(alpha: 0.5),
+                blurRadius: 10,
               ),
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 32, color: color),
+              const SizedBox(height: 8),
+              Text(
+                _feedbackMessage,
+                style: SpaceTheme.bodyStyle.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
             if (_educationalInfo.isNotEmpty) ...[
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 8.0),
@@ -1022,13 +1067,14 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
                 maxLines: 5,
                 overflow: TextOverflow.ellipsis,
               ),
-            ]
-          ],
+              ]
+            ],
+          ),
         ),
       ),
     );
   }
-  
+
   Widget _buildInstructionToast() {
     if (_instructionHint.isEmpty) {
       return const SizedBox.shrink();
