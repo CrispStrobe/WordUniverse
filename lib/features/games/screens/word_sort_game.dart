@@ -890,14 +890,17 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Semantics(
-            label: 'Wort: $displayWord. Ziehe es auf die richtige Wortart.',
-            child: Draggable<GermanWordType>(
-              data: _currentWord!.wordType,
-              onDragStarted: () => setState(() => _isDragging = true),
-              onDragEnd: (details) => setState(() => _isDragging = false),
-              feedback: _buildWordCard(displayWord, selectedFontFamily, isFeedback: true),
-              childWhenDragging: _buildWordCard(displayWord, selectedFontFamily, isPlaceholder: true),
+          // Semantics goes on the child of Draggable, not around it —
+          // wrapping the Draggable itself can interfere with Flutter web's
+          // pointer pipeline and freeze drag/tap input on some browsers.
+          Draggable<GermanWordType>(
+            data: _currentWord!.wordType,
+            onDragStarted: () => setState(() => _isDragging = true),
+            onDragEnd: (details) => setState(() => _isDragging = false),
+            feedback: _buildWordCard(displayWord, selectedFontFamily, isFeedback: true),
+            childWhenDragging: _buildWordCard(displayWord, selectedFontFamily, isPlaceholder: true),
+            child: Semantics(
+              label: 'Wort: $displayWord. Ziehe es auf die richtige Wortart.',
               child: _buildWordCard(displayWord, selectedFontFamily),
             ),
           ),
@@ -993,12 +996,15 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     required IconData icon,
     required Color color,
   }) {
-    return Semantics(
-      label: 'Ablagebereich: $label',
-      child: DragTarget<GermanWordType>(
+    // Semantics goes on the builder's output (the visual) rather than
+    // wrapping DragTarget itself. Wrapping DragTarget directly with
+    // Semantics can interfere with Flutter web's pointer pipeline.
+    return DragTarget<GermanWordType>(
       builder: (context, candidateData, rejectedData) {
         final bool isHighlighted = candidateData.isNotEmpty;
-        return AnimatedContainer(
+        return Semantics(
+          label: 'Ablagebereich: $label',
+          child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           // Width is handled by parent column/stretch
           decoration: BoxDecoration(
@@ -1043,13 +1049,13 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
               }
             ),
           ),
+        ),
         );
       },
       onWillAcceptWithDetails: (data) => true,
       onAcceptWithDetails: (details) {
         _handleDrop(details.data, targetType);
       },
-      ),
     );
   }
 
