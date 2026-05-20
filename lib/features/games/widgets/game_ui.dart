@@ -43,27 +43,35 @@ class GameUI extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // Back Button
-              IconButton(
-                icon: Icon(
-                  Icons.arrow_back_ios,
-                  color: Colors.white,
-                  size: isCompact ? 22 : 28,
+              Semantics(
+                label: 'Zurück',
+                button: true,
+                child: IconButton(
+                  icon: Icon(
+                    Icons.arrow_back_ios,
+                    color: Colors.white,
+                    size: isCompact ? 22 : 28,
+                  ),
+                  onPressed: onBack,
                 ),
-                onPressed: onBack,
               ),
-              
+
               SizedBox(width: isCompact ? 12 : 16),
-              
+
               // Title Area
               Expanded(
                 // Use the custom widget if provided; otherwise, use the default Text title.
-                child: customTitleWidget ?? Text(
-                  title,
-                  style: SpaceTheme.headlineStyle.copyWith(
-                    fontSize: isCompact ? 20 : 28,
+                child: customTitleWidget ?? FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    title,
+                    style: SpaceTheme.headlineStyle.copyWith(
+                      fontSize: isCompact ? 20 : 28,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                   ),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
                 ),
               ),
               
@@ -81,38 +89,50 @@ class GameUI extends StatelessWidget {
     return Row(
       children: [
         // Level
-        _buildStatItem(
-          icon: Icons.emoji_events,
-          label: isCompact ? '' : 'Level', // Hide label if compact
-          value: level.toString(),
-          color: SpaceTheme.starYellow,
-          isCompact: isCompact,
+        Semantics(
+          label: 'Stufe $level',
+          container: true,
+          child: _buildStatItem(
+            icon: Icons.emoji_events,
+            label: isCompact ? '' : 'Level', // Hide label if compact
+            value: level.toString(),
+            color: SpaceTheme.starYellow,
+            isCompact: isCompact,
+          ),
         ),
-        
+
         SizedBox(width: isCompact ? 8 : 12),
-        
+
         // Score
         Consumer<GameProvider>(
           builder: (context, gameProvider, child) {
-            return _buildStatItem(
-              icon: Icons.star,
-              label: isCompact ? '' : 'Score', // Hide label if compact
-              value: gameProvider.score.toString(),
-              color: SpaceTheme.alienGreen,
-              isCompact: isCompact,
+            return Semantics(
+              label: 'Punkte: ${gameProvider.score}',
+              liveRegion: true,
+              child: _buildStatItem(
+                icon: Icons.star,
+                label: isCompact ? '' : 'Score', // Hide label if compact
+                value: gameProvider.score.toString(),
+                color: SpaceTheme.alienGreen,
+                isCompact: isCompact,
+              ),
             );
           },
         ),
-        
+
         // Time (if provided)
         if (timeLeft != null) ...[
           SizedBox(width: isCompact ? 8 : 12),
-          _buildStatItem(
-            icon: Icons.timer,
-            label: isCompact ? '' : 'Time', // Hide label if compact
-            value: _formatTime(timeLeft!),
-            color: timeLeft! > 10 ? SpaceTheme.cosmicPink : SpaceTheme.rocketRed,
-            isCompact: isCompact,
+          Semantics(
+            label: 'Verbleibende Zeit: ${_formatTime(timeLeft!)}',
+            liveRegion: true,
+            child: _buildStatItem(
+              icon: Icons.timer,
+              label: isCompact ? '' : 'Time', // Hide label if compact
+              value: _formatTime(timeLeft!),
+              color: timeLeft! > 10 ? SpaceTheme.cosmicPink : SpaceTheme.rocketRed,
+              isCompact: isCompact,
+            ),
           ),
         ],
       ],
@@ -144,20 +164,26 @@ class GameUI extends StatelessWidget {
           // Conditionally show the label text, hiding it if the label is empty.
           if (label.isNotEmpty) ...[
             const SizedBox(width: 8),
-            Text(
-              '$label: $value',
-              style: SpaceTheme.bodyStyle.copyWith(
-                fontWeight: FontWeight.bold,
-                fontSize: 15,
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                '$label: $value',
+                style: SpaceTheme.bodyStyle.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
               ),
             ),
           ] else ...[
             const SizedBox(width: 6),
-            Text(
-              value,
-              style: SpaceTheme.bodyStyle.copyWith(
-                fontWeight: FontWeight.bold,
-                fontSize: 15,
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                value,
+                style: SpaceTheme.bodyStyle.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
               ),
             ),
           ],
