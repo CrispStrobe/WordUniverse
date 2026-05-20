@@ -96,32 +96,36 @@ class _SpaceBackgroundState extends State<SpaceBackground>
       ),
       child: Stack(
         children: [
-          // Animated Stars
-          AnimatedBuilder(
-            animation: _starsController,
-            builder: (context, child) {
-              return CustomPaint(
-                painter: StarsPainter(
-                  stars: stars,
-                  animation: _starsController.value,
-                ),
-                size: MediaQuery.of(context).size,
-              );
-            },
+          // Animated Stars (purely decorative; hide from screen readers)
+          ExcludeSemantics(
+            child: AnimatedBuilder(
+              animation: _starsController,
+              builder: (context, child) {
+                return CustomPaint(
+                  painter: StarsPainter(
+                    stars: stars,
+                    animation: _starsController.value,
+                  ),
+                  size: MediaQuery.of(context).size,
+                );
+              },
+            ),
           ),
-          
-          // Animated Planets
-          AnimatedBuilder(
-            animation: _planetsController,
-            builder: (context, child) {
-              return CustomPaint(
-                painter: PlanetsPainter(
-                  planets: planets,
-                  animation: _planetsController.value,
-                ),
-                size: MediaQuery.of(context).size,
-              );
-            },
+
+          // Animated Planets (purely decorative)
+          ExcludeSemantics(
+            child: AnimatedBuilder(
+              animation: _planetsController,
+              builder: (context, child) {
+                return CustomPaint(
+                  painter: PlanetsPainter(
+                    planets: planets,
+                    animation: _planetsController.value,
+                  ),
+                  size: MediaQuery.of(context).size,
+                );
+              },
+            ),
           ),
           
           // Content
