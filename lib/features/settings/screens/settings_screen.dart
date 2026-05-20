@@ -16,6 +16,8 @@ import '../../../core/services/sri_service.dart';
 import '../../../shared/widgets/imprint_dialog.dart';
 import 'diagnostics_screen.dart';
 import '../../games/screens/parent_dashboard_screen.dart';
+import '../../../shared/widgets/privacy_policy_dialog.dart';
+import '../../../shared/widgets/parental_gate.dart';
 
 import '../../../generated/l10n.dart';
 
@@ -1506,6 +1508,27 @@ class _SettingsScreenState extends State<SettingsScreen>
           ),
 
           _buildFeatureRow(
+            title: 'Datenschutz',
+            subtitle: 'Was auf diesem Gerät gespeichert wird',
+            icon: Icons.shield_outlined,
+            isLocked: false,
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (_) => const PrivacyPolicyDialog(),
+              );
+            },
+          ),
+
+          _buildFeatureRow(
+            title: 'Alle Daten löschen',
+            subtitle: 'Fortschritt auf diesem Gerät zurücksetzen',
+            icon: Icons.delete_forever,
+            isLocked: false,
+            onTap: () => _confirmResetAllData(context),
+          ),
+
+          _buildFeatureRow(
             title: S.of(context)!.licensesTitle,
             subtitle: S.of(context)!.viewOssLicenses,
             icon: Icons.article_rounded,
@@ -1976,6 +1999,20 @@ class _SettingsScreenState extends State<SettingsScreen>
     );
   }
   
+  /// Parental-gated full reset. Math challenge first, then existing
+  /// confirmation dialog.
+  void _confirmResetAllData(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => ParentalGateDialog(
+        onSuccess: () {
+          Navigator.of(context).pop();
+          _showResetDialog();
+        },
+      ),
+    );
+  }
+
   void _showResetDialog() {
     showDialog(
       context: context,

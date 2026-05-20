@@ -204,13 +204,26 @@ from the home header with a trophy icon. German strings inline (see
 
 ## Tier 8 — Privacy / compliance (kids app)
 
-### [ ] 23. Privacy policy + age gate + data disclosure
-If analytics or crash reporting ever gets turned on, COPPA / GDPR-K
-disclosure becomes mandatory. Better to lay groundwork now.
+### [x] 23. Privacy policy + data disclosure
+New `PrivacyPolicyDialog` in both projects (English for space_math,
+German for voc). 7 sections covering: short summary, what's stored
+locally, network behavior, crash report flow, COPPA/GDPR-K
+applicability, user reset rights, change policy. Reachable from
+Settings → Privacy & data (space_math) / Datenschutz (voc).
+Composition: honest claim that nothing is transmitted, no PII
+collected, so the consent rules of COPPA + GDPR Art. 8 don't
+attach because there's nothing to consent to.
 
-### [ ] 24. Audit data-at-rest sensitivity
-SharedPreferences for everything is fine for now. If anything PII is
-ever stored, switch to platform secure storage.
+### [x] 24. Audit data-at-rest + reset control
+Inventory: 11 SharedPreferences keys in space_math (game_data,
+sri_database, cognitive_profile, achievements, gridlock_played_puzzles,
+streak_current/longest, debug_force_unlock, language,
+starloader_played_ids, settings), plus a 50-entry rolling crash_log
+JSONL file. Voc adds: sri_language_database, custom_words,
+vocabulary_sets, parent_pin, and the extracted DB. No PII anywhere.
+Added "Reset all data" parental-gated action to Settings in both
+projects — challenge gate first (math addition), then the existing
+reset confirmation dialog. Documented findings in the policy text.
 
 ---
 
