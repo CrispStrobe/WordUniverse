@@ -562,9 +562,10 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
   }
 
   void _handleMiss() {
+    final s = S.of(context);
     setState(() {
       _feedbackState = FeedbackState.incorrect;
-      _feedbackMessage = 'Zu langsam!';
+      _feedbackMessage = s?.gameTooSlow ?? 'Zu langsam!';
       _combo = 0;
       _itemsCompleted++;
     });
@@ -607,8 +608,8 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
           mainAxisSize: MainAxisSize.min,
           children: [
             Text('${s.gameScore}: $_score', style: SpaceTheme.bodyStyle),
-            Text('Level: $_level', style: SpaceTheme.bodyStyle),
-            Text('Max Combo: $_maxCombo', style: SpaceTheme.bodyStyle),
+            Text(s.gameLevelLine(_level), style: SpaceTheme.bodyStyle),
+            Text(s.gameMaxComboLine(_maxCombo), style: SpaceTheme.bodyStyle),
           ],
         ),
         actions: [
@@ -648,9 +649,9 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
           child: Column(
             children: [
               _buildTopBar(s),
-              if (_showTitle) _buildTitleSection(),
+              if (_showTitle) _buildTitleSection(s),
               Expanded(child: _buildGameArea(selectedFontFamily)),
-              _buildSubmitButton(),
+              _buildSubmitButton(s),
             ],
           ),
         ),
@@ -658,13 +659,13 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
     );
   }
 
-  Widget _buildTitleSection() {
+  Widget _buildTitleSection(S s) {
     return FadeTransition(
       opacity: _titleFadeAnimation,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         child: Text(
-          'Großschreibungs-Galaxie',
+          s.grossschreibTitle,
           style: SpaceTheme.headlineStyle.copyWith(fontSize: 20),
         ),
       ),
@@ -703,7 +704,7 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
               border: Border.all(color: SpaceTheme.nebulaPurple.withValues(alpha: 0.5)),
             ),
             child: Text(
-              'Lvl $_level',
+              s.gameLvlBadge(_level),
               style: SpaceTheme.bodyStyle.copyWith(
                 fontSize: 11,
                 fontWeight: FontWeight.bold,
@@ -737,7 +738,7 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
           const Spacer(),
           Flexible(
             child: Text(
-              'Klicke auf das Wort!',
+              s.grossschreibClickHint,
               style: SpaceTheme.bodyStyle.copyWith(
                 fontSize: 11,
                 color: Colors.white70,
@@ -1001,7 +1002,7 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
     }
   }
 
-  Widget _buildSubmitButton() {
+  Widget _buildSubmitButton(S s) {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Align(
@@ -1032,14 +1033,14 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
                   ),
                 ],
               ),
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.check_circle, size: 28, color: Colors.white),
-                  SizedBox(width: 10),
+                  const Icon(Icons.check_circle, size: 28, color: Colors.white),
+                  const SizedBox(width: 10),
                   Text(
-                    'PRÜFEN',
-                    style: TextStyle(
+                    s.grossschreibCheck,
+                    style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
