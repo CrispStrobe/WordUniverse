@@ -626,8 +626,8 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                               ],
                             ),
                             child: Icon(
-                              Icons.rocket_launch, 
-                              color: Colors.white, 
+                              Icons.auto_stories,
+                              color: Colors.white,
                               size: isSmallScreen ? 50 : 80
                             ),
                           ),

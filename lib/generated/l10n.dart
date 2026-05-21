@@ -516,13 +516,13 @@ abstract class S {
   /// No description provided for @gameOver.
   ///
   /// In en, this message translates to:
-  /// **'Mission Complete!'**
+  /// **'Expedition Complete!'**
   String get gameOver;
 
   /// No description provided for @backToMenu.
   ///
   /// In en, this message translates to:
-  /// **'Back to Mission Control'**
+  /// **'Back to the Word Universe'**
   String get backToMenu;
 
   /// No description provided for @playAgain.
@@ -552,7 +552,7 @@ abstract class S {
   /// No description provided for @gameMenu.
   ///
   /// In en, this message translates to:
-  /// **'Mission Control'**
+  /// **'Word Universe'**
   String get gameMenu;
 
   /// No description provided for @level.
@@ -582,7 +582,7 @@ abstract class S {
   /// No description provided for @excellent.
   ///
   /// In en, this message translates to:
-  /// **'Excellent work, Commander!'**
+  /// **'Excellent, Explorer!'**
   String get excellent;
 
   /// No description provided for @good.
@@ -600,7 +600,7 @@ abstract class S {
   /// No description provided for @nextLevel.
   ///
   /// In en, this message translates to:
-  /// **'Next Mission'**
+  /// **'Next Expedition'**
   String get nextLevel;
 
   /// No description provided for @settings.
@@ -642,13 +642,13 @@ abstract class S {
   /// No description provided for @congratulations.
   ///
   /// In en, this message translates to:
-  /// **'Congratulations, Commander!'**
+  /// **'Congratulations, Explorer!'**
   String get congratulations;
 
   /// No description provided for @missionsCompleted.
   ///
   /// In en, this message translates to:
-  /// **'Missions Completed: {count}'**
+  /// **'Expeditions Completed: {count}'**
   String missionsCompleted(int count);
 
   /// No description provided for @starsEarned.
@@ -906,7 +906,7 @@ abstract class S {
   /// No description provided for @contactingStore.
   ///
   /// In en, this message translates to:
-  /// **'Contacting Mission Control...'**
+  /// **'Reaching the Word Universe...'**
   String get contactingStore;
 
   /// No description provided for @purchaseError.
@@ -1224,13 +1224,13 @@ abstract class S {
   /// No description provided for @preparingMission.
   ///
   /// In en, this message translates to:
-  /// **'Preparing your language mission...'**
+  /// **'Preparing your expedition...'**
   String get preparingMission;
 
   /// No description provided for @initializing.
   ///
   /// In en, this message translates to:
-  /// **'Initializing Word Universe...'**
+  /// **'Initializing the Word Universe...'**
   String get initializing;
 
   /// No description provided for @loadingAssets.
@@ -1248,7 +1248,7 @@ abstract class S {
   /// No description provided for @preparingSpaceStation.
   ///
   /// In en, this message translates to:
-  /// **'Preparing space station...'**
+  /// **'Preparing the Word Universe...'**
   String get preparingSpaceStation;
 
   /// No description provided for @calibratingNav.

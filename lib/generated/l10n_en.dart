@@ -262,10 +262,10 @@ class SEn extends S {
   String get correct => 'Correct!';
 
   @override
-  String get gameOver => 'Mission Complete!';
+  String get gameOver => 'Expedition Complete!';
 
   @override
-  String get backToMenu => 'Back to Mission Control';
+  String get backToMenu => 'Back to the Word Universe';
 
   @override
   String get playAgain => 'Play Again';
@@ -280,7 +280,7 @@ class SEn extends S {
   String get adjustProblems => 'Adjusts problems based on your skill';
 
   @override
-  String get gameMenu => 'Mission Control';
+  String get gameMenu => 'Word Universe';
 
   @override
   String get level => 'Level';
@@ -295,7 +295,7 @@ class SEn extends S {
   String get incorrect => 'Error!';
 
   @override
-  String get excellent => 'Excellent work, Commander!';
+  String get excellent => 'Excellent, Explorer!';
 
   @override
   String get good => 'Good job!';
@@ -304,7 +304,7 @@ class SEn extends S {
   String get tryAgain => 'Try Again!';
 
   @override
-  String get nextLevel => 'Next Mission';
+  String get nextLevel => 'Next Expedition';
 
   @override
   String get settings => 'Settings';
@@ -325,11 +325,11 @@ class SEn extends S {
   String get achievements => 'Achievements';
 
   @override
-  String get congratulations => 'Congratulations, Commander!';
+  String get congratulations => 'Congratulations, Explorer!';
 
   @override
   String missionsCompleted(int count) {
-    return 'Missions Completed: $count';
+    return 'Expeditions Completed: $count';
   }
 
   @override
@@ -463,7 +463,7 @@ class SEn extends S {
   String get purchaseButton => 'Unlock Now!';
 
   @override
-  String get contactingStore => 'Contacting Mission Control...';
+  String get contactingStore => 'Reaching the Word Universe...';
 
   @override
   String get purchaseError =>
@@ -631,10 +631,10 @@ class SEn extends S {
   String get loadingAdventure => 'Loading Word Adventure...';
 
   @override
-  String get preparingMission => 'Preparing your language mission...';
+  String get preparingMission => 'Preparing your expedition...';
 
   @override
-  String get initializing => 'Initializing Word Universe...';
+  String get initializing => 'Initializing the Word Universe...';
 
   @override
   String get loadingAssets => 'Loading game assets...';
@@ -643,7 +643,7 @@ class SEn extends S {
   String get loadingProgress => 'Loading saved progress...';
 
   @override
-  String get preparingSpaceStation => 'Preparing space station...';
+  String get preparingSpaceStation => 'Preparing the Word Universe...';
 
   @override
   String get calibratingNav => 'Calibrating navigation systems...';

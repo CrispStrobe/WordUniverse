@@ -262,10 +262,10 @@ class SDe extends S {
   String get correct => 'Richtig!';
 
   @override
-  String get gameOver => 'Mission abgeschlossen!';
+  String get gameOver => 'Erkundung abgeschlossen!';
 
   @override
-  String get backToMenu => 'Zurück zur Missionskontrolle';
+  String get backToMenu => 'Zurück ins Wort-Universum';
 
   @override
   String get playAgain => 'Nochmal spielen';
@@ -280,7 +280,7 @@ class SDe extends S {
   String get adjustProblems => 'Passe die Aufgaben an deine Fähigkeiten an';
 
   @override
-  String get gameMenu => 'Missionskontrolle';
+  String get gameMenu => 'Wort-Universum';
 
   @override
   String get level => 'Level';
@@ -295,7 +295,7 @@ class SDe extends S {
   String get incorrect => 'Fehler!';
 
   @override
-  String get excellent => 'Hervorragende Arbeit, Kommandant!';
+  String get excellent => 'Großartig, Forscher!';
 
   @override
   String get good => 'Gut gemacht!';
@@ -304,7 +304,7 @@ class SDe extends S {
   String get tryAgain => 'Nochmal versuchen!';
 
   @override
-  String get nextLevel => 'Nächste Mission';
+  String get nextLevel => 'Nächste Erkundung';
 
   @override
   String get settings => 'Einstellungen';
@@ -325,11 +325,11 @@ class SDe extends S {
   String get achievements => 'Erfolge';
 
   @override
-  String get congratulations => 'Herzlichen Glückwunsch, Kommandant!';
+  String get congratulations => 'Herzlichen Glückwunsch, Forscher!';
 
   @override
   String missionsCompleted(int count) {
-    return 'Missionen abgeschlossen: $count';
+    return 'Erkundungen abgeschlossen: $count';
   }
 
   @override
@@ -465,7 +465,7 @@ class SDe extends S {
   String get purchaseButton => 'Jetzt freischalten!';
 
   @override
-  String get contactingStore => 'Verbinde mit Missionskontrolle...';
+  String get contactingStore => 'Verbinde mit dem Wort-Universum...';
 
   @override
   String get purchaseError =>
@@ -636,10 +636,10 @@ class SDe extends S {
   String get loadingAdventure => 'Lade Wort-Abenteuer...';
 
   @override
-  String get preparingMission => 'Bereite deine Sprach-Mission vor...';
+  String get preparingMission => 'Bereite deine Erkundung vor...';
 
   @override
-  String get initializing => 'Initialisiere Wort-Universum...';
+  String get initializing => 'Initialisiere das Wort-Universum...';
 
   @override
   String get loadingAssets => 'Lade Spiel-Assets...';
@@ -648,7 +648,7 @@ class SDe extends S {
   String get loadingProgress => 'Lade gespeicherten Fortschritt...';
 
   @override
-  String get preparingSpaceStation => 'Bereite Raumstation vor...';
+  String get preparingSpaceStation => 'Bereite das Wort-Universum vor...';
 
   @override
   String get calibratingNav => 'Kalibriere Navigationssysteme...';
