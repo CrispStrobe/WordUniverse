@@ -269,16 +269,131 @@ grade levels 1–6.
 
 ### What we don't yet have
 
-| Layer | DE source | EN substitute |
+| Layer | DE source | EN substitute (safe-licensed only — see LICENSES.md ❌ table for removed candidates) |
 |---|---|---|
-| Pedagogical wordlists | NRW Grundwortschatz 1L/1S/3L/3S, A1/A2/B1, Fehler CSVs | Oxford 3000™/5000™, **English Vocabulary Profile** (CEFR), Dolch 220, Fry 1000, **UK Y1–6 statutory spelling lists**, Common Core K‑5 |
-| Frequency corpora | Leipzig, Buchmeier20k, de_50k_hermitdave, leeds_freq | **SUBTLEX‑US** (with Age‑of‑Acquisition!), en_50k_hermitdave, Google 1‑gram, AoA‑Kuperman 2012 |
-| Spelling "Merkwörter" | 111_NRW_Merkwörter, 422_NRW_Nachdenkwörter | UK National Curriculum statutory lists per year + Wikipedia "Lists of commonly misspelled English words" |
-| Common learner errors | 100/200/300 Fehler CSVs | Birkbeck Spelling Error Corpus, Wikipedia common misspellings, Hunspell affix‑mutated typos |
+| Pedagogical wordlists | NRW Grundwortschatz 1L/1S/3L/3S, A1/A2/B1, Fehler CSVs | **UK National Curriculum English Programmes of Study Appendix 1** (Y1–Y6 statutory spelling lists, OGL v3.0), **Dolch 220** (US public-domain pre-1978), **Fry 1000** (community PD compilations). ~~Oxford 3000/5000~~ ❌ © OUP, ~~English Vocabulary Profile~~ ❌ Cambridge UP, ~~Common Core K‑5~~ — verify each individual list's source if used. |
+| Frequency corpora | HermitDave/OpenSubtitles 2018, Buchmeier20k, Leipzig, Leeds | **HermitDave EN** (`en_50k_hermitdave.txt`, CC-BY-SA 4.0), **AoA-Kuperman 2012** (Springer supplementary data, reusable for derivative facts). ~~SUBTLEX‑US~~ ❌ academic/NC-only. |
+| Age-graded lexical norms | childLex (GPL-3.0, 10M-token children's-literature corpus) | **Open question** — no obvious English childLex equivalent. Candidates: SUBTLEX-UK Children (verify license), CPWD (Masterson et al., research-only), or build our own from public-domain English children's literature (Carroll, Stevenson, Wilde, Twain — full Project Gutenberg corpus). The PD-corpus path is mirrored in DE's deferred "children's-literature corpus" track (PLAN session note 2026-05-21). |
+| Spelling "Merkwörter" / Sound-out exceptions | 111_NRW_Merkwörter, 422_NRW_Nachdenkwörter | UK Y1–Y6 statutory lists per year + Wikipedia "Lists of commonly misspelled English words" (CC-BY-SA 4.0) |
+| Common learner errors | 100/200/300 Fehler CSVs (Menzel 1985 facts) | Wikipedia "Lists of common misspellings" (CC-BY-SA 4.0), Hunspell affix-mutated typos (algorithmic, LGPL on Hunspell itself), Birkbeck Spelling Error Corpus (verify license before use) |
+| Algorithmic frequency band | DWDS Häufigkeitsklasse (CC-BY-SA 4.0, 271k lemmas) | **Open question** — Google Books 1-gram (terms restrict bulk use), corpus-derived band from PD children's literature, or English Frequency Lists from OPUS (CC-BY-SA 4.0). Verify before use. |
+| Per-region pedagogical attribution | 9 German source tokens (NRW + BW + 7 Bundesländer with explicit per-Bundesland categories) | UK national curriculum is monolithic — no per-region split. Likely use **per-year tokens**: `UK_Y1`, `UK_Y2`, … `UK_Y6` instead of per-region. May add `DOLCH_PP_PRIMER/1ST/2ND/3RD` for the Dolch 220 sub-groupings (each grade tier is a separate list within Dolch). |
 | Genus / article | der/die/das | Drop genus, keep `article` nullable; populate with `a`/`an`/`the` for nouns |
 | Compound words | Wortbaumeister (rich) | Sparse in EN — replace as primary game mode (firetruck/breakfast etc) |
 | Separable verbs | Verbtrenner | **Phrasal verbs** — multi‑word, requires `enrichment_json.phrasalVerb` field |
 | Capitalization | Großschreibung | Different rules — replace with homophone game (their/there/they're) |
+
+### Patterns to inherit from the voc-de 2026-05-21 session
+
+The 17-commit DE rebuild proved out several patterns; the EN pipeline
+should follow them rather than reinvent.
+
+**1. Three-phase build pattern**
+
+The DE rebuild eventually settled on: `01–09 pipeline build to initial DB`
+→ `11–14 enrichment + final compaction` → `post-build patcher scripts`.
+The post-build patchers are idempotent, run on the gzipped shipped DB,
+and add one source-token + categorization at a time. This is much
+cheaper than a full rebuild whenever a new source surfaces.
+
+For voc-en, mirror this:
+- **Phase A**: steps `01–09_en.py` produce a base DB with Wiktionary +
+  ConceptNet + OEWN + frequency.
+- **Phase B**: steps `11–14_en.py` enrich + compact (V24 sweep, final
+  SQLite schema, FTS index).
+- **Phase C**: post-build patchers (one per source-token):
+  - `add_uk_curriculum_y1.py` … `add_uk_curriculum_y6.py`  (or
+    one unified `add_uk_curriculum.py` with per-year tokens)
+  - `add_dolch.py`  (Pre-Primer / Primer / 1st / 2nd / 3rd grade sub-lists)
+  - `add_fry.py`
+  - `add_wikipedia_common_misspellings_en.py`
+  - `add_aoa_kuperman.py`  (writes `frequency_json.kuperman: {aoa, …}`)
+  - `add_hermitdave_en_band.py` (algorithmic frequency-band fallback)
+  - `compute_grade_level_estimate_en.py` (UK-Y-authoritative + AoA + freq)
+
+Each patcher is a self-contained Python script ~150–200 LOC that
+gunzips → matches lemmas → updates `metadata_json.sources` or
+`frequency_json.<token>` → re-gzips. The pattern is proven by 11 such
+scripts in `pipeline/voc-de/add_*.py` plus `compute_grade_level_estimate.py`.
+
+**2. License-cascade discipline**
+
+For every EN source candidate, before integration:
+
+1. Check the *publisher's* Impressum / Terms (not just a third-party
+   mirror). Hamburg was the cautionary tale on the DE side —
+   netzbar.de hosted the official Hamburg list but their own Impressum
+   was all-rights-reserved.
+2. Verify CC-BY-SA-4.0 / GPL-3.0 / OGL v3.0 status explicitly. Treat
+   anything labeled "research only" or "academic use" as ❌ for the
+   shipped DB; PLAN.md §6.4 documents the German pedagogical-term
+   carve-out for own-derivations, which applies to EN too (rule names
+   aren't copyrightable, only specific curated wordlists are).
+3. Note any GPL-3.0 sources up-front — the DE DB cascaded to GPL-3.0
+   because of childLex. If an EN equivalent is GPL-3.0, the EN DB will
+   cascade similarly. Document this in the EN HF dataset README
+   *before* integration (mirroring `HF_DATASET_README.md`).
+4. **Cite each source with the required attribution** in the in-app
+   `LicenseRegistry` (settings_screen.dart) AND in `LICENSES.md`. The
+   DE rebuild added 10 new `LicenseRegistry` entries in commit
+   `0f2e497` — follow the same template.
+
+**3. Per-source-token categorization**
+
+The DE DB carries per-Bundesland orthographic categories under keys
+like `hessenCategories: [...]`, `bayernCategories: [...]`, `schleswig_holsteinCategories: [...]`.
+This allowed filtering by "Lautgetreue Einsilber" or "Wörter mit
+Doppelkonsonanz" per source's own pedagogical scheme.
+
+For EN, the equivalent would be e.g.:
+
+```jsonc
+"metadata_json": {
+  "sources": ["UK_Y3", "DOLCH_2ND", "WIKI_MISSPELLINGS_EN"],
+  "ukCurriculumYear": "Y3",
+  "ukCurriculumCategories": ["statutory spelling list", "homophones"],
+  "dolchCategories": ["2nd-grade list", "sight word"],
+  "frySubBand": "200-300"
+}
+```
+
+Each EN curriculum source has its own categorization scheme; preserve
+it under a state-distinguished metadata key.
+
+**4. Algorithmic gradeLevelEstimate for EN**
+
+DE used `childlex age1/age2/age3 → Klasse 1-2/3-4/5-6 + DWDS fk fallback`.
+
+EN equivalent (decision tree):
+- If UK Y1–Y6 statutory list → that year is `gradeLevelEstimate`
+  (authoritative, like NRW grade_level)
+- Else if Dolch Pre-Primer/Primer/1st/2nd/3rd → 1 / 1 / 2 / 3 / 4
+- Else if AoA-Kuperman age ≤ 7 → 1-2; 8-9 → 3-4; 10+ → 5-6
+- Else fallback to a frequency-band heuristic (HermitDave rank or
+  an OPUS-derived band)
+
+Store as `metadata_json.gradeLevelEstimate` + `gradeLevelEstimateSource`
+per the DE pattern (see `compute_grade_level_estimate.py`).
+
+**5. HF dataset upload preparation**
+
+The DE side has `pipeline/voc-de/HF_DATASET_README.md` + Parquet
+companion files at `pipeline/voc-de/hf_export/`. Mirror for EN:
+
+- `pipeline/voc-en/HF_DATASET_README.md` — single dataset card with
+  YAML frontmatter, schema docs, source-attribution table, license
+  cascade explanation, citation block. Target HF dataset path:
+  `cstr/grundwortschatz-voc-en` (or similar).
+- Reuse `pipeline/voc-de/export_to_parquet.py` (it's schema-driven —
+  just point at the new SQLite path; columns are language-agnostic).
+
+**6. Idempotency requirement for all patchers**
+
+Every post-build patcher must be safe to re-run. Pattern:
+- Check whether the token is already in `metadata_json.sources` →
+  if so, skip update for that field.
+- Categories should be MERGED (set union) not REPLACED.
+- The DE rebuild has 11 idempotent patchers as reference implementations.
 
 ### EN pipeline, step by step (mirror of DE 01–14)
 
