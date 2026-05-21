@@ -66,7 +66,6 @@ External (must be downloaded manually):
 | `frequencies.py`, `word_types.py`, `fix_json.py` | One‑off diagnostics |
 | `test_google_api.py`, `test_grecy.py`, `test_phonemizer.py` | Experiments (probably TTS / Greek spaCy / phonemizer probe) |
 | `inflection_enricher.dart` | Old (V21) Dart‑side enricher — replaced by `11_reprocess_full_wikidict.py` |
-| `extract_exercises.dart` | Extracts grammar exercises from final JSON (duplicate of the `extract_exercises.py` at project root) |
 
 ## VPS‑side scripts
 

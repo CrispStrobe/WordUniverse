@@ -233,8 +233,6 @@ The numbered pipeline takes its final shape:
   four‑table schema (`words` with JSON blobs + `translations` +
   `examples` + FTS5 `search_index`).
 - `analyze_mysql_dump.py` — schema explorer used while writing 13b.
-- `extract_exercises.dart` — Dart utility to pull grammar exercises
-  out of the JSON (still in the current repo at root).
 
 ## Some time after Nov 19, 2025 — The Great Compression
 

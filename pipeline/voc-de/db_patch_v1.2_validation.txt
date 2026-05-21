@@ -1,0 +1,29 @@
+words  translations  examples
+-----  ------------  --------
+10450  27587         24471   
+grade_level  n   
+-----------  ----
+1            393 
+2            342 
+3            379 
+4            394 
+5            7347
+6            1595
+with_spellingStrategy
+---------------------
+10450                
+with_spellingPatterns
+---------------------
+10450                
+nrw_derived
+-----------
+463        
+fallback
+--------
+9987    
+with_nrw_features
+-----------------
+463              
+with_misspellings
+-----------------
+21               
