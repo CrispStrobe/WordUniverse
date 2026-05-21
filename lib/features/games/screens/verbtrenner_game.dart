@@ -382,7 +382,14 @@ class _VerbtrennerGameState extends State<VerbtrennerGame>
     
     final match = accusativePattern.firstMatch(text);
     if (match != null) {
-      return match.group(0); // Return "den Mantel", "eine Jacke", etc.
+      // Lowercase the article so the phrase reads naturally mid-sentence
+      // (the example may have it capitalized at a sentence start, e.g. "Die
+      // Kinder ..."). The noun stays as-is so German noun capitalization
+      // is preserved.
+      final phrase = match.group(0)!;
+      return phrase.isEmpty
+          ? phrase
+          : phrase[0].toLowerCase() + phrase.substring(1);
     }
   }
   
