@@ -251,6 +251,62 @@ voc main branch:
 Subsequent commits (`0aa1e6b`, `fa44a12`, current `main`) are post‑build
 app work (a11y, streak fire tap, version bump, etc.) — not pipeline.
 
+## 2026-05-21 — DE DB v1.2.x ship-ready rebuild via in-place patches
+
+A single intensive session moved the shipped DB from "feature-complete
+v1.1 with mixed-attribution issues" to "v1.2.x — every word
+attributed, multi-corpus frequency, algorithmic grade-band, ready for
+HF dataset upload". 17 commits between `1f0c72b` and `aaa39ee`. All
+patches operate in-place on `assets/grundwortschatz.db.gz`; no full
+pipeline re-run was needed.
+
+Summary of what landed (in chronological order):
+
+| Commit | What |
+|---|---|
+| `f47bb8f` | Dual-taxonomy spelling-pattern fields (`spellingStrategy` 6-cat detailed + `spellingPatterns` 5-cat broad), Wikipedia "Häufige Falschschreibungen" misspellings, deleted misnamed `extract_exercises.dart` duplicate. Pubspec → 1.2.0. |
+| `2581d38` | Stripped residual `LEO739` source-attribution token from 731 words (Leoschule Lünen list, no formal license). 38 became sourceless; 33 of those later rescued by Bundesländer integration. |
+| `d02f979` | Berliner Grundwortschatz (LISUM 2024, **CC-BY-SA 4.0 explicit**) → 1339 word attributions. |
+| `39709c4` | Hessischer Grundwortschatz (Hess. KuMi, §5 UrhG amtliches Werk) → 1599 attributions. |
+| `a83c181` | Brandenburger Grundwortschatz (LISUM 2024, **CC-BY-SA 4.0 explicit**) → 1342 attributions. |
+| `8c3a70d` | Hessen enrichment — added 53 orthographic-pattern categories per word (`hessenCategories`). |
+| `bc4e8d3` | Rheinland-Pfalz Grundwortschatz (Min. Bildung Mainz, §5 UrhG, RLP-adapted Hessen list with Hessen permission) → 1378 attributions + 40 categories. |
+| `9429c98` | Niedersachsen Orientierungswortschatz (Nds. KuMi 2015, §5 UrhG) → 1455 attributions. |
+| `907ce85` | Bayern Grundwortschatz (ISB Bayern, §5 UrhG) → 1087 attributions + 43 fine-grained orthographem-level categories. |
+| `cc70030` | Schleswig-Holstein Rechtschreib-Grundwortschatz (SH MinBuB / IQSH 2023, §5 UrhG via SH redistribution path) → 633 attributions + 59 hierarchical categories. |
+| `e791ae9` | DWDS Lemma-Datenbank Häufigkeitsklassen (DWDS / BBAW, **CC-BY-SA 4.0**) → 8844 words tagged with 7-level frequenzklasse 0-6 + Wortklasse. |
+| `b6d084d` | **childLex** age-graded lexical norms (Schroeder et al. 2015, **GPL-3.0**) → 9307 words tagged with age1/age2/age3 freq norms. **License cascade**: composite DB now ships as GPL-3.0 (per CC's 2015 v4-compatible decision, CC-BY-SA-4.0 → GPL-3.0 is one-way compatible). App code stays under its own license. |
+| `99cbd3d` | Draft HF dataset README at `pipeline/voc-de/HF_DATASET_README.md` ready for `cstr/grundwortschatz-voc-de` upload. |
+| `0f2e497` | App-side `LicenseRegistry` entries for all 9 new sources + composite-license posture statement + dynamic `applicationVersion` via `package_info_plus`. |
+| `c7631ec` | Algorithmic `metadata_json.gradeLevelEstimate` (1-6) + `gradeLevelEstimateSource` per word — combines NRW-authoritative for Kl 1-4, childLex age-band presence for refinement, DWDS frequenzklasse as fallback. |
+| `aaa39ee` | Parquet companion files for HF upload — `words.parquet`, `translations.parquet`, `examples.parquet` at `pipeline/voc-de/hf_export/` + the `export_to_parquet.py` regenerator script. |
+
+### Skipped this session (with rationale)
+
+- **Hamburg Basiswortschatz** — netzbar.de Impressum is all-rights-reserved. Not safe to integrate without written permission from `netzbar.de` (the commercial contractor) or Schulbehörde Hamburg directly.
+- **Sachsen** — only Klasse 1 PDF found at cms.sachsen.schule; PDF metadata shows "Schicker PC" as creator, fileadmin/user_upload/ path suggests user-contributed content, publisher authority unclear. Per Blumenthal 2020 Sachsen has only "häufigste 100 Wörter" anyway.
+- **Mecklenburg-Vorpommern** — Blumenthal-cited URL (bildung-mv.de/downloads/Handreichung-Mindestwortschatz.pdf) is 404, not in Wayback Machine, regierung-mv.de press-release URL returns only the announcement PDF (not the handreichung itself). Defer until the file resurfaces.
+- **Re-extract NDS with categories** — present extraction is lemma-only; two-column PDF layout makes header-to-word association ambiguous, queued as future work.
+
+### Provenance / new dependencies
+
+`pipeline/voc-de/` gained 12 new scripts in this session:
+
+- `patch_existing_db.py` (orig 9bb2fa, polished here) — dual taxonomy + misspellings
+- `strip_leo_attribution.py`
+- `add_berlin_grundwortschatz.py` / `add_brandenburg_grundwortschatz.py`
+- `add_hessen_grundwortschatz.py` (with categories) / `add_rheinland_pfalz_grundwortschatz.py`
+- `add_niedersachsen_orientierungswortschatz.py`
+- `add_bayern_grundwortschatz.py` / `add_schleswig_holstein_grundwortschatz.py`
+- `add_dwds_haeufigkeitsklassen.py`
+- `add_childlex_norms.py`
+- `compute_grade_level_estimate.py`
+- `export_to_parquet.py`
+
+All scripts are idempotent: re-running on the patched DB will detect
+already-tagged words and skip them (no duplicate tokens, no
+double-attribution).
+
 ## Tail — what isn't dated
 
 - The `top10000en.txt`, `top1000en.txt`, `top1000fr.txt` at the project

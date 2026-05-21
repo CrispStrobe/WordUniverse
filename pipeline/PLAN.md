@@ -21,12 +21,30 @@ The rest is reference / enrichment / cleanup material:
 
 ---
 
-## 1. DE DB safe rebuild (highest priority)
+## 1. DE DB safe rebuild (highest priority) ✅ **shipped 2026-05-21**
 
-**Goal**: ship a new `assets/grundwortschatz.db.gz` that is **at least
-as feature-complete as the current one** and uses **only safely-
-licensed source data** — no Tacke (educational-use only), no
-unidentified third-party FRESCH-overlay lists, no NC-restricted
+**Status**: completed via in-place patching path rather than full pipeline
+re-run. See `pipeline/HISTORY.md → 2026-05-21 DE DB v1.2.x ship-ready
+rebuild` for the 17-commit run. Highlights:
+
+- LEO739 attribution token stripped from shipped DB metadata.
+- 7 Bundesländer integrated: Berlin & Brandenburg (CC-BY-SA 4.0
+  LISUM), Hessen, RLP, NDS, Bayern, SH (§5 UrhG amtliche Werke).
+  Berlin/BB ship with explicit CC-BY-SA-4.0 grants; others under
+  the standard public-administrative-material posture.
+- DWDS Häufigkeitsklassen (CC-BY-SA 4.0) → frequency_json.dwds for
+  8844/10450 words.
+- childLex (GPL-3.0) age-graded norms → frequency_json.childlex for
+  9307/10450 words. **License cascade**: shipped DB is now GPL-3.0.
+- Algorithmic gradeLevelEstimate per word combining childLex +
+  DWDS + NRW signals.
+- HF dataset README + Parquet companion files prepared for the
+  forthcoming `cstr/grundwortschatz-voc-de` upload (PLAN §8.3 / §3).
+
+**Original goal preserved**: ship a new `assets/grundwortschatz.db.gz`
+that is **at least as feature-complete as the current one** and uses
+**only safely-licensed source data** — no Tacke (educational-use only),
+no unidentified third-party FRESCH-overlay lists, no NC-restricted
 content.
 
 ### 1.1 What changes vs the current shipped DB
@@ -889,7 +907,7 @@ Catalogued by free-license suitability for a commercial app.
 
 | Source | URL | License status | Notes |
 |---|---|---|---|
-| **childLex** (Schroeder et al., HU Berlin) | https://childlex.de | "Frei verfügbar für nicht-kommerzielle Forschung" on the project page — **likely NC** for commercial use; ask the authors. | Would be the single most impactful add for K–6 grade accuracy if license is OK. Deferred until written permission. |
+| **childLex** (Schroeder et al., HU Berlin) | https://childlex.de + https://osf.io/tqgjs | **GNU GPL-3.0** per the OSF project page (verified via OSF API 2026-05-21). The earlier "research-only NC" framing was stale. GPL-3.0 permits commercial use; integration would cascade the shipped DB's license CC-BY-SA-4.0 → GPL-3.0 (these are one-way compatible per Creative Commons' 2015 v4-compatible decision). App code stays proprietary either way. | Strategic call: integrating cascades the DB license. Worth doing for the grade-band accuracy boost (childLex norms cover ages 6–8 / 9–10 / 11–12 — natural fit for Klassen 1-6 grade-band signal). |
 
 ### Recommended integration order
 
