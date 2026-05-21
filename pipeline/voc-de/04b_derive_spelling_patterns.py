@@ -1,61 +1,72 @@
-"""Derive FRESCH spelling-strategy categories from the NRW Grundwortschatz
-feature taxonomy and attach them to the consolidated vocabulary JSON.
+"""Derive spelling-pattern categories from the NRW Grundwortschatz feature
+taxonomy and attach them to the consolidated vocabulary JSON.
 
-This replaces the historical `532Strategien.csv` source (which overlaid
-FRESCH categories on the NRW wordlist via an unidentified third source).
-Instead we apply the FRESCH categorization **algorithmically** to the
-NRW linguistic-feature flags that the official NRW Grundwortschatz xlsx
-*already* contains — produced for us by `conv_xls.py` as
-`output_nested.json`.
+The category names used here (klangtreu / doppelkonsonant / verwandt /
+merkwort / morphem / grossschreibung) are neutral German linguistic-pattern
+labels. They describe the *linguistic feature* each word's spelling rests
+on; they are NOT borrowed from any branded pedagogical method. Pedagogically
+they cover the same ground as several published German spelling-strategy
+methods, but the labels here are independent and the derivation rules
+are our own.
 
-This makes the FRESCH categorization **our own derivation** from a clean
-source (NRW Ministerium für Schule und Bildung — German educational
-public administrative material). No third-party FRESCH publication is
+We apply the categorization **algorithmically** to the NRW linguistic-
+feature flags that the official NRW Grundwortschatz xlsx already contains
+— produced for us by `conv_xls.py` as `output_nested.json`.
+
+This makes the spelling-pattern categorization **our own derivation** from
+a clean source: NRW Ministerium für Schule und Bildung — German educational
+public administrative material. No third-party curated wordlist is
 consumed.
 
-Pedagogical mapping (NRW feature → FRESCH category):
+Mapping (NRW xlsx feature → spelling-pattern category):
 
-  Mitsprechen         ← phonematisches Prinzip.mehrteilige Basisgrapheme.*
-                        (Diphthonge ei/eu/au, Konsonanten ch/sch/ng/pf,
-                         ie, …) — sound‑it‑out patterns once known.
-                        Also the **default** when no other category applies.
+  klangtreu         ← phonematisches Prinzip.mehrteilige Basisgrapheme.*
+                      (Diphthonge ei/eu/au, Konsonanten ch/sch/ng/pf, ie, …)
+                      and phonematisches Prinzip.Reduktionsendung.*
+                      — sound‑it‑out patterns once known.
+                      Also the **default** when no other category applies.
 
-  Weiterschwingen     ← orthografisches und silbisches Prinzip.
-                        Orthographeme.Doppelkonsonanten.* (any double
-                        consonant: ss/ll/nn/tt/ck/mm/pp/tz/…). Also
-                        kurzes u / kurzes i dialectal markers.
+  doppelkonsonant   ← orthografisches und silbisches Prinzip.
+                      Orthographeme.Doppelkonsonanten.* (any double
+                      consonant: ss/ll/nn/tt/ck/mm/pp/tz/…)
+                      and mögliche dialektale Hürden.kurzes u / kurzes i.
 
-  Ableiten            ← morphematisches Prinzip.Auslautverhärtung.*
-                        (b/p, d/t, g/k devoicing) and
-                        morphematisches Prinzip.Umlautung.* (ä, ö, ü, äu).
+  verwandt          ← morphematisches Prinzip.Auslautverhärtung.*
+                      (b/p, d/t, g/k devoicing — find a related form
+                      to hear the underlying consonant) and
+                      morphematisches Prinzip.Umlautung.* (ä, ö, ü, äu).
 
-  Merken              ← Artikel.häufig gebrauchte (Funktions‑)Merkwörter
-                        (the explicit Merkwort flag), and the default
-                        fallback for words with no other pattern marker.
+  merkwort          ← Artikel.häufig gebrauchte (Funktions‑)Merkwörter
+                      (the explicit Merkwort flag in the NRW xlsx).
 
-  Wortbausteine       ← morphematisches Prinzip.Präfixe.* (ver/vor/ge/…),
-                        morphematisches Prinzip.Auslautverhärtung.Komposita
-                        (compound‑word case), and any word that spaCy
-                        morphology flags as compound (handled in step 02).
+  morphem           ← morphematisches Prinzip.Präfixe.* (ver/vor/ge/…),
+                      morphematisches Prinzip.Auslautverhärtung.Komposita
+                      (compound‑word case), and orthografisches und
+                      silbisches Prinzip.silbentrennendes -h.
 
-  Großschreibung      ← Artikel.der|die|das present OR
-                        zusätzliche Filter.Wortart.Nomen present.
+  grossschreibung   ← Artikel.der|die|das present OR
+                      zusätzliche Filter.Wortart.Nomen present.
 
 Input:
   output_nested.json           (533 NRW entries with feature flags, from conv_xls.py)
   grundwortschatz_merged.json  (the merged JSON after step 04)
 
 Output:
-  grundwortschatz_merged_with_fresch.json
-  fresch_coverage_report.txt   (diagnostic: per‑category counts)
+  grundwortschatz_merged_with_patterns.json
+  pattern_coverage_report.txt  (diagnostic: per‑category counts)
 
-Adds field `apiEnrichment.spellingStrategy` = ["mitsprechen", "weiterschwingen", …]
-to every entry that has a matching NRW headword. Multi-label per word
-(matches the original 532Strategien shape).
+Adds these fields to each vocab entry's apiEnrichment:
+  • spellingStrategy           — multi-label list, kid-facing
+  • spellingStrategyPrimary    — single primary label, kid-facing
+  • spellingStrategySource     — "nrw_derived" | "fallback_heuristic"
+  • nrwLinguisticFeatures      — list of raw NRW feature paths
+                                 (only present for NRW-derived entries;
+                                 provided for transparency / academic view
+                                 per PLAN.md §6.5)
 
-Words not in the NRW Grundwortschatz get a heuristic fallback based on
-morphology (capitalization → Großschreibung, doubled consonants in lemma →
-Weiterschwingen, etc.).
+Words outside the NRW Grundwortschatz get a heuristic fallback based on
+surface morphology (capitalization → grossschreibung, doubled consonants
+in lemma → doppelkonsonant, etc.).
 """
 from __future__ import annotations
 
@@ -68,39 +79,43 @@ from collections import Counter
 HERE = Path(__file__).parent
 INPUT_NRW = HERE / "output_nested.json"
 INPUT_MERGED = HERE / "grundwortschatz_merged.json"
-OUTPUT = HERE / "grundwortschatz_merged_with_fresch.json"
-REPORT = HERE / "fresch_coverage_report.txt"
+OUTPUT = HERE / "grundwortschatz_merged_with_patterns.json"
+REPORT = HERE / "pattern_coverage_report.txt"
 
-# FRESCH canonical category tokens (matches the historical 532Strategien shape)
-MITSPRECHEN = "mitsprechen"
-WEITERSCHWINGEN = "weiterschwingen"
-ABLEITEN = "ableiten"
-MERKEN = "merken"
-WORTBAUSTEINE = "wortbausteine"
-GROSSSCHREIBUNG = "grossschreibung"
+# Canonical category tokens — neutral German linguistic-pattern names.
+# These describe the *linguistic feature* each word's spelling rests on;
+# they do not borrow any branded method's terminology. Pedagogically they
+# cover the same ground that several published German spelling-strategy
+# methods cover, but the labels are independent.
+KLANGTREU = "klangtreu"             # regular phoneme-grapheme mapping (sound-it-out)
+DOPPELKONSONANT = "doppelkonsonant" # doubled-consonant pattern (extend word to check)
+VERWANDT = "verwandt"               # related-word derivation (Auslautverhaertung, Umlautung)
+MERKWORT = "merkwort"               # memorize as a special case (irregular spelling)
+MORPHEM = "morphem"                 # word components / prefixes / compounds
+GROSSSCHREIBUNG = "grossschreibung" # capitalization rule (proper / common nouns)
 
 # Priority order for picking the single primary strategy per word.
-# Grossschreibung wins when it applies (highest pedagogical leverage —
+# grossschreibung wins when it applies (highest pedagogical leverage —
 # capitalization is the orthogonal rule with the largest "if you know it,
-# you avoid the error" payoff). Among the sound/letter strategies,
-# Merken > Weiterschwingen > Ableiten > Wortbausteine > Mitsprechen, where
-# Mitsprechen is the default for words with no special pattern.
+# you avoid the error" payoff). Among the sound/letter patterns,
+# merkwort > doppelkonsonant > verwandt > morphem > klangtreu, where
+# klangtreu is the default for words with no special pattern.
 PRIMARY_PRIORITY = [
     GROSSSCHREIBUNG,
-    MERKEN,
-    WEITERSCHWINGEN,
-    ABLEITEN,
-    WORTBAUSTEINE,
-    MITSPRECHEN,
+    MERKWORT,
+    DOPPELKONSONANT,
+    VERWANDT,
+    MORPHEM,
+    KLANGTREU,
 ]
 
 def pick_primary(cats: set[str]) -> str:
-    """Pick the single highest-priority FRESCH category for the primary
+    """Pick the single highest-priority spelling-pattern category for the primary
     label per §6.2 / §6.5 of pipeline/PLAN.md."""
     for c in PRIMARY_PRIORITY:
         if c in cats:
             return c
-    return MITSPRECHEN  # safety net; never reached if cats non-empty
+    return KLANGTREU  # safety net; never reached if cats non-empty
 
 # Regex helpers for the heuristic fallback (words not in NRW xlsx)
 RE_DOUBLED_CONSONANT = re.compile(r"([bcdfghjklmnpqrstvwxyz])\1", re.IGNORECASE)
@@ -113,7 +128,7 @@ RE_PRAEFIX = re.compile(
 )
 
 # ---------------------------------------------------------------------------
-# NRW feature → FRESCH category mapping
+# NRW feature → spelling-pattern category mapping
 # ---------------------------------------------------------------------------
 
 def _collect_x_paths(obj, prefix=""):
@@ -139,8 +154,8 @@ def _extract_word(entry: dict) -> str | None:
             return v.strip()
     return None
 
-def nrw_features_to_fresch(entry: dict) -> tuple[set[str], list[str]]:
-    """Return (fresch_categories, raw_nrw_paths) for one NRW entry."""
+def nrw_features_to_patterns(entry: dict) -> tuple[set[str], list[str]]:
+    """Return (categories, raw_nrw_paths) for one NRW entry."""
     paths = list(_collect_x_paths(entry))
     cats: set[str] = set()
 
@@ -150,40 +165,40 @@ def nrw_features_to_fresch(entry: dict) -> tuple[set[str], list[str]]:
                 or p.startswith("Artikel.das")
                 or "zusätzliche Filter.Wortart.Nomen" in p):
             cats.add(GROSSSCHREIBUNG)
-        # --- Merken ---
+        # --- merkwort ---
         if "häufig gebrauchte" in p and "Merkwörter" in p:
-            cats.add(MERKEN)
-        # --- Wortbausteine: prefixes, compounds ---
+            cats.add(MERKWORT)
+        # --- morphem: prefixes, compounds ---
         if "morphematisches Prinzip.Präfixe" in p:
-            cats.add(WORTBAUSTEINE)
+            cats.add(MORPHEM)
         if "Komposita" in p:
-            cats.add(WORTBAUSTEINE)
-        # --- Ableiten: Auslautverhärtung + Umlautung ---
+            cats.add(MORPHEM)
+        # --- verwandt: Auslautverhärtung + Umlautung ---
         if ("morphematisches Prinzip.Auslautverhärtung" in p
                 and "Komposita" not in p):
-            cats.add(ABLEITEN)
+            cats.add(VERWANDT)
         if "morphematisches Prinzip.Umlautung" in p:
-            cats.add(ABLEITEN)
-        # --- Weiterschwingen: Doppelkonsonanten ---
+            cats.add(VERWANDT)
+        # --- doppelkonsonant: doubled consonants + short vowels ---
         if "Doppelkonsonanten" in p:
-            cats.add(WEITERSCHWINGEN)
+            cats.add(DOPPELKONSONANT)
         if "mögliche dialektale Hürden.kurzes u" in p:
-            cats.add(WEITERSCHWINGEN)
+            cats.add(DOPPELKONSONANT)
         if "mögliche dialektale Hürden.kurzes i" in p:
-            cats.add(WEITERSCHWINGEN)
-        # --- Mitsprechen: mehrteilige Basisgrapheme + Reduktionsendung ---
+            cats.add(DOPPELKONSONANT)
+        # --- klangtreu: multi-letter base graphemes + reduction endings ---
         if ("phonematisches Prinzip.mehrteilige Basisgrapheme" in p
                 or "phonematisches Prinzip.Reduktionsendung" in p):
-            cats.add(MITSPRECHEN)
-        # --- Wortbausteine: silbentrennendes -h is a syllable-boundary marker ---
+            cats.add(KLANGTREU)
+        # --- morphem: silbentrennendes -h is a syllable-boundary marker ---
         if "silbentrennendes -h" in p:
-            cats.add(WORTBAUSTEINE)
+            cats.add(MORPHEM)
 
     # If nothing matched (e.g. the word is in the NRW list but has no
-    # feature tag — purely regular phonology), fall back to Mitsprechen
+    # feature tag — purely regular phonology), fall back to klangtreu
     # (the "regular sound-it-out" default).
     if not cats:
-        cats.add(MITSPRECHEN)
+        cats.add(KLANGTREU)
 
     return cats, paths
 
@@ -193,7 +208,7 @@ def nrw_features_to_fresch(entry: dict) -> tuple[set[str], list[str]]:
 
 def fallback_categories(word: str, lemma: str, word_type: str | None,
                         article: str | None) -> set[str]:
-    """Rough FRESCH tagging for words outside the NRW Grundwortschatz, based
+    """Rough categorization for words outside the NRW Grundwortschatz, based
     on surface features of the lemma. Not as accurate as NRW-derived, but
     keeps coverage > 0 for the whole vocabulary."""
     cats: set[str] = set()
@@ -204,27 +219,27 @@ def fallback_categories(word: str, lemma: str, word_type: str | None,
             or article in ("der", "die", "das")):
         cats.add(GROSSSCHREIBUNG)
 
-    # Weiterschwingen — doubled consonant in the spelling
+    # doppelkonsonant — doubled consonant in the spelling
     if RE_DOUBLED_CONSONANT.search(target):
-        cats.add(WEITERSCHWINGEN)
+        cats.add(DOPPELKONSONANT)
 
     # Ableiten — final voiced→voiceless letter (devoicing candidates) OR umlaut
     if RE_AUSLAUTVERHAERTUNG.search(target) or RE_UMLAUT.search(target):
-        cats.add(ABLEITEN)
+        cats.add(VERWANDT)
 
-    # Wortbausteine — common German prefix
+    # morphem — common German prefix
     if RE_PRAEFIX.match(target):
-        cats.add(WORTBAUSTEINE)
+        cats.add(MORPHEM)
 
-    # Mitsprechen — has a multi-letter base grapheme
+    # klangtreu — has a multi-letter base grapheme
     for digraph in ("sch", "ch", "ng", "pf", "ie", "ei", "eu", "au"):
         if digraph in target.lower():
-            cats.add(MITSPRECHEN)
+            cats.add(KLANGTREU)
             break
 
-    # No signal at all — default to Mitsprechen (regular sound-it-out)
+    # No signal at all — default to klangtreu (regular sound-it-out)
     if not cats:
-        cats.add(MITSPRECHEN)
+        cats.add(KLANGTREU)
 
     return cats
 
@@ -274,8 +289,8 @@ def main():
 
     # Apply mapping
     source_dist = Counter()       # 'nrw_derived' / 'fallback_heuristic'
-    cat_dist = Counter()          # per FRESCH category, how many words carry it
-    primary_dist = Counter()      # per primary FRESCH category
+    cat_dist = Counter()          # per spelling-pattern category, how many words carry it
+    primary_dist = Counter()      # per primary spelling-pattern category
     multi_label_dist = Counter()  # how many strategies per word
     unmapped_features: Counter = Counter()  # NRW feature paths that didn't trigger any category — for tuning
 
@@ -288,7 +303,7 @@ def main():
         nrw_entry = nrw_idx.get(normalize(word)) or nrw_idx.get(normalize(lemma))
         raw_nrw_paths: list[str] = []
         if nrw_entry is not None:
-            cats, raw_nrw_paths = nrw_features_to_fresch(nrw_entry)
+            cats, raw_nrw_paths = nrw_features_to_patterns(nrw_entry)
             source_dist["nrw_derived"] += 1
             # Record which NRW paths didn't map (diagnostic)
             for p in raw_nrw_paths:
@@ -309,7 +324,7 @@ def main():
 
         # Write into apiEnrichment (create if missing; never clobber other
         # apiEnrichment fields). Per PLAN.md §6.5, we ship both the
-        # kid-friendly FRESCH labels AND the raw NRW linguistic feature
+        # kid-friendly spelling-pattern labels AND the raw NRW linguistic feature
         # paths (when available) so the DB is transparent about provenance.
         api = entry.get("apiEnrichment")
         if not isinstance(api, dict):
@@ -335,10 +350,10 @@ def main():
         if not isinstance(meta, dict):
             meta = {}
             out["metadata"] = meta
-        meta["fresch_derivation"] = (
+        meta["pattern_derivation"] = (
             "Categories applied algorithmically from NRW Grundwortschatz "
-            "feature taxonomy. Own derivation; no third-party FRESCH "
-            "publication consumed. See 04b_derive_fresch_categories.py."
+            "feature taxonomy. Own derivation; no third-party curated wordlist "
+            "publication consumed. See 04b_derive_spelling_patterns.py."
         )
 
     with OUTPUT.open("w", encoding="utf-8") as f:
@@ -347,7 +362,7 @@ def main():
 
     # Coverage report
     lines = []
-    lines.append("FRESCH derivation coverage report")
+    lines.append("Spelling-pattern derivation coverage report")
     lines.append("=" * 60)
     lines.append("")
     lines.append("Source of categorization per word:")
@@ -355,16 +370,16 @@ def main():
         pct = 100.0 * n / max(len(vocab), 1)
         lines.append(f"  {k:25s} {n:>5d}  ({pct:5.1f} %)")
     lines.append("")
-    lines.append("Words carrying each FRESCH category (multi-label):")
-    for c in [MITSPRECHEN, WEITERSCHWINGEN, ABLEITEN, MERKEN,
-              WORTBAUSTEINE, GROSSSCHREIBUNG]:
+    lines.append("Words carrying each spelling-pattern category (multi-label):")
+    for c in [KLANGTREU, DOPPELKONSONANT, VERWANDT, MERKWORT,
+              MORPHEM, GROSSSCHREIBUNG]:
         n = cat_dist.get(c, 0)
         pct = 100.0 * n / max(len(vocab), 1)
         lines.append(f"  {c:18s} {n:>5d}  ({pct:5.1f} %)")
     lines.append("")
-    lines.append("Primary FRESCH category (single label, kid-facing):")
-    for c in [MITSPRECHEN, WEITERSCHWINGEN, ABLEITEN, MERKEN,
-              WORTBAUSTEINE, GROSSSCHREIBUNG]:
+    lines.append("Primary spelling-pattern category (single label, kid-facing):")
+    for c in [KLANGTREU, DOPPELKONSONANT, VERWANDT, MERKWORT,
+              MORPHEM, GROSSSCHREIBUNG]:
         n = primary_dist.get(c, 0)
         pct = 100.0 * n / max(len(vocab), 1)
         lines.append(f"  {c:18s} {n:>5d}  ({pct:5.1f} %)")
@@ -377,7 +392,7 @@ def main():
                      f"{n:>5d} words  ({pct:5.1f} %)")
     if unmapped_features:
         lines.append("")
-        lines.append("NRW feature paths that did NOT trigger any FRESCH category")
+        lines.append("NRW feature paths that did NOT trigger any spelling-pattern category")
         lines.append("(tuning hints — these flags weren't recognized by the mapper):")
         for path, n in unmapped_features.most_common(20):
             lines.append(f"  {n:>4d}  {path}")
