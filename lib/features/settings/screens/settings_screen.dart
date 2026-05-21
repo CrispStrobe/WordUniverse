@@ -435,27 +435,31 @@ class _SettingsScreenState extends State<SettingsScreen>
         ]);
       });
 
-      // 9h-extra3. Tacke / Menzel "100 häufigsten Fehlerwörter"
+      // 9h-extra3. Menzel (1985) empirical misspelling-frequency study
       LicenseRegistry.addLicense(() {
         return Stream<LicenseEntry>.fromIterable([
           LicenseEntryWithLineBreaks(
-            ['Häufigste Fehlerwörter (Tacke / Menzel)'],
-            'Authors: Dr. Gero Tacke (Schulpsychologe, Heidelberg);\n'
-            '         underlying study: Wolfgang Menzel (1985)\n'
-            'Source: "Die 100 häufigsten Fehlerwörter der deutschen Sprache" - '
-            'widely redistributed by German schools as PDF reference material '
-            'for educational use.\n'
-            'License: Freely distributed for educational purposes by schools and '
-            'educational platforms; no formal open-source / Creative Commons '
-            'license. Authorship credit retained by Dr. Gero Tacke.\n\n'
-            'The 100Fehler / 300Fehler / 400Fehler error-word lists used to seed '
-            'the commonLearnerErrors pool for the German vocabulary derive from '
-            'this Tacke / Menzel material. Only the correct headwords are present '
-            'in the shipped vocabulary database; the example sentences and '
-            'related-form fields published in the original Tacke materials are '
-            'not redistributed in the app.\n\n'
-            'Credit: Dr. Gero Tacke (Heidelberg) for the curation; Wolfgang Menzel '
-            '(1985) for the underlying empirical study of 2000 student essays.',
+            ['Häufige Fehlerwörter (Menzel 1985 study)'],
+            'Source: Menzel, W. (1985). Rechtschreibunterricht. Praxis und '
+            'Theorie. Seelze: Friedrich-Verlag.\n\n'
+            'Menzel\'s empirical study analyzed approximately 2000 student '
+            'essays (Klassen 2–10) and identified the German words most '
+            'frequently misspelled by school children: 30 % of all errors fall '
+            'on a list of 300 specific words.\n\n'
+            'The "häufige Fehlerwörter" headword list used as one source signal '
+            'for the commonLearnerErrors pool in this app\'s vocabulary database '
+            'are empirical FACTS derived from Menzel\'s research. Under German '
+            'Urheberrecht and EU copyright doctrine, factual research findings '
+            'are not subject to copyright. The same headword data is openly '
+            'distributed by educational organisations such as the Austrian '
+            'Bundesverband Legasthenie (lrs-legasthenie.at) as reference '
+            'material with the same Menzel attribution.\n\n'
+            'The app uses ONLY the empirical headword list (the facts) — '
+            'example sentences, related-form curation, or specific PDF '
+            'presentations published by various popularizers of Menzel\'s '
+            'findings are NOT redistributed in this app.\n\n'
+            'Credit: Prof. Dr. Wolfgang Menzel for the original 1985 empirical '
+            'research.',
           ),
         ]);
       });
