@@ -53,6 +53,9 @@ English Vocabulary Profile, SUBTLEX‑US**.
 | `wortliste-grundwortschatz-nrw.xlsx` | MSB NRW | same as Grundwortschatz | conv_xls.py → output_nested.json → step 04 |
 | `A1.csv` / `A2.csv` / `B1.csv` (DWDS-curated) | DWDS / BBAW, redistributing **Goethe‑Institut** wordlists via `https://www.dwds.de/api/lemma/goethe/{A1,A2,B1}.csv` | DWDS public API + Goethe‑Institut original lists. The lists are factual reference material (which lemmas an A1/A2/B1 learner needs); DWDS distributes them programmatically. **Acknowledge both DWDS and Goethe‑Institut.** | step 01 CEFR pedagogical signal |
 | UD German treebanks (`UD_German-GSD`, `UD_German-HDT`, `UD_German-LIT`, `UD_German-PUD`) | universaldependencies.org | CC‑BY‑SA 4.0 | `verb_government*.json` (aggregate stats only) |
+| **DWDS Lemma-Datenbank** (`https://www.dwds.de/lemma/csv`) | Digitales Wörterbuch der deutschen Sprache (DWDS) / BBAW Berlin | **CC-BY-SA 4.0** | step "add_dwds_haeufigkeitsklassen" → `frequency_json.dwds: {frequenzklasse, wortklasse}` per word. 7-level Häufigkeitsklasse (0–6). 271k lemmas. Required attribution: "Digitales Wörterbuch der deutschen Sprache (DWDS), CC-BY-SA 4.0". |
+| **Bundesländer Grundwortschätze (Berlin, Brandenburg)** | LISUM Berlin-Brandenburg (2024) | **CC-BY-SA 4.0** explicit | `metadata_json.sources: ["BERLIN"|"BRANDENBURG"]` + per-Bundesland Categories where extracted |
+| **Bundesländer Grundwortschätze (Hessen, RLP, NDS, Bayern, SH)** | Hessisches KuMi / Min. Bildung RLP / Nds. KuMi / ISB Bayern / SH MinBuB (Mitwirkung IQSH) | amtliches Werk per §5 UrhG | `metadata_json.sources: ["HESSEN"|"RHEINLAND_PFALZ"|"NIEDERSACHSEN"|"BAYERN"|"SCHLESWIG_HOLSTEIN"]` + per-Bundesland orthographic-pattern Categories |
 
 ### ⚠️ Educational use / not formally licensed for commercial redistribution
 
