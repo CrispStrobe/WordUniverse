@@ -369,30 +369,41 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
         continue;
       }
 
-      // Find the word in the sentence (try different forms)
-      final lowerSentence = sentence.toLowerCase();
-      final lowerWord = word.word.toLowerCase();
-      
-      // Try to find the base word or lemma
-      int wordIndex = lowerSentence.indexOf(lowerWord);
+      // Find the word in the sentence at a word boundary, and extend the
+      // match through any inflectional ending (so a lemma like
+      // "amerikanisch" picks up "amerikanische" / "amerikanischen" as a
+      // single token, and "Peter" doesn't get sliced into "Pete"+"r").
+      final candidates = <String>{
+        word.word,
+        if (word.lemma.isNotEmpty) word.lemma,
+      }..removeWhere((c) => c.isEmpty);
+
+      int wordIndex = -1;
+      int wordEnd = -1;
       String foundWord = word.word;
-      
-      // If not found, try lemma
-      if (wordIndex == -1 && word.lemma.isNotEmpty && word.lemma != word.word) {
-        final lowerLemma = word.lemma.toLowerCase();
-        wordIndex = lowerSentence.indexOf(lowerLemma);
-        if (wordIndex != -1) {
-          foundWord = word.lemma;
-          _log('      → Found via lemma "$foundWord" at position $wordIndex');
+      for (final candidate in candidates) {
+        final escaped = RegExp.escape(candidate);
+        // \b on the front; on the tail, eat any German letters that
+        // follow without a boundary (the inflection).
+        final pattern = RegExp(
+          r'\b' + escaped + r'[A-Za-zÄÖÜäöüß]*',
+          caseSensitive: false,
+        );
+        final m = pattern.firstMatch(sentence);
+        if (m != null) {
+          wordIndex = m.start;
+          wordEnd = m.end;
+          foundWord = candidate;
+          break;
         }
       }
-      
+
       if (wordIndex == -1) {
         _log('      ✗ Word not found in sentence');
         continue;
       }
 
-      _log('      → Word found at position $wordIndex');
+      _log('      → Word "$foundWord" found at [$wordIndex,$wordEnd]');
 
       // Determine if word is at sentence start
       final isAtStart = wordIndex < 3; // First few characters = sentence start
@@ -409,17 +420,12 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
         continue;
       }
 
-      // Extract the actual word as it appears in the sentence
-      final actualWordInSentence = sentence.substring(
-        wordIndex, 
-        wordIndex + foundWord.length
-      );
-      
-      // Extract parts
+      // Extract the full inflected form actually present in the sentence.
+      final actualWordInSentence = sentence.substring(wordIndex, wordEnd);
+
+      // Extract surrounding parts.
       final before = sentence.substring(0, wordIndex);
-      final after = wordIndex + foundWord.length < sentence.length
-          ? sentence.substring(wordIndex + foundWord.length)
-          : '';
+      final after = wordEnd < sentence.length ? sentence.substring(wordEnd) : '';
 
       final challenge = SentenceChallenge(
         beforeWord: before,
@@ -901,75 +907,70 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
                         ),
                       ],
                     ),
-                    child: Wrap(
-                      alignment: WrapAlignment.center,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        // Before word
-                        if (_currentChallenge!.beforeWord.isNotEmpty)
-                          Text(
-                            _currentChallenge!.beforeWord,
-                            style: TextStyle(
-                              fontFamily: selectedFontFamily,
-                              fontSize: 20,
-                              color: Colors.white.withValues(alpha: 0.9),
-                              height: 1.4,
-                            ),
-                          ),
-                        
-                        // Tappable target word
-                        Semantics(
-                          label: 'Wort: ${_getDisplayWord()}. Tippe, um die Schreibweise zu ändern.',
-                          button: true,
-                          child: GestureDetector(
-                            onTap: _cycleWordCase,
-                            behavior: HitTestBehavior.translucent,
-                            child: ConstrainedBox(
-                              constraints: const BoxConstraints(
-                                minWidth: 48,
-                                minHeight: 48,
-                              ),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 8,
-                                ),
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  color: _getWordBackgroundColor(),
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: Colors.white.withValues(alpha: 0.5),
-                                    width: 2,
-                                  ),
-                                ),
-                                child: Text(
-                                  _getDisplayWord(),
-                                  style: TextStyle(
-                                    fontFamily: selectedFontFamily,
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                    height: 1.4,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
+                    // Inline rendering: a single RichText so the line
+                    // wraps on real word boundaries. The target word is a
+                    // WidgetSpan, so trailing punctuation (commas etc.)
+                    // and inflectional context stay glued, and we don't
+                    // split mid-word across lines.
+                    child: Text.rich(
+                      TextSpan(
+                        style: TextStyle(
+                          fontFamily: selectedFontFamily,
+                          fontSize: 20,
+                          color: Colors.white.withValues(alpha: 0.9),
+                          height: 1.6,
                         ),
-                        
-                        // After word
-                        if (_currentChallenge!.afterWord.isNotEmpty)
-                          Text(
-                            _currentChallenge!.afterWord,
-                            style: TextStyle(
-                              fontFamily: selectedFontFamily,
-                              fontSize: 20,
-                              color: Colors.white.withValues(alpha: 0.9),
-                              height: 1.4,
+                        children: [
+                          if (_currentChallenge!.beforeWord.isNotEmpty)
+                            TextSpan(text: _currentChallenge!.beforeWord),
+                          WidgetSpan(
+                            alignment: PlaceholderAlignment.middle,
+                            child: Semantics(
+                              label:
+                                  'Wort: ${_getDisplayWord()}. Tippe, um die Schreibweise zu ändern.',
+                              button: true,
+                              child: GestureDetector(
+                                onTap: _cycleWordCase,
+                                behavior: HitTestBehavior.translucent,
+                                child: ConstrainedBox(
+                                  constraints: const BoxConstraints(
+                                    minWidth: 48,
+                                    minHeight: 48,
+                                  ),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 6,
+                                    ),
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      color: _getWordBackgroundColor(),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: Colors.white.withValues(alpha: 0.5),
+                                        width: 2,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      _getDisplayWord(),
+                                      style: TextStyle(
+                                        fontFamily: selectedFontFamily,
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                        height: 1.2,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
-                      ],
+                          if (_currentChallenge!.afterWord.isNotEmpty)
+                            TextSpan(text: _currentChallenge!.afterWord),
+                        ],
+                      ),
+                      textAlign: TextAlign.center,
                     ),
                   ),
 
