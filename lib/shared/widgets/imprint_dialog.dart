@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../core/services/custom_licenses_registry.dart';
 import '../../core/theme/space_theme.dart';
 import '../../../generated/l10n.dart';
 
@@ -63,7 +64,30 @@ class ImprintDialog extends StatelessWidget {
                     ),
                   ),
                 ),
-                
+
+                Center(
+                  child: TextButton.icon(
+                    icon: const Icon(Icons.description_outlined,
+                        color: SpaceTheme.alienGreen, size: 18),
+                    label: Text(
+                      s.viewOssLicenses,
+                      style: SpaceTheme.bodyStyle.copyWith(
+                        color: SpaceTheme.alienGreen,
+                        decoration: TextDecoration.underline,
+                        decorationColor: SpaceTheme.alienGreen,
+                      ),
+                    ),
+                    onPressed: () async {
+                      await ensureCustomLicensesRegistered();
+                      if (!context.mounted) return;
+                      showLicensePage(
+                        context: context,
+                        applicationName: s.appTitle,
+                      );
+                    },
+                  ),
+                ),
+
                 const SizedBox(height: 16),
                 Center(
                   child: ElevatedButton(
