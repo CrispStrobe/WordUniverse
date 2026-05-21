@@ -85,7 +85,7 @@ REPORT = HERE / "pattern_coverage_report.txt"
 # ─── Two parallel taxonomies (see pipeline/PLAN.md §6.5) ───────────────
 # Both bucketings derive from the SAME NRW xlsx feature taxonomy. We
 # ship both per-word: the detailed view (6 categories, kid-facing) and
-# the Thomé-aligned broad view (5 categories, research-supported).
+# the broad view (5 categories, research-supported).
 
 # ── 6-category detailed view (kid-facing default) ──
 # Neutral German linguistic-pattern names. No FRESCH-branded terminology.
@@ -105,17 +105,17 @@ PRIMARY_PRIORITY_DETAILED = [
     KLANGTREU,
 ]
 
-# ── 5-category Thomé-aligned broad view (teacher / research view) ──
-# Günther Thomé's Basiskonzept Rechtschreiben framework. Every German
-# word's spelling rests on one of basisgraphem (regular grapheme-phoneme,
-# ~65% of words use only Basisgrapheme), orthographem (orthographic
-# exception — covers more than just doubled consonants; also Dehnungs-h,
-# ck/tz/sp/st, etc.), or morphem (morphology-based: covers BOTH related-
-# word derivation AND compound/prefix). Plus two cross-cutting flags:
-# merkwort (irregular, rote memorize) and grossschreibung (capitalization).
-BASISGRAPHEM = "basisgraphem"   # Thomé: regular grapheme-phoneme
-ORTHOGRAPHEM = "orthographem"   # Thomé: orthographic exception (broader than doppelkonsonant)
-MORPHEM_BROAD = "morphem"       # Thomé: any morphological reasoning (derivation + composition)
+# ── 5-category broad view (teacher / research view) ──
+# Every German word's spelling rests on one of basisgraphem (regular
+# grapheme-phoneme, ~65% of words use only Basisgrapheme), orthographem
+# (orthographic exception — covers more than just doubled consonants;
+# also Dehnungs-h, ck/tz/sp/st, etc.), or morphem (morphology-based:
+# covers BOTH related-word derivation AND compound/prefix). Plus two
+# cross-cutting flags: merkwort (irregular, rote memorize) and
+# grossschreibung (capitalization).
+BASISGRAPHEM = "basisgraphem"   # regular grapheme-phoneme
+ORTHOGRAPHEM = "orthographem"   # orthographic exception (broader than doppelkonsonant)
+MORPHEM_BROAD = "morphem"       # any morphological reasoning (derivation + composition)
 # MERKWORT, GROSSSCHREIBUNG are shared between schemes (same token, same
 # meaning — capitalization and rote-memorize cross both taxonomies).
 
@@ -135,7 +135,7 @@ def pick_primary_detailed(cats: set[str]) -> str:
     return KLANGTREU
 
 def pick_primary_thome(cats: set[str]) -> str:
-    """Pick the single highest-priority Thomé (5-category) label."""
+    """Pick the single highest-priority broad (5-category) label."""
     for c in PRIMARY_PRIORITY_THOME:
         if c in cats:
             return c
@@ -403,19 +403,19 @@ def main():
         primary_thome = pick_primary_thome(thome)
 
         # Write into apiEnrichment (create if missing; never clobber other
-        # apiEnrichment fields). Per PLAN.md §6.5, we ship two parallel
-        # taxonomies: the kid-facing detailed 6-category view AND the
-        # research-aligned 5-category Thomé view. Both derive from the
-        # same NRW xlsx; both share grossschreibung + merkwort.
+        # apiEnrichment fields). We ship two parallel taxonomies: the
+        # kid-facing detailed 6-category view AND the research-aligned
+        # 5-category broad view. Both derive from the same NRW xlsx; both
+        # share grossschreibung + merkwort.
         api = entry.get("apiEnrichment")
         if not isinstance(api, dict):
             api = {}
         # 6-category detailed view (kid-facing default)
         api["spellingStrategy"] = sorted_detailed
         api["spellingStrategyPrimary"] = primary_detailed
-        # 5-category Thomé broad view (academic / teacher view)
-        api["spellingPatternsThome"] = sorted_thome
-        api["spellingPatternsThomePrimary"] = primary_thome
+        # 5-category broad view (academic / teacher view)
+        api["spellingPatterns"] = sorted_thome
+        api["spellingPatternsPrimary"] = primary_thome
         # Provenance
         api["spellingStrategySource"] = (
             "nrw_derived" if nrw_entry is not None else "fallback_heuristic"
