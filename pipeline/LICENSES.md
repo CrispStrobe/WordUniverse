@@ -11,17 +11,23 @@ If anything in this table changes, **update both this doc and that file.**
 
 ## Legal posture (TL;DR)
 
-The shipped `assets/grundwortschatz_*.db.gz` blob inherits **CC‑BY‑SA 4.0**
-because it incorporates substantial content from Wiktionary, ConceptNet,
-OpenThesaurus, OdeNet, HermitDave/OpenSubtitles, and Wikipedia — all
-CC‑BY‑SA. Implication:
+The shipped `assets/grundwortschatz_*.db.gz` blob is effectively
+**GNU GPL-3.0** as of 2026-05-21, after integrating childLex's
+age-graded lexical norms. Prior posture was CC-BY-SA-4.0 (inherited
+from Wiktionary, ConceptNet, OpenThesaurus, OdeNet,
+HermitDave/OpenSubtitles, Wikipedia, DWDS, and Bundesländer
+publications). CC-BY-SA-4.0 is **one-way compatible** with GPL-3.0
+per Creative Commons' 2015 v4-compatible decision — combining
+GPL-3.0 childLex with the existing CC-BY-SA 4.0 corpus relicenses
+the combined work as GPL-3.0. Implication:
 
-- The **Flutter app code** stays under whatever license the owner chooses
-  (proprietary is fine).
-- The **DB file** is effectively CC‑BY‑SA and re‑distribution must
-  preserve attribution + ShareAlike (the Wikipedia‑mobile‑app pattern).
-- Attribution is satisfied by the in‑app Settings → Licenses screen, which
-  lists every CC‑BY‑* source.
+- The **Flutter app code** stays under whatever license the owner
+  chooses (proprietary is fine). GPL-3.0 on the data blob does not
+  infect proprietary code that *uses* the data; it only applies to
+  redistribution of derivative data works.
+- The **DB file** must now be redistributed under GPL-3.0 with full
+  attribution preserved for every constituent source.
+- Attribution is satisfied by the in‑app Settings → Licenses screen.
 
 **No NC (Non‑Commercial) clauses block commercial shipment** of the
 current DE DB. Resolved cleanup items: FRESCH‑Methode `532Strategien.csv`
@@ -54,6 +60,7 @@ English Vocabulary Profile, SUBTLEX‑US**.
 | `A1.csv` / `A2.csv` / `B1.csv` (DWDS-curated) | DWDS / BBAW, redistributing **Goethe‑Institut** wordlists via `https://www.dwds.de/api/lemma/goethe/{A1,A2,B1}.csv` | DWDS public API + Goethe‑Institut original lists. The lists are factual reference material (which lemmas an A1/A2/B1 learner needs); DWDS distributes them programmatically. **Acknowledge both DWDS and Goethe‑Institut.** | step 01 CEFR pedagogical signal |
 | UD German treebanks (`UD_German-GSD`, `UD_German-HDT`, `UD_German-LIT`, `UD_German-PUD`) | universaldependencies.org | CC‑BY‑SA 4.0 | `verb_government*.json` (aggregate stats only) |
 | **DWDS Lemma-Datenbank** (`https://www.dwds.de/lemma/csv`) | Digitales Wörterbuch der deutschen Sprache (DWDS) / BBAW Berlin | **CC-BY-SA 4.0** | step "add_dwds_haeufigkeitsklassen" → `frequency_json.dwds: {frequenzklasse, wortklasse}` per word. 7-level Häufigkeitsklasse (0–6). 271k lemmas. Required attribution: "Digitales Wörterbuch der deutschen Sprache (DWDS), CC-BY-SA 4.0". |
+| **childLex** (Schroeder et al. 2015, HU Berlin / MPI Berlin) — https://osf.io/tqgjs | Sascha Schroeder, Kay-Michael Würzner, Julian Heister, Alexander Geyken, Reinhold Kliegl | **GNU GPL-3.0** (cascades the shipped DB to GPL-3.0). | step "add_childlex_norms" → `frequency_json.childlex: {age1_freq_norm, age2_freq_norm, age3_freq_norm}` per word. Three age groups: Age 1 (6-8, Kl 1-2), Age 2 (9-10, Kl 3-4), Age 3 (11-12, Kl 5-6). Frequency normalized per million. 9307 / 10450 (89%) DB words matched. Required attribution: cite Schroeder, S., Würzner, K.-M., Heister, J., Geyken, A., & Kliegl, R. (2015). childLex: A lexical database of German read by children. *Behavior Research Methods*, 47(4), 1085–1094. |
 | **Bundesländer Grundwortschätze (Berlin, Brandenburg)** | LISUM Berlin-Brandenburg (2024) | **CC-BY-SA 4.0** explicit | `metadata_json.sources: ["BERLIN"|"BRANDENBURG"]` + per-Bundesland Categories where extracted |
 | **Bundesländer Grundwortschätze (Hessen, RLP, NDS, Bayern, SH)** | Hessisches KuMi / Min. Bildung RLP / Nds. KuMi / ISB Bayern / SH MinBuB (Mitwirkung IQSH) | amtliches Werk per §5 UrhG | `metadata_json.sources: ["HESSEN"|"RHEINLAND_PFALZ"|"NIEDERSACHSEN"|"BAYERN"|"SCHLESWIG_HOLSTEIN"]` + per-Bundesland orthographic-pattern Categories |
 
