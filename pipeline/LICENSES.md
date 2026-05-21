@@ -24,9 +24,11 @@ CC‑BY‑SA. Implication:
   lists every CC‑BY‑* source.
 
 **No NC (Non‑Commercial) clauses block commercial shipment** of the
-current DE DB *as long as* the questionable items below are addressed
-(FRESCH‑Methode list, Leipzig commercial‑use status for raw text, and the
-unidentified 739Leo.csv origin).
+current DE DB. Resolved cleanup items: FRESCH‑Methode `532Strategien.csv`
+list (replaced by algorithmic derivation, never reached the shipped DB),
+Leoschule Lünen `739Leo.csv` (origin identified, attribution token
+stripped from shipped DB metadata 2026-05-21). Leipzig + Leeds usage is
+rank‑only and safe.
 
 For the EN port, three originally‑recommended sources are NOT safe and
 have been removed from the EN pipeline scaffolding: **Oxford 3000/5000,
@@ -59,7 +61,7 @@ English Vocabulary Profile, SUBTLEX‑US**.
 | `100Fehler.csv`, `300Fehler.csv`, `400Fehler.txt` | **Menzel, W. (1985). Rechtschreibunterricht. Praxis und Theorie. Seelze: Friedrich-Verlag** — empirical study of 2000 student essays. | **Facts.** Empirical research findings are uncopyrightable under German Urheberrecht and EU doctrine. Our build pulls only the empirical headword list, not any specific publication's example sentences / curated PDF presentation. Openly redistributed by educational orgs (e.g. Austrian Bundesverband Legasthenie at lrs-legasthenie.at) with Menzel attribution. | step 01 commonLearnerErrors seed |
 | `200Fehler.csv` | RICHTIG / FALSCH pairs — likely self‑compiled or aggregated from open mirrors | Unknown / probably safe | step 01 |
 | ~~`532Strategien.csv`~~ — **removed 2026-05-21** | The wordlist was the NRW Grundwortschatz (verified by exact match against `wortliste-grundwortschatz-nrw.xlsx` shared strings); the FRESCH category overlay was of uncertain provenance. **Replaced with `04b_derive_fresch_categories.py`**, which derives the six FRESCH categories algorithmically from the NRW xlsx's own linguistic-feature taxonomy (Doppelkonsonanten → Weiterschwingen, Auslautverhärtung → Ableiten, etc.). | (no longer used) |
-| ~~`739Leo.csv`~~ — **removed 2026-05-21** | Confirmed source: **Leoschule Lünen** (Catholic primary school, NRW), Rechtschreibwortschatz page at `https://www.leoschule-luenen.de/index.php/rechtschreibwortschatz/`. Their list is NRW core (533) + school‑specific additions (206) = 739 words. The page carries no explicit license. The NRW 533‑word core is already covered by our other sources; the 206 school‑specific additions are not pedagogically significant enough to justify the license uncertainty. | (no longer used) |
+| ~~`739Leo.csv`~~ — **removed 2026-05-21**; shipped-DB attribution stripped same day via `strip_leo_attribution.py` | Confirmed source: **Leoschule Lünen** (Catholic primary school, NRW), Rechtschreibwortschatz page at `https://www.leoschule-luenen.de/index.php/rechtschreibwortschatz/`. Their list is NRW core (533) + school‑specific additions (206) = 739 words. The page carries no explicit license. The NRW 533‑word core is already covered by our other sources; the 206 school‑specific additions are not pedagogically significant enough to justify the license uncertainty. 731 words in the shipped DB had a `LEO739` source-attribution token; after the strip, 693 remain in the DB with their other source tags intact, and 38 (school-context vocabulary that was solely-LEO-sourced) remain in the DB but with an empty `sources` array. | (no longer used) |
 | `Leipzig Corpora Collection` (`top10000de_unileipzig.txt`) | Universität Leipzig, Wortschatz Leipzig | Wordlists (rank/freq only) are CC‑BY for redistributable derivatives; the full corpus has per‑sub‑corpus licenses, some with NC clauses for the underlying text. We ship only ranks (facts), which is safe; the raw text is not shipped. | step 01 frequency signal |
 | Leeds Corpora (`leeds_freq.num`) | University of Leeds, Centre for Translation Studies | Their internet corpora are typically CC‑BY for research; commercial use of Web 1T‑derived counts may be restricted. We ship only the rank, not the source corpus. | step 01 frequency signal |
 
@@ -75,8 +77,10 @@ English Vocabulary Profile, SUBTLEX‑US**.
    Wolfgang Menzel 1985" credit. If commercial concerns are strong,
    replace with own learner‑error data + Wikipedia "Liste häufiger
    Rechtschreibfehler" (CC‑BY‑SA).
-3. **`739Leo.csv`** — needs origin identification. If origin can't be
-   determined, drop from the pipeline.
+3. **`739Leo.csv`** — done: origin identified (Leoschule Lünen, no
+   formal license), dropped from the pipeline, and the residual
+   `LEO739` source-attribution token stripped from the shipped DB
+   metadata via `pipeline/voc-de/strip_leo_attribution.py`.
 4. **Leipzig + Leeds** — current usage (rank only) is safe. Don't widen.
 
 ---
@@ -146,10 +150,10 @@ work of the tool), but courtesy attribution is good practice.
 
 ## Open verification items (require user input)
 
-| Item | Question |
-|---|---|
-| `739Leo.csv` | Where did this come from? File name doesn't match any obviously‑public German Grundwortschatz reference. |
-| `200Fehler.csv` | Self‑curated or sourced? |
-| Goethe‑Institut wordlist redistribution | The DWDS API serves the lists publicly. **Confirm:** is DWDS's redistribution explicitly licensed by Goethe, or is the assumption "factual reference, not copyrightable" sufficient? Defensive option: keep the lemma‑only data (which is factual) and drop any per‑word annotations specific to Goethe's prep materials. |
-| FRESCH‑Methode `532Strategien.csv` | Recommend: replace the raw curated list with a derivation we generate ourselves (apply the FRESCH categories to *our* wordlist). Confirm before next build. |
-| App vs DB license posture | Confirm the intent: app code stays proprietary (commercial app with in‑app purchases), DB file ships under CC‑BY‑SA 4.0 with prominent attribution. |
+| Item | Question | Status |
+|---|---|---|
+| `739Leo.csv` | Where did this come from? File name doesn't match any obviously‑public German Grundwortschatz reference. | **Resolved 2026-05-21**: Leoschule Lünen. Dropped from pipeline + attribution stripped from shipped DB. |
+| `200Fehler.csv` | Self‑curated or sourced? | Open. |
+| Goethe‑Institut wordlist redistribution | The DWDS API serves the lists publicly. **Confirm:** is DWDS's redistribution explicitly licensed by Goethe, or is the assumption "factual reference, not copyrightable" sufficient? Defensive option: keep the lemma‑only data (which is factual) and drop any per‑word annotations specific to Goethe's prep materials. | Open. |
+| FRESCH‑Methode `532Strategien.csv` | Recommend: replace the raw curated list with a derivation we generate ourselves. | **Resolved 2026-05-21**: replaced by `04b_derive_spelling_patterns.py` (NRW-derived). Never reached the shipped DB. |
+| App vs DB license posture | Confirm the intent: app code stays proprietary (commercial app with in‑app purchases), DB file ships under CC‑BY‑SA 4.0 with prominent attribution. | Open. |
