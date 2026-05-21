@@ -7,7 +7,7 @@ import 'dart:async';
 import '../../../core/services/debug_provider.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/streak_service.dart';
-import '../../games/screens/sri_review_screen.dart';
+import '../../games/screens/karteikasten_screen.dart';
 import '../../games/screens/cognitive_profile_screen.dart';
 import '../../achievements/screens/achievements_screen.dart';
 import '../../../core/theme/space_theme.dart';
@@ -302,7 +302,7 @@ class _HomeScreenState extends State<HomeScreen>
                 final btn = IconButton(
                   onPressed: () {
                     Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => const SriReviewScreen(),
+                      builder: (_) => const KarteikastenScreen(),
                     ));
                   },
                   icon: Icon(
