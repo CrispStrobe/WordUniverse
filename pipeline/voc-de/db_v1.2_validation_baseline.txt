@@ -1,0 +1,98 @@
+DB validation baseline — captured 2026-05-21
+HEAD: aaa39ee feat(hf): add Parquet export + scripted SQLite → Parquet converter
+Asset: assets/grundwortschatz.db.gz
+
+=== words / translations / examples counts ===
+words         10450
+translations  27587
+examples      24471
+
+=== Authoritative grade_level distribution (NRW + Goethe-derived) ===
+1     393
+2     342
+3     379
+4     394
+5    7347   (placeholder for "above primary core")
+6    1595   (Sekundarstufe-tier vocabulary)
+
+=== Algorithmic gradeLevelEstimate distribution ===
+(computed 2026-05-21 via compute_grade_level_estimate.py:
+ childLex Age1/2/3 + DWDS fk fallback, see commit c7631ec)
+1    1775
+2    2653
+3     444
+4    2958
+5    1545
+6    1075
+
+=== gradeLevelEstimateSource distribution ===
+childlex_age1   3683   (Kl 1-2 evidence from childLex 6-8yo corpus)
+dwds_fallback   2359   (no childLex; DWDS frequenzklasse-derived)
+nrw             1508   (NRW grade_level 1-4, authoritative passthrough)
+original        1395   (no signals; kept original grade_level)
+childlex_age2    928   (Kl 3-4 evidence from childLex 9-10yo)
+childlex_age3    577   (Kl 5-6 evidence from childLex 11-12yo)
+
+=== Enrichment coverage ===
+with_spellingStrategy       10450 / 10450   100%   (6-cat detailed)
+with_spellingPatterns       10450 / 10450   100%   (5-cat broad)
+with_nrw_features             463 / 10450     4%   (NRW xlsx-derived only)
+with_misspellings              21 / 10450     0%   (Wikipedia Häufige Falschschreibungen)
+
+=== Frequency-data coverage ===
+with_dwds                    8844 / 10450    85%   (DWDS Lemma-Datenbank)
+  with_dwds_fk numeric       8265 / 10450    79%
+with_childlex                9307 / 10450    89%   (childLex 0.17.01)
+
+=== Source token distribution (metadata_json.sources) ===
+HERMIT             8428    HermitDave / OpenSubtitles 2018  (CC-BY-SA 4.0)
+BUCHMEIER          7846    Buchmeier Wiktionary user-namespace freq (CC-BY-SA 4.0)
+LEIPZIG            5970    Wortschatz Leipzig rank          (facts, rank-only safe)
+LEEDS              4162    Leeds Corpora rank               (facts, rank-only safe)
+B1                 1801    DWDS Goethe-Zertifikat B1        (factual reference)
+HESSEN             1599    Hess. Kultusministerium 2021     (§5 UrhG amtliches Werk)
+NIEDERSACHSEN      1455    Nds. Kultusministerium 2015      (§5 UrhG amtliches Werk)
+RHEINLAND_PFALZ    1377    Min. Bildung Mainz 2021          (§5 UrhG amtliches Werk)
+BRANDENBURG        1341    LISUM 2024                       (CC-BY-SA 4.0 explicit)
+BERLIN             1338    LISUM 2024                       (CC-BY-SA 4.0 explicit)
+BAYERN             1087    ISB Bayern LehrplanPLUS          (§5 UrhG amtliches Werk)
+A1                  802    DWDS Goethe-Zertifikat A1        (factual reference)
+SCHLESWIG_HOLSTEIN  633    SH MinBuB / IQSH 2023            (§5 UrhG amtliches Werk)
+A2                  602    DWDS Goethe-Zertifikat A2        (factual reference)
+NRW422              421    Min. Schule u. Bildung NRW       (public administrative)
+BW1                 393    KuMi Baden-Württemberg           (public administrative)
+BW3                 381    KuMi Baden-Württemberg           (public administrative)
+FEHLER400           351    Menzel 1985 (empirical facts)    (uncopyrightable)
+FEHLER300           310    Menzel 1985 (empirical facts)    (uncopyrightable)
+FEHLER200           174    Menzel 1985 (empirical facts)    (uncopyrightable)
+NRW111              111    Min. Schule u. Bildung NRW       (public administrative)
+FEHLER100            97    Menzel 1985 (empirical facts)    (uncopyrightable)
+
+=== Words with at least one source attribution ===
+2799 / 10450 (27%) have a Bundesland-level attribution
+    (BERLIN / BRANDENBURG / HESSEN / RLP / NDS / BAYERN / SH / NRW / BW)
+33   / 10450 (<1%) have no source attribution at all
+    (38 became sourceless after LEO739 strip; 5 later rescued by NDS/Hessen integration)
+
+=== Composite-license posture ===
+- shipped DB file:       GNU General Public License v3.0 (GPL-3.0-or-later)
+  (cascaded from CC-BY-SA-4.0 by combining childLex GPL-3.0 with other
+   CC-BY-SA-4.0 sources, per Creative Commons' 2015 v4-compatible decision)
+- Flutter app code:      separate (proprietary OK)
+- App-side licenses:     22 LicenseRegistry entries cover every source
+
+=== Schema (SQLite, also exported as Parquet) ===
+words            10450 rows × 12 cols   (PK id; JSON cols freq/enr/meta)
+translations     27587 rows ×  4 cols   (FK word_id; lang_code + translation text)
+examples         24471 rows ×  3 cols   (FK word_id; German sentence)
+search_index     FTS5 virtual table over words.word + words.lemma + aggregated translations
+
+=== HF dataset upload assets ready ===
+  pipeline/voc-de/HF_DATASET_README.md
+  pipeline/voc-de/hf_export/words.parquet           (10 MB, 10450 × 12)
+  pipeline/voc-de/hf_export/translations.parquet   (214 KB)
+  pipeline/voc-de/hf_export/examples.parquet       (860 KB)
+  assets/grundwortschatz.db.gz                     ( 19 MB compressed SQLite)
+
+Diff this file against the same query output after a future build to
+verify no regression.
