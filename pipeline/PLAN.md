@@ -655,15 +655,49 @@ The about-text should say "FRESCH-style spelling strategies" or
 "applies the FRESCH categorisation" — nominative fair use of the method
 name — rather than implying brand endorsement.
 
-### 6.5 Carry both taxonomies (recommended)
+### 6.5 Carry both taxonomies (decided 2026-05-21, implemented)
 
-Ship the NRW linguistic feature paths alongside the FRESCH categories so
-the DB is transparent about how the derivation worked:
+`04b_derive_spelling_patterns.py` now emits **three parallel views** of
+the same NRW-derived data per word:
+
+1. **6-category detailed view** (kid-facing default)
+   ```
+   klangtreu / doppelkonsonant / verwandt / merkwort / morphem / grossschreibung
+   ```
+   Neutral German linguistic-pattern names. Fine-grained: distinguishes
+   doubled consonants (`doppelkonsonant`) from morphological derivation
+   (`verwandt`) from morpheme composition (`morphem`).
+
+2. **5-category Thomé view** (academic / teacher view)
+   ```
+   basisgraphem / orthographem / morphem / merkwort / grossschreibung
+   ```
+   Aligned with Günther Thomé's *Basiskonzept Rechtschreiben* framework
+   and consistent with German Schriftlinguistik orthodoxy
+   (phonematisches / morphematisches / orthographisches Prinzip).
+   Coarser: `orthographem` covers all orthographic exceptions (doubled
+   consonants + Dehnungs-h + ck/tz/sp/st + dialectal markers);
+   `morphem` covers both morphological derivation AND composition.
+
+3. **Raw NRW feature paths** (provenance / debugging)
+   The dotted-path identifiers from the original NRW xlsx columns
+   (`orthografisches und silbisches Prinzip.Doppelkonsonanten.tt` etc.)
+   for transparency about how each tag was derived.
+
+Per-word shape in `apiEnrichment`:
 
 ```jsonc
 "apiEnrichment": {
-  "spellingStrategy": ["weiterschwingen", "grossschreibung"],
+  // 6-category detailed view (kid-facing)
+  "spellingStrategy": ["doppelkonsonant", "grossschreibung"],
   "spellingStrategyPrimary": "grossschreibung",
+
+  // 5-category Thomé view (academic / teacher view)
+  "spellingPatternsThome": ["grossschreibung", "orthographem"],
+  "spellingPatternsThomePrimary": "grossschreibung",
+
+  // Provenance
+  "spellingStrategySource": "nrw_derived",   // or "fallback_heuristic"
   "nrwLinguisticFeatures": [
     "orthografisches und silbisches Prinzip.Doppelkonsonanten.tt",
     "zusätzliche Filter.Wortart.Nomen"
@@ -671,9 +705,32 @@ the DB is transparent about how the derivation worked:
 }
 ```
 
-App surfaces the kid-friendly FRESCH names by default; the parent-
-dashboard / teacher-view can show the NRW academic taxonomy. Costs only
-~30 % more bytes per NRW-tagged entry plus 5 lines in `04b`.
+Mapping between schemes (strict bucketing, used for fallback-heuristic
+words outside the NRW Grundwortschatz):
+
+| 6-cat detailed | → | 5-cat Thomé |
+|---|---|---|
+| klangtreu | → | basisgraphem |
+| doppelkonsonant | → | orthographem |
+| verwandt | → | morphem |
+| merkwort | → | merkwort |
+| morphem | → | morphem |
+| grossschreibung | → | grossschreibung |
+
+For NRW-derived words, the 5-cat Thomé view picks up MORE features than
+the strict bucketing alone — `orthographem` also fires on `Dehnungs-h`,
+`ck`, `tz`, `sp/st` features that the 6-cat doesn't currently cover (a
+gap to close as part of §6.1 coverage extension).
+
+**App-side surface**: by default games and the home screen surface the
+6-cat detailed view (kid-friendly tags). Parent-dashboard /
+teacher-view can switch to the 5-cat Thomé view for academic
+transparency. The raw NRW paths stay hidden in the DB; they're for
+debugging and future-tooling.
+
+Total cost: ~30–40 % more bytes per NRW-tagged entry (~1–2 KB per word
+that has all four fields populated). Acceptable given the DB is ~120 MB
+uncompressed.
 
 ### 6.6 Validation harness
 
@@ -737,11 +794,100 @@ That's about **2–4 days of focused work** for a materially upgraded DE DB.
 
 ---
 
+## 8. Pre-launch: CC-BY-SA compliance for App Store / Play Store release
+
+**Triggering event**: the moment we submit to Apple App Store or Google
+Play, the app reaches a meaningfully wider audience and the CC-BY-SA
+obligations on the shipped DB become operationally important. The current
+Vercel deployment is technically already a "distribution", but exposure
+is low. **All of the below should be done before the first store
+submission.**
+
+### 8.1 Why the DB is CC-BY-SA 4.0
+
+`assets/grundwortschatz.db.gz` inherits CC-BY-SA from upstream content:
+
+| Upstream | What it contributes |
+|---|---|
+| **Wiktionary (DE/EN)** | Definitions, IPA, inflections, examples, etymology, syn/ant, hyper/hypo/mero/holo (~all enrichment_json content) |
+| **ConceptNet 5.x** | Semantic relations under enrichment_json.conceptnet |
+| **OpenThesaurus** | Synonym/hypernym/hyponym closure |
+| **OdeNet** | DE WordNet sense data |
+| **HermitDave / OpenSubtitles** | Frequency rank fields |
+| **Wikipedia commonly-misspelled** | (planned) commonLearnerErrors seed |
+
+The Flutter app code itself stays proprietary — only the DB blob is
+CC-BY-SA. Same legal model as Wikipedia/Britannica mobile apps.
+
+### 8.2 What CC-BY-SA 4.0 actually requires (concretely)
+
+| Requirement | How we satisfy it |
+|---|---|
+| **Attribution** | In-app Settings → Licenses screen (already wired up via `LicenseRegistry.addLicense` for every CC-BY-* source). Visible link from Settings. ✅ |
+| **ShareAlike** | The DB must be redistributable under CC-BY-SA. **Action**: upload `assets/grundwortschatz.db.gz` as an HF dataset (e.g. `cstr/grundwortschatz-voc-de`) marked CC-BY-SA 4.0, link to it from the in-app license screen. Not required to make easy — just possible. |
+| **Indicate changes** | Per-source license entries already note "Changes made: …" (filter to 10k, NRW grade tags merged in, etc.). ✅ |
+| **No additional restrictions** | App EULA must not forbid extracting / redistributing the DB. Currently no EULA — when one is added (App Store-required), explicitly exempt the DB. |
+| **Notice of license** | Add a one-line statement at the top of the License screen and in the public-facing README: *"The vocabulary database is licensed under CC BY-SA 4.0. The application code is proprietary."* |
+
+### 8.3 Pre-submission checklist (~half-day of work)
+
+- [ ] Upload `assets/grundwortschatz.db.gz` to new HF dataset
+      `cstr/grundwortschatz-voc-de`. Include in the dataset README:
+      - CC-BY-SA 4.0 statement
+      - Full attribution list (same as in-app License screen)
+      - "Changes made" section: filtering to 10k, NRW grade tag merge,
+        spelling-pattern derivation (own derivation from NRW xlsx), etc.
+      - Citation: how to credit the dataset
+- [ ] Same for `cstr/grundwortschatz-voc-en` when EN ships.
+- [ ] Add top-of-screen line to in-app License screen: *"Vocabulary
+      database licensed under CC BY-SA 4.0 — `cstr/grundwortschatz-voc-de`
+      on Hugging Face"* with tap-to-open link.
+- [ ] Add `DATA_LICENSE.md` to repo root explaining the dual-license
+      stance (app code proprietary, DB blob CC-BY-SA).
+- [ ] Repo README: add a one-paragraph note linking to DATA_LICENSE.md.
+- [ ] Verify the soon-to-be-written App Store EULA does NOT contain
+      clauses that restrict reverse-engineering / extracting the DB.
+
+### 8.4 What we are NOT required to publish
+
+- Flutter app source code (stays proprietary)
+- Build pipeline scripts (`pipeline/voc-de/*.py`) — these are public
+  on the repo now for convenience and transparency, but CC-BY-SA does
+  not require it
+- Custom assets (fonts, images, sounds — they have their own licenses)
+
+### 8.5 Things that are nice-to-have but optional
+
+- **Public build provenance**: making the pipeline repo public makes
+  any future CC-BY-SA challenge easier to refute. We're already on
+  `github.com/CrispStrobe/words-universe` — confirm if it's currently
+  public or private and decide.
+- **Per-language DB sub-licensing notes**: if the EN DB ends up using
+  sources with stricter NC-flavoured terms (e.g. if we accidentally
+  pull in childLex before clarifying its license), we'd need to
+  document that separately. Currently EN port avoids all NC content.
+
+### 8.6 Current exposure (Vercel) — effectively zero
+
+The Vercel URL is **shared only with a small number of friends** and
+**not publicly surfaced anywhere**. There is therefore essentially no
+public CC-BY-SA distribution event to worry about today. The §8.3
+checklist is the **pre-store-submission** task list, not a "do it now"
+emergency.
+
+That said, since the Vercel URL is unauthenticated, treat anything
+shipped there as one accidental link-share away from being public. The
+§8.3 work is cheap (~half a day); doing it before the next visible
+share is the safer default.
+
+---
+
 ## TL;DR
 
 - DE rebuild: scripts + sources survive in backup → **fully reproducible** in 3–8 h.
 - EN port: backbone done on HF → **~2 weeks** of laptop-side scripting.
 - ConceptNet expansion: ~½ day code + 4–10 h compute → **~6–8 GB** all-languages DB sibling.
-- FRESCH classifier v2: extend beyond NRW + primary-strategy pick (§6) — ~2 days.
-- 7 additional free-licensed data sources to add over the next few rebuilds (§7).
+- Spelling-pattern classifier v2: extend beyond NRW + primary-pick + dual taxonomy (§6) — ~2 days.
+- 7 additional free-licensed data sources to add (§7).
+- **CC-BY-SA compliance pre-store-submission (§8) — half-day, must be done before App Store.**
 - One leaked credential to rotate.

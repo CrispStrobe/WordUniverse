@@ -82,25 +82,21 @@ INPUT_MERGED = HERE / "grundwortschatz_merged.json"
 OUTPUT = HERE / "grundwortschatz_merged_with_patterns.json"
 REPORT = HERE / "pattern_coverage_report.txt"
 
-# Canonical category tokens — neutral German linguistic-pattern names.
-# These describe the *linguistic feature* each word's spelling rests on;
-# they do not borrow any branded method's terminology. Pedagogically they
-# cover the same ground that several published German spelling-strategy
-# methods cover, but the labels are independent.
-KLANGTREU = "klangtreu"             # regular phoneme-grapheme mapping (sound-it-out)
-DOPPELKONSONANT = "doppelkonsonant" # doubled-consonant pattern (extend word to check)
-VERWANDT = "verwandt"               # related-word derivation (Auslautverhaertung, Umlautung)
-MERKWORT = "merkwort"               # memorize as a special case (irregular spelling)
-MORPHEM = "morphem"                 # word components / prefixes / compounds
-GROSSSCHREIBUNG = "grossschreibung" # capitalization rule (proper / common nouns)
+# ─── Two parallel taxonomies (see pipeline/PLAN.md §6.5) ───────────────
+# Both bucketings derive from the SAME NRW xlsx feature taxonomy. We
+# ship both per-word: the detailed view (6 categories, kid-facing) and
+# the Thomé-aligned broad view (5 categories, research-supported).
 
-# Priority order for picking the single primary strategy per word.
-# grossschreibung wins when it applies (highest pedagogical leverage —
-# capitalization is the orthogonal rule with the largest "if you know it,
-# you avoid the error" payoff). Among the sound/letter patterns,
-# merkwort > doppelkonsonant > verwandt > morphem > klangtreu, where
-# klangtreu is the default for words with no special pattern.
-PRIMARY_PRIORITY = [
+# ── 6-category detailed view (kid-facing default) ──
+# Neutral German linguistic-pattern names. No FRESCH-branded terminology.
+KLANGTREU = "klangtreu"             # regular phoneme-grapheme (sound-it-out)
+DOPPELKONSONANT = "doppelkonsonant" # doubled-consonant pattern
+VERWANDT = "verwandt"               # related-word derivation (Auslautverhärtung, Umlautung)
+MERKWORT = "merkwort"               # memorize as a special case
+MORPHEM = "morphem"                 # word components: prefixes + compounds
+GROSSSCHREIBUNG = "grossschreibung" # capitalization
+
+PRIMARY_PRIORITY_DETAILED = [
     GROSSSCHREIBUNG,
     MERKWORT,
     DOPPELKONSONANT,
@@ -109,13 +105,41 @@ PRIMARY_PRIORITY = [
     KLANGTREU,
 ]
 
-def pick_primary(cats: set[str]) -> str:
-    """Pick the single highest-priority spelling-pattern category for the primary
-    label per §6.2 / §6.5 of pipeline/PLAN.md."""
-    for c in PRIMARY_PRIORITY:
+# ── 5-category Thomé-aligned broad view (teacher / research view) ──
+# Günther Thomé's Basiskonzept Rechtschreiben framework. Every German
+# word's spelling rests on one of basisgraphem (regular grapheme-phoneme,
+# ~65% of words use only Basisgrapheme), orthographem (orthographic
+# exception — covers more than just doubled consonants; also Dehnungs-h,
+# ck/tz/sp/st, etc.), or morphem (morphology-based: covers BOTH related-
+# word derivation AND compound/prefix). Plus two cross-cutting flags:
+# merkwort (irregular, rote memorize) and grossschreibung (capitalization).
+BASISGRAPHEM = "basisgraphem"   # Thomé: regular grapheme-phoneme
+ORTHOGRAPHEM = "orthographem"   # Thomé: orthographic exception (broader than doppelkonsonant)
+MORPHEM_BROAD = "morphem"       # Thomé: any morphological reasoning (derivation + composition)
+# MERKWORT, GROSSSCHREIBUNG are shared between schemes (same token, same
+# meaning — capitalization and rote-memorize cross both taxonomies).
+
+PRIMARY_PRIORITY_THOME = [
+    GROSSSCHREIBUNG,
+    MERKWORT,
+    ORTHOGRAPHEM,
+    MORPHEM_BROAD,
+    BASISGRAPHEM,
+]
+
+def pick_primary_detailed(cats: set[str]) -> str:
+    """Pick the single highest-priority detailed (6-category) label."""
+    for c in PRIMARY_PRIORITY_DETAILED:
         if c in cats:
             return c
-    return KLANGTREU  # safety net; never reached if cats non-empty
+    return KLANGTREU
+
+def pick_primary_thome(cats: set[str]) -> str:
+    """Pick the single highest-priority Thomé (5-category) label."""
+    for c in PRIMARY_PRIORITY_THOME:
+        if c in cats:
+            return c
+    return BASISGRAPHEM
 
 # Regex helpers for the heuristic fallback (words not in NRW xlsx)
 RE_DOUBLED_CONSONANT = re.compile(r"([bcdfghjklmnpqrstvwxyz])\1", re.IGNORECASE)
@@ -154,53 +178,101 @@ def _extract_word(entry: dict) -> str | None:
             return v.strip()
     return None
 
-def nrw_features_to_patterns(entry: dict) -> tuple[set[str], list[str]]:
-    """Return (categories, raw_nrw_paths) for one NRW entry."""
+def nrw_features_to_patterns(entry: dict) -> tuple[set[str], set[str], list[str]]:
+    """Return (detailed_cats, thome_cats, raw_nrw_paths) for one NRW entry.
+
+    detailed_cats — 6-category fine-grained labels (klangtreu /
+                    doppelkonsonant / verwandt / merkwort / morphem /
+                    grossschreibung)
+    thome_cats    — 5-category Thomé-aligned labels (basisgraphem /
+                    orthographem / morphem / merkwort / grossschreibung)
+    raw_nrw_paths — unmapped NRW xlsx feature paths (for transparency)
+    """
     paths = list(_collect_x_paths(entry))
-    cats: set[str] = set()
+    detailed: set[str] = set()
+    thome: set[str] = set()
 
     for p in paths:
-        # --- Großschreibung ---
+        # --- grossschreibung (shared) ---
         if (p.startswith("Artikel.der") or p.startswith("Artikel.die")
                 or p.startswith("Artikel.das")
                 or "zusätzliche Filter.Wortart.Nomen" in p):
-            cats.add(GROSSSCHREIBUNG)
-        # --- merkwort ---
+            detailed.add(GROSSSCHREIBUNG)
+            thome.add(GROSSSCHREIBUNG)
+        # --- merkwort (shared) ---
         if "häufig gebrauchte" in p and "Merkwörter" in p:
-            cats.add(MERKWORT)
-        # --- morphem: prefixes, compounds ---
+            detailed.add(MERKWORT)
+            thome.add(MERKWORT)
+        # --- 6-cat: morphem (prefixes, compounds, syllable-h) ---
         if "morphematisches Prinzip.Präfixe" in p:
-            cats.add(MORPHEM)
+            detailed.add(MORPHEM)
         if "Komposita" in p:
-            cats.add(MORPHEM)
-        # --- verwandt: Auslautverhärtung + Umlautung ---
+            detailed.add(MORPHEM)
+        if "silbentrennendes -h" in p:
+            detailed.add(MORPHEM)
+        # --- 6-cat: verwandt (related-word derivation) ---
         if ("morphematisches Prinzip.Auslautverhärtung" in p
                 and "Komposita" not in p):
-            cats.add(VERWANDT)
+            detailed.add(VERWANDT)
         if "morphematisches Prinzip.Umlautung" in p:
-            cats.add(VERWANDT)
-        # --- doppelkonsonant: doubled consonants + short vowels ---
+            detailed.add(VERWANDT)
+        # --- 6-cat: doppelkonsonant (doubled consonants + short vowels) ---
         if "Doppelkonsonanten" in p:
-            cats.add(DOPPELKONSONANT)
+            detailed.add(DOPPELKONSONANT)
         if "mögliche dialektale Hürden.kurzes u" in p:
-            cats.add(DOPPELKONSONANT)
+            detailed.add(DOPPELKONSONANT)
         if "mögliche dialektale Hürden.kurzes i" in p:
-            cats.add(DOPPELKONSONANT)
-        # --- klangtreu: multi-letter base graphemes + reduction endings ---
+            detailed.add(DOPPELKONSONANT)
+        # --- 6-cat: klangtreu (regular phonology) ---
         if ("phonematisches Prinzip.mehrteilige Basisgrapheme" in p
                 or "phonematisches Prinzip.Reduktionsendung" in p):
-            cats.add(KLANGTREU)
-        # --- morphem: silbentrennendes -h is a syllable-boundary marker ---
-        if "silbentrennendes -h" in p:
-            cats.add(MORPHEM)
+            detailed.add(KLANGTREU)
+        # --- 5-cat (Thomé): orthographem — orthographic exceptions (broader) ---
+        # Covers everything under orthografisches und silbisches Prinzip,
+        # plus dialectal-hurdle markers (short vowels signaled
+        # orthographically). Broader than 6-cat doppelkonsonant.
+        if ("orthografisches und silbisches Prinzip" in p
+                or "mögliche dialektale Hürden" in p):
+            thome.add(ORTHOGRAPHEM)
+        # --- 5-cat (Thomé): morphem — any morphological reasoning ---
+        # Both derivation (Auslautverhärtung, Umlautung) and composition
+        # (Präfixe, Komposita) collapse into one broad category.
+        if "morphematisches Prinzip" in p:
+            thome.add(MORPHEM_BROAD)
+        # --- 5-cat (Thomé): basisgraphem — regular phonology ---
+        # Thomé's term for the regular grapheme-phoneme correspondence
+        # that ~65% of German words rely on exclusively.
+        if "phonematisches Prinzip" in p:
+            thome.add(BASISGRAPHEM)
 
-    # If nothing matched (e.g. the word is in the NRW list but has no
-    # feature tag — purely regular phonology), fall back to klangtreu
-    # (the "regular sound-it-out" default).
-    if not cats:
-        cats.add(KLANGTREU)
+    # Defaults: if nothing matched (word is in NRW list but lacks any
+    # feature tag — purely regular phonology), fall back to the
+    # "regular sound-it-out" default in each scheme.
+    if not detailed:
+        detailed.add(KLANGTREU)
+    if not thome:
+        thome.add(BASISGRAPHEM)
 
-    return cats, paths
+    return detailed, thome, paths
+
+# ---------------------------------------------------------------------------
+# Mapping from 6-cat detailed → 5-cat Thomé (used for fallback path)
+# ---------------------------------------------------------------------------
+# Strict bucketing: every detailed category collapses to exactly one
+# Thomé category. Used when we don't have NRW xlsx feature data (i.e.
+# words outside the NRW Grundwortschatz, derived via surface heuristics).
+DETAILED_TO_THOME = {
+    KLANGTREU: BASISGRAPHEM,
+    DOPPELKONSONANT: ORTHOGRAPHEM,
+    VERWANDT: MORPHEM_BROAD,
+    MERKWORT: MERKWORT,
+    MORPHEM: MORPHEM_BROAD,
+    GROSSSCHREIBUNG: GROSSSCHREIBUNG,
+}
+
+def detailed_to_thome(detailed: set[str]) -> set[str]:
+    """Derive 5-cat Thomé tags from 6-cat detailed tags (strict bucketing)."""
+    return {DETAILED_TO_THOME[c] for c in detailed if c in DETAILED_TO_THOME}
 
 # ---------------------------------------------------------------------------
 # Heuristic fallback for words NOT in NRW Grundwortschatz
@@ -208,9 +280,10 @@ def nrw_features_to_patterns(entry: dict) -> tuple[set[str], list[str]]:
 
 def fallback_categories(word: str, lemma: str, word_type: str | None,
                         article: str | None) -> set[str]:
-    """Rough categorization for words outside the NRW Grundwortschatz, based
-    on surface features of the lemma. Not as accurate as NRW-derived, but
-    keeps coverage > 0 for the whole vocabulary."""
+    """Rough 6-cat categorization for words outside the NRW Grundwortschatz,
+    based on surface features of the lemma. Not as accurate as NRW-derived,
+    but keeps coverage > 0 for the whole vocabulary. The Thomé 5-cat
+    bucketing is then derived from this via DETAILED_TO_THOME."""
     cats: set[str] = set()
     target = lemma or word
 
@@ -223,7 +296,7 @@ def fallback_categories(word: str, lemma: str, word_type: str | None,
     if RE_DOUBLED_CONSONANT.search(target):
         cats.add(DOPPELKONSONANT)
 
-    # Ableiten — final voiced→voiceless letter (devoicing candidates) OR umlaut
+    # verwandt — final voiced→voiceless letter (devoicing candidates) OR umlaut
     if RE_AUSLAUTVERHAERTUNG.search(target) or RE_UMLAUT.search(target):
         cats.add(VERWANDT)
 
@@ -288,11 +361,13 @@ def main():
     print(f"  {len(vocab)} vocabulary entries")
 
     # Apply mapping
-    source_dist = Counter()       # 'nrw_derived' / 'fallback_heuristic'
-    cat_dist = Counter()          # per spelling-pattern category, how many words carry it
-    primary_dist = Counter()      # per primary spelling-pattern category
-    multi_label_dist = Counter()  # how many strategies per word
-    unmapped_features: Counter = Counter()  # NRW feature paths that didn't trigger any category — for tuning
+    source_dist = Counter()             # 'nrw_derived' / 'fallback_heuristic'
+    detailed_cat_dist = Counter()       # per 6-cat label, # of words carrying it
+    detailed_primary_dist = Counter()   # per primary 6-cat label
+    thome_cat_dist = Counter()          # per 5-cat Thomé label, # of words carrying it
+    thome_primary_dist = Counter()      # per primary 5-cat Thomé label
+    multi_label_dist = Counter()        # how many detailed-scheme labels per word
+    unmapped_features: Counter = Counter()  # NRW paths that didn't trigger any tag — for tuning
 
     for entry in vocab:
         word = entry.get("word") or entry.get("Word") or ""
@@ -303,7 +378,7 @@ def main():
         nrw_entry = nrw_idx.get(normalize(word)) or nrw_idx.get(normalize(lemma))
         raw_nrw_paths: list[str] = []
         if nrw_entry is not None:
-            cats, raw_nrw_paths = nrw_features_to_patterns(nrw_entry)
+            detailed, thome, raw_nrw_paths = nrw_features_to_patterns(nrw_entry)
             source_dist["nrw_derived"] += 1
             # Record which NRW paths didn't map (diagnostic)
             for p in raw_nrw_paths:
@@ -313,35 +388,50 @@ def main():
                     "Auslautverhärtung", "Umlautung", "Doppelkonsonanten",
                     "kurzes u", "kurzes i", "mehrteilige Basisgrapheme",
                     "Reduktionsendung", "silbentrennendes -h",
+                    "orthografisches und silbisches Prinzip",
+                    "phonematisches Prinzip", "morphematisches Prinzip",
                 )):
                     unmapped_features[p] += 1
         else:
-            cats = fallback_categories(word, lemma, word_type, article)
+            detailed = fallback_categories(word, lemma, word_type, article)
+            thome = detailed_to_thome(detailed)
             source_dist["fallback_heuristic"] += 1
 
-        sorted_cats = sorted(cats)
-        primary = pick_primary(cats)
+        sorted_detailed = sorted(detailed)
+        sorted_thome = sorted(thome)
+        primary_detailed = pick_primary_detailed(detailed)
+        primary_thome = pick_primary_thome(thome)
 
         # Write into apiEnrichment (create if missing; never clobber other
-        # apiEnrichment fields). Per PLAN.md §6.5, we ship both the
-        # kid-friendly spelling-pattern labels AND the raw NRW linguistic feature
-        # paths (when available) so the DB is transparent about provenance.
+        # apiEnrichment fields). Per PLAN.md §6.5, we ship two parallel
+        # taxonomies: the kid-facing detailed 6-category view AND the
+        # research-aligned 5-category Thomé view. Both derive from the
+        # same NRW xlsx; both share grossschreibung + merkwort.
         api = entry.get("apiEnrichment")
         if not isinstance(api, dict):
             api = {}
-        api["spellingStrategy"] = sorted_cats              # multi-label, kid-facing
-        api["spellingStrategyPrimary"] = primary           # single, kid-facing
+        # 6-category detailed view (kid-facing default)
+        api["spellingStrategy"] = sorted_detailed
+        api["spellingStrategyPrimary"] = primary_detailed
+        # 5-category Thomé broad view (academic / teacher view)
+        api["spellingPatternsThome"] = sorted_thome
+        api["spellingPatternsThomePrimary"] = primary_thome
+        # Provenance
         api["spellingStrategySource"] = (
             "nrw_derived" if nrw_entry is not None else "fallback_heuristic"
         )
+        # Raw NRW feature paths (transparency, only when available)
         if raw_nrw_paths:
             api["nrwLinguisticFeatures"] = sorted(raw_nrw_paths)
         entry["apiEnrichment"] = api
 
-        for c in sorted_cats:
-            cat_dist[c] += 1
-        primary_dist[primary] += 1
-        multi_label_dist[len(sorted_cats)] += 1
+        for c in sorted_detailed:
+            detailed_cat_dist[c] += 1
+        for c in sorted_thome:
+            thome_cat_dist[c] += 1
+        detailed_primary_dist[primary_detailed] += 1
+        thome_primary_dist[primary_thome] += 1
+        multi_label_dist[len(sorted_detailed)] += 1
 
     # Write output
     out = merged if isinstance(merged, dict) else {"vocabulary": vocab}
@@ -370,21 +460,37 @@ def main():
         pct = 100.0 * n / max(len(vocab), 1)
         lines.append(f"  {k:25s} {n:>5d}  ({pct:5.1f} %)")
     lines.append("")
-    lines.append("Words carrying each spelling-pattern category (multi-label):")
+    lines.append("─── 6-category detailed view (kid-facing) ───")
+    lines.append("Words carrying each detailed category (multi-label):")
     for c in [KLANGTREU, DOPPELKONSONANT, VERWANDT, MERKWORT,
               MORPHEM, GROSSSCHREIBUNG]:
-        n = cat_dist.get(c, 0)
+        n = detailed_cat_dist.get(c, 0)
         pct = 100.0 * n / max(len(vocab), 1)
         lines.append(f"  {c:18s} {n:>5d}  ({pct:5.1f} %)")
     lines.append("")
-    lines.append("Primary spelling-pattern category (single label, kid-facing):")
+    lines.append("Primary detailed category (single label per word):")
     for c in [KLANGTREU, DOPPELKONSONANT, VERWANDT, MERKWORT,
               MORPHEM, GROSSSCHREIBUNG]:
-        n = primary_dist.get(c, 0)
+        n = detailed_primary_dist.get(c, 0)
         pct = 100.0 * n / max(len(vocab), 1)
         lines.append(f"  {c:18s} {n:>5d}  ({pct:5.1f} %)")
     lines.append("")
-    lines.append("Multi-label distribution (categories per word):")
+    lines.append("─── 5-category Thomé view (academic / teacher) ───")
+    lines.append("Words carrying each Thomé category (multi-label):")
+    for c in [BASISGRAPHEM, ORTHOGRAPHEM, MORPHEM_BROAD, MERKWORT,
+              GROSSSCHREIBUNG]:
+        n = thome_cat_dist.get(c, 0)
+        pct = 100.0 * n / max(len(vocab), 1)
+        lines.append(f"  {c:18s} {n:>5d}  ({pct:5.1f} %)")
+    lines.append("")
+    lines.append("Primary Thomé category (single label per word):")
+    for c in [BASISGRAPHEM, ORTHOGRAPHEM, MORPHEM_BROAD, MERKWORT,
+              GROSSSCHREIBUNG]:
+        n = thome_primary_dist.get(c, 0)
+        pct = 100.0 * n / max(len(vocab), 1)
+        lines.append(f"  {c:18s} {n:>5d}  ({pct:5.1f} %)")
+    lines.append("")
+    lines.append("Multi-label distribution (detailed categories per word):")
     for k in sorted(multi_label_dist):
         n = multi_label_dist[k]
         pct = 100.0 * n / max(len(vocab), 1)
