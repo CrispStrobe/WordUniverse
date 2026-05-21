@@ -490,6 +490,226 @@ class _SettingsScreenState extends State<SettingsScreen>
         ]);
       });
 
+      // 9h-extra5. Berliner Grundwortschatz (LISUM 2024)
+      LicenseRegistry.addLicense(() {
+        return Stream<LicenseEntry>.fromIterable([
+          LicenseEntryWithLineBreaks(
+            ['Berliner Grundwortschatz (LISUM 2024)'],
+            'Source: Berliner Grundwortschatz, LISUM 2024 edition\n'
+            'Publisher: Landesinstitut für Schule und Medien Berlin-Brandenburg (LISUM), Ludwigsfelde\n'
+            'License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)\n'
+            'URL: https://www.berlin.de/sen/bildung/schule/bildungswege/grundschule/berliner-grundwortschatz.pdf\n\n'
+            'The Berliner Grundwortschatz publication is explicitly released by LISUM '
+            'for re-use under CC BY-SA 4.0: "Soweit nicht abweichend gekennzeichnet '
+            'zur Nachnutzung freigegeben unter der Creative Commons Lizenz CC BY-SA 4.0".\n\n'
+            'Used as a source-attribution token in this app\'s vocabulary database '
+            '(metadata_json.sources includes "BERLIN" for matching lemmas).',
+          ),
+        ]);
+      });
+
+      // 9h-extra6. Brandenburger Grundwortschatz (LISUM 2024)
+      LicenseRegistry.addLicense(() {
+        return Stream<LicenseEntry>.fromIterable([
+          LicenseEntryWithLineBreaks(
+            ['Brandenburger Grundwortschatz (LISUM 2024)'],
+            'Source: Grundwortschatz für die Grundschule in Brandenburg, LISUM 2024 edition\n'
+            'Publisher: Landesinstitut für Schule und Medien Berlin-Brandenburg (LISUM), Ludwigsfelde\n'
+            'License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)\n'
+            'URL: https://bildungsserver.berlin-brandenburg.de/fileadmin/bbb/unterricht/faecher/sprachen/deutsch/Schulinterne_Fachplaene_und_Planungshilfen/Grundwortschatz_Planungshilfe_Rechtschreiben_2024-08-09.pdf\n\n'
+            'The Brandenburger Grundwortschatz publication is explicitly released by '
+            'LISUM for re-use under CC BY-SA 4.0 (same license framing as the Berlin '
+            'companion publication).\n\n'
+            'Used as a source-attribution token (metadata_json.sources includes '
+            '"BRANDENBURG" for matching lemmas).',
+          ),
+        ]);
+      });
+
+      // 9h-extra7. Hessen Grundwortschatz (Hess. KuMi 2021)
+      LicenseRegistry.addLicense(() {
+        return Stream<LicenseEntry>.fromIterable([
+          LicenseEntryWithLineBreaks(
+            ['Hessen Grundwortschatz'],
+            'Source: Handreichung zum Grundwortschatz Hessen + companion Wörterliste\n'
+            'Publisher: Hessisches Kultusministerium, Luisenplatz 10, 65185 Wiesbaden\n'
+            'License: public administrative material (amtliches Werk per §5 UrhG)\n'
+            'URL: https://kultus.hessen.de/sites/kultus.hessen.de/files/2022-09/woerterliste_aus_der_handreichung_zum_grundwortschatz_hessen.pdf\n\n'
+            'Verbindlich für hessische Grundschulen seit Schuljahr 2021/22. We use '
+            'the official Wörterliste to populate metadata_json.sources with "HESSEN" '
+            'and metadata_json.hessenCategories with the 53 orthographic-pattern '
+            'categories from the source publication.',
+          ),
+        ]);
+      });
+
+      // 9h-extra8. Rheinland-Pfalz Grundwortschatz (Min. f. Bildung Mainz 2021)
+      LicenseRegistry.addLicense(() {
+        return Stream<LicenseEntry>.fromIterable([
+          LicenseEntryWithLineBreaks(
+            ['Rheinland-Pfalz Grundwortschatz'],
+            'Source: Grundwortschatz Rheinland-Pfalz Handreichung (August 2021)\n'
+            'Publisher: Ministerium für Bildung, Mittlere Bleiche 61, 55116 Mainz\n'
+            'License: public administrative material (amtliches Werk per §5 UrhG); '
+            '© Ministerium für Bildung 2021\n'
+            'URL: https://static.bildung-rp.de/pl-materialien/Allgemein/RP-07956534_GWS_BM_2021.pdf\n\n'
+            'Per the publication\'s own Impressum: "Überarbeitete Fassung der '
+            'Handreichung zum Grundwortschatz Hessen (Wiesbaden, März 2020), mit '
+            'freundlicher Genehmigung des Hessischen Kultusministeriums."\n\n'
+            'Verbindlich für RLP-Grundschulen seit Schuljahr 2022/23. Used as '
+            '"RHEINLAND_PFALZ" source token + rheinland_pfalzCategories metadata.',
+          ),
+        ]);
+      });
+
+      // 9h-extra9. Niedersachsen Orientierungswortschatz (Nds. KuMi 2015)
+      LicenseRegistry.addLicense(() {
+        return Stream<LicenseEntry>.fromIterable([
+          LicenseEntryWithLineBreaks(
+            ['Niedersachsen Orientierungswortschatz'],
+            'Source: Materialien für einen kompetenzorientierten Unterricht im '
+            'Primarbereich – Orthografie (2015)\n'
+            'Publisher: Niedersächsisches Kultusministerium, Schiffgraben 12, '
+            '30159 Hannover\n'
+            'License: public administrative material (amtliches Werk per §5 UrhG); '
+            'free distribution from NiBiS (Niedersächsischer Bildungsserver)\n'
+            'URL: https://cuvo.nibis.de/index.php?p=download&upload=116\n\n'
+            'Used as "NIEDERSACHSEN" source token. The PDF contains one embedded '
+            'illustration carrying a "© 2013 Cornelsen Schulverlage GmbH" notice; '
+            'we do not reproduce that illustration, only the headword lists which '
+            'are factual reference material.',
+          ),
+        ]);
+      });
+
+      // 9h-extra10. Bayern Grundwortschatz (ISB Bayern)
+      LicenseRegistry.addLicense(() {
+        return Stream<LicenseEntry>.fromIterable([
+          LicenseEntryWithLineBreaks(
+            ['Bayern Grundwortschatz'],
+            'Source: Grundwortschatz für die Jahrgangsstufen 1+2 / 3+4 (ISB Bayern, '
+            'Ergänzende Informationen zum LehrplanPLUS)\n'
+            'Publisher: Staatsinstitut für Schulqualität und Bildungsforschung (ISB), '
+            'München — state agency under the Bayerisches Staatsministerium für '
+            'Unterricht und Kultus\n'
+            'License: public administrative material (amtliches Werk per §5 UrhG)\n'
+            'URLs:\n'
+            '  - https://www.lehrplanplus.bayern.de/sixcms/media.php/71/5_Grundwortschatz%201_2.pdf\n'
+            '  - https://www.lehrplanplus.bayern.de/sixcms/media.php/71/6_Grundwortschatz%203_4.pdf\n\n'
+            'Used as "BAYERN" source token + bayernCategories (43 fine-grained '
+            'orthographem-level labels like <er>, <ck>, <ie>, <tz>, Dehnungs <h>).',
+          ),
+        ]);
+      });
+
+      // 9h-extra11. Schleswig-Holstein Rechtschreib-Grundwortschatz (2023)
+      LicenseRegistry.addLicense(() {
+        return Stream<LicenseEntry>.fromIterable([
+          LicenseEntryWithLineBreaks(
+            ['Schleswig-Holstein Rechtschreib-Grundwortschatz'],
+            'Source: "Ebbe, Krabbe, Flut und Seepferdchen – Richtig schreiben lernen '
+            'in Schleswig-Holstein mit dem Rechtschreib-Grundwortschatz" (Juni 2023)\n'
+            'Publisher: Ministerium für Allgemeine und Berufliche Bildung, '
+            'Wissenschaft, Forschung und Kultur des Landes SH, Brunswiker Straße '
+            '16-22, 24105 Kiel; Mitwirkung: EUF (Europa-Universität Flensburg) + '
+            'IQSH (Institut für Qualitätsentwicklung an Schulen)\n'
+            'Autorinnen: Prof. Dr. Johanna Fay, Tanja Šutalo\n'
+            'License: public administrative material (amtliches Werk per §5 UrhG)\n'
+            'URL: https://www.schleswig-holstein.de/DE/landesregierung/ministerien-behoerden/III/Service/Broschueren/Bildung/grundwortschatz.pdf\n\n'
+            'Per the publication\'s Impressum: "Der schleswig-holsteinische '
+            'Rechtschreib-Grundwortschatz wurde mit Zustimmung der Schulbehörde '
+            'Hamburg in Anlehnung an den Hamburger Basiswortschatz erstellt."\n\n'
+            'Used as "SCHLESWIG_HOLSTEIN" source token + 59 hierarchical '
+            'schleswig_holsteinCategories.',
+          ),
+        ]);
+      });
+
+      // 9h-extra12. DWDS Lemma-Datenbank (BBAW)
+      LicenseRegistry.addLicense(() {
+        return Stream<LicenseEntry>.fromIterable([
+          LicenseEntryWithLineBreaks(
+            ['DWDS Lemma-Datenbank — Häufigkeitsklassen'],
+            'Source: DWDS Lemma-Datenbank (full lemma list with frequenzklasse)\n'
+            'Publisher: Digitales Wörterbuch der deutschen Sprache (DWDS) / '
+            'Berlin-Brandenburgische Akademie der Wissenschaften (BBAW)\n'
+            'License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)\n'
+            'URL: https://www.dwds.de/lemma/csv\n'
+            'Required attribution: "Digitales Wörterbuch der deutschen Sprache (DWDS), '
+            'CC-BY-SA 4.0"\n\n'
+            'This is distinct from the existing DWDS Goethe-Zertifikat A1/A2/B1 '
+            'entry above. The DWDS Lemma-Datenbank provides a 7-level Häufigkeits-'
+            'klasse (0–6) per lemma across the full DWDS reference corpus, used '
+            'in this app to populate frequency_json.dwds with a general-purpose '
+            'frequency band signal complementing the existing rank metrics from '
+            'HermitDave, Buchmeier, Leipzig and Leeds.',
+          ),
+        ]);
+      });
+
+      // 9h-extra13. childLex (Schroeder et al. 2015, HU Berlin / MPI Berlin)
+      LicenseRegistry.addLicense(() {
+        return Stream<LicenseEntry>.fromIterable([
+          LicenseEntryWithLineBreaks(
+            ['childLex — age-graded German lexical norms'],
+            'Source: childLex 0.17.01, a German lexical database for ages 6–12 '
+            'derived from a 10M-token corpus of children\'s literature\n'
+            'Authors: Sascha Schroeder, Kay-Michael Würzner, Julian Heister, '
+            'Alexander Geyken, Reinhold Kliegl (HU Berlin / MPI Berlin)\n'
+            'License: GNU General Public License v3.0 (GPL-3.0)\n'
+            'URL: https://osf.io/tqgjs/\n'
+            'Citation: Schroeder, S., Würzner, K.-M., Heister, J., Geyken, A., & '
+            'Kliegl, R. (2015). childLex: A lexical database of German read by '
+            'children. Behavior Research Methods, 47(4), 1085–1094.\n\n'
+            'childLex provides per-lemma frequency norms across three age bands: '
+            'Age 1 (6–8 years / Klasse 1–2), Age 2 (9–10 / Klasse 3–4), Age 3 '
+            '(11–12 / Klasse 5–6). Used in this app to populate frequency_json.'
+            'childlex with age1_freq_norm / age2_freq_norm / age3_freq_norm per '
+            'lemma. 9307 of 10450 vocabulary words have childLex coverage.\n\n'
+            'License cascade note: GPL-3.0 is the most restrictive license '
+            'among the upstream sources that contribute substantial data to '
+            'this app\'s vocabulary database. Per Creative Commons\' 2015 '
+            'v4-compatible decision, CC-BY-SA-4.0 is one-way compatible with '
+            'GPL-3.0, so combining childLex with the other CC-BY-SA-4.0 sources '
+            'cascades the shipped database\'s license to GPL-3.0. The Flutter '
+            'app source code is not affected and stays under its own license.',
+          ),
+        ]);
+      });
+
+      // 9h-extra14. Database-license posture statement (top-level summary)
+      LicenseRegistry.addLicense(() {
+        return Stream<LicenseEntry>.fromIterable([
+          LicenseEntryWithLineBreaks(
+            ['Vocabulary database — composite license'],
+            'The vocabulary database shipped with this app '
+            '(assets/grundwortschatz.db.gz) is a composite work derived from '
+            'many upstream sources, each separately attributed in this license '
+            'screen.\n\n'
+            'Effective license of the COMPOSITE DATABASE FILE: '
+            'GNU General Public License v3.0 (GPL-3.0-or-later).\n\n'
+            'This follows from combining childLex (GPL-3.0) with the other '
+            'CC-BY-SA-4.0 upstream sources (Wiktionary, ConceptNet, OdeNet, '
+            'OpenThesaurus, HermitDave/OpenSubtitles, DWDS, Wikipedia, '
+            'Berlin/Brandenburg Grundwortschätze, etc.). Per Creative Commons\' '
+            'official 2015 v4-compatible designation, CC-BY-SA-4.0 → GPL-3.0 '
+            'is one-way compatible: the combined work must be redistributed '
+            'under GPL-3.0, with full attribution preserved for every '
+            'constituent CC-BY-SA-4.0 source.\n\n'
+            'This composite-license posture applies ONLY to the database '
+            'file. The Flutter application source code is under its own '
+            'separate license. GPL on shipped data does not infect '
+            'application code that merely *uses* the data; it only applies '
+            'when redistributing derivative data works.\n\n'
+            'Plain-administrative-material sources (NRW Grundwortschatz, '
+            'BW Grundwortschatz, Hessen/RLP/Niedersachsen/Bayern/SH '
+            'Grundwortschätze) are §5 UrhG amtliche Werke and are freely '
+            'usable; their attribution requirements are handled by the '
+            'individual license entries above.',
+          ),
+        ]);
+      });
+
       // 9i. Universal Dependencies (German treebanks)
       LicenseRegistry.addLicense(() {
         return Stream<LicenseEntry>.fromIterable([
@@ -1918,12 +2138,14 @@ class _SettingsScreenState extends State<SettingsScreen>
             subtitle: S.of(context)!.viewOssLicenses,
             icon: Icons.article_rounded,
             isLocked: false,
-            onTap: () {
+            onTap: () async {
+              final info = await PackageInfo.fromPlatform();
+              if (!context.mounted) return;
               showLicensePage(
                 context: context,
-                applicationName: S.of(context)!.appName, 
-                applicationVersion: '1.0.3',
-                applicationLegalese: S.of(context)!.appLegalese, 
+                applicationName: S.of(context)!.appName,
+                applicationVersion: '${info.version}+${info.buildNumber}',
+                applicationLegalese: S.of(context)!.appLegalese,
                 applicationIcon: Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: Icon(
