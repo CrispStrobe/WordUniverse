@@ -1,17 +1,127 @@
 # PLAN — Reproduce voc-de, build voc-en, expand ConceptNet
 
-Three sub‑plans live in this file:
+## Priority order (decided 2026-05-21)
 
-1. **§1 — Rebuild the DE DB** (already shipped; this is the reproducibility recipe)
-2. **§2 — Build the EN DB at DE parity** (new; ~2 weeks of focused work)
-3. **§3 — Rebuild ConceptNet for all languages** (rebuild a lost script; ~½ day code + 4–10 h compute)
+1. **§1 — DE DB safe rebuild** — produce a feature-complete (≥ current
+   shipped DB) German DB using only **100 % safely-licensed** data.
+2. **§2 — EN DB at DE parity** — port the cleaned pipeline to English.
+3. **§3 — CC-BY-SA App Store / Play Store compliance** — half-day
+   pre-submission checklist; gate on §1+§2 outputs.
+4. **§4 — ConceptNet all-languages expansion** — deferred until §1–§3
+   ship.
 
-Plus housekeeping in **§4** (rotate the leaked HF token, lock down the build
-host) and **§5** (open decisions blocking forward progress).
+The rest is reference / enrichment / cleanup material:
+
+- §5 — Reproducibility recipe for the **historical** DE DB (the "as-is"
+  baseline; useful for diff against §1 output).
+- §6 — Algorithmic spelling-pattern classifier (ongoing improvement).
+- §7 — Additional free-licensed data sources to add over time.
+- §8 — Housekeeping (rotate leaked HF token, etc.).
+- §9 — Open decisions still pending.
 
 ---
 
-## 1. Rebuild the DE DB (shipped)
+## 1. DE DB safe rebuild (highest priority)
+
+**Goal**: ship a new `assets/grundwortschatz.db.gz` that is **at least
+as feature-complete as the current one** and uses **only safely-
+licensed source data** — no Tacke (educational-use only), no
+unidentified third-party FRESCH-overlay lists, no NC-restricted
+content.
+
+### 1.1 What changes vs the current shipped DB
+
+| Component | Currently from | Replacement |
+|---|---|---|
+| Common learner errors (commonLearnerErrors) | Tacke/Menzel `100/300/400 Fehler` (educational use, not formally redistributable for commercial) | **Wikipedia "Liste häufiger Rechtschreibfehler"** + **Wiktionary "Verzeichnis:Deutsch/Fehlschreibungen"**, both CC-BY-SA 4.0. Fetcher: `00b_fetch_de_misspellings.py` |
+| Spelling strategies | `532Strategien.csv` (origin unclear) | **Already replaced** — algorithmic re-derivation from NRW xlsx via `04b_derive_spelling_patterns.py` (commit ed2ebae). Dual taxonomy: 6-cat detailed + 5-cat Thomé. |
+| Pedagogical wordlist (Klasse 1–4) | `739Leo.csv` (Leoschule Lünen, no formal license) | **Dropped** — coverage redundant with NRW Grundwortschatz 1L/1S/3L/3S + DWDS Goethe A1/A2/B1 + 111 NRW Merkwörter + 422 NRW Nachdenkwörter |
+| Frequency rank (DE corpus) | `top10000de_unileipzig.txt` (some Leipzig sub-corpora are CC-BY-NC) | **Verify** Wortschatzlexikon's specific corpus license; if NC, drop and rely on Buchmeier20k + de_50k_hermitdave (both CC-BY-SA). |
+| FRESCH labels in shipped JSON | curated overlay | Replaced by `klangtreu/doppelkonsonant/verwandt/merkwort/morphem/grossschreibung` + `basisgraphem/orthographem/morphem/merkwort/grossschreibung` (own derivation) |
+| Tacke license entry in app | listed in `LicenseRegistry` | **Remove** — no Tacke content shipped after rebuild |
+
+### 1.2 Steps to execute (runbook)
+
+```sh
+cd pipeline/voc-de
+# 1. Fetch the Wikipedia + Wiktionary misspellings (replaces Tacke)
+python 00b_fetch_de_misspellings.py        # → de_wiki_misspellings.csv
+
+# 2. Verify Leipzig license posture for our specific corpus
+#    (top10000de_unileipzig.txt). If CC-BY-NC, edit 01_consolidate to skip it.
+#    For commercial app: probably safer to skip; coverage is OK without it.
+
+# 3. Re-run the consolidation through DB build
+#    (Filename drift caveat — see §5 for the rename chain)
+python conv_xls.py                          # → output_nested.json (one-time)
+python 01_consolidate_wordlists_csv.py      # → voc_de.csv
+python 02_enrich_with_spacy_csv.py          # → voc_de_enriched.csv
+python 03_conv_csv_to_json.py               # → grundwortschatz.json
+python 04_add_nrw_data.py                   # → grundwortschatz_merged.json
+python 04b_derive_spelling_patterns.py      # → grundwortschatz_merged_with_patterns.json
+python filter_voc.py …_with_patterns.json grundwortschatz_safe.json
+python 03a_fix_grades.py
+python 05_phoneme_enricher.py
+python 06_generate_grapheme_variants.py
+python 11_reprocess_full_wikidict.py        # SLOW (cstr/WiktionaryDE API)
+python 08_fix_word_types.py
+python 12_api_wins_3.py                     # USE _3
+python 13_fix_genders_manually.py
+# Manually download openthesaurus_dump.sql first
+python 13b_enrich_with_openthesaurus.py
+python 14_convert_db_to_sqflite.py          # → grundwortschatz.db
+gzip -9 grundwortschatz.db -c > ../../assets/grundwortschatz.db.gz
+```
+
+### 1.3 Validation: feature parity vs current shipped DB
+
+Before replacing `assets/grundwortschatz.db.gz`, validate the new build
+covers everything the old one did:
+
+| Check | How |
+|---|---|
+| Word count ≥ 10,450 | `sqlite3 new.db 'SELECT count(*) FROM words'` |
+| Per-grade distribution within ±5 % of current | same per `grade_level` |
+| Translations table populated | `SELECT count(*) FROM translations` ≥ 27,000 |
+| Examples table populated | `SELECT count(*) FROM examples` ≥ 24,000 |
+| FTS5 search_index works | `SELECT count(*) FROM search_index('Hund')` > 0 |
+| `enrichment_json` populated for >95 % | `SELECT count(*) FROM words WHERE enrichment_json != '{}'` |
+| spellingStrategy populated | `SELECT count(*) FROM words WHERE enrichment_json LIKE '%spellingStrategy%'` ≥ 10,000 |
+| New: spellingPatternsThome populated | same as above |
+| commonLearnerErrors populated (Wikipedia-based, not Tacke) | confirm pairs come from `de_wiki_misspellings.csv` |
+| In-app License screen: no Tacke entry, no FRESCH brand mention | manual check in Settings → Licenses |
+
+### 1.4 Ship
+
+1. Replace `assets/grundwortschatz.db.gz` with the new build.
+2. Bump version: `pubspec.yaml` `version: 1.1.0+N → 1.2.0+N+1`.
+3. Update Settings screen license entries: remove the Tacke entry that
+   `settings_screen.dart` currently registers; the (already neutralized)
+   spelling-pattern entry stays.
+4. Per §3 of this plan, prepare the HF dataset mirror for CC-BY-SA
+   compliance before next visible distribution.
+
+### 1.5 What we don't have to do
+
+- We do NOT need to drop NRW Grundwortschatz, OpenThesaurus, OdeNet,
+  ConceptNet, Wiktionary, HermitDave, Buchmeier, or DWDS Goethe sets —
+  all already CC-BY-SA / OGL / public-administrative.
+- We do NOT need to drop spelling-pattern tagging — the algorithmic
+  derivation is our own work.
+- We do NOT need to drop the existing UD treebank-derived
+  verb-government data — CC-BY-SA already.
+
+**§§2–4 (EN port, CC-BY-SA, ConceptNet) and §§6–9 (improvements,
+sources, housekeeping, open decisions) follow with their pre-existing
+content, in the priority order stated above.**
+
+---
+
+## 1a. Reproducibility recipe for the historical DE DB (reference)
+
+*Renumbered to keep the priority §§1–4 order clean; original content
+unchanged. Use this as the "as-is" baseline to diff against §1's safe
+rebuild output.*
 
 The scripts are all in
 `/Volumes/backups/code/voc/lib/features/games/data/`. Restore them to
