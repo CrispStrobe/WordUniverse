@@ -16,6 +16,7 @@ import '../../../generated/l10n.dart';
 import '../providers/game_provider.dart';
 import '../widgets/space_background.dart';
 import '../models/game_outcome.dart';
+import 'verbtrenner_text_helpers.dart';
 
 /// Trennbare Verben Game - Teaching German separable prefix verb rules
 /// Players decide if verb parts should be ZUSAMMEN (together) or GETRENNT (separated)
@@ -368,42 +369,19 @@ class _VerbtrennerGameState extends State<VerbtrennerGame>
   return pairs;
 }
 
-  /// Extract a typical direct object from examples (for transitive verbs)
+  /// Extract a typical direct object from examples (for transitive verbs).
+  /// Thin wrapper that walks examples and delegates extraction to the
+  /// pure helper in verbtrenner_text_helpers.dart (where the logic is
+  /// unit-tested).
   String? _extractTypicalObject(List<ApiExample> examples, String infinitive) {
-  for (final example in examples) {
-    final text = example.text;
-    if (text == null || text.isEmpty) continue;
-
-    // Look for accusative articles. Allow both sentence-start ("Die ...")
-    // and mid-sentence ("die ...") variants by case-insensitive article
-    // matching, then verify in code that the following token starts with
-    // an uppercase letter (i.e. is a real German noun) — otherwise we get
-    // junk like "das im" / "die als" where \w+ greedily eats a
-    // preposition / particle and the template produces nonsense.
-    final accusativePattern = RegExp(
-      r'\b(den|die|das|einen|eine|ein|meinen|meine|mein|deinen|deine|dein|seinen|seine|sein)\s+([\wäöüÄÖÜß]+)\b',
-      caseSensitive: false,
-    );
-
-    for (final match in accusativePattern.allMatches(text)) {
-      final noun = match.group(2)!;
-      if (noun.isEmpty) continue;
-      final first = noun[0];
-      // Real German nouns start with a capital. Skip prepositions /
-      // particles / verbs that snuck in as the second token.
-      final isCapital = first == first.toUpperCase() &&
-          first != first.toLowerCase();
-      if (!isCapital) continue;
-
-      // Lowercase the article so the phrase reads naturally mid-sentence
-      // (the example may have it capitalized at a sentence start).
-      final phrase = match.group(0)!;
-      return phrase[0].toLowerCase() + phrase.substring(1);
+    for (final example in examples) {
+      final text = example.text;
+      if (text == null || text.isEmpty) continue;
+      final phrase = extractAccusativeObjectPhrase(text);
+      if (phrase != null) return phrase;
     }
+    return null;
   }
-  
-  return null;
-}
 
   /// Find an appropriate example or build a grammatically correct context sentence
   String _findOrBuildContext({
