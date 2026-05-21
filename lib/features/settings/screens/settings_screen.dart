@@ -460,36 +460,28 @@ class _SettingsScreenState extends State<SettingsScreen>
         ]);
       });
 
-      // 9h-extra4. FRESCH-style spelling strategy categorization
+      // 9h-extra4. Spelling-pattern categorization (own derivation from NRW)
       LicenseRegistry.addLicense(() {
         return Stream<LicenseEntry>.fromIterable([
           LicenseEntryWithLineBreaks(
-            ['FRESCH-style spelling strategies'],
-            'The spelling-strategy category names used in this app\n'
-            '(Mitsprechen / Weiterschwingen / Ableiten / Merken / Wortbausteine / '
-            'Großschreibung) follow the FRESCH method (Freiburger Rechtschreibschule), '
-            'a well-established pedagogical framework for German primary-school '
-            'spelling instruction.\n\n'
-            'Reference: H. Brezing, D. Maisenbacher, G. J. Renk, M. Wehrle - '
-            'AOL-Verlag (now Persen Verlag, part of Cornelsen Schulverlage).\n'
-            'Method documentation: https://grundschullernportal.zum.de/wiki/'
-            'Lernpfad_zur_FRESCH-Methode and https://www.schule-bw.de/faecher-und-'
-            'schularten/sprachen-und-literatur/deutsch/sprache/rechtschreibung/'
-            'fresch-methode\n\n'
-            'Legal posture:\n'
-            '  • The FRESCH METHOD is a pedagogical idea, not copyrightable.\n'
-            '  • The individual category names are common German pedagogical '
-            '    vocabulary, not trademarks.\n'
-            '  • "FRESCH" as an acronym is likely a Wortmarke held by AOL/Persen, '
-            '    but is used here only nominatively to describe the method, not as '
-            '    a brand identifier for this app.\n'
-            '  • The strategy categorizations in this app\'s database are an '
-            '    INDEPENDENT DERIVATION applied algorithmically to the NRW '
-            '    Grundwortschatz xlsx (which contains the underlying linguistic '
-            '    feature taxonomy: Doppelkonsonanten, Auslautverhärtung, Umlautung, '
-            '    Diphthonge, etc.). No third-party curated FRESCH wordlist is '
-            '    redistributed.\n\n'
-            'Credit: Brezing/Maisenbacher/Renk/Wehrle for the method.',
+            ['German spelling-pattern categorization'],
+            'The spelling-pattern category labels used in this app\n'
+            '(klangtreu / doppelkonsonant / verwandt / merkwort / morphem / '
+            'grossschreibung) are neutral German linguistic-pattern names. They '
+            'describe the linguistic feature each word\'s spelling rests on; '
+            'they are not borrowed from any branded pedagogical method.\n\n'
+            'Pedagogically these categories cover the same ground that several '
+            'published German spelling-strategy methods cover, but the labels and '
+            'derivation rules here are independent.\n\n'
+            'How the labels are produced:\n'
+            '  • Source: NRW Grundwortschatz xlsx (Ministerium für Schule und '
+            '    Bildung NRW), which contains the underlying linguistic feature '
+            '    taxonomy: Doppelkonsonanten, Auslautverhärtung, Umlautung, '
+            '    Diphthonge, Reduktionsendungen, etc.\n'
+            '  • Mapping: applied algorithmically by the build pipeline (own '
+            '    derivation; no third-party curated wordlist is consumed).\n'
+            '  • Output: a multi-label category list plus a primary label per '
+            '    word, both attached to the apiEnrichment field of each entry.',
           ),
         ]);
       });

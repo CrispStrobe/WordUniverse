@@ -66,7 +66,6 @@ flutter:
     - assets/images/
     - assets/fonts/
     - assets/sounds/
-    - lib/features/games/data/
     - assets/fonts/OFL.txt
     - assets/grundwortschatz.db.gz
     #- assets/grundwortschatz.db
