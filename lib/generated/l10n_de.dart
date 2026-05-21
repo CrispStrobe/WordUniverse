@@ -1014,7 +1014,7 @@ class SDe extends S {
   String get wortbaumeisterTogetherExample => '(z.B. aufstehen)';
 
   @override
-  String get grossschreibTitle => 'Großschreibungs-Galaxie';
+  String get grossschreibTitle => 'Wort-Galaxie';
 
   @override
   String get grossschreibClickHint => 'Klicke auf das Wort!';

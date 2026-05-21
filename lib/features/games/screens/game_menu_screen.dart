@@ -389,7 +389,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         onTap: () => _navigateToGame(GrossstadtGame(gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
-        title: 'Wort-Galaxie',
+        title: s.grossschreibTitle,
         description: 'Werden Worte im Satz groß oder klein geschrieben?',
         icon: Icons.call_split,
         gradient: const LinearGradient(colors: [Color(0xFF11998e), Color(0xFF38ef7d)]),
