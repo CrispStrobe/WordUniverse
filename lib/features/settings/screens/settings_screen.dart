@@ -259,6 +259,260 @@ class _SettingsScreenState extends State<SettingsScreen>
         ]);
       });
 
+      // 9b. OpenThesaurus
+      LicenseRegistry.addLicense(() {
+        return Stream<LicenseEntry>.fromIterable([
+          LicenseEntryWithLineBreaks(
+            ['OpenThesaurus'],
+            'Source: OpenThesaurus (https://www.openthesaurus.de/)\n'
+            'License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)\n'
+            'URL: https://creativecommons.org/licenses/by-sa/4.0/\n\n'
+            'OpenThesaurus is a free German thesaurus. Synonym, hypernym and hyponym '
+            'relations from OpenThesaurus are included in this app\'s enrichment data.\n\n'
+            'Changes made: The original OpenThesaurus database has been filtered to the '
+            'subset of headwords present in this app, and the structured fields have been '
+            'reshaped to fit this app\'s enrichment schema.\n\n'
+            'Under CC BY-SA 4.0 the same redistribution and ShareAlike conditions apply '
+            'as for the other CC BY-SA sources listed in this license page.',
+          ),
+        ]);
+      });
+
+      // 9c. HermitDave FrequencyWords (derived from OpenSubtitles 2018)
+      LicenseRegistry.addLicense(() {
+        return Stream<LicenseEntry>.fromIterable([
+          LicenseEntryWithLineBreaks(
+            ['HermitDave FrequencyWords'],
+            'Source: HermitDave FrequencyWords (https://github.com/hermitdave/FrequencyWords)\n'
+            'Underlying corpus: OpenSubtitles 2018 (http://opus.nlpl.eu/OpenSubtitles2018.php)\n'
+            'License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)\n'
+            'URL: https://creativecommons.org/licenses/by-sa/4.0/\n\n'
+            'Word-frequency rank and count fields in this app\'s `frequencyData` are '
+            'derived from the HermitDave FrequencyWords project, which is itself derived '
+            'from the OpenSubtitles 2018 parallel corpus.\n\n'
+            'Changes made: Frequency data has been truncated to the top 10,000 ranks per '
+            'language and reshaped into integer rank + count fields.\n\n'
+            'Under CC BY-SA 4.0 the same redistribution and ShareAlike conditions apply.',
+          ),
+        ]);
+      });
+
+      // 9d. Universität Leipzig Wortschatz
+      LicenseRegistry.addLicense(() {
+        return Stream<LicenseEntry>.fromIterable([
+          LicenseEntryWithLineBreaks(
+            ['Leipzig Corpora Collection'],
+            'Source: Wortschatz Leipzig (https://wortschatz.uni-leipzig.de/)\n'
+            'Authors: Universität Leipzig, Abteilung Automatische Sprachverarbeitung\n'
+            'License: Creative Commons Attribution 4.0 International (CC BY 4.0) for the '
+            'redistributable wordlists; full Leipzig Corpora Collection is subject to '
+            'individual per-corpus licenses (some include Non-Commercial clauses for the '
+            'underlying text corpora).\n'
+            'URL: https://creativecommons.org/licenses/by/4.0/\n\n'
+            'The frequency ranks contributed by Leipzig\'s "Häufigkeitsklassen" are '
+            'included as one of several frequency signals fed into the consolidation '
+            'pipeline. Only the rank/frequency-class data (which is purely numeric and '
+            'considered facts under EU database-right doctrine) is shipped with this app; '
+            'no raw Leipzig text corpus is included.\n\n'
+            'Citation: Quasthoff, U., Richter, M., Biemann, C. (2006). Corpus Portal for '
+            'Search in Monolingual Corpora. In: Proceedings of the LREC 2006 conference.',
+          ),
+        ]);
+      });
+
+      // 9e. NRW Grundwortschatz / Merkwörter / Nachdenkwörter
+      LicenseRegistry.addLicense(() {
+        return Stream<LicenseEntry>.fromIterable([
+          LicenseEntryWithLineBreaks(
+            ['NRW Grundwortschatz'],
+            'Source: Ministerium für Schule und Bildung des Landes Nordrhein-Westfalen\n'
+            'URL: https://www.schulministerium.nrw/\n'
+            'Publications referenced:\n'
+            '  • Grundwortschatz für die Grundschule (Klassen 1-2 und 3-4)\n'
+            '  • 111 Merkwörter\n'
+            '  • 422 Nachdenkwörter\n\n'
+            'These wordlists, published by the State of North Rhine-Westphalia for '
+            'educational use, form the pedagogical core of the German vocabulary in '
+            'this app. They are official curriculum documents intended for use in German '
+            'primary schools and are distributed for educational purposes.\n\n'
+            'Changes made: The lists have been merged with other pedagogical and '
+            'frequency-based sources, deduplicated, and tagged with a normalized grade '
+            'level per word. Each word retains a tag indicating which NRW list (if any) '
+            'it originated from.',
+          ),
+        ]);
+      });
+
+      // 9f. UK National Curriculum English Programmes of Study
+      LicenseRegistry.addLicense(() {
+        return Stream<LicenseEntry>.fromIterable([
+          LicenseEntryWithLineBreaks(
+            ['UK National Curriculum - Statutory Spelling Lists'],
+            'Source: Department for Education (England), '
+            'English Programmes of Study, Appendix 1\n'
+            'URL: https://www.gov.uk/government/publications/national-curriculum-in-england-english-programmes-of-study\n'
+            'License: Open Government Licence v3.0 (OGL v3.0)\n'
+            'License URL: https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/\n\n'
+            'The statutory spelling lists for Years 1-2, 3-4 and 5-6 from the English '
+            'National Curriculum are used as the pedagogical primary signal for the '
+            'English vocabulary in this app (when shipping the English DB).\n\n'
+            'Contains public sector information licensed under the Open Government '
+            'Licence v3.0. You are free to copy, publish, distribute and transmit the '
+            'information, adapt it, and exploit it commercially, provided that the '
+            'source is acknowledged.',
+          ),
+        ]);
+      });
+
+      // 9g. Wikipedia (general, separate from Wiktionary)
+      LicenseRegistry.addLicense(() {
+        return Stream<LicenseEntry>.fromIterable([
+          LicenseEntryWithLineBreaks(
+            ['Wikipedia'],
+            'Source: Wikipedia (https://www.wikipedia.org/)\n'
+            'License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)\n'
+            'URL: https://creativecommons.org/licenses/by-sa/4.0/\n\n'
+            'The list of commonly misspelled English words, used to seed the '
+            'commonLearnerErrors field for the English vocabulary, is derived from '
+            'Wikipedia\'s "Lists of common misspellings" (Wikipedia namespace), '
+            'published under CC BY-SA 4.0.\n\n'
+            'Changes made: Parsed from the "For machines" subpage flat-list format into '
+            'normalized correct/wrong pairs.\n\n'
+            'Under CC BY-SA 4.0 the same redistribution and ShareAlike conditions apply '
+            'as for the other CC BY-SA sources listed in this license page.',
+          ),
+        ]);
+      });
+
+      // 9h-extra. DWDS Goethe-Zertifikat vocabulary lists (A1/A2/B1)
+      LicenseRegistry.addLicense(() {
+        return Stream<LicenseEntry>.fromIterable([
+          LicenseEntryWithLineBreaks(
+            ['DWDS - Goethe-Zertifikat Wortschatz (A1/A2/B1)'],
+            'Source: DWDS - Digitales Wörterbuch der deutschen Sprache\n'
+            '        (Berlin-Brandenburgische Akademie der Wissenschaften)\n'
+            'URLs:\n'
+            '  • https://www.dwds.de/lemma/wortschatz-goethe-zertifikat/A1\n'
+            '  • https://www.dwds.de/lemma/wortschatz-goethe-zertifikat/A2\n'
+            '  • https://www.dwds.de/lemma/wortschatz-goethe-zertifikat/B1\n'
+            'Underlying lists: Goethe-Institut e.V. - Goethe-Zertifikat exam '
+            'preparation vocabulary lists.\n'
+            'API: https://www.dwds.de/d/api\n\n'
+            'The CEFR-level lemma lists (A1, A2, B1) used in this app are obtained '
+            'via the DWDS public API, which redistributes the Goethe-Institut\'s '
+            'official Goethe-Zertifikat vocabulary lists in machine-readable form. '
+            'Only the lemma + part-of-speech + grammatical-gender + article fields '
+            'are incorporated into the app database.\n\n'
+            'Acknowledgments to:\n'
+            '  • Goethe-Institut e.V. (https://www.goethe.de) for the source lists\n'
+            '  • DWDS / BBAW for the API redistribution\n\n'
+            'The Goethe-Institut\'s original wordlists are factual reference material '
+            '(specifying which lemmas an A1/A2/B1 learner is expected to master); '
+            'the curated selections per level are attributable to the Goethe-Institut.',
+          ),
+        ]);
+      });
+
+      // 9h-extra2. Wiktionary Frequenzliste / Matthias Buchmeier
+      LicenseRegistry.addLicense(() {
+        return Stream<LicenseEntry>.fromIterable([
+          LicenseEntryWithLineBreaks(
+            ['Wiktionary German Frequency List (Buchmeier)'],
+            'Source: Matthias Buchmeier - German frequency lists, hosted on the '
+            'English Wiktionary\n'
+            'URL: https://en.wiktionary.org/wiki/User:Matthias_Buchmeier/'
+            'German_frequency_list-1-5000\n'
+            'License: Creative Commons Attribution-ShareAlike 4.0 International '
+            '(CC BY-SA 4.0), inherited from Wiktionary\n'
+            'URL: https://creativecommons.org/licenses/by-sa/4.0/\n\n'
+            'The Buchmeier20k frequency list (the top 20k words of the Buchmeier '
+            'compilation) is used as one of several frequency signals during '
+            'vocabulary consolidation.\n\n'
+            'Changes made: Truncated to top 10k by rank for the build pipeline.\n\n'
+            'Credit: Matthias Buchmeier (Wiktionary user). Distributed under the '
+            'Wiktionary CC BY-SA 4.0 license.',
+          ),
+        ]);
+      });
+
+      // 9h-extra3. Tacke / Menzel "100 häufigsten Fehlerwörter"
+      LicenseRegistry.addLicense(() {
+        return Stream<LicenseEntry>.fromIterable([
+          LicenseEntryWithLineBreaks(
+            ['Häufigste Fehlerwörter (Tacke / Menzel)'],
+            'Authors: Dr. Gero Tacke (Schulpsychologe, Heidelberg);\n'
+            '         underlying study: Wolfgang Menzel (1985)\n'
+            'Source: "Die 100 häufigsten Fehlerwörter der deutschen Sprache" - '
+            'widely redistributed by German schools as PDF reference material '
+            'for educational use.\n'
+            'License: Freely distributed for educational purposes by schools and '
+            'educational platforms; no formal open-source / Creative Commons '
+            'license. Authorship credit retained by Dr. Gero Tacke.\n\n'
+            'The 100Fehler / 300Fehler / 400Fehler error-word lists used to seed '
+            'the commonLearnerErrors pool for the German vocabulary derive from '
+            'this Tacke / Menzel material. Only the correct headwords are present '
+            'in the shipped vocabulary database; the example sentences and '
+            'related-form fields published in the original Tacke materials are '
+            'not redistributed in the app.\n\n'
+            'Credit: Dr. Gero Tacke (Heidelberg) for the curation; Wolfgang Menzel '
+            '(1985) for the underlying empirical study of 2000 student essays.',
+          ),
+        ]);
+      });
+
+      // 9h-extra4. FRESCH-style spelling strategy categorization
+      LicenseRegistry.addLicense(() {
+        return Stream<LicenseEntry>.fromIterable([
+          LicenseEntryWithLineBreaks(
+            ['FRESCH-style spelling strategies'],
+            'The spelling-strategy category names used in this app\n'
+            '(Mitsprechen / Weiterschwingen / Ableiten / Merken / Wortbausteine / '
+            'Großschreibung) follow the FRESCH method (Freiburger Rechtschreibschule), '
+            'a well-established pedagogical framework for German primary-school '
+            'spelling instruction.\n\n'
+            'Reference: H. Brezing, D. Maisenbacher, G. J. Renk, M. Wehrle - '
+            'AOL-Verlag (now Persen Verlag, part of Cornelsen Schulverlage).\n'
+            'Method documentation: https://grundschullernportal.zum.de/wiki/'
+            'Lernpfad_zur_FRESCH-Methode and https://www.schule-bw.de/faecher-und-'
+            'schularten/sprachen-und-literatur/deutsch/sprache/rechtschreibung/'
+            'fresch-methode\n\n'
+            'Legal posture:\n'
+            '  • The FRESCH METHOD is a pedagogical idea, not copyrightable.\n'
+            '  • The individual category names are common German pedagogical '
+            '    vocabulary, not trademarks.\n'
+            '  • "FRESCH" as an acronym is likely a Wortmarke held by AOL/Persen, '
+            '    but is used here only nominatively to describe the method, not as '
+            '    a brand identifier for this app.\n'
+            '  • The strategy categorizations in this app\'s database are an '
+            '    INDEPENDENT DERIVATION applied algorithmically to the NRW '
+            '    Grundwortschatz xlsx (which contains the underlying linguistic '
+            '    feature taxonomy: Doppelkonsonanten, Auslautverhärtung, Umlautung, '
+            '    Diphthonge, etc.). No third-party curated FRESCH wordlist is '
+            '    redistributed.\n\n'
+            'Credit: Brezing/Maisenbacher/Renk/Wehrle for the method.',
+          ),
+        ]);
+      });
+
+      // 9i. Universal Dependencies (German treebanks)
+      LicenseRegistry.addLicense(() {
+        return Stream<LicenseEntry>.fromIterable([
+          LicenseEntryWithLineBreaks(
+            ['Universal Dependencies - German treebanks'],
+            'Source: Universal Dependencies (https://universaldependencies.org/)\n'
+            'Treebanks used: UD_German-GSD, UD_German-HDT, UD_German-LIT, UD_German-PUD\n'
+            'License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)\n'
+            'URL: https://creativecommons.org/licenses/by-sa/4.0/\n\n'
+            'Verb-government statistics (verb_government.json / verb_government_hdt.json) '
+            'used by the inflection enricher were derived from the German UD treebanks. '
+            'Only aggregated co-occurrence statistics are shipped with the app; no '
+            'sentence-level treebank content is included.\n\n'
+            'Citation: Nivre, J., et al. (2020). Universal Dependencies v2: An Evergrowing '
+            'Multilingual Treebank Collection. LREC 2020.',
+          ),
+        ]);
+      });
+
       // ==================== LIBRARY LICENSES ====================
 
       // 10. spaCy
@@ -357,7 +611,133 @@ class _SettingsScreenState extends State<SettingsScreen>
           ),
         ]);
       });
-      
+
+      // 13. HanTa (German morphological analyzer)
+      LicenseRegistry.addLicense(() {
+        return Stream<LicenseEntry>.fromIterable([
+          LicenseEntryWithLineBreaks(
+            ['HanTa'],
+            'HanTa: Hanover Tagger - a morphological tagger for German\n'
+            'Author: Christian Wartena (Hochschule Hannover)\n'
+            'License: Apache License 2.0\n'
+            'URL: https://github.com/wartaal/HanTa\n\n'
+            'HanTa is used server-side on the Hugging Face WiktionaryDE Space to '
+            'lemmatize and morphologically analyze German words during the '
+            'enrichment step of the pipeline. The structured analysis output is '
+            'embedded in the apiEnrichment fields of this app\'s database.\n\n'
+            'Licensed under the Apache License, Version 2.0; you may obtain a copy '
+            'of the License at: http://www.apache.org/licenses/LICENSE-2.0',
+          ),
+        ]);
+      });
+
+      // 14. IWNLP (German lemmatization based on Wiktionary)
+      LicenseRegistry.addLicense(() {
+        return Stream<LicenseEntry>.fromIterable([
+          LicenseEntryWithLineBreaks(
+            ['IWNLP'],
+            'IWNLP: A German lemmatization library based on the German Wiktionary\n'
+            'Author: Matthias Liebeck\n'
+            'License: MIT License\n'
+            'URLs:\n'
+            '  • https://github.com/Liebeck/IWNLP.Lemmatizer (C#)\n'
+            '  • https://github.com/Liebeck/spacy-iwnlp (spaCy integration)\n\n'
+            'IWNLP provides Wiktionary-derived lemma mappings used in the '
+            'enrichment pipeline on the Hugging Face WiktionaryDE Space.\n\n'
+            'The MIT License (MIT)\n\n'
+            'Permission is hereby granted, free of charge, to any person obtaining '
+            'a copy of this software and associated documentation files (the '
+            '"Software"), to deal in the Software without restriction, including '
+            'without limitation the rights to use, copy, modify, merge, publish, '
+            'distribute, sublicense, and/or sell copies of the Software, and to '
+            'permit persons to whom the Software is furnished to do so.',
+          ),
+        ]);
+      });
+
+      // 15. DWDSmor (DWDS morphology)
+      LicenseRegistry.addLicense(() {
+        return Stream<LicenseEntry>.fromIterable([
+          LicenseEntryWithLineBreaks(
+            ['DWDSmor'],
+            'DWDSmor: Finite-state morphology for German\n'
+            'Authors: Berlin-Brandenburgische Akademie der Wissenschaften (BBAW), '
+            'DWDS project\n'
+            'License: Software under permissive open-source terms; underlying '
+            'lexical data subject to DWDS terms\n'
+            'URLs:\n'
+            '  • https://github.com/dwds/dwdsmor\n'
+            '  • https://www.dwds.de/\n\n'
+            'DWDSmor provides German morphological analysis (inflection forms, '
+            'POS, lemma) and is used server-side on the Hugging Face WiktionaryDE '
+            'Space during enrichment. The structured analysis output is embedded '
+            'in this app\'s apiEnrichment fields.\n\n'
+            'Credit: BBAW / DWDS project. See https://www.dwds.de/ for the '
+            'complete attribution and project terms.',
+          ),
+        ]);
+      });
+
+      // 16. wiktextract (extracts structured data from Wiktionary dumps)
+      LicenseRegistry.addLicense(() {
+        return Stream<LicenseEntry>.fromIterable([
+          LicenseEntryWithLineBreaks(
+            ['wiktextract'],
+            'wiktextract: Wiktionary dump parser\n'
+            'Author: Tatu Ylonen\n'
+            'License: MIT License\n'
+            'URL: https://github.com/tatuylonen/wiktextract\n\n'
+            'wiktextract is the parser used to convert raw Wiktionary XML dumps '
+            'into structured JSONL data, which is then normalized into the SQLite '
+            'datasets that back the Hugging Face WiktionaryDE / WiktionaryEN '
+            'Spaces during the enrichment step.\n\n'
+            'Released under the MIT License.',
+          ),
+        ]);
+      });
+
+      // 17. phonemizer + espeak-ng (used for IPA generation during build)
+      LicenseRegistry.addLicense(() {
+        return Stream<LicenseEntry>.fromIterable([
+          LicenseEntryWithLineBreaks(
+            ['phonemizer + espeak-ng'],
+            'phonemizer: Python wrapper for multiple phoneme backends\n'
+            'Author: Mathieu Bernard\n'
+            'License: GPL-3.0\n'
+            'URL: https://github.com/bootphon/phonemizer\n\n'
+            'espeak-ng: Speech synthesis engine (used as backend by phonemizer)\n'
+            'License: GPL-3.0\n'
+            'URL: https://github.com/espeak-ng/espeak-ng\n\n'
+            'These tools are used during the build pipeline (step 05) to generate '
+            'IPA and X-SAMPA phoneme strings for each headword. The tools '
+            'themselves are GPL-3.0 licensed, but only their OUTPUT (phoneme '
+            'strings, which are linguistic facts) is shipped in the app database; '
+            'the tools are not bundled with the app, so the GPL does not affect '
+            'the app\'s license posture.',
+          ),
+        ]);
+      });
+
+      // 18. CMU Pronouncing Dictionary (for EN port)
+      LicenseRegistry.addLicense(() {
+        return Stream<LicenseEntry>.fromIterable([
+          LicenseEntryWithLineBreaks(
+            ['CMU Pronouncing Dictionary'],
+            'CMU Pronouncing Dictionary (CMUdict)\n'
+            'Author: Carnegie Mellon University\n'
+            'License: 2-clause BSD-style license (permissive)\n'
+            'URL: https://github.com/cmusphinx/cmudict\n\n'
+            'CMUdict provides ARPAbet phonetic transcriptions for ~134k English '
+            'words, used as the primary phonetic source for the English '
+            'vocabulary build (when shipping the English DB).\n\n'
+            'Permission to use, copy, modify, and distribute this dictionary for '
+            'any purpose and without fee or royalty is hereby granted, provided '
+            'that the credit "Pronouncing Dictionary Copyright (C) Carnegie '
+            'Mellon University" is preserved.',
+          ),
+        ]);
+      });
+
       setState(() {
         _customLicensesAdded = true;
       });
