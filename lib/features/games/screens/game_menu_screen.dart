@@ -375,8 +375,8 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
-        title: 'Wort-Stückler', // Or s.wortBaumeisterTitle
-        description: 'Zusammengesetzte Nomen und Verben meistern',
+        title: 'Wort-Stückler',
+        description: 'Zusammengesetzte Nomen Stück für Stück bauen',
         icon: Icons.handyman,
         gradient: const LinearGradient(colors: [Color(0xFFF2994A), Color(0xFFF2C94C)]),
         onTap: () => _navigateToGame(WortbaumeisterGame(gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),

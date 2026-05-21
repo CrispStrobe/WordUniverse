@@ -72,7 +72,10 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
   int _combo = 0;
   int _maxCombo = 0;
   int _level = 1;
-  GameMode _currentMode = GameMode.trennbareVerben;
+  // Wort-Stückler is scoped to compound nouns. Separable verbs are
+  // handled by Verb-Trenner, which has a binary-choice mechanic better
+  // suited to that grammar topic.
+  GameMode _currentMode = GameMode.nomenKomposita;
 
   // Animation
   late AnimationController _fallingController;
@@ -88,12 +91,6 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
   late AnimationController _successController;
   late AnimationController _errorController;
 
-  // Separable prefixes
-  static const _separablePrefixes = [
-    'ab', 'an', 'auf', 'aus', 'bei', 'ein', 'empor', 'fest',
-    'fort', 'her', 'hin', 'los', 'mit', 'nach', 'nieder',
-    'vor', 'weg', 'weiter', 'zu', 'zurecht', 'zurück', 'zusammen'
-  ];
 
   @override
   void initState() {
@@ -166,163 +163,24 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
     _challengeQueue.clear();
     debugPrint('[WORTBAUMEISTER] 🏗️ Generating new queue from Database examples...');
 
-    // 1. Fetch Candidates
     final allWords = _vocabularyService.getAllWords(_gameProvider);
-
-    final verbs = allWords
-        .where((w) => w.wordType == GermanWordType.verb && w.gradeLevel <= widget.gradeLevel.index + 4)
-        .toList();
 
     final nouns = allWords
         .where((w) => w.wordType == GermanWordType.substantiv)
         .toList();
 
-    // Create a strict lookup set for nouns (lemma -> object)
     final Map<String, GermanWord> nounMap = {
       for (var w in nouns) w.word.toLowerCase(): w
     };
 
-    final verbChallenges = _generateVerbChallenges(verbs);
-    final nounChallenges = _generateNounChallenges(nouns, nounMap);
+    final nounChallenges = _generateNounChallenges(nouns, nounMap)..shuffle();
 
-    debugPrint('[WORTBAUMEISTER] 📊 Generated Pool: ${verbChallenges.length} Verbs, ${nounChallenges.length} Nouns');
+    debugPrint('[WORTBAUMEISTER] 📊 Generated Pool: ${nounChallenges.length} Nouns');
 
-    // Interleave: 1 Verb, 1 Noun
-    int vIdx = 0;
-    int nIdx = 0;
-
-    // Prioritize shuffle
-    verbChallenges.shuffle();
-    nounChallenges.shuffle();
-
-    while (_challengeQueue.length < _totalItems) {
-      if (vIdx < verbChallenges.length) _challengeQueue.add(verbChallenges[vIdx++]);
-      if (nIdx < nounChallenges.length) _challengeQueue.add(nounChallenges[nIdx++]);
-
-      if (vIdx >= verbChallenges.length && nIdx >= nounChallenges.length) break;
+    for (final c in nounChallenges) {
+      if (_challengeQueue.length >= _totalItems) break;
+      _challengeQueue.add(c);
     }
-  }
-
-  List<WordChallenge> _generateVerbChallenges(List<GermanWord> verbs) {
-    final challenges = <WordChallenge>[];
-
-    for (final verb in verbs) {
-      if (challenges.length > 25) break;
-
-      if (verb.examples.isEmpty) continue;
-
-      // --- FIX 1: Access inflections via dot notation, not Map brackets ---
-      // In GermanWord -> apiEnrichment (ApiEnrichment class) -> inflections (List<Map>)
-      final inflections = verb.apiEnrichment?.inflections ?? [];
-
-      // 1. Detect Separable Prefix
-      String prefix = _detectPrefix(verb.word, inflections);
-      if (prefix.isEmpty) continue;
-
-      // 2. Scan for specific scenarios in examples
-      for (final exampleObj in verb.examples) {
-        final text = exampleObj.text;
-        if (text == null || text.length > 80) continue;
-
-        final root = verb.word.substring(prefix.length); // aufstehen -> stehen
-        final stem = root.substring(0, root.length - 2); // stehen -> steh
-
-        if (_containsSeparatedParts(text, stem, prefix)) {
-           final conjugatedPart = _extractConjugatedPart(text, stem);
-
-           if (conjugatedPart != null) {
-             challenges.add(WordChallenge(
-               part1: conjugatedPart,
-               part2: prefix,
-               shouldBeTogether: false,
-               context: text.replaceAll(conjugatedPart, '___').replaceAll(prefix, '___'),
-               explanation: 'Personalform im Satz → getrennt',
-               difficulty: 2,
-               wordId: verb.word,
-               mode: GameMode.trennbareVerben,
-               fullWord: '$conjugatedPart ... $prefix',
-             ));
-             break;
-           }
-        }
-      }
-
-      // Scenario B: Infinitive with 'zu'
-      final zuForm = _findZuForm(inflections, prefix);
-      if (zuForm != null) {
-        final validExample = verb.examples.firstWhere(
-          (ex) => ex.text != null && ex.text!.contains(zuForm),
-          // --- FIX 2: Use ApiExample class, not Example ---
-          orElse: () => ApiExample(text: null),
-        );
-
-        if (validExample.text != null) {
-          challenges.add(WordChallenge(
-            part1: prefix,
-            part2: zuForm.substring(prefix.length),
-            shouldBeTogether: true,
-            context: validExample.text!,
-            explanation: 'Infinitiv mit "zu" (eingeschoben) → zusammen',
-            difficulty: 3,
-            wordId: verb.word,
-            mode: GameMode.trennbareVerben,
-            fullWord: zuForm,
-          ));
-        }
-      }
-    }
-    return challenges;
-  }
-
-  String _detectPrefix(String lemma, List<Map<String, dynamic>> inflections) {
-    // 1. Try to find a form with space in inflections
-    for (final form in inflections) {
-      final txt = form['form_text'] as String?;
-      if (txt != null && txt.contains(' ')) {
-        final parts = txt.split(' ');
-        if (parts.length == 2 && _separablePrefixes.contains(parts[1])) {
-          return parts[1];
-        }
-      }
-    }
-    // 2. Fallback: Check lemma start
-    for (final p in _separablePrefixes) {
-      if (lemma.startsWith(p)) return p;
-    }
-    return '';
-  }
-
-  bool _containsSeparatedParts(String text, String stem, String prefix) {
-    final lowerText = text.toLowerCase();
-    if (!lowerText.contains(stem.toLowerCase()) || !lowerText.contains(prefix.toLowerCase())) {
-      return false;
-    }
-    final prefixPattern = RegExp(r'\b' + RegExp.escape(prefix) + r'[.!?,]?$');
-    return prefixPattern.hasMatch(lowerText);
-  }
-
-  String? _extractConjugatedPart(String text, String stem) {
-    final words = text.split(' ');
-    for (final w in words) {
-      final clean = w.replaceAll(RegExp(r'[^\wäöüÄÖÜß]'), '');
-      if (clean.toLowerCase().contains(stem.toLowerCase()) && clean.length <= stem.length + 3) {
-        return clean;
-      }
-    }
-    return null;
-  }
-
-  String? _findZuForm(List<Map<String, dynamic>> inflections, String prefix) {
-    for (final form in inflections) {
-      final txt = form['form_text'] as String?;
-      final tags = form['tags'].toString();
-      if (txt != null && tags.contains('infinitive') && txt.contains('zu')) {
-         if (txt.startsWith(prefix) && !txt.contains(' ')) {
-           return txt;
-         }
-      }
-    }
-    return null;
   }
 
   List<WordChallenge> _generateNounChallenges(List<GermanWord> nouns, Map<String, GermanWord> nounMap) {
