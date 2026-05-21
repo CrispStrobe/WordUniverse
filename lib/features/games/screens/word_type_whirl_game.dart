@@ -1135,15 +1135,18 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
   }
 
   String _getDisplayWord(GermanWord word) {
+    // Uppercase everything so noun capitalization isn't a giveaway —
+    // otherwise the German rule "nouns are capitalized" trivially marks
+    // every substantive at a glance.
+    String text = word.displayName;
     if (word.wordType == GermanWordType.substantiv) {
-      final text = word.displayName;
-      if (text.startsWith('der ') || 
-          text.startsWith('die ') || 
+      if (text.startsWith('der ') ||
+          text.startsWith('die ') ||
           text.startsWith('das ')) {
-        return text.split(' ')[1];
+        text = text.split(' ')[1];
       }
     }
-    return word.displayName;
+    return text.toUpperCase();
   }
 
   Widget _buildWhirlingWordWidget(
