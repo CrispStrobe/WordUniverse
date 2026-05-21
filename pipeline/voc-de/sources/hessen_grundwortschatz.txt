@@ -1,5 +1,3 @@
-Grundwortschatz
-die
 acht
 alt
 Angst
@@ -258,6 +256,7 @@ dein
 dem
 den
 dich
+die
 dies
 doch
 du
@@ -615,7 +614,6 @@ Schnee
 See
 Tee
 Zoo
-Wörter
 Abend
 Berg
 Bild
