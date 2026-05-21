@@ -558,10 +558,190 @@ These block forward progress. Numbers reference the section above.
 
 ---
 
+## 6. Algorithmic spelling-strategy classifier (FRESCH and beyond)
+
+`04b_derive_fresch_categories.py` (just added) bootstraps the FRESCH
+tagging by **mechanically mapping NRW xlsx linguistic feature tags →
+FRESCH categories**. It covers the ~533 NRW Grundwortschatz words.
+
+Two limitations to fix in a v2 classifier:
+
+### 6.1 Coverage — extend beyond NRW (~10k words)
+
+Current state: 533 words tagged from NRW features; the remaining ~9.5k
+words in the consolidated vocabulary fall through to a heuristic
+fallback based on surface regex (doubled consonants → Weiterschwingen,
+b/d/g final → Ableiten, prefixes → Wortbausteine, etc.).
+
+The fallback is good for 80 % of cases but misses:
+- Auslautverhärtung that only fires after derivation (`Hand` → `Hände`)
+- Umlauting that crosses derived forms (`fahren` → `fährt`)
+- Compound boundaries that aren't visible without morphological
+  analysis (`Haustür` = `Haus` + `Tür`)
+- Words where the orthographic pattern is regular but the *learner-error
+  rate* would justify a Merkwort tag
+
+**v2 should layer:**
+1. **spaCy morphology** (already in step 02) — gives lemma + POS + features
+2. **`enrichment_json.inflections`** from `cstr/WiktionaryDE` — full
+   inflection table for verbs / nouns / adjectives → derive Ableiten /
+   Umlautung candidates
+3. **`enrichment_json.hyphenation`** — Wortbausteine = ≥2 syllables
+   with a clear morpheme boundary (e.g. `Auto-bahn`, `un-glaublich`)
+4. **CMU-equivalent IPA from step 05** — Mitsprechen = strict phoneme-
+   grapheme regular mapping; deviation flags it for one of the other
+   strategies
+5. **Frequency-based Merkwort detection** — top-N most-common
+   function words are Merkwörter by definition (already captured in NRW
+   but extend to non-NRW frequency-top words)
+
+### 6.2 Pedagogical primary-strategy pick
+
+Current state: multi-label (1–5 tags per word). Validation against the
+old curated 532Strategien.csv showed 6.2 % exact agreement, with most
+divergence from us over-tagging.
+
+The teacher‑facing app should expose **one primary strategy per word**
+plus the others as secondary tags. Priority order based on FRESCH
+didactics:
+
+```
+Großschreibung (if applies)
+  → then prefer one of: Merken > Weiterschwingen > Ableiten
+     > Wortbausteine > Mitsprechen
+```
+
+Reason: Großschreibung is an orthogonal capitalization rule; among the
+sound/letter strategies, Merken (irregular) is the highest-leverage
+single label, then Weiterschwingen (doubled-consonant rule), etc.,
+falling back to Mitsprechen (regular sound-it-out) as the default.
+
+Implementation: add a `--mode primary` flag to
+`04b_derive_fresch_categories.py` that picks the single highest-priority
+tag per word, alongside the existing multi-label list. The DB stores
+both: `apiEnrichment.spellingStrategy` (list) and
+`apiEnrichment.spellingStrategyPrimary` (single).
+
+### 6.3 Tuning targets
+
+- **Cut Ableiten over-application** (precision 5.2 %): only fire when
+  the lemma ends in b/d/g/s/v *and* the spaCy inflection table shows a
+  voiced-consonant alternation, OR when an Umlaut appears in the
+  inflection table.
+- **Improve Merken recall** (currently 41 %): add irregular-spelling
+  detection from the grapheme-variant generator in step 06.
+- **Improve Wortbausteine recall** (currently 33 %): use Wiktionary
+  hyphenation field, not just regex prefixes.
+
+### 6.4 Legal posture for FRESCH labels
+
+The category names `Mitsprechen / Weiterschwingen / Ableiten / Merken /
+Wortbausteine / Großschreibung` are **common German pedagogical terms**.
+Under German Urheberrecht and EU copyright doctrine:
+
+- Ideas, methods, and pedagogical concepts are **not copyrightable**;
+  only specific expressions are.
+- The individual category names are not trademarks — they're general
+  vocabulary.
+- The acronym "FRESCH" (Freiburger Rechtschreibschule) is likely
+  registered as a Wortmarke by AOL/Persen, but that only restricts using
+  "FRESCH" *as a brand identifier*. It does NOT restrict the method or
+  the underlying terms.
+- The proprietary part is the specific *curated wordlist* AOL/Persen
+  publishes — we don't ship that; our derivation is from NRW's xlsx.
+
+So labelling words with `weiterschwingen` etc. is fully allowed.
+The about-text should say "FRESCH-style spelling strategies" or
+"applies the FRESCH categorisation" — nominative fair use of the method
+name — rather than implying brand endorsement.
+
+### 6.5 Carry both taxonomies (recommended)
+
+Ship the NRW linguistic feature paths alongside the FRESCH categories so
+the DB is transparent about how the derivation worked:
+
+```jsonc
+"apiEnrichment": {
+  "spellingStrategy": ["weiterschwingen", "grossschreibung"],
+  "spellingStrategyPrimary": "grossschreibung",
+  "nrwLinguisticFeatures": [
+    "orthografisches und silbisches Prinzip.Doppelkonsonanten.tt",
+    "zusätzliche Filter.Wortart.Nomen"
+  ]
+}
+```
+
+App surfaces the kid-friendly FRESCH names by default; the parent-
+dashboard / teacher-view can show the NRW academic taxonomy. Costs only
+~30 % more bytes per NRW-tagged entry plus 5 lines in `04b`.
+
+### 6.6 Validation harness
+
+Keep `532Strategien.csv` from the backup as a **gold-standard test
+fixture** (not as a build input). Add `tests/test_fresch_classifier.py`:
+target agreement ≥ 50 % exact, ≥ 80 % subset/superset on the 304
+overlapping words. (We're at 6.2 % exact / ~85 % superset today.)
+
+---
+
+## 7. Additional free-licensed data sources to integrate
+
+Catalogued by free-license suitability for a commercial app.
+
+### Priority 1 — clear license, high pedagogical value
+
+| Source | URL | License | What it adds | Effort |
+|---|---|---|---|---|
+| **Tatoeba DE** | https://tatoeba.org/eng/downloads | CC-BY 2.0 FR | ~200k+ German example sentences, many tagged for difficulty / native-speaker-confirmed. Per-word indexing trivial. Replaces / augments sparse Wiktionary examples. | 0.5 day |
+| **Wiktionary "Verzeichnis:Deutsch/Fehlschreibungen"** | https://de.wiktionary.org/wiki/Verzeichnis:Deutsch/Fehlschreibungen | CC-BY-SA 4.0 | Clean replacement for the Tacke/Menzel `100/300/400 Fehler` list. | 0.5 day |
+| **Wikipedia "Liste häufiger Rechtschreibfehler"** | https://de.wikipedia.org/wiki/Wikipedia:Liste_h%C3%A4ufiger_Rechtschreibfehler | CC-BY-SA 4.0 | Same role as above; complementary coverage. | (combined with above) |
+| **Bundesländer Grundwortschätze (Hessen, BW, RLP, Bayern, Sachsen, S-H)** | gov ministries, see LICENSES.md | Public administrative material, attribution typical | Per-Bundesland tags. Widens grade coverage; lets teachers filter by their state. ~500–870 words each, 70-80 % overlap with NRW but the diff is pedagogically interesting. | 1 day total |
+| **DWDS Häufigkeitsklassen** | https://www.dwds.de/d/api | CC-BY-SA via DWDS terms | log-frequency band (1–25) per headword. More pedagogically useful than raw rank. | 0.25 day |
+| **Wiktionary "Liste falscher Freunde"** (DE↔EN) | https://de.wiktionary.org/wiki/Verzeichnis:Deutsch/Falsche_Freunde | CC-BY-SA 4.0 | False-friend warnings for the EN learning-mode (when DE-speaker is learning EN, or vice versa). | 0.5 day |
+
+### Priority 2 — useful, license caveats to verify
+
+| Source | License | Notes |
+|---|---|---|
+| **DWDS Wortprofil API** | CC-BY-SA via DWDS | Per-headword typical collocations. Could power a "passendes Wort" game mode. Per-request API; would batch the 10k words. |
+| **LanguageTool DE rule patterns** | LGPL on the codebase; rule data are structured facts | Extract just the headwords each rule fires on → "this word commonly involves rule X" tag. |
+| **Hunspell DE affix file** | LGPL/MPL on the dictionary | Systematic plural/conjugation fallback when API enrichment misses. |
+| **OPUS DE corpora** (Books, EUbookshop, Wikipedia, etc) | Per-corpus, mostly CC-BY-SA | Additional frequency signals. Diminishing returns over HermitDave + Leipzig. Skip for v1. |
+
+### Priority 3 — skip (NC clauses / academic-only)
+
+| Source | Issue |
+|---|---|
+| MERLIN Corpus (CEFR-leveled German learner texts) | CC-BY-NC-SA — NC blocks commercial |
+| GermaNet (academic German WordNet) | €200 academic + NC for commercial — OdeNet covers it already (free CC-BY-SA equivalent) |
+| Tüba-D/Z, deWaC, Falko Korpus | Academic-only / NC |
+| CELEX2 | Paid commercial license |
+| MERLIN, KOLAS, DGS-Korpus | NC clauses |
+
+### Deferred — license verification needed
+
+| Source | URL | License status | Notes |
+|---|---|---|---|
+| **childLex** (Schroeder et al., HU Berlin) | https://childlex.de | "Frei verfügbar für nicht-kommerzielle Forschung" on the project page — **likely NC** for commercial use; ask the authors. | Would be the single most impactful add for K–6 grade accuracy if license is OK. Deferred until written permission. |
+
+### Recommended integration order
+
+If we ship the next DE DB rebuild with one fresh source per week:
+
+1. **Tatoeba DE** — visible UX improvement (better example sentences)
+2. **Wiktionary Fehlschreibungen + Wikipedia common misspellings** — clean replacement for Tacke
+3. **Bundesländer Grundwortschätze (start with Hessen + BW)** — adds curricular tags
+4. **DWDS Häufigkeitsklassen** — cheap small win
+
+That's about **2–4 days of focused work** for a materially upgraded DE DB.
+
+---
+
 ## TL;DR
 
 - DE rebuild: scripts + sources survive in backup → **fully reproducible** in 3–8 h.
-- EN port: backbone done on HF → **~2 weeks** of laptop‑side scripting.
-- ConceptNet expansion: ~½ day code + 4–10 h compute → **~6–8 GB** all‑languages DB sibling.
+- EN port: backbone done on HF → **~2 weeks** of laptop-side scripting.
+- ConceptNet expansion: ~½ day code + 4–10 h compute → **~6–8 GB** all-languages DB sibling.
+- FRESCH classifier v2: extend beyond NRW + primary-strategy pick (§6) — ~2 days.
+- 7 additional free-licensed data sources to add over the next few rebuilds (§7).
 - One leaked credential to rotate.
-- Six open decisions for the user.
