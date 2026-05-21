@@ -1005,7 +1005,7 @@ class SEn extends S {
   String get wortbaumeisterTogetherExample => '(e.g. aufstehen)';
 
   @override
-  String get grossschreibTitle => 'Capitalization Galaxy';
+  String get grossschreibTitle => 'Word Galaxy';
 
   @override
   String get grossschreibClickHint => 'Tap the word!';

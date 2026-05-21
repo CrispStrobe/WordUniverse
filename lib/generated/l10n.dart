@@ -1902,7 +1902,7 @@ abstract class S {
   /// No description provided for @grossschreibTitle.
   ///
   /// In en, this message translates to:
-  /// **'Capitalization Galaxy'**
+  /// **'Word Galaxy'**
   String get grossschreibTitle;
 
   /// No description provided for @grossschreibClickHint.
