@@ -594,4 +594,94 @@ class SriService with ChangeNotifier {
     notifyListeners();
     _log('⚠️ All SRI data cleared!');
   }
+
+  // ============== Karteikasten (Leitner-style) projection ==============
+  //
+  // Maps the SM-2 state onto 5 boxes for a flashcard-box UI. Mastery
+  // criterion mirrors isItemMastered.
+
+  /// Returns 1..5 for the given item data. 1 = Neu, 5 = Gemeistert.
+  int getBoxFor(SriLanguageData d) {
+    final mastered = d.repetitions >= kSm2MinimumRepetitionsForMastery &&
+        d.easinessFactor > kSm2MasteryEasinessThreshold &&
+        d.failureCount <= kSm2MaxFailuresForMastery;
+    if (mastered) return 5;
+    if (d.repetitions == 0) return 1;
+    if (d.repetitions == 1) return 2;
+    if (d.repetitions == 2) return 3;
+    return 4;
+  }
+
+  /// All items currently sitting in [box] (1..5).
+  List<SriLanguageData> getItemsInBox(int box) {
+    return _sriDatabase.values.where((d) => getBoxFor(d) == box).toList();
+  }
+
+  /// Item count per box; map keys are always 1..5.
+  Map<int, int> getBoxCounts() {
+    final counts = <int, int>{for (var i = 1; i <= 5; i++) i: 0};
+    for (final d in _sriDatabase.values) {
+      final b = getBoxFor(d);
+      counts[b] = (counts[b] ?? 0) + 1;
+    }
+    return counts;
+  }
+
+  /// Manually move an item into [targetBox] (1..5). Adjusts repetitions,
+  /// easiness, failureCount and nextReviewDate so [getBoxFor] returns the
+  /// requested value. Persists and notifies listeners.
+  Future<void> moveItemToBox(String itemId, int targetBox) async {
+    final data = _sriDatabase[itemId];
+    if (data == null) return;
+    final now = DateTime.now();
+    switch (targetBox) {
+      case 1:
+        data.repetitions = 0;
+        data.easinessFactor = kSm2InitialEasiness;
+        data.failureCount = 0;
+        data.nextReviewDate = now;
+        break;
+      case 2:
+        data.repetitions = 1;
+        if (data.easinessFactor < kSm2InitialEasiness) {
+          data.easinessFactor = kSm2InitialEasiness;
+        }
+        data.nextReviewDate = now.add(const Duration(days: 1));
+        break;
+      case 3:
+        data.repetitions = 2;
+        if (data.easinessFactor < kSm2InitialEasiness + 0.5) {
+          data.easinessFactor = kSm2InitialEasiness + 0.5;
+        }
+        data.nextReviewDate = now.add(const Duration(days: 3));
+        break;
+      case 4:
+        if (data.repetitions < kSm2MinimumRepetitionsForMastery) {
+          data.repetitions = kSm2MinimumRepetitionsForMastery;
+        }
+        if (data.easinessFactor < kSm2InitialEasiness + 1.0) {
+          data.easinessFactor = kSm2InitialEasiness + 1.0;
+        }
+        if (data.easinessFactor > kSm2MasteryEasinessThreshold) {
+          data.easinessFactor = kSm2MasteryEasinessThreshold;
+        }
+        data.nextReviewDate = now.add(const Duration(days: 7));
+        break;
+      case 5:
+        if (data.repetitions < kSm2MinimumRepetitionsForMastery) {
+          data.repetitions = kSm2MinimumRepetitionsForMastery + 2;
+        }
+        if (data.easinessFactor <= kSm2MasteryEasinessThreshold) {
+          data.easinessFactor = kSm2MasteryEasinessThreshold + 0.1;
+        }
+        data.failureCount = 0;
+        data.nextReviewDate = now.add(const Duration(days: 30));
+        break;
+      default:
+        return;
+    }
+    _log('Moved "$itemId" to box $targetBox');
+    notifyListeners();
+    await saveSriData();
+  }
 }
