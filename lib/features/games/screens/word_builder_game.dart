@@ -1072,7 +1072,8 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
   Widget _buildDraggableTile(LetterTile tile, String selectedFontFamily) {
     return Semantics(
       label: 'Buchstabenkachel ${tile.letter}',
-      hint: 'Ziehe in den Wortbereich',
+      hint: 'Tippe oder ziehe in den Wortbereich',
+      button: true,
       child: Draggable<LetterTile>(
         data: tile,
         feedback: Material(
@@ -1093,9 +1094,19 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
             });
           }
         },
-        child: _buildTileWidget(tile, selectedFontFamily),
+        child: GestureDetector(
+          onTap: () => _placeTileInFirstEmptySlot(tile),
+          child: _buildTileWidget(tile, selectedFontFamily),
+        ),
       ),
     );
+  }
+
+  void _placeTileInFirstEmptySlot(LetterTile tile) {
+    if (_feedbackState == FeedbackState.correct) return;
+    final firstEmpty = _buildArea.indexWhere((slot) => slot == null);
+    if (firstEmpty == -1) return;
+    _onTileDraggedToBuildArea(tile, firstEmpty);
   }
 
   Widget _buildTileWidget(LetterTile tile, String selectedFontFamily, {bool isDragging = false}) {
