@@ -1,5 +1,8 @@
-"""Add a `HESSEN` source-attribution token to every DB word that appears
-in the Hessischer Grundwortschatz.
+"""Add a `HESSEN` source-attribution token AND a per-word
+`hessenCategories` list (orthographic-pattern labels from the Hessen
+Wörterliste, e.g. "Lautgetreue Einsilber", "Wörter mit Dehnungs-h",
+"Funktionswörter mit Doppelkonsonanz", etc.) to every DB word that
+appears in the Hessischer Grundwortschatz.
 
 Source PDF (Wörterliste, separate compact wordlist):
   https://kultus.hessen.de/sites/kultus.hessen.de/files/2022-09/woerterliste_aus_der_handreichung_zum_grundwortschatz_hessen.pdf
@@ -8,23 +11,22 @@ Publisher: Hessisches Kultusministerium, Luisenplatz 10, 65185 Wiesbaden
            (direct state ministry, public administrative material per §5 UrhG;
            verbindlich für hessische Grundschulen seit Schuljahr 2021/22).
 
-The wordlist is organized by orthographic phenomena (Lautgetreue Einsilber,
--e, -en, …; Funktionswörter; Wörter mit Doppelkonsonanz; Wörter mit
-Auslautverhärtung; etc.). Tokens are comma-separated within each
-paragraph. Pattern handling:
+The wordlist is organized by orthographic phenomena. Each line of the
+extracted text is either:
+  - a section header (no commas) — captured as the current category, OR
+  - a comma-separated list of lemmas belonging to that category.
 
-  - "Bad – Bäder"        → both "Bad" and "Bäder"
-  - "lassen – lässt"     → both "lassen" and "lässt"
-  - "(nichts)"           → "nichts"
-  - "dein+"              → "dein"   (the '+' marks function-word variants)
-  - section headers (Capitalized lines not containing ',') are skipped
-
-Pre-conditions:
-  - /tmp/bl_audit/he.txt must exist (pdftotext -layout of he.pdf).
+Per-word output to metadata_json:
+  - sources                gets "HESSEN" appended
+  - hessenCategories       set to the sorted list of Hessen categories
+                           the word appears under (one word can appear
+                           in multiple categories, e.g. "Funktionswörter
+                           mit Doppelkonsonanz" + "Wörter mit Doppelkonsonanz")
 
 Outputs:
   - assets/grundwortschatz.db.gz (in-place re-compressed)
   - pipeline/voc-de/sources/hessen_grundwortschatz.txt
+  - pipeline/voc-de/sources/hessen_grundwortschatz_categories.json
 """
 
 from __future__ import annotations
@@ -41,54 +43,37 @@ DB_GZ = REPO / "assets" / "grundwortschatz.db.gz"
 WORK = Path("/tmp/dbpatch/working.db")
 HE_TXT = Path("/tmp/bl_audit/he.txt")
 OUT_LIST = REPO / "pipeline" / "voc-de" / "sources" / "hessen_grundwortschatz.txt"
+OUT_CATS = REPO / "pipeline" / "voc-de" / "sources" / "hessen_grundwortschatz_categories.json"
 
 TOKEN = "HESSEN"
+META_KEY = "hessenCategories"
+
+# Lines to skip as document framing (non-wordlist prose).
+SKIP_PREFIXES = ("Hessisches Kultusministerium", "Wörterliste aus")
+
+PARENS_RE = re.compile(r"\(([^)]+)\)")
 
 
 def is_section_header(line: str) -> bool:
     s = line.strip()
     if not s:
         return True
-    # Section headers don't contain commas and don't have lowercase
-    # words followed by punctuation in the body sense. Heuristic: a
-    # line with NO commas is treated as a header. Body lines virtually
-    # always contain commas (it's a comma-separated wordlist).
-    if "," not in s:
-        return True
-    return False
-
-
-PARENS_RE = re.compile(r"\(([^)]+)\)")
+    # Headers don't contain commas. Body lines virtually always do.
+    return "," not in s
 
 
 def parse_tokens(line: str) -> list[str]:
-    """Parse a body line into individual lemma tokens.
-
-    Handles:
-      - comma separation
-      - "X – Y" pairs (em-dash with surrounding spaces) → both X and Y
-      - parenthetical alternatives "(nichts)" → "nichts"
-      - trailing '+' markers
-    """
     out: list[str] = []
-    # First convert "(X)" → ", X," so they get treated as separate tokens.
     s = PARENS_RE.sub(r", \1,", line)
-    # Split on commas.
-    parts = [p.strip() for p in s.split(",")]
-    for p in parts:
+    for p in [p.strip() for p in s.split(",")]:
         if not p:
             continue
-        # Split on em-dash patterns (Bad – Bäder).
-        # Also handle hyphen-minus surrounded by spaces.
         for sub in re.split(r"\s+[–-]\s+", p):
             tok = sub.strip()
             if not tok:
                 continue
-            tok = tok.rstrip("+").strip()
+            tok = tok.rstrip("+*").strip()
             tok = tok.strip(".;:!?")
-            # Drop multi-token entries — should be rare here; if it
-            # still has internal whitespace, take the first word as the
-            # lemma candidate.
             if " " in tok:
                 tok = tok.split()[0]
             if tok and len(tok) >= 2 and not tok[0].isdigit():
@@ -96,30 +81,66 @@ def parse_tokens(line: str) -> list[str]:
     return out
 
 
-def extract_lemmas(text_path: Path) -> list[str]:
+def is_real_header(line: str) -> bool:
+    """A header line: starts with one of the canonical pedagogical
+    keywords (even if it contains commas in subordinate clauses). Body
+    lemma lines never start with these keywords."""
+    s = line.strip()
+    if not s or s.isdigit():
+        return False
+    keywords = (
+        "Wörter mit", "Wörter auf", "Wörter ", "Funktionswörter",
+        "Merkwörter", "Monatsnamen", "Fremdwörter", "Lautgetreue",
+        "Einsilbige lautgetreue", "Mehrsilbige", "Komplexe Wörter",
+        "Ableitbare Wörter", "Orthografische", "Merkschreibungen",
+    )
+    return any(s.startswith(k) for k in keywords)
+
+
+def extract(text_path: Path) -> dict[str, list[str]]:
+    """Return {lemma (original case): [category, …]} for the Hessen wordlist."""
     if not text_path.exists():
         raise SystemExit(f"Hessen extract not found: {text_path}")
     lines = text_path.read_text(encoding="utf-8").splitlines()
-    lemmas: list[str] = []
-    seen: set[str] = set()
+    word_cats: dict[str, set[str]] = {}
+    original_case: dict[str, str] = {}
+    current_cat: str | None = None
     for raw in lines:
-        if is_section_header(raw):
+        stripped = raw.strip()
+        if not stripped:
+            continue
+        if any(stripped.startswith(p) for p in SKIP_PREFIXES):
+            continue
+        if is_real_header(raw):
+            current_cat = stripped
+            continue
+        # Skip pure-noise lines (numbers, single words that aren't real headers).
+        if "," not in stripped:
+            continue
+        if current_cat is None:
             continue
         for tok in parse_tokens(raw):
             key = tok.lower()
-            if key in seen:
-                continue
-            seen.add(key)
-            lemmas.append(tok)
-    return lemmas
+            word_cats.setdefault(key, set()).add(current_cat)
+            original_case.setdefault(key, tok)
+    return {original_case[k]: sorted(cats) for k, cats in word_cats.items()}
 
 
 def main() -> int:
-    lemmas = extract_lemmas(HE_TXT)
-    print(f"Extracted {len(lemmas)} unique Hessen Grundwortschatz lemmas")
+    word_to_cats = extract(HE_TXT)
+    print(f"Extracted {len(word_to_cats)} unique Hessen lemmas")
     OUT_LIST.parent.mkdir(parents=True, exist_ok=True)
-    OUT_LIST.write_text("\n".join(lemmas) + "\n", encoding="utf-8")
+    OUT_LIST.write_text("\n".join(word_to_cats.keys()) + "\n", encoding="utf-8")
+    OUT_CATS.write_text(
+        json.dumps(word_to_cats, ensure_ascii=False, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+    distinct_cats = sorted({c for cats in word_to_cats.values() for c in cats})
+    print(f"  {len(distinct_cats)} distinct Hessen orthographic categories:")
+    for c in distinct_cats:
+        print(f"    • {c}")
     print(f"Wrote lemma list -> {OUT_LIST}")
+    print(f"Wrote category mapping -> {OUT_CATS}")
 
     if not DB_GZ.exists():
         print(f"ERROR: shipped DB not found: {DB_GZ}", file=sys.stderr)
@@ -131,7 +152,10 @@ def main() -> int:
     with gzip.open(DB_GZ, "rb") as fi, WORK.open("wb") as fo:
         fo.write(fi.read())
 
-    lemma_set = {l.lower() for l in lemmas}
+    # Build lower-cased lookup: lemma -> categories
+    cats_lookup: dict[str, list[str]] = {
+        k.lower(): v for k, v in word_to_cats.items()
+    }
 
     con = sqlite3.connect(str(WORK))
     con.row_factory = sqlite3.Row
@@ -140,7 +164,8 @@ def main() -> int:
     rows = cur.fetchall()
 
     update_cur = con.cursor()
-    matched = 0
+    tagged_count = 0
+    cat_added_count = 0
     became_first_source = 0
     db_lemmas: set[str] = set()
 
@@ -157,29 +182,46 @@ def main() -> int:
         for k in (word_key, lemma_key):
             if k:
                 db_lemmas.add(k)
-        if not (word_key in lemma_set or lemma_key in lemma_set):
+
+        cats = cats_lookup.get(word_key) or cats_lookup.get(lemma_key)
+        if not cats:
             continue
 
+        # Ensure token in sources.
         srcs = meta.get("sources")
         if not isinstance(srcs, list):
             srcs = []
-        if TOKEN in srcs:
-            continue
-        if not srcs:
-            became_first_source += 1
-        srcs.append(TOKEN)
-        meta["sources"] = srcs
-        update_cur.execute(
-            "UPDATE words SET metadata_json = ? WHERE id = ?",
-            (json.dumps(meta, ensure_ascii=False), r["id"]),
-        )
-        matched += 1
+        token_added = False
+        if TOKEN not in srcs:
+            if not srcs:
+                became_first_source += 1
+            srcs.append(TOKEN)
+            meta["sources"] = srcs
+            token_added = True
+
+        # Merge categories (idempotent: union with any existing).
+        existing = meta.get(META_KEY)
+        if not isinstance(existing, list):
+            existing = []
+        merged = sorted(set(existing) | set(cats))
+        category_changed = merged != existing
+        if category_changed:
+            meta[META_KEY] = merged
+            cat_added_count += 1
+
+        if token_added or category_changed:
+            update_cur.execute(
+                "UPDATE words SET metadata_json = ? WHERE id = ?",
+                (json.dumps(meta, ensure_ascii=False), r["id"]),
+            )
+            tagged_count += 1
 
     con.commit()
     con.close()
 
-    miss_in_db = sum(1 for l in lemma_set if l not in db_lemmas)
-    print(f"Tagged {matched} words with '{TOKEN}'")
+    miss_in_db = sum(1 for l in cats_lookup if l not in db_lemmas)
+    print(f"Updated {tagged_count} word rows")
+    print(f"  Category field newly set/extended on: {cat_added_count}")
     print(f"  Became first source-tag for word: {became_first_source}")
     print(f"  Hessen lemmas not present in DB at all: {miss_in_db}")
 

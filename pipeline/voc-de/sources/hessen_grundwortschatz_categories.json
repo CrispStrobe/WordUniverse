@@ -1,0 +1,2828 @@
+{
+  "Abend": [
+    "Wörter mit Auslautverhärtung, die durch Verlängerung erschlossen werden"
+  ],
+  "Affe": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Ameise": [
+    "Lautgetreue Wörter auf -e"
+  ],
+  "Ampel": [
+    "Lautgetreue Wörter auf -el"
+  ],
+  "Angst": [
+    "Lautgetreue Einsilber"
+  ],
+  "Apfel": [
+    "Lautgetreue Wörter auf -el",
+    "Lautgetreue ableitbare Nomen mit Umlautung a – ä"
+  ],
+  "April": [
+    "Monatsnamen"
+  ],
+  "Arm": [
+    "Wörter mit vokalisiertem r nach a"
+  ],
+  "Arzt": [
+    "Lautgetreue ableitbare Nomen mit Umlautung a – ä"
+  ],
+  "Ast": [
+    "Lautgetreue Einsilber",
+    "Lautgetreue ableitbare Nomen mit Umlautung a – ä"
+  ],
+  "Auge": [
+    "Lautgetreue Wörter auf -e"
+  ],
+  "August": [
+    "Monatsnamen"
+  ],
+  "Auto": [
+    "Fremdwörter"
+  ],
+  "Baby": [
+    "Wörter mit y"
+  ],
+  "Bad": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit Auslautverhärtung und Umlautung a – ä"
+  ],
+  "Bahn": [
+    "Wörter mit Dehnungs-h"
+  ],
+  "Ball": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit Doppelkonsonanz und a-ä-Ableitung"
+  ],
+  "Bank": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit nk"
+  ],
+  "Baum": [
+    "Lautgetreue Einsilber"
+  ],
+  "Beere": [
+    "Wörter mit Doppelvokal"
+  ],
+  "Bein": [
+    "Lautgetreue Einsilber"
+  ],
+  "Berg": [
+    "Wörter mit Auslautverhärtung, die durch Verlängerung erschlossen werden"
+  ],
+  "Bett": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Biene": [
+    "Lautgetreue Wörter auf -e"
+  ],
+  "Bier": [
+    "Lautgetreue Wörter mit vokalisiertem r im Endlaut"
+  ],
+  "Bild": [
+    "Wörter mit Auslautverhärtung, die durch Verlängerung erschlossen werden"
+  ],
+  "Birne": [
+    "Lautgetreue Wörter mit vokalisiertem r im Inlaut"
+  ],
+  "Blatt": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit Doppelkonsonanz und a-ä-Ableitung"
+  ],
+  "Blitz": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Block": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Blume": [
+    "Lautgetreue Wörter auf -e"
+  ],
+  "Blätter": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit Doppelkonsonanz und a-ä-Ableitung"
+  ],
+  "Blüte": [
+    "Lautgetreue Wörter auf -e"
+  ],
+  "Boot": [
+    "Wörter mit Doppelvokal"
+  ],
+  "Brand": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit Auslautverhärtung und Umlautung a – ä"
+  ],
+  "Brief": [
+    "Lautgetreue Einsilber"
+  ],
+  "Brille": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Brot": [
+    "Lautgetreue Einsilber"
+  ],
+  "Bruder": [
+    "Lautgetreue Wörter auf -er"
+  ],
+  "Brände": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit Auslautverhärtung und Umlautung a – ä"
+  ],
+  "Brücke": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Buch": [
+    "Lautgetreue Einsilber"
+  ],
+  "Bus": [
+    "Fremdwörter"
+  ],
+  "Butter": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Bäder": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit Auslautverhärtung und Umlautung a – ä"
+  ],
+  "Bälle": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit Doppelkonsonanz und a-ä-Ableitung"
+  ],
+  "Bänke": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer"
+  ],
+  "Bär": [
+    "Wörter mit ä ohne Ableitung"
+  ],
+  "Bügel": [
+    "Lautgetreue Wörter auf -el"
+  ],
+  "Cent": [
+    "Wörter mit c"
+  ],
+  "Chance": [
+    "Wörter mit ch bei besonderer Aussprache"
+  ],
+  "Chef": [
+    "Wörter mit ch bei besonderer Aussprache"
+  ],
+  "Chor": [
+    "Wörter mit ch bei besonderer Aussprache"
+  ],
+  "Clown": [
+    "Wörter mit c"
+  ],
+  "Comic": [
+    "Wörter mit c"
+  ],
+  "Computer": [
+    "Wörter mit c"
+  ],
+  "Dach": [
+    "Lautgetreue Einsilber",
+    "Lautgetreue ableitbare Nomen mit Umlautung a – ä"
+  ],
+  "Dachs": [
+    "Wörter mit chs"
+  ],
+  "Decke": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Dienstag": [
+    "Komplexe Wörter mit Auslautverhärtung"
+  ],
+  "Donnerstag": [
+    "Komplexe Wörter mit Auslautverhärtung",
+    "Wörter mit Doppelkonsonanz in komplexen Wortstrukturen oder anderen"
+  ],
+  "Draht": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Merkwörter"
+  ],
+  "Drähte": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer"
+  ],
+  "Durst": [
+    "Lautgetreue Wörter mit vokalisiertem r im Inlaut"
+  ],
+  "Dächer": [
+    "Lautgetreue ableitbare Nomen mit Umlautung a – ä"
+  ],
+  "E-Mail": [
+    "Fremdwörter"
+  ],
+  "Ei": [
+    "Lautgetreue Einsilber"
+  ],
+  "Eis": [
+    "Lautgetreue Einsilber"
+  ],
+  "Eltern": [
+    "Lautgetreue Wörter mit -er- innerhalb der unbetonten Silbe"
+  ],
+  "Ende": [
+    "Lautgetreue Wörter auf -e"
+  ],
+  "Ente": [
+    "Lautgetreue Wörter auf -e"
+  ],
+  "Entfernung": [
+    "Wörter mit nachgestellten Wortbausteinen, die Substantive anzeigen"
+  ],
+  "Erde": [
+    "Lautgetreue Wörter mit vokalisiertem r im Inlaut"
+  ],
+  "Ergebnis": [
+    "Merkschreibungen zur Auslautverhärtung",
+    "Wörter mit nachgestellten Wortbausteinen, die Substantive anzeigen"
+  ],
+  "Eule": [
+    "Lautgetreue Wörter auf -e"
+  ],
+  "Euro": [
+    "Fremdwörter"
+  ],
+  "Europa": [
+    "Fremdwörter"
+  ],
+  "Fach": [
+    "Lautgetreue Einsilber",
+    "Lautgetreue ableitbare Nomen mit Umlautung a – ä"
+  ],
+  "Fahrrad": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Komplexe Wörter mit Auslautverhärtung",
+    "Wörter mit h in komplexen Wortformen"
+  ],
+  "Fahrräder": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer"
+  ],
+  "Farbe": [
+    "Wörter mit vokalisiertem r nach a"
+  ],
+  "Februar": [
+    "Monatsnamen"
+  ],
+  "Fehler": [
+    "Wörter mit Dehnungs-h"
+  ],
+  "Feld": [
+    "Wörter mit Auslautverhärtung, die durch Verlängerung erschlossen werden"
+  ],
+  "Fenster": [
+    "Lautgetreue Wörter auf -er"
+  ],
+  "Ferien": [
+    "Fremdwörter"
+  ],
+  "Feuer": [
+    "Lautgetreue Wörter auf -er"
+  ],
+  "Finger": [
+    "Lautgetreue Wörter auf -er"
+  ],
+  "Fisch": [
+    "Lautgetreue Einsilber"
+  ],
+  "Flugzeug": [
+    "Komplexe Wörter mit Auslautverhärtung"
+  ],
+  "Flur": [
+    "Lautgetreue Wörter mit vokalisiertem r im Endlaut"
+  ],
+  "Fluss": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Flügel": [
+    "Lautgetreue Wörter auf -el"
+  ],
+  "Frau": [
+    "Ableitbare Wörter mit äu",
+    "Lautgetreue Einsilber"
+  ],
+  "Freitag": [
+    "Komplexe Wörter mit Auslautverhärtung"
+  ],
+  "Freude": [
+    "Lautgetreue Wörter auf -e"
+  ],
+  "Freund": [
+    "Wörter mit Auslautverhärtung, die durch Verlängerung erschlossen werden"
+  ],
+  "Frieden": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "Fräulein": [
+    "Ableitbare Wörter mit äu"
+  ],
+  "Frühling": [
+    "Wörter mit h in komplexen Wortformen"
+  ],
+  "Frühstück": [
+    "Wörter mit h in komplexen Wortformen"
+  ],
+  "Fuchs": [
+    "Wörter mit chs"
+  ],
+  "Fuß": [
+    "Wörter mit ß"
+  ],
+  "Fußball": [
+    "Wörter mit Doppelkonsonanz in komplexen Wortstrukturen oder anderen"
+  ],
+  "Fächer": [
+    "Lautgetreue ableitbare Nomen mit Umlautung a – ä"
+  ],
+  "Füller": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Gabel": [
+    "Lautgetreue Wörter auf -el"
+  ],
+  "Garten": [
+    "Lautgetreue ableitbare Nomen mit Umlautung a – ä"
+  ],
+  "Geburtstag": [
+    "Merkwörter"
+  ],
+  "Gebäude": [
+    "Ableitbare Wörter mit äu"
+  ],
+  "Gefahr": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit h in komplexen Wortformen"
+  ],
+  "Gemüse": [
+    "Lautgetreue Wörter auf -e"
+  ],
+  "Gepäck": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer"
+  ],
+  "Gewächs": [
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä"
+  ],
+  "Gewässer": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer"
+  ],
+  "Glück": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Gott": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Gras": [
+    "Lautgetreue Einsilber",
+    "Lautgetreue ableitbare Nomen mit Umlautung a – ä"
+  ],
+  "Grund": [
+    "Wörter mit Auslautverhärtung, die durch Verlängerung erschlossen werden"
+  ],
+  "Gräser": [
+    "Lautgetreue ableitbare Nomen mit Umlautung a – ä"
+  ],
+  "Gründe": [
+    "Wörter mit Auslautverhärtung, die durch Verlängerung erschlossen werden"
+  ],
+  "Gurke": [
+    "Lautgetreue Wörter mit vokalisiertem r im Inlaut"
+  ],
+  "Gärten": [
+    "Lautgetreue ableitbare Nomen mit Umlautung a – ä"
+  ],
+  "Haar": [
+    "Wörter mit Doppelvokal"
+  ],
+  "Hals": [
+    "Lautgetreue Einsilber",
+    "Lautgetreue ableitbare Nomen mit Umlautung a – ä"
+  ],
+  "Hand": [
+    "Wörter mit Auslautverhärtung und Umlautung a – ä"
+  ],
+  "Handy": [
+    "Wörter mit y"
+  ],
+  "Hase": [
+    "Lautgetreue Wörter auf -e"
+  ],
+  "Haus": [
+    "Ableitbare Wörter mit äu",
+    "Lautgetreue Einsilber"
+  ],
+  "Heft": [
+    "Lautgetreue Einsilber"
+  ],
+  "Heizung": [
+    "Wörter mit nachgestellten Wortbausteinen, die Substantive anzeigen"
+  ],
+  "Hemd": [
+    "Wörter mit Auslautverhärtung, die durch Verlängerung erschlossen werden"
+  ],
+  "Herbst": [
+    "Merkschreibungen zur Auslautverhärtung"
+  ],
+  "Herr": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Herz": [
+    "Lautgetreue Wörter mit vokalisiertem r im Inlaut"
+  ],
+  "Hessen": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Hexe": [
+    "Wörter mit x"
+  ],
+  "Himmel": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Hitze": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Hose": [
+    "Lautgetreue Wörter auf -e"
+  ],
+  "Huhn": [
+    "Wörter mit Dehnungs-h"
+  ],
+  "Hund": [
+    "Wörter mit Auslautverhärtung, die durch Verlängerung erschlossen werden"
+  ],
+  "Hunger": [
+    "Lautgetreue Wörter auf -er"
+  ],
+  "Hut": [
+    "Lautgetreue Einsilber"
+  ],
+  "Hälse": [
+    "Lautgetreue ableitbare Nomen mit Umlautung a – ä"
+  ],
+  "Hände": [
+    "Wörter mit Auslautverhärtung und Umlautung a – ä"
+  ],
+  "Häuser": [
+    "Ableitbare Wörter mit äu"
+  ],
+  "Höhle": [
+    "Wörter mit Dehnungs-h"
+  ],
+  "Idee": [
+    "Fremdwörter",
+    "Wörter mit Doppelvokal"
+  ],
+  "Igel": [
+    "Wörter mit einfach geschriebenem i <i> für lang gesprochenes i /i:/"
+  ],
+  "Insel": [
+    "Lautgetreue Wörter auf -el"
+  ],
+  "Internet": [
+    "Fremdwörter"
+  ],
+  "Jacke": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Jahr": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit Dehnungs-h"
+  ],
+  "Januar": [
+    "Monatsnamen"
+  ],
+  "Jugend": [
+    "Merkschreibungen zur Auslautverhärtung"
+  ],
+  "Juli": [
+    "Monatsnamen",
+    "Wörter mit einfach geschriebenem i <i> für lang gesprochenes i /i:/"
+  ],
+  "Junge": [
+    "Lautgetreue Wörter auf -e"
+  ],
+  "Juni": [
+    "Monatsnamen",
+    "Wörter mit einfach geschriebenem i <i> für lang gesprochenes i /i:/"
+  ],
+  "Kalender": [
+    "Fremdwörter"
+  ],
+  "Kamm": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit Doppelkonsonanz und a-ä-Ableitung"
+  ],
+  "Kampf": [
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä"
+  ],
+  "Katze": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Kind": [
+    "Wörter mit Auslautverhärtung, die durch Verlängerung erschlossen werden"
+  ],
+  "Kirche": [
+    "Lautgetreue Wörter mit vokalisiertem r im Inlaut"
+  ],
+  "Kirsche": [
+    "Lautgetreue Wörter mit vokalisiertem r im Inlaut"
+  ],
+  "Klasse": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Kleber": [
+    "Lautgetreue Wörter auf -er"
+  ],
+  "Kleid": [
+    "Wörter mit Auslautverhärtung, die durch Verlängerung erschlossen werden"
+  ],
+  "Knie": [
+    "Lautgetreue Einsilber"
+  ],
+  "Kopf": [
+    "Lautgetreue Einsilber"
+  ],
+  "Kraut": [
+    "Ableitbare Wörter mit äu",
+    "Lautgetreue Einsilber"
+  ],
+  "Kreis": [
+    "Lautgetreue Einsilber"
+  ],
+  "Krieg": [
+    "Wörter mit Auslautverhärtung, die durch Verlängerung erschlossen werden"
+  ],
+  "Kräuter": [
+    "Ableitbare Wörter mit äu"
+  ],
+  "Kuchen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "Kuh": [
+    "Wörter mit silbentrennendem h"
+  ],
+  "Käfer": [
+    "Wörter mit ä ohne Ableitung"
+  ],
+  "Käfig": [
+    "Wörter mit nachgestelltem Wortbaustein -ig",
+    "Wörter mit ä ohne Ableitung"
+  ],
+  "Kälte": [
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä"
+  ],
+  "Kämme": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit Doppelkonsonanz und a-ä-Ableitung"
+  ],
+  "Käse": [
+    "Wörter mit ä ohne Ableitung"
+  ],
+  "Kätzchen": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer"
+  ],
+  "König": [
+    "Wörter mit nachgestelltem Wortbaustein -ig"
+  ],
+  "Körper": [
+    "Lautgetreue Wörter mit vokalisiertem r im Inlaut"
+  ],
+  "Küche": [
+    "Lautgetreue Wörter auf -e"
+  ],
+  "Land": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit Auslautverhärtung und Umlautung a – ä"
+  ],
+  "Lehrer": [
+    "Wörter mit Dehnungs-h"
+  ],
+  "Leiter": [
+    "Lautgetreue Wörter auf -er"
+  ],
+  "Leute": [
+    "Lautgetreue Wörter auf -e"
+  ],
+  "Lexikon": [
+    "Wörter mit x"
+  ],
+  "Licht": [
+    "Lautgetreue Einsilber"
+  ],
+  "Lied": [
+    "Wörter mit Auslautverhärtung, die durch Verlängerung erschlossen werden"
+  ],
+  "Lineal": [
+    "Fremdwörter"
+  ],
+  "Linie": [
+    "Fremdwörter"
+  ],
+  "Liter": [
+    "Wörter mit einfach geschriebenem i <i> für lang gesprochenes i /i:/"
+  ],
+  "Loch": [
+    "Lautgetreue Einsilber"
+  ],
+  "Luft": [
+    "Lautgetreue Einsilber"
+  ],
+  "Länder": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit Auslautverhärtung und Umlautung a – ä"
+  ],
+  "Länge": [
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä"
+  ],
+  "Lärm": [
+    "Wörter mit ä ohne Ableitung"
+  ],
+  "Läufer": [
+    "Ableitbare Wörter mit äu"
+  ],
+  "Löffel": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Mai": [
+    "Fremdwörter",
+    "Monatsnamen"
+  ],
+  "Mann": [
+    "Wörter mit Doppelkonsonanz und a-ä-Ableitung"
+  ],
+  "Marke": [
+    "Wörter mit vokalisiertem r nach a"
+  ],
+  "Maschine": [
+    "Fremdwörter",
+    "Wörter mit einfach geschriebenem i <i> für lang gesprochenes i /i:/"
+  ],
+  "Maus": [
+    "Ableitbare Wörter mit äu",
+    "Lautgetreue Einsilber"
+  ],
+  "Medien": [
+    "Fremdwörter"
+  ],
+  "Meer": [
+    "Wörter mit Doppelvokal"
+  ],
+  "Mensch": [
+    "Lautgetreue Einsilber"
+  ],
+  "Messer": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Meter": [
+    "Lautgetreue Wörter auf -er"
+  ],
+  "Milch": [
+    "Lautgetreue Einsilber"
+  ],
+  "Minute": [
+    "Fremdwörter"
+  ],
+  "Mittag": [
+    "Komplexe Wörter mit Auslautverhärtung",
+    "Wörter mit Doppelkonsonanz in komplexen Wortstrukturen oder anderen"
+  ],
+  "Mitte": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Mittwoch": [
+    "Wörter mit Doppelkonsonanz in komplexen Wortstrukturen oder anderen"
+  ],
+  "Monat": [
+    "Fremdwörter"
+  ],
+  "Montag": [
+    "Komplexe Wörter mit Auslautverhärtung"
+  ],
+  "Mund": [
+    "Wörter mit Auslautverhärtung, die durch Verlängerung erschlossen werden"
+  ],
+  "Musik": [
+    "Fremdwörter",
+    "Wörter mit einfach geschriebenem i <i> für lang gesprochenes i /i:/"
+  ],
+  "Mutter": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Mädchen": [
+    "Merkschreibungen zur Auslautverhärtung",
+    "Wörter mit ä ohne Ableitung"
+  ],
+  "Männer": [
+    "Wörter mit Doppelkonsonanz und a-ä-Ableitung"
+  ],
+  "März": [
+    "Monatsnamen",
+    "Wörter mit ä ohne Ableitung"
+  ],
+  "Mäuse": [
+    "Ableitbare Wörter mit äu"
+  ],
+  "Müll": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Münder": [
+    "Wörter mit Auslautverhärtung, die durch Verlängerung erschlossen werden"
+  ],
+  "Mütze": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Nabel": [
+    "Lautgetreue Wörter auf -el"
+  ],
+  "Nachbar": [
+    "Wörter mit vokalisiertem r nach a"
+  ],
+  "Nacht": [
+    "Lautgetreue Einsilber",
+    "Lautgetreue ableitbare Nomen mit Umlautung a – ä"
+  ],
+  "Name": [
+    "Lautgetreue Wörter auf -e"
+  ],
+  "Nase": [
+    "Lautgetreue Wörter auf -e"
+  ],
+  "Nebel": [
+    "Lautgetreue Wörter auf -el"
+  ],
+  "November": [
+    "Monatsnamen",
+    "Wörter mit v"
+  ],
+  "Nudel": [
+    "Lautgetreue Wörter auf -el"
+  ],
+  "Null": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Nummer": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Nuss": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Nächte": [
+    "Lautgetreue ableitbare Nomen mit Umlautung a – ä"
+  ],
+  "Nähe": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer"
+  ],
+  "Nässe": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer"
+  ],
+  "Obst": [
+    "Merkschreibungen zur Auslautverhärtung"
+  ],
+  "Ochse": [
+    "Lautgetreue Wörter auf -e",
+    "Wörter mit chs"
+  ],
+  "Ohr": [
+    "Wörter mit Dehnungs-h"
+  ],
+  "Oktober": [
+    "Monatsnamen"
+  ],
+  "Onkel": [
+    "Wörter mit nk"
+  ],
+  "Ordnung": [
+    "Merkschreibungen zur Auslautverhärtung",
+    "Wörter mit nachgestellten Wortbausteinen, die Substantive anzeigen"
+  ],
+  "Ostern": [
+    "Lautgetreue Wörter mit -er- innerhalb der unbetonten Silbe"
+  ],
+  "Paket": [
+    "Fremdwörter"
+  ],
+  "Papier": [
+    "Lautgetreue Wörter mit vokalisiertem r im Endlaut"
+  ],
+  "Pass": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit Doppelkonsonanz und a-ä-Ableitung"
+  ],
+  "Pferd": [
+    "Wörter mit Auslautverhärtung, die durch Verlängerung erschlossen werden"
+  ],
+  "Pflaster": [
+    "Lautgetreue Wörter auf -er"
+  ],
+  "Pflaume": [
+    "Lautgetreue Wörter auf -e"
+  ],
+  "Pilz": [
+    "Lautgetreue Einsilber"
+  ],
+  "Pinsel": [
+    "Lautgetreue Wörter auf -el"
+  ],
+  "Pizza": [
+    "Fremdwörter"
+  ],
+  "Platz": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Plätze": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer"
+  ],
+  "Pommes": [
+    "Fremdwörter",
+    "Wörter mit Doppelkonsonanz in komplexen Wortstrukturen oder anderen"
+  ],
+  "Pony": [
+    "Wörter mit y"
+  ],
+  "Programm": [
+    "Fremdwörter",
+    "Wörter mit Doppelkonsonanz in komplexen Wortstrukturen oder anderen"
+  ],
+  "Pullover": [
+    "Wörter mit Doppelkonsonanz in komplexen Wortstrukturen oder anderen",
+    "Wörter mit v"
+  ],
+  "Punkt": [
+    "Wörter mit nk"
+  ],
+  "Puppe": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Päckchen": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer"
+  ],
+  "Pässe": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit Doppelkonsonanz und a-ä-Ableitung"
+  ],
+  "Quadrat": [
+    "Wörter mit qu"
+  ],
+  "Qualle": [
+    "Wörter mit Doppelkonsonanz",
+    "Wörter mit qu"
+  ],
+  "Quark": [
+    "Wörter mit qu"
+  ],
+  "Quatsch": [
+    "Wörter mit qu"
+  ],
+  "Quelle": [
+    "Wörter mit Doppelkonsonanz",
+    "Wörter mit qu"
+  ],
+  "Rad": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit Auslautverhärtung und Umlautung a – ä"
+  ],
+  "Radio": [
+    "Fremdwörter"
+  ],
+  "Raum": [
+    "Ableitbare Wörter mit äu"
+  ],
+  "Raupe": [
+    "Lautgetreue Wörter auf -e"
+  ],
+  "Regen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "Reh": [
+    "Wörter mit silbentrennendem h"
+  ],
+  "Reihe": [
+    "Wörter mit silbentrennendem h"
+  ],
+  "Riese": [
+    "Lautgetreue Wörter auf -e"
+  ],
+  "Ring": [
+    "Lautgetreue Einsilber"
+  ],
+  "Rock": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Ruhe": [
+    "Wörter mit silbentrennendem h"
+  ],
+  "Räder": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit Auslautverhärtung und Umlautung a – ä"
+  ],
+  "Räume": [
+    "Ableitbare Wörter mit äu"
+  ],
+  "Rücken": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Sache": [
+    "Lautgetreue Wörter auf -e"
+  ],
+  "Saft": [
+    "Lautgetreue Einsilber",
+    "Lautgetreue ableitbare Nomen mit Umlautung a – ä"
+  ],
+  "Salz": [
+    "Lautgetreue Einsilber"
+  ],
+  "Samstag": [
+    "Komplexe Wörter mit Auslautverhärtung"
+  ],
+  "Sand": [
+    "Merkschreibungen zur Auslautverhärtung"
+  ],
+  "Satz": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit Doppelkonsonanz und a-ä-Ableitung"
+  ],
+  "Schal": [
+    "Lautgetreue Einsilber"
+  ],
+  "Schatz": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit Doppelkonsonanz und a-ä-Ableitung"
+  ],
+  "Schere": [
+    "Lautgetreue Wörter auf -e"
+  ],
+  "Schiff": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Schlange": [
+    "Lautgetreue Wörter auf -e",
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä"
+  ],
+  "Schloss": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Schlüssel": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Schmutz": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Schnabel": [
+    "Lautgetreue Wörter auf -el"
+  ],
+  "Schnee": [
+    "Wörter mit Doppelvokal"
+  ],
+  "Schnur": [
+    "Lautgetreue Wörter mit vokalisiertem r im Endlaut"
+  ],
+  "Schrank": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit nk"
+  ],
+  "Schreck": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Schrift": [
+    "Lautgetreue Einsilber"
+  ],
+  "Schränke": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer"
+  ],
+  "Schuh": [
+    "Wörter mit silbentrennendem h"
+  ],
+  "Schutz": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Schwester": [
+    "Lautgetreue Wörter auf -er"
+  ],
+  "Schärfe": [
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä"
+  ],
+  "Schätze": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit Doppelkonsonanz und a-ä-Ableitung"
+  ],
+  "See": [
+    "Wörter mit Doppelvokal"
+  ],
+  "Seife": [
+    "Lautgetreue Wörter auf -e"
+  ],
+  "Seil": [
+    "Lautgetreue Einsilber"
+  ],
+  "Seite": [
+    "Lautgetreue Wörter auf -e"
+  ],
+  "Sekunde": [
+    "Fremdwörter"
+  ],
+  "September": [
+    "Monatsnamen"
+  ],
+  "Sessel": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Silvester": [
+    "Wörter mit v"
+  ],
+  "Sommer": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Sonne": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Sonntag": [
+    "Wörter mit Doppelkonsonanz in komplexen Wortstrukturen oder anderen"
+  ],
+  "Soße": [
+    "Wörter mit ß"
+  ],
+  "Spaziergang": [
+    "Wörter mit sp und st und Orthographemen oder Besonderheiten"
+  ],
+  "Spaß": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit sp und st und Orthographemen oder Besonderheiten",
+    "Wörter mit ß"
+  ],
+  "Spiegel": [
+    "Lautgetreue Wörter mit sp und st"
+  ],
+  "Spinne": [
+    "Wörter mit Doppelkonsonanz",
+    "Wörter mit sp und st und Orthographemen oder Besonderheiten"
+  ],
+  "Sport": [
+    "Lautgetreue Wörter mit sp und st"
+  ],
+  "Späße": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer"
+  ],
+  "Stadt": [
+    "Wörter mit sp und st und Orthographemen oder Besonderheiten"
+  ],
+  "Stamm": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit Doppelkonsonanz und a-ä-Ableitung",
+    "Wörter mit sp und st und Orthographemen oder Besonderheiten"
+  ],
+  "Stein": [
+    "Lautgetreue Wörter mit sp und st"
+  ],
+  "Stern": [
+    "Lautgetreue Wörter mit sp und st"
+  ],
+  "Stift": [
+    "Lautgetreue Wörter mit sp und st"
+  ],
+  "Stimme": [
+    "Wörter mit Doppelkonsonanz",
+    "Wörter mit sp und st und Orthographemen oder Besonderheiten"
+  ],
+  "Stoff": [
+    "Wörter mit Doppelkonsonanz",
+    "Wörter mit sp und st und Orthographemen oder Besonderheiten"
+  ],
+  "Strand": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit Auslautverhärtung und Umlautung a – ä",
+    "Wörter mit sp und st und Orthographemen oder Besonderheiten"
+  ],
+  "Strauch": [
+    "Ableitbare Wörter mit äu",
+    "Lautgetreue Wörter mit sp und st"
+  ],
+  "Straße": [
+    "Wörter mit sp und st und Orthographemen oder Besonderheiten",
+    "Wörter mit ß"
+  ],
+  "Strände": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit Auslautverhärtung und Umlautung a – ä"
+  ],
+  "Sträucher": [
+    "Ableitbare Wörter mit äu"
+  ],
+  "Stuhl": [
+    "Wörter mit Dehnungs-h",
+    "Wörter mit sp und st und Orthographemen oder Besonderheiten"
+  ],
+  "Stunde": [
+    "Lautgetreue Wörter mit sp und st"
+  ],
+  "Sturm": [
+    "Lautgetreue Wörter mit sp und st"
+  ],
+  "Stämme": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit Doppelkonsonanz und a-ä-Ableitung"
+  ],
+  "Stärke": [
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä"
+  ],
+  "Stück": [
+    "Wörter mit Doppelkonsonanz",
+    "Wörter mit sp und st und Orthographemen oder Besonderheiten"
+  ],
+  "Säfte": [
+    "Lautgetreue ableitbare Nomen mit Umlautung a – ä"
+  ],
+  "Sätze": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit Doppelkonsonanz und a-ä-Ableitung"
+  ],
+  "Tafel": [
+    "Lautgetreue Wörter auf -el"
+  ],
+  "Tag": [
+    "Wörter mit Auslautverhärtung, die durch Verlängerung erschlossen werden"
+  ],
+  "Tanne": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Tante": [
+    "Lautgetreue Wörter auf -e"
+  ],
+  "Tasche": [
+    "Lautgetreue Wörter auf -e"
+  ],
+  "Tasse": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Taxi": [
+    "Wörter mit x"
+  ],
+  "Teddy": [
+    "Wörter mit y"
+  ],
+  "Tee": [
+    "Wörter mit Doppelvokal"
+  ],
+  "Telefon": [
+    "Fremdwörter"
+  ],
+  "Teller": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Temperatur": [
+    "Fremdwörter"
+  ],
+  "Teufel": [
+    "Lautgetreue Wörter auf -el"
+  ],
+  "Text": [
+    "Wörter mit x"
+  ],
+  "Theater": [
+    "Fremdwörter"
+  ],
+  "Thema": [
+    "Fremdwörter"
+  ],
+  "Tier": [
+    "Lautgetreue Wörter mit vokalisiertem r im Endlaut"
+  ],
+  "Tiger": [
+    "Wörter mit einfach geschriebenem i <i> für lang gesprochenes i /i:/"
+  ],
+  "Tisch": [
+    "Lautgetreue Einsilber"
+  ],
+  "Tochter": [
+    "Lautgetreue Wörter auf -er"
+  ],
+  "Tod": [
+    "Wörter mit Auslautverhärtung, die durch Verlängerung erschlossen werden"
+  ],
+  "Tor": [
+    "Lautgetreue Wörter mit vokalisiertem r im Endlaut"
+  ],
+  "Träne": [
+    "Wörter mit ä ohne Ableitung"
+  ],
+  "Tännchen": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer"
+  ],
+  "Tür": [
+    "Lautgetreue Wörter mit vokalisiertem r im Endlaut"
+  ],
+  "Uhr": [
+    "Wörter mit Dehnungs-h"
+  ],
+  "Urlaub": [
+    "Wörter mit Auslautverhärtung, die durch Verlängerung erschlossen werden"
+  ],
+  "Vase": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit v"
+  ],
+  "Vater": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit v"
+  ],
+  "Verein": [
+    "Wörter mit v"
+  ],
+  "Verkehr": [
+    "Wörter mit h in komplexen Wortformen",
+    "Wörter mit v"
+  ],
+  "Verkäufer": [
+    "Ableitbare Wörter mit äu"
+  ],
+  "Versuch": [
+    "Wörter mit v"
+  ],
+  "Virus": [
+    "Wörter mit v"
+  ],
+  "Vogel": [
+    "Wörter mit v"
+  ],
+  "Vulkan": [
+    "Wörter mit v"
+  ],
+  "Väschen": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer"
+  ],
+  "Väter": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer"
+  ],
+  "Wachs": [
+    "Wörter mit chs"
+  ],
+  "Wald": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit Auslautverhärtung und Umlautung a – ä"
+  ],
+  "Wasser": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Weg": [
+    "Wörter mit Auslautverhärtung, die durch Verlängerung erschlossen werden"
+  ],
+  "Weihnachten": [
+    "Wörter mit h in komplexen Wortformen"
+  ],
+  "Welt": [
+    "Lautgetreue Einsilber"
+  ],
+  "Wiese": [
+    "Lautgetreue Wörter auf -e"
+  ],
+  "Wind": [
+    "Wörter mit Auslautverhärtung, die durch Verlängerung erschlossen werden"
+  ],
+  "Windel": [
+    "Lautgetreue Wörter auf -el"
+  ],
+  "Woche": [
+    "Lautgetreue Wörter auf -e"
+  ],
+  "Wort": [
+    "Lautgetreue Wörter mit vokalisiertem r im Inlaut"
+  ],
+  "Wurm": [
+    "Lautgetreue Wörter mit vokalisiertem r im Inlaut"
+  ],
+  "Wurst": [
+    "Lautgetreue Wörter mit vokalisiertem r im Inlaut"
+  ],
+  "Wurzel": [
+    "Lautgetreue Wörter mit vokalisiertem r im Inlaut"
+  ],
+  "Wälder": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit Auslautverhärtung und Umlautung a – ä"
+  ],
+  "Wärme": [
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä"
+  ],
+  "Wässer": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer"
+  ],
+  "Würfel": [
+    "Lautgetreue Wörter mit vokalisiertem r im Inlaut"
+  ],
+  "Zahl": [
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä",
+    "Wörter mit Dehnungs-h"
+  ],
+  "Zahn": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit Dehnungs-h"
+  ],
+  "Zaun": [
+    "Ableitbare Wörter mit äu",
+    "Lautgetreue Einsilber"
+  ],
+  "Zeh": [
+    "Wörter mit silbentrennendem h"
+  ],
+  "Zeit": [
+    "Lautgetreue Einsilber"
+  ],
+  "Zeitung": [
+    "Wörter mit nachgestellten Wortbausteinen, die Substantive anzeigen"
+  ],
+  "Zeugnis": [
+    "Wörter mit nachgestellten Wortbausteinen, die Substantive anzeigen"
+  ],
+  "Zimmer": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Zoo": [
+    "Wörter mit Doppelvokal"
+  ],
+  "Zucker": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "Zug": [
+    "Wörter mit Auslautverhärtung, die durch Verlängerung erschlossen werden"
+  ],
+  "Zwiebel": [
+    "Lautgetreue Wörter auf -el"
+  ],
+  "Zähne": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer"
+  ],
+  "Zäune": [
+    "Ableitbare Wörter mit äu"
+  ],
+  "Züge": [
+    "Wörter mit Auslautverhärtung, die durch Verlängerung erschlossen werden"
+  ],
+  "ab": [
+    "Funktionswörter mit Auslautverhärtung"
+  ],
+  "aber": [
+    "Funktionswörter mit der Endung -er"
+  ],
+  "acht": [
+    "Lautgetreue Einsilber"
+  ],
+  "alle": [
+    "Funktionswörter mit Doppelkonsonanz",
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "allein": [
+    "Wörter mit Doppelkonsonanz in komplexen Wortstrukturen oder anderen"
+  ],
+  "als": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "also": [
+    "Mehrsilbige Funktionswörter"
+  ],
+  "alt": [
+    "Lautgetreue Einsilber",
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä"
+  ],
+  "am": [
+    "Funktionswörter mit Kurzvokal und einem folgenden Konsonanten"
+  ],
+  "an": [
+    "Funktionswörter mit Kurzvokal und einem folgenden Konsonanten"
+  ],
+  "anders": [
+    "Lautgetreue Wörter mit -er- innerhalb der unbetonten Silbe"
+  ],
+  "antworten": [
+    "Lautgetreue Wörter mit vokalisiertem r im Inlaut"
+  ],
+  "arbeiten": [
+    "Wörter mit vokalisiertem r nach a"
+  ],
+  "auch": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "auf": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "aufräumen": [
+    "Ableitbare Wörter mit äu",
+    "Wörter mit vorangestellten Wortbausteinen"
+  ],
+  "aufwachen": [
+    "Wörter mit vorangestellten Wortbausteinen"
+  ],
+  "aus": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "außen": [
+    "Ableitbare Wörter mit äu",
+    "Wörter mit ß"
+  ],
+  "backen": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "bald": [
+    "Funktionswörter mit Auslautverhärtung",
+    "Merkschreibungen zur Auslautverhärtung"
+  ],
+  "bauen": [
+    "Ableitbare Wörter mit äu",
+    "Lautgetreue Wörter auf -en"
+  ],
+  "bei": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "beißen": [
+    "Wörter mit ß"
+  ],
+  "bekommen": [
+    "Wörter mit Doppelkonsonanz in komplexen Wortstrukturen oder anderen",
+    "Wörter mit vorangestellten Wortbausteinen"
+  ],
+  "bequem": [
+    "Wörter mit qu"
+  ],
+  "bereits": [
+    "Merkwörter"
+  ],
+  "besser": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "bevor": [
+    "Wörter mit v"
+  ],
+  "bezahlen": [
+    "Wörter mit h in komplexen Wortformen",
+    "Wörter mit vorangestellten Wortbausteinen"
+  ],
+  "biegen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "bin": [
+    "Funktionswörter mit Kurzvokal und einem folgenden Konsonanten"
+  ],
+  "bis": [
+    "Funktionswörter mit Kurzvokal und einem folgenden Konsonanten"
+  ],
+  "bisschen": [
+    "Merkwörter",
+    "Wörter mit Doppelkonsonanz in komplexen Wortstrukturen oder anderen"
+  ],
+  "bist": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "bitten": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "blau": [
+    "Ableitbare Wörter mit äu",
+    "Lautgetreue Einsilber"
+  ],
+  "bleiben": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "blicken": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "blind": [
+    "Wörter mit Auslautverhärtung, die durch Verlängerung erschlossen werden"
+  ],
+  "bloß": [
+    "Wörter mit ß"
+  ],
+  "bläulich": [
+    "Ableitbare Wörter mit äu"
+  ],
+  "blühen": [
+    "Wörter mit silbentrennendem h"
+  ],
+  "bohren": [
+    "Wörter mit Dehnungs-h"
+  ],
+  "boxen": [
+    "Wörter mit x"
+  ],
+  "brauchen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "braun": [
+    "Ableitbare Wörter mit äu",
+    "Lautgetreue Einsilber"
+  ],
+  "brav": [
+    "Wörter mit v"
+  ],
+  "breit": [
+    "Lautgetreue Einsilber"
+  ],
+  "brennen": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "bringen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "bräunlich": [
+    "Ableitbare Wörter mit äu"
+  ],
+  "bunt": [
+    "Lautgetreue Einsilber"
+  ],
+  "böse": [
+    "Lautgetreue Wörter auf -e"
+  ],
+  "da": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "dachten": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "danken": [
+    "Wörter mit nk"
+  ],
+  "dann": [
+    "Funktionswörter mit Doppelkonsonanz"
+  ],
+  "das": [
+    "Funktionswörter mit Kurzvokal und einem folgenden Konsonanten"
+  ],
+  "davon": [
+    "Wörter mit v"
+  ],
+  "dein": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "dem": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "den": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "denken": [
+    "Wörter mit nk"
+  ],
+  "denn": [
+    "Funktionswörter mit Doppelkonsonanz"
+  ],
+  "der": [
+    "Funktionswörter mit vokalisiertem r"
+  ],
+  "des": [
+    "Funktionswörter mit Kurzvokal und einem folgenden Konsonanten"
+  ],
+  "deshalb": [
+    "Merkschreibungen zur Auslautverhärtung"
+  ],
+  "deutlich": [
+    "Wörter mit nachgestelltem Wortbaustein -lich"
+  ],
+  "dich": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "dick": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "die": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "dies": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "dir": [
+    "Funktionswörter mit vokalisiertem r"
+  ],
+  "doch": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "doppelt": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "dort": [
+    "Lautgetreue Wörter mit vokalisiertem r im Inlaut"
+  ],
+  "draußen": [
+    "Wörter mit ß"
+  ],
+  "dreckig": [
+    "Wörter mit Doppelkonsonanz",
+    "Wörter mit nachgestelltem Wortbaustein -ig"
+  ],
+  "drehen": [
+    "Wörter mit silbentrennendem h"
+  ],
+  "drei": [
+    "Lautgetreue Einsilber"
+  ],
+  "drucken": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "drücken": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "du": [
+    "Ableitbare Wörter mit äu",
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "dumm": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "dunkel": [
+    "Wörter mit nk"
+  ],
+  "durch": [
+    "Funktionswörter mit vokalisiertem r"
+  ],
+  "dünn": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "dürfen": [
+    "Funktionswörter mit vokalisiertem r"
+  ],
+  "eigentlich": [
+    "Wörter mit nachgestelltem Wortbaustein -lich"
+  ],
+  "ein": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "eins": [
+    "Lautgetreue Einsilber"
+  ],
+  "elf": [
+    "Lautgetreue Einsilber"
+  ],
+  "endlich": [
+    "Merkschreibungen zur Auslautverhärtung",
+    "Wörter mit nachgestelltem Wortbaustein -lich"
+  ],
+  "entdecken": [
+    "Wörter mit Doppelkonsonanz in komplexen Wortstrukturen oder anderen",
+    "Wörter mit vorangestellten Wortbausteinen"
+  ],
+  "entwickeln": [
+    "Wörter mit Doppelkonsonanz in komplexen Wortstrukturen oder anderen",
+    "Wörter mit vorangestellten Wortbausteinen"
+  ],
+  "er": [
+    "Funktionswörter mit vokalisiertem r"
+  ],
+  "erinnern": [
+    "Wörter mit Doppelkonsonanz in komplexen Wortstrukturen oder anderen",
+    "Wörter mit vorangestellten Wortbausteinen"
+  ],
+  "erklären": [
+    "Wörter mit ä ohne Ableitung"
+  ],
+  "erkältet": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer"
+  ],
+  "erschrecken": [
+    "Wörter mit Doppelkonsonanz in komplexen Wortstrukturen oder anderen"
+  ],
+  "erst": [
+    "Lautgetreue Wörter mit vokalisiertem r im Inlaut"
+  ],
+  "erster": [
+    "Lautgetreue Wörter auf -er",
+    "Lautgetreue Wörter mit vokalisiertem r im Inlaut"
+  ],
+  "erzählen": [
+    "Wörter mit h in komplexen Wortformen",
+    "Wörter mit ä ohne Ableitung"
+  ],
+  "es": [
+    "Funktionswörter mit Kurzvokal und einem folgenden Konsonanten"
+  ],
+  "etwas": [
+    "Mehrsilbige Funktionswörter"
+  ],
+  "euch": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "euer": [
+    "Lautgetreue Wörter auf -er"
+  ],
+  "eure": [
+    "Mehrsilbige Funktionswörter"
+  ],
+  "fahren": [
+    "Wörter mit Dehnungs-h"
+  ],
+  "fahren–": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer"
+  ],
+  "fair": [
+    "Fremdwörter"
+  ],
+  "fallen": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit Doppelkonsonanz und a-ä-Ableitung"
+  ],
+  "fangen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "fehlen": [
+    "Wörter mit Dehnungs-h"
+  ],
+  "fein": [
+    "Lautgetreue Einsilber"
+  ],
+  "fertig": [
+    "Wörter mit nachgestelltem Wortbaustein -ig"
+  ],
+  "fett": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "feucht": [
+    "Lautgetreue Einsilber"
+  ],
+  "finden": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "fleißig": [
+    "Wörter mit nachgestelltem Wortbaustein -ig",
+    "Wörter mit ß"
+  ],
+  "fliegen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "fließen": [
+    "Wörter mit ß"
+  ],
+  "flüssig": [
+    "Wörter mit Doppelkonsonanz",
+    "Wörter mit nachgestelltem Wortbaustein -ig"
+  ],
+  "flüstern": [
+    "Lautgetreue Wörter mit -er- innerhalb der unbetonten Silbe"
+  ],
+  "fragen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "fremd": [
+    "Wörter mit Auslautverhärtung, die durch Verlängerung erschlossen werden"
+  ],
+  "fressen": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "freuen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "frieren": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "frisch": [
+    "Lautgetreue Einsilber"
+  ],
+  "früh": [
+    "Wörter mit silbentrennendem h"
+  ],
+  "fällt": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit Doppelkonsonanz und a-ä-Ableitung"
+  ],
+  "fühlen": [
+    "Wörter mit Dehnungs-h"
+  ],
+  "fünf": [
+    "Lautgetreue Einsilber"
+  ],
+  "für": [
+    "Funktionswörter mit vokalisiertem r"
+  ],
+  "ganz": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "geben": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "gefährlich": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer"
+  ],
+  "gegen": [
+    "Mehrsilbige Funktionswörter"
+  ],
+  "gehen": [
+    "Wörter mit silbentrennendem h"
+  ],
+  "gelb": [
+    "Wörter mit Auslautverhärtung, die durch Verlängerung erschlossen werden"
+  ],
+  "genug": [
+    "Wörter mit Auslautverhärtung, die durch Verlängerung erschlossen werden"
+  ],
+  "genügende": [
+    "Wörter mit Auslautverhärtung, die durch Verlängerung erschlossen werden"
+  ],
+  "gerne": [
+    "Lautgetreue Wörter mit vokalisiertem r im Inlaut"
+  ],
+  "gestern": [
+    "Lautgetreue Wörter mit -er- innerhalb der unbetonten Silbe"
+  ],
+  "gesund": [
+    "Wörter mit Auslautverhärtung, die durch Verlängerung erschlossen werden"
+  ],
+  "gießen": [
+    "Wörter mit ß"
+  ],
+  "glatt": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "gleich": [
+    "Lautgetreue Einsilber"
+  ],
+  "groß": [
+    "Wörter mit ß"
+  ],
+  "grün": [
+    "Lautgetreue Einsilber"
+  ],
+  "grüßen": [
+    "Wörter mit ß"
+  ],
+  "gucken": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "gut": [
+    "Lautgetreue Einsilber"
+  ],
+  "habe": [
+    "Mehrsilbige Funktionswörter"
+  ],
+  "haben": [
+    "Mehrsilbige Funktionswörter"
+  ],
+  "hallo": [
+    "Fremdwörter",
+    "Wörter mit Doppelkonsonanz in komplexen Wortstrukturen oder anderen"
+  ],
+  "halten": [
+    "Lautgetreue Wörter auf -en",
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä"
+  ],
+  "hart": [
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä",
+    "Wörter mit vokalisiertem r nach a"
+  ],
+  "hat": [
+    "Funktionswörter mit Kurzvokal und einem folgenden Konsonanten"
+  ],
+  "hatte": [
+    "Funktionswörter mit Doppelkonsonanz",
+    "Mehrsilbige Funktionswörter"
+  ],
+  "heiß": [
+    "Wörter mit ß"
+  ],
+  "helfen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "hell": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "her": [
+    "Funktionswörter mit vokalisiertem r"
+  ],
+  "herstellen": [
+    "Wörter mit Doppelkonsonanz in komplexen Wortstrukturen oder anderen"
+  ],
+  "heute": [
+    "Lautgetreue Wörter auf -e"
+  ],
+  "hier": [
+    "Funktionswörter mit vokalisiertem r"
+  ],
+  "hin": [
+    "Funktionswörter mit Kurzvokal und einem folgenden Konsonanten"
+  ],
+  "hinter": [
+    "Funktionswörter mit der Endung -er"
+  ],
+  "hoffen": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "hoffentlich": [
+    "Merkwörter",
+    "Wörter mit Doppelkonsonanz in komplexen Wortstrukturen oder anderen"
+  ],
+  "holen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "hundert": [
+    "Lautgetreue Wörter mit -er- innerhalb der unbetonten Silbe"
+  ],
+  "hält": [
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä"
+  ],
+  "hängen": [
+    "Wörter mit ä ohne Ableitung"
+  ],
+  "härter": [
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä"
+  ],
+  "hören": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "ich": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "ihm": [
+    "Funktionswörter mit Dehnungs-h"
+  ],
+  "ihn": [
+    "Funktionswörter mit Dehnungs-h"
+  ],
+  "ihr": [
+    "Funktionswörter mit Dehnungs-h"
+  ],
+  "im": [
+    "Funktionswörter mit Kurzvokal und einem folgenden Konsonanten"
+  ],
+  "immer": [
+    "Funktionswörter mit Doppelkonsonanz",
+    "Funktionswörter mit der Endung -er"
+  ],
+  "impfen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "in": [
+    "Funktionswörter mit Kurzvokal und einem folgenden Konsonanten"
+  ],
+  "innerhalb": [
+    "Merkschreibungen zur Auslautverhärtung",
+    "Wörter mit Doppelkonsonanz in komplexen Wortstrukturen oder anderen"
+  ],
+  "interessant": [
+    "Fremdwörter",
+    "Wörter mit Doppelkonsonanz in komplexen Wortstrukturen oder anderen"
+  ],
+  "irgend": [
+    "Merkschreibungen zur Auslautverhärtung"
+  ],
+  "ist": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "ja": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "jede": [
+    "Mehrsilbige Funktionswörter"
+  ],
+  "jemand": [
+    "Merkschreibungen zur Auslautverhärtung"
+  ],
+  "jetzt": [
+    "Merkwörter",
+    "Wörter mit Doppelkonsonanz in komplexen Wortstrukturen oder anderen"
+  ],
+  "jung": [
+    "Lautgetreue Einsilber"
+  ],
+  "jährlich": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer"
+  ],
+  "kalt": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Lautgetreue Einsilber",
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä"
+  ],
+  "kaputt": [
+    "Merkwörter",
+    "Wörter mit Doppelkonsonanz in komplexen Wortstrukturen oder anderen"
+  ],
+  "kaufen": [
+    "Ableitbare Wörter mit äu",
+    "Lautgetreue Wörter auf -en"
+  ],
+  "kein": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "keiner": [
+    "Lautgetreue Wörter auf -er"
+  ],
+  "kennen": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "klar": [
+    "Wörter mit vokalisiertem r nach a"
+  ],
+  "kleben": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "klein": [
+    "Lautgetreue Einsilber"
+  ],
+  "klettern": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "klug": [
+    "Wörter mit Auslautverhärtung, die durch Verlängerung erschlossen werden"
+  ],
+  "kochen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "kommen": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "krank": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit nk"
+  ],
+  "kratzen": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "kriechen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "kriegen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "kränker": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer"
+  ],
+  "kurz": [
+    "Lautgetreue Wörter mit vokalisiertem r im Inlaut"
+  ],
+  "kälter": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä"
+  ],
+  "kämmen": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer"
+  ],
+  "kämpfen": [
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä"
+  ],
+  "können": [
+    "Funktionswörter mit Doppelkonsonanz",
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "kühl": [
+    "Wörter mit Dehnungs-h"
+  ],
+  "lachen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "lang": [
+    "Lautgetreue Einsilber",
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä"
+  ],
+  "lassen": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit Doppelkonsonanz",
+    "Wörter mit Doppelkonsonanz und a-ä-Ableitung"
+  ],
+  "laufen": [
+    "Ableitbare Wörter mit äu",
+    "Lautgetreue Wörter auf -en"
+  ],
+  "laut": [
+    "Ableitbare Wörter mit äu",
+    "Lautgetreue Einsilber"
+  ],
+  "leben": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "lecker": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "leer": [
+    "Wörter mit Doppelvokal"
+  ],
+  "legen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "leicht": [
+    "Lautgetreue Einsilber"
+  ],
+  "leider": [
+    "Lautgetreue Wörter auf -er"
+  ],
+  "leise": [
+    "Lautgetreue Wörter auf -e"
+  ],
+  "lernen": [
+    "Lautgetreue Wörter mit vokalisiertem r im Inlaut"
+  ],
+  "lesen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "letzte": [
+    "Merkwörter",
+    "Wörter mit Doppelkonsonanz in komplexen Wortstrukturen oder anderen"
+  ],
+  "leuchten": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "lieb": [
+    "Wörter mit Auslautverhärtung, die durch Verlängerung erschlossen werden"
+  ],
+  "liegen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "ließen": [
+    "Wörter mit ß"
+  ],
+  "links": [
+    "Merkwörter"
+  ],
+  "los": [
+    "Lautgetreue Einsilber"
+  ],
+  "länger": [
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä"
+  ],
+  "lässt": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit Doppelkonsonanz und a-ä-Ableitung"
+  ],
+  "läufst": [
+    "Ableitbare Wörter mit äu"
+  ],
+  "läuten": [
+    "Ableitbare Wörter mit äu"
+  ],
+  "machen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "malen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "man": [
+    "Funktionswörter mit Kurzvokal und einem folgenden Konsonanten"
+  ],
+  "mehr": [
+    "Funktionswörter mit Dehnungs-h"
+  ],
+  "mein": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "merken": [
+    "Lautgetreue Wörter mit vokalisiertem r im Inlaut"
+  ],
+  "messen": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "mich": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "mir": [
+    "Funktionswörter mit vokalisiertem r"
+  ],
+  "mit": [
+    "Funktionswörter mit Kurzvokal und einem folgenden Konsonanten"
+  ],
+  "morgen": [
+    "Lautgetreue Wörter mit vokalisiertem r im Inlaut"
+  ],
+  "mutig": [
+    "Wörter mit nachgestelltem Wortbaustein -ig"
+  ],
+  "mögen": [
+    "Mehrsilbige Funktionswörter"
+  ],
+  "müssen": [
+    "Funktionswörter mit Doppelkonsonanz"
+  ],
+  "nach": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "nah": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit silbentrennendem h"
+  ],
+  "nass": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer"
+  ],
+  "natürlich": [
+    "Wörter mit nachgestelltem Wortbaustein -lich"
+  ],
+  "nehmen": [
+    "Wörter mit Dehnungs-h"
+  ],
+  "nein": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "neu": [
+    "Lautgetreue Einsilber"
+  ],
+  "neun": [
+    "Lautgetreue Einsilber"
+  ],
+  "nicht": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "nichts": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "nie": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "niemand": [
+    "Merkschreibungen zur Auslautverhärtung"
+  ],
+  "noch": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "nun": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "nur": [
+    "Funktionswörter mit vokalisiertem r"
+  ],
+  "nächste": [
+    "Wörter mit ä ohne Ableitung"
+  ],
+  "näher": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer"
+  ],
+  "nämlich": [
+    "Wörter mit nachgestelltem Wortbaustein -lich",
+    "Wörter mit ä ohne Ableitung"
+  ],
+  "ob": [
+    "Merkschreibungen zur Auslautverhärtung"
+  ],
+  "oben": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "oder": [
+    "Funktionswörter mit der Endung -er"
+  ],
+  "offen": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "oft": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "ohne": [
+    "Funktionswörter mit Dehnungs-h"
+  ],
+  "paar": [
+    "Wörter mit Doppelvokal"
+  ],
+  "packen": [
+    "Ableitbare Wörter mit Umlautung a – ä und Orthographem oder komplexer",
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "passen": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "passieren": [
+    "Merkwörter",
+    "Wörter mit Doppelkonsonanz in komplexen Wortstrukturen oder anderen"
+  ],
+  "pflanzen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "pflegen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "pflücken": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "plötzlich": [
+    "Wörter mit Doppelkonsonanz in komplexen Wortstrukturen oder anderen",
+    "Wörter mit nachgestelltem Wortbaustein -lich"
+  ],
+  "putzen": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "quaken": [
+    "Wörter mit qu"
+  ],
+  "quer": [
+    "Wörter mit qu"
+  ],
+  "quietschen": [
+    "Wörter mit qu"
+  ],
+  "rechnen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "rechts": [
+    "Merkwörter"
+  ],
+  "reden": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "reich": [
+    "Lautgetreue Einsilber"
+  ],
+  "reisen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "reißen": [
+    "Wörter mit ß"
+  ],
+  "rennen": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "richtig": [
+    "Wörter mit nachgestelltem Wortbaustein -ig"
+  ],
+  "riechen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "riesig": [
+    "Wörter mit nachgestelltem Wortbaustein -ig"
+  ],
+  "rollen": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "rot": [
+    "Lautgetreue Einsilber"
+  ],
+  "rufen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "rund": [
+    "Wörter mit Auslautverhärtung, die durch Verlängerung erschlossen werden"
+  ],
+  "rühren": [
+    "Wörter mit Dehnungs-h"
+  ],
+  "sagen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "sammeln": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "schaffen": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "scharf": [
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä",
+    "Wörter mit vokalisiertem r nach a"
+  ],
+  "schauen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "scheinen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "schenken": [
+    "Wörter mit nk"
+  ],
+  "schieben": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "schief": [
+    "Lautgetreue Einsilber"
+  ],
+  "schimpfen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "schlafen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "schlagen": [
+    "Lautgetreue Wörter auf -en",
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä"
+  ],
+  "schließen": [
+    "Wörter mit ß"
+  ],
+  "schließlich": [
+    "Wörter mit nachgestelltem Wortbaustein -lich"
+  ],
+  "schlägt": [
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä"
+  ],
+  "schlängeln": [
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä"
+  ],
+  "schmecken": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "schneiden": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "schnell": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "schon": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "schreiben": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "schreien": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "schwarz": [
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä",
+    "Wörter mit vokalisiertem r nach a"
+  ],
+  "schweigen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "schwer": [
+    "Lautgetreue Wörter mit vokalisiertem r im Endlaut"
+  ],
+  "schwierig": [
+    "Wörter mit nachgestelltem Wortbaustein -ig"
+  ],
+  "schwimmen": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "schwitzen": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "schwärzen": [
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä"
+  ],
+  "schärfer": [
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä"
+  ],
+  "schön": [
+    "Lautgetreue Einsilber"
+  ],
+  "schütteln": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "sechs": [
+    "Wörter mit chs"
+  ],
+  "sehen": [
+    "Wörter mit silbentrennendem h"
+  ],
+  "sehr": [
+    "Funktionswörter mit Dehnungs-h"
+  ],
+  "seid": [
+    "Funktionswörter mit Auslautverhärtung"
+  ],
+  "sein": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "seit": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "selber": [
+    "Lautgetreue Wörter auf -er"
+  ],
+  "selbst": [
+    "Merkschreibungen zur Auslautverhärtung"
+  ],
+  "setzen": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "sich": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "sie": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "sieben": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "sind": [
+    "Funktionswörter mit Auslautverhärtung"
+  ],
+  "singen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "sitzen": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "so": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "sogar": [
+    "Wörter mit vokalisiertem r nach a"
+  ],
+  "sollen": [
+    "Funktionswörter mit Doppelkonsonanz",
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "sparen": [
+    "Lautgetreue Wörter mit sp und st"
+  ],
+  "spielen": [
+    "Lautgetreue Wörter mit sp und st"
+  ],
+  "spitz": [
+    "Wörter mit Doppelkonsonanz",
+    "Wörter mit sp und st und Orthographemen oder Besonderheiten"
+  ],
+  "sprechen": [
+    "Lautgetreue Wörter mit sp und st"
+  ],
+  "springen": [
+    "Lautgetreue Wörter mit sp und st"
+  ],
+  "spät": [
+    "Wörter mit sp und st und Orthographemen oder Besonderheiten",
+    "Wörter mit ä ohne Ableitung"
+  ],
+  "stark": [
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä",
+    "Wörter mit sp und st und Orthographemen oder Besonderheiten"
+  ],
+  "stehen": [
+    "Wörter mit silbentrennendem h",
+    "Wörter mit sp und st und Orthographemen oder Besonderheiten"
+  ],
+  "stellen": [
+    "Wörter mit Doppelkonsonanz",
+    "Wörter mit sp und st und Orthographemen oder Besonderheiten"
+  ],
+  "still": [
+    "Wörter mit Doppelkonsonanz",
+    "Wörter mit sp und st und Orthographemen oder Besonderheiten"
+  ],
+  "stolz": [
+    "Lautgetreue Wörter mit sp und st"
+  ],
+  "streichen": [
+    "Lautgetreue Wörter mit sp und st"
+  ],
+  "streiten": [
+    "Lautgetreue Wörter mit sp und st"
+  ],
+  "stärker": [
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä"
+  ],
+  "suchen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "süß": [
+    "Wörter mit ß"
+  ],
+  "tausend": [
+    "Wörter mit Auslautverhärtung, die durch Verlängerung erschlossen werden"
+  ],
+  "toll": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "tragen": [
+    "Lautgetreue Wörter auf -en",
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä"
+  ],
+  "treffen": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "trinken": [
+    "Wörter mit nk"
+  ],
+  "trocken": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "trägt": [
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä"
+  ],
+  "tun": [
+    "Lautgetreue Einsilber"
+  ],
+  "turnen": [
+    "Lautgetreue Wörter mit vokalisiertem r im Inlaut"
+  ],
+  "um": [
+    "Funktionswörter mit Kurzvokal und einem folgenden Konsonanten"
+  ],
+  "und": [
+    "Funktionswörter mit Auslautverhärtung"
+  ],
+  "ungefähr": [
+    "Wörter mit h in komplexen Wortformen",
+    "Wörter mit ä ohne Ableitung"
+  ],
+  "uns": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "unten": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "unter": [
+    "Funktionswörter mit der Endung -er"
+  ],
+  "unterwegs": [
+    "Merkschreibungen zur Auslautverhärtung",
+    "Merkwörter"
+  ],
+  "verbieten": [
+    "Wörter mit v"
+  ],
+  "vergessen": [
+    "Wörter mit Doppelkonsonanz in komplexen Wortstrukturen oder anderen",
+    "Wörter mit v"
+  ],
+  "verletzen": [
+    "Wörter mit Doppelkonsonanz in komplexen Wortstrukturen oder anderen",
+    "Wörter mit v"
+  ],
+  "verlieren": [
+    "Wörter mit v"
+  ],
+  "verstecken": [
+    "Wörter mit Doppelkonsonanz in komplexen Wortstrukturen oder anderen",
+    "Wörter mit v"
+  ],
+  "verwandt": [
+    "Wörter mit v"
+  ],
+  "viel": [
+    "Funktionswörter mit v"
+  ],
+  "viele": [
+    "Wörter mit v"
+  ],
+  "vielleicht": [
+    "Wörter mit Doppelkonsonanz in komplexen Wortstrukturen oder anderen",
+    "Wörter mit v"
+  ],
+  "vier": [
+    "Wörter mit v"
+  ],
+  "voll": [
+    "Wörter mit Doppelkonsonanz",
+    "Wörter mit v"
+  ],
+  "vom": [
+    "Funktionswörter mit v"
+  ],
+  "von": [
+    "Funktionswörter mit v"
+  ],
+  "vor": [
+    "Funktionswörter mit v"
+  ],
+  "vorne": [
+    "Wörter mit v"
+  ],
+  "vorsichtig": [
+    "Wörter mit nachgestelltem Wortbaustein -ig",
+    "Wörter mit v"
+  ],
+  "vorwärts": [
+    "Wörter mit v",
+    "Wörter mit ä ohne Ableitung"
+  ],
+  "wachsen": [
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä",
+    "Wörter mit chs"
+  ],
+  "wann": [
+    "Funktionswörter mit Doppelkonsonanz"
+  ],
+  "war": [
+    "Funktionswörter mit vokalisiertem r"
+  ],
+  "waren": [
+    "Mehrsilbige Funktionswörter"
+  ],
+  "warm": [
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä",
+    "Wörter mit vokalisiertem r nach a"
+  ],
+  "warum": [
+    "Funktionswörter mit Kurzvokal und einem folgenden Konsonanten"
+  ],
+  "was": [
+    "Funktionswörter mit Kurzvokal und einem folgenden Konsonanten"
+  ],
+  "waschen": [
+    "Lautgetreue Wörter auf -en",
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä"
+  ],
+  "wechseln": [
+    "Wörter mit chs"
+  ],
+  "weil": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "weit": [
+    "Lautgetreue Einsilber"
+  ],
+  "weiter": [
+    "Funktionswörter mit der Endung -er"
+  ],
+  "weiß": [
+    "Wörter mit ß"
+  ],
+  "welche": [
+    "Mehrsilbige Funktionswörter"
+  ],
+  "wem": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "wen": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "wenn": [
+    "Funktionswörter mit Doppelkonsonanz"
+  ],
+  "wer": [
+    "Funktionswörter mit vokalisiertem r"
+  ],
+  "werden": [
+    "Funktionswörter mit vokalisiertem r"
+  ],
+  "wie": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "wieder": [
+    "Funktionswörter mit der Endung -er"
+  ],
+  "wild": [
+    "Wörter mit Auslautverhärtung, die durch Verlängerung erschlossen werden"
+  ],
+  "witzig": [
+    "Wörter mit Doppelkonsonanz"
+  ],
+  "wo": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "wohl": [
+    "Wörter mit Dehnungs-h"
+  ],
+  "wohnen": [
+    "Wörter mit Dehnungs-h"
+  ],
+  "wollen": [
+    "Funktionswörter mit Doppelkonsonanz"
+  ],
+  "wächst": [
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä"
+  ],
+  "während": [
+    "Wörter mit h in komplexen Wortformen",
+    "Wörter mit ä ohne Ableitung"
+  ],
+  "wärmer": [
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä"
+  ],
+  "wäscht": [
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä"
+  ],
+  "wünschen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "zehn": [
+    "Wörter mit Dehnungs-h"
+  ],
+  "zeigen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "ziehen": [
+    "Wörter mit silbentrennendem h"
+  ],
+  "zu": [
+    "Einsilbige lautgetreue Funktionswörter"
+  ],
+  "zuletzt": [
+    "Merkwörter",
+    "Wörter mit Doppelkonsonanz in komplexen Wortstrukturen oder anderen"
+  ],
+  "zum": [
+    "Funktionswörter mit Kurzvokal und einem folgenden Konsonanten"
+  ],
+  "zur": [
+    "Funktionswörter mit vokalisiertem r"
+  ],
+  "zurück": [
+    "Wörter mit Doppelkonsonanz in komplexen Wortstrukturen oder anderen"
+  ],
+  "zwei": [
+    "Lautgetreue Einsilber"
+  ],
+  "zwischen": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "zählen": [
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä"
+  ],
+  "Äpfel": [
+    "Lautgetreue ableitbare Nomen mit Umlautung a – ä"
+  ],
+  "Ärzte": [
+    "Lautgetreue ableitbare Nomen mit Umlautung a – ä"
+  ],
+  "Äste": [
+    "Lautgetreue ableitbare Nomen mit Umlautung a – ä"
+  ],
+  "ähnlich": [
+    "Wörter mit h in komplexen Wortformen",
+    "Wörter mit nachgestelltem Wortbaustein -lich",
+    "Wörter mit ä ohne Ableitung"
+  ],
+  "älter": [
+    "Lautgetreue ableitbare Verben und Adjektive mit Umlautung a – ä"
+  ],
+  "ärgern": [
+    "Wörter mit ä ohne Ableitung"
+  ],
+  "äußerlich": [
+    "Ableitbare Wörter mit äu"
+  ],
+  "üben": [
+    "Lautgetreue Wörter auf -en"
+  ],
+  "über": [
+    "Funktionswörter mit der Endung -er"
+  ],
+  "überall": [
+    "Wörter mit Doppelkonsonanz in komplexen Wortstrukturen oder anderen"
+  ]
+}
