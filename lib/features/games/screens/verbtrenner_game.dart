@@ -374,22 +374,31 @@ class _VerbtrennerGameState extends State<VerbtrennerGame>
     final text = example.text;
     if (text == null || text.isEmpty) continue;
 
-    // Look for accusative articles (den, die, das, einen, eine, ein, etc.)
+    // Look for accusative articles. Allow both sentence-start ("Die ...")
+    // and mid-sentence ("die ...") variants by case-insensitive article
+    // matching, then verify in code that the following token starts with
+    // an uppercase letter (i.e. is a real German noun) — otherwise we get
+    // junk like "das im" / "die als" where \w+ greedily eats a
+    // preposition / particle and the template produces nonsense.
     final accusativePattern = RegExp(
-      r'\b(den|die|das|einen|eine|ein|meinen|meine|mein|deinen|deine|dein|seinen|seine|sein)\s+\w+\b',
+      r'\b(den|die|das|einen|eine|ein|meinen|meine|mein|deinen|deine|dein|seinen|seine|sein)\s+([\wäöüÄÖÜß]+)\b',
       caseSensitive: false,
     );
-    
-    final match = accusativePattern.firstMatch(text);
-    if (match != null) {
+
+    for (final match in accusativePattern.allMatches(text)) {
+      final noun = match.group(2)!;
+      if (noun.isEmpty) continue;
+      final first = noun[0];
+      // Real German nouns start with a capital. Skip prepositions /
+      // particles / verbs that snuck in as the second token.
+      final isCapital = first == first.toUpperCase() &&
+          first != first.toLowerCase();
+      if (!isCapital) continue;
+
       // Lowercase the article so the phrase reads naturally mid-sentence
-      // (the example may have it capitalized at a sentence start, e.g. "Die
-      // Kinder ..."). The noun stays as-is so German noun capitalization
-      // is preserved.
+      // (the example may have it capitalized at a sentence start).
       final phrase = match.group(0)!;
-      return phrase.isEmpty
-          ? phrase
-          : phrase[0].toLowerCase() + phrase.substring(1);
+      return phrase[0].toLowerCase() + phrase.substring(1);
     }
   }
   
