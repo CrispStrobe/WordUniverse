@@ -83,7 +83,8 @@ The shared `WIKTIONARY_CONN` in the old Gradio Space accumulates per-request cur
 5. ~~Apply Norvig to v25~~ → 24,801 new annotations attached, 837 legacy entries migrated
 6. ~~Build shipped DB v25~~ → `assets/grundwortschatz_en.db.gz` regenerated (6.2 MB, was 1.1 MB)
 7. ~~Run step 12_api_wins~~ → 3,291 wordType fixes, 6,966 audio paths, 7,088 inflection arrays, 12,213 promoted-field updates. Output `grundwortschatz_en_enriched_v25_consolidated.json`. Shipped DB regenerated (6.5 MB).
-8. ~~Commit + push~~ → commits `b25dc05`, `2683458`, `1ecc8f0`, and this update
+8. ~~Step 12c: SCOWL/regional variants~~ → 264 American/British spelling variants attached across 150 entries (color↔colour, organise↔organize, centre↔center, etc.). Source: `vg/spelling-uk-vs-us` (MIT + CC-BY-4.0). Variants live under `spellingVariants[]` with `dialect: american|british` — distinct from `commonLearnerErrors[]`.
+9. ~~Commit + push~~ → commits `b25dc05`, `2683458`, `1ecc8f0`, `bd36304`, and this update
 
 ### Next session
 1. **SCOWL/ESDB integration** (new step, e.g. `12c_add_spelling_variants.py`):
