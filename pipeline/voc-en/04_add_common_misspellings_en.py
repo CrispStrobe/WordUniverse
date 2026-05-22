@@ -27,9 +27,28 @@ HERE = Path(__file__).parent
 DEFAULT_JSON = HERE / "grundwortschatz_en.json"
 WIKI_CSV = HERE / "sources" / "commonly_misspelled.csv"
 NORVIG_CSV = HERE / "sources" / "norvig_spell_errors.csv"
+UKUS_JSON = HERE / "sources" / "uk_us_spelling.json"
 
 SRC_WIKI = "WIKI_MISSPELLINGS_EN"
 SRC_NORVIG = "NORVIG_SPELL_ERRORS"
+
+
+def load_dialect_variant_set() -> set[tuple[str, str]]:
+    """Return set of (form_a, form_b) lowercase pairs that are British/
+    American dialect variants — both directions. Used to filter these out
+    of the misspelling pairs so they don't get attached as commonLearnerErrors.
+    (They get attached as spellingVariants by step 12c instead.)
+    """
+    variants: set[tuple[str, str]] = set()
+    if not UKUS_JSON.exists():
+        return variants
+    d = json.loads(UKUS_JSON.read_text(encoding="utf-8"))
+    for pair in d.get("data") or []:
+        if isinstance(pair, list) and len(pair) == 2:
+            a, b = pair[0].strip().lower(), pair[1].strip().lower()
+            variants.add((a, b))
+            variants.add((b, a))
+    return variants
 
 
 def load_pairs(csv_path: Path, source_tag: str) -> list[tuple[str, str, str]]:
@@ -49,17 +68,35 @@ def load_pairs(csv_path: Path, source_tag: str) -> list[tuple[str, str, str]]:
 
 
 def build_inflection_index(vocabulary: list[dict]) -> dict[str, int]:
-    """lowercase_form -> first vocabulary entry index that owns it."""
+    """lowercase_form -> first vocabulary entry index that owns it.
+    Three-pass priority order:
+      1. own `word` (headword) — the entry IS this form
+      2. own `lemma` / `primary_lemma` — the entry inflects to this form
+      3. inflections — the entry can be inflected as this form
+    This is needed because e.g. the `received` entry has primary_lemma='receive'
+    AND the `receive` entry has word='receive'; if we mix them we lose `receive`'s
+    canonical entry to whichever comes first.
+    """
     idx: dict[str, int] = {}
+    # Pass 1: only the entry's own word (highest priority)
     for i, e in enumerate(vocabulary):
-        for k in (e.get("word"), e.get("lemma")):
-            if k:
-                idx.setdefault(k.lower(), i)
+        w = e.get("word")
+        if w:
+            idx.setdefault(w.lower(), i)
+    # Pass 2: lemma / primary_lemma
+    for i, e in enumerate(vocabulary):
+        l = e.get("lemma")
+        if l:
+            idx.setdefault(l.lower(), i)
         ae = e.get("apiEnrichment") or {}
         if isinstance(ae, dict):
             pl = ae.get("primary_lemma")
             if pl:
                 idx.setdefault(pl.lower(), i)
+    # Pass 3: inflection forms
+    for i, e in enumerate(vocabulary):
+        ae = e.get("apiEnrichment") or {}
+        if isinstance(ae, dict):
             for infl in ae.get("inflections") or []:
                 if isinstance(infl, dict):
                     ft = infl.get("form_text")
@@ -108,6 +145,37 @@ def main() -> int:
     pairs.extend(load_pairs(WIKI_CSV, SRC_WIKI))
     pairs.extend(load_pairs(NORVIG_CSV, SRC_NORVIG))
     print(f"  loaded {len(pairs)} (misspelling, correct, source) triples")
+
+    # Filter out dialect-variant pairs (color/colour, organise/organize, ...)
+    # — these are not misspellings, they're valid alternates. Step 12c handles
+    # them as `spellingVariants[]`.
+    variants = load_dialect_variant_set()
+    if variants:
+        before = len(pairs)
+        pairs = [(m, c, s) for m, c, s in pairs
+                 if (m.lower(), c.lower()) not in variants]
+        print(f"  filtered {before - len(pairs)} dialect-variant pairs "
+              f"(see uk_us_spelling.json); {len(pairs)} remaining")
+
+    # Preflight: entries whose word IS a known misspelling (per our CSVs) and
+    # which carry legacy `{wrong: X}` CLE — those CLE entries have the
+    # CORRECT form under the misnamed `wrong` field (inverted from the
+    # step 04 days when the Wikipedia parser had column labels wrong).
+    # Drop those legacy CLE so they don't survive canonicalization with the
+    # correct form mislabeled as an error.
+    known_misspellings = {m for m, _, _ in pairs}
+    cleared = 0
+    for e in voc:
+        word_lc = (e.get("word") or "").lower()
+        if word_lc and word_lc in known_misspellings:
+            cle = e.get("commonLearnerErrors") or []
+            legacy = [c for c in cle
+                      if isinstance(c, dict) and "wrong" in c and "error" not in c]
+            if legacy:
+                e["commonLearnerErrors"] = [c for c in cle if c not in legacy]
+                cleared += len(legacy)
+    if cleared:
+        print(f"  cleared {cleared} legacy {{wrong:...}} CLE entries on misspelling-headword entries")
 
     attached_new = 0
     skipped_no_target = 0

@@ -84,7 +84,14 @@ The shared `WIKTIONARY_CONN` in the old Gradio Space accumulates per-request cur
 6. ~~Build shipped DB v25~~ → `assets/grundwortschatz_en.db.gz` regenerated (6.2 MB, was 1.1 MB)
 7. ~~Run step 12_api_wins~~ → 3,291 wordType fixes, 6,966 audio paths, 7,088 inflection arrays, 12,213 promoted-field updates. Output `grundwortschatz_en_enriched_v25_consolidated.json`. Shipped DB regenerated (6.5 MB).
 8. ~~Step 12c: SCOWL/regional variants~~ → 264 American/British spelling variants attached across 150 entries (color↔colour, organise↔organize, centre↔center, etc.). Source: `vg/spelling-uk-vs-us` (MIT + CC-BY-4.0). Variants live under `spellingVariants[]` with `dialect: american|british` — distinct from `commonLearnerErrors[]`.
-9. ~~Commit + push~~ → commits `b25dc05`, `2683458`, `1ecc8f0`, `bd36304`, and this update
+9. ~~Step 12d: fold Wiktionary-marker variants~~ → 217 misspelling-headword entries (recieve, accomodate, absense, organize, etc.) folded under their correct lemmas based on Wiktionary's "Misspelling of X" / "Alternative form of X" / "Obsolete form of X" marker phrases. 99 historical-form entries kept with `historical=True` tag. 202 left as `uncoupledVariant=True` because their target lemma isn't in vocab. Vocab: 8,125 → 7,908.
+10. ~~Bug fixes uncovered during random audit~~:
+    - Two-/three-pass inflection-aware index in steps 04, 12c, 12d (own `word` > `lemma`/`primary_lemma` > inflections). Previously `idx['receive']` could point at `received` because received's primary_lemma is `receive`.
+    - Step 04 now filters dialect-variant pairs (color/colour etc.) out of misspelling attachment — they live in spellingVariants per step 12c, not in commonLearnerErrors.
+    - Step 04 preflight clears legacy `{wrong:X}` CLE entries on entries whose word is itself a known misspelling — those legacy entries held the CORRECT form under the misnamed `wrong` field (inverted from the older buggy 04 days).
+    - Step 12d's single-word-def heuristic now requires `often_misspelled` tag AND ≤2 total defs, to avoid folding `with` (whose first def is "Against.") under `against`.
+11. ~~Final stats~~: 7,908 lemmas, 27,374 misspelling annotations on 4,661 entries (59%), 282 dialect variants on 169 entries, 99 historical, 202 uncoupled. Shipped DB 6.5 MB.
+12. ~~Commit + push~~ → commits `b25dc05`, `2683458`, `1ecc8f0`, `bd36304`, `01155b3`, and this update
 
 ### Next session
 1. **SCOWL/ESDB integration** (new step, e.g. `12c_add_spelling_variants.py`):
