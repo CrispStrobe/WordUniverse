@@ -33,24 +33,28 @@ SOURCE_TAG = "VG_UK_US_SPELLING"
 
 
 def build_inflection_index(vocabulary: list[dict]) -> dict[str, int]:
-    """Two-pass: canonical forms first (word/lemma/primary_lemma), so they
-    can't be shadowed by another entry that lists this form as an inflection
-    (e.g. `color` lists `colour` in its inflections, which would otherwise
-    cause `idx['colour']` to point at the `color` entry instead of the
-    `colour` entry).
+    """Three-pass priority order:
+      1. own `word` (headword) — the entry IS this form
+      2. own `lemma` / `primary_lemma` — the entry inflects to this form
+      3. inflections — the entry can be inflected as this form
+    Needed because e.g. the `received` entry has primary_lemma='receive' AND
+    the `receive` entry has word='receive'; without passing word first,
+    idx['receive'] would point at received.
     """
     idx: dict[str, int] = {}
-    # Pass 1: canonical forms — every entry's word/lemma/primary_lemma wins
     for i, e in enumerate(vocabulary):
-        for k in (e.get("word"), e.get("lemma")):
-            if k:
-                idx.setdefault(k.lower(), i)
+        w = e.get("word")
+        if w:
+            idx.setdefault(w.lower(), i)
+    for i, e in enumerate(vocabulary):
+        l = e.get("lemma")
+        if l:
+            idx.setdefault(l.lower(), i)
         ae = e.get("apiEnrichment") or {}
         if isinstance(ae, dict):
             pl = ae.get("primary_lemma")
             if pl:
                 idx.setdefault(pl.lower(), i)
-    # Pass 2: inflection forms (only fill gaps)
     for i, e in enumerate(vocabulary):
         ae = e.get("apiEnrichment") or {}
         if isinstance(ae, dict):
