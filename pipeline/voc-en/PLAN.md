@@ -91,8 +91,9 @@ The shared `WIKTIONARY_CONN` in the old Gradio Space accumulates per-request cur
     - Step 04 preflight clears legacy `{wrong:X}` CLE entries on entries whose word is itself a known misspelling — those legacy entries held the CORRECT form under the misnamed `wrong` field (inverted from the older buggy 04 days).
     - Step 12d's single-word-def heuristic now requires `often_misspelled` tag AND ≤2 total defs, to avoid folding `with` (whose first def is "Against.") under `against`.
 11. ~~12d marker-pattern expansion (2nd audit pass)~~ → Added: `pronunciation spelling of X` (catches `comin`, `doin`, `dunno`, `fella`, etc. as misspellings), `alternative letter-case form of X`, `US/UK/Commonwealth/Non-Oxford standard spelling of X` (catches `favorites`, `criticised`, `apologise`, `jewelry`, `manoeuvred`, `grey` etc. — fold under the US/British/Commonwealth target). Plus `Synonym of X` (only when entry has ≤1 def or `often_misspelled` tag — catches `facilites`). Final 30 more entries folded (7,908 → 7,878).
-12. ~~Final stats~~: **7,878 lemmas**, **27,363 misspelling annotations on 4,653 entries (59%)**, **270 dialect variants on 157 entries**, 99 historical, 208 uncoupled. Shipped DB 6.5 MB.
-13. ~~Commit + push~~ → commits `b25dc05`, `2683458`, `1ecc8f0`, `bd36304`, `01155b3`, `4bd85dc`, and this update
+12. ~~Step 13 WordNet expansion~~ → for 5,509 lemmas (entries with OEWN senses), added full per-synset sense records across all POS: `wordnetSenses[]` with pos, definition, synonyms, antonyms, hypernyms, hyponyms, holonyms, meronyms, plus 2-level hypernym chain (cat → feline → carnivore). Merged into top-level fields: 13,506 new defs appended (dedup case-insensitive, capped at 8 per entry), 11,570 new synonyms, 360 new antonyms, 37,483 new hypernyms. Step 14 schema updated to ship `wordnetSenses[]` in `enrichment_json`.
+13. ~~Final stats~~: **7,878 lemmas**, **27,363 misspelling annotations on 4,653 entries (59%)**, **270 dialect variants on 157 entries**, **25,659 WordNet sense records on 5,509 entries (70%)**, 99 historical, 208 uncoupled. Shipped DB 8.6 MB.
+14. ~~Commit + push~~ → commits `b25dc05`, `2683458`, `1ecc8f0`, `bd36304`, `01155b3`, `4bd85dc`, `43899fa`, and this update
 
 ### Next session
 1. **SCOWL/ESDB integration** (new step, e.g. `12c_add_spelling_variants.py`):

@@ -127,6 +127,7 @@ def build_enrichment_json(entry):
         "commonLearnerErrors",
         "graphemeVariants",
         "spellingVariants",
+        "wordnetSenses",
         "pronunciation",
         "inflectionData",
     ]:
