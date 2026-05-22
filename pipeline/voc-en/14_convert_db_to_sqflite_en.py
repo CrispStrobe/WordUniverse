@@ -126,6 +126,7 @@ def build_enrichment_json(entry):
         "examples",
         "commonLearnerErrors",
         "graphemeVariants",
+        "graphematicVariants",
         "spellingVariants",
         "wordnetSenses",
         "pronunciation",
@@ -134,6 +135,12 @@ def build_enrichment_json(entry):
         value = entry.get(key)
         if value not in (None, [], {}):
             enrichment.setdefault(key, value)
+
+    # Dart's GermanWord model reads `graphematicVariants` (with 't'). The EN
+    # pipeline historically wrote `graphemeVariants` (without 't'). Mirror it
+    # so the shipped DB works for both naming conventions.
+    if "graphemeVariants" in enrichment and "graphematicVariants" not in enrichment:
+        enrichment["graphematicVariants"] = enrichment["graphemeVariants"]
 
     if "tags" in entry:
         enrichment.setdefault("tags", entry["tags"])
