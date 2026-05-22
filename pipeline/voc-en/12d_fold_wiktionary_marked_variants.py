@@ -39,11 +39,21 @@ DEFAULT_INPUT = HERE / "grundwortschatz_en_enriched_v25_consolidated.json"
 MARKER_RE = re.compile(
     r"^(misspelling|common misspelling|nonstandard spelling|nonstandard form|"
     r"alternative spelling|alternative form|alternate spelling|alternate form|"
-    r"eye dialect|us spelling|uk spelling|american spelling|british spelling|"
+    r"alternative letter-case form|alternate letter-case form|"
+    r"eye dialect|pronunciation spelling|"
+    r"us spelling|uk spelling|american spelling|british spelling|"
+    r"us standard spelling|uk standard spelling|"
+    r"non-oxford british english standard spelling|"
+    r"commonwealth standard spelling|"
     r"obsolete form|obsolete spelling|archaic form|archaic spelling|"
     r"dated form|dated spelling|informal spelling|informal form)\s+of\s+([\w'\-]+)",
     re.IGNORECASE,
 )
+
+# "Synonym of X" is borderline — real synonyms (e.g. automobile=synonym of car)
+# vs short-form lookups. Only fold when the entry has the often_misspelled tag
+# OR when it's the entry's only definition.
+SYNONYM_RE = re.compile(r"^synonym\s+of\s+([\w'\-]+)", re.IGNORECASE)
 
 # Also catch "Mountainous." style: a single-word capitalized definition ending in period
 SINGLE_WORD_DEF_RE = re.compile(r"^([A-Z][\w'\-]+)\.\s*$")
@@ -51,13 +61,15 @@ SINGLE_WORD_DEF_RE = re.compile(r"^([A-Z][\w'\-]+)\.\s*$")
 
 def categorize(marker: str) -> str:
     m = marker.lower()
-    if "misspelling" in m or "nonstandard" in m:
+    if "misspelling" in m or "nonstandard" in m or "pronunciation spelling" in m:
         return "misspelling"
     if "obsolete" in m or "archaic" in m or "dated" in m:
         return "historical"
-    if "us " in m or "american" in m:
+    if "us " in m or "american" in m or "us standard" in m:
         return "variant_american"
-    if "uk " in m or "british" in m:
+    if ("uk " in m or "british" in m or "uk standard" in m
+            or "non-oxford british english standard" in m
+            or "commonwealth" in m):
         return "variant_british"
     if "alternative" in m or "alternate" in m or "eye dialect" in m or "informal" in m:
         return "variant_alternate"
@@ -128,6 +140,19 @@ def main() -> int:
             target = m.group(2).lower()
             candidates.append((i, e["word"], categorize(marker), target, first))
             continue
+        # "Synonym of X" — only fold if it's the only def OR entry is tagged
+        # as a misspelling. Otherwise legitimate synonyms (e.g. automobile)
+        # get incorrectly folded.
+        m = SYNONYM_RE.match(first)
+        if m:
+            tags = e.get("tags") or []
+            is_misspell_tagged = ("often_misspelled" in tags or "source:common_misspelled" in tags)
+            if len(defs) <= 1 or is_misspell_tagged:
+                target = m.group(1).lower()
+                entry_word = (e.get("word") or "").lower()
+                if target in voc_words and target != entry_word:
+                    candidates.append((i, e["word"], "misspelling", target, first))
+                    continue
         # Single-word-capitalized definition (Wiktionary "see X" shorthand)
         # Only treat as variant if this entry has FEW defs total AND has the
         # often_misspelled tag (signal that the misspellings step flagged it).
