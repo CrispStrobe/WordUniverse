@@ -68,6 +68,7 @@ flutter:
     - assets/sounds/
     - assets/fonts/OFL.txt
     - assets/grundwortschatz.db.gz
+    - assets/grundwortschatz_en.db.gz
     #- assets/grundwortschatz.db
     
   fonts:
