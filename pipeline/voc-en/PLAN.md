@@ -10,7 +10,7 @@ scope).
 
 ### Vocabulary versions
 - **v24** (intermediate): 6,514 enriched + 3,486 `no_data` (misspellings as top-level entries — the legacy bug)
-- **v25** (✅ COMPLETE, shipped as `assets/grundwortschatz_en.db.gz` 6.2 MB):
+- **v25 + step 12 consolidated** (✅ COMPLETE, shipped as `assets/grundwortschatz_en.db.gz` 6.5 MB):
   - 8,125 entries total (was 10,000; reduced by removing 3,436 misspelling-headword entries that are now `commonLearnerErrors` under their correct lemmas)
   - **8,062 success (99.2%) / 63 no_data / 0 errors**
   - **28,197 misspelling annotations across 4,787 entries (59% coverage)**
@@ -81,8 +81,9 @@ The shared `WIKTIONARY_CONN` in the old Gradio Space accumulates per-request cur
 3. ~~Add Norvig spell-errors.txt fetcher~~ → committed, fetches 38k pairs
 4. ~~Update `04_add_common_misspellings_en.py`~~ → dual-source, inflection-aware, canonical shape
 5. ~~Apply Norvig to v25~~ → 24,801 new annotations attached, 837 legacy entries migrated
-6. ~~Build shipped DB~~ → `assets/grundwortschatz_en.db.gz` regenerated (6.2 MB, was 1.1 MB)
-7. ~~Commit + push~~ → commits `b25dc05` (pipeline) + `2683458` (app) + this update
+6. ~~Build shipped DB v25~~ → `assets/grundwortschatz_en.db.gz` regenerated (6.2 MB, was 1.1 MB)
+7. ~~Run step 12_api_wins~~ → 3,291 wordType fixes, 6,966 audio paths, 7,088 inflection arrays, 12,213 promoted-field updates. Output `grundwortschatz_en_enriched_v25_consolidated.json`. Shipped DB regenerated (6.5 MB).
+8. ~~Commit + push~~ → commits `b25dc05`, `2683458`, `1ecc8f0`, and this update
 
 ### Next session
 1. **SCOWL/ESDB integration** (new step, e.g. `12c_add_spelling_variants.py`):
