@@ -10,10 +10,14 @@ scope).
 
 ### Vocabulary versions
 - **v24** (intermediate): 6,514 enriched + 3,486 `no_data` (misspellings as top-level entries — the legacy bug)
-- **v25** (current, in production via VPS):
+- **v25** (✅ COMPLETE, shipped as `assets/grundwortschatz_en.db.gz` 6.2 MB):
   - 8,125 entries total (was 10,000; reduced by removing 3,436 misspelling-headword entries that are now `commonLearnerErrors` under their correct lemmas)
-  - At time of writing: 7,253 success / 61 no_data / 811 pending enrichment
-  - VPS Hetzner CX22 finishing the remaining ~800 entries; ETA ~10 min
+  - **8,062 success (99.2%) / 63 no_data / 0 errors**
+  - **28,197 misspelling annotations across 4,787 entries (59% coverage)**
+    - Norvig-sourced: 22,991 (82%)
+    - Wikipedia-sourced: 5,206 (18%)
+  - Top spelling traps by annotation count: `miscellaneous` (226), `beautiful` (181), `enthusiasm` (158), `guarantee`/`prejudice` (154), `immediately` (142), `pamphlet` (115)
+  - Built via `11b_enrich_local.py` on VPS (2,458 sec wall) + `04_add_common_misspellings_en.py` locally + `14_convert_db_to_sqflite_en.py`
 
 ### Throughput observed
 - Mac (local SSD copy): ~4 s/word post-warmup
@@ -71,23 +75,14 @@ The shared `WIKTIONARY_CONN` in the old Gradio Space accumulates per-request cur
 
 ## Pending work (in order)
 
-### Immediate (this session)
-1. **Wait for VPS v25 enrichment to finish** (~10 min ETA). Pull v25 back to Mac.
-2. **Fix labeling bug** in `00_fetch_sources.py`:
-   - The Wikipedia /For_machines page format is `MISSPELLING -> CORRECT[, CORRECT2, …]`, NOT `correct->wrong` as the comment claims
-   - CSV header `correct,wrong` is wrong; should be `misspelling,correct`
-   - Rename `correct`/`wrongs` variables to `misspelling`/`corrects`
-3. **Add Norvig spell-errors.txt fetcher** to `00_fetch_sources.py`:
-   - URL: `https://norvig.com/ngrams/spell-errors.txt`
-   - Format: `right: wrong1, wrong2, …` (REVERSED from Wikipedia)
-   - Output: `sources/norvig_spell_errors.csv` with header `misspelling,correct`
-4. **Update `04_add_common_misspellings_en.py`**:
-   - Use the corrected column names
-   - Merge BOTH `commonly_misspelled.csv` (Wiki) AND `norvig_spell_errors.csv` (Norvig)
-   - Write `commonLearnerErrors[]` with canonical `{"error": …, "source": …}` shape
-5. **Verify v25 already uses canonical shape**: it should, since `12_restructure_misspellings.py` already produced `{"error": …, "source": …}`. Just confirm.
-6. **Apply Norvig misspellings to v25**: for each Norvig pair where the correct form exists in vocab, attach the misspelling under its `commonLearnerErrors[]`. Skip duplicates.
-7. **Commit** with clean message.
+### ✅ Completed this session
+1. ~~Wait for VPS v25 enrichment~~ → done in 41 min (1548 success / 63 no_data)
+2. ~~Fix Wikipedia labeling bug~~ → renamed CSV columns to `misspelling,correct`
+3. ~~Add Norvig spell-errors.txt fetcher~~ → committed, fetches 38k pairs
+4. ~~Update `04_add_common_misspellings_en.py`~~ → dual-source, inflection-aware, canonical shape
+5. ~~Apply Norvig to v25~~ → 24,801 new annotations attached, 837 legacy entries migrated
+6. ~~Build shipped DB~~ → `assets/grundwortschatz_en.db.gz` regenerated (6.2 MB, was 1.1 MB)
+7. ~~Commit + push~~ → commits `b25dc05` (pipeline) + `2683458` (app) + this update
 
 ### Next session
 1. **SCOWL/ESDB integration** (new step, e.g. `12c_add_spelling_variants.py`):
