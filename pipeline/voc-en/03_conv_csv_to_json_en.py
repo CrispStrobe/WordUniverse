@@ -25,8 +25,18 @@ except ImportError:
 HERE = Path(__file__).parent
 INPUT = HERE / "voc_en_enriched.csv"
 OUTPUT = HERE / "grundwortschatz_en.json"
+TARGET_WORD_COUNT = 10000
 
 CEFR_TO_GRADE = {"A1": 1, "A2": 2, "B1": 3, "B2": 4, "C1": 5, "C2": 6}
+
+
+def parse_int(value):
+    try:
+        if value is None or value == "":
+            return None
+        return int(float(value))
+    except (ValueError, TypeError):
+        return None
 
 
 def aoa_to_grade(aoa: float) -> int:
@@ -45,7 +55,7 @@ def aoa_to_grade(aoa: float) -> int:
 
 
 def freq_rank_to_grade(rank: float) -> int:
-    """Last-resort grade from SUBTLEX rank."""
+    """Last-resort grade from frequency rank."""
     if rank <= 500:
         return 3
     if rank <= 2000:
@@ -59,14 +69,10 @@ def assign_grade(row: pd.Series) -> tuple[int, str]:
     """Return (grade_1_6, reason_tag) for a single row."""
     # 1) UK Year 1-6 statutory list — primary
     uk = row.get("UK_year")
-    if pd.notna(uk):
-        try:
-            y = int(uk)
-            if 1 <= y <= 6:
-                return y, "uk_y" + str(y)
-        except (ValueError, TypeError):
-            pass
-    # 2) CEFR (Oxford / EVP)
+    y = parse_int(uk)
+    if y is not None and 1 <= y <= 6:
+        return y, "uk_y" + str(y)
+    # 2) CEFR, if a safe licensed source is added later
     cefr = row.get("CEFR")
     if isinstance(cefr, str) and cefr in CEFR_TO_GRADE:
         return CEFR_TO_GRADE[cefr], "cefr_" + cefr.lower()
@@ -88,27 +94,17 @@ def assign_grade(row: pd.Series) -> tuple[int, str]:
             pass
     # 5) Fry band — 100 words per band, 1..10
     fry = row.get("Fry_band")
-    if pd.notna(fry):
-        try:
-            band = int(float(fry))
-            # Bands 1-3 → G1, 4-6 → G2, 7-9 → G3, 10 → G4
-            if band <= 3:
-                return 1, f"fry_b{band}"
-            if band <= 6:
-                return 2, f"fry_b{band}"
-            if band <= 9:
-                return 3, f"fry_b{band}"
-            return 4, f"fry_b{band}"
-        except (ValueError, TypeError):
-            pass
-    # 6) SUBTLEX rank fallback
-    rank = row.get("SUBTLEX_rank")
-    if pd.notna(rank):
-        try:
-            return freq_rank_to_grade(float(rank)), f"subtlex_rank_{int(rank)}"
-        except (ValueError, TypeError):
-            pass
-    # 7) HermitDave rank fallback
+    band = parse_int(fry)
+    if band is not None:
+        # Bands 1-3 → G1, 4-6 → G2, 7-9 → G3, 10 → G4
+        if band <= 3:
+            return 1, f"fry_b{band}"
+        if band <= 6:
+            return 2, f"fry_b{band}"
+        if band <= 9:
+            return 3, f"fry_b{band}"
+        return 4, f"fry_b{band}"
+    # 6) HermitDave rank fallback
     rank = row.get("HermitDave_rank")
     if pd.notna(rank):
         try:
@@ -131,11 +127,9 @@ def build_tags(row: pd.Series, grade_reason: str) -> list[str]:
     if isinstance(cefr, str) and cefr in CEFR_TO_GRADE:
         tags.append("cefr:" + cefr.lower())
     uk = row.get("UK_year")
-    if pd.notna(uk):
-        try:
-            tags.append(f"uk_year:{int(uk)}")
-        except (ValueError, TypeError):
-            pass
+    y = parse_int(uk)
+    if y is not None:
+        tags.append(f"uk_year:{y}")
     if row.get("IsCommonMisspelling"):
         tags.append("often_misspelled")
     return sorted(set(tags))
@@ -144,16 +138,6 @@ def build_tags(row: pd.Series, grade_reason: str) -> list[str]:
 def build_frequency_data(row: pd.Series) -> dict:
     """Mirror of DE 03's frequencyData but with EN-specific sources."""
     out = {}
-    if pd.notna(row.get("SUBTLEX_rank")):
-        try:
-            out["subtlex_rank"] = int(row["SUBTLEX_rank"])
-        except (ValueError, TypeError):
-            pass
-    if pd.notna(row.get("SUBTLEX_freq")):
-        try:
-            out["subtlex_freq_per_million"] = float(row["SUBTLEX_freq"])
-        except (ValueError, TypeError):
-            pass
     if pd.notna(row.get("HermitDave_rank")):
         try:
             out["hermit_rank"] = int(row["HermitDave_rank"])
@@ -182,7 +166,7 @@ def main():
         print("Run 02_enrich_with_spacy_en.py first.")
         sys.exit(1)
 
-    df = pd.read_csv(INPUT)
+    df = pd.read_csv(INPUT, keep_default_na=False)
     print(f"Loaded {len(df)} rows from {INPUT.name}")
 
     vocab = []
@@ -222,7 +206,32 @@ def main():
         }
         vocab.append(entry)
 
-    # Sort by grade then alphabetical for deterministic output
+    def priority(entry: dict) -> tuple:
+        tags = set(entry.get("tags", []))
+        freq = entry.get("frequencyData", {}) or {}
+        if any(t.startswith("source:uk_y") for t in tags):
+            source_rank = 0
+        elif "source:dolch" in tags:
+            source_rank = 1
+        elif "source:fry" in tags:
+            source_rank = 2
+        elif "often_misspelled" in tags:
+            source_rank = 3
+        else:
+            source_rank = 4
+        return (
+            source_rank,
+            freq.get("average_rank", 999999),
+            entry["gradeLevel"],
+            entry["word"],
+        )
+
+    vocab.sort(key=priority)
+    if len(vocab) > TARGET_WORD_COUNT:
+        print(f"Trimming vocabulary from {len(vocab)} to {TARGET_WORD_COUNT} entries")
+        vocab = vocab[:TARGET_WORD_COUNT]
+
+    # Sort final payload by grade then alphabetical for deterministic output.
     vocab.sort(key=lambda e: (e["gradeLevel"], e["word"]))
     # Re-issue stable IDs after sort so they're predictable
     for i, e in enumerate(vocab):

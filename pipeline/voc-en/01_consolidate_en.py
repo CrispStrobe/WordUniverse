@@ -3,8 +3,8 @@
 Mirror of pipeline/voc-de/01_consolidate_wordlists_csv.py but adapted for the
 English sources. No grammatical gender / article column. Priority chain:
 
-  UK Y1-6 statutory > Oxford 3000/5000 > EVP CEFR > Dolch 220 > Fry 1000
-  > SUBTLEX-US > HermitDave en_50k > (commonly_misspelled, low priority)
+  UK Y1-6 statutory > Dolch 220 > Fry 1000 > AoA-Kuperman
+  > HermitDave en_50k > (commonly_misspelled, low priority)
 
 Each word carries every source it appeared in as a comma-separated `Sources`
 field, so step 03 can do the grade cascade and the app can do subset
@@ -14,7 +14,7 @@ Missing source files are skipped with a warning rather than aborting the run.
 
 Output: voc_en.csv with columns:
   Word, Sources, SourceType, UK_year, CEFR, AoA, Dolch_band, Fry_band,
-  SUBTLEX_rank, SUBTLEX_freq, HermitDave_rank, HermitDave_freq,
+  HermitDave_rank, HermitDave_freq,
   IsCommonMisspelling
 """
 import os
@@ -76,30 +76,6 @@ def load_uk_y1_y6(path: Path) -> pd.DataFrame:
     df["Source"] = "UK_Y" + df["UK_year"].astype("Int64").astype(str)
     return df[["Source", "Word", "UK_year"]].reset_index(drop=True)
 
-def load_oxford(path: Path, label: str) -> pd.DataFrame:
-    """Oxford 3000 or 5000. Expected cols: word, cefr."""
-    if _warn_missing(path):
-        return pd.DataFrame(columns=["Source", "Word", "CEFR"])
-    df = pd.read_csv(path)
-    df.columns = [c.strip().lower() for c in df.columns]
-    df["Word"] = df["word"].astype(str).map(norm)
-    df["CEFR"] = df.get("cefr", pd.Series(dtype="object")).astype(str).str.upper().str.strip()
-    df = df[df["Word"].apply(is_valid)].copy()
-    df["Source"] = label
-    return df[["Source", "Word", "CEFR"]].reset_index(drop=True)
-
-def load_evp(path: Path) -> pd.DataFrame:
-    """English Vocabulary Profile CEFR list. Expected: word, cefr."""
-    if _warn_missing(path):
-        return pd.DataFrame(columns=["Source", "Word", "CEFR"])
-    df = pd.read_csv(path)
-    df.columns = [c.strip().lower() for c in df.columns]
-    df["Word"] = df["word"].astype(str).map(norm)
-    df["CEFR"] = df.get("cefr", pd.Series(dtype="object")).astype(str).str.upper().str.strip()
-    df = df[df["Word"].apply(is_valid)].copy()
-    df["Source"] = "EVP"
-    return df[["Source", "Word", "CEFR"]].reset_index(drop=True)
-
 def load_dolch(path: Path) -> pd.DataFrame:
     """Dolch 220. Expected: word, dolch_band, grade_hint."""
     if _warn_missing(path):
@@ -143,47 +119,8 @@ def load_fry(path: Path) -> pd.DataFrame:
             rows.append({"Source": "FRY", "Word": w, "Fry_band": band})
     return pd.DataFrame(rows)
 
-def load_subtlex(path: Path) -> pd.DataFrame:
-    """SUBTLEX-US. Tolerant of column naming:
-      word | Word
-      freq_count | FREQcount | freq
-      freq_per_million | SUBTLWF | freq_per_million
-      aoa | AoA | aoa_mean
-    """
-    if _warn_missing(path):
-        return pd.DataFrame(columns=["Source", "Word", "SUBTLEX_freq", "AoA"])
-    # Try common separators
-    df = None
-    for sep in [",", "\t", ";"]:
-        try:
-            df = pd.read_csv(path, sep=sep)
-            if len(df.columns) >= 2:
-                break
-        except Exception:
-            df = None
-    if df is None:
-        print(f"  [warn] could not parse {path.name}")
-        return pd.DataFrame(columns=["Source", "Word", "SUBTLEX_freq", "AoA"])
-    df.columns = [c.strip().lower() for c in df.columns]
-    word_col = next((c for c in df.columns if c in ("word", "lemma", "spelling")), None)
-    if not word_col:
-        print(f"  [warn] {path.name} has no word column")
-        return pd.DataFrame(columns=["Source", "Word", "SUBTLEX_freq", "AoA"])
-    freq_col = next((c for c in df.columns
-                     if c in ("freq_per_million", "subtlwf", "fpmw", "freq")), None)
-    aoa_col = next((c for c in df.columns
-                    if c in ("aoa", "aoa_mean", "rating.mean")), None)
-    df["Word"] = df[word_col].astype(str).map(norm)
-    df["SUBTLEX_freq"] = pd.to_numeric(df.get(freq_col), errors="coerce")
-    df["AoA"] = pd.to_numeric(df.get(aoa_col), errors="coerce")
-    df = df[df["Word"].apply(is_valid)].copy()
-    df = df.sort_values("SUBTLEX_freq", ascending=False).head(30000)
-    df["Source"] = "SUBTLEX"
-    df["SUBTLEX_rank"] = range(1, len(df) + 1)
-    return df[["Source", "Word", "SUBTLEX_rank", "SUBTLEX_freq", "AoA"]].reset_index(drop=True)
-
 def load_aoa_kuperman(path: Path) -> pd.DataFrame:
-    """Standalone AoA table (when AoA isn't already in subtlex)."""
+    """Standalone AoA table."""
     if _warn_missing(path):
         return pd.DataFrame(columns=["Source", "Word", "AoA"])
     df = pd.read_csv(path)
@@ -251,16 +188,12 @@ def consolidate() -> pd.DataFrame:
     print("=== Loading EN sources ===")
     print("\n--- pedagogical (highest priority) ---")
     df_uk = load_uk_y1_y6(SRC / "uk_y1_y6_statutory.csv")
-    df_ox3 = load_oxford(SRC / "oxford_3000.csv", "OXFORD3K")
-    df_ox5 = load_oxford(SRC / "oxford_5000.csv", "OXFORD5K")
-    df_evp = load_evp(SRC / "evp_cefr.csv")
     df_dolch = load_dolch(SRC / "dolch_220.csv")
     df_fry = load_fry(SRC / "fry_1000.csv")
     if df_fry.empty:
         df_fry = load_fry(SRC / "fry_top1000_freq.txt")
 
     print("\n--- frequency ---")
-    df_subtlex = load_subtlex(SRC / "subtlex_us.csv")
     df_aoa = load_aoa_kuperman(SRC / "aoa_kuperman.csv")
     df_hermit = load_hermitdave(SRC / "en_50k_hermitdave.txt", top_n=10000)
 
@@ -270,8 +203,8 @@ def consolidate() -> pd.DataFrame:
     # Tag each pool with whether it's a "pedagogical" or "frequency" source.
     # This is used later for diagnostics; the priority chain in step 03 uses
     # the explicit Source labels.
-    pedagogical = [df_uk, df_ox3, df_ox5, df_evp, df_dolch, df_fry, df_misspelled]
-    frequency = [df_subtlex, df_aoa, df_hermit]
+    pedagogical = [df_uk, df_dolch, df_fry, df_misspelled]
+    frequency = [df_aoa, df_hermit]
 
     for df in pedagogical:
         df["SourceType"] = "pedagogical"
@@ -282,12 +215,8 @@ def consolidate() -> pd.DataFrame:
     print("\n--- loaded counts ---")
     for name, df in [
         ("UK_Y1_Y6", df_uk),
-        ("OXFORD3K", df_ox3),
-        ("OXFORD5K", df_ox5),
-        ("EVP", df_evp),
         ("DOLCH", df_dolch),
         ("FRY", df_fry),
-        ("SUBTLEX", df_subtlex),
         ("AOA_KUPERMAN", df_aoa),
         ("HERMIT", df_hermit),
         ("COMMON_MISSPELLED", df_misspelled),
@@ -299,8 +228,7 @@ def consolidate() -> pd.DataFrame:
     big = pd.concat(pedagogical + frequency, ignore_index=True, sort=False)
     # Add columns that may be missing across frames so concat-result has them all
     expected_cols = ["Source", "SourceType", "Word", "UK_year", "CEFR",
-                     "Dolch_band", "Fry_band", "SUBTLEX_rank",
-                     "SUBTLEX_freq", "AoA", "HermitDave_rank",
+                     "Dolch_band", "Fry_band", "AoA", "HermitDave_rank",
                      "HermitDave_freq"]
     for c in expected_cols:
         if c not in big.columns:
@@ -327,8 +255,6 @@ def consolidate() -> pd.DataFrame:
             "CEFR": cefr_best,
             "Dolch_band": first_non_null("Dolch_band"),
             "Fry_band": first_non_null("Fry_band"),
-            "SUBTLEX_rank": first_non_null("SUBTLEX_rank"),
-            "SUBTLEX_freq": first_non_null("SUBTLEX_freq"),
             "AoA": first_non_null("AoA"),
             "HermitDave_rank": first_non_null("HermitDave_rank"),
             "HermitDave_freq": first_non_null("HermitDave_freq"),
@@ -345,8 +271,8 @@ def consolidate() -> pd.DataFrame:
     # We don't truncate here; step 03 will respect the size via filtering on
     # source membership. Just sort by a stable signal for inspection.
     grouped = grouped.sort_values(
-        by=["UK_year", "CEFR", "SUBTLEX_rank", "HermitDave_rank"],
-        ascending=[True, True, True, True],
+        by=["UK_year", "CEFR", "HermitDave_rank"],
+        ascending=[True, True, True],
         na_position="last",
     ).reset_index(drop=True)
 
@@ -363,10 +289,9 @@ def main():
     print("\n=== Coverage by source (% of unique words) ===")
     for col, label in [
         ("UK_year", "UK Y1-6"),
-        ("CEFR", "CEFR (any of Oxford/EVP)"),
+        ("CEFR", "CEFR"),
         ("Dolch_band", "Dolch"),
         ("Fry_band", "Fry"),
-        ("SUBTLEX_rank", "SUBTLEX-US"),
         ("AoA", "AoA-Kuperman"),
         ("HermitDave_rank", "HermitDave"),
         ("IsCommonMisspelling", "commonly misspelled"),

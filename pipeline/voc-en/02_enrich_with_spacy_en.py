@@ -63,7 +63,8 @@ def enrich(input_csv: Path, output_csv: Path):
         print("Run 01_consolidate_en.py first.")
         sys.exit(1)
 
-    df = pd.read_csv(input_csv)
+    df = pd.read_csv(input_csv, keep_default_na=False)
+    df = df[df["Word"].astype(str).str.strip() != ""].copy()
     print(f"Loaded {len(df)} rows from {input_csv.name}")
 
     print("Loading spaCy model en_core_web_sm…")

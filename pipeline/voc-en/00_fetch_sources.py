@@ -1,6 +1,7 @@
 """Fetch the freely-redistributable EN source wordlists into sources/.
 
 Auto-fetches:
+- UK National Curriculum Appendix 1 spelling lists (OGL v3.0)
 - Dolch 220 sight words (public domain, multiple mirrors)
 - Fry 1000 instant words (public domain)
 - HermitDave en_50k frequency list (CC-BY-SA)
@@ -8,10 +9,6 @@ Auto-fetches:
 - Wikipedia "Lists of common misspellings" (CC-BY-SA)
 
 Prints manual instructions for the sources that need login/scraping/PDF:
-- Oxford 3000 / Oxford 5000
-- English Vocabulary Profile (CEFR)
-- UK Year 1-6 statutory spelling lists
-- SUBTLEX-US (Brysbaert)
 - AoA-Kuperman 2012
 
 See README.md for details and target filenames.
@@ -21,6 +18,7 @@ import sys
 import urllib.request
 import urllib.error
 import re
+import csv
 from pathlib import Path
 
 SRC = Path(__file__).parent / "sources"
@@ -76,6 +74,120 @@ def fetch_cmudict():
     print("\n=== CMU Pronouncing Dictionary ===")
     url = "https://raw.githubusercontent.com/cmusphinx/cmudict/master/cmudict.dict"
     fetch(url, SRC / "cmudict.txt")
+
+# ---------------------------------------------------------------------------
+# 3. UK National Curriculum Appendix 1 (OGL v3.0)
+# ---------------------------------------------------------------------------
+
+UK_APPENDIX_URL = (
+    "https://assets.publishing.service.gov.uk/government/uploads/system/"
+    "uploads/attachment_data/file/239784/English_Appendix_1_-_Spelling.pdf"
+)
+
+# Curated from the Department for Education Appendix 1 PDF. Years 1 and 2 use
+# common-exception words from the appendix; years 3/4 and 5/6 use the statutory
+# word lists. We keep the source PDF beside the CSV for provenance.
+UK_YEAR_WORDS = {
+    1: """
+        the a do to today of said says are were was is his has i you your they
+        be he me she we no go so by my here there where love come some one once
+        ask friend school put push pull full house our
+    """,
+    2: """
+        door floor poor because find kind mind behind child children wild climb
+        most only both old cold gold hold told every everybody even great break
+        steak pretty beautiful after fast last past father class grass pass
+        plant path bath hour move prove improve sure sugar eye could should
+        would who whole any many clothes busy people water again half money mr
+        mrs parents christmas
+    """,
+    3: """
+        accident accidentally actual actually address answer appear arrive
+        believe bicycle breath breathe build busy business calendar caught
+        centre century certain circle complete consider continue decide describe
+        different difficult disappear early earth eight eighth enough exercise
+        experience experiment extreme famous favourite february forward forwards
+        fruit grammar group guard guide heard heart height history imagine
+        increase important interest island knowledge learn length library
+        material medicine mention minute natural naughty notice occasion
+        occasionally often opposite ordinary particular peculiar perhaps popular
+        position possession possess possible potatoes pressure probably promise
+        purpose quarter question recent regular reign remember sentence separate
+        special straight strange strength suppose surprise therefore though
+        although thought through various weight woman women
+    """,
+    4: """
+        accident accidentally actual actually address answer appear arrive
+        believe bicycle breath breathe build busy business calendar caught
+        centre century certain circle complete consider continue decide describe
+        different difficult disappear early earth eight eighth enough exercise
+        experience experiment extreme famous favourite february forward forwards
+        fruit grammar group guard guide heard heart height history imagine
+        increase important interest island knowledge learn length library
+        material medicine mention minute natural naughty notice occasion
+        occasionally often opposite ordinary particular peculiar perhaps popular
+        position possession possess possible potatoes pressure probably promise
+        purpose quarter question recent regular reign remember sentence separate
+        special straight strange strength suppose surprise therefore though
+        although thought through various weight woman women
+    """,
+    5: """
+        accommodate accompany according achieve aggressive amateur ancient
+        apparent appreciate attached available average awkward bargain bruise
+        category cemetery committee communicate community competition conscience
+        conscious controversy convenience correspond criticise curiosity definite
+        desperate determined develop dictionary disastrous embarrass environment
+        equip equipped equipment especially exaggerate excellent existence
+        explanation familiar foreign forty frequently government guarantee
+        harass hindrance identity immediate immediately individual interfere
+        interrupt language leisure lightning marvellous mischievous muscle
+        necessary neighbour nuisance occupy occur opportunity parliament persuade
+        physical prejudice privilege profession programme pronunciation queue
+        recognise recommend relevant restaurant rhyme rhythm sacrifice secretary
+        shoulder signature sincere sincerely soldier stomach sufficient suggest
+        symbol system temperature thorough twelfth variety vegetable vehicle yacht
+    """,
+    6: """
+        accommodate accompany according achieve aggressive amateur ancient
+        apparent appreciate attached available average awkward bargain bruise
+        category cemetery committee communicate community competition conscience
+        conscious controversy convenience correspond criticise curiosity definite
+        desperate determined develop dictionary disastrous embarrass environment
+        equip equipped equipment especially exaggerate excellent existence
+        explanation familiar foreign forty frequently government guarantee
+        harass hindrance identity immediate immediately individual interfere
+        interrupt language leisure lightning marvellous mischievous muscle
+        necessary neighbour nuisance occupy occur opportunity parliament persuade
+        physical prejudice privilege profession programme pronunciation queue
+        recognise recommend relevant restaurant rhyme rhythm sacrifice secretary
+        shoulder signature sincere sincerely soldier stomach sufficient suggest
+        symbol system temperature thorough twelfth variety vegetable vehicle yacht
+    """,
+}
+
+def write_uk_curriculum():
+    print("\n=== UK National Curriculum Appendix 1 (OGL v3.0) ===")
+    pdf = SRC / "uk_english_appendix_1_spelling.pdf"
+    fetch(UK_APPENDIX_URL, pdf)
+    out = SRC / "uk_y1_y6_statutory.csv"
+    if out.exists():
+        print(f"  [skip] {out.name} already present")
+        return
+
+    rows = []
+    seen = set()
+    for year, blob in UK_YEAR_WORDS.items():
+        for word in re.findall(r"[a-z]+", blob.lower()):
+            key = (word, year)
+            if key not in seen:
+                rows.append({"word": word, "year": year})
+                seen.add(key)
+
+    with out.open("w", encoding="utf-8", newline="") as fh:
+        writer = csv.DictWriter(fh, fieldnames=["word", "year"])
+        writer.writeheader()
+        writer.writerows(rows)
+    print(f"  wrote {len(rows)} rows to {out.name}")
 
 # ---------------------------------------------------------------------------
 # 3. Dolch 220 sight words (public domain)
@@ -192,8 +304,9 @@ def fetch_common_misspellings():
     if dst.exists():
         print(f"  [skip] {dst.name} already present")
         return
-    # The "/For machines" subpage is the canonical flat list; format is one
-    # line per entry: "correct->wrong1,wrong2,..."
+    # The "/For machines" subpage is the canonical flat list. The Wikipedia
+    # format is "MISSPELLING->CORRECT1,CORRECT2,...", i.e. the left side of
+    # the arrow is the typo and the right side is the accepted correction(s).
     title = "Wikipedia:Lists_of_common_misspellings/For_machines"
     url = (f"{WIKI_API}?action=parse&page={urllib.parse.quote(title)}"
            f"&prop=wikitext&format=json")
@@ -207,8 +320,7 @@ def fetch_common_misspellings():
         print(f"  !! fetch failed: {e}")
         print(f"  fallback: download manually and save as {dst}")
         return
-    # Parse lines of form "correct->wrong1, wrong2, wrong3"
-    rows = ["correct,wrong"]
+    rows = ["misspelling,correct"]
     pattern = re.compile(r"^([A-Za-z][A-Za-z'\-]*)->(.+)$")
     n_pairs = 0
     for line in wikitext.splitlines():
@@ -216,17 +328,60 @@ def fetch_common_misspellings():
         m = pattern.match(line)
         if not m:
             continue
-        correct = m.group(1).lower()
-        wrongs = [w.strip().lower() for w in m.group(2).split(",")]
-        for w in wrongs:
-            if w and re.match(r"^[a-z'\-]+$", w):
-                rows.append(f"{correct},{w}")
+        misspelling = m.group(1).lower()
+        corrects = [c.strip().lower() for c in m.group(2).split(",")]
+        for c in corrects:
+            if c and re.match(r"^[a-z'\-]+$", c):
+                rows.append(f"{misspelling},{c}")
                 n_pairs += 1
     if n_pairs == 0:
         print(f"  !! parsed 0 pairs; format may have changed")
         return
     dst.write_text("\n".join(rows) + "\n", encoding="utf-8")
-    print(f"  wrote {n_pairs} correct-wrong pairs to {dst.name}")
+    print(f"  wrote {n_pairs} misspelling->correct pairs to {dst.name}")
+
+
+# ---------------------------------------------------------------------------
+# 6. Norvig spell-errors.txt — MIT code, CC-BY-SA/PD upstream data
+# ---------------------------------------------------------------------------
+
+def fetch_norvig_spell_errors():
+    """Norvig's spell-errors.txt: 'right: wrong1, wrong2, ...' per line.
+    Right side of colon is the CORRECT word; left of the comma-separated list
+    are the misspellings. See https://norvig.com/ngrams/.
+    """
+    print("\n=== Norvig spell-errors ===")
+    dst = SRC / "norvig_spell_errors.csv"
+    if dst.exists():
+        print(f"  [skip] {dst.name} already present")
+        return
+    src_path = SRC / "norvig_spell_errors.txt"
+    if not fetch("https://norvig.com/ngrams/spell-errors.txt", src_path):
+        return
+    rows = ["misspelling,correct"]
+    n_pairs = 0
+    for line in src_path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        if ":" not in line:
+            continue
+        correct, wrongs = line.split(":", 1)
+        correct = correct.strip().lower()
+        if not re.match(r"^[a-z'\-]+$", correct):
+            continue
+        for w in wrongs.split(","):
+            w = w.strip().lower()
+            # Norvig may encode frequency as "wrong*N"; drop the count
+            w = re.sub(r"\*\d+$", "", w)
+            if w and re.match(r"^[a-z'\-]+$", w) and w != correct:
+                rows.append(f"{w},{correct}")
+                n_pairs += 1
+    if n_pairs == 0:
+        print(f"  !! parsed 0 pairs from norvig file; format may have changed")
+        return
+    dst.write_text("\n".join(rows) + "\n", encoding="utf-8")
+    print(f"  wrote {n_pairs} misspelling->correct pairs to {dst.name}")
 
 # ---------------------------------------------------------------------------
 # Manual sources — print instructions only
@@ -234,26 +389,9 @@ def fetch_common_misspellings():
 
 def print_manual_instructions():
     print("\n" + "=" * 70)
-    print("MANUAL DOWNLOADS — place these in sources/ before running step 01")
+    print("OPTIONAL MANUAL DOWNLOADS — place these in sources/ before running step 01")
     print("=" * 70)
     manual = [
-        ("uk_y1_y6_statutory.csv",
-         "UK National Curriculum English Programmes of Study (DfE), "
-         "Appendix 1 word lists. Cols: word,year (year in 1-6).",
-         "https://www.gov.uk/government/publications/"
-         "national-curriculum-in-england-english-programmes-of-study"),
-        ("oxford_3000.csv",
-         "Oxford 3000 with CEFR levels. Cols: word,cefr (cefr in A1-C2).",
-         "https://www.oxfordlearnersdictionaries.com/wordlists/oxford3000-5000"),
-        ("oxford_5000.csv",
-         "Oxford 5000 with CEFR levels. Cols: word,cefr.",
-         "(same source as Oxford 3000)"),
-        ("evp_cefr.csv",
-         "English Vocabulary Profile (CEFR-aligned). Cols: word,cefr.",
-         "https://www.englishprofile.org/ (free institutional sign-up)"),
-        ("subtlex_us.csv",
-         "SUBTLEX-US with frequency and AoA. Cols: word,freq_count,freq_per_million,aoa.",
-         "https://www.ugent.be/pp/experimentele-psychologie/en/research/documents/subtlexus"),
         ("aoa_kuperman.csv",
          "Kuperman et al 2012 age-of-acquisition norms. Cols: word,aoa_mean,aoa_sd.",
          "http://crr.ugent.be/archives/806"),
@@ -271,12 +409,14 @@ def print_manual_instructions():
 
 def main():
     print(f"Target directory: {SRC}")
+    write_uk_curriculum()
     fetch_hermitdave_en_50k()
     fetch_cmudict()
     write_dolch()
     fetch_fry()
     import urllib.parse  # imported here to keep top imports clean if scrape skipped
     fetch_common_misspellings()
+    fetch_norvig_spell_errors()
     print_manual_instructions()
     print("\nDone. After all sources are present, run: python 01_consolidate_en.py")
 
