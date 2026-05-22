@@ -26,9 +26,16 @@ class VocabularyService with ChangeNotifier {
   // Storage Keys
   static const _setsStorageKey = 'vocabulary_sets';
   static const _customWordsKey = 'custom_words';
+  static const _learningLanguageKey = 'learning_language';
+  static const _dbAssets = {
+    'de': 'assets/grundwortschatz.db.gz',
+    'en': 'assets/grundwortschatz_en.db.gz',
+  };
 
   bool _isInitialized = false;
   bool get isInitialized => _isInitialized;
+  String _learningLanguage = 'de';
+  String get learningLanguage => _learningLanguage;
 
   /// Set when initialize() fails. Surfaced to the splash screen so the
   /// retry dialog can be shown instead of silently broken games.
@@ -41,14 +48,35 @@ class VocabularyService with ChangeNotifier {
 
   /// Initializes the service by loading data from SQLite and SharedPrefs
   Future<void> initialize({
+    String? learningLanguage,
     void Function(double progress, String message)? onProgress,
   }) async {
-    if (_isInitialized) return;
-    _log('Initializing vocabulary service...');
+    final requestedLanguage = learningLanguage ?? await _loadLearningLanguage();
+    if (!_dbAssets.containsKey(requestedLanguage)) {
+      throw ArgumentError.value(
+        requestedLanguage,
+        'learningLanguage',
+        'Unsupported learning language',
+      );
+    }
+
+    if (_isInitialized && _learningLanguage == requestedLanguage) return;
+    if (_isInitialized && _learningLanguage != requestedLanguage) {
+      await _dbService.close();
+      _vocabulary.clear();
+      _vocabularySets.clear();
+      _allSourcesCache = null;
+      _isInitialized = false;
+    }
+
+    _learningLanguage = requestedLanguage;
+    _log('Initializing vocabulary service for $_learningLanguage...');
     try {
       // 1. Initialize DB with progress tracking
       onProgress?.call(0.0, 'Preparing vocabulary database...');
       await _dbService.initialize(
+        assetPath: _dbAssets[_learningLanguage]!,
+        databaseName: _dbNameForLanguage(_learningLanguage),
         onProgress: (dbProgress, dbMessage) {
           // Map DB progress (0.0-1.0) to vocabulary service progress (0.0-0.6)
           onProgress?.call(dbProgress * 0.6, dbMessage);
@@ -87,6 +115,32 @@ class VocabularyService with ChangeNotifier {
     }
   }
 
+  Future<String> _loadLearningLanguage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final language = prefs.getString(_learningLanguageKey) ?? 'de';
+    return _dbAssets.containsKey(language) ? language : 'de';
+  }
+
+  String _dbNameForLanguage(String language) {
+    if (language == 'de') return 'grundwortschatz.db';
+    return 'grundwortschatz_$language.db';
+  }
+
+  Future<void> setLearningLanguage(String language) async {
+    if (!_dbAssets.containsKey(language)) {
+      throw ArgumentError.value(
+        language,
+        'language',
+        'Unsupported learning language',
+      );
+    }
+    if (language == _learningLanguage && _isInitialized) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_learningLanguageKey, language);
+    await initialize(learningLanguage: language);
+  }
+
   /// Loads all words from SQLite into memory for game logic performance.
   /// Errors propagate to [initialize] so they can be surfaced to the user.
   Future<void> _loadVocabularyFromDB() async {
@@ -103,7 +157,7 @@ class VocabularyService with ChangeNotifier {
   // SEARCH METHODS
   // ---------------------------------------------------------------------------
 
-  /// FAST ASYNC SEARCH: Uses SQLite FTS5 index. 
+  /// FAST ASYNC SEARCH: Uses SQLite FTS5 index.
   Future<List<GermanWord>> searchWordsAsync(String query) async {
     if (query.trim().isEmpty) return [];
     return await _dbService.searchWordsFTS(query);
@@ -177,7 +231,7 @@ class VocabularyService with ChangeNotifier {
     // 1. Custom Task Settings (Overrides standard logic)
     if (settingsProvider.tasksCustomizationEnabled) {
       final activeSetIds = settingsProvider.activeVocabularySetIds;
-      
+
       // 1A. Specific Sets Selected
       if (activeSetIds.isNotEmpty) {
         final allWordIds = <String>{};
@@ -199,7 +253,7 @@ class VocabularyService with ChangeNotifier {
       }
 
       // 1B. Customization ON but no sets -> Use ALL words as base
-      return _vocabulary.values.toList(); 
+      return _vocabulary.values.toList();
     }
 
     // 2. Standard Logic (Grade/Category/Type)
@@ -219,10 +273,12 @@ class VocabularyService with ChangeNotifier {
         default:
           targetGradeLevel = 3;
       }
-      filtered = filtered.where((w) => w.gradeLevel == targetGradeLevel).toList();
+      filtered =
+          filtered.where((w) => w.gradeLevel == targetGradeLevel).toList();
     }
     if (category != null) {
-      filtered = filtered.where((w) => w.categories.contains(category)).toList();
+      filtered =
+          filtered.where((w) => w.categories.contains(category)).toList();
     }
     if (wordType != null) {
       filtered = filtered.where((w) => w.wordType == wordType).toList();
@@ -237,7 +293,7 @@ class VocabularyService with ChangeNotifier {
     if (!settings.tasksCustomizationEnabled) {
       return words;
     }
-    
+
     final minLen = settings.taskWordLengthMin.round();
     final maxLen = settings.taskWordLengthMax.round();
     final includedSources = settings.taskIncludedSources;
@@ -247,20 +303,22 @@ class VocabularyService with ChangeNotifier {
     return words.where((word) {
       final text = word.word;
       if (text.length < minLen || text.length > maxLen) return false;
-      
+
       if (includedSources.isNotEmpty) {
         if (word.sources.isEmpty) return false;
         if (!word.sources.any((s) => includedSources.contains(s))) return false;
       }
-      
+
       if (excludeWildcards.isNotEmpty) {
-        if (excludeWildcards.any((pattern) => _matchesWildcard(text, pattern))) {
+        if (excludeWildcards
+            .any((pattern) => _matchesWildcard(text, pattern))) {
           return false;
         }
       }
-      
+
       if (includeWildcards.isNotEmpty) {
-        if (!includeWildcards.any((pattern) => _matchesWildcard(text, pattern))) {
+        if (!includeWildcards
+            .any((pattern) => _matchesWildcard(text, pattern))) {
           return false;
         }
       }
@@ -296,12 +354,12 @@ class VocabularyService with ChangeNotifier {
       skillTypeFilter: LanguageSkillType.spelling,
       gradeLevelFilter: gradeFilter != null ? (gradeFilter.index + 1) : null,
     );
-    
+
     final words = <GermanWord>[];
     for (final id in reviewIds) {
       final wordString = id.replaceFirst('SPELL_', '');
       try {
-         final word = _vocabulary.values.firstWhere(
+        final word = _vocabulary.values.firstWhere(
           (w) => w.word.toLowerCase() == wordString,
         );
         words.add(word);
@@ -332,7 +390,7 @@ class VocabularyService with ChangeNotifier {
         studiedWords.add(word.id);
       }
     }
-    
+
     var unstudiedWords =
         newWords.where((word) => !studiedWords.contains(word.id)).toList();
 
@@ -372,10 +430,11 @@ class VocabularyService with ChangeNotifier {
     required GameProvider settingsProvider,
   }) {
     final similar = <GermanWord>[];
-    
+
     // 1. Check Graph. Variants
-    final variantSpellings =
-        baseWord.graphematicVariants.map((v) => v.spelling.toLowerCase()).toSet();
+    final variantSpellings = baseWord.graphematicVariants
+        .map((v) => v.spelling.toLowerCase())
+        .toSet();
 
     final allFilteredWords =
         _applyVocabularyFilters(_vocabulary.values.toList(), settingsProvider);
@@ -386,16 +445,16 @@ class VocabularyService with ChangeNotifier {
         similar.add(word);
       }
     }
-    
+
     // 2. Check Levenshtein/Substring Similarity
     if (similar.length < count) {
-      var allWords = allFilteredWords.where((w) => w.id != baseWord.id).toList();
-      allWords.sort((a, b) =>
-          _calculateSimilarity(baseWord.word, a.word)
-              .compareTo(_calculateSimilarity(baseWord.word, b.word)));
+      var allWords =
+          allFilteredWords.where((w) => w.id != baseWord.id).toList();
+      allWords.sort((a, b) => _calculateSimilarity(baseWord.word, a.word)
+          .compareTo(_calculateSimilarity(baseWord.word, b.word)));
       similar.addAll(allWords.take(count - similar.length));
     }
-    
+
     // 3. Fallback to random within grade
     if (similar.length < count) {
       final gradeEnum = GradeLevel.values[baseWord.gradeLevel.clamp(0, 5)];
@@ -427,7 +486,8 @@ class VocabularyService with ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       final customWordsJson = prefs.getString(_customWordsKey);
       if (customWordsJson != null) {
-        final customWords = json.decode(customWordsJson) as Map<String, dynamic>;
+        final customWords =
+            json.decode(customWordsJson) as Map<String, dynamic>;
         customWords.forEach((key, value) {
           _vocabulary[key] = GermanWord.fromJson(value);
         });
@@ -454,17 +514,15 @@ class VocabularyService with ChangeNotifier {
 
   VocabularySet? getSetById(String id) => _vocabularySets[id];
   List<VocabularySet> get allSets => _vocabularySets.values.toList();
-  
+
   List<VocabularySet> getSetsForGrade(GradeLevel grade) {
     return _vocabularySets.values
         .where((set) => set.targetGrade == grade)
         .toList();
   }
-  
+
   List<VocabularySet> getCustomSets() {
-    return _vocabularySets.values
-        .where((set) => set.isCustom)
-        .toList()
+    return _vocabularySets.values.where((set) => set.isCustom).toList()
       ..sort((a, b) => a.name.compareTo(b.name));
   }
 
@@ -579,7 +637,7 @@ class VocabularyService with ChangeNotifier {
   }
 
   // Specific practice getters (Verbs/Cases/Adjectives)
-  
+
   List<GermanWord> getWordsForCasePractice({
     int count = 10,
     required GameProvider settingsProvider,
@@ -637,13 +695,13 @@ class VocabularyService with ChangeNotifier {
   Map<String, dynamic> getWordStatistics(String wordId, SriService sriService) {
     final word = _vocabulary[wordId];
     if (word == null) return {};
-    
+
     final stats = <String, dynamic>{
       'word': word.word,
       'gradeLevel': word.gradeLevel,
       'wordType': word.wordType,
     };
-    
+
     // Spelling Stats
     final spellingData = sriService.getItemData(
       sriService.getItemId(
@@ -653,13 +711,14 @@ class VocabularyService with ChangeNotifier {
     );
     if (spellingData != null) {
       stats['spellingMastery'] = spellingData.easinessFactor / 5.0;
-      final spellingAttempts = spellingData.successCount + spellingData.failureCount;
+      final spellingAttempts =
+          spellingData.successCount + spellingData.failureCount;
       stats['spellingAttempts'] = spellingAttempts;
       stats['spellingSuccessRate'] = spellingAttempts > 0
           ? spellingData.successCount / spellingAttempts
           : 0.0;
     }
-    
+
     // Article Stats
     if (word.wordType == GermanWordType.substantiv &&
         word.article != null &&
@@ -674,7 +733,7 @@ class VocabularyService with ChangeNotifier {
         stats['articleMastery'] = articleData.easinessFactor / 5.0;
       }
     }
-    
+
     return stats;
   }
 

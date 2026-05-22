@@ -184,8 +184,7 @@ class ApiEnrichment {
           [],
       hyphenation: List<String>.from(json['hyphenation'] ?? []),
       translations: (json['wiktionary_translations'] as List<dynamic>?)
-              ?.map(
-                  (t) => ApiTranslation.fromJson(t as Map<String, dynamic>))
+              ?.map((t) => ApiTranslation.fromJson(t as Map<String, dynamic>))
               .toList() ??
           [],
       derivedTerms: parseTermList('wiktionary_derived_terms', 'derived_word'),
@@ -469,9 +468,9 @@ class GermanWord {
     // Audio Path Logic
     String? resolvedAudioPath;
     if (apiData?.pronunciation.isNotEmpty ?? false) {
-      ApiPronunciation? mp3Pron = apiData!.pronunciation
-          .firstWhere((p) => p.mp3Url != null,
-              orElse: () => ApiPronunciation());
+      ApiPronunciation? mp3Pron = apiData!.pronunciation.firstWhere(
+          (p) => p.mp3Url != null,
+          orElse: () => ApiPronunciation());
       if (mp3Pron.mp3Url != null) {
         resolvedAudioPath = mp3Pron.mp3Url;
       } else {
@@ -500,11 +499,41 @@ class GermanWord {
     // Parsing Helpers for Enums
     GermanWordType parseWordType(String? typeStr) {
       if (typeStr == null) return GermanWordType.andere;
+      final normalized = typeStr.toLowerCase();
+      const aliases = {
+        'noun': GermanWordType.substantiv,
+        'proper_noun': GermanWordType.substantiv,
+        'propernoun': GermanWordType.substantiv,
+        'verb': GermanWordType.verb,
+        'adjective': GermanWordType.adjektiv,
+        'adj': GermanWordType.adjektiv,
+        'adverb': GermanWordType.adverb,
+        'adv': GermanWordType.adverb,
+        'article': GermanWordType.artikel,
+        'determiner': GermanWordType.artikel,
+        'det': GermanWordType.artikel,
+        'pronoun': GermanWordType.pronomen,
+        'pron': GermanWordType.pronomen,
+        'preposition': GermanWordType.praeposition,
+        'adposition': GermanWordType.praeposition,
+        'adp': GermanWordType.praeposition,
+        'conjunction': GermanWordType.konjunktion,
+        'conj': GermanWordType.konjunktion,
+        'particle': GermanWordType.partikel,
+        'part': GermanWordType.partikel,
+        'numeral': GermanWordType.numerale,
+        'num': GermanWordType.numerale,
+        'cardinal': GermanWordType.kardinalzahlwort,
+        'ordinal': GermanWordType.ordinalzahlwort,
+        'phrase': GermanWordType.mehrwortausdruck,
+        'multiword': GermanWordType.mehrwortausdruck,
+        'other': GermanWordType.andere,
+      };
+      final alias = aliases[normalized];
+      if (alias != null) return alias;
       try {
         return GermanWordType.values.firstWhere(
-          (e) =>
-              e.toString().split('.').last.toLowerCase() ==
-              typeStr.toLowerCase(),
+          (e) => e.toString().split('.').last.toLowerCase() == normalized,
         );
       } catch (e) {
         return GermanWordType.andere;
@@ -513,7 +542,7 @@ class GermanWord {
 
     WordCategory parseCategory(String? catStr) {
       // FIX: 'sonstiges' was invalid. Falling back to 'schule'.
-      if (catStr == null) return WordCategory.schule; 
+      if (catStr == null) return WordCategory.schule;
       try {
         return WordCategory.values.firstWhere(
           (e) =>
@@ -521,14 +550,14 @@ class GermanWord {
               catStr.toLowerCase(),
         );
       } catch (e) {
-        return WordCategory.schule; 
+        return WordCategory.schule;
       }
     }
 
     // SAFELY Parse Indices
     int diffIndex = _parseInt(json['spellingDifficulty'], 0);
-    SpellingDifficulty diff = SpellingDifficulty.values[
-        diffIndex.clamp(0, SpellingDifficulty.values.length - 1)];
+    SpellingDifficulty diff = SpellingDifficulty
+        .values[diffIndex.clamp(0, SpellingDifficulty.values.length - 1)];
 
     return GermanWord(
       id: json['id']?.toString() ?? '',
@@ -697,4 +726,3 @@ class VocabularySet {
         'isCustom': isCustom,
       };
 }
-

@@ -18,20 +18,28 @@ class DictionaryDatabaseService {
 
   Database? _database;
   bool _isInitializing = false;
+  String? _assetPath;
+  String? _databaseName;
 
   /// Initialize the database with optional progress tracking
   /// [onProgress] reports (progress: 0.0-1.0, message: String)
   Future<void> initialize({
+    String assetPath = 'assets/grundwortschatz.db.gz',
+    String databaseName = 'grundwortschatz.db',
     void Function(double progress, String message)? onProgress,
   }) async {
     // Prevent multiple simultaneous initializations
     if (_database != null) {
-      onProgress?.call(1.0, 'Database already initialized');
-      return;
+      if (_assetPath == assetPath && _databaseName == databaseName) {
+        onProgress?.call(1.0, 'Database already initialized');
+        return;
+      }
+      await close();
     }
-    
+
     if (_isInitializing) {
-      debugPrint("[DB_SERVICE] ⏳ Initialization already in progress, waiting...");
+      debugPrint(
+          "[DB_SERVICE] ⏳ Initialization already in progress, waiting...");
       // Wait for ongoing initialization (with timeout)
       int attempts = 0;
       while (_isInitializing && attempts < 100) {
@@ -54,6 +62,8 @@ class DictionaryDatabaseService {
       // PHASE 2: Platform-specific initialization (0.05 - 0.90)
       // This handles the heavy lifting: extraction, decompression, writing
       _database = await initPlatformDatabase(
+        assetPath: assetPath,
+        databaseName: databaseName,
         onProgress: (platformProgress, platformMessage) {
           // Map platform progress (0.0-1.0) to our phase (0.05-0.90)
           final mappedProgress = 0.05 + (platformProgress * 0.85);
@@ -67,27 +77,30 @@ class DictionaryDatabaseService {
 
       // PHASE 3: Verify database integrity (0.90 - 0.95)
       onProgress?.call(0.90, 'Verifying database integrity...');
-      
+
       final count = Sqflite.firstIntValue(
         await _database!.rawQuery('SELECT COUNT(*) FROM words'),
       );
-      
+
       if (count == null || count == 0) {
         throw Exception('Database is empty or invalid');
       }
-      
+
       debugPrint("[DB_SERVICE] ✅ Database verified with $count words");
       onProgress?.call(0.95, 'Database verified: $count words');
 
       // PHASE 4: Complete (0.95 - 1.0)
       onProgress?.call(1.0, 'Database initialization complete!');
       debugPrint("[DB_SERVICE] ✅ Database service ready");
-      
+      _assetPath = assetPath;
+      _databaseName = databaseName;
     } catch (e, stackTrace) {
       debugPrint("[DB_SERVICE] ❌ Critical error initializing database: $e");
       debugPrint("[DB_SERVICE] Stack trace: $stackTrace");
       onProgress?.call(0.0, 'Database initialization failed: $e');
       _database = null; // Ensure we can retry
+      _assetPath = null;
+      _databaseName = null;
       rethrow;
     } finally {
       _isInitializing = false;
@@ -105,7 +118,7 @@ class DictionaryDatabaseService {
     }
 
     try {
-      final List<Map<String, dynamic>> results = 
+      final List<Map<String, dynamic>> results =
           await _database!.query('words');
       debugPrint("[DB_SERVICE] Fetched ${results.length} words");
       return results.map((row) => _mapRowToGermanWord(row)).toList();
@@ -121,14 +134,13 @@ class DictionaryDatabaseService {
       await initialize();
       if (_database == null) return [];
     }
-    
+
     if (query.trim().isEmpty) return [];
 
     // Sanitize input for FTS5
-    final sanitized = query
-        .replaceAll(RegExp(r'[^a-zA-Z0-9äöüÄÖÜß\s]'), '')
-        .trim();
-    
+    final sanitized =
+        query.replaceAll(RegExp(r'[^a-zA-Z0-9äöüÄÖÜß\s]'), '').trim();
+
     if (sanitized.isEmpty) return [];
 
     try {
@@ -140,7 +152,8 @@ class DictionaryDatabaseService {
         LIMIT 50
       ''', ['$sanitized*']);
 
-      debugPrint("[DB_SERVICE] FTS search for '$query' returned ${results.length} results");
+      debugPrint(
+          "[DB_SERVICE] FTS search for '$query' returned ${results.length} results");
       return results.map((row) => _mapRowToGermanWord(row)).toList();
     } catch (e) {
       debugPrint("[DB_SERVICE] FTS search error: $e");
@@ -185,7 +198,8 @@ class DictionaryDatabaseService {
         whereArgs: [gradeLevel],
       );
 
-      debugPrint("[DB_SERVICE] Fetched ${results.length} words for grade $gradeLevel");
+      debugPrint(
+          "[DB_SERVICE] Fetched ${results.length} words for grade $gradeLevel");
       return results.map((row) => _mapRowToGermanWord(row)).toList();
     } catch (e) {
       debugPrint("[DB_SERVICE] Error fetching words by grade $gradeLevel: $e");
@@ -202,8 +216,9 @@ class DictionaryDatabaseService {
 
     try {
       final totalWords = Sqflite.firstIntValue(
-        await _database!.rawQuery('SELECT COUNT(*) FROM words'),
-      ) ?? 0;
+            await _database!.rawQuery('SELECT COUNT(*) FROM words'),
+          ) ??
+          0;
 
       final gradeDistribution = await _database!.rawQuery('''
         SELECT grade_level, COUNT(*) as count 
@@ -236,6 +251,8 @@ class DictionaryDatabaseService {
     if (_database != null) {
       await _database!.close();
       _database = null;
+      _assetPath = null;
+      _databaseName = null;
       debugPrint("[DB_SERVICE] Database connection closed");
     }
   }
@@ -295,15 +312,15 @@ class DictionaryDatabaseService {
       };
 
       return GermanWord.fromJson(wordMap);
-      
     } catch (e, stackTrace) {
       debugPrint("[DB_SERVICE] Error mapping row to GermanWord: $e");
       debugPrint("[DB_SERVICE] Stack trace: $stackTrace");
       debugPrint("[DB_SERVICE] Problematic row: $row");
-      
+
       // Return a minimal fallback word to prevent crashes
       return GermanWord.fromJson({
-        'id': row['id']?.toString() ?? 'error_${DateTime.now().millisecondsSinceEpoch}',
+        'id': row['id']?.toString() ??
+            'error_${DateTime.now().millisecondsSinceEpoch}',
         'word': row['word']?.toString() ?? 'ERROR',
         'lemma': row['word']?.toString() ?? 'ERROR',
         'wordType': 'andere',

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/services/debug_provider.dart';
+import '../../../core/services/vocabulary_service.dart';
 import '../../../core/theme/space_theme.dart';
 import '../../../core/models/skill_category.dart';
 import '../../../generated/l10n.dart';
@@ -156,7 +157,8 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         children: [
           IconButton(
             onPressed: () => Navigator.of(context).pop(),
-            icon: const Icon(Icons.arrow_back_ios, color: Colors.white, size: 24), // Slightly smaller
+            icon: const Icon(Icons.arrow_back_ios,
+                color: Colors.white, size: 24), // Slightly smaller
             style: IconButton.styleFrom(
               backgroundColor: SpaceTheme.deepSpace.withValues(alpha: 0.8),
               padding: const EdgeInsets.all(10),
@@ -178,8 +180,8 @@ class _GameMenuScreenState extends State<GameMenuScreen>
                   builder: (context, gameProvider, child) {
                     return Text(
                       '${S.of(context)!.gradeN(gameProvider.grade)} • ${S.of(context)!.level} ${gameProvider.level}',
-                      style: SpaceTheme.bodyStyle.copyWith(
-                          color: SpaceTheme.starYellow, fontSize: 14),
+                      style: SpaceTheme.bodyStyle
+                          .copyWith(color: SpaceTheme.starYellow, fontSize: 14),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     );
@@ -188,7 +190,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
               ],
             ),
           ),
-          
+
           // Score Display
           Consumer<GameProvider>(
             builder: (context, gameProvider, child) {
@@ -207,17 +209,17 @@ class _GameMenuScreenState extends State<GameMenuScreen>
                     const SizedBox(width: 6),
                     Text(
                       gameProvider.score.toString(),
-                      style: SpaceTheme.titleStyle.copyWith(
-                          color: SpaceTheme.starYellow, fontSize: 16),
+                      style: SpaceTheme.titleStyle
+                          .copyWith(color: SpaceTheme.starYellow, fontSize: 16),
                     ),
                   ],
                 ),
               );
             },
           ),
-          
+
           const SizedBox(width: 8),
-          // Wrap actions in a Row. On very small screens, this might be tight, 
+          // Wrap actions in a Row. On very small screens, this might be tight,
           // but icon buttons are fixed size.
           Row(
             mainAxisSize: MainAxisSize.min,
@@ -259,7 +261,8 @@ class _GameMenuScreenState extends State<GameMenuScreen>
       icon: Icon(icon, size: 20), // Smaller icon size
       color: color,
       tooltip: tooltip,
-      padding: const EdgeInsets.all(8), // Reduce tap target padding slightly for density
+      padding: const EdgeInsets.all(
+          8), // Reduce tap target padding slightly for density
       constraints: const BoxConstraints(), // Remove minimum size constraints
       style: IconButton.styleFrom(
           backgroundColor: SpaceTheme.deepSpace.withValues(alpha: 0.8)),
@@ -283,13 +286,15 @@ class _GameMenuScreenState extends State<GameMenuScreen>
       aspectRatio = 1.0;
     } else if (width < 360) {
       // Very small screens (older iPhones, small Androids)
-      crossAxisCount = 2; 
+      crossAxisCount = 2;
       aspectRatio = 0.75; // Taller cards to fit text vertically
     } else {
       // Standard Portrait
       crossAxisCount = 2;
       aspectRatio = 0.85;
     }
+
+    final games = _buildGames();
 
     return GridView.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -298,14 +303,15 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         mainAxisSpacing: 16,
         childAspectRatio: aspectRatio,
       ),
-      itemCount: _gameCount,
-      itemBuilder: (context, index) => _buildGameCard(index),
+      itemCount: games.length,
+      itemBuilder: (context, index) => _buildGameCard(index, games[index]),
     );
   }
 
-  Widget _buildGameCard(int index) {
+  List<GameInfo> _buildGames() {
     final gameProvider = context.read<GameProvider>();
-    final debugProvider = context.read<DebugProvider>();
+    final learningLanguage =
+        context.watch<VocabularyService>().learningLanguage;
     final s = S.of(context)!;
 
     final games = [
@@ -315,6 +321,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         icon: Icons.rocket_launch,
         gradient: const LinearGradient(
             colors: [Color(0xFF4A00E0), Color(0xFF8E2DE2)]),
+        supportedLearningLanguages: const ['de', 'en'],
         onTap: () => _navigateToGame(SpaceWordRescueGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
@@ -324,16 +331,17 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         icon: Icons.grid_on,
         gradient: const LinearGradient(
             colors: [Color(0xFF00C9FF), Color(0xFF92FE9D)]),
+        supportedLearningLanguages: const ['de', 'en'],
         onTap: () => _navigateToGame(WordFindGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
         title: s.wordSortTitle,
-        description:
-            s.wordSortDescription,
+        description: s.wordSortDescription,
         icon: Icons.sort_by_alpha,
         gradient: const LinearGradient(
             colors: [Color(0xFFf953c6), Color(0xFFb91d73)]),
+        supportedLearningLanguages: const ['de', 'en'],
         onTap: () => _navigateToGame(WordSortGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
@@ -343,6 +351,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         icon: Icons.timeline,
         gradient: const LinearGradient(
             colors: [Color(0xFFFF6B6B), Color(0xFFFFE66D)]),
+        supportedLearningLanguages: const ['de', 'en'],
         onTap: () => _navigateToGame(WordSnakeGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
@@ -352,6 +361,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         icon: Icons.psychology,
         gradient: const LinearGradient(
             colors: [Color(0xFFFA8BFF), Color(0xFF2BD2FF)]),
+        supportedLearningLanguages: const ['de', 'en'],
         onTap: () => _navigateToGame(WordMemoryGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
@@ -361,16 +371,17 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         icon: Icons.construction,
         gradient: const LinearGradient(
             colors: [Color(0xFFFFA500), Color(0xFFFF6347)]),
+        supportedLearningLanguages: const ['de', 'en'],
         onTap: () => _navigateToGame(WordBuilderGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
         title: s.wordWhirlTitle,
-        description:
-            s.wordWhirlDescription,
+        description: s.wordWhirlDescription,
         icon: Icons.tornado,
         gradient: const LinearGradient(
             colors: [Color(0xFF667eea), Color(0xFF764ba2)]),
+        supportedLearningLanguages: const ['de', 'en'],
         onTap: () => _navigateToGame(WordTypeWhirlGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
@@ -378,38 +389,56 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         title: 'Wort-Stückler',
         description: 'Zusammengesetzte Nomen Stück für Stück bauen',
         icon: Icons.handyman,
-        gradient: const LinearGradient(colors: [Color(0xFFF2994A), Color(0xFFF2C94C)]),
-        onTap: () => _navigateToGame(WortbaumeisterGame(gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
+        gradient: const LinearGradient(
+            colors: [Color(0xFFF2994A), Color(0xFFF2C94C)]),
+        supportedLearningLanguages: const ['de', 'en'],
+        onTap: () => _navigateToGame(WortbaumeisterGame(
+            gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
         title: 'Wort-Sortierer',
         description: 'Groß- und Kleinschreibung auf dem Förderband',
         icon: Icons.location_city,
-        gradient: const LinearGradient(colors: [Color(0xFF30E8BF), Color(0xFFFF8235)]),
-        onTap: () => _navigateToGame(GrossstadtGame(gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
+        gradient: const LinearGradient(
+            colors: [Color(0xFF30E8BF), Color(0xFFFF8235)]),
+        supportedLearningLanguages: const ['de'],
+        onTap: () => _navigateToGame(GrossstadtGame(
+            gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
         title: s.grossschreibTitle,
         description: 'Werden Worte im Satz groß oder klein geschrieben?',
         icon: Icons.call_split,
-        gradient: const LinearGradient(colors: [Color(0xFF11998e), Color(0xFF38ef7d)]),
-        onTap: () => _navigateToGame(GrossschreibungsGalaxieGame(gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
+        gradient: const LinearGradient(
+            colors: [Color(0xFF11998e), Color(0xFF38ef7d)]),
+        supportedLearningLanguages: const ['de'],
+        onTap: () => _navigateToGame(GrossschreibungsGalaxieGame(
+            gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
         title: 'Verb-Trenner',
         description: 'Trennbare Verben erkennen: zusammen oder getrennt?',
         icon: Icons.compare_arrows,
-        gradient: const LinearGradient(colors: [Color(0xFF6A11CB), Color(0xFF2575FC)]),
-        onTap: () => _navigateToGame(VerbtrennerGame(gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
+        gradient: const LinearGradient(
+            colors: [Color(0xFF6A11CB), Color(0xFF2575FC)]),
+        supportedLearningLanguages: const ['de'],
+        onTap: () => _navigateToGame(VerbtrennerGame(
+            gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
     ];
 
-    if (index >= games.length) return const SizedBox.shrink();
+    return games
+        .where((game) =>
+            game.supportedLearningLanguages.contains(learningLanguage))
+        .toList(growable: false);
+  }
 
-    final game = games[index];
+  Widget _buildGameCard(int index, GameInfo game) {
+    final gameProvider = context.read<GameProvider>();
+    final debugProvider = context.read<DebugProvider>();
     final bool isPremiumContent = index > 1;
-    final bool isUnlocked =
-        gameProvider.isFullVersionUnlocked || debugProvider.isPaidUnlockedForced;
+    final bool isUnlocked = gameProvider.isFullVersionUnlocked ||
+        debugProvider.isPaidUnlockedForced;
     final bool isLocked = isPremiumContent && !isUnlocked;
 
     if (index >= _cardAnimations.length) return const SizedBox.shrink();
@@ -426,7 +455,8 @@ class _GameMenuScreenState extends State<GameMenuScreen>
               children: [
                 GameCard(
                   game: game,
-                  onTap: isLocked ? () => _showPurchaseFlow(context) : game.onTap,
+                  onTap:
+                      isLocked ? () => _showPurchaseFlow(context) : game.onTap,
                 ),
                 if (isLocked)
                   Container(
@@ -493,16 +523,23 @@ class _GameMenuScreenState extends State<GameMenuScreen>
     // launches one band easier/harder than the player's official grade
     // when requested.
     final gameProvider = context.read<GameProvider>();
-    final shifted = (grade + gameProvider.difficultyMode.gradeShift)
-        .clamp(1, 6);
+    final shifted =
+        (grade + gameProvider.difficultyMode.gradeShift).clamp(1, 6);
     switch (shifted) {
-      case 1: return GradeLevel.grade1;
-      case 2: return GradeLevel.grade2;
-      case 3: return GradeLevel.grade3;
-      case 4: return GradeLevel.grade4;
-      case 5: return GradeLevel.grade5;
-      case 6: return GradeLevel.grade6;
-      default: return GradeLevel.grade1;
+      case 1:
+        return GradeLevel.grade1;
+      case 2:
+        return GradeLevel.grade2;
+      case 3:
+        return GradeLevel.grade3;
+      case 4:
+        return GradeLevel.grade4;
+      case 5:
+        return GradeLevel.grade5;
+      case 6:
+        return GradeLevel.grade6;
+      default:
+        return GradeLevel.grade1;
     }
   }
 }
@@ -512,12 +549,14 @@ class GameInfo {
   final String description;
   final IconData icon;
   final Gradient gradient;
+  final List<String> supportedLearningLanguages;
   final VoidCallback onTap;
   GameInfo(
       {required this.title,
       required this.description,
       required this.icon,
       required this.gradient,
+      this.supportedLearningLanguages = const ['de'],
       required this.onTap});
 }
 
@@ -539,12 +578,12 @@ class _GameCardState extends State<GameCard>
   @override
   void initState() {
     super.initState();
-    _hoverController =
-        AnimationController(duration: const Duration(milliseconds: 200), vsync: this);
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.05)
-        .animate(CurvedAnimation(parent: _hoverController, curve: Curves.easeOut));
-    _glowAnimation = Tween<double>(begin: 0.3, end: 0.8)
-        .animate(CurvedAnimation(parent: _hoverController, curve: Curves.easeOut));
+    _hoverController = AnimationController(
+        duration: const Duration(milliseconds: 200), vsync: this);
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
+        CurvedAnimation(parent: _hoverController, curve: Curves.easeOut));
+    _glowAnimation = Tween<double>(begin: 0.3, end: 0.8).animate(
+        CurvedAnimation(parent: _hoverController, curve: Curves.easeOut));
   }
 
   @override
@@ -605,7 +644,8 @@ class _GameCardState extends State<GameCard>
 
                     return Padding(
                       padding: EdgeInsets.symmetric(
-                          horizontal: isTiny ? 8 : 12, vertical: isTiny ? 6 : 8),
+                          horizontal: isTiny ? 8 : 12,
+                          vertical: isTiny ? 6 : 8),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
@@ -618,7 +658,7 @@ class _GameCardState extends State<GameCard>
                             child: Icon(widget.game.icon,
                                 size: iconSize, color: Colors.white),
                           ),
-                          
+
                           // TITLE
                           Text(
                             widget.game.title,
@@ -628,7 +668,7 @@ class _GameCardState extends State<GameCard>
                             maxLines: 2, // Allow 2 lines for long German titles
                             overflow: TextOverflow.ellipsis,
                           ),
-                          
+
                           // DESCRIPTION (Hide on tiny screens to prioritize title/button)
                           if (!isTiny)
                             Text(
@@ -639,7 +679,7 @@ class _GameCardState extends State<GameCard>
                               maxLines: isSmall ? 1 : 2,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            
+
                           // BUTTON
                           Container(
                             padding: EdgeInsets.symmetric(
@@ -679,6 +719,7 @@ class _GameCardState extends State<GameCard>
     );
   }
 }
+
 class _DifficultyButton extends StatelessWidget {
   final String label;
   final IconData icon;
@@ -706,9 +747,7 @@ class _DifficultyButton extends StatelessWidget {
                 : SpaceTheme.deepSpace.withValues(alpha: 0.6),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: selected
-                  ? SpaceTheme.starYellow
-                  : Colors.white24,
+              color: selected ? SpaceTheme.starYellow : Colors.white24,
               width: selected ? 2 : 1,
             ),
           ),
@@ -723,8 +762,7 @@ class _DifficultyButton extends StatelessWidget {
                 label,
                 style: TextStyle(
                   color: selected ? Colors.white : Colors.white60,
-                  fontWeight:
-                      selected ? FontWeight.bold : FontWeight.normal,
+                  fontWeight: selected ? FontWeight.bold : FontWeight.normal,
                   fontSize: 13,
                 ),
               ),
