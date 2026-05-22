@@ -3,11 +3,13 @@
 import 'package:sqflite/sqflite.dart';
 
 /// Platform-specific database initialization interface
-/// 
+///
 /// [onProgress] optional callback for progress updates
 ///   - progress: 0.0 to 1.0
 ///   - message: descriptive status message
 Future<Database> initPlatformDatabase({
+  required String assetPath,
+  required String databaseName,
   void Function(double progress, String message)? onProgress,
 }) {
   throw UnsupportedError(
