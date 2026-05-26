@@ -1,0 +1,16 @@
+# Intermediate DB build artifacts
+*.db
+*.db.gz
+
+# Gutenberg book cache (35 MB of text files; re-downloadable via add_gutenberg_examples.py)
+sources/gutenberg/
+
+# Derived corpus DB (regenerable from gutenberg/ texts)
+sources/gutenberg_corpus.db
+
+# Tatoeba sentence corpus (11 MB bz2; re-downloadable)
+sources/tatoeba_deu_sentences.tsv.bz2
+
+# Python cache
+__pycache__/
+*.pyc
