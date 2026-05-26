@@ -132,10 +132,6 @@ class _TranslationFlashGameState extends State<TranslationFlashGame>
             icon: Icons.timer,
             body: 'Du hast 30 Sekunden. Je mehr richtige Antworten, desto besser dein Score.',
           ),
-          const OnboardingStep(
-            icon: Icons.tips_and_updates,
-            body: 'Übersetzungen stammen aus Wiktionary.',
-          ),
         ],
       );
     }

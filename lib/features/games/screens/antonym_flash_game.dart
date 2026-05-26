@@ -137,12 +137,6 @@ class _AntonymFlashGameState extends State<AntonymFlashGame>
                 ? 'Du hast 30 Sekunden. Je mehr richtige Antworten, desto besser dein Score.'
                 : 'You have 30 seconds. More correct answers means a better score.',
           ),
-          OnboardingStep(
-            icon: Icons.tips_and_updates,
-            body: isDE
-                ? 'Antonyme kommen aus OdeNet (Deutsch) bzw. WordNet (Englisch).'
-                : 'Antonyms come from OdeNet (German) or WordNet (English).',
-          ),
         ],
       );
     }

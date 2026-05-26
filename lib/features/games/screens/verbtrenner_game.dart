@@ -16,7 +16,6 @@ import '../../../generated/l10n.dart';
 import '../providers/game_provider.dart';
 import '../widgets/space_background.dart';
 import '../models/game_outcome.dart';
-import 'verbtrenner_text_helpers.dart';
 
 /// Trennbare Verben Game - Teaching German separable prefix verb rules
 /// Players decide if verb parts should be ZUSAMMEN (together) or GETRENNT (separated)
@@ -214,16 +213,17 @@ class _VerbtrennerGameState extends State<VerbtrennerGame>
     return _separablePrefixes.contains(prefix.toLowerCase());
   }
 
-  /// Generate all rule-based pairs from a separable verb
+  /// Generate all rule-based pairs from a separable verb.
+  /// Only generates a VerbPair when a real example sentence is available.
   List<VerbPair> _generatePairsFromVerb(GermanWord word) {
   final pairs = <VerbPair>[];
   final inflections = word.apiEnrichment?.inflections ?? [];
-  final examples = word.apiEnrichment?.examples ?? [];
+  final apiExamples = word.apiEnrichment?.examples ?? [];
+  final tataoebaExamples = word.exampleSentences;
 
-  String infinitive = word.word;
+  final String infinitive = word.word;
   String prefix = '';
 
-  // Find the separable prefix
   for (final form in inflections) {
     final formText = form['form_text'] as String?;
     if (formText != null && formText.contains(' ')) {
@@ -237,9 +237,6 @@ class _VerbtrennerGameState extends State<VerbtrennerGame>
 
   if (prefix.isEmpty) return pairs;
 
-  // Extract a typical direct object from the examples (if transitive)
-  String? typicalObject = _extractTypicalObject(examples, infinitive);
-
   for (final form in inflections) {
     final formText = form['form_text'] as String?;
     final tags = form['tags'] as String?;
@@ -248,38 +245,39 @@ class _VerbtrennerGameState extends State<VerbtrennerGame>
     // RULE 1: Present/Past tense (conjugated) → GETRENNT
     if ((tags.contains('present') || tags.contains('past')) &&
         !tags.contains('participle') &&
-        !tags.contains('infinitive')) {
-
-      if (formText.contains(' ')) {
-        final parts = formText.split(' ');
-        if (parts.length == 2) {
-          String context = _findOrBuildContext(
-            examples: examples,
-            formText: formText,
-            verbParts: parts,
-            typicalObject: typicalObject,
-            templateType: 'conjugated',
-          );
-
-          pairs.add(VerbPair(
-            part1: parts[0],
-            part2: parts[1],
-            shouldBeSeparated: true,
-            context: context,
-            explanation: 'Konjugierte Form im Hauptsatz → getrennt',
-            difficulty: 2,
-            wordId: word.id,
-            formText: formText,
-          ));
-        }
+        !tags.contains('infinitive') &&
+        formText.contains(' ')) {
+      final parts = formText.split(' ');
+      if (parts.length == 2) {
+        final context = _findRealExample(
+          apiExamples: apiExamples,
+          tataoebaExamples: tataoebaExamples,
+          formText: formText,
+        );
+        if (context == null) continue;
+        pairs.add(VerbPair(
+          part1: parts[0],
+          part2: parts[1],
+          shouldBeSeparated: true,
+          context: context,
+          explanation: 'Konjugierte Form im Hauptsatz → getrennt',
+          difficulty: 2,
+          wordId: word.id,
+          formText: formText,
+        ));
       }
     }
 
     // RULE 2: Extended infinitive with "zu"
     if (tags.contains('extended') && tags.contains('infinitive')) {
+      final context = _findRealExample(
+        apiExamples: apiExamples,
+        tataoebaExamples: tataoebaExamples,
+        formText: formText,
+      );
+      if (context == null) continue;
       final hasSpaces = formText.contains(' ');
-      
-      String part1, part2;
+      final String part1, part2;
       if (hasSpaces) {
         final lastSpace = formText.lastIndexOf(' ');
         part1 = formText.substring(0, lastSpace);
@@ -288,20 +286,12 @@ class _VerbtrennerGameState extends State<VerbtrennerGame>
         part1 = prefix;
         part2 = formText.substring(prefix.length);
       }
-      
-      String context = _findOrBuildContext(
-        examples: examples,
-        formText: formText,
-        typicalObject: typicalObject,
-        templateType: hasSpaces ? 'perfect_infinitive' : 'zu_infinitive',
-      );
-
       pairs.add(VerbPair(
         part1: part1,
         part2: part2,
         shouldBeSeparated: hasSpaces,
         context: context,
-        explanation: hasSpaces 
+        explanation: hasSpaces
             ? 'Infinitiv mit Hilfsverb (zu haben/sein) → getrennt'
             : 'zu-Infinitiv (ein Wort) → zusammen',
         difficulty: 3,
@@ -314,24 +304,15 @@ class _VerbtrennerGameState extends State<VerbtrennerGame>
     if (tags.contains('infinitive') &&
         !tags.contains('extended') &&
         formText == infinitive) {
-
-      final modals = ['will', 'kann', 'muss', 'soll', 'darf', 'mag'];
-      final modal = modals[Random().nextInt(modals.length)];
-
-      String context = _findOrBuildContext(
-        examples: examples,
+      final context = _findRealExample(
+        apiExamples: apiExamples,
+        tataoebaExamples: tataoebaExamples,
         formText: formText,
-        typicalObject: typicalObject,
-        templateType: 'modal',
-        modalVerb: modal,
       );
-
-      final part1 = prefix;
-      final part2 = formText.substring(prefix.length);
-
+      if (context == null) continue;
       pairs.add(VerbPair(
-        part1: part1,
-        part2: part2,
+        part1: prefix,
+        part2: formText.substring(prefix.length),
         shouldBeSeparated: false,
         context: context,
         explanation: 'Infinitiv nach Modalverb → zusammen',
@@ -343,19 +324,15 @@ class _VerbtrennerGameState extends State<VerbtrennerGame>
 
     // RULE 4: Past participle → ZUSAMMEN
     if (tags.contains('participle') && tags.contains('perfect')) {
-      String context = _findOrBuildContext(
-        examples: examples,
+      final context = _findRealExample(
+        apiExamples: apiExamples,
+        tataoebaExamples: tataoebaExamples,
         formText: formText,
-        typicalObject: typicalObject,
-        templateType: 'perfect',
       );
-
-      final part1 = prefix;
-      final part2 = formText.substring(prefix.length);
-
+      if (context == null) continue;
       pairs.add(VerbPair(
-        part1: part1,
-        part2: part2,
+        part1: prefix,
+        part2: formText.substring(prefix.length),
         shouldBeSeparated: false,
         context: context,
         explanation: 'Partizip Perfekt → zusammen',
@@ -369,75 +346,32 @@ class _VerbtrennerGameState extends State<VerbtrennerGame>
   return pairs;
 }
 
-  /// Extract a typical direct object from examples (for transitive verbs).
-  /// Thin wrapper that walks examples and delegates extraction to the
-  /// pure helper in verbtrenner_text_helpers.dart (where the logic is
-  /// unit-tested).
-  String? _extractTypicalObject(List<ApiExample> examples, String infinitive) {
-    for (final example in examples) {
-      final text = example.text;
-      if (text == null || text.isEmpty) continue;
-      final phrase = extractAccusativeObjectPhrase(text);
-      if (phrase != null) return phrase;
+  /// Returns a real example sentence containing [formText], or any real sentence
+  /// from the word's examples if no exact match exists. Returns null only when
+  /// the word has no example sentences at all.
+  String? _findRealExample({
+    required List<ApiExample> apiExamples,
+    required List<String> tataoebaExamples,
+    required String formText,
+  }) {
+    // Prefer exact-match examples (sentence contains the specific inflected form)
+    for (final ex in apiExamples) {
+      final text = ex.text;
+      if (text != null && text.isNotEmpty && text.contains(formText)) return text;
+    }
+    for (final text in tataoebaExamples) {
+      if (text.isNotEmpty && text.contains(formText)) return text;
+    }
+    // Fall back to any real sentence — still better than a fabricated template
+    for (final ex in apiExamples) {
+      final text = ex.text;
+      if (text != null && text.isNotEmpty) return text;
+    }
+    for (final text in tataoebaExamples) {
+      if (text.isNotEmpty) return text;
     }
     return null;
   }
-
-  /// Find an appropriate example or build a grammatically correct context sentence
-  String _findOrBuildContext({
-  required List<ApiExample> examples,
-  required String formText,
-  List<String>? verbParts,
-  String? typicalObject,
-  required String templateType,
-  String? modalVerb,
-}) {
-  // First, try to find an example that contains the exact form
-  for (final example in examples) {
-    final text = example.text;
-    if (text == null || text.isEmpty) continue;
-    
-    if (text.contains(formText)) {
-      return text;
-    }
-  }
-
-  // If no exact match, try to find ANY example and use it as inspiration
-  String? anyExample;
-  for (final example in examples) {
-    final text = example.text;
-    if (text != null && text.isNotEmpty) {
-      anyExample = text;
-      break;
-    }
-  }
-
-  // Build context based on template type
-  final objectPhrase = typicalObject ?? 'etwas';
-
-  switch (templateType) {
-    case 'conjugated':
-      if (verbParts != null && verbParts.length == 2) {
-        return 'Ich ${verbParts[0]} $objectPhrase ${verbParts[1]}.';
-      }
-      return anyExample ?? 'Ich $formText.';
-
-    case 'modal':
-      return 'Ich $modalVerb $objectPhrase $formText.';
-
-    case 'perfect':
-      return 'Ich habe $objectPhrase $formText.';
-
-    case 'zu_infinitive':
-      return 'Es ist wichtig, $objectPhrase $formText.';
-
-    case 'perfect_infinitive':
-      return 'Es scheint wichtig, $objectPhrase $formText.';
-
-    default:
-      return anyExample ?? 'Ich $formText.';
-  }
-}
 
 
   void _showNextPair() {

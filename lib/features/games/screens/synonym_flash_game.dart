@@ -134,12 +134,6 @@ class _SynonymFlashGameState extends State<SynonymFlashGame>
                 ? 'Du hast 30 Sekunden. Je mehr richtige Antworten, desto besser dein Score.'
                 : 'You have 30 seconds. More correct answers means a better score.',
           ),
-          OnboardingStep(
-            icon: Icons.tips_and_updates,
-            body: isDE
-                ? 'Synonyme kommen aus Wiktionary (Deutsch) und WordNet/Wiktionary (Englisch).'
-                : 'Synonyms come from Wiktionary (German) and WordNet/Wiktionary (English).',
-          ),
         ],
       );
     }

@@ -186,12 +186,6 @@ class _ClozeFlashGameState extends State<ClozeFlashGame>
                 ? 'Du hast 30 Sekunden. Lies den Kontext — er hilft dir!'
                 : 'You have 30 seconds. Read the context — it helps!',
           ),
-          OnboardingStep(
-            icon: Icons.tips_and_updates,
-            body: isDE
-                ? 'Beispielsätze kommen aus Wiktionary.'
-                : 'Example sentences come from Wiktionary.',
-          ),
         ],
       );
     }

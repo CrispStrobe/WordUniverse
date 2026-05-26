@@ -169,12 +169,6 @@ class _SyllableCountGameState extends State<SyllableCountGame>
                 ? 'Du hast 30 Sekunden. Sprich das Wort laut aus, um die Silben zu spüren.'
                 : 'You have 30 seconds. Say the word aloud to feel its syllables.',
           ),
-          OnboardingStep(
-            icon: Icons.tips_and_updates,
-            body: isDE
-                ? 'Die Silbentrennung basiert auf Wiktionary.'
-                : 'Syllable data comes from Wiktionary.',
-          ),
         ],
       );
     }
