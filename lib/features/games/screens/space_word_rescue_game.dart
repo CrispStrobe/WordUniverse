@@ -1311,7 +1311,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
                     color: SpaceTheme.starYellow,
                     borderRadius: BorderRadius.circular(8),
                     child: InkWell(
-                      onTap: _showProgressiveHint,
+                      onTap: _gameProvider.hintsEnabled ? _showProgressiveHint : null,
                       borderRadius: BorderRadius.circular(8),
                       child: Container(
                         padding: EdgeInsets.all(isCompact ? 8 : (isLandscapeLayout ? 10 : 12)),

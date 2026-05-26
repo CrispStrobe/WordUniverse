@@ -306,7 +306,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       _showConfetti = true;
     });
 
-    _showSmartHint(_currentWord!, isCorrect: true);
+    if (_gameProvider.hintsEnabled) _showSmartHint(_currentWord!, isCorrect: true);
     _confettiController.forward(from: 0.0);
 
     _feedbackTimer = Timer(const Duration(milliseconds: 1500), () {
@@ -327,7 +327,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       _feedbackState = FeedbackState.incorrect;
     });
 
-    _showSmartHint(_currentWord!, isCorrect: false, guessedType: guessedCategory);
+    if (_gameProvider.hintsEnabled) _showSmartHint(_currentWord!, isCorrect: false, guessedType: guessedCategory);
 
     _feedbackTimer = Timer(const Duration(milliseconds: 2000), () {
       if (mounted) {
