@@ -1112,6 +1112,34 @@ class SEn extends S {
       'Complete the German idiom — tap the missing word!';
 
   @override
+  String get hypernymFlashTitle => 'Category Flash';
+
+  @override
+  String get hypernymFlashDescription =>
+      'Which category does the word belong to?';
+
+  @override
+  String get wordClassFlashTitle => 'Word Class Flash';
+
+  @override
+  String get wordClassFlashDescription =>
+      'Noun, Verb, Adjective or Adverb — pick fast!';
+
+  @override
+  String get proverbClozeTitle => 'Proverb Cloze';
+
+  @override
+  String get proverbClozeDescription =>
+      'Complete the German proverb — tap the missing word!';
+
+  @override
+  String get reverseTranslationTitle => 'Reverse Translation';
+
+  @override
+  String get reverseTranslationDescription =>
+      'An English word appears — find the German word!';
+
+  @override
   String get conjugationDrillTitle => 'Conjugation Drill';
 
   @override

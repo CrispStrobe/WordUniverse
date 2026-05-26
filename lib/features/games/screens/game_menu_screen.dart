@@ -18,7 +18,11 @@ import 'homophone_drill_game.dart';
 import '../services/homophone_drill_service.dart' show HomophoneGameMode;
 import 'cloze_flash_game.dart';
 import 'expression_flash_game.dart';
+import 'hypernym_flash_game.dart';
+import 'proverb_cloze_game.dart';
+import 'reverse_translation_flash_game.dart';
 import 'syllable_count_game.dart';
+import 'word_class_flash_game.dart';
 import 'synonym_flash_game.dart';
 import 'translation_flash_game.dart';
 import 'sri_review_game.dart';
@@ -57,7 +61,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
   late Animation<double> _floatAnimation;
 
   // for new games, we must manually update game count
-  static const int _gameCount = 24;
+  static const int _gameCount = 28;
 
   @override
   void initState() {
@@ -566,6 +570,46 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             colors: [Color(0xFF6A11CB), Color(0xFF2575FC)]),
         supportedLearningLanguages: const ['de'],
         onTap: () => _navigateToGame(VerbtrennerGame(
+            gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
+      ),
+      GameInfo(
+        title: s.hypernymFlashTitle,
+        description: s.hypernymFlashDescription,
+        icon: Icons.account_tree_outlined,
+        gradient: const LinearGradient(
+            colors: [Color(0xFF7F00FF), Color(0xFFE100FF)]),
+        supportedLearningLanguages: const ['de', 'en'],
+        onTap: () => _navigateToGame(HypernymFlashGame(
+            gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
+      ),
+      GameInfo(
+        title: s.wordClassFlashTitle,
+        description: s.wordClassFlashDescription,
+        icon: Icons.label_outline,
+        gradient: const LinearGradient(
+            colors: [Color(0xFF203A43), Color(0xFF2C5364)]),
+        supportedLearningLanguages: const ['de', 'en'],
+        onTap: () => _navigateToGame(WordClassFlashGame(
+            gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
+      ),
+      GameInfo(
+        title: s.proverbClozeTitle,
+        description: s.proverbClozeDescription,
+        icon: Icons.auto_stories,
+        gradient: const LinearGradient(
+            colors: [Color(0xFFc6a700), Color(0xFF5f0f40)]),
+        supportedLearningLanguages: const ['de'],
+        onTap: () => _navigateToGame(ProverbClozeGame(
+            gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
+      ),
+      GameInfo(
+        title: s.reverseTranslationTitle,
+        description: s.reverseTranslationDescription,
+        icon: Icons.swap_vert,
+        gradient: const LinearGradient(
+            colors: [Color(0xFF134E5E), Color(0xFF71B280)]),
+        supportedLearningLanguages: const ['de'],
+        onTap: () => _navigateToGame(ReverseTranslationFlashGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
     ];

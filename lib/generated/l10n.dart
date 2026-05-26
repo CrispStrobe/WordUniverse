@@ -2085,6 +2085,54 @@ abstract class S {
   /// **'Complete the German idiom — tap the missing word!'**
   String get expressionFlashDescription;
 
+  /// No description provided for @hypernymFlashTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Category Flash'**
+  String get hypernymFlashTitle;
+
+  /// No description provided for @hypernymFlashDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Which category does the word belong to?'**
+  String get hypernymFlashDescription;
+
+  /// No description provided for @wordClassFlashTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Word Class Flash'**
+  String get wordClassFlashTitle;
+
+  /// No description provided for @wordClassFlashDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Noun, Verb, Adjective or Adverb — pick fast!'**
+  String get wordClassFlashDescription;
+
+  /// No description provided for @proverbClozeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Proverb Cloze'**
+  String get proverbClozeTitle;
+
+  /// No description provided for @proverbClozeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete the German proverb — tap the missing word!'**
+  String get proverbClozeDescription;
+
+  /// No description provided for @reverseTranslationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reverse Translation'**
+  String get reverseTranslationTitle;
+
+  /// No description provided for @reverseTranslationDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'An English word appears — find the German word!'**
+  String get reverseTranslationDescription;
+
   /// No description provided for @conjugationDrillTitle.
   ///
   /// In en, this message translates to:

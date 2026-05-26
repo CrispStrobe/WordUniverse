@@ -628,6 +628,18 @@
     "expressionFlashTitle": "Phrasen-Blitz",
     "expressionFlashDescription": "Ergänze die Redewendung — tippe das fehlende Wort!",
 
+    "hypernymFlashTitle": "Oberbegriff-Blitz",
+    "hypernymFlashDescription": "Welchem Oberbegriff gehört das Wort?",
+
+    "wordClassFlashTitle": "Wortart-Blitz",
+    "wordClassFlashDescription": "Nomen, Verb, Adjektiv oder Adverb — schnell tippen!",
+
+    "proverbClozeTitle": "Sprichwort-Blitz",
+    "proverbClozeDescription": "Ergänze das Sprichwort — tippe das fehlende Wort!",
+
+    "reverseTranslationTitle": "Rück-Übersetzung",
+    "reverseTranslationDescription": "Ein englisches Wort erscheint — finde das deutsche Wort!",
+
     "conjugationDrillTitle": "Konjugations-Drill",
     "conjugationDrillDescription": "Wähle die richtige Verbform für jedes Personalpronomen",
 
