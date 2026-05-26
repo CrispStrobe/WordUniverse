@@ -307,6 +307,279 @@ All scripts are idempotent: re-running on the patched DB will detect
 already-tagged words and skip them (no duplicate tokens, no
 double-attribution).
 
+## 2026-05-22 — EN DB v1 shipped; DE graphematicVariants wiring fixed
+
+### EN DB v1 shipped (`assets/grundwortschatz_en.db.gz`, 8.6 MB)
+
+Full record in `pipeline/voc-en/HISTORY.md`. Summary:
+
+- **7,878 lemmas**, 99.2 % enriched via `11b_enrich_local.py` on VPS
+- **27,363 misspelling annotations** (Norvig + Wikipedia) on 59 % of entries
+- **270 dialect variants** (UK ↔ US) via SCOWL step 12c
+- **25,659 OEWN WordNet sense records** on 70 % of entries
+- Steps 12_api_wins, 12c (SCOWL), 12d (Wiktionary-marker fold), 13 (WordNet)
+  all completed in this session. Step 14 final DB build shipped.
+- Architectural decisions locked in: UK English canonical, 10k filterable,
+  UK Y1–6 grade mapping, single app with both DBs bundled (L2L × GUI matrix).
+
+### DE — graphematicVariants wiring fix
+
+`graphematicVariants` were correctly written into `enrichment_json` by
+pipeline step 15 (`15_patch_graphematic_variants.py`) for 5,514 of 10,450
+words, but `_mapRowToGermanWord` in
+`lib/core/services/dictionary_database_service.dart` never exposed them to
+`GermanWord.fromJson` — the field lived under `wordMap['apiEnrichment']` but
+`fromJson` read `json['graphematicVariants']` from the top level (populated
+only from `metadata_json` spread). One-line collection-if fix promotes the
+field from `apiEnrichment` to the top level of `wordMap`.
+
+The remaining 4,936 words have no variants in `enrichment_json` at all
+(no matching DE grapheme-confusion rules and no wiki misspellings) — correct
+behaviour, not a bug.
+
+### DE — FEHLER* source tags purged + Menzel license removed
+
+674 words had `FEHLER100`/`FEHLER200`/`FEHLER300`/`FEHLER400` in
+`metadata_json.sources`. These tags referenced Tacke-derived content
+(Menzel 1985) that was never actually shipped as misspelling data
+(only influenced word inclusion). Tags stripped via SQLite UPDATE,
+`commonMistakes` was null for all 10,450 DE words. Remaining 174
+LIKE '%FEHLER%' hits after strip are German compound words containing
+`-fehler` (Abbildungsfehler etc.) — not tags. Menzel `LicenseRegistry`
+block removed from `lib/core/services/custom_licenses_registry.dart`.
+
+### DE — LiTKey corpus integrated (CC-BY-SA 4.0)
+
+Two new pipeline patcher scripts added under `pipeline/voc-de/`:
+
+**`add_litkey_errors.py`** — downloads `Litkey-Tab.csv` (44 MB, CC-BY-SA
+4.0, Müller et al. 2021, RUB Bochum), extracts `(orig, target)` pairs
+where `erroneous==1`, and populates `commonMistakes[]` in `metadata_json`
+via an inflection-aware index. Result: **1,923 entries annotated with
+8,035 misspelling strings** (source tag `LITKEY`). Corpus covers grades
+2–4 primary school German children's writing.
+
+**`add_litkey_profiles.py`** — aggregates per-lemma statistics from
+the full corpus (all 212,505 tokens, not just errors):
+- `litkey_error_rate` (float 0.0–1.0) — empirical misspelling frequency
+- `litkey_error_profile` (dict) — fraction of errors per category:
+  `devoice_final`, `h_length`, `h_sep`, `schwa_silent`, `ie`,
+  `doubleC_syl`, `doubleC_other`, `graph_marked`, `morph_bound`, etc.
+  (maps 1:1 to NRW morphematisches Prinzip categories already in DB)
+- `litkey_grade_first_correct` (int 2/3/4 or null) — grade at which
+  correct tokens first appear (mastery indicator)
+- `spellingDifficulty` recomputed from error rate (enum index 0–3):
+  `<0.25` easy, `<0.50` medium, `<0.75` hard, `≥0.75` expert
+
+Result: **2,906 entries updated**, **1,652 `spellingDifficulty` values
+changed** from heuristic-0 to empirical values. Shipped DB → 20 MB
+(up from ~7 MB; wordnet data in EN is the driver there).
+
+LiTKey license entry added to `custom_licenses_registry.dart`
+(entry `9h-extra14b`). CC-BY-SA 4.0 is compatible with the existing
+DB posture (GPL-3.0 via childLex is the effective license).
+
+---
+
+## 2026-05-24 — EN DB expansion + post-enrichment infrastructure
+
+### EN DB: curriculum coverage gap filled (7,878 → 11,539 entries)
+
+`add_missing_curriculum_en.py` identified 3,661 CEFR-J A1-B2 / YLE /
+UK statutory words absent from the original hermit_dave-based 7,878-entry
+DB. Inserted with `enrichment_status='minimal'`. All post-pipeline scripts
+re-run with `--overwrite` on the expanded DB.
+
+Final enrichment_status: success=7,815 / minimal=3,661 / no_data=63.
+
+### EN DB: metadata enrichment (full 11,539 entries)
+
+- **wordfreq** (Apache-2.0 + CC-BY-SA 4.0) — Zipf, per_million, band 1–5 for all 11,539
+- **CEFR-J v1.5** (CC-BY-SA 4.0) — level tags for 6,879 entries
+- **Cambridge YLE** (factual) — Starters=216, Movers=324, Flyers=293
+- **UK DfE statutory lists** (OGL v3) — Y1-Y2=139, Y3-Y4=≈100, Y5-Y6=≈96
+- **gradeLevelEstimate** (1–6) — computed via decision tree for all 11,539
+- **grade_level column** synced from gradeLevelEstimate (was miscalibrated)
+
+### EN DB: new post-build patcher scripts
+
+- **`enrich_minimal_en.py`** — Wiktionary defs/inflections/pronunciation
+  for the 3,661 `minimal` entries; queries local Wiktionary DB at
+  `/Volumes/backups/code/WiktionaryEN-space/en_wiktionary_normalized.db`;
+  4 workers; JSONL checkpoint; mtime-based resume.
+
+- **`add_oewn_en.py`** — OEWN sense expansion for entries with empty
+  `wordnetSenses`; single-threaded (wn not thread-safe); ~600 lookups/s;
+  `--filter-status any` to cover both success and no_data entries.
+
+### EN DB: grade fill running
+
+`add_llm_examples_en.py --grade` running as PID 9034 (5,917/11,539
+at session end). After completion, run the post-fill sequence in
+`pipeline/voc-en/PLAN.md`.
+
+### Dart fixes
+
+- **`dictionary_database_service.dart`**: injects `grade_examples` and
+  `gutenberg_examples` from `metadata_json` into `apiEnrichment` before
+  `ApiEnrichment.fromJson` (were always null before).
+- **`vocabulary_models.dart`**: `gradeExamples`, `gutenbergExamples` added
+  to `ApiEnrichment`; `gradeLevelEstimate`, `cefrLevel` added to `GermanWord`.
+
+### License registry updates (custom_licenses_registry.dart)
+
+Added: OEWN (CC-BY 4.0), wordfreq (Apache-2.0 + CC-BY-SA 4.0),
+CEFR-J v1.5 (CC-BY-SA 4.0), Cambridge YLE (factual), UK DfE statutory
+lists (OGL v3), Norvig spell-errors.txt (MIT + CC-BY-SA), Project
+Gutenberg (public domain), SCOWL spelling variants (MIT-like).
+Removed: duplicate UK statutory lists entry (9f vs 9r).
+
+### Pipeline gitignores
+
+Added `pipeline/voc-en/.gitignore` and `pipeline/voc-de/.gitignore`
+to exclude large build artifacts (DBs, JSON dumps, Parquet exports,
+Gutenberg text caches) while tracking scripts and source data.
+
+### DE DB: LiTKey error annotations applied
+
+`add_litkey_errors.py` (newly imported from `~/code/wiktionary/`) applied
+against `Litkey-Tab.csv` (212,505 rows, already downloaded). Updated 383
+entries with 999 new `metadata_json.commonMistakes` annotations. Total
+entries with commonMistakes: 2,401. The LiTKey corpus (CC-BY-SA 4.0,
+Rauschii et al., grades 2–4, 37k+ annotated tokens) provides empirical
+child misspellings rather than sourced error lists.
+
+### DE DB: word_type backfill for LITKEY entries
+
+885 non-Vorname entries inserted by `add_litkey_words.py` had blank
+`word_type`. Applied inline Python patch mapping
+`enrichment_json.partOfSpeech` → lowercase `word_type` column:
+Substantiv→substantiv, Verb→verb, Adjektiv→adjektiv, Adverb→adverb,
+Eigenname/Interjektion→andere, Zahl→numerale. The remaining 2,150 blank
+entries are Vornamen (intentionally blank; `partOfSpeech="Eigenname"` in
+`enrichment_json`). Total with word_type: 10,890 / 13,040.
+
+### DE DB: LiTKey spelling difficulty profiles
+
+`add_litkey_profiles.py` (newly imported) computed per-lemma spelling
+difficulty profiles from `Litkey-Tab.csv` and stored in `metadata_json`:
+- `litkey_error_rate`: fraction of child writing tokens that were
+  misspellings (0.0–1.0)
+- `litkey_error_profile`: error-type breakdown (graph_comb, ie, doubleC,
+  h_length, Auslautverhärtung, morph_bound, etc.)
+- `litkey_grade_first_correct`: lowest grade where children spelled it right
+- `litkey_word_features`: phonological properties of the word itself
+- `litkey_orth_neighbourhood`: childLex bigram_sum + old20 metrics
+- `spellingDifficulty`: recomputed from error_rate (0=easy … 3=expert)
+
+Updated 3,487 entries. spellingDifficulty recalibrated for 61 of them.
+
+### DE DB: grade fill for 261 missing entries (running)
+
+`add_llm_examples.py --grade` started for 261 entries with no
+`grade_examples` at all (all have `grade_level` IS NULL or grades 1-6).
+Providers: Groq, Mistral, Nebius (Cerebras disabled). Checkpoint at
+`pipeline/voc-de/grade_results.jsonl`.
+
+### Fix: `response_format={"type": "json_object"}` for LLM grade fill
+
+Diagnosed root cause of ~98% parse failures in both DE and EN grade fills:
+Nebius/Scaleway/Mistral Llama-3.3-70B outputs `}}}` instead of `]}}` at
+the end of JSON (missing `]` for grade-6 array). `parse_json()`'s
+`rfind('}')` fallback cannot repair malformed JSON.
+
+**Fix:** Added `response_format={"type": "json_object"}` to
+`prov["client"].chat.completions.create()` when `mode == "fill"` in both
+`add_llm_examples_en.py` (~line 258) and `add_llm_examples.py` (~line 265).
+Failure rate dropped from ~98% → ~1%.
+
+Also excluded Groq and Cohere by clearing their env vars
+(`GROQ_API_KEY="" COHERE_API_KEY=""`) — both rate-limit aggressively and
+produce malformed output anyway. Active providers: Nebius, Scaleway, Mistral.
+
+### DE DB: check pass running (994/~2,343)
+
+`add_llm_examples.py --check` restarted (PID 54479) with response_format
+fix. Checkpoint `check_results.jsonl` at 994 entries (up from 241 at
+start of day). Groq/Cohere excluded.
+
+### EN DB: grade fill running (7,112/11,539 = 62%)
+
+`add_llm_examples_en.py --grade` restarted (PID 53732) with response_format
+fix. Checkpoint `grade_results_en.jsonl` at 7,112. Groq/Cohere excluded.
+Wiktionary DB confirmed accessible (`enrich_minimal_en.py --limit 3`
+returned 3/3 successes).
+
+---
+
+## 2026-05-25 — DE DB complete; EN DB enrichment continued
+
+### DE DB: grade fill + check pass complete
+
+- `add_llm_examples.py --grade` (PID 11066): 141/155 entries filled (91%).
+  Fix applied: `GRADE_MAX_WORDS` raised from `{1:6,2:6,3:9,4:9,5:12,6:12}`
+  to `{1:10,2:10,3:14,4:14,5:18,6:18}` — German sentences for grades 1-2
+  are naturally 8-10 words; old 6-word limit rejected all Llama-3.3-70B output.
+- `add_llm_examples.py --check` (PID 54479): 1,944 entries corrected,
+  21,240 sentences stored. 0% invalid rate (response_format fix effective).
+- **Final coverage: 10,876/10,890 = 99%** non-Vorname entries with grade_examples.
+  14 very hard words (all LLM attempts rejected by _valid_grade_block) remain.
+- Compressed: `assets/grundwortschatz.db.gz` **148 MB → 24 MB**. ✅
+
+### EN DB: grade fill + check-all complete
+
+- `add_llm_examples_en.py --grade` (PID 53732): **4,578 entries updated**, 52,912
+  sentences stored. 11,481/11,539 (99%) final coverage.
+- `add_llm_examples_en.py --check-all` (PID 13204): **10,692/11,481 corrected**
+  (93% success, 756 null = function words / hard cases where LLM gave up).
+  Provider stats: Nebius 0% bad, Scaleway 0% bad, Mistral 0% bad.
+
+### EN DB: Gutenberg, uk_curriculum, OEWN
+
+- `add_gutenberg_examples_en.py`: **2,018 entries updated** (now 6,274 total, 54%).
+- `add_uk_curriculum.py --grade-only`: grade_level column synced for all 11,539.
+- `add_oewn_en.py --filter-status any`: **3,600 new OEWN senses** added
+  (9,186 total, 79%); 2,430 no_data; ran in 30s.
+
+---
+
+## 2026-05-26 — EN DB: Wiktionary enrichment for minimal entries via VPS; EN shipped
+
+### Problem: `enrich_minimal_en.py` too slow locally
+
+Local external USB drive: 0.1/s → 16h ETA for 3,658 remaining entries. Killed
+after overnight run at 1,300/3,658 (35%). Checkpoint preserved in
+`/tmp/dbpatch_wikt_minimal_en/wikt_minimal_results.jsonl` (1,386 entries).
+
+### Solution: VPS `168.119.190.252` (Hetzner)
+
+VPS already had `en_wiktionary_normalized_all.db` (2.0 GB) on NVMe from
+the original EN enrichment run. Uploaded patched script + DB + checkpoint,
+ran with 4 workers → **1.4/s, completed in 27 min**.
+
+```
+success=2272 new + 1386 checkpoint = 3658 total enriched
+no_data=3 (words not in English Wiktionary)
+errors=0
+```
+
+All 3,661 `enrichment_status='minimal'` entries now have definitions,
+inflections, pronunciation. Status updated to success/no_data.
+
+### EN DB final stats (assets/grundwortschatz_en.db.gz)
+
+| Field | Value |
+|---|---|
+| Total entries | **11,539** |
+| definitions | 11,486 (99%) |
+| grade_examples | 11,481 (99%) |
+| wordnetSenses | 9,186 (79%) |
+| gutenberg_examples | 6,274 (54%) |
+| enrichment_status minimal | **0** — fully enriched |
+| Compressed | **92 MB → 17 MB** ✅ |
+
+---
+
 ## Tail — what isn't dated
 
 - The `top10000en.txt`, `top1000en.txt`, `top1000fr.txt` at the project

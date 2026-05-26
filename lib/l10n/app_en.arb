@@ -250,6 +250,8 @@
     "hapticFeedbackDesc": "Vibration on touch (if supported)",
     "appLanguage": "App Language",
     "appLanguageDesc": "Choose your preferred language",
+    "learningLanguage": "Learning language",
+    "learningLanguageDesc": "Choose which vocabulary database games use",
     "languageEnglish": "English",
     "languageGerman": "Deutsch",
     "difficulty": "Difficulty",
@@ -648,12 +650,24 @@
     "wortbaumeisterTogetherExample": "(e.g. aufstehen)",
 
     "grossschreibTitle": "Word Galaxy",
+    "grossschreibDescription": "Are words in a sentence capitalised or not?",
     "grossschreibClickHint": "Tap the word!",
     "grossschreibCheck": "CHECK",
 
     "grossstadtTitle": "Upper or lower case?",
+    "grossstadtCardTitle": "Noun Sorter",
+    "grossstadtCardDescription": "Sorting words by capitalisation on the conveyor belt",
     "grossstadtCapital": "UPPER",
     "grossstadtLower": "lower",
+
+    "spellingSpotterTitle": "Spelling Spotter",
+    "spellingSpotterDescription": "Spot the correctly spelled word — learn common spelling mistakes",
+
+    "wortbaumeisterCardTitle": "Wort-Stückler",
+    "wortbaumeisterCardDescription": "Build compound nouns piece by piece",
+
+    "verbtrennerCardTitle": "Verb-Trenner",
+    "verbtrennerCardDescription": "Recognise separable verbs: together or apart?",
 
     "achievementsBannerProgress": "{unlocked} of {total} achievements unlocked",
     "@achievementsBannerProgress": {

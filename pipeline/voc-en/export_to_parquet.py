@@ -9,7 +9,9 @@ Output files:
 
 from __future__ import annotations
 
+import argparse
 import gzip
+import shutil
 import sqlite3
 import sys
 import time
@@ -83,18 +85,31 @@ def export_table(con, select_sql, schema, out_path, batch_size=5000):
 
 
 def main():
-    if not DB_GZ.exists():
-        print(f"ERROR: shipped EN DB not found: {DB_GZ}", file=sys.stderr)
-        return 1
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument("--db", default=None,
+                    help="Local .db file to export (skips decompression); "
+                         "default: decompress assets/grundwortschatz_en.db.gz")
+    args = ap.parse_args()
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     TMP_DB.parent.mkdir(parents=True, exist_ok=True)
     if TMP_DB.exists():
         TMP_DB.unlink()
 
-    print(f"Decompressing {DB_GZ} -> {TMP_DB}")
-    with gzip.open(DB_GZ, "rb") as fi, TMP_DB.open("wb") as fo:
-        fo.write(fi.read())
+    if args.db:
+        src = Path(args.db)
+        if not src.exists():
+            print(f"ERROR: not found: {src}", file=sys.stderr)
+            return 1
+        shutil.copy2(src, TMP_DB)
+        print(f"Using local DB: {src}")
+    else:
+        if not DB_GZ.exists():
+            print(f"ERROR: shipped EN DB not found: {DB_GZ}", file=sys.stderr)
+            return 1
+        print(f"Decompressing {DB_GZ} -> {TMP_DB}")
+        with gzip.open(DB_GZ, "rb") as fi, TMP_DB.open("wb") as fo:
+            shutil.copyfileobj(fi, fo)
 
     con = sqlite3.connect(f"file:{TMP_DB}?mode=ro", uri=True)
     start = time.time()

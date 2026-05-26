@@ -296,6 +296,15 @@ class DictionaryDatabaseService {
         }
       }
 
+      // grade_examples and gutenberg_examples live in metadata_json;
+      // ApiEnrichment.fromJson reads them from the apiEnrichment dict,
+      // so inject them there before building the word map.
+      for (final key in ['grade_examples', 'gutenberg_examples']) {
+        if (metadata.containsKey(key)) {
+          apiEnrichment[key] = metadata[key];
+        }
+      }
+
       // Build the word map for GermanWord.fromJson
       final Map<String, dynamic> wordMap = {
         'id': row['original_id'] ?? row['id']?.toString() ?? 'unknown',
@@ -309,6 +318,10 @@ class DictionaryDatabaseService {
         'frequencyData': frequencyData,
         'apiEnrichment': apiEnrichment,
         ...metadata,
+        // graphematicVariants are stored in enrichment_json by pipeline step 15;
+        // expose them at the top level so GermanWord.fromJson can read them.
+        if (apiEnrichment['graphematicVariants'] != null)
+          'graphematicVariants': apiEnrichment['graphematicVariants'],
       };
 
       return GermanWord.fromJson(wordMap);

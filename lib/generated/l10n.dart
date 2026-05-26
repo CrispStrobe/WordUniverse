@@ -729,6 +729,18 @@ abstract class S {
   /// **'Choose your preferred language'**
   String get appLanguageDesc;
 
+  /// No description provided for @learningLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Learning language'**
+  String get learningLanguage;
+
+  /// No description provided for @learningLanguageDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose which vocabulary database games use'**
+  String get learningLanguageDesc;
+
   /// No description provided for @languageEnglish.
   ///
   /// In en, this message translates to:
@@ -1905,6 +1917,12 @@ abstract class S {
   /// **'Word Galaxy'**
   String get grossschreibTitle;
 
+  /// No description provided for @grossschreibDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Are words in a sentence capitalised or not?'**
+  String get grossschreibDescription;
+
   /// No description provided for @grossschreibClickHint.
   ///
   /// In en, this message translates to:
@@ -1923,6 +1941,18 @@ abstract class S {
   /// **'Upper or lower case?'**
   String get grossstadtTitle;
 
+  /// No description provided for @grossstadtCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Noun Sorter'**
+  String get grossstadtCardTitle;
+
+  /// No description provided for @grossstadtCardDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Sorting words by capitalisation on the conveyor belt'**
+  String get grossstadtCardDescription;
+
   /// No description provided for @grossstadtCapital.
   ///
   /// In en, this message translates to:
@@ -1934,6 +1964,42 @@ abstract class S {
   /// In en, this message translates to:
   /// **'lower'**
   String get grossstadtLower;
+
+  /// No description provided for @spellingSpotterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Spelling Spotter'**
+  String get spellingSpotterTitle;
+
+  /// No description provided for @spellingSpotterDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Spot the correctly spelled word — learn common spelling mistakes'**
+  String get spellingSpotterDescription;
+
+  /// No description provided for @wortbaumeisterCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Wort-Stückler'**
+  String get wortbaumeisterCardTitle;
+
+  /// No description provided for @wortbaumeisterCardDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Build compound nouns piece by piece'**
+  String get wortbaumeisterCardDescription;
+
+  /// No description provided for @verbtrennerCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Verb-Trenner'**
+  String get verbtrennerCardTitle;
+
+  /// No description provided for @verbtrennerCardDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Recognise separable verbs: together or apart?'**
+  String get verbtrennerCardDescription;
 
   /// No description provided for @achievementsBannerProgress.
   ///

@@ -99,6 +99,17 @@ class ApiEnrichment {
   final List<ApiSemanticTerm> meronyms;
   final List<ApiSemanticTerm> coordinateTerms;
 
+  // Grade-differentiated example sentences: {"1": ["sent1","sent2"], ..., "6": [...]}
+  // Populated by add_llm_examples*.py. Null if grade fill hasn't run yet.
+  final Map<String, List<String>>? gradeExamples;
+
+  // Raw Gutenberg-sourced sentences (before grade assignment).
+  final List<String> gutenbergExamples;
+
+  // Common spelling errors for this word (EN: from Norvig/Wikipedia; DE: from LiTKey/DysList).
+  // Each entry is a misspelled form string.
+  final List<String> commonLearnerErrors;
+
   ApiEnrichment({
     required this.enrichmentStatus,
     this.primaryPos,
@@ -126,6 +137,9 @@ class ApiEnrichment {
     required this.holonyms,
     required this.meronyms,
     required this.coordinateTerms,
+    this.gradeExamples,
+    required this.gutenbergExamples,
+    required this.commonLearnerErrors,
   });
 
   factory ApiEnrichment.fromJson(Map<String, dynamic> json) {
@@ -203,7 +217,40 @@ class ApiEnrichment {
       holonyms: parseTerms('holonyms'),
       meronyms: parseTerms('meronyms'),
       coordinateTerms: parseTerms('coordinate_terms'),
+      gradeExamples: _parseGradeExamples(json['grade_examples']),
+      gutenbergExamples:
+          List<String>.from(json['gutenberg_examples'] ?? []),
+      commonLearnerErrors: _parseCommonLearnerErrors(json['commonLearnerErrors']),
     );
+  }
+
+  static List<String> _parseCommonLearnerErrors(dynamic raw) {
+    if (raw == null) return [];
+    if (raw is List) {
+      return raw
+          .map((e) {
+            if (e is String) return e;
+            if (e is Map) return e['error'] as String?;
+            return null;
+          })
+          .where((e) => e != null && e.isNotEmpty)
+          .cast<String>()
+          .toList();
+    }
+    return [];
+  }
+
+  static Map<String, List<String>>? _parseGradeExamples(dynamic raw) {
+    if (raw == null || raw is! Map) return null;
+    final result = <String, List<String>>{};
+    for (final entry in raw.entries) {
+      final grade = entry.key.toString();
+      final sents = entry.value;
+      if (sents is List) {
+        result[grade] = sents.map((s) => s.toString()).toList();
+      }
+    }
+    return result.isEmpty ? null : result;
   }
 }
 
@@ -406,6 +453,13 @@ class GermanWord {
   final Map<String, dynamic>? artikelDetailsNRW;
   final Map<String, dynamic>? morphematischesPrinzip;
 
+  // Computed difficulty estimate (1=easiest … 6=hardest).
+  // Derived from curriculum membership, CEFR level, and word frequency.
+  final int? gradeLevelEstimate;
+
+  // CEFR level (A1, A2, B1, B2, C1, C2) from CEFR-J profile.
+  final String? cefrLevel;
+
   GermanWord({
     required this.id,
     required this.word,
@@ -439,6 +493,8 @@ class GermanWord {
     this.averageRank,
     this.artikelDetailsNRW,
     this.morphematischesPrinzip,
+    this.gradeLevelEstimate,
+    this.cefrLevel,
     required this.examples,
     required this.hyphenation,
     required this.wiktionaryInflections,
@@ -485,16 +541,21 @@ class GermanWord {
     resolvedAudioPath ??= json['audioPath'];
 
     // Example Sentences Logic
+    // Priority: Tatoeba (child-friendly, CC-BY 2.0) > Wiktionary > legacy strings
+    final List<String> tatoebaExamples =
+        List<String>.from(json['tatoeba_examples'] ?? []);
     final List<ApiExample> v24Examples = apiData?.examples ?? [];
     final List<String> oldExampleStrings =
         List<String>.from(json['exampleSentences'] ?? []);
 
-    final List<String> exampleStrings = v24Examples.isNotEmpty
-        ? v24Examples
-            .map((e) => e.text ?? '')
-            .where((t) => t.isNotEmpty)
-            .toList()
-        : oldExampleStrings;
+    final List<String> exampleStrings = tatoebaExamples.isNotEmpty
+        ? tatoebaExamples
+        : v24Examples.isNotEmpty
+            ? v24Examples
+                .map((e) => e.text ?? '')
+                .where((t) => t.isNotEmpty)
+                .toList()
+            : oldExampleStrings;
 
     // Parsing Helpers for Enums
     GermanWordType parseWordType(String? typeStr) {
@@ -620,6 +681,10 @@ class GermanWord {
       artikelDetailsNRW: json['artikelDetailsNRW'] as Map<String, dynamic>?,
       morphematischesPrinzip:
           json['morphematisches Prinzip'] as Map<String, dynamic>?,
+      gradeLevelEstimate: json['gradeLevelEstimate'] != null
+          ? _parseInt(json['gradeLevelEstimate'], 0)
+          : null,
+      cefrLevel: json['cefr_level'] as String?,
     );
   }
 
@@ -667,6 +732,8 @@ class GermanWord {
         'artikelDetailsNRW': artikelDetailsNRW,
         'morphematisches Prinzip': morphematischesPrinzip,
         'hyphenation': hyphenation,
+        if (gradeLevelEstimate != null) 'gradeLevelEstimate': gradeLevelEstimate,
+        if (cefrLevel != null) 'cefr_level': cefrLevel,
       };
 }
 

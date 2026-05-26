@@ -375,6 +375,13 @@ class SDe extends S {
   String get appLanguageDesc => 'Wähle deine bevorzugte Sprache';
 
   @override
+  String get learningLanguage => 'Lernsprache';
+
+  @override
+  String get learningLanguageDesc =>
+      'Wähle, welche Wortschatz-Datenbank die Spiele verwenden';
+
+  @override
   String get languageEnglish => 'English';
 
   @override
@@ -1017,6 +1024,10 @@ class SDe extends S {
   String get grossschreibTitle => 'Wort-Galaxie';
 
   @override
+  String get grossschreibDescription =>
+      'Werden Worte im Satz groß oder klein geschrieben?';
+
+  @override
   String get grossschreibClickHint => 'Klicke auf das Wort!';
 
   @override
@@ -1026,10 +1037,38 @@ class SDe extends S {
   String get grossstadtTitle => 'Groß oder klein?';
 
   @override
+  String get grossstadtCardTitle => 'Wort-Sortierer';
+
+  @override
+  String get grossstadtCardDescription =>
+      'Groß- und Kleinschreibung auf dem Förderband';
+
+  @override
   String get grossstadtCapital => 'GROSS';
 
   @override
   String get grossstadtLower => 'klein';
+
+  @override
+  String get spellingSpotterTitle => 'Spelling Spotter';
+
+  @override
+  String get spellingSpotterDescription =>
+      'Finde das korrekt geschriebene Wort — lerne häufige Rechtschreibfehler';
+
+  @override
+  String get wortbaumeisterCardTitle => 'Wort-Stückler';
+
+  @override
+  String get wortbaumeisterCardDescription =>
+      'Zusammengesetzte Nomen Stück für Stück bauen';
+
+  @override
+  String get verbtrennerCardTitle => 'Verb-Trenner';
+
+  @override
+  String get verbtrennerCardDescription =>
+      'Trennbare Verben erkennen: zusammen oder getrennt?';
 
   @override
   String achievementsBannerProgress(int unlocked, int total) {

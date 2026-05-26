@@ -374,6 +374,13 @@ class SEn extends S {
   String get appLanguageDesc => 'Choose your preferred language';
 
   @override
+  String get learningLanguage => 'Learning language';
+
+  @override
+  String get learningLanguageDesc =>
+      'Choose which vocabulary database games use';
+
+  @override
   String get languageEnglish => 'English';
 
   @override
@@ -1008,6 +1015,10 @@ class SEn extends S {
   String get grossschreibTitle => 'Word Galaxy';
 
   @override
+  String get grossschreibDescription =>
+      'Are words in a sentence capitalised or not?';
+
+  @override
   String get grossschreibClickHint => 'Tap the word!';
 
   @override
@@ -1017,10 +1028,38 @@ class SEn extends S {
   String get grossstadtTitle => 'Upper or lower case?';
 
   @override
+  String get grossstadtCardTitle => 'Noun Sorter';
+
+  @override
+  String get grossstadtCardDescription =>
+      'Sorting words by capitalisation on the conveyor belt';
+
+  @override
   String get grossstadtCapital => 'UPPER';
 
   @override
   String get grossstadtLower => 'lower';
+
+  @override
+  String get spellingSpotterTitle => 'Spelling Spotter';
+
+  @override
+  String get spellingSpotterDescription =>
+      'Spot the correctly spelled word — learn common spelling mistakes';
+
+  @override
+  String get wortbaumeisterCardTitle => 'Wort-Stückler';
+
+  @override
+  String get wortbaumeisterCardDescription =>
+      'Build compound nouns piece by piece';
+
+  @override
+  String get verbtrennerCardTitle => 'Verb-Trenner';
+
+  @override
+  String get verbtrennerCardDescription =>
+      'Recognise separable verbs: together or apart?';
 
   @override
   String achievementsBannerProgress(int unlocked, int total) {

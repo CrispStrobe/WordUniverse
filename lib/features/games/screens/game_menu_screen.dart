@@ -11,6 +11,7 @@ import '../providers/game_provider.dart';
 import '../widgets/space_background.dart';
 
 import 'space_word_rescue_game.dart';
+import 'spelling_spotter_game.dart';
 import 'word_find_game.dart';
 import 'word_sort_game.dart';
 import 'word_snake_game.dart';
@@ -386,18 +387,28 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
-        title: 'Wort-Stückler',
-        description: 'Zusammengesetzte Nomen Stück für Stück bauen',
+        title: s.spellingSpotterTitle,
+        description: s.spellingSpotterDescription,
+        icon: Icons.spellcheck,
+        gradient: const LinearGradient(
+            colors: [Color(0xFF00B4DB), Color(0xFF0083B0)]),
+        supportedLearningLanguages: const ['de', 'en'],
+        onTap: () => _navigateToGame(SpellingSpotterGame(
+            gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
+      ),
+      GameInfo(
+        title: s.wortbaumeisterCardTitle,
+        description: s.wortbaumeisterCardDescription,
         icon: Icons.handyman,
         gradient: const LinearGradient(
             colors: [Color(0xFFF2994A), Color(0xFFF2C94C)]),
-        supportedLearningLanguages: const ['de', 'en'],
+        supportedLearningLanguages: const ['de'],
         onTap: () => _navigateToGame(WortbaumeisterGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
-        title: 'Wort-Sortierer',
-        description: 'Groß- und Kleinschreibung auf dem Förderband',
+        title: s.grossstadtCardTitle,
+        description: s.grossstadtCardDescription,
         icon: Icons.location_city,
         gradient: const LinearGradient(
             colors: [Color(0xFF30E8BF), Color(0xFFFF8235)]),
@@ -407,7 +418,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
       ),
       GameInfo(
         title: s.grossschreibTitle,
-        description: 'Werden Worte im Satz groß oder klein geschrieben?',
+        description: s.grossschreibDescription,
         icon: Icons.call_split,
         gradient: const LinearGradient(
             colors: [Color(0xFF11998e), Color(0xFF38ef7d)]),
@@ -416,8 +427,8 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
-        title: 'Verb-Trenner',
-        description: 'Trennbare Verben erkennen: zusammen oder getrennt?',
+        title: s.verbtrennerCardTitle,
+        description: s.verbtrennerCardDescription,
         icon: Icons.compare_arrows,
         gradient: const LinearGradient(
             colors: [Color(0xFF6A11CB), Color(0xFF2575FC)]),

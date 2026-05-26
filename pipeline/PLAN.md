@@ -21,553 +21,95 @@ The rest is reference / enrichment / cleanup material:
 
 ---
 
-## 1. DE DB safe rebuild (highest priority) ✅ **shipped 2026-05-21**
+## 1. DE DB safe rebuild ✅ **fully complete 2026-05-25**
 
-**Status**: completed via in-place patching path rather than full pipeline
-re-run. See `pipeline/HISTORY.md → 2026-05-21 DE DB v1.2.x ship-ready
-rebuild` for the 17-commit run. Highlights:
+Completed via in-place patching + post-build enrichment passes. Full record in
+`pipeline/HISTORY.md → 2026-05-21` and `pipeline/voc-de/README.md`.
 
-- LEO739 attribution token stripped from shipped DB metadata.
-- 7 Bundesländer integrated: Berlin & Brandenburg (CC-BY-SA 4.0
-  LISUM), Hessen, RLP, NDS, Bayern, SH (§5 UrhG amtliche Werke).
-  Berlin/BB ship with explicit CC-BY-SA-4.0 grants; others under
-  the standard public-administrative-material posture.
-- DWDS Häufigkeitsklassen (CC-BY-SA 4.0) → frequency_json.dwds for
-  8844/10450 words.
-- childLex (GPL-3.0) age-graded norms → frequency_json.childlex for
-  9307/10450 words. **License cascade**: shipped DB is now GPL-3.0.
-- Algorithmic gradeLevelEstimate per word combining childLex +
-  DWDS + NRW signals.
-- HF dataset README + Parquet companion files prepared for the
-  forthcoming `cstr/grundwortschatz-voc-de` upload (PLAN §8.3 / §3).
+**Final state (2026-05-25):**
+- Asset: `assets/grundwortschatz.db.gz` — **24 MB** (148 MB uncompressed)
+- 13,040 entries (2,150 Vornamen + 10,890 regular)
+- 10,890 entries with word_type (2,150 Vornamen intentionally blank)
+- grade_examples: **10,876/10,890 = 99%** (14 very hard words failed all LLM attempts)
+- 2,401 entries with commonMistakes (LiTKey errors)
+- 3,487 entries with litkey_profiles (spelling difficulty data)
+- check pass: 1,944 entries corrected
 
-**Original goal preserved**: ship a new `assets/grundwortschatz.db.gz`
-that is **at least as feature-complete as the current one** and uses
-**only safely-licensed source data** — no Tacke (educational-use only),
-no unidentified third-party FRESCH-overlay lists, no NC-restricted
-content.
+**Post-build patchers run (2026-05-21 → 2026-05-25):**
+- `add_gutenberg_examples.py` — Gutenberg corpus sentence extraction
+- `add_llm_examples.py --grade --workers 3` — per-grade LLM examples (3 passes + retry)
+- `add_llm_examples.py --check --workers 3` — grammar/gap correction (1,944 entries)
+- `add_litkey_errors.py` — LiTKey commonMistakes (2,401 entries; 2026-05-24)
+- `add_litkey_profiles.py` — LiTKey spelling difficulty profiles (3,487 entries; 2026-05-24)
+- `add_vornamen.py` — 2,109 German first names from Standesamt tables
+- `patch_vorname_rang.py` — frequency ranking for all Vornamen
+- word_type backfill — 885 LITKEY entries got word_type from enrichment_json.partOfSpeech
 
-### 1.1 What changes vs the current shipped DB
+**Key fixes applied during enrichment (both DE + EN scripts):**
+- `response_format={"type":"json_object"}` in `llm.call()` for `mode=="fill"` — fixes Llama-3.3-70B malformed JSON
+- `GRADE_MAX_WORDS` raised for DE: `{1:10,2:10,3:14,4:14,5:18,6:18}` — German sentences are naturally longer
+- Exclude Groq/Cohere: `env GROQ_API_KEY="" COHERE_API_KEY=""` — rate-limit constantly, produce bad output
 
-| Component | Currently from | Replacement |
-|---|---|---|
-| Common learner errors (commonLearnerErrors) | Tacke/Menzel `100/300/400 Fehler` (educational use, not formally redistributable for commercial) | **Wikipedia "Liste häufiger Rechtschreibfehler"** + **Wiktionary "Verzeichnis:Deutsch/Fehlschreibungen"**, both CC-BY-SA 4.0. Fetcher: `00b_fetch_de_misspellings.py` |
-| Spelling strategies | `532Strategien.csv` (origin unclear) | **Already replaced** — algorithmic re-derivation from NRW xlsx via `04b_derive_spelling_patterns.py` (commit ed2ebae). Dual taxonomy: 6-cat detailed + 5-cat Thomé. |
-| Pedagogical wordlist (Klasse 1–4) | `739Leo.csv` (Leoschule Lünen, no formal license) | **Dropped** — coverage redundant with NRW Grundwortschatz 1L/1S/3L/3S + DWDS Goethe A1/A2/B1 + 111 NRW Merkwörter + 422 NRW Nachdenkwörter |
-| Frequency rank (DE corpus) | `top10000de_unileipzig.txt` (some Leipzig sub-corpora are CC-BY-NC) | **Verify** Wortschatzlexikon's specific corpus license; if NC, drop and rely on Buchmeier20k + de_50k_hermitdave (both CC-BY-SA). |
-| FRESCH labels in shipped JSON | curated overlay | Replaced by `klangtreu/doppelkonsonant/verwandt/merkwort/morphem/grossschreibung` + `basisgraphem/orthographem/morphem/merkwort/grossschreibung` (own derivation) |
-| Tacke license entry in app | listed in `LicenseRegistry` | **Remove** — no Tacke content shipped after rebuild |
+---
 
-### 1.2 Steps to execute (runbook)
+## 2. Build the EN DB at DE parity ✅ **fully complete 2026-05-26**
 
-```sh
-cd pipeline/voc-de
-# 1. Fetch the Wikipedia + Wiktionary misspellings (replaces Tacke)
-python 00b_fetch_de_misspellings.py        # → de_wiki_misspellings.csv
+Full pipeline record in `pipeline/voc-en/HISTORY.md`.
 
-# 2. Verify Leipzig license posture for our specific corpus
-#    (top10000de_unileipzig.txt). If CC-BY-NC, edit 01_consolidate to skip it.
-#    For commercial app: probably safer to skip; coverage is OK without it.
+### Final state (2026-05-26)
 
-# 3. Re-run the consolidation through DB build
-#    (Filename drift caveat — see §5 for the rename chain)
-python conv_xls.py                          # → output_nested.json (one-time)
-python 01_consolidate_wordlists_csv.py      # → voc_de.csv
-python 02_enrich_with_spacy_csv.py          # → voc_de_enriched.csv
-python 03_conv_csv_to_json.py               # → grundwortschatz.json
-python 04_add_nrw_data.py                   # → grundwortschatz_merged.json
-python 04b_derive_spelling_patterns.py      # → grundwortschatz_merged_with_patterns.json
-python filter_voc.py …_with_patterns.json grundwortschatz_safe.json
-python 03a_fix_grades.py
-python 05_phoneme_enricher.py
-python 06_generate_grapheme_variants.py
-python 11_reprocess_full_wikidict.py        # SLOW (cstr/WiktionaryDE API)
-python 08_fix_word_types.py
-python 12_api_wins_3.py                     # USE _3
-python 13_fix_genders_manually.py
-# Manually download openthesaurus_dump.sql first
-python 13b_enrich_with_openthesaurus.py
-python 14_convert_db_to_sqflite.py          # → grundwortschatz.db
-gzip -9 grundwortschatz.db -c > ../../assets/grundwortschatz.db.gz
-```
+- Asset: `assets/grundwortschatz_en.db.gz` — **17 MB** (92 MB uncompressed)
+- **11,539 entries** — success=7,815 / minimal→success=3,658 / no_data=66
 
-### 1.3 Validation: feature parity vs current shipped DB
-
-Before replacing `assets/grundwortschatz.db.gz`, validate the new build
-covers everything the old one did:
-
-| Check | How |
+| Layer | Status |
 |---|---|
-| Word count ≥ 10,450 | `sqlite3 new.db 'SELECT count(*) FROM words'` |
-| Per-grade distribution within ±5 % of current | same per `grade_level` |
-| Translations table populated | `SELECT count(*) FROM translations` ≥ 27,000 |
-| Examples table populated | `SELECT count(*) FROM examples` ≥ 24,000 |
-| FTS5 search_index works | `SELECT count(*) FROM search_index('Hund')` > 0 |
-| `enrichment_json` populated for >95 % | `SELECT count(*) FROM words WHERE enrichment_json != '{}'` |
-| spellingStrategy populated | `SELECT count(*) FROM words WHERE enrichment_json LIKE '%spellingStrategy%'` ≥ 10,000 |
-| New: spellingPatternsThome populated | same as above |
-| commonLearnerErrors populated (Wikipedia-based, not Tacke) | confirm pairs come from `de_wiki_misspellings.csv` |
-| In-app License screen: no Tacke entry, no FRESCH brand mention | manual check in Settings → Licenses |
+| Wiktionary enrichment (defs, IPA, inflections) | ✅ 11,486/11,539 (99%) — via VPS `168.119.190.252` |
+| OEWN WordNet sense expansion | ✅ 9,186 entries (79%) |
+| Common learner errors (Norvig + Wikipedia) | ✅ 27,363 annotations |
+| Dialect spelling variants (SCOWL UK↔US) | ✅ 270 variants |
+| Frequency bands (wordfreq) | ✅ all 11,539 |
+| CEFR-J level tags | ✅ 6,879 entries |
+| Cambridge YLE + UK DfE statutory lists | ✅ |
+| gradeLevelEstimate + grade_level column | ✅ synced via `add_uk_curriculum.py --grade-only` |
+| Gutenberg example sentences | ✅ 6,274 entries (54%) |
+| Grade-differentiated examples (LLM) | ✅ 11,481/11,539 (99%) |
+| LLM check-all (grammar/gap correction) | ✅ 10,692/11,481 corrected |
 
-### 1.4 Ship
+### `enrich_minimal_en.py` — VPS run note
 
-1. Replace `assets/grundwortschatz.db.gz` with the new build.
-2. Bump version: `pubspec.yaml` `version: 1.1.0+N → 1.2.0+N+1`.
-3. Update Settings screen license entries: remove the Tacke entry that
-   `settings_screen.dart` currently registers; the (already neutralized)
-   spelling-pattern entry stays.
-4. Per §3 of this plan, prepare the HF dataset mirror for CC-BY-SA
-   compliance before next visible distribution.
+Originally ran locally (external USB drive, 0.1/s = 16h ETA). Killed and re-run on
+VPS `168.119.190.252` where Wiktionary DB is on NVMe (1.4/s, completed in 27 min).
+Script path on VPS: `/root/voc-enrich/voc-en-minimal/enrich_minimal_en.py`
+Wiktionary DB on VPS: `/root/voc-enrich/en_wiktionary_normalized_all.db`
 
-### 1.5 What we don't have to do
+### Game UI — completed 2026-05-26
 
-- We do NOT need to drop NRW Grundwortschatz, OpenThesaurus, OdeNet,
-  ConceptNet, Wiktionary, HermitDave, Buchmeier, or DWDS Goethe sets —
-  all already CC-BY-SA / OGL / public-administrative.
-- We do NOT need to drop spelling-pattern tagging — the algorithmic
-  derivation is our own work.
-- We do NOT need to drop the existing UD treebank-derived
-  verb-government data — CC-BY-SA already.
+- ✅ L2L picker in Settings (already existed, working)
+- ✅ DE-only games (`großschreib`, `großstadt`, `verbTrenner`, `wortbaumeister`) hidden for L2L=en via `supportedLearningLanguages`
+- ✅ `wortbaumeister` fixed from `['de','en']` → `['de']` (it teaches German compound nouns)
+- ✅ ARB strings added for L2L picker section (`learningLanguage`, `learningLanguageDesc`)
+- ✅ ARB strings added for all DE-only game card titles/descriptions (`grossschreibDescription`, `grossstadtCardTitle/Desc`, `wortbaumeisterCardTitle/Desc`, `verbtrennerCardTitle/Desc`)
+- ✅ WordSort + WordTypeWhirl hint text localised — EN words now get English feedback
 
-**§§2–4 (EN port, CC-BY-SA, ConceptNet) and §§6–9 (improvements,
-sources, housekeeping, open decisions) follow with their pre-existing
-content, in the priority order stated above.**
+- ✅ `SpellingSpotterGame` — EN-only game using `commonLearnerErrors` data (8,314 words); 4-option MCQ, grade-filtered, with context sentences
 
----
+### Remaining (deferred)
 
-## 1a. Reproducibility recipe for the historical DE DB (reference)
+- New EN-only games needing pipeline data first: `phrasal_verbs` (need phrasal verb DB data); `homophones` (need homophone pairs)
+- HF dataset export updated: `pipeline/voc-en/hf_export/` — 11,539 words + 18,642 examples (re-run 2026-05-26)
 
-*Renumbered to keep the priority §§1–4 order clean; original content
-unchanged. Use this as the "as-is" baseline to diff against §1's safe
-rebuild output.*
-
-The scripts are all in
-`/Volumes/backups/code/voc/lib/features/games/data/`. Restore them to
-this directory at `pipeline/voc-de/` before running.
-
-### Inputs (committed in the backup folder)
-
-Pedagogical / curriculum:
-- `Grundwortschatz{1L,1S,3L,3S}.csv` — NRW Grundwortschatz, Klasse 1+3.
-- `wortliste-grundwortschatz-nrw.xlsx` (+ `conv_xls.py` → `output_nested.json`).
-- `A1.csv` / `.json`, `A2.csv` / `.json`, `B1.csv` / `.json` — CEFR.
-- `111_NRW_Merkwörter.txt`, `422_NRW_Nachdenkwörter.txt`.
-
-Errors (real misspellings from German children):
-- `100Fehler.csv`, `200Fehler.csv`, `300Fehler.csv`, `400Fehler.txt`,
-  `532Strategien.csv`, `739Leo.csv`.
-
-Frequency:
-- `Buchmeier20k.txt`, `de_50k_hermitdave.txt`, `top10000de.txt`,
-  `top10000de_unileipzig.txt`, `leeds_freq.num`.
-
-External (download / manual):
-- OpenThesaurus MySQL dump (download from
-  `https://www.openthesaurus.de/about/download` →
-  `openthesaurus_dump.sql`).
-- ConceptNet — accessed via `cstr/WiktionaryDE` Gradio Space, no local
-  download needed.
-
-### Step ladder
-
-| Step | Script | Input(s) | Output | Notes |
-|---|---|---|---|---|
-| 01 | `01_consolidate_wordlists_csv.py` | all wordlists above | `voc_de.csv` | Priority dedup chain: pedagogical > BUCHMEIER > LEEDS > LEIPZIG > HERMIT. Filter ≥2 chars, alphabetic only. Use the `_old.py` for nothing — it's the predecessor. |
-| 02 | `02_enrich_with_spacy_csv.py` | `voc_de.csv` | `voc_de_enriched.csv` | spaCy `de_core_news_sm`. Adds lemma, Case, Number, Gender, Degree, PronType, VerbForm. **Article column is source‑of‑truth for genus.** |
-| 03 | `03_conv_csv_to_json.py` | `voc_de_enriched.csv` | `grundwortschatz.json` | Assigns `gradeLevel` (BW1=1, BW3=3, NRW111=1, A1=4, A2=5, B1=6, default 5). Computes `frequencyData` + `averageRank`. Issues `id = word_NNNNN`. |
-| 03a | `03a_fix_grades.py` | `grundwortschatz_safe.json` | `grundwortschatz_safe_grades_fixed.json` | Run after the safety filter (below). Refined weights: NRW111=2, NRW422=2, LEO739=3. |
-| 04 | `04_add_nrw_data.py` | `grundwortschatz.json` + `output_nested.json` | `grundwortschatz_merged.json` | Reconciles articles where Excel disagrees, attaches NRW principles. |
-| (filter) | `filter_voc.py` | `grundwortschatz_merged.json` | `grundwortschatz_safe.json` | **Child‑safety LLM filter.** Groq/Together/OpenRouter fallback. Reads keys from `/Users/christianstrobele/code/.env`. Profanity list also lives in `check_conflicts.py`. |
-| 05 | `05_phoneme_enricher.py` | `grundwortschatz.json` | `grundwortschatz_phonemized.json` | espeak‑ng via `phonemizer`. **Hardcodes `/opt/homebrew/lib/libespeak-ng.dylib`** — change for non‑macOS. Produces IPA + X‑SAMPA. |
-| 06 | `06_generate_grapheme_variants.py` | `grundwortschatz_phonemized.json` + `grapheme.json` | `grundwortschatz_with_grapheme_variations.json` | Feeds spelling‑game distractors with probabilities. |
-| 07 | (skip — use 11) | | | All three 07_* variants (`enrich_wikt`, `enrich_hf`, `enrich_hf_with_hyphenation`) are subsets of 11. For a fresh rebuild, skip 07 entirely. |
-| 08 | `08_fix_word_types.py` | enriched JSON | `<input>_fixed.json` | When `apiEnrichment.primary_pos` disagrees with our `wordType`, overwrite. |
-| 09 | (skip — use 14) | | | The first‑pass `09_build_db.py` is for diagnostics only; `14_convert_db_to_sqflite.py` is the shipped builder. |
-| 10 | `10_english_only_2.py` | `..._v24.json` | `..._only_english.json` | Trims `wiktionary_translations` to English‑only. Use the `_2` variant; `10_only_english.py` is for the v23 file. |
-| 11 | `11_reprocess_full_wikidict.py` | `grundwortschatz_safe.json` | `grundwortschatz_safe_enriched_v24.json` | **The canonical enrichment step.** Calls `cstr/WiktionaryDE /analyze_word` for every word with `--no-limits`. V24 fields: hyphenation, expressions, proverbs, entryNotes, hypernyms, hyponyms, holonyms, meronyms, coordinate_terms, derived_terms, related_terms, translations, inflections, IPA, definitions, examples, synonyms, antonyms, ConceptNet relations, OdeNet senses. |
-| 12 | `12_api_wins_3.py` | `..._v24.json` | `..._v24_consolidated.json` | **Use `_3` only.** Lifts API‑derived genus/article/plural/lemma/audio to top level; promotes V24 fields. Conservative: only fills empty fields. Versions `_1` and `_2` would corrupt genus. |
-| 13 | `13_fix_genders_manually.py` | `..._v24_consolidated.json` | overwrites in place + `_backup.json` | Hand‑curated `MANUAL_FIXES` dict for ~95 words where v12 conflict logs showed wrong existing data. |
-| 13b | `13b_enrich_with_openthesaurus.py` | `..._v24.json` + `openthesaurus_dump.sql` | `..._v24_with_thesaurus.json` | Parses the OpenThesaurus MySQL dump for synsets, hypernym/hyponym/associations. Attaches under `apiEnrichment.openThesaurus`. |
-| 14 | `14_convert_db_to_sqflite.py` | `..._v24_with_thesaurus.json` | `grundwortschatz.db` | Final ship‑DB. Schema: `words` (with JSON blobs `frequency_json`, `enrichment_json`, `metadata_json`), `translations`, `examples`, FTS5 virtual table `search_index` + triggers. |
-| (ship) | `gzip -9 grundwortschatz.db -c > ../../assets/grundwortschatz.db.gz` | | | Shipped DB. |
-
-### Step 01 priority dedup chain (for reference)
-
-```
-pedagogical (Grundwortschatz 1L/1S/3L/3S, A1/A2/B1, NRW 111, NRW 422,
-             100/200/300 Fehler, 532 Strategien, 739 Leo)
-> BUCHMEIER (Buchmeier20k.txt — children's book corpus)
-> LEEDS (leeds_freq.num — Leeds DE corpus)
-> LEIPZIG (top10000de_unileipzig.txt — Uni Leipzig corpus)
-> HERMIT (de_50k_hermitdave.txt — HermitDave frequency project)
-```
-
-Lower‑priority lists only fill in words the higher‑priority lists don't
-cover.
-
-### Wall time
-
-On a recent laptop with `cstr/WiktionaryDE` warm:
-- Steps 01–06: minutes total.
-- `filter_voc.py`: 30–60 min, dominated by LLM API latency.
-- Step 11 (V24 reprocess): 2–6 h. Dominated by Gradio Space throughput.
-- Steps 12–14: minutes.
-
-Total: ~3–8 h.
-
-### Filename‑drift caveat
-
-The scripts do **not** rename outputs to match the next step's input. You
-must rename in between. The canonical drift chain is:
-
-```
-grundwortschatz.json
-  → grundwortschatz_safe.json            (after filter_voc)
-  → grundwortschatz_safe_enriched_v22a.json  (after old 07a)
-  → grundwortschatz_safe_enriched_v23.json   (after 07b)
-  → grundwortschatz_safe_enriched_v24.json   (after 11)
-  → grundwortschatz_v24_consolidated.json    (after 12_3)
-  → grundwortschatz_v24_with_thesaurus.json  (after 13b)
-  → grundwortschatz.db                       (after 14)
-```
-
-See LEARNINGS.md for why this drift happened and how to avoid it in the
-EN pipeline.
-
----
-
-## 2. Build the EN DB at DE parity
-
-**Goal:** ship `assets/grundwortschatz_en.db.gz` with the same schema and
-the same enrichment richness as DE — definitions, IPA, irregular plurals,
-verb conjugations, synonyms, antonyms, hypernyms, hyponyms, meronyms,
-ConceptNet relations, examples, common learner errors, grapheme variants,
-grade levels 1–6.
-
-### Decisions (locked in)
+### Architectural decisions (locked in)
 
 | Decision | Value | Rationale |
 |---|---|---|
-| Canonical English variant | **UK English** | Aligns with the Year 1–6 statutory spelling lists (the EN pedagogical analogue of NRW Grundwortschatz). US spellings (`color`, `gray`, `-ize`) carried as `commonLearnerErrors` for users from US-influenced contexts. |
-| Vocabulary size | **10k, filterable** | Match DE size. Each word tagged so the app can show 3k / 5k / 10k subsets without rebuilding. |
-| Grade mapping | **UK Y1–6 primary, CEFR + AoA-Kuperman as fallback** | UK Year is the pedagogical primary (same role as `Grundwortschatz1L/3L` for DE). CEFR + AoA-Kuperman fill gaps for words outside the UK statutory list. All three carried as tags. |
-| Reverse translations | **Yes, where available** | German speakers learning English is the primary EN use case. Translation table populated with DE entries where Wiktionary has them. |
-
-### What's already done (don't re‑do)
-
-- **EN lexical backbone on HF** —
-  `cstr/en-wiktionary-extracted-all` (raw wiktextract JSONL),
-  `cstr/en-wiktionary-sqlite-all` (lossless normalized SQLite, 1.24 M
-  entries). Built by VPS scripts `wikt-en.sh` + `norm_all_6_en.py`.
-- **EN linguistics hub** — `cstr/WiktionaryEN` Gradio Space, currently
-  **RUNNING**. Exposes `/analyze_word` with the same shape as
-  `cstr/WiktionaryDE`. Backends: Wiktionary + HanTa + Stanza + NLTK +
-  TextBlob + OEWN + OpenBLP + ConceptNet.
-- **ConceptNet** — `en` is already in `cstr/conceptnet-normalized-multi`,
-  no separate build needed.
-- **Frequency seeds** — `top1000en.txt`, `top10000en.txt` at repo root.
-
-### What we don't yet have
-
-| Layer | DE source | EN substitute (safe-licensed only — see LICENSES.md ❌ table for removed candidates) |
-|---|---|---|
-| Pedagogical wordlists | NRW Grundwortschatz 1L/1S/3L/3S, A1/A2/B1, Fehler CSVs | **UK National Curriculum English Programmes of Study Appendix 1** (Y1–Y6 statutory spelling lists, OGL v3.0), **Dolch 220** (US public-domain pre-1978), **Fry 1000** (community PD compilations). ~~Oxford 3000/5000~~ ❌ © OUP, ~~English Vocabulary Profile~~ ❌ Cambridge UP, ~~Common Core K‑5~~ — verify each individual list's source if used. |
-| Frequency corpora | HermitDave/OpenSubtitles 2018, Buchmeier20k, Leipzig, Leeds | **HermitDave EN** (`en_50k_hermitdave.txt`, CC-BY-SA 4.0), **AoA-Kuperman 2012** (Springer supplementary data, reusable for derivative facts). ~~SUBTLEX‑US~~ ❌ academic/NC-only. |
-| Age-graded lexical norms | childLex (GPL-3.0, 10M-token children's-literature corpus) | **Open question** — no obvious English childLex equivalent. Candidates: SUBTLEX-UK Children (verify license), CPWD (Masterson et al., research-only), or build our own from public-domain English children's literature (Carroll, Stevenson, Wilde, Twain — full Project Gutenberg corpus). The PD-corpus path is mirrored in DE's deferred "children's-literature corpus" track (PLAN session note 2026-05-21). |
-| Spelling "Merkwörter" / Sound-out exceptions | 111_NRW_Merkwörter, 422_NRW_Nachdenkwörter | UK Y1–Y6 statutory lists per year + Wikipedia "Lists of commonly misspelled English words" (CC-BY-SA 4.0) |
-| Common learner errors | 100/200/300 Fehler CSVs (Menzel 1985 facts) | Wikipedia "Lists of common misspellings" (CC-BY-SA 4.0), Hunspell affix-mutated typos (algorithmic, LGPL on Hunspell itself), Birkbeck Spelling Error Corpus (verify license before use) |
-| Algorithmic frequency band | DWDS Häufigkeitsklasse (CC-BY-SA 4.0, 271k lemmas) | **Open question** — Google Books 1-gram (terms restrict bulk use), corpus-derived band from PD children's literature, or English Frequency Lists from OPUS (CC-BY-SA 4.0). Verify before use. |
-| Per-region pedagogical attribution | 9 German source tokens (NRW + BW + 7 Bundesländer with explicit per-Bundesland categories) | UK national curriculum is monolithic — no per-region split. Likely use **per-year tokens**: `UK_Y1`, `UK_Y2`, … `UK_Y6` instead of per-region. May add `DOLCH_PP_PRIMER/1ST/2ND/3RD` for the Dolch 220 sub-groupings (each grade tier is a separate list within Dolch). |
-| Genus / article | der/die/das | Drop genus, keep `article` nullable; populate with `a`/`an`/`the` for nouns |
-| Compound words | Wortbaumeister (rich) | Sparse in EN — replace as primary game mode (firetruck/breakfast etc) |
-| Separable verbs | Verbtrenner | **Phrasal verbs** — multi‑word, requires `enrichment_json.phrasalVerb` field |
-| Capitalization | Großschreibung | Different rules — replace with homophone game (their/there/they're) |
-
-### Patterns to inherit from the voc-de 2026-05-21 session
-
-The 17-commit DE rebuild proved out several patterns; the EN pipeline
-should follow them rather than reinvent.
-
-**1. Three-phase build pattern**
-
-The DE rebuild eventually settled on: `01–09 pipeline build to initial DB`
-→ `11–14 enrichment + final compaction` → `post-build patcher scripts`.
-The post-build patchers are idempotent, run on the gzipped shipped DB,
-and add one source-token + categorization at a time. This is much
-cheaper than a full rebuild whenever a new source surfaces.
-
-For voc-en, mirror this:
-- **Phase A**: steps `01–09_en.py` produce a base DB with Wiktionary +
-  ConceptNet + OEWN + frequency.
-- **Phase B**: steps `11–14_en.py` enrich + compact (V24 sweep, final
-  SQLite schema, FTS index).
-- **Phase C**: post-build patchers (one per source-token):
-  - `add_uk_curriculum_y1.py` … `add_uk_curriculum_y6.py`  (or
-    one unified `add_uk_curriculum.py` with per-year tokens)
-  - `add_dolch.py`  (Pre-Primer / Primer / 1st / 2nd / 3rd grade sub-lists)
-  - `add_fry.py`
-  - `add_wikipedia_common_misspellings_en.py`
-  - `add_aoa_kuperman.py`  (writes `frequency_json.kuperman: {aoa, …}`)
-  - `add_hermitdave_en_band.py` (algorithmic frequency-band fallback)
-  - `compute_grade_level_estimate_en.py` (UK-Y-authoritative + AoA + freq)
-
-Each patcher is a self-contained Python script ~150–200 LOC that
-gunzips → matches lemmas → updates `metadata_json.sources` or
-`frequency_json.<token>` → re-gzips. The pattern is proven by 11 such
-scripts in `pipeline/voc-de/add_*.py` plus `compute_grade_level_estimate.py`.
-
-**2. License-cascade discipline**
-
-For every EN source candidate, before integration:
-
-1. Check the *publisher's* Impressum / Terms (not just a third-party
-   mirror). Hamburg was the cautionary tale on the DE side —
-   netzbar.de hosted the official Hamburg list but their own Impressum
-   was all-rights-reserved.
-2. Verify CC-BY-SA-4.0 / GPL-3.0 / OGL v3.0 status explicitly. Treat
-   anything labeled "research only" or "academic use" as ❌ for the
-   shipped DB; PLAN.md §6.4 documents the German pedagogical-term
-   carve-out for own-derivations, which applies to EN too (rule names
-   aren't copyrightable, only specific curated wordlists are).
-3. Note any GPL-3.0 sources up-front — the DE DB cascaded to GPL-3.0
-   because of childLex. If an EN equivalent is GPL-3.0, the EN DB will
-   cascade similarly. Document this in the EN HF dataset README
-   *before* integration (mirroring `HF_DATASET_README.md`).
-4. **Cite each source with the required attribution** in the in-app
-   `LicenseRegistry` (settings_screen.dart) AND in `LICENSES.md`. The
-   DE rebuild added 10 new `LicenseRegistry` entries in commit
-   `0f2e497` — follow the same template.
-
-**3. Per-source-token categorization**
-
-The DE DB carries per-Bundesland orthographic categories under keys
-like `hessenCategories: [...]`, `bayernCategories: [...]`, `schleswig_holsteinCategories: [...]`.
-This allowed filtering by "Lautgetreue Einsilber" or "Wörter mit
-Doppelkonsonanz" per source's own pedagogical scheme.
-
-For EN, the equivalent would be e.g.:
-
-```jsonc
-"metadata_json": {
-  "sources": ["UK_Y3", "DOLCH_2ND", "WIKI_MISSPELLINGS_EN"],
-  "ukCurriculumYear": "Y3",
-  "ukCurriculumCategories": ["statutory spelling list", "homophones"],
-  "dolchCategories": ["2nd-grade list", "sight word"],
-  "frySubBand": "200-300"
-}
-```
-
-Each EN curriculum source has its own categorization scheme; preserve
-it under a state-distinguished metadata key.
-
-**4. Algorithmic gradeLevelEstimate for EN**
-
-DE used `childlex age1/age2/age3 → Klasse 1-2/3-4/5-6 + DWDS fk fallback`.
-
-EN equivalent (decision tree):
-- If UK Y1–Y6 statutory list → that year is `gradeLevelEstimate`
-  (authoritative, like NRW grade_level)
-- Else if Dolch Pre-Primer/Primer/1st/2nd/3rd → 1 / 1 / 2 / 3 / 4
-- Else if AoA-Kuperman age ≤ 7 → 1-2; 8-9 → 3-4; 10+ → 5-6
-- Else fallback to a frequency-band heuristic (HermitDave rank or
-  an OPUS-derived band)
-
-Store as `metadata_json.gradeLevelEstimate` + `gradeLevelEstimateSource`
-per the DE pattern (see `compute_grade_level_estimate.py`).
-
-**5. HF dataset upload preparation**
-
-The DE side has `pipeline/voc-de/HF_DATASET_README.md` + Parquet
-companion files at `pipeline/voc-de/hf_export/`. Mirror for EN:
-
-- `pipeline/voc-en/HF_DATASET_README.md` — single dataset card with
-  YAML frontmatter, schema docs, source-attribution table, license
-  cascade explanation, citation block. Target HF dataset path:
-  `cstr/grundwortschatz-voc-en` (or similar).
-- Reuse `pipeline/voc-de/export_to_parquet.py` (it's schema-driven —
-  just point at the new SQLite path; columns are language-agnostic).
-
-**6. Idempotency requirement for all patchers**
-
-Every post-build patcher must be safe to re-run. Pattern:
-- Check whether the token is already in `metadata_json.sources` →
-  if so, skip update for that field.
-- Categories should be MERGED (set union) not REPLACED.
-- The DE rebuild has 11 idempotent patchers as reference implementations.
-
-### EN pipeline, step by step (mirror of DE 01–14)
-
-```
-01_consolidate_en.py        merge Oxford3k+EVP+Dolch+Fry+UK statutory + commonly‑misspelled
-                            priority: pedagogical > SUBTLEX‑US > en_50k_hermitdave
-02_enrich_with_spacy_en.py  en_core_web_sm → lemma, POS, morphology (no genus)
-03_conv_csv_to_json_en.py   grade_level via Dolch/Fry/AoA‑Kuperman + CEFR fallback
-04_add_uk_spelling_lists.py UK Year 1–6 statutory + spelling‑rule tags
-                            (silent‑e, magic‑e, doubled consonant, vowel teams, etc.)
-                            — NRW analogue
-05_phoneme_enricher_en.py   phonemizer lang=en-us OR (better) CMU dict join → ARPAbet + IPA
-06_generate_grapheme_variants_en.py
-                            EN grapheme.json: digraphs (sh/ch/th/ph/ck/qu),
-                            silent letters (gh/kn/wr), vowel teams (ea/ee/ai/oa/ou/ow),
-                            doubled consonants, e‑drop on suffixing
-07_enrich_WiktionaryEN.py   gradio_client → cstr/WiktionaryEN /analyze_word with V24 fields
-                            (defs, IPA, irregular plurals, conjugations, syn/ant,
-                             hyper/hypo/mero/holo, ConceptNet, examples, frequency, etymology)
-08_fix_word_types_en.py     reconcile spaCy POS vs API primary_pos
-09_build_db_en.py           same schema; article nullable, genus always NULL
-10_only_german_translations.py
-                            keep EN→DE only (mirror use case: German speakers learning EN)
-11_reprocess_full_wikidict_en.py   full V24 sweep against cstr/WiktionaryEN
-12_api_wins_en.py           lift API‑derived plural/lemma/audio; no genus to lift
-13_fix_word_types_manually.py     hand‑curated POS edge cases
-                            (run/walk/break are noun‑or‑verb)
-13b_enrich_with_wordnet.py  OEWN/Princeton WordNet → synsets, hypo/hypernym closure
-                            — OpenThesaurus analogue
-                            (may be merged into 07/11; OEWN already in cstr/WiktionaryEN)
-14_convert_db_to_sqflite_en.py    → assets/grundwortschatz_en.db.gz
-```
-
-Ship as a **separate file**, not a merged multi‑lang DB. Keeps the gzip
-small, lets the user defer the EN download. `VocabularyService` already
-swaps based on selected language.
-
-### Schema compatibility (cross‑lingual)
-
-The current DE schema is mostly language‑agnostic — keep it:
-
-- `words.article`: nullable. EN nouns get `a`/`an`/`the` attached when the
-  game needs them (`a apple` problem handled by determiner rules baked
-  into `enrichment_json`).
-- `words.genus`: NULL for EN. Don't drop — keeps the schema reusable for
-  future FR / IT / ES ports.
-- `words.word_type`: **canonicalize to English tokens at step 14**
-  (`noun`/`verb`/`adjective`/`adverb`/`pronoun`/`preposition`/
-  `conjunction`/`interjection`/`article`/`numeral`/`particle`). DE
-  currently uses `substantiv`/`adjektiv` — translate at build time and
-  keep `metadata.original_word_type_de` if the German form is ever
-  needed.
-- `enrichment_json`: same shape. EN‑specific additions:
-  - `phrasalVerb` (object: `particle`, `meaning`, `examples`)
-  - `capitalizationCategory` (`proper` / `common`)
-  - `spellingRule` (silent‑e, magic‑e, doubled‑consonant, etc.)
-
-### Game adaptations (minimum to ship EN)
-
-#### App architecture: 2×N matrix (L2L × GUI)
-
-**Single app, both DBs bundled.** Two orthogonal axes:
-
-| Axis | Picks | Setting key | Already done? |
-|---|---|---|---|
-| L2L (language to learn) | which `grundwortschatz_*.db.gz` to load | `learning_language` (new) | partial — needs `VocabularyService.initialize(l2l)` parameterization |
-| GUI language | which `app_*.arb` to render | `locale` (existing) | done — `flutter_localizations` handles it |
-
-Bundle size: DE DB 28 MB + EN DB ~25–35 MB → ~60 MB compressed assets. Under Apple/Play size caps; no on‑demand download plumbing needed.
-
-#### Game compatibility matrix
-
-| Game | L2L=de | L2L=en | Notes |
-|---|---|---|---|
-| `space_word_rescue` (spelling) | ✅ | ✅ | Language‑agnostic given DB |
-| `word_find` (word search grid) | ✅ | ✅ | Language‑agnostic |
-| `word_sort` (Noun/Verb/Adj) | ✅ | ✅ | Categories via ARB |
-| `wortbaumeister` (compounds) | ✅ | ⚠️ small pool | EN compounds rare but real (firetruck, breakfast); pool ~10× smaller — keep but flag |
-| `großschreib` (capitalization) | ✅ | ❌ | DE‑specific rule |
-| `großstadt` (capitalization in context) | ✅ | ❌ | DE‑specific rule |
-| `verbtrenner` (separable verbs) | ✅ | ❌ | DE morphology |
-| `phrasal_verbs` *(new, EN)* | ❌ | ✅ | EN equivalent of `verbtrenner`; same falling‑tile mechanic |
-| `homophones` *(new, EN)* | ❌ | ✅ | their/there/they're, your/you're, its/it's |
-| `word_memory`, `word_builder`, `word_type_whirl` | ✅ | ✅ | Language‑agnostic |
-
-8 shared games + 3 DE‑only + 2 new EN‑only = 10 game modes per L2L. Equivalent pedagogical depth.
-
-#### Implementation sketch
-
-```dart
-// lib/core/services/vocabulary_service.dart
-class VocabularyService {
-  static const _dbAssets = {
-    'de': 'assets/grundwortschatz_de.db.gz',
-    'en': 'assets/grundwortschatz_en.db.gz',
-  };
-  Future<void> initialize(String learningLanguage) async {
-    final assetPath = _dbAssets[learningLanguage]!;
-    // existing decompress + open code, parameterized on assetPath
-  }
-}
-
-// lib/features/games/registry.dart  (new)
-class GameDescriptor {
-  final String key;
-  final List<String> supportedL2L;
-  final SkillCategory skill;
-}
-final kGameRegistry = <GameDescriptor>[
-  GameDescriptor(key: 'space_word_rescue', supportedL2L: ['de','en']),
-  GameDescriptor(key: 'großschreib',       supportedL2L: ['de']),
-  GameDescriptor(key: 'phrasal_verbs',     supportedL2L: ['en']),
-  // ...
-];
-
-// Home menu filters: kGameRegistry.where((g) => g.supportedL2L.contains(currentL2L))
-```
-
-**Migration plan for existing DE users:** default `learning_language='de'` on first launch after the EN release so behavior is unchanged. Add an L2L picker in Settings → "Sprache, die ich lernen möchte".
-
-#### Vocabulary subset filtering (the "10k filterable")
-
-Each word carries multiple tags so the app can show subsets without rebuilding:
-
-```jsonc
-// inside enrichment_json
-{
-  "tags": ["oxford3k", "evp", "uk_y2_statutory", "dolch_220"],
-  "cefr": "A2",
-  "uk_year": 2,
-  "aoa_kuperman": 7.4
-}
-```
-
-Home‑screen scope toggle (extend the existing difficulty picker):
-
-- **Core 3k** (default for ages 6–10) — `oxford3k`
-- **Extended 5k** — `oxford3k + evp + oxford5k`
-- **Full 10k** — everything
-
-`grade_level` stays primary (UK Y1–6 → G1–G6). CEFR shows as a secondary chip. Mirrors the DE multi‑source consolidation pattern (different German Bundesländer lists feed into one canonical grade, source tags survive).
-
-#### Other UI adjustments
-
-- ARB: `app_en.arb` needs the new game labels (`phrasal_verbs`, `homophones`, L2L picker, scope toggle). Voc currently inlines DE strings; English chrome ARB exists, extend it.
-- `großschreib` / `großstadt`: hide from menu when `L2L=en`. No banner needed — the filtered menu is self‑explanatory.
-
-### Effort estimate
-
-| Block | Effort |
-|---|---|
-| Sources gathered + cleaned | 1–2 days |
-| Pipeline scripts ported (mostly mechanical) | 3–5 days |
-| API enrichment run (`cstr/WiktionaryEN`) | 1–2 days wall time |
-| WordNet step (13b) | 0.5 day, may merge into 11 |
-| DB + sqflite ship | 0.5 day |
-| Game UI adjustments | 1–2 days |
-| **Total** | **~2 weeks** focused |
-
-A 3,000‑word v1 (Oxford 3000 + Dolch + Fry) ships in half that.
-
-### Source URLs (free or research‑use)
-
-- Oxford 3000/5000 — `https://www.oxfordlearnersdictionaries.com/wordlists/oxford3000-5000`
-- English Vocabulary Profile (CEFR) — `https://www.englishprofile.org/`
-- Dolch 220 — public domain, multiple mirrors
-- Fry 1000 — public domain
-- SUBTLEX‑US — `https://www.ugent.be/pp/experimentele-psychologie/en/research/documents/subtlexus`
-- AoA‑Kuperman 2012 — `http://crr.ugent.be/archives/806`
-- UK Year 1–6 statutory spelling — `https://www.gov.uk/government/publications/national-curriculum-in-england-english-programmes-of-study`
-- Commonly misspelled — `https://en.wikipedia.org/wiki/Wikipedia:Lists_of_common_misspellings`
-- CMU dict — `https://github.com/cmusphinx/cmudict`
-- HermitDave en_50k — `https://github.com/hermitdave/FrequencyWords`
-- Birkbeck Spelling Error Corpus — Roger Mitton, mirrored on `https://www.dcs.bbk.ac.uk/~ROGER/corpora.html`
+| Canonical variant | UK English | Aligns with UK Year 1–6 statutory spelling lists; US spellings carried as `commonLearnerErrors` |
+| Vocabulary size | ~11.5k, filterable | CEFR-J A1-B2 + YLE + UK curriculum superset; tags control app subsets |
+| Grade mapping | UK Y1–6 primary, CEFR + freq fallback | Same role as NRW Grundwortschatz for DE |
+| Misspellings | `commonLearnerErrors[]` under correct lemma only | Matches DE; never standalone entries |
+| Wiktionary enrichment | `enrich_minimal_en.py` locally (external drive) or VPS | 1.9 GB Wiktionary DB at `/Volumes/backups/code/WiktionaryEN-space/` |
+| OEWN enrichment | `add_oewn_en.py` single-threaded | wn not thread-safe; ~600/s; 6k entries ≈ 10s |
+| grade_examples storage | `metadata_json.grade_examples` | Mirrors `gutenberg_examples`; injected by Dart service before `ApiEnrichment.fromJson` |
+| App shape | Single app, both DBs bundled; L2L × GUI matrix | L2L picker in Settings (deferred game UI work) |
 
 ---
 
@@ -772,15 +314,8 @@ scripts and source CSVs/TXTs that the pipeline reads.
 
 ## 5. Open decisions
 
-These block forward progress. Numbers reference the section above.
-
-### EN port (§2) — resolved 2026‑05‑21
-
-1. ✅ Canonical: **UK English**. US spellings carried as `commonLearnerErrors`.
-2. ✅ Size: **10k, filterable**. Build full 10k, ship full 10k, app filters by tag (oxford3k / extended 5k / full 10k).
-3. ✅ Grade mapping: **UK Y1–6 primary**, CEFR + AoA‑Kuperman fallback, all three carried as tags.
-4. ✅ Reverse translations: **yes**, where Wiktionary has them.
-5. ✅ App shape: **single app, both DBs bundled**, L2L × GUI matrix (see §2 Implementation sketch).
+These block forward progress. EN port decisions resolved 2026-05-21 and
+moved to `pipeline/voc-en/HISTORY.md → Architectural decisions`.
 
 ### ConceptNet (§3)
 
@@ -1128,7 +663,7 @@ share is the safer default.
 ## TL;DR
 
 - DE rebuild: scripts + sources survive in backup → **fully reproducible** in 3–8 h.
-- EN port: backbone done on HF → **~2 weeks** of laptop-side scripting.
+- EN port: **nearly complete** — 11,539 entries, grade fill running (PID 9034), post-fill sequence ready in `pipeline/voc-en/PLAN.md`.
 - ConceptNet expansion: ~½ day code + 4–10 h compute → **~6–8 GB** all-languages DB sibling.
 - Spelling-pattern classifier v2: extend beyond NRW + primary-pick + dual taxonomy (§6) — ~2 days.
 - 7 additional free-licensed data sources to add (§7).

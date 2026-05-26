@@ -1127,18 +1127,18 @@ class _SettingsScreenState extends State<SettingsScreen>
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children: [
                     Text(
-                      'Learning language',
-                      style: TextStyle(
+                      S.of(context)!.learningLanguage,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
                         fontSize: 16,
                       ),
                     ),
                     Text(
-                      'Choose which vocabulary database games use',
-                      style: TextStyle(
+                      S.of(context)!.learningLanguageDesc,
+                      style: const TextStyle(
                         color: Colors.white60,
                         fontSize: 12,
                       ),
