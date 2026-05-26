@@ -1386,4 +1386,10 @@ class SEn extends S {
 
   @override
   String get wordSortCategoryPronoun => 'Pronouns';
+
+  @override
+  String get fontFamilyTitle => 'Font';
+
+  @override
+  String get fontFamilySubtitle => 'Choose a font for learning content';
 }

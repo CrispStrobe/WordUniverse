@@ -123,6 +123,8 @@ class GameProvider extends ChangeNotifier {
   bool _soundEnabled = true;
   bool _musicEnabled = true;
   bool _puzzleTimerEnabled = true;
+  bool _hintsEnabled = true;
+  bool _hapticEnabled = true;
   bool _useAdaptiveDifficulty = false;
   Map<String, int> _gameProgress = {};
   List<Achievement> _achievements = [];
@@ -195,6 +197,8 @@ class GameProvider extends ChangeNotifier {
     _lives = _prefs.getInt('lives') ?? 3;
     _soundEnabled = _prefs.getBool('soundEnabled') ?? true;
     _musicEnabled = _prefs.getBool('musicEnabled') ?? true;
+    _hintsEnabled = _prefs.getBool('hintsEnabled') ?? true;
+    _hapticEnabled = _prefs.getBool('hapticEnabled') ?? true;
     _gameProgress = Map<String, int>.from(
       jsonDecode(_prefs.getString('gameProgress') ?? '{}')
     );
@@ -247,7 +251,9 @@ class GameProvider extends ChangeNotifier {
   bool get soundEnabled => _soundEnabled;
   bool get musicEnabled => _musicEnabled;
   bool get puzzleTimerEnabled => _puzzleTimerEnabled;
-  
+  bool get hintsEnabled => _hintsEnabled;
+  bool get hapticEnabled => _hapticEnabled;
+
   bool get useAdaptiveDifficulty => _useAdaptiveDifficulty;
 
   Map<String, int> get gameProgress => _gameProgress;
@@ -287,6 +293,8 @@ class GameProvider extends ChangeNotifier {
     await _prefs.setInt('lives', _lives);
     await _prefs.setBool('soundEnabled', _soundEnabled);
     await _prefs.setBool('musicEnabled', _musicEnabled);
+    await _prefs.setBool('hintsEnabled', _hintsEnabled);
+    await _prefs.setBool('hapticEnabled', _hapticEnabled);
     await _prefs.setString('gameProgress', jsonEncode(_gameProgress));
     await _prefs.setBool('useAdaptiveDifficulty', _useAdaptiveDifficulty);
     await _prefs.setBool('isFullVersionUnlocked', _isFullVersionUnlocked);
@@ -467,6 +475,18 @@ class GameProvider extends ChangeNotifier {
   void setPuzzleTimer(bool enabled) {
     _puzzleTimerEnabled = enabled;
     notifyListeners();
+  }
+
+  void setHintsEnabled(bool enabled) {
+    _hintsEnabled = enabled;
+    notifyListeners();
+    _saveProgress();
+  }
+
+  void setHapticEnabled(bool enabled) {
+    _hapticEnabled = enabled;
+    notifyListeners();
+    _saveProgress();
   }
 
   void resetScore() {
