@@ -317,7 +317,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
       _wordsLost++;
       _feedbackMessage = s.wordRescueFeedbackLost;
       _answerResult = AnswerResultType.incorrect;
-      _educationalHint = generateEducationalHint(context, _currentWord!, isIncorrect: true);
+      _educationalHint = generateEducationalHint(context, _currentWord!, isIncorrect: true, gradeLevel: widget.gradeLevel);
       _currentStreak = 0;
     });
     
@@ -461,7 +461,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
     if (userInput == correctDisplayName) {
         _answerResult = AnswerResultType.perfect;
         _feedbackMessage = s.gameplayCorrect;
-        _educationalHint = generateEducationalHint(context, _currentWord!, isPerfect: true);
+        _educationalHint = generateEducationalHint(context, _currentWord!, isPerfect: true, gradeLevel: widget.gradeLevel);
         wasCorrectForSRI = true;
         
         scoreGained = 10 - (_hintsUsed * 2);
@@ -484,7 +484,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
           .any((v) => v.spelling.toLowerCase() == userWordPart)) {
         _answerResult = AnswerResultType.commonMistake;
         _feedbackMessage = s.gameplayFeedbackCommonMistake(_currentWord!.displayName);
-        _educationalHint = generateEducationalHint(context, _currentWord!, isCommonMistake: true);
+        _educationalHint = generateEducationalHint(context, _currentWord!, isCommonMistake: true, gradeLevel: widget.gradeLevel);
         wasCorrectForSRI = true;
 
         scoreGained = 5 - (_hintsUsed * 1);
@@ -494,7 +494,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
       } else {
         _answerResult = AnswerResultType.incorrect;
         _feedbackMessage = s.gameplayFeedbackIncorrect(_currentWord!.displayName);
-        _educationalHint = generateEducationalHint(context, _currentWord!, isIncorrect: true);
+        _educationalHint = generateEducationalHint(context, _currentWord!, isIncorrect: true, gradeLevel: widget.gradeLevel);
         wasCorrectForSRI = false;
         scoreGained = 0;
         
