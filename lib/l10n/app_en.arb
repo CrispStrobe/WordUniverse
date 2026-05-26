@@ -671,6 +671,30 @@
     "antonymFlashTitle": "Antonym Flash",
     "antonymFlashDescription": "Tap the opposite — as fast as you can!",
 
+    "synonymFlashTitle": "Synonym Flash",
+    "synonymFlashDescription": "Tap a word with the same meaning — as fast as you can!",
+
+    "translationFlashTitle": "Translation Flash",
+    "translationFlashDescription": "Tap the English translation of each German word!",
+
+    "syllableCountTitle": "Syllable Count",
+    "syllableCountDescription": "How many syllables does the word have? Count them!",
+
+    "clozeFlashTitle": "Cloze Flash",
+    "clozeFlashDescription": "Fill in the blank — pick the right word for each sentence!",
+
+    "expressionFlashTitle": "Expression Flash",
+    "expressionFlashDescription": "Complete the German idiom — tap the missing word!",
+
+    "conjugationDrillTitle": "Conjugation Drill",
+    "conjugationDrillDescription": "Pick the right verb form for each pronoun",
+
+    "homophoneDrillTitle": "Homophone Drill",
+    "homophoneDrillDescription": "Pick the right spelling — hear vs here, to vs too vs two",
+
+    "confusableDrillTitle": "Word Trap",
+    "confusableDrillDescription": "Spot the right word — affect vs effect, lose vs loose",
+
     "wortbaumeisterCardTitle": "Wort-Stückler",
     "wortbaumeisterCardDescription": "Build compound nouns piece by piece",
 

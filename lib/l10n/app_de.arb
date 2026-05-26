@@ -613,6 +613,30 @@
     "antonymFlashTitle": "Gegenwort-Blitz",
     "antonymFlashDescription": "Tippe das Gegenteil — so schnell du kannst!",
 
+    "synonymFlashTitle": "Synonym-Blitz",
+    "synonymFlashDescription": "Tippe ein Wort mit gleicher Bedeutung — so schnell du kannst!",
+
+    "translationFlashTitle": "Übersetzungs-Blitz",
+    "translationFlashDescription": "Tippe die englische Übersetzung jedes deutschen Worts!",
+
+    "syllableCountTitle": "Silben zählen",
+    "syllableCountDescription": "Wie viele Silben hat das Wort? Zähl sie!",
+
+    "clozeFlashTitle": "Lücken-Blitz",
+    "clozeFlashDescription": "Füll die Lücke aus — tippe das richtige Wort!",
+
+    "expressionFlashTitle": "Phrasen-Blitz",
+    "expressionFlashDescription": "Ergänze die Redewendung — tippe das fehlende Wort!",
+
+    "conjugationDrillTitle": "Konjugations-Drill",
+    "conjugationDrillDescription": "Wähle die richtige Verbform für jedes Personalpronomen",
+
+    "homophoneDrillTitle": "Homophone Drill",
+    "homophoneDrillDescription": "Pick the right spelling — hear vs here, to vs too vs two",
+
+    "confusableDrillTitle": "Word Trap",
+    "confusableDrillDescription": "Spot the right word — affect vs effect, lose vs loose",
+
     "wortbaumeisterCardTitle": "Wort-Stückler",
     "wortbaumeisterCardDescription": "Zusammengesetzte Nomen Stück für Stück bauen",
 

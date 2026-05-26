@@ -2025,6 +2025,102 @@ abstract class S {
   /// **'Tap the opposite — as fast as you can!'**
   String get antonymFlashDescription;
 
+  /// No description provided for @synonymFlashTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Synonym Flash'**
+  String get synonymFlashTitle;
+
+  /// No description provided for @synonymFlashDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a word with the same meaning — as fast as you can!'**
+  String get synonymFlashDescription;
+
+  /// No description provided for @translationFlashTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Translation Flash'**
+  String get translationFlashTitle;
+
+  /// No description provided for @translationFlashDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the English translation of each German word!'**
+  String get translationFlashDescription;
+
+  /// No description provided for @syllableCountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Syllable Count'**
+  String get syllableCountTitle;
+
+  /// No description provided for @syllableCountDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'How many syllables does the word have? Count them!'**
+  String get syllableCountDescription;
+
+  /// No description provided for @clozeFlashTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloze Flash'**
+  String get clozeFlashTitle;
+
+  /// No description provided for @clozeFlashDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill in the blank — pick the right word for each sentence!'**
+  String get clozeFlashDescription;
+
+  /// No description provided for @expressionFlashTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Expression Flash'**
+  String get expressionFlashTitle;
+
+  /// No description provided for @expressionFlashDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete the German idiom — tap the missing word!'**
+  String get expressionFlashDescription;
+
+  /// No description provided for @conjugationDrillTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Conjugation Drill'**
+  String get conjugationDrillTitle;
+
+  /// No description provided for @conjugationDrillDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick the right verb form for each pronoun'**
+  String get conjugationDrillDescription;
+
+  /// No description provided for @homophoneDrillTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Homophone Drill'**
+  String get homophoneDrillTitle;
+
+  /// No description provided for @homophoneDrillDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick the right spelling — hear vs here, to vs too vs two'**
+  String get homophoneDrillDescription;
+
+  /// No description provided for @confusableDrillTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Word Trap'**
+  String get confusableDrillTitle;
+
+  /// No description provided for @confusableDrillDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Spot the right word — affect vs effect, lose vs loose'**
+  String get confusableDrillDescription;
+
   /// No description provided for @wortbaumeisterCardTitle.
   ///
   /// In en, this message translates to:
