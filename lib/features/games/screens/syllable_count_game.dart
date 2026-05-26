@@ -275,7 +275,7 @@ class _SyllableCountGameState extends State<SyllableCountGame>
       _pulseCtrl.forward(from: 0);
       _correct++;
       _sriService.recordResponse(
-        skillType: LanguageSkillType.wordType,
+        skillType: LanguageSkillType.spelling,
         baseWord: challenge.word.word,
         wasCorrect: true,
       );
@@ -284,7 +284,7 @@ class _SyllableCountGameState extends State<SyllableCountGame>
       _audioService.playSound('error');
       _shakeCtrl.forward(from: 0).then((_) => _shakeCtrl.reverse());
       _sriService.recordResponse(
-        skillType: LanguageSkillType.wordType,
+        skillType: LanguageSkillType.spelling,
         baseWord: challenge.word.word,
         wasCorrect: false,
       );

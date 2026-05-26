@@ -281,7 +281,7 @@ class _DefinitionQuizGameState extends State<DefinitionQuizGame>
       _score += 10;
       _correct++;
       _sriService.recordResponse(
-        skillType: LanguageSkillType.spelling,
+        skillType: LanguageSkillType.vocabulary,
         baseWord: challenge.word.word,
         wasCorrect: true,
       );
@@ -292,7 +292,7 @@ class _DefinitionQuizGameState extends State<DefinitionQuizGame>
           .forward(from: 0)
           .then((_) => _shakeController.reverse());
       _sriService.recordResponse(
-        skillType: LanguageSkillType.spelling,
+        skillType: LanguageSkillType.vocabulary,
         baseWord: challenge.word.word,
         wasCorrect: false,
       );

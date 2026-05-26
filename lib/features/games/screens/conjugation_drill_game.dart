@@ -227,7 +227,7 @@ class _ConjugationDrillGameState extends State<ConjugationDrillGame>
     }
 
     _sriService.recordResponse(
-      skillType: LanguageSkillType.spelling,
+      skillType: LanguageSkillType.verbConjugation,
       baseWord: challenge.verb.word,
       wasCorrect: isCorrect,
     );

@@ -274,7 +274,7 @@ class _ReverseTranslationFlashGameState
       _pulseCtrl.forward(from: 0);
       _correct++;
       _sriService.recordResponse(
-        skillType: LanguageSkillType.wordType,
+        skillType: LanguageSkillType.vocabulary,
         baseWord: challenge.deWord.word,
         wasCorrect: true,
       );
@@ -283,7 +283,7 @@ class _ReverseTranslationFlashGameState
       _audioService.playSound('error');
       _shakeCtrl.forward(from: 0).then((_) => _shakeCtrl.reverse());
       _sriService.recordResponse(
-        skillType: LanguageSkillType.wordType,
+        skillType: LanguageSkillType.vocabulary,
         baseWord: challenge.deWord.word,
         wasCorrect: false,
       );

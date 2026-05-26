@@ -70,6 +70,7 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
   int _itemsCompleted = 0;
   final int _totalItems = 20;
   int _combo = 0;
+  int _correctCount = 0;
   int _maxCombo = 0;
   int _level = 1;
   // Wort-Stückler is scoped to compound nouns. Separable verbs are
@@ -147,6 +148,7 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
     _score = 0;
     _itemsCompleted = 0;
     _combo = 0;
+    _correctCount = 0;
     _maxCombo = 0;
     _level = 1;
     _fallingSpeed = 5.0;
@@ -294,6 +296,7 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
     HapticFeedback.lightImpact();
 
     _combo++;
+    _correctCount++;
     if (_combo > _maxCombo) _maxCombo = _combo;
 
     final basePoints = 100 + (_currentChallenge!.difficulty * 25);
@@ -386,7 +389,7 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
       gameType: 'wortbaumeister_game',
       difficulty: widget.gradeLevel.index + 1,
       score: _score,
-      wasSuccessful: _score > 0,
+      wasSuccessful: _itemsCompleted > 0 && _correctCount * 2 >= _itemsCompleted,
     ));
 
     showDialog(
