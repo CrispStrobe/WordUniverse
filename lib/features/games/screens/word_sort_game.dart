@@ -2,7 +2,6 @@
 import 'dart:async';
 import 'dart:collection';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
@@ -297,7 +296,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
 
   void _handleCorrectAnswer() {
     _audioService.playSound('success');
-    HapticFeedback.lightImpact();
+    _gameProvider.hapticLight();
     _gameProvider.addScore(10);
     
     setState(() {
@@ -322,7 +321,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
 
   void _handleIncorrectAnswer(GermanWordType guessedCategory) {
     _audioService.playSound('failure');
-    HapticFeedback.heavyImpact();
+    _gameProvider.hapticHeavy();
 
     setState(() {
       _feedbackState = FeedbackState.incorrect;

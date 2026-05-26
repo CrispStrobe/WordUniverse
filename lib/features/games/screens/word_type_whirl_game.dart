@@ -3,7 +3,6 @@ import 'dart:async';
 import 'dart:math';
 import 'dart:collection';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/services/audio_service.dart';
@@ -665,12 +664,12 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
 
   void _onCorrectTap(WhirlingWord whirlingWord) {
     _audioService.playSound('success');
-    HapticFeedback.lightImpact();
+    _gameProvider.hapticLight();
     _pulseController.forward(from: 0);
     _secondsSinceLastCorrectTap = 0;
     _showAutoHints = false;
 
-    _showHint(_generateSimpleHint(whirlingWord.word, true), false);
+    if (_gameProvider.hintsEnabled) _showHint(_generateSimpleHint(whirlingWord.word, true), false);
 
     setState(() {
       _streak++;
@@ -694,8 +693,8 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
 
   void _onIncorrectTap(WhirlingWord whirlingWord) {
     _audioService.playSound('failure');
-    HapticFeedback.heavyImpact();
-    _showHint(_generateSimpleHint(whirlingWord.word, false), true);
+    _gameProvider.hapticHeavy();
+    if (_gameProvider.hintsEnabled) _showHint(_generateSimpleHint(whirlingWord.word, false), true);
 
     setState(() {
       _streak = 0;

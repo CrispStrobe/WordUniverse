@@ -2,7 +2,6 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/services/audio_service.dart';
@@ -367,7 +366,7 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
 
   void _onCorrectWord() {
     _audioService.playSound('success');
-    HapticFeedback.lightImpact();
+    _gameProvider.hapticLight();
     
     setState(() {
       _feedbackState = FeedbackState.correct;
@@ -420,7 +419,7 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
 
   void _onIncorrectWord() {
     _audioService.playSound('failure');
-    HapticFeedback.heavyImpact();
+    _gameProvider.hapticHeavy();
     
     setState(() {
       _feedbackState = FeedbackState.incorrect;
@@ -446,7 +445,7 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
   }
 
   void _useHint() {
-    if (_showHint || _feedbackState == FeedbackState.correct) return;
+    if (_showHint || _feedbackState == FeedbackState.correct || !_gameProvider.hintsEnabled) return;
 
     setState(() {
       _showHint = true;
@@ -742,7 +741,7 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
                     ),
                 ],
               ),
-              onPressed: (_feedbackState == FeedbackState.correct || _showHint)
+              onPressed: (_feedbackState == FeedbackState.correct || _showHint || !_gameProvider.hintsEnabled)
                   ? null
                   : _useHint,
               padding: EdgeInsets.zero,

@@ -3,7 +3,6 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
@@ -393,7 +392,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
 
     if (isCorrect) {
       _audioService.playSound('success');
-      HapticFeedback.lightImpact();
+      _gameProvider.hapticLight();
       _gameProvider.addScore(20);
       
       final eduInfo = _getEducationalInfo(_currentWord!);
@@ -427,7 +426,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
 
     } else {
       _audioService.playSound('failure');
-      HapticFeedback.heavyImpact();
+      _gameProvider.hapticHeavy();
 
       setState(() {
         _feedbackState = FeedbackState.incorrect;
