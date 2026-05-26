@@ -110,6 +110,10 @@ class ApiEnrichment {
   // Each entry is a misspelled form string.
   final List<String> commonLearnerErrors;
 
+  // DE spelling strategy (from German orthography didactics):
+  // 'grossschreibung' | 'klangtreu' | 'morphem' | 'verwandt' | 'doppelkonsonant' | 'merkwort'
+  final String? spellingStrategyPrimary;
+
   ApiEnrichment({
     required this.enrichmentStatus,
     this.primaryPos,
@@ -140,6 +144,7 @@ class ApiEnrichment {
     this.gradeExamples,
     required this.gutenbergExamples,
     required this.commonLearnerErrors,
+    this.spellingStrategyPrimary,
   });
 
   factory ApiEnrichment.fromJson(Map<String, dynamic> json) {
@@ -221,6 +226,7 @@ class ApiEnrichment {
       gutenbergExamples:
           List<String>.from(json['gutenberg_examples'] ?? []),
       commonLearnerErrors: _parseCommonLearnerErrors(json['commonLearnerErrors']),
+      spellingStrategyPrimary: json['spellingStrategyPrimary'] as String?,
     );
   }
 
@@ -450,6 +456,8 @@ class GermanWord {
 
   final Map<String, dynamic>? frequencyData;
   final double? averageRank;
+  // LiTKey empirical child-spelling error rate (0–1). Higher = harder for kids.
+  final double? litekeyErrorRate;
   final Map<String, dynamic>? artikelDetailsNRW;
   final Map<String, dynamic>? morphematischesPrinzip;
 
@@ -496,6 +504,7 @@ class GermanWord {
     this.apiEnrichment,
     this.frequencyData,
     this.averageRank,
+    this.litekeyErrorRate,
     this.artikelDetailsNRW,
     this.morphematischesPrinzip,
     this.gradeLevelEstimate,
@@ -689,6 +698,10 @@ class GermanWord {
 
       frequencyData: json['frequencyData'] as Map<String, dynamic>?,
       averageRank: _parseDouble(json['averageRank'], 0.0), // SAFE PARSE
+      litekeyErrorRate: () {
+            final v = _parseDouble(json['litkey_error_rate'], -1.0);
+            return v < 0 ? null : v;
+          }(),
       artikelDetailsNRW: json['artikelDetailsNRW'] as Map<String, dynamic>?,
       morphematischesPrinzip:
           json['morphematisches Prinzip'] as Map<String, dynamic>?,
