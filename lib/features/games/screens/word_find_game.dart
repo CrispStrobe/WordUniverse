@@ -356,87 +356,80 @@ class _WordFindGameState extends State<WordFindGame> {
   /// Generates compact educational info for a found word
   String _getEducationalInfo(GermanWord word) {
     final List<String> infoParts = [];
-    
+    final api = word.apiEnrichment;
+
+    // Article prefix for nouns
+    if (word.wordType == GermanWordType.substantiv &&
+        word.article != null && word.article!.isNotEmpty) {
+      infoParts.add(word.article!);
+    }
+
+    // Primary: definition
+    final def = api?.definitions.firstOrNull;
+    if (def != null && def.isNotEmpty) {
+      final truncated = def.length > 50 ? '${def.substring(0, 47)}…' : def;
+      infoParts.add('"$truncated"');
+      return ' • ${infoParts.join(' • ')}';
+    }
+
+    // Secondary: synonyms
+    if (api?.synonyms.isNotEmpty ?? false) {
+      infoParts.add('= ${api!.synonyms.take(2).join(', ')}');
+      return ' • ${infoParts.join(' • ')}';
+    }
+
+    // Fallback: morphological info by type
     switch (word.wordType) {
       case GermanWordType.substantiv:
-        // Always show article if available
-        if (word.article != null && word.article!.isNotEmpty) {
-          infoParts.add(word.article!);
-        }
-        
-        // Always show plural if available
         if (word.plural != null && word.plural!.isNotEmpty && word.plural != '-') {
           infoParts.add('Plural: ${word.plural}');
-        } /* else if (word.nurImPlural) {
-          infoParts.add('nur Plural');
-        } */
-        
-        // Show genus as fallback or additional info
+        }
         if (word.genus != null && word.genus!.isNotEmpty) {
           infoParts.add(word.genus!.toLowerCase());
         }
         break;
-        
+
       case GermanWordType.verb:
-        // Try to show conjugation from inflectionData
-        if (word.inflectionData != null && word.inflectionData!.isNotEmpty) {
-          final conjugation = _getRandomVerbConjugation(word.inflectionData!);
-          if (conjugation != null) {
-            infoParts.add(conjugation);
-          }
+        // Try new inflectionsPattern first
+        String? conjugation;
+        final pattern = api?.inflectionsPattern;
+        if (pattern != null) {
+          try {
+            final pres = pattern['conjugation']?['Präsens'] as Map?;
+            final ich = pres?['ich'] as String?;
+            final du = pres?['du'] as String?;
+            if (ich != null && du != null) conjugation = 'ich $ich, du $du';
+          } catch (_) {}
         }
-        
-        // If no conjugation, show verb form info
-        if (infoParts.isEmpty && word.verbFormSpacy != null) {
-          final verbFormMap = {
-            'Inf': 'Infinitiv',
-            'Fin': 'finit',
-            'Part': 'Partizip',
-          };
+        // Fall back to legacy inflectionData
+        if (conjugation == null && word.inflectionData != null && word.inflectionData!.isNotEmpty) {
+          conjugation = _getRandomVerbConjugation(word.inflectionData!);
+        }
+        if (conjugation != null) {
+          infoParts.add(conjugation);
+        } else if (word.verbFormSpacy != null) {
+          final verbFormMap = {'Inf': 'Infinitiv', 'Fin': 'finit', 'Part': 'Partizip'};
           infoParts.add(verbFormMap[word.verbFormSpacy] ?? word.verbFormSpacy!);
-        }
-        
-        // If still nothing, at least show it's a verb
-        if (infoParts.isEmpty) {
+        } else {
           infoParts.add('Verb');
         }
         break;
-        
+
       case GermanWordType.adjektiv:
-        // Try to show comparative and superlative
-        bool hasSteigerung = false;
-        
-        if (word.inflectionData != null) {
-          final comparative = word.inflectionData!['comparative'];
-          final superlative = word.inflectionData!['superlative'];
-          
-          if (comparative != null && comparative.toString().isNotEmpty && comparative != '-') {
-            infoParts.add(comparative.toString());
-            hasSteigerung = true;
-          }
-          if (superlative != null && superlative.toString().isNotEmpty && superlative != '-') {
-            infoParts.add(superlative.toString());
-            hasSteigerung = true;
-          }
+        String? komp;
+        String? sup;
+        final pattern = api?.inflectionsPattern;
+        if (pattern != null) {
+          komp = pattern['comparative'] as String?;
+          sup = pattern['superlative'] as String?;
         }
-        
-        // Show degree info if available
-        if (word.degreeSpacy != null && word.degreeSpacy!.isNotEmpty) {
-          final degreeMap = {
-            'Pos': 'Positiv',
-            'Cmp': 'Komparativ',
-            'Sup': 'Superlativ',
-          };
-          final degreeLabel = degreeMap[word.degreeSpacy] ?? word.degreeSpacy!;
-          if (!hasSteigerung) {
-            infoParts.add(degreeLabel);
-          }
+        if (komp == null && word.inflectionData != null) {
+          komp = word.inflectionData!['comparative']?.toString();
+          sup = word.inflectionData!['superlative']?.toString();
         }
-        
-        // Fallback
-        if (infoParts.isEmpty) {
-          infoParts.add('Adjektiv');
-        }
+        if (komp != null && komp.isNotEmpty && komp != '-') infoParts.add(komp);
+        if (sup != null && sup.isNotEmpty && sup != '-') infoParts.add(sup);
+        if (infoParts.isEmpty) infoParts.add('Adjektiv');
         break;
         
       case GermanWordType.pronomen:

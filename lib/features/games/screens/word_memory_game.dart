@@ -27,18 +27,24 @@ class WordMemoryGame extends StatefulWidget {
 
 class MemoryCard {
   final String word;
+  final String displayText;
   final String fontFamily;
   final int id;
+  final String? matchId;
+  final bool isDefinitionCard;
   bool isFlipped;
   bool isMatched;
 
   MemoryCard({
     required this.word,
+    String? displayText,
     required this.fontFamily,
     required this.id,
+    this.matchId,
+    this.isDefinitionCard = false,
     this.isFlipped = false,
     this.isMatched = false,
-  });
+  }) : displayText = displayText ?? word;
 }
 
 class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStateMixin {
@@ -200,12 +206,21 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
 
     final List<MemoryCard> cards = [];
     final random = Random();
-    
+    final bool definitionMode = widget.gradeLevel.index >= 2;
+
     for (int i = 0; i < wordsForGame.length && i < _totalPairs; i++) {
       final word = wordsForGame[i];
       final shuffledFonts = List<String>.from(_availableFonts)..shuffle(random);
-      cards.add(MemoryCard(word: word.word, fontFamily: shuffledFonts[0], id: i * 2));
-      cards.add(MemoryCard(word: word.word, fontFamily: shuffledFonts[1], id: i * 2 + 1));
+      final def = definitionMode ? word.apiEnrichment?.definitions.firstOrNull : null;
+      if (def != null && def.isNotEmpty) {
+        final pairId = 'pair_$i';
+        final truncDef = def.length > 55 ? '${def.substring(0, 52)}…' : def;
+        cards.add(MemoryCard(word: word.word, fontFamily: shuffledFonts[0], id: i * 2, matchId: pairId));
+        cards.add(MemoryCard(word: word.word, displayText: truncDef, fontFamily: 'SpaceGrotesk', id: i * 2 + 1, matchId: pairId, isDefinitionCard: true));
+      } else {
+        cards.add(MemoryCard(word: word.word, fontFamily: shuffledFonts[0], id: i * 2));
+        cards.add(MemoryCard(word: word.word, fontFamily: shuffledFonts[1], id: i * 2 + 1));
+      }
     }
 
     cards.shuffle(random);
@@ -244,7 +259,9 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
     setState(() => _isChecking = true);
     await Future.delayed(const Duration(milliseconds: 600));
 
-    final bool isMatch = _firstSelected!.word == _secondSelected!.word;
+    final bool isMatch = _firstSelected!.matchId != null
+        ? _firstSelected!.matchId == _secondSelected!.matchId
+        : _firstSelected!.word == _secondSelected!.word;
 
     if (isMatch) {
       setState(() {
@@ -612,9 +629,9 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
             scale: scale,
             child: Semantics(
               label: card.isMatched
-                  ? 'Karte ${card.word}, gefunden'
+                  ? 'Karte ${card.displayText}, gefunden'
                   : (isFlipped
-                      ? 'Karte ${card.word}, aufgedeckt'
+                      ? 'Karte ${card.displayText}, aufgedeckt'
                       : 'Verdeckte Karte'),
               button: true,
               selected: isSelected,
@@ -650,20 +667,33 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
                           children: [
                             Center(
                               child: Padding(
-                                padding: const EdgeInsets.all(4.0),
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text(
-                                    card.word,
-                                    style: TextStyle(
-                                      fontFamily: card.fontFamily,
-                                      fontSize: size * 0.3,
-                                      fontWeight: FontWeight.bold,
-                                      color: card.isMatched ? SpaceTheme.deepSpace : Colors.white,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
+                                padding: const EdgeInsets.all(6.0),
+                                child: card.isDefinitionCard
+                                    ? Text(
+                                        card.displayText,
+                                        style: TextStyle(
+                                          fontFamily: 'SpaceGrotesk',
+                                          fontSize: size * 0.16,
+                                          fontStyle: FontStyle.italic,
+                                          color: card.isMatched ? SpaceTheme.deepSpace : Colors.white,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                        maxLines: 4,
+                                        overflow: TextOverflow.ellipsis,
+                                      )
+                                    : FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        child: Text(
+                                          card.displayText,
+                                          style: TextStyle(
+                                            fontFamily: card.fontFamily,
+                                            fontSize: size * 0.3,
+                                            fontWeight: FontWeight.bold,
+                                            color: card.isMatched ? SpaceTheme.deepSpace : Colors.white,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
                               ),
                             ),
                             // ✓ overlay on matched cards (alongside the
