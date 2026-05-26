@@ -1977,6 +1977,18 @@ abstract class S {
   /// **'Spot the correctly spelled word — learn common spelling mistakes'**
   String get spellingSpotterDescription;
 
+  /// No description provided for @sentenceCompletionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sentence Completion'**
+  String get sentenceCompletionTitle;
+
+  /// No description provided for @sentenceCompletionDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill in the missing word — practise vocabulary in context'**
+  String get sentenceCompletionDescription;
+
   /// No description provided for @wortbaumeisterCardTitle.
   ///
   /// In en, this message translates to:

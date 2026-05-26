@@ -1058,6 +1058,13 @@ class SDe extends S {
       'Finde das korrekt geschriebene Wort — lerne häufige Rechtschreibfehler';
 
   @override
+  String get sentenceCompletionTitle => 'Satzergänzung';
+
+  @override
+  String get sentenceCompletionDescription =>
+      'Ergänze das fehlende Wort — übe Wortschatz im Kontext';
+
+  @override
   String get wortbaumeisterCardTitle => 'Wort-Stückler';
 
   @override
