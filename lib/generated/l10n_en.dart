@@ -1073,7 +1073,64 @@ class SEn extends S {
   String get antonymFlashTitle => 'Antonym Flash';
 
   @override
-  String get antonymFlashDescription => 'Tap the opposite — as fast as you can!';
+  String get antonymFlashDescription =>
+      'Tap the opposite — as fast as you can!';
+
+  @override
+  String get synonymFlashTitle => 'Synonym Flash';
+
+  @override
+  String get synonymFlashDescription =>
+      'Tap a word with the same meaning — as fast as you can!';
+
+  @override
+  String get translationFlashTitle => 'Translation Flash';
+
+  @override
+  String get translationFlashDescription =>
+      'Tap the English translation of each German word!';
+
+  @override
+  String get syllableCountTitle => 'Syllable Count';
+
+  @override
+  String get syllableCountDescription =>
+      'How many syllables does the word have? Count them!';
+
+  @override
+  String get clozeFlashTitle => 'Cloze Flash';
+
+  @override
+  String get clozeFlashDescription =>
+      'Fill in the blank — pick the right word for each sentence!';
+
+  @override
+  String get expressionFlashTitle => 'Expression Flash';
+
+  @override
+  String get expressionFlashDescription =>
+      'Complete the German idiom — tap the missing word!';
+
+  @override
+  String get conjugationDrillTitle => 'Conjugation Drill';
+
+  @override
+  String get conjugationDrillDescription =>
+      'Pick the right verb form for each pronoun';
+
+  @override
+  String get homophoneDrillTitle => 'Homophone Drill';
+
+  @override
+  String get homophoneDrillDescription =>
+      'Pick the right spelling — hear vs here, to vs too vs two';
+
+  @override
+  String get confusableDrillTitle => 'Word Trap';
+
+  @override
+  String get confusableDrillDescription =>
+      'Spot the right word — affect vs effect, lose vs loose';
 
   @override
   String get wortbaumeisterCardTitle => 'Wort-Stückler';

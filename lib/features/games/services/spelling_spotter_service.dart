@@ -1,9 +1,22 @@
 // Pure-function helpers for SpellingSpotter challenge building.
 // Extracted so the logic can be unit-tested independently of the widget tree.
 
-/// Normalize morpheme-boundary underscores from LiTKey data.
-/// "vorbei_bringen" → "vorbeibringen"
-String normWord(String w) => w.replaceAll('_', '');
+import '../../../core/models/vocabulary_models.dart';
+
+/// Returns a 0–1 difficulty score used to sort the SpellingSpotter word pool.
+///
+/// DE: LiTKey empirical child-error rate; null → 0.5 (neutral, no data).
+/// EN: Norvig/Wikipedia misspelling variant count, normalised with cap 20.
+///     0 variants → 0.3 (probably easy, not "no data"); 20+ → 1.0 (hardest).
+double spellingDifficultyScore(GermanWord w, {required bool isDE}) {
+  if (isDE) return w.litekeyErrorRate ?? 0.5;
+  final count = w.apiEnrichment?.commonLearnerErrors.length ?? 0;
+  return count == 0 ? 0.3 : (count / 20.0).clamp(0.0, 1.0);
+}
+
+/// Normalize morpheme-boundary underscores and utterance-boundary pipes from
+/// LiTKey data. "vorbei_bringen" → "vorbeibringen"; "ab|" → "ab"
+String normWord(String w) => w.replaceAll('_', '').replaceAll('|', '');
 
 /// Split comma-separated error entries into individual tokens.
 /// "ihn, in" → ["ihn", "in"]

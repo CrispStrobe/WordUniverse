@@ -1081,7 +1081,64 @@ class SDe extends S {
   String get antonymFlashTitle => 'Gegenwort-Blitz';
 
   @override
-  String get antonymFlashDescription => 'Tippe das Gegenteil — so schnell du kannst!';
+  String get antonymFlashDescription =>
+      'Tippe das Gegenteil — so schnell du kannst!';
+
+  @override
+  String get synonymFlashTitle => 'Synonym-Blitz';
+
+  @override
+  String get synonymFlashDescription =>
+      'Tippe ein Wort mit gleicher Bedeutung — so schnell du kannst!';
+
+  @override
+  String get translationFlashTitle => 'Übersetzungs-Blitz';
+
+  @override
+  String get translationFlashDescription =>
+      'Tippe die englische Übersetzung jedes deutschen Worts!';
+
+  @override
+  String get syllableCountTitle => 'Silben zählen';
+
+  @override
+  String get syllableCountDescription =>
+      'Wie viele Silben hat das Wort? Zähl sie!';
+
+  @override
+  String get clozeFlashTitle => 'Lücken-Blitz';
+
+  @override
+  String get clozeFlashDescription =>
+      'Füll die Lücke aus — tippe das richtige Wort!';
+
+  @override
+  String get expressionFlashTitle => 'Phrasen-Blitz';
+
+  @override
+  String get expressionFlashDescription =>
+      'Ergänze die Redewendung — tippe das fehlende Wort!';
+
+  @override
+  String get conjugationDrillTitle => 'Konjugations-Drill';
+
+  @override
+  String get conjugationDrillDescription =>
+      'Wähle die richtige Verbform für jedes Personalpronomen';
+
+  @override
+  String get homophoneDrillTitle => 'Homophone Drill';
+
+  @override
+  String get homophoneDrillDescription =>
+      'Pick the right spelling — hear vs here, to vs too vs two';
+
+  @override
+  String get confusableDrillTitle => 'Word Trap';
+
+  @override
+  String get confusableDrillDescription =>
+      'Spot the right word — affect vs effect, lose vs loose';
 
   @override
   String get wortbaumeisterCardTitle => 'Wort-Stückler';

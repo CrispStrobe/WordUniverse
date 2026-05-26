@@ -13,6 +13,14 @@ import '../widgets/space_background.dart';
 import 'definition_quiz_game.dart';
 import 'sentence_completion_game.dart';
 import 'antonym_flash_game.dart';
+import 'conjugation_drill_game.dart';
+import 'homophone_drill_game.dart';
+import '../services/homophone_drill_service.dart' show HomophoneGameMode;
+import 'cloze_flash_game.dart';
+import 'expression_flash_game.dart';
+import 'syllable_count_game.dart';
+import 'synonym_flash_game.dart';
+import 'translation_flash_game.dart';
 import 'sri_review_game.dart';
 import 'space_word_rescue_game.dart';
 import 'spelling_spotter_game.dart';
@@ -49,7 +57,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
   late Animation<double> _floatAnimation;
 
   // for new games, we must manually update game count
-  static const int _gameCount = 11;
+  static const int _gameCount = 24;
 
   @override
   void initState() {
@@ -438,6 +446,87 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         supportedLearningLanguages: const ['de', 'en'],
         onTap: () => _navigateToGame(AntonymFlashGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
+      ),
+      GameInfo(
+        title: s.synonymFlashTitle,
+        description: s.synonymFlashDescription,
+        icon: Icons.sync_alt,
+        gradient: const LinearGradient(
+            colors: [Color(0xFF11998E), Color(0xFF38EF7D)]),
+        supportedLearningLanguages: const ['de', 'en'],
+        onTap: () => _navigateToGame(SynonymFlashGame(
+            gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
+      ),
+      GameInfo(
+        title: s.conjugationDrillTitle,
+        description: s.conjugationDrillDescription,
+        icon: Icons.text_fields,
+        gradient: const LinearGradient(
+            colors: [Color(0xFF00B09B), Color(0xFF96C93D)]),
+        supportedLearningLanguages: const ['de'],
+        onTap: () => _navigateToGame(ConjugationDrillGame(
+            gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
+      ),
+      GameInfo(
+        title: s.translationFlashTitle,
+        description: s.translationFlashDescription,
+        icon: Icons.translate,
+        gradient: const LinearGradient(
+            colors: [Color(0xFF1A237E), Color(0xFF3F51B5)]),
+        supportedLearningLanguages: const ['de'],
+        onTap: () => _navigateToGame(TranslationFlashGame(
+            gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
+      ),
+      GameInfo(
+        title: s.syllableCountTitle,
+        description: s.syllableCountDescription,
+        icon: Icons.record_voice_over_outlined,
+        gradient: const LinearGradient(
+            colors: [Color(0xFF009FFF), Color(0xFFec2F4B)]),
+        supportedLearningLanguages: const ['de', 'en'],
+        onTap: () => _navigateToGame(SyllableCountGame(
+            gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
+      ),
+      GameInfo(
+        title: s.clozeFlashTitle,
+        description: s.clozeFlashDescription,
+        icon: Icons.edit_note,
+        gradient: const LinearGradient(
+            colors: [Color(0xFFF7971E), Color(0xFFFFD200)]),
+        supportedLearningLanguages: const ['de', 'en'],
+        onTap: () => _navigateToGame(ClozeFlashGame(
+            gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
+      ),
+      GameInfo(
+        title: s.expressionFlashTitle,
+        description: s.expressionFlashDescription,
+        icon: Icons.format_quote,
+        gradient: const LinearGradient(
+            colors: [Color(0xFF2193b0), Color(0xFF6dd5ed)]),
+        supportedLearningLanguages: const ['de'],
+        onTap: () => _navigateToGame(ExpressionFlashGame(
+            gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
+      ),
+      GameInfo(
+        title: s.homophoneDrillTitle,
+        description: s.homophoneDrillDescription,
+        icon: Icons.record_voice_over,
+        gradient: const LinearGradient(
+            colors: [Color(0xFF4776E6), Color(0xFF8E54E9)]),
+        supportedLearningLanguages: const ['en'],
+        onTap: () => _navigateToGame(HomophoneDrillGame(
+            gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
+      ),
+      GameInfo(
+        title: s.confusableDrillTitle,
+        description: s.confusableDrillDescription,
+        icon: Icons.warning_amber,
+        gradient: const LinearGradient(
+            colors: [Color(0xFFEB3349), Color(0xFFF45C43)]),
+        supportedLearningLanguages: const ['en'],
+        onTap: () => _navigateToGame(HomophoneDrillGame(
+            gradeLevel: _getGradeLevelFromInt(gameProvider.grade),
+            mode: HomophoneGameMode.confusables)),
       ),
       GameInfo(
         title: s.wortbaumeisterCardTitle,
