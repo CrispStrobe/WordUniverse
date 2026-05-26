@@ -268,6 +268,10 @@ class SriStatisticsDialog extends StatelessWidget {
         return 'Verben (Zeitformen)';
       case LanguageSkillType.caseUsage:
         return 'Fälle (Kasus)';
+      case LanguageSkillType.vocabulary:
+        return 'Wortschatz';
+      case LanguageSkillType.reading:
+        return 'Lesen im Kontext';
     }
   }
 

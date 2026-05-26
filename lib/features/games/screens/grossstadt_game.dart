@@ -70,6 +70,7 @@ class _GrossstadtGameState extends State<GrossstadtGame>
   int _itemsCompleted = 0;
   int _totalItems = 20;
   int _combo = 0;
+  int _correctCount = 0;
   int _maxCombo = 0;
   int _level = 1;
 
@@ -145,6 +146,7 @@ class _GrossstadtGameState extends State<GrossstadtGame>
     _score = 0;
     _itemsCompleted = 0;
     _combo = 0;
+    _correctCount = 0;
     _maxCombo = 0;
     _level = 1;
     _conveyorSpeed = 4.0;
@@ -570,6 +572,7 @@ class _GrossstadtGameState extends State<GrossstadtGame>
     HapticFeedback.lightImpact();
 
     _combo++;
+    _correctCount++;
     if (_combo > _maxCombo) _maxCombo = _combo;
 
     final basePoints = 100 + (_currentItem!.difficulty * 20);
@@ -660,7 +663,7 @@ class _GrossstadtGameState extends State<GrossstadtGame>
       gameType: 'grossstadt_game',
       difficulty: widget.gradeLevel.index + 1,
       score: _score,
-      wasSuccessful: _score > 0,
+      wasSuccessful: _itemsCompleted > 0 && _correctCount * 2 >= _itemsCompleted,
     ));
 
     showDialog(

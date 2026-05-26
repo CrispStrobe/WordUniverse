@@ -331,7 +331,7 @@ class _WordFindGameState extends State<WordFindGame> {
             (w) => w.word.toUpperCase() == placedWord.word);
 
         _sriService.recordResponse(
-          skillType: LanguageSkillType.spelling,
+          skillType: LanguageSkillType.vocabulary,
           baseWord: originalWord.word,
           wasCorrect: true,
           metadata: {

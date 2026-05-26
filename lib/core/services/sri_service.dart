@@ -131,6 +131,10 @@ class SriService with ChangeNotifier {
         // Ensure additionalInfo doesn't create trailing underscore
         final info = additionalInfo?.isNotEmpty == true ? '_$additionalInfo' : '';
         return 'CASE_${baseWord.toLowerCase()}$info';
+      case LanguageSkillType.vocabulary:
+        return 'VOCAB_${baseWord.toLowerCase()}';
+      case LanguageSkillType.reading:
+        return 'READ_${baseWord.toLowerCase()}';
     }
   }
 

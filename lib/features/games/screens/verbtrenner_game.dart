@@ -68,6 +68,7 @@ class _VerbtrennerGameState extends State<VerbtrennerGame>
   int _itemsCompleted = 0;
   int _totalItems = 25;
   int _combo = 0;
+  int _correctCount = 0;
   int _maxCombo = 0;
   int _level = 1;
 
@@ -148,6 +149,7 @@ class _VerbtrennerGameState extends State<VerbtrennerGame>
     _score = 0;
     _itemsCompleted = 0;
     _combo = 0;
+    _correctCount = 0;
     _maxCombo = 0;
     _level = 1;
     _fallingSpeed = 5.0;
@@ -418,6 +420,7 @@ class _VerbtrennerGameState extends State<VerbtrennerGame>
     HapticFeedback.lightImpact();
 
     _combo++;
+    _correctCount++;
     if (_combo > _maxCombo) _maxCombo = _combo;
 
     final basePoints = 100 + (_currentPair!.difficulty * 25);
@@ -511,7 +514,7 @@ class _VerbtrennerGameState extends State<VerbtrennerGame>
       gameType: 'verbtrenner_game',
       difficulty: widget.gradeLevel.index + 1,
       score: _score,
-      wasSuccessful: _score > 0,
+      wasSuccessful: _itemsCompleted > 0 && _correctCount * 2 >= _itemsCompleted,
     ));
 
     showDialog(

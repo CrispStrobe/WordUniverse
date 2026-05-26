@@ -42,6 +42,8 @@ enum LanguageSkillType {
   capitalization,   // German capitalization rules
   verbConjugation,  // Verb forms
   caseUsage,        // Nominativ/Akkusativ/Dativ/Genitiv
+  vocabulary,       // Word meaning: synonyms, antonyms, definitions, translations, hypernyms
+  reading,          // Reading in context: cloze, expressions, proverbs
 }
 
 

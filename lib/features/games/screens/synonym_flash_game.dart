@@ -282,7 +282,7 @@ class _SynonymFlashGameState extends State<SynonymFlashGame>
       _pulseCtrl.forward(from: 0);
       _correct++;
       _sriService.recordResponse(
-        skillType: LanguageSkillType.wordType,
+        skillType: LanguageSkillType.vocabulary,
         baseWord: challenge.word.word,
         wasCorrect: true,
       );
@@ -291,7 +291,7 @@ class _SynonymFlashGameState extends State<SynonymFlashGame>
       _audioService.playSound('error');
       _shakeCtrl.forward(from: 0).then((_) => _shakeCtrl.reverse());
       _sriService.recordResponse(
-        skillType: LanguageSkillType.wordType,
+        skillType: LanguageSkillType.vocabulary,
         baseWord: challenge.word.word,
         wasCorrect: false,
       );
