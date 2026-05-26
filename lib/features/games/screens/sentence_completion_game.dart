@@ -13,6 +13,7 @@ import '../../../core/theme/space_theme.dart';
 import '../../../generated/l10n.dart';
 import '../models/game_outcome.dart';
 import '../providers/game_provider.dart';
+import '../widgets/cefr_chip.dart';
 import '../widgets/space_background.dart';
 
 class SentenceCompletionGame extends StatefulWidget {
@@ -425,6 +426,10 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
                       .copyWith(color: Colors.white, fontSize: 17),
                   textAlign: TextAlign.center,
                 ),
+                if (challenge.word.cefrLevel != null) ...[
+                  const SizedBox(height: 6),
+                  CefrChip(challenge.word.cefrLevel!),
+                ],
                 const SizedBox(height: 20),
                 _buildSentenceCard(challenge),
                 const SizedBox(height: 24),

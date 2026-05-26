@@ -184,7 +184,7 @@ local toolchain. Cache is enabled so warm runs are fast. The
 `--fatal-infos` flag locks in the "zero issues at any level" bar we
 just cleared.
 
-### [ ] 17. Cap Gradle daemon heap
+### [x] 17. Cap Gradle daemon heap
 `org.gradle.jvmargs=-Xmx2G -XX:MaxMetaspaceSize=512m` in
 `android/gradle.properties` of each project. Currently the daemon
 balloons to ~5GB after a few builds.
@@ -307,7 +307,7 @@ turns it from a visual-memory game into a phonics-aware one. Optionally
 expose a speaker icon on any word card for on-demand replay.
 `AudioService.speak(text, lang)` → `FlutterTts.speak`.
 
-### [ ] 27. Definition Quiz game
+### [x] 27. Definition Quiz game
 Inverse of WordMemory definition mode: show a definition, pick the
 matching word from 4 options. Distractors sampled from same CEFR level
 so they're plausible. 99% definition coverage means no special filtering
@@ -336,7 +336,7 @@ One word per calendar day on the home screen: definition, one
 `gradeExample` sentence, synonym strip. Zero new game logic; drives
 daily open rate. Seed from a deterministic hash of `DateTime.now().day`.
 
-### [ ] 32. Surface CEFR level badges
+### [x] 32. Surface CEFR level badges
 Show `cefrLevel` (A1–B2) as a small badge on any word card that
 renders in game feedback or review screens. Lets older students
 self-select challenge level via a filter in the game menu.

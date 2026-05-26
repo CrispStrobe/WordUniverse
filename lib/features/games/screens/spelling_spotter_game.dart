@@ -18,6 +18,7 @@ import '../../../core/theme/space_theme.dart';
 import '../../../generated/l10n.dart';
 import '../models/game_outcome.dart';
 import '../providers/game_provider.dart';
+import '../widgets/cefr_chip.dart';
 import '../widgets/space_background.dart';
 
 class SpellingSpotterGame extends StatefulWidget {
@@ -424,6 +425,7 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
 
   Widget _buildPrompt(_SpellingChallenge challenge) {
     final definition = challenge.word.apiEnrichment?.definitions.firstOrNull;
+    final cefr = challenge.word.cefrLevel;
     return Column(
       children: [
         Text(
@@ -434,6 +436,10 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
               .copyWith(color: Colors.white, fontSize: 18),
           textAlign: TextAlign.center,
         ),
+        if (cefr != null) ...[
+          const SizedBox(height: 6),
+          CefrChip(cefr),
+        ],
         if (definition != null) ...[
           const SizedBox(height: 12),
           Container(
@@ -459,6 +465,7 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
       ],
     );
   }
+
 
   Widget _buildOptions(_SpellingChallenge challenge) {
     return Column(

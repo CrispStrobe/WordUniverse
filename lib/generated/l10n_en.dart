@@ -1056,6 +1056,13 @@ class SEn extends S {
       'Fill in the missing word — practise vocabulary in context';
 
   @override
+  String get definitionQuizTitle => 'Definition Quiz';
+
+  @override
+  String get definitionQuizDescription =>
+      'Match the definition to the correct word';
+
+  @override
   String get wortbaumeisterCardTitle => 'Wort-Stückler';
 
   @override

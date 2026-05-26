@@ -1065,6 +1065,13 @@ class SDe extends S {
       'Ergänze das fehlende Wort — übe Wortschatz im Kontext';
 
   @override
+  String get definitionQuizTitle => 'Definitions-Quiz';
+
+  @override
+  String get definitionQuizDescription =>
+      'Ordne die Definition dem richtigen Wort zu';
+
+  @override
   String get wortbaumeisterCardTitle => 'Wort-Stückler';
 
   @override

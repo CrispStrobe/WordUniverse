@@ -1989,6 +1989,18 @@ abstract class S {
   /// **'Fill in the missing word — practise vocabulary in context'**
   String get sentenceCompletionDescription;
 
+  /// No description provided for @definitionQuizTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Definition Quiz'**
+  String get definitionQuizTitle;
+
+  /// No description provided for @definitionQuizDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Match the definition to the correct word'**
+  String get definitionQuizDescription;
+
   /// No description provided for @wortbaumeisterCardTitle.
   ///
   /// In en, this message translates to:
