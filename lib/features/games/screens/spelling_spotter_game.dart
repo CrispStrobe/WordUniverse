@@ -178,6 +178,7 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
   }
 
   bool _hasErrors(GermanWord w) {
+    if (w.isProperNoun) return false;
     final display = _norm(w.word);
     if (display.contains(' ') || display.isEmpty) return false;
     if (_isDE) {

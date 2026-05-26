@@ -101,10 +101,13 @@ class _DefinitionQuizGameState extends State<DefinitionQuizGame>
   void _buildChallenges() {
     final gradeIndex = widget.gradeLevel.index + 1;
 
-    // Words with at least one definition
+    // Words with at least one definition; skip proper nouns (names produce
+    // definitions like "a given name" which make trivial / odd challenges).
     final allWords = _vocabularyService
         .getAllWords(_gameProvider)
-        .where((w) => w.apiEnrichment?.definitions.isNotEmpty ?? false)
+        .where((w) =>
+            !w.isProperNoun &&
+            (w.apiEnrichment?.definitions.isNotEmpty ?? false))
         .toList();
 
     if (allWords.isEmpty) {
