@@ -385,9 +385,11 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       case GermanWordType.pronomen:
         return _getPronomenHint(word, apiData, advanced);
       default:
-        return '✓ Richtig!';
+        return _isDE ? '✓ Richtig!' : '✓ Correct!';
     }
   }
+
+  bool get _isDE => _vocabularyService.learningLanguage == 'de';
 
   String _getNounHint(GermanWord word, ApiEnrichment? apiData, Map<String, dynamic>? patternData, bool advanced, {bool isCorrect = true}) {
     final List<String> hints = [];
@@ -412,20 +414,33 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       } catch (e) {}
     }
     
-    if (word.article != null && word.article!.isNotEmpty) {
+    if (_isDE && word.article != null && word.article!.isNotEmpty) {
       hints.add('✓ Nomen: ${word.article} ${word.word}');
     }
-    
+
     if (apiData?.definitions.isNotEmpty ?? false) {
       hints.add('✓ ${apiData!.definitions.first}');
     }
-    
-    hints.add('✓ Nomen groß: ${word.word} (Großschreibung!)');
-        
-    if (hints.isEmpty) {
-      hints.add('✓ Richtig: ${word.word} ist ein Nomen!');
+
+    if (_isDE) {
+      hints.add('✓ Nomen groß: ${word.word} (Großschreibung!)');
+    } else {
+      hints.add('✓ Noun: ${word.word} (a naming word)');
     }
-    
+
+    if (apiData?.synonyms.isNotEmpty ?? false) {
+      hints.add('✓ ${_isDE ? "Synonym" : "Also"}: ${apiData!.synonyms.take(2).join(', ')}');
+    }
+    if (apiData?.antonyms.isNotEmpty ?? false) {
+      hints.add('✓ ${_isDE ? "Gegenteil" : "Opposite"}: ${apiData!.antonyms.first}');
+    }
+
+    if (hints.isEmpty) {
+      hints.add(_isDE
+          ? '✓ Richtig: ${word.word} ist ein Nomen!'
+          : '✓ Correct: ${word.word} is a Noun!');
+    }
+
     return _selectHintFromList(hints);
   }
 
@@ -463,12 +478,23 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       hints.add('✓ ${apiData!.definitions.first}');
     }
 
-    hints.add('✓ Verb: ${word.word} → beschreibt Handlung');
-    
-    if (hints.isEmpty) {
-      hints.add('✓ Richtig: ${word.word} ist ein Verb!');
+    hints.add(_isDE
+        ? '✓ Verb: ${word.word} → beschreibt Handlung'
+        : '✓ Verb: ${word.word} → action or state');
+
+    if (apiData?.synonyms.isNotEmpty ?? false) {
+      hints.add('✓ ${_isDE ? "Synonym" : "Also"}: ${apiData!.synonyms.take(2).join(', ')}');
     }
-    
+    if (apiData?.antonyms.isNotEmpty ?? false) {
+      hints.add('✓ ${_isDE ? "Gegenteil" : "Opposite"}: ${apiData!.antonyms.first}');
+    }
+
+    if (hints.isEmpty) {
+      hints.add(_isDE
+          ? '✓ Richtig: ${word.word} ist ein Verb!'
+          : '✓ Correct: ${word.word} is a Verb!');
+    }
+
     return _selectHintFromList(hints);
   }
 
@@ -492,21 +518,40 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       hints.add('✓ ${apiData!.definitions.first}');
     }
 
-    hints.add('✓ Adjektiv: ${word.word} → Eigenschaft');
-    hints.add('✓ Wie-Frage: "Wie ist es?" → ${word.word}');
-    
-    if (hints.isEmpty) {
-      hints.add('✓ Richtig: ${word.word} ist ein Adjektiv!');
+    if (_isDE) {
+      hints.add('✓ Adjektiv: ${word.word} → Eigenschaft');
+      hints.add('✓ Wie-Frage: "Wie ist es?" → ${word.word}');
+    } else {
+      hints.add('✓ Adjective: ${word.word} → describes a quality');
+      hints.add('✓ Answers "What is it like?" → ${word.word}');
     }
-    
+
+    if (apiData?.synonyms.isNotEmpty ?? false) {
+      hints.add('✓ ${_isDE ? "Synonym" : "Also"}: ${apiData!.synonyms.take(2).join(', ')}');
+    }
+    if (apiData?.antonyms.isNotEmpty ?? false) {
+      hints.add('✓ ${_isDE ? "Gegenteil" : "Opposite"}: ${apiData!.antonyms.first}');
+    }
+
+    if (hints.isEmpty) {
+      hints.add(_isDE
+          ? '✓ Richtig: ${word.word} ist ein Adjektiv!'
+          : '✓ Correct: ${word.word} is an Adjective!');
+    }
+
     return _selectHintFromList(hints);
   }
 
   String _getAdverbHint(GermanWord word, ApiEnrichment? apiData, bool advanced) {
-    final hints = [
-      '✓ Adverb: ${word.word} → unveränderlich!',
-      '✓ Wie-Frage: "Wie?" → ${word.word}',
-    ];
+    final hints = _isDE
+        ? [
+            '✓ Adverb: ${word.word} → unveränderlich!',
+            '✓ Wie-Frage: "Wie?" → ${word.word}',
+          ]
+        : [
+            '✓ Adverb: ${word.word} → tells how/when/where',
+            '✓ Answers "how?", "when?", or "where?"',
+          ];
     
     if (advanced && (apiData?.definitions.isNotEmpty ?? false)) {
       hints.add('✓ ${apiData!.definitions.first}');
@@ -516,10 +561,15 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
   }
 
   String _getPronomenHint(GermanWord word, ApiEnrichment? apiData, bool advanced) {
-    final hints = [
-      '✓ Pronomen: ${word.word} → ersetzt Nomen',
-      '✓ ${word.word} → steht für ein Nomen',
-    ];
+    final hints = _isDE
+        ? [
+            '✓ Pronomen: ${word.word} → ersetzt Nomen',
+            '✓ ${word.word} → steht für ein Nomen',
+          ]
+        : [
+            '✓ Pronoun: ${word.word} → replaces a noun',
+            '✓ ${word.word} → stands for a noun or noun phrase',
+          ];
     
     if (advanced && (apiData?.definitions.isNotEmpty ?? false)) {
       hints.add('✓ ${apiData!.definitions.first}');
@@ -531,9 +581,11 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
   String _generateIncorrectHint(GermanWord word, ApiEnrichment? apiData, Map<String, dynamic>? patternData, 
       GermanWordType? guessedType, bool advanced) {
     
-    String wrongPart = guessedType != null 
-        ? '✗ Kein ${_getCategoryNameGerman(guessedType)}!\n'
-        : '✗ Falsch!\n';
+    String wrongPart = guessedType != null
+        ? (_isDE
+            ? '✗ Kein ${_getCategoryName(guessedType)}!\n'
+            : '✗ Not a ${_getCategoryName(guessedType)}!\n')
+        : (_isDE ? '✗ Falsch!\n' : '✗ Wrong!\n');
     
     String correctPart = _getDetailedCorrectExplanation(word, apiData, patternData, guessedType);
     
@@ -549,86 +601,100 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       case GermanWordType.adjektiv:
         return _getAdjectiveCorrectExplanation(word, apiData, patternData, guessedType);
       default:
-        if(apiData?.definitions.isNotEmpty ?? false) {
-          return '✓ ${_getCategoryNameGerman(word.wordType)}: "${apiData!.definitions.first}"';
+        if (apiData?.definitions.isNotEmpty ?? false) {
+          return '✓ ${_getCategoryName(word.wordType)}: "${apiData!.definitions.first}"';
         }
-        return '✓ ${word.word} → ${_getCategoryNameGerman(word.wordType)}';
+        return '✓ ${word.word} → ${_getCategoryName(word.wordType)}';
     }
   }
 
   String _getNounCorrectExplanation(GermanWord word, ApiEnrichment? apiData, Map<String, dynamic>? patternData, GermanWordType? guessedType) {
     final List<String> reasons = [];
-    
-    if (word.article != null && word.article!.isNotEmpty) {
-      reasons.add('${word.article} ${word.word}');
-    }
-    
-    if (guessedType == GermanWordType.verb) {
-      reasons.add('nicht konjugierbar');
-    } else if (guessedType == GermanWordType.adjektiv) {
-      reasons.add('nicht steigerbar');
-    }
-    
-    try {
-      final plural = patternData?['plural'];
-      if (plural != null && plural is String && plural.isNotEmpty && plural != word.word && plural != '-') {
-        reasons.add('Plural: $plural');
+
+    if (_isDE) {
+      if (word.article != null && word.article!.isNotEmpty) {
+        reasons.add('${word.article} ${word.word}');
       }
-    } catch (e) {}
-    
-    if (reasons.isEmpty) {
-      return '✓ ${word.word} → Nomen (Großschreibung!)';
+      if (guessedType == GermanWordType.verb) {
+        reasons.add('nicht konjugierbar');
+      } else if (guessedType == GermanWordType.adjektiv) {
+        reasons.add('nicht steigerbar');
+      }
+      try {
+        final plural = patternData?['plural'];
+        if (plural != null && plural is String && plural.isNotEmpty && plural != word.word && plural != '-') {
+          reasons.add('Plural: $plural');
+        }
+      } catch (e) {}
+      if (reasons.isEmpty) return '✓ ${word.word} → Nomen (Großschreibung!)';
+      return '✓ Nomen: ${reasons.join(' • ')}';
+    } else {
+      try {
+        final plural = patternData?['plural'];
+        if (plural != null && plural is String && plural.isNotEmpty && plural != word.word && plural != '-') {
+          reasons.add('plural: $plural');
+        }
+      } catch (e) {}
+      if (reasons.isEmpty) return '✓ ${word.word} → Noun (a naming word)';
+      return '✓ Noun: ${reasons.join(' • ')}';
     }
-    
-    return '✓ Nomen: ${reasons.join(' • ')}';
   }
 
   String _getVerbCorrectExplanation(GermanWord word, ApiEnrichment? apiData, Map<String, dynamic>? patternData, GermanWordType? guessedType) {
     final List<String> reasons = [];
-    
-    try {
-      final conj = patternData?['conjugation']?['Präsens'];
-      if (conj != null && conj is Map) {
-        final ich = conj['ich'];
-        final du = conj['du'];
-        if (ich != null && du != null) {
-          reasons.add('ich $ich, du $du');
-        } else if (ich != null) {
-          reasons.add('z.B. ich $ich');
+
+    if (_isDE) {
+      try {
+        final conj = patternData?['conjugation']?['Präsens'];
+        if (conj != null && conj is Map) {
+          final ich = conj['ich'];
+          final du = conj['du'];
+          if (ich != null && du != null) {
+            reasons.add('ich $ich, du $du');
+          } else if (ich != null) {
+            reasons.add('z.B. ich $ich');
+          }
         }
+      } catch (e) {}
+      if (guessedType == GermanWordType.substantiv) reasons.add('kein Artikel');
+      if (reasons.isEmpty) return '✓ Verb: ${word.word} → Handlung!';
+      return '✓ Verb: ${reasons.join(' • ')}';
+    } else {
+      if (apiData?.definitions.isNotEmpty ?? false) {
+        return '✓ Verb: "${apiData!.definitions.first}"';
       }
-    } catch (e) {}
-    
-    if (guessedType == GermanWordType.substantiv) {
-      reasons.add('kein Artikel');
+      return '✓ Verb: ${word.word} → action or state';
     }
-    
-    if (reasons.isEmpty) {
-      return '✓ Verb: ${word.word} → Handlung!';
-    }
-    
-    return '✓ Verb: ${reasons.join(' • ')}';
   }
 
   String _getAdjectiveCorrectExplanation(GermanWord word, ApiEnrichment? apiData, Map<String, dynamic>? patternData, GermanWordType? guessedType) {
     final List<String> reasons = [];
-    
-    try {
-      final comp = patternData?['comparative'];
-      if (comp != null && comp is String && comp.isNotEmpty) {
-        reasons.add('steigerbar: $comp');
+
+    if (_isDE) {
+      try {
+        final comp = patternData?['comparative'];
+        if (comp != null && comp is String && comp.isNotEmpty) {
+          reasons.add('steigerbar: $comp');
+        }
+      } catch (e) {}
+      if (guessedType == GermanWordType.substantiv) reasons.add('kein Artikel');
+      if (reasons.isEmpty) reasons.add('der ${word.word}e Mann');
+      return '✓ Adjektiv: ${reasons.join(' • ')}';
+    } else {
+      try {
+        final comp = patternData?['comparative'];
+        if (comp != null && comp is String && comp.isNotEmpty) {
+          reasons.add('comparative: $comp');
+        }
+      } catch (e) {}
+      if (reasons.isEmpty) {
+        if (apiData?.definitions.isNotEmpty ?? false) {
+          return '✓ Adjective: "${apiData!.definitions.first}"';
+        }
+        return '✓ Adjective: ${word.word} → describes a quality';
       }
-    } catch (e) {}
-    
-    if (guessedType == GermanWordType.substantiv) {
-      reasons.add('kein Artikel');
+      return '✓ Adjective: ${reasons.join(' • ')}';
     }
-    
-    if (reasons.isEmpty) {
-      reasons.add('der ${word.word}e Mann');
-    }
-    
-    return '✓ Adjektiv: ${reasons.join(' • ')}';
   }
   
   String _selectHintFromList(List<String> hints) {
@@ -636,14 +702,25 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     return hints.first;
   }
 
-  String _getCategoryNameGerman(GermanWordType type) {
-    switch (type) {
-      case GermanWordType.substantiv: return 'Nomen';
-      case GermanWordType.verb: return 'Verb';
-      case GermanWordType.adjektiv: return 'Adjektiv';
-      case GermanWordType.adverb: return 'Adverb';
-      case GermanWordType.pronomen: return 'Pronomen';
-      default: return type.toString().split('.').last;
+  String _getCategoryName(GermanWordType type) {
+    if (_isDE) {
+      switch (type) {
+        case GermanWordType.substantiv: return 'Nomen';
+        case GermanWordType.verb: return 'Verb';
+        case GermanWordType.adjektiv: return 'Adjektiv';
+        case GermanWordType.adverb: return 'Adverb';
+        case GermanWordType.pronomen: return 'Pronomen';
+        default: return type.toString().split('.').last;
+      }
+    } else {
+      switch (type) {
+        case GermanWordType.substantiv: return 'Noun';
+        case GermanWordType.verb: return 'Verb';
+        case GermanWordType.adjektiv: return 'Adjective';
+        case GermanWordType.adverb: return 'Adverb';
+        case GermanWordType.pronomen: return 'Pronoun';
+        default: return type.toString().split('.').last;
+      }
     }
   }
 

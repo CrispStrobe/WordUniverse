@@ -262,27 +262,6 @@ Future<void> ensureCustomLicensesRegistered() async {
       ]);
     });
 
-    // 9f. UK National Curriculum English Programmes of Study
-    LicenseRegistry.addLicense(() {
-      return Stream<LicenseEntry>.fromIterable([
-        LicenseEntryWithLineBreaks(
-          ['UK National Curriculum - Statutory Spelling Lists'],
-          'Source: Department for Education (England), '
-          'English Programmes of Study, Appendix 1\n'
-          'URL: https://www.gov.uk/government/publications/national-curriculum-in-england-english-programmes-of-study\n'
-          'License: Open Government Licence v3.0 (OGL v3.0)\n'
-          'License URL: https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/\n\n'
-          'The statutory spelling lists for Years 1-2, 3-4 and 5-6 from the English '
-          'National Curriculum are used as the pedagogical primary signal for the '
-          'English vocabulary in this app (when shipping the English DB).\n\n'
-          'Contains public sector information licensed under the Open Government '
-          'Licence v3.0. You are free to copy, publish, distribute and transmit the '
-          'information, adapt it, and exploit it commercially, provided that the '
-          'source is acknowledged.',
-        ),
-      ]);
-    });
-
     // 9g. Wikipedia (general, separate from Wiktionary)
     LicenseRegistry.addLicense(() {
       return Stream<LicenseEntry>.fromIterable([
@@ -350,35 +329,6 @@ Future<void> ensureCustomLicensesRegistered() async {
           'Changes made: Truncated to top 10k by rank for the build pipeline.\n\n'
           'Credit: Matthias Buchmeier (Wiktionary user). Distributed under the '
           'Wiktionary CC BY-SA 4.0 license.',
-        ),
-      ]);
-    });
-
-    // 9h-extra3. Menzel (1985) empirical misspelling-frequency study
-    LicenseRegistry.addLicense(() {
-      return Stream<LicenseEntry>.fromIterable([
-        LicenseEntryWithLineBreaks(
-          ['Häufige Fehlerwörter (Menzel 1985 study)'],
-          'Source: Menzel, W. (1985). Rechtschreibunterricht. Praxis und '
-          'Theorie. Seelze: Friedrich-Verlag.\n\n'
-          'Menzel\'s empirical study analyzed approximately 2000 student '
-          'essays (Klassen 2–10) and identified the German words most '
-          'frequently misspelled by school children: 30 % of all errors fall '
-          'on a list of 300 specific words.\n\n'
-          'The "häufige Fehlerwörter" headword list used as one source signal '
-          'for the commonLearnerErrors pool in this app\'s vocabulary database '
-          'are empirical FACTS derived from Menzel\'s research. Under German '
-          'Urheberrecht and EU copyright doctrine, factual research findings '
-          'are not subject to copyright. The same headword data is openly '
-          'distributed by educational organisations such as the Austrian '
-          'Bundesverband Legasthenie (lrs-legasthenie.at) as reference '
-          'material with the same Menzel attribution.\n\n'
-          'The app uses ONLY the empirical headword list (the facts) — '
-          'example sentences, related-form curation, or specific PDF '
-          'presentations published by various popularizers of Menzel\'s '
-          'findings are NOT redistributed in this app.\n\n'
-          'Credit: Prof. Dr. Wolfgang Menzel for the original 1985 empirical '
-          'research.',
         ),
       ]);
     });
@@ -566,6 +516,28 @@ Future<void> ensureCustomLicensesRegistered() async {
       ]);
     });
 
+    // 9h-extra12b. DysList — German dyslexia error corpus (Rauschii et al. 2014)
+    LicenseRegistry.addLicense(() {
+      return Stream<LicenseEntry>.fromIterable([
+        LicenseEntryWithLineBreaks(
+          ['DysList — German dyslexic children\'s spelling errors'],
+          'Source: DysList (German_Annotation_V028.csv)\n'
+          'Authors: Rauschii et al. (2014)\n'
+          'License: MIT License\n'
+          'URL: https://github.com/Rauschii/DysListGerman\n'
+          'DOI: 10.5281/zenodo.809801\n'
+          'Citation: DysList: An Annotated Resource of Dyslexic Errors '
+          '(ACL Anthology L14-1492)\n\n'
+          'DysList contains ~1,020 annotated spelling errors produced by '
+          'German children with diagnosed dyslexia (ages 6–15), covering '
+          'omission, addition, substitution, multierror, and capital-letter '
+          'error types. Used in this app to populate the commonMistakes field '
+          'for German vocabulary entries (source tag: DYSLIST). '
+          'MIT license is compatible with all other data sources in this app.',
+        ),
+      ]);
+    });
+
     // 9h-extra13. childLex (Schroeder et al. 2015, HU Berlin / MPI Berlin)
     LicenseRegistry.addLicense(() {
       return Stream<LicenseEntry>.fromIterable([
@@ -592,6 +564,31 @@ Future<void> ensureCustomLicensesRegistered() async {
           'GPL-3.0, so combining childLex with the other CC-BY-SA-4.0 sources '
           'cascades the shipped database\'s license to GPL-3.0. The Flutter '
           'app source code is not affected and stays under its own license.',
+        ),
+      ]);
+    });
+
+    // 9h-extra14b. LiTKey corpus (Müller et al. 2021, RUB Bochum)
+    LicenseRegistry.addLicense(() {
+      return Stream<LicenseEntry>.fromIterable([
+        LicenseEntryWithLineBreaks(
+          ['LiTKey — German primary-school spelling-error corpus'],
+          'Source: LiTKey corpus (Literacy and Key Competencies)\n'
+          'Authors: Claudia Müller, Katrin Hein, Sven Schüller, '
+          'Stefanie Dipper (Ruhr-Universität Bochum)\n'
+          'License: Creative Commons Attribution-ShareAlike 4.0 '
+          'International (CC-BY-SA 4.0)\n'
+          'URL: https://www.linguistics.rub.de/litkeycorpus/\n'
+          'Citation: Müller, C., Hein, K., Schüller, S. & Dipper, S. '
+          '(2021). The LiTKey Corpus — a richly annotated longitudinal '
+          'corpus of German texts written by primary school children. '
+          'Language Resources and Evaluation.\n\n'
+          'LiTKey contains 37,000+ annotated spelling-error tokens from '
+          'German primary-school children in grades 2–4. Used in this app '
+          'to populate the commonMistakes field for German vocabulary '
+          'entries (source tag: LITKEY). The CC-BY-SA 4.0 license is '
+          'compatible with the database\'s effective GPL-3.0 posture '
+          '(see "Vocabulary database — composite license" entry).',
         ),
       ]);
     });
@@ -625,6 +622,25 @@ Future<void> ensureCustomLicensesRegistered() async {
           'Grundwortschätze) are §5 UrhG amtliche Werke and are freely '
           'usable; their attribution requirements are handled by the '
           'individual license entries above.',
+        ),
+      ]);
+    });
+
+    // 9h-extra15. Tatoeba — example sentences (CC-BY 2.0)
+    LicenseRegistry.addLicense(() {
+      return Stream<LicenseEntry>.fromIterable([
+        LicenseEntryWithLineBreaks(
+          ['Tatoeba — German example sentences'],
+          'Source: Tatoeba Project (https://tatoeba.org)\n'
+          'License: Creative Commons Attribution 2.0 (CC-BY 2.0)\n'
+          'Download: https://downloads.tatoeba.org/exports/per_language/deu/\n\n'
+          'Tatoeba is a free collection of example sentences and translations '
+          'contributed by volunteers. German sentences (deu_sentences.tsv) are '
+          'used in this app to provide short, child-friendly example sentences '
+          'for vocabulary entries (field: tatoeba_examples, source tag: TATOEBA). '
+          'Sentences are filtered to ≤ 15 words and selected for simplicity. '
+          'CC-BY 2.0 is compatible with the database\'s effective GPL-3.0 '
+          'posture (see "Vocabulary database — composite license" entry).',
         ),
       ]);
     });
@@ -675,6 +691,139 @@ Future<void> ensureCustomLicensesRegistered() async {
           'The WiktionaryEN enrichment service can use Open English WordNet '
           'for English synonym, antonym, hypernym, hyponym, and definition '
           'signals in the enriched English vocabulary database.',
+        ),
+      ]);
+    });
+
+    // 9o. wordfreq (EN frequency data)
+    LicenseRegistry.addLicense(() {
+      return Stream<LicenseEntry>.fromIterable([
+        LicenseEntryWithLineBreaks(
+          ['wordfreq'],
+          'Source: wordfreq by Luminoso Technologies, Inc.\n'
+          'Code license: Apache License 2.0\n'
+          'Data license: Creative Commons Attribution-ShareAlike 4.0 '
+          'International (CC BY-SA 4.0)\n'
+          'URL: https://github.com/rspeer/wordfreq\n\n'
+          'wordfreq provides word frequency data (Zipf scale, occurrences per '
+          'million words) for the English vocabulary database. The frequency '
+          'band signal is used to estimate vocabulary difficulty and as one '
+          'input to the gradeLevelEstimate computation.\n\n'
+          'The CC BY-SA 4.0 data license requires attribution and share-alike '
+          'distribution of any derived database that includes the frequency data.',
+        ),
+      ]);
+    });
+
+    // 9p. CEFR-J Vocabulary Profile (EN)
+    LicenseRegistry.addLicense(() {
+      return Stream<LicenseEntry>.fromIterable([
+        LicenseEntryWithLineBreaks(
+          ['CEFR-J Vocabulary Profile'],
+          'Source: CEFR-J Vocabulary Profile v1.5\n'
+          'Authors: Tono, Y. & Negishi, M. (Tokyo University of Foreign Studies)\n'
+          'License: Creative Commons Attribution-ShareAlike 4.0 International '
+          '(CC BY-SA 4.0)\n'
+          'URL: https://github.com/openlanguageprofiles/olp-en-cefrj\n\n'
+          'The CEFR-J profile assigns 7,020 English headwords to CEFR levels '
+          '(A1–B2). These level tags are stored in the English vocabulary '
+          'database as cefr_level metadata and inform the gradeLevelEstimate.',
+        ),
+      ]);
+    });
+
+    // 9q. Cambridge Young Learners English (YLE) word lists
+    LicenseRegistry.addLicense(() {
+      return Stream<LicenseEntry>.fromIterable([
+        LicenseEntryWithLineBreaks(
+          ['Cambridge Young Learners English (YLE) word lists'],
+          'Source: Cambridge Young Learners English Tests — Starters, Movers, '
+          'and Flyers vocabulary lists\n'
+          'Publisher: Cambridge Assessment English\n'
+          'License posture: The word lists are factual reference material '
+          '(enumerating vocabulary items learners are expected to know at each '
+          'level); as purely factual enumerations they are not subject to '
+          'copyright protection under the doctrine of facts and data.\n\n'
+          'The YLE level tags (source:cambridge_yle_starters, '
+          'source:cambridge_yle_movers, source:cambridge_yle_flyers) are '
+          'stored in the English vocabulary database as pedagogical difficulty '
+          'signals.',
+        ),
+      ]);
+    });
+
+    // 9r. UK DfE statutory word lists
+    LicenseRegistry.addLicense(() {
+      return Stream<LicenseEntry>.fromIterable([
+        LicenseEntryWithLineBreaks(
+          ['UK DfE statutory spelling word lists'],
+          'Source: UK Department for Education — National Curriculum statutory '
+          'spelling word lists for Years 1-2, 3-4, and 5-6.\n'
+          'License: Open Government Licence v3.0 (OGL v3)\n'
+          'URL: https://www.gov.uk/government/publications/national-curriculum-in-england-english-programmes-of-study\n'
+          'License URL: https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/\n\n'
+          'OGL v3 permits commercial use with attribution. These word lists '
+          'are used to tag entries in the English vocabulary database with '
+          'source:uk_y1_y2, source:uk_y3_y4, and source:uk_y5_y6 labels, '
+          'and as an input to the gradeLevelEstimate computation.',
+        ),
+      ]);
+    });
+
+    // 9s. Norvig spell-errors.txt (EN misspellings)
+    LicenseRegistry.addLicense(() {
+      return Stream<LicenseEntry>.fromIterable([
+        LicenseEntryWithLineBreaks(
+          ['Norvig spell-errors.txt'],
+          'Source: spell-errors.txt by Peter Norvig\n'
+          'Code license: MIT (per Norvig\'s "How to Write a Spelling Corrector" '
+          'essay header)\n'
+          'Data license: Creative Commons Attribution-ShareAlike (upstream Wikipedia '
+          'misspelling data; CC BY-SA)\n'
+          'URL: https://norvig.com/ngrams/spell-errors.txt\n\n'
+          'The Norvig spell-errors corpus contains ~38,000 correct→misspelling pairs '
+          'extracted from public domain sources including Wikipedia talk-page archives. '
+          'Used in the English vocabulary database to populate commonLearnerErrors '
+          'for ~4,600 entries (source tag: norvig). The CC BY-SA data license '
+          'requirement is satisfied by the vocabulary database\'s ShareAlike posture.',
+        ),
+      ]);
+    });
+
+    // 9t. Project Gutenberg texts (EN example sentences)
+    LicenseRegistry.addLicense(() {
+      return Stream<LicenseEntry>.fromIterable([
+        LicenseEntryWithLineBreaks(
+          ['Project Gutenberg — English example sentences'],
+          'Source: Project Gutenberg (https://www.gutenberg.org/)\n'
+          'License: Public Domain (all texts used are pre-1928 US publications '
+          'with no continuing copyright)\n\n'
+          'Example sentences in the English vocabulary database are extracted from '
+          '72 public-domain books from Project Gutenberg, including works by '
+          'Lewis Carroll, Mark Twain, Robert Louis Stevenson, Louisa May Alcott, '
+          'Frances Hodgson Burnett, E. Nesbit, Lucy Maud Montgomery, Rudyard '
+          'Kipling, J.M. Barrie, L. Frank Baum, Kenneth Grahame, Beatrix Potter, '
+          'George MacDonald, Daniel Defoe, Jonathan Swift, Anna Sewell, and others. '
+          'Only sentences containing a target vocabulary word are stored; the full '
+          'text is not bundled with the app.',
+        ),
+      ]);
+    });
+
+    // 9u. SCOWL / en-wl wordlist (EN spelling variants)
+    LicenseRegistry.addLicense(() {
+      return Stream<LicenseEntry>.fromIterable([
+        LicenseEntryWithLineBreaks(
+          ['SCOWL / en-wl — English spelling variants'],
+          'Source: SCOWL (Spell-Checker Oriented Word Lists) / en-wl wordlist\n'
+          'Maintainer: Kevin Atkinson (SCOWL); vg/spelling-uk-vs-us subset\n'
+          'License: MIT-like permissive (Kevin Atkinson\'s custom license, '
+          'CC-BY-4.0 for some wordlist subsets)\n'
+          'URL: http://wordlist.aspell.net/\n\n'
+          'SCOWL-derived UK vs. US spelling variant pairs (colour/color, '
+          'centre/center, organise/organize, etc.) are stored in the English '
+          'vocabulary database as spellingVariants with dialect=british or '
+          'dialect=american. 264 variant pairs across 150 entries.',
         ),
       ]);
     });

@@ -642,8 +642,14 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
 
   String _generateSimpleHint(GermanWord word, bool isCorrect) {
     final displayWord = _getDisplayWord(word);
-    if (isCorrect) return "✓ Richtig! $displayWord";
-    return "✗ Falsch! $displayWord ist kein ${_wordTypes[_currentTargetType]?.label}";
+    final typeLabel = _wordTypes[_currentTargetType]?.label ?? '';
+    if (_vocabularyService.learningLanguage == 'de') {
+      if (isCorrect) return "✓ Richtig! $displayWord";
+      return "✗ Falsch! $displayWord ist kein $typeLabel";
+    } else {
+      if (isCorrect) return "✓ Correct! $displayWord";
+      return "✗ Wrong! $displayWord is not a $typeLabel";
+    }
   }
 
   void _onCorrectTap(WhirlingWord whirlingWord) {

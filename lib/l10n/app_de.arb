@@ -204,6 +204,8 @@
     "hapticFeedbackDesc": "Vibration bei Berührung (falls unterstützt)",
     "appLanguage": "App-Sprache",
     "appLanguageDesc": "Wähle deine bevorzugte Sprache",
+    "learningLanguage": "Lernsprache",
+    "learningLanguageDesc": "Wähle, welche Wortschatz-Datenbank die Spiele verwenden",
     "languageEnglish": "English",
     "languageGerman": "Deutsch",
     "difficulty": "Schwierigkeit",
@@ -590,12 +592,24 @@
     "wortbaumeisterTogetherExample": "(z.B. aufstehen)",
 
     "grossschreibTitle": "Wort-Galaxie",
+    "grossschreibDescription": "Werden Worte im Satz groß oder klein geschrieben?",
     "grossschreibClickHint": "Klicke auf das Wort!",
     "grossschreibCheck": "PRÜFEN",
 
     "grossstadtTitle": "Groß oder klein?",
+    "grossstadtCardTitle": "Wort-Sortierer",
+    "grossstadtCardDescription": "Groß- und Kleinschreibung auf dem Förderband",
     "grossstadtCapital": "GROSS",
     "grossstadtLower": "klein",
+
+    "spellingSpotterTitle": "Spelling Spotter",
+    "spellingSpotterDescription": "Finde das korrekt geschriebene Wort — lerne häufige Rechtschreibfehler",
+
+    "wortbaumeisterCardTitle": "Wort-Stückler",
+    "wortbaumeisterCardDescription": "Zusammengesetzte Nomen Stück für Stück bauen",
+
+    "verbtrennerCardTitle": "Verb-Trenner",
+    "verbtrennerCardDescription": "Trennbare Verben erkennen: zusammen oder getrennt?",
 
     "achievementsBannerProgress": "{unlocked} von {total} Erfolgen freigeschaltet",
     "@achievementsBannerProgress": {
