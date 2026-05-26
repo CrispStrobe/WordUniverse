@@ -3,6 +3,7 @@
 // priority, apiEnrichment injection, and lemma resolution.
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:WortUniversum/core/models/skill_category.dart';
 import 'package:WortUniversum/core/models/vocabulary_models.dart';
 
 /// Minimal JSON that satisfies GermanWord.fromJson without errors.
@@ -200,6 +201,76 @@ void main() {
       final w =
           GermanWord.fromJson(_base(overrides: {'gradeLevel': 'bad'}));
       expect(w.gradeLevel, 1);
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // isProperNoun — guards the "Angeles ist schön" class of bad challenges
+  // -------------------------------------------------------------------------
+  group('GermanWord.isProperNoun', () {
+    test('"proper_noun" wordType sets isProperNoun = true', () {
+      final w = GermanWord.fromJson(_base(overrides: {'wordType': 'proper_noun'}));
+      expect(w.isProperNoun, isTrue);
+    });
+
+    test('"propernoun" (no underscore variant) also sets isProperNoun = true', () {
+      final w = GermanWord.fromJson(_base(overrides: {'wordType': 'propernoun'}));
+      expect(w.isProperNoun, isTrue);
+    });
+
+    test('"proper_noun" still resolves wordType to GermanWordType.substantiv', () {
+      final w = GermanWord.fromJson(_base(overrides: {'wordType': 'proper_noun'}));
+      expect(w.wordType, GermanWordType.substantiv);
+    });
+
+    test('"noun" sets isProperNoun = false', () {
+      final w = GermanWord.fromJson(_base(overrides: {'wordType': 'noun'}));
+      expect(w.isProperNoun, isFalse);
+    });
+
+    test('"adjective" sets isProperNoun = false', () {
+      final w = GermanWord.fromJson(_base(overrides: {'wordType': 'adjective'}));
+      expect(w.isProperNoun, isFalse);
+    });
+
+    test('"verb" sets isProperNoun = false', () {
+      final w = GermanWord.fromJson(_base(overrides: {'wordType': 'verb'}));
+      expect(w.isProperNoun, isFalse);
+    });
+
+    test('absent wordType key sets isProperNoun = false', () {
+      final w = GermanWord.fromJson({
+        'id': 'x',
+        'word': 'Laufen',
+        'gradeLevel': 2,
+      });
+      expect(w.isProperNoun, isFalse);
+    });
+
+    test('PROPER_NOUN (uppercase) is case-insensitively detected', () {
+      final w = GermanWord.fromJson(_base(overrides: {'wordType': 'PROPER_NOUN'}));
+      expect(w.isProperNoun, isTrue);
+    });
+
+    test('simulated Angeles entry: proper_noun → excluded from content pool', () {
+      // SentenceCompletion and SpellingSpotter check w.isProperNoun before
+      // adding a word to the challenge pool. This test verifies the flag is
+      // set correctly for the Angeles class of entry.
+      final angeles = GermanWord.fromJson(_base(overrides: {
+        'word': 'Angeles',
+        'wordType': 'proper_noun',
+        'gradeLevel': 3,
+      }));
+      expect(angeles.isProperNoun, isTrue);
+      expect(angeles.wordType, GermanWordType.substantiv,
+          reason: 'wordType still maps to substantiv for sort/inflection logic');
+    });
+
+    test('default constructor isProperNoun defaults to false', () {
+      // Ensures existing code that constructs GermanWord directly (e.g.
+      // custom vocabulary) is not broken by the new field.
+      final w = GermanWord.fromJson(_base());
+      expect(w.isProperNoun, isFalse);
     });
   });
 }
