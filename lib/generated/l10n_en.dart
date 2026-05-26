@@ -1049,6 +1049,13 @@ class SEn extends S {
       'Spot the correctly spelled word — learn common spelling mistakes';
 
   @override
+  String get sentenceCompletionTitle => 'Sentence Completion';
+
+  @override
+  String get sentenceCompletionDescription =>
+      'Fill in the missing word — practise vocabulary in context';
+
+  @override
   String get wortbaumeisterCardTitle => 'Wort-Stückler';
 
   @override

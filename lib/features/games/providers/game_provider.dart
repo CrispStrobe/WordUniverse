@@ -99,6 +99,7 @@ class GameProvider extends ChangeNotifier {
     'grossschreib_game': SkillCategories.getById('word_types')!,
     'verbtrenner_game': SkillCategories.getById('word_types')!, // Separable verbs
     'spelling_spotter': SkillCategories.getById('basic_spelling')!,
+    'sentence_completion': SkillCategories.getById('basic_vocab')!,
   };
 
   int _score = 0;
