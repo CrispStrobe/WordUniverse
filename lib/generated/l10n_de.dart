@@ -1072,6 +1072,12 @@ class SDe extends S {
       'Ordne die Definition dem richtigen Wort zu';
 
   @override
+  String get sriReviewTitle => 'Schwache Wörter';
+
+  @override
+  String get sriReviewDescription => 'Übe deine schwierigsten Wörter gezielt';
+
+  @override
   String get wortbaumeisterCardTitle => 'Wort-Stückler';
 
   @override

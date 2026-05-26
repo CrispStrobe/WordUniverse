@@ -364,19 +364,19 @@ abstract class S {
   /// No description provided for @wordSortCategoryNoun.
   ///
   /// In en, this message translates to:
-  /// **'Noun'**
+  /// **'Nouns'**
   String get wordSortCategoryNoun;
 
   /// No description provided for @wordSortCategoryVerb.
   ///
   /// In en, this message translates to:
-  /// **'Verb'**
+  /// **'Verbs'**
   String get wordSortCategoryVerb;
 
   /// No description provided for @wordSortCategoryAdjective.
   ///
   /// In en, this message translates to:
-  /// **'Adjective'**
+  /// **'Adjectives'**
   String get wordSortCategoryAdjective;
 
   /// No description provided for @wordSortCorrect.
@@ -2001,6 +2001,18 @@ abstract class S {
   /// **'Match the definition to the correct word'**
   String get definitionQuizDescription;
 
+  /// No description provided for @sriReviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Weak Words'**
+  String get sriReviewTitle;
+
+  /// No description provided for @sriReviewDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Practice your toughest words, ranked by difficulty'**
+  String get sriReviewDescription;
+
   /// No description provided for @wortbaumeisterCardTitle.
   ///
   /// In en, this message translates to:
@@ -2394,13 +2406,13 @@ abstract class S {
   /// No description provided for @wordSortCategoryAdverb.
   ///
   /// In en, this message translates to:
-  /// **'Adverb'**
+  /// **'Adverbs'**
   String get wordSortCategoryAdverb;
 
   /// No description provided for @wordSortCategoryPronoun.
   ///
   /// In en, this message translates to:
-  /// **'Pronoun'**
+  /// **'Pronouns'**
   String get wordSortCategoryPronoun;
 }
 

@@ -203,6 +203,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
       await _vocabularyService.initialize();
     }
 
+    _audioService.setTtsLanguage(_vocabularyService.learningLanguage);
     _loadNextWord();
 
     Timer(const Duration(seconds: 10), () {
