@@ -460,6 +460,11 @@ class GermanWord {
   // CEFR level (A1, A2, B1, B2, C1, C2) from CEFR-J profile.
   final String? cefrLevel;
 
+  // True when the DB row was typed 'proper_noun' (Eigenname / Vorname).
+  // Mapped to GermanWordType.substantiv for most game logic, but games can
+  // filter proper nouns out where they'd produce odd challenges.
+  final bool isProperNoun;
+
   GermanWord({
     required this.id,
     required this.word,
@@ -509,6 +514,7 @@ class GermanWord {
     required this.holonyms,
     required this.meronyms,
     required this.coordinateTerms,
+    this.isProperNoun = false,
   });
 
   factory GermanWord.fromJson(Map<String, dynamic> json) {
@@ -620,11 +626,16 @@ class GermanWord {
     SpellingDifficulty diff = SpellingDifficulty
         .values[diffIndex.clamp(0, SpellingDifficulty.values.length - 1)];
 
+    final rawWordType = (json['wordType'] as String? ?? '').toLowerCase();
+    final isProperNoun =
+        rawWordType == 'proper_noun' || rawWordType == 'propernoun';
+
     return GermanWord(
       id: json['id']?.toString() ?? '',
       word: json['word'] ?? '',
       article: json['article'],
       wordType: parseWordType(json['wordType']),
+      isProperNoun: isProperNoun,
       gradeLevel: _parseInt(json['gradeLevel'], 1), // SAFE PARSE
       lemma: apiData?.primaryLemma ?? json['lemma'] ?? json['word'],
       forms: json['forms'],

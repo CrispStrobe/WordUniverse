@@ -115,11 +115,13 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
   void _buildChallenges() {
     final gradeIndex = widget.gradeLevel.index + 1;
 
-    // Content words only, with grade examples, excluding Vornamen
+    // Content words only, with grade examples; exclude proper nouns (Vornamen,
+    // Ortsnamen) which produce odd fill-in-the-blank challenges.
     final allWords = _vocabularyService
         .getAllWords(_gameProvider)
         .where((w) =>
             _contentTypes.contains(w.wordType) &&
+            !w.isProperNoun &&
             _hasGradeExamples(w, gradeIndex) &&
             !w.word.contains('_') &&
             !w.word.contains(' '))
