@@ -2013,6 +2013,18 @@ abstract class S {
   /// **'Practice your toughest words, ranked by difficulty'**
   String get sriReviewDescription;
 
+  /// No description provided for @antonymFlashTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Antonym Flash'**
+  String get antonymFlashTitle;
+
+  /// No description provided for @antonymFlashDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the opposite — as fast as you can!'**
+  String get antonymFlashDescription;
+
   /// No description provided for @wortbaumeisterCardTitle.
   ///
   /// In en, this message translates to:
