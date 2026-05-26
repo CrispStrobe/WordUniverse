@@ -96,10 +96,8 @@ class _SettingsScreenState extends State<SettingsScreen>
   }
 
   Widget _buildFontSelector(GameProvider gameProvider) {
-    // TODO: add these strings to S.of(context) files
-    final String title = "Schriftart"; // s.fontFamilyTitle
-    final String subtitle =
-        "Wähle eine Schriftart für Lerninhalte"; // s.fontFamilySubtitle
+    final String title = S.of(context)!.fontFamilyTitle;
+    final String subtitle = S.of(context)!.fontFamilySubtitle;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -518,22 +516,22 @@ class _SettingsScreenState extends State<SettingsScreen>
                   _buildSwitchTile(
                     title: S.of(context)!.showHints,
                     subtitle: S.of(context)!.showHintsDesc,
-                    value: true, // TODO: Add to GameProvider
+                    value: gameProvider.hintsEnabled,
                     onChanged: (value) {
                       debugPrint(
                           "[SETTINGS] 💡 Hints setting changed to: $value");
-                      _saveSetting('hints_enabled', value);
+                      gameProvider.setHintsEnabled(value);
                     },
                     icon: Icons.lightbulb,
                   ),
                   _buildSwitchTile(
                     title: S.of(context)!.hapticFeedback,
                     subtitle: S.of(context)!.hapticFeedbackDesc,
-                    value: true, // TODO: Add to GameProvider
+                    value: gameProvider.hapticEnabled,
                     onChanged: (value) {
                       debugPrint(
                           "[SETTINGS] 📳 Haptic feedback setting changed to: $value");
-                      _saveSetting('haptic_enabled', value);
+                      gameProvider.setHapticEnabled(value);
                     },
                     icon: Icons.vibration,
                   ),

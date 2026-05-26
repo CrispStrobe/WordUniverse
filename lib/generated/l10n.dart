@@ -2570,6 +2570,18 @@ abstract class S {
   /// In en, this message translates to:
   /// **'Pronouns'**
   String get wordSortCategoryPronoun;
+
+  /// No description provided for @fontFamilyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Font'**
+  String get fontFamilyTitle;
+
+  /// No description provided for @fontFamilySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a font for learning content'**
+  String get fontFamilySubtitle;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

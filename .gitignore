@@ -47,3 +47,10 @@ app.*.map.json
 
 # Local work-in-progress prompts for follow-up agents
 /handover-prompts/
+
+# Pipeline intermediate artifacts (large/generated, not source-controlled)
+pipeline/**/*.jsonl
+pipeline/**/*.db
+pipeline/**/vornamen/
+pipeline/**/sources/vornamen/
+scripts/

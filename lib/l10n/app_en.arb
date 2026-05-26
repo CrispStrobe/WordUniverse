@@ -808,5 +808,7 @@
     "wordSortOnboardingBuildingBlocks": "Nouns, verbs and adjectives are the building blocks. Higher grades add adverbs and pronouns.",
     "wordSortOnboardingHints": "Need help? Wait a moment — the game will show hints for the current word after a short delay.",
     "wordSortCategoryAdverb": "Adverbs",
-    "wordSortCategoryPronoun": "Pronouns"
+    "wordSortCategoryPronoun": "Pronouns",
+    "fontFamilyTitle": "Font",
+    "fontFamilySubtitle": "Choose a font for learning content"
 }

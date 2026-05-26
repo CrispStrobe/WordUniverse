@@ -740,9 +740,9 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
     _roundTimer?.cancel();
     _spawnTimer?.cancel();
 
-    final totalMissed =
-        _roundHistory.fold<int>(0, (sum, r) => sum + r.missedWords);
-    final wasSuccessful = _score > 0 && totalMissed <= _totalRounds;
+    final totalCorrect = _roundHistory.fold<int>(0, (sum, r) => sum + r.correctTaps);
+    final totalWrong = _roundHistory.fold<int>(0, (sum, r) => sum + r.incorrectTaps);
+    final wasSuccessful = _score > 0 && totalCorrect >= totalWrong;
 
     _gameProvider.reportOutcome(GameOutcome(
       gameType: 'word_type_whirl_game',

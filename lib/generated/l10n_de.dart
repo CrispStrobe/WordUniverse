@@ -1399,4 +1399,10 @@ class SDe extends S {
 
   @override
   String get wordSortCategoryPronoun => 'Pronomen';
+
+  @override
+  String get fontFamilyTitle => 'Schriftart';
+
+  @override
+  String get fontFamilySubtitle => 'Wähle eine Schriftart für Lerninhalte';
 }

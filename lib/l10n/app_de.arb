@@ -750,5 +750,7 @@
     "wordSortOnboardingBuildingBlocks": "Nomen, Verben und Adjektive sind die Grundbausteine. Höhere Klassen bringen Adverbien und Pronomen dazu.",
     "wordSortOnboardingHints": "Brauchst du Hilfe? Warte einen Moment — das Spiel zeigt dir nach kurzer Zeit Tipps zum aktuellen Wort.",
     "wordSortCategoryAdverb": "Adverb",
-    "wordSortCategoryPronoun": "Pronomen"
+    "wordSortCategoryPronoun": "Pronomen",
+    "fontFamilyTitle": "Schriftart",
+    "fontFamilySubtitle": "Wähle eine Schriftart für Lerninhalte"
 }
