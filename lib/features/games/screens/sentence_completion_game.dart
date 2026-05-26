@@ -103,13 +103,26 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
     _buildChallenges();
   }
 
+  // Only blank content words — nouns, verbs, adjectives are uniquely
+  // identifiable from sentence context. Adverbs, prepositions, and other
+  // function words are too substitutable (multiple fillers are valid).
+  static const _contentTypes = {
+    GermanWordType.substantiv,
+    GermanWordType.verb,
+    GermanWordType.adjektiv,
+  };
+
   void _buildChallenges() {
     final gradeIndex = widget.gradeLevel.index + 1;
 
-    // All words with grade examples for this grade
+    // Content words only, with grade examples, excluding Vornamen
     final allWords = _vocabularyService
         .getAllWords(_gameProvider)
-        .where((w) => _hasGradeExamples(w, gradeIndex))
+        .where((w) =>
+            _contentTypes.contains(w.wordType) &&
+            _hasGradeExamples(w, gradeIndex) &&
+            !w.word.contains('_') &&
+            !w.word.contains(' '))
         .toList();
 
     if (allWords.isEmpty) {

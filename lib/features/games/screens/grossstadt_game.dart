@@ -359,38 +359,20 @@ class _GrossstadtGameState extends State<GrossstadtGame>
     }
   }
 
-  /// Get gender-appropriate possessive article
-  String _getPossessiveArticle(String baseArticle, GermanWord noun) {
-    final gender = noun.genus?.toLowerCase() ?? 
-                   noun.article?.toLowerCase() ?? 
-                   'neutral';
-    
-    _log('    → Noun gender: $gender, base article: $baseArticle');
-    
-    // Determine gender from article if genus not available
-    String determinedGender = 'neutral'; // default
-    if (gender.contains('der') || gender == 'm' || gender.contains('mask')) {
-      determinedGender = 'masculine';
-    } else if (gender.contains('die') || gender == 'f' || gender.contains('fem')) {
-      determinedGender = 'feminine';
-    } else if (gender.contains('das') || gender == 'n' || gender.contains('neut')) {
-      determinedGender = 'neuter';
-    } else if (gender.contains('pl')) {
-      determinedGender = 'plural';
-    }
-    
-    // Adjust article for gender
+  /// Get gender-appropriate possessive article.
+  /// [nounArticle] is the already-normalised definite article ("DER"/"DIE"/"DAS").
+  String _getPossessiveArticle(String baseArticle, String nounArticle) {
+    _log('    → Noun article: $nounArticle, base possessive: $baseArticle');
+    // "DIE" covers both feminine singular and all-gender plural.
+    final needsEEnding = nounArticle == 'DIE';
     String result = baseArticle;
-    if (determinedGender == 'feminine' || determinedGender == 'plural') {
-      // Add -e ending for feminine/plural
+    if (needsEEnding) {
       if (baseArticle == 'MEIN') result = 'MEINE';
       else if (baseArticle == 'DEIN') result = 'DEINE';
       else if (baseArticle == 'KEIN') result = 'KEINE';
       else if (baseArticle == 'UNSER') result = 'UNSERE';
     }
-    // Masculine and neuter use base form (mein, dein, kein, unser)
-    
-    _log('    ✓ Using: $result (determined gender: $determinedGender)');
+    _log('    ✓ Using: $result');
     return result;
   }
 
@@ -535,7 +517,7 @@ class _GrossstadtGameState extends State<GrossstadtGame>
     // 2. Possessive Context (Groß) -> "MEIN TISCH" / "MEINE STIRN"
     final possessiveBases = ['MEIN', 'DEIN', 'UNSER', 'KEIN'];
     final basePoss = possessiveBases[Random().nextInt(possessiveBases.length)];
-    final poss = _getPossessiveArticle(basePoss, word);
+    final poss = _getPossessiveArticle(basePoss, article);
 
     items.add(CapitalizationItem(
       prefix: '$poss ',

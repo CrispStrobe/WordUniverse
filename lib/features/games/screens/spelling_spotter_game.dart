@@ -115,6 +115,17 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
     _buildChallenges();
   }
 
+  // Normalize morpheme-boundary underscores used in LiTKey data (e.g.
+  // "vorbei_bringen" → "vorbeibringen"). Applied consistently to both the
+  // correct word and its error candidates so comparisons stay in sync.
+  static String _norm(String w) => w.replaceAll('_', '');
+
+  // Split comma-separated error entries like "ihn, in" into ["ihn", "in"].
+  static List<String> _parseErrors(List<String> raw) => raw
+      .expand((e) => e.split(',').map((s) => s.trim()))
+      .where((e) => e.isNotEmpty)
+      .toList();
+
   void _buildChallenges() {
     final allWords = _vocabularyService
         .getAllWords(_gameProvider)
@@ -133,18 +144,24 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
     final pool = gradeWords.length >= _totalRounds ? gradeWords : allWords;
     pool.shuffle(_rng);
 
-    // Collect all error strings for distractor padding.
-    final allErrors = allWords
+    // Collect all error strings for distractor padding (split + normalised).
+    final allErrors = _parseErrors(allWords
         .expand((w) => _isDE
             ? (w.commonMistakes ?? <String>[])
             : (w.apiEnrichment?.commonLearnerErrors ?? <String>[]))
+        .toList())
         .toSet()
         .toList();
+
+    // Build a set of all valid correct words so we can exclude them from
+    // being used as distractors (avoids "ihn" appearing as both correct and
+    // as a distractor in the same session).
+    final validWords = allWords.map((w) => _norm(w.word).toLowerCase()).toSet();
 
     final selected = pool.take(_totalRounds).toList();
     final challenges = <_SpellingChallenge>[];
     for (final word in selected) {
-      final challenge = _buildChallenge(word, allErrors);
+      final challenge = _buildChallenge(word, allErrors, validWords);
       if (challenge != null) challenges.add(challenge);
     }
 
@@ -161,31 +178,54 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
   }
 
   bool _hasErrors(GermanWord w) {
+    final display = _norm(w.word);
+    if (display.contains(' ') || display.isEmpty) return false;
     if (_isDE) {
-      return (w.commonMistakes?.isNotEmpty ?? false) && !w.word.contains(' ');
+      return w.commonMistakes?.isNotEmpty ?? false;
     }
-    return (w.apiEnrichment?.commonLearnerErrors.isNotEmpty ?? false) &&
-        !w.word.contains(' ');
+    return w.apiEnrichment?.commonLearnerErrors.isNotEmpty ?? false;
   }
 
-  _SpellingChallenge? _buildChallenge(GermanWord word, List<String> allErrors) {
-    final errors = (_isDE
-            ? (word.commonMistakes ?? <String>[])
-            : (word.apiEnrichment?.commonLearnerErrors ?? <String>[]))
-        .where((e) => e.toLowerCase() != word.word.toLowerCase() && e.isNotEmpty)
+  _SpellingChallenge? _buildChallenge(
+      GermanWord word, List<String> allErrors, Set<String> validWords) {
+    final displayWord = _norm(word.word);
+
+    final rawErrors = _isDE
+        ? (word.commonMistakes ?? <String>[])
+        : (word.apiEnrichment?.commonLearnerErrors ?? <String>[]);
+
+    final errors = _parseErrors(rawErrors)
+        .map(_norm)
+        .where((e) => e.toLowerCase() != displayWord.toLowerCase() &&
+            e.isNotEmpty &&
+            !e.contains(' ') &&
+            // Skip error forms that are themselves valid vocabulary words
+            // (e.g. "in" is a commonMistake of "ihn" but is a real word too).
+            !validWords.contains(e.toLowerCase()))
         .toList();
 
-    // Build distractor pool: word's own errors first, then random others.
     final distractors = <String>{};
     for (final e in errors) {
       distractors.add(e);
       if (distractors.length >= _optionCount - 1) break;
     }
 
-    // Pad with random errors from other words if needed.
+    // Pad with errors from other words — filtered to be plausible:
+    // • no underscores or commas (not raw multi-token entries)
+    // • length within ±4 chars of target (avoids wildly unrelated distractors)
+    // • not itself a valid correctly-spelled vocabulary word
     if (distractors.length < _optionCount - 1) {
       final others = allErrors
-          .where((e) => e != word.word && !distractors.contains(e))
+          .map(_norm)
+          .where((e) =>
+              e != displayWord &&
+              !distractors.contains(e) &&
+              !e.contains('_') &&
+              !e.contains(',') &&
+              !e.contains(' ') &&
+              e.length >= 2 &&
+              (e.length - displayWord.length).abs() <= 4 &&
+              !validWords.contains(e.toLowerCase()))
           .toList()
         ..shuffle(_rng);
       for (final e in others) {
@@ -196,23 +236,32 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
 
     if (distractors.isEmpty) return null;
 
-    final options = [word.word, ...distractors.take(_optionCount - 1)];
+    final options = [displayWord, ...distractors.take(_optionCount - 1)];
     options.shuffle(_rng);
-    final correctIndex = options.indexOf(word.word);
+    final correctIndex = options.indexOf(displayWord);
+    if (correctIndex < 0) return null;
 
-    // Pick a context sentence from grade_examples.
-    final gradeKey = '${widget.gradeLevel.index + 1}';
-    final gradeExamples = word.apiEnrichment?.gradeExamples;
+    // Example sentence: for DE prefer Tatoeba (human-verified) > Gutenberg >
+    // gradeExamples (LLM). Validate that the sentence contains the word.
     String? context;
-    if (gradeExamples != null) {
-      final sents = gradeExamples[gradeKey] ??
-          gradeExamples.values.firstOrNull;
-      if (sents != null && sents.isNotEmpty) {
-        context = sents[_rng.nextInt(sents.length)];
+    if (_isDE) {
+      context = word.exampleSentences
+          .where((s) => _sentenceContains(s, displayWord))
+          .firstOrNull;
+    }
+    context ??= word.apiEnrichment?.gutenbergExamples
+        .where((s) => _sentenceContains(s, displayWord))
+        .firstOrNull;
+    if (context == null) {
+      final gradeKey = '${widget.gradeLevel.index + 1}';
+      final ge = word.apiEnrichment?.gradeExamples;
+      if (ge != null) {
+        final sents = ge[gradeKey] ?? ge.values.firstOrNull ?? [];
+        context = sents
+            .where((s) => _sentenceContains(s, displayWord))
+            .firstOrNull;
       }
     }
-    context ??= word.apiEnrichment?.gutenbergExamples.firstOrNull;
-    if (_isDE) context ??= word.exampleSentences.firstOrNull;
 
     return _SpellingChallenge(
       word: word,
@@ -221,6 +270,9 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
       contextSentence: context,
     );
   }
+
+  bool _sentenceContains(String sentence, String word) =>
+      sentence.toLowerCase().contains(word.toLowerCase());
 
   void _handleTap(int optionIndex) {
     if (_feedbackState != _FeedbackState.none) return;
