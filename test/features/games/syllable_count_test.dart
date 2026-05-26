@@ -6,7 +6,6 @@
 // All expected DB values verified against pipeline/voc-de/grundwortschatz.db
 // and pipeline/voc-en/grundwortschatz_en.db on 2026-05-26.
 
-import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:WortUniversum/core/models/vocabulary_models.dart';
 import 'package:WortUniversum/core/models/skill_category.dart';
