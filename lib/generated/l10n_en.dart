@@ -1070,6 +1070,12 @@ class SEn extends S {
       'Practice your toughest words, ranked by difficulty';
 
   @override
+  String get antonymFlashTitle => 'Antonym Flash';
+
+  @override
+  String get antonymFlashDescription => 'Tap the opposite — as fast as you can!';
+
+  @override
   String get wortbaumeisterCardTitle => 'Wort-Stückler';
 
   @override

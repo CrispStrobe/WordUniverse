@@ -1078,6 +1078,12 @@ class SDe extends S {
   String get sriReviewDescription => 'Übe deine schwierigsten Wörter gezielt';
 
   @override
+  String get antonymFlashTitle => 'Gegenwort-Blitz';
+
+  @override
+  String get antonymFlashDescription => 'Tippe das Gegenteil — so schnell du kannst!';
+
+  @override
   String get wortbaumeisterCardTitle => 'Wort-Stückler';
 
   @override

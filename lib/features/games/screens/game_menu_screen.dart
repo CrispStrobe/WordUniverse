@@ -12,6 +12,7 @@ import '../widgets/space_background.dart';
 
 import 'definition_quiz_game.dart';
 import 'sentence_completion_game.dart';
+import 'antonym_flash_game.dart';
 import 'sri_review_game.dart';
 import 'space_word_rescue_game.dart';
 import 'spelling_spotter_game.dart';
@@ -427,6 +428,16 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             colors: [Color(0xFF11998E), Color(0xFF38EF7D)]),
         supportedLearningLanguages: const ['de', 'en'],
         onTap: () => _navigateToGame(const SriReviewGame()),
+      ),
+      GameInfo(
+        title: s.antonymFlashTitle,
+        description: s.antonymFlashDescription,
+        icon: Icons.swap_horiz,
+        gradient: const LinearGradient(
+            colors: [Color(0xFFFC4A1A), Color(0xFFF7B733)]),
+        supportedLearningLanguages: const ['de', 'en'],
+        onTap: () => _navigateToGame(AntonymFlashGame(
+            gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
         title: s.wortbaumeisterCardTitle,

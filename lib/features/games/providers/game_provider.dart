@@ -102,6 +102,7 @@ class GameProvider extends ChangeNotifier {
     'sentence_completion': SkillCategories.getById('basic_vocab')!,
     'definition_quiz': SkillCategories.getById('basic_vocab')!,
     'sri_review': SkillCategories.getById('basic_vocab')!,
+    'antonym_flash': SkillCategories.getById('basic_vocab')!,
   };
 
   int _score = 0;

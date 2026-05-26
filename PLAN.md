@@ -293,14 +293,14 @@ reset confirmation dialog. Documented findings in the policy text.
 Items below leverage the enriched DE+EN DBs that shipped 2026-05-26.
 Priority order: 25 → 26 → 27 → 28 → rest.
 
-### [ ] 25. Sentence Completion game
+### [x] 25. Sentence Completion game
 Show a `gradeExamples` sentence with one word blanked out. Player picks
 the correct word from 4 options (distractors drawn from same grade/CEFR
 band). 99% of both DBs have `grade_examples`; grade key is already
 stored so difficulty self-differentiates. Works for both DE + EN.
 Pedagogically strong: tests vocabulary in authentic context.
 
-### [ ] 26. TTS pronunciation
+### [x] 26. TTS pronunciation
 Wire `flutter_tts` (already a dependency stub in `AudioService`) into
 SpaceWordRescue so the word is *spoken aloud* before it disappears —
 turns it from a visual-memory game into a phonics-aware one. Optionally
@@ -313,14 +313,14 @@ matching word from 4 options. Distractors sampled from same CEFR level
 so they're plausible. 99% definition coverage means no special filtering
 needed. Works DE + EN.
 
-### [ ] 28. SRI Review Mode
+### [x] 28. SRI Review Mode
 Dedicated "practice weak words" session on the home screen: pulls the
 10 lowest-rated SRI entries and runs them through a compact mixed
 mini-game (spelling + definition + example). SRI data already exists;
 this is purely a new game entry that reads it. Closes the loop between
 SRI tracking and explicit remediation.
 
-### [ ] 29. Antonym Flash game
+### [x] 29. Antonym Flash game
 Show a word, tap the antonym from 3 options within a time limit. WordNet
 antonyms power the EN side (9 186 entries); OdeNet covers DE. Quick
 round-trip game (≤30 s per session), good warm-up complement to
@@ -358,8 +358,6 @@ when `gradeExamples` is absent or already shown.
 ## Execution order
 
 Picking off three at a time. Current focus:
-1. **#25 Sentence Completion game** (now)
-2. **#26 TTS pronunciation** (next)
-3. **#27 Definition Quiz game** (next)
-
-Then re-evaluate.
+1. **#30 Conjugation Drill** (DE-only, next)
+2. **#31 Word of the Day** (home screen widget)
+3. **#33 Etymology layer** (grade 5–6 "did you know" panel)
