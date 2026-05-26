@@ -21,6 +21,7 @@ import '../providers/game_provider.dart';
 import '../services/spelling_spotter_service.dart';
 import '../widgets/cefr_chip.dart';
 import '../widgets/space_background.dart';
+import '../widgets/spelling_strategy_badge.dart';
 
 class SpellingSpotterGame extends StatefulWidget {
   final GradeLevel gradeLevel;
@@ -135,7 +136,13 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
         .where((w) => w.gradeLevel == widget.gradeLevel.index + 1)
         .toList();
     final pool = gradeWords.length >= _totalRounds ? gradeWords : allWords;
-    pool.shuffle(_rng);
+    // Sort by difficulty descending:
+    //   DE — LiTKey empirical child-error rate (null → 0.5 neutral)
+    //   EN — Norvig/Wikipedia misspelling variant count, normalised to 0–1
+    final de = _isDE;
+    pool.sort((a, b) =>
+        spellingDifficultyScore(b, isDE: de)
+            .compareTo(spellingDifficultyScore(a, isDE: de)));
 
     // Collect all error strings for distractor padding (split + normalised).
     final allErrors = _parseErrors(allWords
@@ -418,6 +425,14 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
                 const SizedBox(height: 16),
                 if (_showContext && challenge.contextSentence != null)
                   _buildContext(challenge),
+                if (_showContext && _feedbackState == _FeedbackState.correct) ...[
+                  const SizedBox(height: 8),
+                  SpellingStrategyBadge(word: challenge.word),
+                  if (!_isDE) ...[
+                    const SizedBox(height: 6),
+                    _buildEnMisspellingsNote(challenge.word),
+                  ],
+                ],
               ],
             ),
           ),
@@ -600,6 +615,36 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
     }
 
     return tile;
+  }
+
+  Widget _buildEnMisspellingsNote(GermanWord word) {
+    final errors = word.apiEnrichment?.commonLearnerErrors ?? [];
+    if (errors.isEmpty) return const SizedBox.shrink();
+    final topErrors = errors
+        .map(_norm)
+        .where((e) => e.isNotEmpty && !e.contains(' '))
+        .take(3)
+        .toList();
+    if (topErrors.isEmpty) return const SizedBox.shrink();
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.white12),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.error_outline, size: 12, color: Colors.white38),
+          const SizedBox(width: 6),
+          Text(
+            'Common mistakes: ${topErrors.join(" • ")}',
+            style: const TextStyle(color: Colors.white54, fontSize: 11),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildContext(_SpellingChallenge challenge) {

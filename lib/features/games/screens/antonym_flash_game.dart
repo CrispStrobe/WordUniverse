@@ -23,6 +23,7 @@ import '../models/game_outcome.dart';
 import '../providers/game_provider.dart';
 import '../widgets/cefr_chip.dart';
 import '../widgets/space_background.dart';
+import '../../../shared/widgets/onboarding_overlay.dart';
 
 class AntonymFlashGame extends StatefulWidget {
   final GradeLevel gradeLevel;
@@ -62,6 +63,7 @@ class _AntonymFlashGameState extends State<AntonymFlashGame>
   static const Duration _advanceDelay = Duration(milliseconds: 1100);
 
   bool _isLoading = true;
+  bool _onboardingScheduled = false;
   List<_AntonymChallenge> _challenges = [];
   int _index = 0;
   int _correct = 0;
@@ -115,6 +117,35 @@ class _AntonymFlashGameState extends State<AntonymFlashGame>
     if (!_vocabService.isInitialized) await _vocabService.initialize();
     _audioService.setTtsLanguage(_vocabService.learningLanguage);
     _buildChallenges();
+    if (!_onboardingScheduled) {
+      _onboardingScheduled = true;
+      final isDE = _isDE;
+      OnboardingOverlay.maybeShow(
+        context,
+        gameKey: 'antonym_flash',
+        title: isDE ? 'Gegenwort-Blitz' : 'Antonym Flash',
+        steps: [
+          OnboardingStep(
+            icon: Icons.flash_on,
+            body: isDE
+                ? 'Ein Wort erscheint — tippe schnell auf sein Gegenteil.'
+                : 'A word appears — tap its opposite as fast as you can.',
+          ),
+          OnboardingStep(
+            icon: Icons.timer,
+            body: isDE
+                ? 'Du hast 30 Sekunden. Je mehr richtige Antworten, desto besser dein Score.'
+                : 'You have 30 seconds. More correct answers means a better score.',
+          ),
+          OnboardingStep(
+            icon: Icons.tips_and_updates,
+            body: isDE
+                ? 'Antonyme kommen aus OdeNet (Deutsch) bzw. WordNet (Englisch).'
+                : 'Antonyms come from OdeNet (German) or WordNet (English).',
+          ),
+        ],
+      );
+    }
   }
 
   void _buildChallenges() {

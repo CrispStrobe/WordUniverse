@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import '../../../core/models/skill_category.dart';
 import '../../../core/models/vocabulary_models.dart';
 import '../../../generated/l10n.dart';
+import 'example_sentence_selector.dart';
 
 String generateEducationalHint(
   BuildContext context,
@@ -150,22 +151,10 @@ String generateEducationalHint(
     }
   }
 
-  // Grade-appropriate example sentence
+  // Grade-appropriate example sentence, with Gutenberg as fallback.
   if (hints.length < 3) {
-    String? example;
-    if (gradeLevel != null) {
-      final gradeKey = '${gradeLevel.index + 1}';
-      final gradeExamples = api?.gradeExamples;
-      if (gradeExamples != null) {
-        final sents = gradeExamples[gradeKey] ?? gradeExamples.values.firstOrNull;
-        example = sents?.firstOrNull;
-      }
-    }
-    example ??= word.exampleSentences.firstOrNull;
-    if (example != null) {
-      final truncated = example.length > 80 ? '${example.substring(0, 77)}…' : example;
-      hints.add('Beispiel: $truncated');
-    }
+    final ex = pickExampleSentence(word, gradeLevel: gradeLevel);
+    if (ex != null) hints.add('${ex.label}: ${ex.text}');
   }
 
   if (hints.isEmpty && isPerfect) {
