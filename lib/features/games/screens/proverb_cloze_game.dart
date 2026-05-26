@@ -182,10 +182,6 @@ class _ProverbClozeGameState extends State<ProverbClozeGame>
             icon: Icons.timer,
             body: '30 Sekunden, so viele Sprichwörter wie möglich!',
           ),
-          const OnboardingStep(
-            icon: Icons.tips_and_updates,
-            body: 'Sprichwörter stammen aus Wiktionary.',
-          ),
         ],
       );
     }

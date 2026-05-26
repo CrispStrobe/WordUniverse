@@ -178,10 +178,6 @@ class _ExpressionFlashGameState extends State<ExpressionFlashGame>
             icon: Icons.timer,
             body: 'Du hast 30 Sekunden. Kenne deine Redewendungen!',
           ),
-          const OnboardingStep(
-            icon: Icons.tips_and_updates,
-            body: 'Redewendungen kommen aus Wiktionary.',
-          ),
         ],
       );
     }

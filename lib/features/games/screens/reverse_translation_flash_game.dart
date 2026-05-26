@@ -133,10 +133,6 @@ class _ReverseTranslationFlashGameState
             icon: Icons.timer,
             body: '30 Sekunden, so viele richtige wie möglich!',
           ),
-          const OnboardingStep(
-            icon: Icons.tips_and_updates,
-            body: 'Übersetzungen stammen aus Wiktionary.',
-          ),
         ],
       );
     }
