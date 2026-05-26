@@ -666,6 +666,8 @@
     "sentenceCompletionDescription": "Fill in the missing word — practise vocabulary in context",
     "definitionQuizTitle": "Definition Quiz",
     "definitionQuizDescription": "Match the definition to the correct word",
+    "sriReviewTitle": "Weak Words",
+    "sriReviewDescription": "Practice your toughest words, ranked by difficulty",
 
     "wortbaumeisterCardTitle": "Wort-Stückler",
     "wortbaumeisterCardDescription": "Build compound nouns piece by piece",

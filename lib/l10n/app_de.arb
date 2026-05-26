@@ -608,6 +608,8 @@
     "sentenceCompletionDescription": "Ergänze das fehlende Wort — übe Wortschatz im Kontext",
     "definitionQuizTitle": "Definitions-Quiz",
     "definitionQuizDescription": "Ordne die Definition dem richtigen Wort zu",
+    "sriReviewTitle": "Schwache Wörter",
+    "sriReviewDescription": "Übe deine schwierigsten Wörter gezielt",
 
     "wortbaumeisterCardTitle": "Wort-Stückler",
     "wortbaumeisterCardDescription": "Zusammengesetzte Nomen Stück für Stück bauen",

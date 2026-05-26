@@ -101,6 +101,7 @@ class GameProvider extends ChangeNotifier {
     'spelling_spotter': SkillCategories.getById('basic_spelling')!,
     'sentence_completion': SkillCategories.getById('basic_vocab')!,
     'definition_quiz': SkillCategories.getById('basic_vocab')!,
+    'sri_review': SkillCategories.getById('basic_vocab')!,
   };
 
   int _score = 0;

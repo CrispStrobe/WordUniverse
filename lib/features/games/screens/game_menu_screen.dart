@@ -12,6 +12,7 @@ import '../widgets/space_background.dart';
 
 import 'definition_quiz_game.dart';
 import 'sentence_completion_game.dart';
+import 'sri_review_game.dart';
 import 'space_word_rescue_game.dart';
 import 'spelling_spotter_game.dart';
 import 'word_find_game.dart';
@@ -417,6 +418,15 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         supportedLearningLanguages: const ['de', 'en'],
         onTap: () => _navigateToGame(DefinitionQuizGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
+      ),
+      GameInfo(
+        title: s.sriReviewTitle,
+        description: s.sriReviewDescription,
+        icon: Icons.repeat,
+        gradient: const LinearGradient(
+            colors: [Color(0xFF11998E), Color(0xFF38EF7D)]),
+        supportedLearningLanguages: const ['de', 'en'],
+        onTap: () => _navigateToGame(const SriReviewGame()),
       ),
       GameInfo(
         title: s.wortbaumeisterCardTitle,

@@ -161,13 +161,13 @@ class SEn extends S {
   String get wordSortTitleTimeAttack => 'Word Sort - Time Attack!';
 
   @override
-  String get wordSortCategoryNoun => 'Noun';
+  String get wordSortCategoryNoun => 'Nouns';
 
   @override
-  String get wordSortCategoryVerb => 'Verb';
+  String get wordSortCategoryVerb => 'Verbs';
 
   @override
-  String get wordSortCategoryAdjective => 'Adjective';
+  String get wordSortCategoryAdjective => 'Adjectives';
 
   @override
   String get wordSortCorrect => 'Correct! Well done!';
@@ -1063,6 +1063,13 @@ class SEn extends S {
       'Match the definition to the correct word';
 
   @override
+  String get sriReviewTitle => 'Weak Words';
+
+  @override
+  String get sriReviewDescription =>
+      'Practice your toughest words, ranked by difficulty';
+
+  @override
   String get wortbaumeisterCardTitle => 'Wort-Stückler';
 
   @override
@@ -1284,8 +1291,8 @@ class SEn extends S {
       'Need help? Wait a moment — the game will show hints for the current word after a short delay.';
 
   @override
-  String get wordSortCategoryAdverb => 'Adverb';
+  String get wordSortCategoryAdverb => 'Adverbs';
 
   @override
-  String get wordSortCategoryPronoun => 'Pronoun';
+  String get wordSortCategoryPronoun => 'Pronouns';
 }
