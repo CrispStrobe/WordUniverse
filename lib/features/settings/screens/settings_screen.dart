@@ -323,14 +323,10 @@ class _SettingsScreenState extends State<SettingsScreen>
 
       final soundEnabled = prefs.getBool('sound_enabled') ?? true;
       final musicEnabled = prefs.getBool('music_enabled') ?? true;
-      final hintsEnabled = prefs.getBool('hints_enabled') ?? true;
-      final hapticEnabled = prefs.getBool('haptic_enabled') ?? true;
       final puzzleTimerEnabled = prefs.getBool('puzzle_timer_enabled') ?? true;
 
       debugPrint("[SETTINGS] 🔊 Sound enabled: $soundEnabled");
       debugPrint("[SETTINGS] 🎵 Music enabled: $musicEnabled");
-      debugPrint("[SETTINGS] 💡 Hints enabled: $hintsEnabled");
-      debugPrint("[SETTINGS] 📳 Haptic enabled: $hapticEnabled");
       debugPrint("[SETTINGS] ⏱️ Puzzle timer enabled: $puzzleTimerEnabled");
 
       if (mounted) {

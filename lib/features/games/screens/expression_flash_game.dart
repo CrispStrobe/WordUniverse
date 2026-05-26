@@ -11,7 +11,6 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
@@ -324,7 +323,7 @@ class _ExpressionFlashGameState extends State<ExpressionFlashGame>
     });
 
     if (isCorrect) {
-      HapticFeedback.lightImpact();
+      _gameProvider.hapticLight();
       _audioService.playSound('success');
       _pulseCtrl.forward(from: 0);
       _correct++;
@@ -334,7 +333,7 @@ class _ExpressionFlashGameState extends State<ExpressionFlashGame>
         wasCorrect: true,
       );
     } else {
-      HapticFeedback.mediumImpact();
+      _gameProvider.hapticMedium();
       _audioService.playSound('error');
       _shakeCtrl.forward(from: 0).then((_) => _shakeCtrl.reverse());
       _sriService.recordResponse(

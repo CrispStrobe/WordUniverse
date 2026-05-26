@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/services/sri_service.dart';
 import '../../../core/theme/space_theme.dart';
+import '../providers/game_provider.dart';
 
 class KarteikastenScreen extends StatefulWidget {
   const KarteikastenScreen({super.key});
@@ -79,7 +80,7 @@ class _KarteikastenScreenState extends State<KarteikastenScreen> {
             child: DragTarget<String>(
               onWillAcceptWithDetails: (_) => true,
               onAcceptWithDetails: (d) async {
-                HapticFeedback.mediumImpact();
+                if (context.read<GameProvider>().hapticEnabled) HapticFeedback.mediumImpact();
                 await context
                     .read<SriService>()
                     .moveItemToBox(d.data, boxNum);

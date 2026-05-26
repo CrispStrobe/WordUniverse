@@ -1,6 +1,7 @@
 // lib/features/games/providers/game_provider.dart
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart'; 
 import '../../../core/services/progress_service.dart';
 import '../../../core/config/app_config.dart';
@@ -487,6 +488,18 @@ class GameProvider extends ChangeNotifier {
     _hapticEnabled = enabled;
     notifyListeners();
     _saveProgress();
+  }
+
+  void hapticLight() {
+    if (_hapticEnabled) HapticFeedback.lightImpact();
+  }
+
+  void hapticMedium() {
+    if (_hapticEnabled) HapticFeedback.mediumImpact();
+  }
+
+  void hapticHeavy() {
+    if (_hapticEnabled) HapticFeedback.heavyImpact();
   }
 
   void resetScore() {

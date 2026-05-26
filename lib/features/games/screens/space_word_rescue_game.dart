@@ -2,7 +2,6 @@
 // lib/features/games/screens/space_word_rescue_game.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'dart:math';
 import 'dart:async';
 import 'package:provider/provider.dart';
@@ -356,7 +355,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
     );
     
     _audioService.playSound('failure');
-    HapticFeedback.heavyImpact();
+    _gameProvider.hapticHeavy();
     _createExplosion();
 
     Future.delayed(_transitionDelay, () {
@@ -534,7 +533,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
       
       _gameProvider.addScore(scoreGained);
       _audioService.playSound('success');
-      HapticFeedback.lightImpact();
+      _gameProvider.hapticLight();
       _audioService.speak(_currentWord!.displayName);
       
       _createRescueEffect();
@@ -550,7 +549,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
       });
       
       _audioService.playSound('failure');
-      HapticFeedback.heavyImpact();
+      _gameProvider.hapticHeavy();
       _createExplosion();
       
       Future.delayed(_transitionDelay, () {

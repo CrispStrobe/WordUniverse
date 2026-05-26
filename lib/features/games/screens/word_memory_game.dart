@@ -3,7 +3,6 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/services/audio_service.dart';
@@ -272,7 +271,7 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
       });
 
       _audioService.playSound('success');
-      HapticFeedback.lightImpact();
+      _gameProvider.hapticLight();
       _matchController.forward(from: 0);
 
       _sriService.recordResponse(
@@ -288,7 +287,7 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
       }
     } else {
       _audioService.playSound('failure');
-      HapticFeedback.heavyImpact();
+      _gameProvider.hapticHeavy();
       await _shakeController.forward(from: 0);
       await Future.delayed(const Duration(milliseconds: 300));
       

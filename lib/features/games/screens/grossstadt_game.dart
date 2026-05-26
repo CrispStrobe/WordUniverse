@@ -2,7 +2,6 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
@@ -569,7 +568,7 @@ class _GrossstadtGameState extends State<GrossstadtGame>
   void _handleCorrectAnswer() {
     _successController.forward().then((_) => _successController.reset());
     _audioService.playSound('success');
-    HapticFeedback.lightImpact();
+    _gameProvider.hapticLight();
 
     _combo++;
     _correctCount++;
@@ -607,7 +606,7 @@ class _GrossstadtGameState extends State<GrossstadtGame>
   void _handleIncorrectAnswer() {
     _errorController.forward().then((_) => _errorController.reset());
     _audioService.playSound('failure');
-    HapticFeedback.heavyImpact();
+    _gameProvider.hapticHeavy();
 
     setState(() {
       _combo = 0;
@@ -639,7 +638,7 @@ class _GrossstadtGameState extends State<GrossstadtGame>
     });
 
     _audioService.playSound('failure');
-    HapticFeedback.heavyImpact();
+    _gameProvider.hapticHeavy();
 
     Future.delayed(const Duration(milliseconds: 1500), () {
       if (mounted) _showNextItem();
