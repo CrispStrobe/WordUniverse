@@ -42,7 +42,8 @@ class SDe extends S {
   String get appName => 'Wort-Universum';
 
   @override
-  String get appLegalese => '© 2025 CrispStrobe';
+  String get appLegalese =>
+      '© 2025–2026 CrispStrobe\n\nVokabular-Datenbanken (DE + EN) lizenziert unter CC BY-SA 4.0. Quellen: Wiktionary, ConceptNet, OEWN, OpenThesaurus, OdeNet, LiTKey, Tatoeba, Project Gutenberg u. a. Vollständige Quellenangaben in den Lizenzeinträgen unten.\n\nDatensätze: huggingface.co/datasets/cstr/grundwortschatz-voc-de  ·  cstr/grundwortschatz-voc-en\n\nApp-Code ist proprietär.';
 
   @override
   String get spaceWordRescueTitle => 'Wort-Rettung';

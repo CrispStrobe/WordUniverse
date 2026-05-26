@@ -10,7 +10,7 @@
     "licensesTitle": "Licenses",
     "viewOssLicenses": "View open-source licenses",
     "appName": "Word Universe",
-    "appLegalese": "© 2025 CrispStrobe",
+    "appLegalese": "© 2025–2026 CrispStrobe\n\nVocabulary databases (DE + EN) licensed under CC BY-SA 4.0. Sources: Wiktionary, ConceptNet, OEWN, OpenThesaurus, OdeNet, LiTKey, Tatoeba, Project Gutenberg, and others. Full attribution in the license entries below.\n\nDatasets: huggingface.co/datasets/cstr/grundwortschatz-voc-de  ·  cstr/grundwortschatz-voc-en\n\nApp code is proprietary.",
 
     "spaceWordRescueTitle": "Word Rescue",
     "spaceWordRescueInstructions": "Rescue words from drifting off into space! Type them in.",
