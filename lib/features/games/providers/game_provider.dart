@@ -92,12 +92,12 @@ class GameProvider extends ChangeNotifier {
     'word_snake_game': SkillCategories.getById('basic_spelling')!,
     'word_find_game': SkillCategories.getById('basic_vocab')!,
     'word_sort_game': SkillCategories.getById('word_types')!, 
-    'word_memory_game': SkillCategories.getById('basic_spelling')!,
+    'word_memory_game': SkillCategories.getById('basic_vocab')!,
     'word_builder_game': SkillCategories.getById('basic_spelling')!,
     'word_type_whirl_game': SkillCategories.getById('word_types')!,
     'wortbaumeister_game': SkillCategories.getById('word_types')!, 
     'grossstadt_game': SkillCategories.getById('basic_spelling')!, // Capitalization is spelling rules
-    'grossschreib_game': SkillCategories.getById('word_types')!,
+    'grossschreib_game': SkillCategories.getById('basic_spelling')!,
     'verbtrenner_game': SkillCategories.getById('word_types')!, // Separable verbs
     'spelling_spotter': SkillCategories.getById('basic_spelling')!,
     'sentence_completion': SkillCategories.getById('basic_vocab')!,
@@ -115,6 +115,7 @@ class GameProvider extends ChangeNotifier {
     'word_class_flash': SkillCategories.getById('word_types')!,
     'proverb_cloze': SkillCategories.getById('basic_vocab')!,
     'homophone_drill': SkillCategories.getById('basic_spelling')!,
+    'confusable_drill': SkillCategories.getById('basic_spelling')!,
   };
 
   int _score = 0;
