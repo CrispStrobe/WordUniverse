@@ -1120,6 +1120,33 @@ class SDe extends S {
       'Ergänze die Redewendung — tippe das fehlende Wort!';
 
   @override
+  String get hypernymFlashTitle => 'Oberbegriff-Blitz';
+
+  @override
+  String get hypernymFlashDescription => 'Welchem Oberbegriff gehört das Wort?';
+
+  @override
+  String get wordClassFlashTitle => 'Wortart-Blitz';
+
+  @override
+  String get wordClassFlashDescription =>
+      'Nomen, Verb, Adjektiv oder Adverb — schnell tippen!';
+
+  @override
+  String get proverbClozeTitle => 'Sprichwort-Blitz';
+
+  @override
+  String get proverbClozeDescription =>
+      'Ergänze das Sprichwort — tippe das fehlende Wort!';
+
+  @override
+  String get reverseTranslationTitle => 'Rück-Übersetzung';
+
+  @override
+  String get reverseTranslationDescription =>
+      'Ein englisches Wort erscheint — finde das deutsche Wort!';
+
+  @override
   String get conjugationDrillTitle => 'Konjugations-Drill';
 
   @override

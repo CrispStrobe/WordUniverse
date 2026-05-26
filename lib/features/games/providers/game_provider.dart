@@ -104,6 +104,16 @@ class GameProvider extends ChangeNotifier {
     'sri_review': SkillCategories.getById('basic_vocab')!,
     'antonym_flash': SkillCategories.getById('basic_vocab')!,
     'conjugation_drill': SkillCategories.getById('word_types')!,
+    'synonym_flash': SkillCategories.getById('basic_vocab')!,
+    'translation_flash': SkillCategories.getById('basic_vocab')!,
+    'reverse_translation_flash': SkillCategories.getById('basic_vocab')!,
+    'syllable_count': SkillCategories.getById('basic_spelling')!,
+    'cloze_flash': SkillCategories.getById('basic_vocab')!,
+    'expression_flash': SkillCategories.getById('basic_vocab')!,
+    'hypernym_flash': SkillCategories.getById('basic_vocab')!,
+    'word_class_flash': SkillCategories.getById('word_types')!,
+    'proverb_cloze': SkillCategories.getById('basic_vocab')!,
+    'homophone_drill': SkillCategories.getById('basic_spelling')!,
   };
 
   int _score = 0;

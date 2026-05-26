@@ -686,6 +686,18 @@
     "expressionFlashTitle": "Expression Flash",
     "expressionFlashDescription": "Complete the German idiom — tap the missing word!",
 
+    "hypernymFlashTitle": "Category Flash",
+    "hypernymFlashDescription": "Which category does the word belong to?",
+
+    "wordClassFlashTitle": "Word Class Flash",
+    "wordClassFlashDescription": "Noun, Verb, Adjective or Adverb — pick fast!",
+
+    "proverbClozeTitle": "Proverb Cloze",
+    "proverbClozeDescription": "Complete the German proverb — tap the missing word!",
+
+    "reverseTranslationTitle": "Reverse Translation",
+    "reverseTranslationDescription": "An English word appears — find the German word!",
+
     "conjugationDrillTitle": "Conjugation Drill",
     "conjugationDrillDescription": "Pick the right verb form for each pronoun",
 
