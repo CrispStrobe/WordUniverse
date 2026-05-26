@@ -18,6 +18,7 @@ import '../../../core/theme/space_theme.dart';
 import '../../../generated/l10n.dart';
 import '../models/game_outcome.dart';
 import '../providers/game_provider.dart';
+import '../services/spelling_spotter_service.dart';
 import '../widgets/cefr_chip.dart';
 import '../widgets/space_background.dart';
 
@@ -115,16 +116,8 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
     _buildChallenges();
   }
 
-  // Normalize morpheme-boundary underscores used in LiTKey data (e.g.
-  // "vorbei_bringen" → "vorbeibringen"). Applied consistently to both the
-  // correct word and its error candidates so comparisons stay in sync.
-  static String _norm(String w) => w.replaceAll('_', '');
-
-  // Split comma-separated error entries like "ihn, in" into ["ihn", "in"].
-  static List<String> _parseErrors(List<String> raw) => raw
-      .expand((e) => e.split(',').map((s) => s.trim()))
-      .where((e) => e.isNotEmpty)
-      .toList();
+  static String _norm(String w) => normWord(w);
+  static List<String> _parseErrors(List<String> raw) => parseErrors(raw);
 
   void _buildChallenges() {
     final allWords = _vocabularyService
@@ -211,22 +204,14 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
       if (distractors.length >= _optionCount - 1) break;
     }
 
-    // Pad with errors from other words — filtered to be plausible:
-    // • no underscores or commas (not raw multi-token entries)
-    // • length within ±4 chars of target (avoids wildly unrelated distractors)
-    // • not itself a valid correctly-spelled vocabulary word
+    // Pad with errors from other words if needed.
     if (distractors.length < _optionCount - 1) {
       final others = allErrors
           .map(_norm)
           .where((e) =>
-              e != displayWord &&
               !distractors.contains(e) &&
-              !e.contains('_') &&
-              !e.contains(',') &&
-              !e.contains(' ') &&
               e.length >= 2 &&
-              (e.length - displayWord.length).abs() <= 4 &&
-              !validWords.contains(e.toLowerCase()))
+              isDistractorPlausible(e, displayWord, validWords: validWords))
           .toList()
         ..shuffle(_rng);
       for (final e in others) {

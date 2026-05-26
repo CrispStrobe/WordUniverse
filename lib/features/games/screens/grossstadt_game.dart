@@ -13,6 +13,7 @@ import '../../../core/services/vocabulary_service.dart';
 import '../../../core/theme/space_theme.dart';
 import '../../../generated/l10n.dart';
 import '../providers/game_provider.dart';
+import '../services/grossstadt_possessive.dart';
 import '../widgets/space_background.dart';
 import '../models/game_outcome.dart';
 
@@ -359,20 +360,9 @@ class _GrossstadtGameState extends State<GrossstadtGame>
     }
   }
 
-  /// Get gender-appropriate possessive article.
-  /// [nounArticle] is the already-normalised definite article ("DER"/"DIE"/"DAS").
   String _getPossessiveArticle(String baseArticle, String nounArticle) {
-    _log('    → Noun article: $nounArticle, base possessive: $baseArticle');
-    // "DIE" covers both feminine singular and all-gender plural.
-    final needsEEnding = nounArticle == 'DIE';
-    String result = baseArticle;
-    if (needsEEnding) {
-      if (baseArticle == 'MEIN') result = 'MEINE';
-      else if (baseArticle == 'DEIN') result = 'DEINE';
-      else if (baseArticle == 'KEIN') result = 'KEINE';
-      else if (baseArticle == 'UNSER') result = 'UNSERE';
-    }
-    _log('    ✓ Using: $result');
+    final result = getPossessiveArticle(baseArticle, nounArticle);
+    _log('    → Noun article: $nounArticle → $result');
     return result;
   }
 
