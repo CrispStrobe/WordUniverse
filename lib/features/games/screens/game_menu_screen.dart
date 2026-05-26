@@ -10,6 +10,7 @@ import '../../../generated/l10n.dart';
 import '../providers/game_provider.dart';
 import '../widgets/space_background.dart';
 
+import 'definition_quiz_game.dart';
 import 'sentence_completion_game.dart';
 import 'space_word_rescue_game.dart';
 import 'spelling_spotter_game.dart';
@@ -405,6 +406,16 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             colors: [Color(0xFF43C6AC), Color(0xFF191654)]),
         supportedLearningLanguages: const ['de', 'en'],
         onTap: () => _navigateToGame(SentenceCompletionGame(
+            gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
+      ),
+      GameInfo(
+        title: s.definitionQuizTitle,
+        description: s.definitionQuizDescription,
+        icon: Icons.quiz,
+        gradient: const LinearGradient(
+            colors: [Color(0xFFDA22FF), Color(0xFF9733EE)]),
+        supportedLearningLanguages: const ['de', 'en'],
+        onTap: () => _navigateToGame(DefinitionQuizGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(

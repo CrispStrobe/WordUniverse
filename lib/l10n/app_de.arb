@@ -606,6 +606,8 @@
     "spellingSpotterDescription": "Finde das korrekt geschriebene Wort — lerne häufige Rechtschreibfehler",
     "sentenceCompletionTitle": "Satzergänzung",
     "sentenceCompletionDescription": "Ergänze das fehlende Wort — übe Wortschatz im Kontext",
+    "definitionQuizTitle": "Definitions-Quiz",
+    "definitionQuizDescription": "Ordne die Definition dem richtigen Wort zu",
 
     "wortbaumeisterCardTitle": "Wort-Stückler",
     "wortbaumeisterCardDescription": "Zusammengesetzte Nomen Stück für Stück bauen",

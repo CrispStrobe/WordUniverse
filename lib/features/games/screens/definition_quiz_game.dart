@@ -16,28 +16,23 @@ import '../providers/game_provider.dart';
 import '../widgets/cefr_chip.dart';
 import '../widgets/space_background.dart';
 
-class SentenceCompletionGame extends StatefulWidget {
+class DefinitionQuizGame extends StatefulWidget {
   final GradeLevel gradeLevel;
-  const SentenceCompletionGame({super.key, required this.gradeLevel});
+  const DefinitionQuizGame({super.key, required this.gradeLevel});
 
   @override
-  State<SentenceCompletionGame> createState() =>
-      _SentenceCompletionGameState();
+  State<DefinitionQuizGame> createState() => _DefinitionQuizGameState();
 }
 
-class _SentenceChallenge {
+class _DefChallenge {
   final GermanWord word;
-  final String before;   // sentence text before the blank
-  final String after;    // sentence text after the blank
-  final String correctOption;
-  final List<String> options;
+  final String definition;
+  final List<String> options; // display labels, shuffled
   final int correctIndex;
 
-  const _SentenceChallenge({
+  const _DefChallenge({
     required this.word,
-    required this.before,
-    required this.after,
-    required this.correctOption,
+    required this.definition,
     required this.options,
     required this.correctIndex,
   });
@@ -45,7 +40,7 @@ class _SentenceChallenge {
 
 enum _FeedbackState { none, correct, incorrect }
 
-class _SentenceCompletionGameState extends State<SentenceCompletionGame>
+class _DefinitionQuizGameState extends State<DefinitionQuizGame>
     with TickerProviderStateMixin {
   late VocabularyService _vocabularyService;
   late SriService _sriService;
@@ -57,7 +52,7 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
   static const int _optionCount = 4;
 
   bool _isLoading = true;
-  List<_SentenceChallenge> _challenges = [];
+  List<_DefChallenge> _challenges = [];
   int _currentIndex = 0;
   int _score = 0;
   int _correct = 0;
@@ -106,10 +101,10 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
   void _buildChallenges() {
     final gradeIndex = widget.gradeLevel.index + 1;
 
-    // All words with grade examples for this grade
+    // Words with at least one definition
     final allWords = _vocabularyService
         .getAllWords(_gameProvider)
-        .where((w) => _hasGradeExamples(w, gradeIndex))
+        .where((w) => w.apiEnrichment?.definitions.isNotEmpty ?? false)
         .toList();
 
     if (allWords.isEmpty) {
@@ -117,13 +112,17 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
       return;
     }
 
-    // Prefer SRI-weighted order (harder words first), shuffle as tiebreak
-    allWords.shuffle(_rng);
+    // Prefer same-grade words; SRI weights handled by shuffle + grade filter
+    final gradeWords = allWords
+        .where((w) => w.gradeLevel == gradeIndex)
+        .toList()
+      ..shuffle(_rng);
+    final pool = gradeWords.length >= _totalRounds ? gradeWords : allWords..shuffle(_rng);
 
-    final challenges = <_SentenceChallenge>[];
-    for (final word in allWords) {
+    final challenges = <_DefChallenge>[];
+    for (final word in pool) {
       if (challenges.length >= _totalRounds) break;
-      final c = _buildChallenge(word, gradeIndex, allWords);
+      final c = _buildChallenge(word, allWords);
       if (c != null) challenges.add(c);
     }
 
@@ -138,70 +137,32 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
     });
   }
 
-  bool _hasGradeExamples(GermanWord w, int gradeIndex) {
-    final ge = w.apiEnrichment?.gradeExamples;
-    if (ge == null) return false;
-    final key = '$gradeIndex';
-    final sents = ge[key] ?? ge.values.firstOrNull;
-    return sents != null && sents.isNotEmpty;
-  }
+  _DefChallenge? _buildChallenge(GermanWord word, List<GermanWord> pool) {
+    final defs = word.apiEnrichment?.definitions ?? [];
+    if (defs.isEmpty) return null;
 
-  _SentenceChallenge? _buildChallenge(
-      GermanWord word, int gradeIndex, List<GermanWord> pool) {
-    final ge = word.apiEnrichment?.gradeExamples;
-    if (ge == null) return null;
+    // Pick a definition that's reasonably short for display
+    final def = defs.firstWhere(
+      (d) => d.length <= 120,
+      orElse: () => defs.first,
+    );
 
-    final key = '$gradeIndex';
-    final sents = (ge[key] ?? ge.values.firstOrNull) ?? [];
-    if (sents.isEmpty) return null;
+    final correctOption = _displayOption(word);
 
-    // Try each sentence until we find one containing the word
-    final shuffledSents = List<String>.from(sents)..shuffle(_rng);
-    for (final sent in shuffledSents) {
-      final result = _blankWord(sent, word.word);
-      if (result == null) continue;
-      final (before, after) = result;
+    final distractors = _pickDistractors(word, correctOption, pool);
+    if (distractors.length < _optionCount - 1) return null;
 
-      final correctOption = _displayOption(word);
-      final distractors = _pickDistractors(word, correctOption, pool, gradeIndex);
-      if (distractors.isEmpty) continue;
+    final options = [correctOption, ...distractors.take(_optionCount - 1)];
+    options.shuffle(_rng);
+    final correctIndex = options.indexOf(correctOption);
+    if (correctIndex < 0) return null;
 
-      final options = [correctOption, ...distractors.take(_optionCount - 1)];
-      options.shuffle(_rng);
-      final correctIndex = options.indexOf(correctOption);
-      if (correctIndex < 0) continue;
-
-      return _SentenceChallenge(
-        word: word,
-        before: before,
-        after: after,
-        correctOption: correctOption,
-        options: options,
-        correctIndex: correctIndex,
-      );
-    }
-    return null;
-  }
-
-  // Returns (before, after) splitting the sentence at the found word token,
-  // or null if the word cannot be found in the sentence.
-  (String, String)? _blankWord(String sentence, String word) {
-    // Try exact whole-word match first (case insensitive)
-    final exact = RegExp(
-        r'\b' + RegExp.escape(word) + r'\b',
-        caseSensitive: false);
-    var m = exact.firstMatch(sentence);
-
-    // Fall back to starts-with match for inflected forms
-    if (m == null) {
-      final prefix = RegExp(
-          r'\b' + RegExp.escape(word) + r'\w*',
-          caseSensitive: false);
-      m = prefix.firstMatch(sentence);
-    }
-
-    if (m == null) return null;
-    return (sentence.substring(0, m.start), sentence.substring(m.end));
+    return _DefChallenge(
+      word: word,
+      definition: def,
+      options: options,
+      correctIndex: correctIndex,
+    );
   }
 
   String _displayOption(GermanWord w) {
@@ -212,34 +173,34 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
     return w.word;
   }
 
-  List<String> _pickDistractors(GermanWord target, String correctOption,
-      List<GermanWord> pool, int gradeIndex) {
+  List<String> _pickDistractors(
+      GermanWord target, String correctOption, List<GermanWord> pool) {
     final distractors = <String>{};
 
-    // Same word type, same grade first
-    final sameTypeSameGrade = pool
+    // Same CEFR level and word type first (most plausible distractors)
+    final sameLevel = pool
         .where((w) =>
             w.id != target.id &&
-            w.wordType == target.wordType &&
-            w.gradeLevel == gradeIndex)
+            w.cefrLevel == target.cefrLevel &&
+            w.wordType == target.wordType)
         .toList()
       ..shuffle(_rng);
-
-    for (final w in sameTypeSameGrade) {
+    for (final w in sameLevel) {
       final opt = _displayOption(w);
       if (opt != correctOption) distractors.add(opt);
       if (distractors.length >= _optionCount - 1) break;
     }
 
-    // Same word type, any grade
+    // Same word type, same grade
     if (distractors.length < _optionCount - 1) {
-      final sameType = pool
+      final same = pool
           .where((w) =>
               w.id != target.id &&
-              w.wordType == target.wordType)
+              w.wordType == target.wordType &&
+              w.gradeLevel == target.gradeLevel)
           .toList()
         ..shuffle(_rng);
-      for (final w in sameType) {
+      for (final w in same) {
         final opt = _displayOption(w);
         if (opt != correctOption && !distractors.contains(opt)) {
           distractors.add(opt);
@@ -248,13 +209,13 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
       }
     }
 
-    // Any word, same grade as last resort
+    // Any word with a definition as final fallback
     if (distractors.length < _optionCount - 1) {
-      final sameGrade = pool
-          .where((w) => w.id != target.id && w.gradeLevel == gradeIndex)
+      final any = pool
+          .where((w) => w.id != target.id)
           .toList()
         ..shuffle(_rng);
-      for (final w in sameGrade) {
+      for (final w in any) {
         final opt = _displayOption(w);
         if (opt != correctOption && !distractors.contains(opt)) {
           distractors.add(opt);
@@ -285,7 +246,7 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
       _score += 10;
       _correct++;
       _sriService.recordResponse(
-        skillType: LanguageSkillType.sentenceStructure,
+        skillType: LanguageSkillType.spelling,
         baseWord: challenge.word.word,
         wasCorrect: true,
       );
@@ -296,7 +257,7 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
           .forward(from: 0)
           .then((_) => _shakeController.reverse());
       _sriService.recordResponse(
-        skillType: LanguageSkillType.sentenceStructure,
+        skillType: LanguageSkillType.spelling,
         baseWord: challenge.word.word,
         wasCorrect: false,
       );
@@ -322,7 +283,7 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
 
   void _showGameOver() {
     _gameProvider.reportOutcome(GameOutcome(
-      gameType: 'sentence_completion',
+      gameType: 'definition_quiz',
       difficulty: widget.gradeLevel.index + 1,
       score: _score,
       wasSuccessful: _correct >= (_challenges.length * 0.7),
@@ -398,8 +359,8 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
         padding: const EdgeInsets.all(24),
         child: Text(
           _isDE
-              ? 'Keine Beispielsätze für diese Stufe verfügbar.'
-              : 'No example sentences available at this level.',
+              ? 'Keine Definitionen für diese Stufe verfügbar.'
+              : 'No definitions available at this level.',
           style: SpaceTheme.bodyStyle,
           textAlign: TextAlign.center,
         ),
@@ -419,9 +380,7 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
               children: [
                 const SizedBox(height: 8),
                 Text(
-                  _isDE
-                      ? 'Welches Wort passt in die Lücke?'
-                      : 'Which word completes the sentence?',
+                  _isDE ? 'Welches Wort wird beschrieben?' : 'Which word is being described?',
                   style: SpaceTheme.headlineStyle
                       .copyWith(color: Colors.white, fontSize: 17),
                   textAlign: TextAlign.center,
@@ -430,13 +389,13 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
                   const SizedBox(height: 6),
                   CefrChip(challenge.word.cefrLevel!),
                 ],
+                const SizedBox(height: 16),
+                _buildDefinitionCard(challenge),
                 const SizedBox(height: 20),
-                _buildSentenceCard(challenge),
-                const SizedBox(height: 24),
                 _buildOptions(challenge),
                 if (_feedbackState == _FeedbackState.incorrect) ...[
-                  const SizedBox(height: 12),
-                  _buildCorrectWordHint(challenge),
+                  const SizedBox(height: 10),
+                  _buildCorrectHint(challenge),
                 ],
               ],
             ),
@@ -460,14 +419,13 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _isDE ? 'Satzergänzung' : 'Sentence Completion',
+                  _isDE ? 'Definitions-Quiz' : 'Definition Quiz',
                   style: SpaceTheme.titleStyle
                       .copyWith(color: SpaceTheme.starYellow),
                 ),
                 Text(
                   '${_currentIndex + 1} / ${_challenges.length}',
-                  style:
-                      SpaceTheme.bodyStyle.copyWith(color: Colors.white60),
+                  style: SpaceTheme.bodyStyle.copyWith(color: Colors.white60),
                 ),
               ],
             ),
@@ -482,75 +440,51 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
     );
   }
 
-  Widget _buildSentenceCard(_SentenceChallenge challenge) {
-    const blankText = '___________';
-    final blankColor = _feedbackState == _FeedbackState.correct
-        ? SpaceTheme.alienGreen
-        : _feedbackState == _FeedbackState.incorrect
-            ? Colors.redAccent
-            : SpaceTheme.starYellow;
-
-    // Determine what to show in the blank after answer
-    final fillText = _feedbackState != _FeedbackState.none
-        ? challenge.correctOption
-        : blankText;
-
+  Widget _buildDefinitionCard(_DefChallenge challenge) {
     return AnimatedBuilder(
       animation: _shakeController,
       builder: (context, child) {
         final shake = _feedbackState == _FeedbackState.incorrect
             ? sin(_shakeController.value * pi * 5) * 6
             : 0.0;
-        return Transform.translate(
-          offset: Offset(shake, 0),
-          child: child,
-        );
+        return Transform.translate(offset: Offset(shake, 0), child: child);
       },
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
         decoration: BoxDecoration(
-          color: SpaceTheme.deepSpace.withValues(alpha: 0.8),
+          color: SpaceTheme.deepSpace.withValues(alpha: 0.85),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: _feedbackState == _FeedbackState.correct
                 ? SpaceTheme.alienGreen
                 : _feedbackState == _FeedbackState.incorrect
                     ? Colors.redAccent
-                    : SpaceTheme.nebulaPurple.withValues(alpha: 0.5),
+                    : SpaceTheme.cosmicPink.withValues(alpha: 0.5),
             width: _feedbackState != _FeedbackState.none ? 2 : 1,
           ),
-        ),
-        child: RichText(
-          textAlign: TextAlign.center,
-          text: TextSpan(
-            style: const TextStyle(
-              fontSize: 18,
-              color: Colors.white,
-              height: 1.5,
+          boxShadow: [
+            BoxShadow(
+              color: SpaceTheme.cosmicPink.withValues(alpha: 0.15),
+              blurRadius: 12,
             ),
-            children: [
-              TextSpan(text: challenge.before),
-              TextSpan(
-                text: fillText,
-                style: TextStyle(
-                  color: blankColor,
-                  fontWeight: FontWeight.bold,
-                  decoration: _feedbackState == _FeedbackState.none
-                      ? TextDecoration.underline
-                      : TextDecoration.none,
-                  decorationColor: blankColor,
-                ),
-              ),
-              TextSpan(text: challenge.after),
-            ],
+          ],
+        ),
+        child: Text(
+          challenge.definition,
+          style: SpaceTheme.bodyStyle.copyWith(
+            fontSize: 16,
+            color: Colors.white,
+            height: 1.5,
+            fontStyle: FontStyle.italic,
           ),
+          textAlign: TextAlign.center,
         ),
       ),
     );
   }
 
-  Widget _buildOptions(_SentenceChallenge challenge) {
+  Widget _buildOptions(_DefChallenge challenge) {
     return Column(
       children: List.generate(challenge.options.length, (i) {
         return Padding(
@@ -561,7 +495,7 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
     );
   }
 
-  Widget _buildOption(_SentenceChallenge challenge, int index) {
+  Widget _buildOption(_DefChallenge challenge, int index) {
     final option = challenge.options[index];
     final isSelected = _selectedOption == index;
     final isCorrect = index == challenge.correctIndex;
@@ -617,8 +551,8 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
                     option,
                     style: TextStyle(
                       color: textColor,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
+                      fontSize: 17,
+                      fontWeight: FontWeight.w600,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -635,10 +569,7 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
     );
   }
 
-  Widget _buildCorrectWordHint(_SentenceChallenge challenge) {
-    final hint = _isDE
-        ? 'Richtige Antwort: ${challenge.correctOption}'
-        : 'Correct answer: ${challenge.correctOption}';
+  Widget _buildCorrectHint(_DefChallenge challenge) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
@@ -648,11 +579,14 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
             color: SpaceTheme.alienGreen.withValues(alpha: 0.4)),
       ),
       child: Text(
-        hint,
+        _isDE
+            ? 'Richtige Antwort: ${challenge.options[challenge.correctIndex]}'
+            : 'Correct answer: ${challenge.options[challenge.correctIndex]}',
         style: SpaceTheme.bodyStyle
             .copyWith(color: SpaceTheme.alienGreen, fontSize: 13),
         textAlign: TextAlign.center,
       ),
     );
   }
+
 }

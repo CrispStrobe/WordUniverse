@@ -491,10 +491,11 @@ class _WordFindGameState extends State<WordFindGame> {
         }
     }
     
-    // Return empty string if no info available
-    if (infoParts.isEmpty) return '';
-    
-    // Join with bullets for compact display
+    if (infoParts.isEmpty) {
+      if (word.cefrLevel != null) return ' • ${word.cefrLevel}';
+      return '';
+    }
+    if (word.cefrLevel != null) infoParts.add(word.cefrLevel!);
     return ' • ${infoParts.join(' • ')}';
   }
 

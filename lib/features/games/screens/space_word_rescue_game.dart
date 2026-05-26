@@ -14,6 +14,7 @@ import '../../../core/services/audio_service.dart';
 import '../../../core/theme/space_theme.dart';
 import '../../../core/models/skill_category.dart';
 import '../services/space_word_rescue_hints.dart';
+import '../widgets/cefr_chip.dart';
 import '../widgets/space_background.dart';
 import '../widgets/space_word_rescue_widgets.dart';
 import '../../../generated/l10n.dart';
@@ -1449,13 +1450,17 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
                 _educationalHint,
                 style: SpaceTheme.bodyStyle.copyWith(
                   fontFamily: selectedFontFamily,
-                  fontSize: 14, 
+                  fontSize: 14,
                   fontStyle: FontStyle.italic,
                   color: Colors.white70
                 ),
                 textAlign: TextAlign.center,
               ),
-            ]
+            ],
+            if (_currentWord?.cefrLevel != null) ...[
+              const SizedBox(height: 8),
+              CefrChip(_currentWord!.cefrLevel!),
+            ],
           ],
         ),
       ),
