@@ -27,6 +27,7 @@ import '../providers/game_provider.dart';
 import '../services/spelling_spotter_service.dart';
 import '../widgets/cefr_chip.dart';
 import '../widgets/space_background.dart';
+import '../../../shared/widgets/onboarding_overlay.dart';
 
 // ─── Data model ───────────────────────────────────────────────────────────────
 
@@ -74,6 +75,7 @@ class _SriReviewGameState extends State<SriReviewGame>
   static const int _optionCount = 4;
 
   bool _isLoading = true;
+  bool _onboardingScheduled = false;
   List<_ReviewChallenge> _challenges = [];
   int _index = 0;
   int _correct = 0;
@@ -115,6 +117,35 @@ class _SriReviewGameState extends State<SriReviewGame>
     if (!_vocabService.isInitialized) await _vocabService.initialize();
     _audioService.setTtsLanguage(_vocabService.learningLanguage);
     _buildChallenges();
+    if (!_onboardingScheduled) {
+      _onboardingScheduled = true;
+      final isDE = _isDE;
+      OnboardingOverlay.maybeShow(
+        context,
+        gameKey: 'sri_review',
+        title: isDE ? 'SRI-Wiederholung' : 'SRI Review',
+        steps: [
+          OnboardingStep(
+            icon: Icons.refresh,
+            body: isDE
+                ? 'Hier übst du deine schwächsten Wörter — basierend auf deiner Lernhistorie.'
+                : 'Practice your weakest words — selected based on your learning history.',
+          ),
+          OnboardingStep(
+            icon: Icons.auto_awesome,
+            body: isDE
+                ? 'Jede Aufgabe passt sich dem Wort an: Artikel, Schreibweise oder Definition.'
+                : 'Each challenge adapts to the word: article, spelling, or definition.',
+          ),
+          OnboardingStep(
+            icon: Icons.trending_up,
+            body: isDE
+                ? 'Mit jeder richtigen Antwort steigt der Easiness Factor des Wortes.'
+                : 'Every correct answer raises the easiness factor of that word.',
+          ),
+        ],
+      );
+    }
   }
 
   // ─── Challenge building ──────────────────────────────────────────────────

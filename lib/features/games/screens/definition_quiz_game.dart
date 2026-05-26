@@ -14,7 +14,9 @@ import '../../../generated/l10n.dart';
 import '../models/game_outcome.dart';
 import '../providers/game_provider.dart';
 import '../widgets/cefr_chip.dart';
+import '../widgets/etymology_banner.dart';
 import '../widgets/space_background.dart';
+import '../../../shared/widgets/onboarding_overlay.dart';
 
 class DefinitionQuizGame extends StatefulWidget {
   final GradeLevel gradeLevel;
@@ -52,6 +54,7 @@ class _DefinitionQuizGameState extends State<DefinitionQuizGame>
   static const int _optionCount = 4;
 
   bool _isLoading = true;
+  bool _onboardingScheduled = false;
   List<_DefChallenge> _challenges = [];
   int _currentIndex = 0;
   int _score = 0;
@@ -96,6 +99,35 @@ class _DefinitionQuizGameState extends State<DefinitionQuizGame>
     _gameProvider = context.read<GameProvider>();
     if (!_vocabularyService.isInitialized) await _vocabularyService.initialize();
     _buildChallenges();
+    if (!_onboardingScheduled) {
+      _onboardingScheduled = true;
+      final isDE = _isDE;
+      OnboardingOverlay.maybeShow(
+        context,
+        gameKey: 'definition_quiz',
+        title: isDE ? 'Definitions-Quiz' : 'Definition Quiz',
+        steps: [
+          OnboardingStep(
+            icon: Icons.menu_book,
+            body: isDE
+                ? 'Eine Definition wird gezeigt — wähle das passende Wort aus vier Optionen.'
+                : 'A definition is shown — pick the matching word from four options.',
+          ),
+          OnboardingStep(
+            icon: Icons.school,
+            body: isDE
+                ? 'Alle Optionen kommen aus derselben CEFR-Stufe, damit nichts zu leicht wird.'
+                : 'All options come from the same CEFR level so nothing is too obvious.',
+          ),
+          OnboardingStep(
+            icon: Icons.tips_and_updates,
+            body: isDE
+                ? 'Für Klasse 5+ erscheint nach richtiger Antwort ein Sprach-Tipp zum Wort.'
+                : 'For grade 5+ a language note appears after a correct answer.',
+          ),
+        ],
+      );
+    }
   }
 
   void _buildChallenges() {
@@ -399,6 +431,10 @@ class _DefinitionQuizGameState extends State<DefinitionQuizGame>
                 if (_feedbackState == _FeedbackState.incorrect) ...[
                   const SizedBox(height: 10),
                   _buildCorrectHint(challenge),
+                ],
+                if (_feedbackState == _FeedbackState.correct) ...[
+                  const SizedBox(height: 10),
+                  EtymologyBanner(word: challenge.word, isDE: _isDE),
                 ],
               ],
             ),

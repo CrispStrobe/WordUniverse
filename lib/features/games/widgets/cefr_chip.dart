@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 /// A small colored badge showing a CEFR level (A1–C2).
 class CefrChip extends StatelessWidget {
   final String level;
-  const CefrChip(this.level, {super.key});
+  final bool small;
+  const CefrChip(this.level, {super.key, this.small = false});
 
   @override
   Widget build(BuildContext context) {
@@ -16,8 +17,11 @@ class CefrChip extends StatelessWidget {
       'C2' => const Color(0xFFE53935),
       _ => Colors.white38,
     };
+    final hPad = small ? 7.0 : 10.0;
+    final vPad = small ? 2.0 : 3.0;
+    final fontSize = small ? 10.0 : 11.0;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+      padding: EdgeInsets.symmetric(horizontal: hPad, vertical: vPad),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(12),
@@ -27,7 +31,7 @@ class CefrChip extends StatelessWidget {
         'CEFR $level',
         style: TextStyle(
           color: color,
-          fontSize: 11,
+          fontSize: fontSize,
           fontWeight: FontWeight.bold,
           letterSpacing: 0.5,
         ),

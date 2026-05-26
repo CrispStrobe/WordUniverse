@@ -14,7 +14,9 @@ import '../../../generated/l10n.dart';
 import '../models/game_outcome.dart';
 import '../providers/game_provider.dart';
 import '../widgets/cefr_chip.dart';
+import '../widgets/etymology_banner.dart';
 import '../widgets/space_background.dart';
+import '../../../shared/widgets/onboarding_overlay.dart';
 
 class SentenceCompletionGame extends StatefulWidget {
   final GradeLevel gradeLevel;
@@ -57,6 +59,7 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
   static const int _optionCount = 4;
 
   bool _isLoading = true;
+  bool _onboardingScheduled = false;
   List<_SentenceChallenge> _challenges = [];
   int _currentIndex = 0;
   int _score = 0;
@@ -101,6 +104,35 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
     _gameProvider = context.read<GameProvider>();
     if (!_vocabularyService.isInitialized) await _vocabularyService.initialize();
     _buildChallenges();
+    if (!_onboardingScheduled) {
+      _onboardingScheduled = true;
+      final isDE = _isDE;
+      OnboardingOverlay.maybeShow(
+        context,
+        gameKey: 'sentence_completion',
+        title: isDE ? 'Satzergänzung' : 'Sentence Completion',
+        steps: [
+          OnboardingStep(
+            icon: Icons.edit,
+            body: isDE
+                ? 'Ein Satz mit einer Lücke wird gezeigt — wähle das passende Wort.'
+                : 'A sentence with a gap is shown — pick the word that fits.',
+          ),
+          OnboardingStep(
+            icon: Icons.school,
+            body: isDE
+                ? 'Es werden nur Nomen, Verben und Adjektive abgefragt, da diese eindeutig im Satz erkennbar sind.'
+                : 'Only nouns, verbs, and adjectives are tested — they are uniquely identifiable in context.',
+          ),
+          OnboardingStep(
+            icon: Icons.tips_and_updates,
+            body: isDE
+                ? 'Bei richtiger Antwort siehst du einen Hinweis auf die Wortbedeutung.'
+                : 'A meaning hint appears after each correct answer.',
+          ),
+        ],
+      );
+    }
   }
 
   // Only blank content words — nouns, verbs, adjectives are uniquely
@@ -452,6 +484,10 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
                 if (_feedbackState == _FeedbackState.incorrect) ...[
                   const SizedBox(height: 12),
                   _buildCorrectWordHint(challenge),
+                ],
+                if (_feedbackState == _FeedbackState.correct) ...[
+                  const SizedBox(height: 12),
+                  EtymologyBanner(word: challenge.word, isDE: _isDE),
                 ],
               ],
             ),

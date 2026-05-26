@@ -189,9 +189,10 @@ just cleared.
 `android/gradle.properties` of each project. Currently the daemon
 balloons to ~5GB after a few builds.
 
-### [ ] 18. Version bumping discipline
-`pubspec.yaml` versions look static. Use `cider` or a release script
-to enforce semver bumps on each release.
+### [x] 18. Version bumping discipline
+`scripts/bump_version.sh [major|minor|patch|X.Y.Z]` — bumps semver +
+build number in pubspec.yaml, prints commit/tag instructions. Tested:
+`1.2.1 → 1.2.2+1`. Run before each release; commit + `git tag vX.Y.Z`.
 
 ---
 
@@ -326,38 +327,95 @@ antonyms power the EN side (9 186 entries); OdeNet covers DE. Quick
 round-trip game (≤30 s per session), good warm-up complement to
 Sentence Completion.
 
-### [ ] 30. Conjugation Drill (DE-only)
-Show a verb + pronoun (e.g. "laufen — er ___"), type or pick the
-correct form. Powered by `inflectionsPattern.conjugation.Präsens`.
-DE-only initially; `supportedLearningLanguages: ['de']`.
+### [x] 30. Conjugation Drill (DE-only)
+Show a verb + pronoun (e.g. "laufen — er/sie/es ___"), pick the
+correct Präsens form from 4 options. Powered by
+`inflectionsPattern.conjugation.Präsens` (from DWDSmor/Wiktionary).
+Pure helpers extracted to `conjugation_drill_service.dart`; 27
+unit tests. DE-only; `supportedLearningLanguages: ['de']`.
 
-### [ ] 31. Word of the Day (home screen)
+### [x] 31. Word of the Day (home screen)
 One word per calendar day on the home screen: definition, one
-`gradeExample` sentence, synonym strip. Zero new game logic; drives
-daily open rate. Seed from a deterministic hash of `DateTime.now().day`.
+`gradeExample` sentence, synonym strip, CEFR chip, TTS speaker button.
+Zero new game logic. Deterministic daily seed (day-of-year + year).
+Grade 1-3 pool. Silently hidden until VocabularyService is initialized.
+`WordOfTheDayCard` widget in `lib/features/home/widgets/`.
 
 ### [x] 32. Surface CEFR level badges
 Show `cefrLevel` (A1–B2) as a small badge on any word card that
 renders in game feedback or review screens. Lets older students
 self-select challenge level via a filter in the game menu.
 
-### [ ] 33. Etymology layer (grade 5-6)
-Show a short "did you know?" etymology note after a correct answer for
-grade 5-6 words. Etymology data present in Wiktionary enrichment JSON
-for a large fraction of the DE DB. EN side has it too; gate on
-`gradeLevel.index >= 4`.
+### [x] 33. Etymology layer (grade 5-6)
+Reusable `EtymologyBanner` widget shown after correct answers for grade
+5-6 words that have `entryNotes` (Wiktionary linguistic notes). Gates
+on `gradeLevel >= 5 && entryNotes.isNotEmpty`. Wired into
+`DefinitionQuizGame` and `SentenceCompletionGame`.
 
-### [ ] 34. Surface Gutenberg examples
+### [x] 34. Surface Gutenberg examples
 6 274 EN entries have authentic public-domain sentences in
-`gutenbergExamples`. Show one of these (labelled "from a real book")
-as an alternative example in SpaceWordRescue and WordFind feedback
-when `gradeExamples` is absent or already shown.
+`apiEnrichment.gutenbergExamples`. Added as fallback in
+`generateEducationalHint()` (SpaceWordRescue) when both `gradeExamples`
+and `exampleSentences` are absent. Labelled "Aus einem echten Buch".
+
+---
+
+### [x] 35. Onboarding for new games
+Added `OnboardingOverlay.maybeShow()` to five games that were missing it:
+`definition_quiz_game`, `sentence_completion_game`, `antonym_flash_game`,
+`sri_review_game`, and `conjugation_drill_game`. Each gets 3 steps with
+inline DE/EN strings (no ARB) explaining the mechanic. The overlay is shown
+once per install, keyed by game name in SharedPreferences.
+
+---
+
+### [x] 36. Word-of-the-Day tap-to-practice
+Tapping the WotD home-screen card opens a `DraggableScrollableSheet` with
+full word detail: all definitions, up to 3 examples, synonym + antonym chips,
+and etymology note (grade ≥ 5). A "Jetzt üben / Practice now" button navigates
+to `DefinitionQuizGame` at the word's grade level. Also fixed an incorrect
+onboarding message in `conjugation_drill_game` and extended
+`conjugation_drill_service` to fall back to `wiktionaryInflections` (flat
+Wiktionary tagged forms) when the structured `inflections_pattern` is absent —
+raising conjugatable DE verb coverage from ~453 to ~2984 verbs.
+
+---
+
+### [x] 37. Spelling strategy badge + LiTKey-weighted word selection
+Added `spellingStrategyPrimary` (nullable String) to `ApiEnrichment` —
+populated from `enrichment_json['spellingStrategyPrimary']`, covering 10K+
+DE words across 6 orthographic categories: `grossschreibung`, `klangtreu`,
+`morphem`, `verwandt`, `doppelkonsonant`, `merkwort`.
+
+Added `litekeyErrorRate` (nullable double, 0–1) to `GermanWord` — from
+`metadata_json['litkey_error_rate']`, 3796 words with empirical child-error
+rates from the LiTKey corpus.
+
+New `SpellingStrategyBadge` widget shows the strategy label + tooltip in
+SpellingSpotter after each correct answer (e.g. "Stammprinzip" with
+explanation "Verwandte Wörter behalten denselben Stamm").
+
+SpellingSpotter word selection now sorts the pool by `litekeyErrorRate`
+descending (nulls → 0.5) so each session surfaces the hardest-to-spell
+words empirically measured on German primary-school children.
+
+---
+
+---
+
+### [x] 38. Homophone Drill game (EN-only)
+Show a sentence with a missing word (e.g. "I go ___ school."); player picks
+the correct spelling from 2-3 homophones (to / too / two).
+
+28 homophone groups hardcoded in `homophone_drill_service.dart` — all members
+confirmed present in the EN DB with grade-differentiated example sentences.
+Each correct answer reveals a meaning-hint panel listing all group members with
+their distinct definitions. Whole-word blank matching prevents "no" from
+blanking "know". 24 unit tests, `supportedLearningLanguages: ['en']`.
 
 ---
 
 ## Execution order
 
-Picking off three at a time. Current focus:
-1. **#30 Conjugation Drill** (DE-only, next)
-2. **#31 Word of the Day** (home screen widget)
-3. **#33 Etymology layer** (grade 5–6 "did you know" panel)
+Tier 9 complete (#25–#34 all done). #35–38 also done.
+All pending items shipped.

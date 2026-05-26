@@ -18,6 +18,7 @@ import '../../games/widgets/space_background.dart';
 import '../../games/screens/game_menu_screen.dart';
 import '../../settings/screens/settings_screen.dart';
 import '../../../shared/widgets/imprint_dialog.dart';
+import '../widgets/word_of_the_day_card.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -473,6 +474,14 @@ class _HomeScreenState extends State<HomeScreen>
                     ),
                   ),
                 ),
+                SizedBox(height: isVerySmall ? 6 : (isSmallScreen ? 8 : 12)),
+                SlideTransition(
+                  position: _slideAnimation,
+                  child: FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: WordOfTheDayCard(isVerySmall: isVerySmall),
+                  ),
+                ),
               ],
             ),
           ),
@@ -526,6 +535,14 @@ class _HomeScreenState extends State<HomeScreen>
             position: _slideAnimation,
             child: FadeTransition(
               opacity: _fadeAnimation,
+              child: WordOfTheDayCard(isVerySmall: isVerySmall),
+            ),
+          ),
+          SizedBox(height: isVerySmall ? 8 : 12),
+          SlideTransition(
+            position: _slideAnimation,
+            child: FadeTransition(
+              opacity: _fadeAnimation,
               child: CompactGradeSelector(isVerySmall: isVerySmall),
             ),
           ),
@@ -539,7 +556,7 @@ class _HomeScreenState extends State<HomeScreen>
               child: _buildStartButton(false, isVerySmall),
             ),
           ),
-          
+
           SizedBox(height: isVerySmall ? 8 : 12), // Bottom padding
         ],
       ),
