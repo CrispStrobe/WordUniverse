@@ -390,7 +390,7 @@ class _ExpressionFlashGameState extends State<ExpressionFlashGame>
             const SizedBox(height: 4),
             if (_gameProvider.puzzleTimerEnabled)
               Text(
-                'richtig in ${_sessionSeconds - _secondsLeft}s',
+                _s.correctInSeconds(_sessionSeconds - _secondsLeft),
                 style: SpaceTheme.bodyStyle.copyWith(color: Colors.white70),
               ),
           ],
