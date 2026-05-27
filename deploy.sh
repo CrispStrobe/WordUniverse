@@ -152,12 +152,24 @@ deploy_vercel() {
     # Save current directory
     local original_dir=$(pwd)
     
-    # Copy .vercel configuration if it exists in root
+    # Copy .vercel project identity so Vercel CLI knows which project to target
     if [ -d ".vercel" ] && [ -f ".vercel/project.json" ]; then
         print_status "Copying Vercel configuration to build directory..."
         cp -r .vercel build/web/
         print_success "Vercel configuration copied"
     fi
+
+    # Write a minimal vercel.json into build/web that disables the server-side
+    # build step (build/web is already the built output; no server build needed).
+    cat > build/web/vercel.json <<'VEOF'
+{
+  "framework": null,
+  "buildCommand": "",
+  "outputDirectory": ".",
+  "ignoreCommand": "exit 0"
+}
+VEOF
+    print_status "Wrote vercel.json into build/web (disables server-side build)"
     
     # Navigate to build directory
     if ! cd build/web; then
