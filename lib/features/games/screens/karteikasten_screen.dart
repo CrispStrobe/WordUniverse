@@ -10,7 +10,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/services/sri_service.dart';
+import '../../../core/services/vocabulary_service.dart';
 import '../../../core/theme/space_theme.dart';
+import '../../../generated/l10n.dart';
 import '../providers/game_provider.dart';
 
 class KarteikastenScreen extends StatefulWidget {
@@ -33,6 +35,8 @@ class _KarteikastenScreenState extends State<KarteikastenScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
+    final isDE = context.read<VocabularyService>().learningLanguage == 'de';
     final sri = context.watch<SriService>();
     final counts = sri.getBoxCounts();
     final itemsInSelected = sri.getItemsInBox(_selectedBox)
@@ -41,7 +45,7 @@ class _KarteikastenScreenState extends State<KarteikastenScreen> {
     return Scaffold(
       backgroundColor: SpaceTheme.deepSpace,
       appBar: AppBar(
-        title: const Text('Karteikasten'),
+        title: Text(s.karteikasten),
         backgroundColor: SpaceTheme.deepSpace,
         foregroundColor: Colors.white,
       ),
@@ -49,11 +53,11 @@ class _KarteikastenScreenState extends State<KarteikastenScreen> {
         child: Column(
           children: [
             const SizedBox(height: 12),
-            _buildBoxRow(counts),
+            _buildBoxRow(counts, s, isDE),
             const Divider(color: Colors.white24, height: 24),
             Expanded(
               child: itemsInSelected.isEmpty
-                  ? _buildEmptyState()
+                  ? _buildEmptyState(s)
                   : _buildItemList(sri, itemsInSelected),
             ),
           ],
@@ -62,7 +66,7 @@ class _KarteikastenScreenState extends State<KarteikastenScreen> {
     );
   }
 
-  Widget _buildBoxRow(Map<int, int> counts) {
+  Widget _buildBoxRow(Map<int, int> counts, S s, bool isDE) {
     return SizedBox(
       height: 130,
       child: ListView.builder(
@@ -88,7 +92,7 @@ class _KarteikastenScreenState extends State<KarteikastenScreen> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     duration: const Duration(seconds: 2),
-                    content: Text('Karte verschoben nach Box $boxNum – ${spec.de}'),
+                    content: Text(s.karteikastenCardMoved(boxNum, isDE ? spec.de : spec.en)),
                     backgroundColor: spec.color.withValues(alpha: 0.85),
                   ),
                 );
@@ -128,7 +132,7 @@ class _KarteikastenScreenState extends State<KarteikastenScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Box $boxNum',
+                          s.boxLabel(boxNum),
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 11,
@@ -144,7 +148,7 @@ class _KarteikastenScreenState extends State<KarteikastenScreen> {
                           ),
                         ),
                         Text(
-                          spec.de,
+                          isDE ? spec.de : spec.en,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 11,
@@ -162,14 +166,14 @@ class _KarteikastenScreenState extends State<KarteikastenScreen> {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(S s) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Text(
           _selectedBox == 5
-              ? 'Noch keine gemeisterten Karten in dieser Box.'
-              : 'Diese Box ist leer.',
+              ? s.boxEmptyMastered
+              : s.boxEmptyDefault,
           textAlign: TextAlign.center,
           style: SpaceTheme.bodyStyle.copyWith(color: Colors.white60),
         ),
@@ -266,9 +270,11 @@ class _DraggableItemCard extends StatelessWidget {
         ),
         trailing: PopupMenuButton<int>(
           icon: const Icon(Icons.more_vert, color: Color(0xFF5D4037)),
-          tooltip: 'Verschieben',
+          tooltip: S.of(context)!.moveCard,
           onSelected: onMove,
-          itemBuilder: (context) => [
+          itemBuilder: (context) {
+            final s = S.of(context)!;
+            return [
             for (var b = 1; b <= 5; b++)
               PopupMenuItem<int>(
                 value: b,
@@ -276,7 +282,7 @@ class _DraggableItemCard extends StatelessWidget {
                 child: Row(
                   children: [
                     Text(
-                      'Box $b',
+                      s.boxLabel(b),
                       style: TextStyle(
                         fontWeight: b == currentBox
                             ? FontWeight.bold
@@ -284,15 +290,16 @@ class _DraggableItemCard extends StatelessWidget {
                       ),
                     ),
                     if (b == currentBox)
-                      const Padding(
-                        padding: EdgeInsets.only(left: 6),
-                        child: Text('(jetzt)',
-                            style: TextStyle(fontSize: 11, color: Colors.grey)),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 6),
+                        child: Text(s.boxLabelCurrent,
+                            style: const TextStyle(fontSize: 11, color: Colors.grey)),
                       ),
                   ],
                 ),
               ),
-          ],
+          ];
+          },
         ),
       ),
     );

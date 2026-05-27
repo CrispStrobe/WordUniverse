@@ -105,29 +105,22 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
     _buildChallenges();
     if (!_onboardingScheduled) {
       _onboardingScheduled = true;
-      final isDE = _isDE;
       OnboardingOverlay.maybeShow(
         context,
         gameKey: 'sentence_completion',
-        title: isDE ? 'Satzergänzung' : 'Sentence Completion',
+        title: _s.sentenceCompletionTitle,
         steps: [
           OnboardingStep(
             icon: Icons.edit,
-            body: isDE
-                ? 'Ein Satz mit einer Lücke wird gezeigt — wähle das passende Wort.'
-                : 'A sentence with a gap is shown — pick the word that fits.',
+            body: _s.sentenceCompletionOnboardingBody1,
           ),
           OnboardingStep(
             icon: Icons.school,
-            body: isDE
-                ? 'Es werden nur Nomen, Verben und Adjektive abgefragt, da diese eindeutig im Satz erkennbar sind.'
-                : 'Only nouns, verbs, and adjectives are tested — they are uniquely identifiable in context.',
+            body: _s.sentenceCompletionOnboardingBody2,
           ),
           OnboardingStep(
             icon: Icons.tips_and_updates,
-            body: isDE
-                ? 'Bei richtiger Antwort siehst du einen Hinweis auf die Wortbedeutung.'
-                : 'A meaning hint appears after each correct answer.',
+            body: _s.sentenceCompletionOnboardingBody3,
           ),
         ],
       );
@@ -392,7 +385,7 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
             ),
             const SizedBox(height: 4),
             Text(
-              _isDE ? 'richtig' : 'correct',
+              _s.correct,
               style: SpaceTheme.bodyStyle.copyWith(color: Colors.white70),
             ),
             const SizedBox(height: 8),
@@ -443,9 +436,7 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Text(
-          _isDE
-              ? 'Keine Beispielsätze für diese Stufe verfügbar.'
-              : 'No example sentences available at this level.',
+          _s.noClozeSentences,
           style: SpaceTheme.bodyStyle,
           textAlign: TextAlign.center,
         ),
@@ -465,9 +456,7 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
               children: [
                 const SizedBox(height: 8),
                 Text(
-                  _isDE
-                      ? 'Welches Wort passt in die Lücke?'
-                      : 'Which word completes the sentence?',
+                  _s.sentenceCompletionPrompt,
                   style: SpaceTheme.headlineStyle
                       .copyWith(color: Colors.white, fontSize: 17),
                   textAlign: TextAlign.center,
@@ -510,7 +499,7 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _isDE ? 'Satzergänzung' : 'Sentence Completion',
+                  _s.sentenceCompletionTitle,
                   style: SpaceTheme.titleStyle
                       .copyWith(color: SpaceTheme.starYellow),
                 ),
@@ -686,9 +675,7 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
   }
 
   Widget _buildCorrectWordHint(_SentenceChallenge challenge) {
-    final hint = _isDE
-        ? 'Richtige Antwort: ${challenge.correctOption}'
-        : 'Correct answer: ${challenge.correctOption}';
+    final hint = _s.correctAnswerReveal(challenge.correctOption);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(

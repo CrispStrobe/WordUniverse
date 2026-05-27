@@ -93,6 +93,12 @@ Wiktionary DB on VPS: `/root/voc-enrich/en_wiktionary_normalized_all.db`
 
 - ✅ `SpellingSpotterGame` — EN-only game using `commonLearnerErrors` data (8,314 words); 4-option MCQ, grade-filtered, with context sentences
 
+- ✅ **L10n / a11y pass (2026-05-27)** — All hardcoded DE/EN ternaries replaced with ARB keys
+  across 12 game screens. Semantics labels added to verbtrenner (back, level, score, progress,
+  combo). Word type names, onboarding bodies, empty states, karteikasten box labels,
+  word-of-the-day card, onboarding overlay buttons, debug snackbar all localised.
+  ~150 new ARB keys. `_isDE` getter removed from 5 files where fully unused.
+
 ### Remaining (deferred)
 
 - New EN-only games needing pipeline data first: `phrasal_verbs` (need phrasal verb DB data); `homophones` (need homophone pairs)

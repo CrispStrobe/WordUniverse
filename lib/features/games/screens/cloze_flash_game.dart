@@ -97,7 +97,6 @@ class _ClozeFlashGameState extends State<ClozeFlashGame>
 
   final _rng = Random();
 
-  bool get _isDE => _vocabService.learningLanguage == 'de';
 
   // ─── cloze extraction ──────────────────────────────────────────────────────
 
@@ -167,24 +166,19 @@ class _ClozeFlashGameState extends State<ClozeFlashGame>
 
     if (!_onboardingScheduled) {
       _onboardingScheduled = true;
-      final isDE = _isDE;
       OnboardingOverlay.maybeShow(
         context,
         gameKey: 'cloze_flash',
-        title: isDE ? 'Lücken-Blitz' : 'Cloze Flash',
+        title: _s.clozeFlashTitle,
         steps: [
           OnboardingStep(
             icon: Icons.edit_note,
-            body: isDE
-                ? 'Ein Satz erscheint mit einem fehlenden Wort — tippe die richtige Antwort.'
-                : 'A sentence appears with a missing word — tap the correct answer.',
+            body: _s.clozeFlashOnboardingBody1,
           ),
           if (_gameProvider.puzzleTimerEnabled)
             OnboardingStep(
               icon: Icons.timer,
-              body: isDE
-                  ? 'Du hast 30 Sekunden. Lies den Kontext — er hilft dir!'
-                  : 'You have 30 seconds. Read the context — it helps!',
+              body: _s.clozeFlashOnboardingTimer,
             ),
         ],
       );
@@ -373,9 +367,7 @@ class _ClozeFlashGameState extends State<ClozeFlashGame>
             const SizedBox(height: 4),
             if (_gameProvider.puzzleTimerEnabled)
               Text(
-                _isDE
-                    ? 'richtig in ${_sessionSeconds - _secondsLeft}s'
-                    : 'correct in ${_sessionSeconds - _secondsLeft}s',
+                _s.correctInSeconds(_sessionSeconds - _secondsLeft),
                 style: SpaceTheme.bodyStyle.copyWith(color: Colors.white70),
               ),
           ],
@@ -424,9 +416,7 @@ class _ClozeFlashGameState extends State<ClozeFlashGame>
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Text(
-          _isDE
-              ? 'Keine Beispielsätze für diese Stufe verfügbar.'
-              : 'No example sentences available at this level.',
+          _s.noClozeSentences,
           style: SpaceTheme.bodyStyle,
           textAlign: TextAlign.center,
         ),
@@ -473,12 +463,12 @@ class _ClozeFlashGameState extends State<ClozeFlashGame>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _isDE ? 'Lücken-Blitz' : 'Cloze Flash',
+                  _s.clozeFlashTitle,
                   style: SpaceTheme.titleStyle
                       .copyWith(color: SpaceTheme.starYellow),
                 ),
                 Text(
-                  '$_correct ${_isDE ? 'richtig' : 'correct'}',
+                  '$_correct ${_s.correct}',
                   style: SpaceTheme.bodyStyle.copyWith(color: Colors.white60),
                 ),
               ],
@@ -578,9 +568,7 @@ class _ClozeFlashGameState extends State<ClozeFlashGame>
             if (_feedback != _Feedback.none) ...[
               const SizedBox(height: 12),
               Text(
-                _isDE
-                    ? 'Antwort: ${challenge.matchedForm}'
-                    : 'Answer: ${challenge.matchedForm}',
+                _s.clozeAnswer(challenge.matchedForm),
                 style: SpaceTheme.bodyStyle.copyWith(
                   color: _feedback == _Feedback.correct
                       ? SpaceTheme.alienGreen

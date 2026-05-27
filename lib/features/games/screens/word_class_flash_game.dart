@@ -71,8 +71,6 @@ class _WordClassFlashGameState extends State<WordClassFlashGame>
 
   final _rng = Random();
 
-  bool get _isDE => _vocabService.learningLanguage == 'de';
-
   @override
   void initState() {
     super.initState();
@@ -107,30 +105,23 @@ class _WordClassFlashGameState extends State<WordClassFlashGame>
     _buildChallenges();
     if (!_onboardingScheduled) {
       _onboardingScheduled = true;
-      final isDE = _isDE;
       OnboardingOverlay.maybeShow(
         context,
         gameKey: 'word_class_flash',
-        title: isDE ? 'Wortart-Blitz' : 'Word Class Flash',
+        title: _s.wordClassFlashTitle,
         steps: [
           OnboardingStep(
             icon: Icons.label_outline,
-            body: isDE
-                ? 'Ein Wort erscheint — tippe schnell auf seine Wortart.'
-                : 'A word appears — tap its word class as fast as you can.',
+            body: _s.wordClassFlashOnboardingBody1,
           ),
           if (_gameProvider.puzzleTimerEnabled)
             OnboardingStep(
               icon: Icons.timer,
-              body: isDE
-                  ? 'Du hast 30 Sekunden. Nomen, Verb, Adjektiv oder Adverb?'
-                  : 'You have 30 seconds. Noun, Verb, Adjective or Adverb?',
+              body: _s.wordClassFlashOnboardingTimer,
             ),
           OnboardingStep(
             icon: Icons.tips_and_updates,
-            body: isDE
-                ? 'Entscheide nach Bedeutung und Form des Wortes.'
-                : 'Think about the word\'s meaning and form.',
+            body: _s.wordClassFlashOnboardingTip,
           ),
         ],
       );
@@ -305,32 +296,17 @@ class _WordClassFlashGameState extends State<WordClassFlashGame>
   }
 
   String _typeLabel(GermanWordType t) {
-    if (_isDE) {
-      switch (t) {
-        case GermanWordType.substantiv:
-          return 'Nomen';
-        case GermanWordType.verb:
-          return 'Verb';
-        case GermanWordType.adjektiv:
-          return 'Adjektiv';
-        case GermanWordType.adverb:
-          return 'Adverb';
-        default:
-          return '';
-      }
-    } else {
-      switch (t) {
-        case GermanWordType.substantiv:
-          return 'Noun';
-        case GermanWordType.verb:
-          return 'Verb';
-        case GermanWordType.adjektiv:
-          return 'Adjective';
-        case GermanWordType.adverb:
-          return 'Adverb';
-        default:
-          return '';
-      }
+    switch (t) {
+      case GermanWordType.substantiv:
+        return _s.wordTypeNoun;
+      case GermanWordType.verb:
+        return _s.wordTypeVerb;
+      case GermanWordType.adjektiv:
+        return _s.wordTypeAdjective;
+      case GermanWordType.adverb:
+        return _s.wordTypeAdverb;
+      default:
+        return '';
     }
   }
 
@@ -356,9 +332,7 @@ class _WordClassFlashGameState extends State<WordClassFlashGame>
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Text(
-          _isDE
-              ? 'Keine Wortart-Daten für diese Stufe verfügbar.'
-              : 'No word class data available at this level.',
+          _s.noWordClassData,
           style: SpaceTheme.bodyStyle,
           textAlign: TextAlign.center,
         ),

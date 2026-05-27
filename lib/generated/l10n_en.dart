@@ -1565,4 +1565,318 @@ class SEn extends S {
 
   @override
   String get fontFamilySubtitle => 'Choose a font for learning content';
+
+  @override
+  String get skip => 'Skip';
+
+  @override
+  String get gotIt => 'Got it';
+
+  @override
+  String get next => 'Next';
+
+  @override
+  String get debugModeEnabled => 'Debug Mode Enabled!';
+
+  @override
+  String get synonymFlashPrompt => 'Synonym for …';
+
+  @override
+  String get noSynonymData => 'No synonym data available at this level.';
+
+  @override
+  String get noClozeSentences =>
+      'No example sentences available at this level.';
+
+  @override
+  String clozeAnswer(String word) {
+    return 'Answer: $word';
+  }
+
+  @override
+  String get sriReviewHeader => 'Review';
+
+  @override
+  String get reviewNoWordsYet =>
+      'No words to review yet.\nPlay a few rounds so the system can identify your weak spots!';
+
+  @override
+  String get difficultyVeryHard => 'Very hard';
+
+  @override
+  String get difficultyHard => 'Difficult';
+
+  @override
+  String get difficultyPractice => 'Practice';
+
+  @override
+  String get challengeTypeArticle => 'Choose article';
+
+  @override
+  String get challengeTypeSpelling => 'Correct spelling';
+
+  @override
+  String get challengeTypeDefinition => 'Which word matches?';
+
+  @override
+  String articleChallengePrompt(String word) {
+    return 'Which article?\n\"___ $word\"';
+  }
+
+  @override
+  String get wordOfTheDay => 'Word of the Day';
+
+  @override
+  String get pronounce => 'Pronounce';
+
+  @override
+  String get tapToPractise => 'Tap to practise →';
+
+  @override
+  String gradeLabel(int grade) {
+    return 'Grade $grade';
+  }
+
+  @override
+  String get sectionDefinitions => 'Definitions';
+
+  @override
+  String get sectionExamples => 'Examples';
+
+  @override
+  String get sectionSynonyms => 'Synonyms';
+
+  @override
+  String get sectionAntonyms => 'Antonyms';
+
+  @override
+  String get didYouKnow => 'Did you know?';
+
+  @override
+  String get practiceNow => 'Practice now';
+
+  @override
+  String get karteikasten => 'Flashcard Box';
+
+  @override
+  String karteikastenCardMoved(int box, String label) {
+    return 'Card moved to Box $box – $label';
+  }
+
+  @override
+  String boxLabel(int n) {
+    return 'Box $n';
+  }
+
+  @override
+  String get boxLabelCurrent => '(current)';
+
+  @override
+  String get moveCard => 'Move';
+
+  @override
+  String get boxEmptyMastered => 'No mastered cards in this box yet.';
+
+  @override
+  String get boxEmptyDefault => 'This box is empty.';
+
+  @override
+  String get antonymFlashOnboardingBody1 =>
+      'A word appears — tap its opposite as fast as you can.';
+
+  @override
+  String get hypernymFlashOnboardingBody1 =>
+      'A word appears — tap the correct category as fast as you can.';
+
+  @override
+  String get noHypernymData => 'No category data available at this level.';
+
+  @override
+  String get hypernymFlashPrompt => 'Category for …';
+
+  @override
+  String spellingForDefinition(String definition) {
+    return 'Correct spelling for:\n\"$definition\"';
+  }
+
+  @override
+  String get conjugationDrillOnboardingBody1 =>
+      'A verb and a personal pronoun are shown — choose the correct present tense form.';
+
+  @override
+  String get conjugationDrillOnboardingBody2 =>
+      'All four options are forms of the same pronoun from different verbs.';
+
+  @override
+  String get conjugationDrillOnboardingBody3 =>
+      'This game focuses on German: English verbs barely change in present tense — only the third person singular differs.';
+
+  @override
+  String get spellingSpotterOnboardingBody1 =>
+      'Four words are shown — one is spelled correctly, the others contain common mistakes.';
+
+  @override
+  String get spellingSpotterOnboardingBody2 =>
+      'Words are sorted by difficulty based on real learner spelling errors.';
+
+  @override
+  String correctAnswerReveal(String word) {
+    return 'Correct answer: $word';
+  }
+
+  @override
+  String get exampleLabel => 'Example:';
+
+  @override
+  String get definitionQuizPrompt => 'Which word is being described?';
+
+  @override
+  String get noDefinitionData => 'No definitions available at this level.';
+
+  @override
+  String get definitionQuizOnboardingBody1 =>
+      'A definition is shown — pick the matching word from four options.';
+
+  @override
+  String get definitionQuizOnboardingBody2 =>
+      'All options come from the same CEFR level so nothing is too obvious.';
+
+  @override
+  String get definitionQuizOnboardingBody3 =>
+      'For grade 5+ a language note appears after a correct answer.';
+
+  @override
+  String get sentenceCompletionPrompt => 'Which word completes the sentence?';
+
+  @override
+  String get sentenceCompletionOnboardingBody1 =>
+      'A sentence with a gap is shown — pick the word that fits.';
+
+  @override
+  String get sentenceCompletionOnboardingBody2 =>
+      'Only nouns, verbs, and adjectives are tested — they are uniquely identifiable in context.';
+
+  @override
+  String get sentenceCompletionOnboardingBody3 =>
+      'A meaning hint appears after each correct answer.';
+
+  @override
+  String get spellingSpotterPrompt => 'Which one is spelled correctly?';
+
+  @override
+  String get noSpellingData => 'No spelling data available at this level.';
+
+  @override
+  String get synonymFlashOnboardingBody1 =>
+      'A word appears — tap a word with the same meaning as fast as you can.';
+
+  @override
+  String get synonymFlashOnboardingTimer =>
+      'You have 30 seconds. More correct answers means a better score.';
+
+  @override
+  String get clozeFlashOnboardingBody1 =>
+      'A sentence appears with a missing word — tap the correct answer.';
+
+  @override
+  String get clozeFlashOnboardingTimer =>
+      'You have 30 seconds. Read the context — it helps!';
+
+  @override
+  String get sriReviewOnboardingBody1 =>
+      'Practice your weakest words — selected based on your learning history.';
+
+  @override
+  String get sriReviewOnboardingBody2 =>
+      'Each challenge adapts to the word: article, spelling, or definition.';
+
+  @override
+  String get sriReviewOnboardingBody3 =>
+      'Every correct answer raises the easiness factor of that word.';
+
+  @override
+  String get achievementGrade2Title => 'Grade 2 Graduate';
+
+  @override
+  String get achievementGrade2Desc => 'Advanced to Grade 2.';
+
+  @override
+  String get achievementGrade3Title => 'Grade 3 Graduate';
+
+  @override
+  String get achievementGrade3Desc => 'Advanced to Grade 3.';
+
+  @override
+  String get achievementGrade4Title => 'Grade 4 Graduate';
+
+  @override
+  String get achievementGrade4Desc => 'Advanced to Grade 4.';
+
+  @override
+  String get achievementGrade5Title => 'Grade 5 Graduate';
+
+  @override
+  String get achievementGrade5Desc => 'Advanced to Grade 5.';
+
+  @override
+  String get achievementGrade6Title => 'Grade 6 Graduate';
+
+  @override
+  String get achievementGrade6Desc => 'Advanced to Grade 6.';
+
+  @override
+  String get semanticsBack => 'Go back';
+
+  @override
+  String semanticsScore(int n) {
+    return 'Score: $n';
+  }
+
+  @override
+  String semanticsProgress(int done, int total) {
+    return 'Progress: $done of $total';
+  }
+
+  @override
+  String semanticsCombo(int n) {
+    return 'Combo x$n';
+  }
+
+  @override
+  String get syllableCountOnboardingBody1 =>
+      'A word appears — tap how many syllables it has.';
+
+  @override
+  String get syllableCountOnboardingTimer =>
+      'You have 30 seconds. Say the word aloud to feel its syllables.';
+
+  @override
+  String get noSyllableData => 'No syllable data available at this level.';
+
+  @override
+  String get wordClassFlashOnboardingBody1 =>
+      'A word appears — tap its word class as fast as you can.';
+
+  @override
+  String get wordClassFlashOnboardingTimer =>
+      'You have 30 seconds. Noun, Verb, Adjective or Adverb?';
+
+  @override
+  String get wordClassFlashOnboardingTip =>
+      'Think about the word\'s meaning and form.';
+
+  @override
+  String get noWordClassData => 'No word class data available at this level.';
+
+  @override
+  String get wordTypeNoun => 'Noun';
+
+  @override
+  String get wordTypeVerb => 'Verb';
+
+  @override
+  String get wordTypeAdjective => 'Adjective';
+
+  @override
+  String get wordTypeAdverb => 'Adverb';
 }

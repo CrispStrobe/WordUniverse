@@ -27,6 +27,12 @@ const List<String> _kAchievementIds = [
   // Level-based
   'level_explorer',
   'space_commander',
+  // Grade progression
+  'grade_2',
+  'grade_3',
+  'grade_4',
+  'grade_5',
+  'grade_6',
   // Per-game (3 sessions)
   'triangle_wizard',
   'bubble_popper',
@@ -66,6 +72,11 @@ const Map<String, String> _kAchievementIcons = {
   'thousand_club': '🚀',
   'level_explorer': '🌟',
   'space_commander': '👨‍🚀',
+  'grade_2': '🎓',
+  'grade_3': '🎓',
+  'grade_4': '🎓',
+  'grade_5': '🎓',
+  'grade_6': '🎓',
   'triangle_wizard': '🐍',
   'bubble_popper': '🏆',
   'puzzle_solver': '🔍',
@@ -143,6 +154,16 @@ _AchievementInfo _infoFor(S s, String id) {
     case 'all_rounder':
       return _AchievementInfo(
           s.achievementVielseitigTitle, s.achievementVielseitigDesc, '🎮');
+    case 'grade_2':
+      return _AchievementInfo(s.achievementGrade2Title, s.achievementGrade2Desc, '🎓');
+    case 'grade_3':
+      return _AchievementInfo(s.achievementGrade3Title, s.achievementGrade3Desc, '🎓');
+    case 'grade_4':
+      return _AchievementInfo(s.achievementGrade4Title, s.achievementGrade4Desc, '🎓');
+    case 'grade_5':
+      return _AchievementInfo(s.achievementGrade5Title, s.achievementGrade5Desc, '🎓');
+    case 'grade_6':
+      return _AchievementInfo(s.achievementGrade6Title, s.achievementGrade6Desc, '🎓');
     case 'antonym_ace':
       return _AchievementInfo(s.achievementAntonymAceTitle, s.achievementAntonymAceDesc, '⚡');
     case 'synonym_scholar':

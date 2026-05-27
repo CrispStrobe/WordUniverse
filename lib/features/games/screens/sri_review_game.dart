@@ -118,29 +118,22 @@ class _SriReviewGameState extends State<SriReviewGame>
     _buildChallenges();
     if (!_onboardingScheduled) {
       _onboardingScheduled = true;
-      final isDE = _isDE;
       OnboardingOverlay.maybeShow(
         context,
         gameKey: 'sri_review',
-        title: isDE ? 'SRI-Wiederholung' : 'SRI Review',
+        title: _s.sriReviewTitle,
         steps: [
           OnboardingStep(
             icon: Icons.refresh,
-            body: isDE
-                ? 'Hier übst du deine schwächsten Wörter — basierend auf deiner Lernhistorie.'
-                : 'Practice your weakest words — selected based on your learning history.',
+            body: _s.sriReviewOnboardingBody1,
           ),
           OnboardingStep(
             icon: Icons.auto_awesome,
-            body: isDE
-                ? 'Jede Aufgabe passt sich dem Wort an: Artikel, Schreibweise oder Definition.'
-                : 'Each challenge adapts to the word: article, spelling, or definition.',
+            body: _s.sriReviewOnboardingBody2,
           ),
           OnboardingStep(
             icon: Icons.trending_up,
-            body: isDE
-                ? 'Mit jeder richtigen Antwort steigt der Easiness Factor des Wortes.'
-                : 'Every correct answer raises the easiness factor of that word.',
+            body: _s.sriReviewOnboardingBody3,
           ),
         ],
       );
@@ -230,9 +223,7 @@ class _SriReviewGameState extends State<SriReviewGame>
     final correct = word.article!.toLowerCase();
     final wrong = ['der', 'die', 'das'].where((a) => a != correct).toList();
     final options = [correct, ...wrong]..shuffle(_rng);
-    final prompt = _isDE
-        ? 'Welcher Artikel passt?\n"___ ${word.word}"'
-        : 'Which article?\n"___ ${word.word}"';
+    final prompt = _s.articleChallengePrompt(word.word);
     return _ReviewChallenge(
       word: word,
       sriData: sriData,
@@ -266,12 +257,8 @@ class _SriReviewGameState extends State<SriReviewGame>
     final options = [displayWord, ...errors]..shuffle(_rng);
     final definition = word.apiEnrichment?.definitions.firstOrNull;
     final prompt = definition != null
-        ? (_isDE
-            ? 'Richtige Schreibweise für:\n"$definition"'
-            : 'Correct spelling for:\n"$definition"')
-        : (_isDE
-            ? 'Welches Wort ist richtig geschrieben?'
-            : 'Which is spelled correctly?');
+        ? _s.spellingForDefinition(definition)
+        : _s.spellingSpotterPrompt;
     return _ReviewChallenge(
       word: word,
       sriData: sriData,
@@ -308,7 +295,7 @@ class _SriReviewGameState extends State<SriReviewGame>
 
     final options = [correctOption, ...distractors.take(_optionCount - 1)]
       ..shuffle(_rng);
-    final prompt = _isDE ? '"$definition"' : '"$definition"';
+    final prompt = '"$definition"';
     return _ReviewChallenge(
       word: word,
       sriData: sriData,
@@ -394,7 +381,7 @@ class _SriReviewGameState extends State<SriReviewGame>
             ),
             const SizedBox(height: 4),
             Text(
-              _isDE ? 'richtig' : 'correct',
+              _s.correct,
               style: SpaceTheme.bodyStyle.copyWith(color: Colors.white70),
             ),
           ],
@@ -448,9 +435,7 @@ class _SriReviewGameState extends State<SriReviewGame>
             const Icon(Icons.star_outline, color: Colors.white38, size: 64),
             const SizedBox(height: 16),
             Text(
-              _isDE
-                  ? 'Noch keine Wörter zum Wiederholen.\nSpiele ein paar Runden, damit das System deine schwachen Punkte erkennt!'
-                  : 'No words to review yet.\nPlay a few rounds so the system can identify your weak spots!',
+              _s.reviewNoWordsYet,
               style: SpaceTheme.bodyStyle.copyWith(color: Colors.white70),
               textAlign: TextAlign.center,
             ),
@@ -498,7 +483,7 @@ class _SriReviewGameState extends State<SriReviewGame>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _isDE ? 'Wiederholung' : 'Review',
+                  _s.sriReviewHeader,
                   style:
                       SpaceTheme.titleStyle.copyWith(color: SpaceTheme.starYellow),
                 ),
@@ -522,10 +507,10 @@ class _SriReviewGameState extends State<SriReviewGame>
   Widget _buildDifficultyBanner(_ReviewChallenge challenge) {
     final ef = challenge.sriData.easinessFactor;
     final label = ef < 1.5
-        ? (_isDE ? 'Sehr schwierig' : 'Very hard')
+        ? _s.difficultyVeryHard
         : ef < 2.0
-            ? (_isDE ? 'Schwierig' : 'Difficult')
-            : (_isDE ? 'Zum Üben' : 'Practice');
+            ? _s.difficultyHard
+            : _s.difficultyPractice;
     final color = ef < 1.5
         ? SpaceTheme.rocketRed
         : ef < 2.0
@@ -563,11 +548,9 @@ class _SriReviewGameState extends State<SriReviewGame>
 
   Widget _buildPromptCard(_ReviewChallenge challenge) {
     final typeLabel = switch (challenge.type) {
-      _ChallengeType.article => _isDE ? 'Artikel wählen' : 'Choose article',
-      _ChallengeType.spelling =>
-        _isDE ? 'Richtige Schreibweise' : 'Correct spelling',
-      _ChallengeType.definition =>
-        _isDE ? 'Welches Wort passt?' : 'Which word matches?',
+      _ChallengeType.article => _s.challengeTypeArticle,
+      _ChallengeType.spelling => _s.challengeTypeSpelling,
+      _ChallengeType.definition => _s.challengeTypeDefinition,
     };
 
     return AnimatedBuilder(

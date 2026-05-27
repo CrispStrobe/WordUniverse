@@ -79,8 +79,6 @@ class _SyllableCountGameState extends State<SyllableCountGame>
 
   final _rng = Random();
 
-  bool get _isDE => _vocabService.learningLanguage == 'de';
-
   // ─── syllable extraction ───────────────────────────────────────────────────
 
   // Parses a raw hyphenation string (e.g. "Schmet-ter-ling") into a syllable
@@ -150,24 +148,19 @@ class _SyllableCountGameState extends State<SyllableCountGame>
 
     if (!_onboardingScheduled) {
       _onboardingScheduled = true;
-      final isDE = _isDE;
       OnboardingOverlay.maybeShow(
         context,
         gameKey: 'syllable_count',
-        title: isDE ? 'Silben zählen' : 'Syllable Count',
+        title: _s.syllableCountTitle,
         steps: [
           OnboardingStep(
             icon: Icons.volume_up,
-            body: isDE
-                ? 'Ein Wort erscheint — tippe, wie viele Silben es hat.'
-                : 'A word appears — tap how many syllables it has.',
+            body: _s.syllableCountOnboardingBody1,
           ),
           if (_gameProvider.puzzleTimerEnabled)
             OnboardingStep(
               icon: Icons.timer,
-              body: isDE
-                  ? 'Du hast 30 Sekunden. Sprich das Wort laut aus, um die Silben zu spüren.'
-                  : 'You have 30 seconds. Say the word aloud to feel its syllables.',
+              body: _s.syllableCountOnboardingTimer,
             ),
         ],
       );
@@ -385,9 +378,7 @@ class _SyllableCountGameState extends State<SyllableCountGame>
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Text(
-          _isDE
-              ? 'Keine Silbendaten für diese Stufe verfügbar.'
-              : 'No syllable data available at this level.',
+          _s.noSyllableData,
           style: SpaceTheme.bodyStyle,
           textAlign: TextAlign.center,
         ),

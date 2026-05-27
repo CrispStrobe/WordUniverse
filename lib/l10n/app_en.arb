@@ -866,5 +866,139 @@
     "wordSortCategoryAdverb": "Adverbs",
     "wordSortCategoryPronoun": "Pronouns",
     "fontFamilyTitle": "Font",
-    "fontFamilySubtitle": "Choose a font for learning content"
+    "fontFamilySubtitle": "Choose a font for learning content",
+
+    "skip": "Skip",
+    "gotIt": "Got it",
+    "next": "Next",
+    "debugModeEnabled": "Debug Mode Enabled!",
+
+    "synonymFlashPrompt": "Synonym for …",
+    "noSynonymData": "No synonym data available at this level.",
+
+    "noClozeSentences": "No example sentences available at this level.",
+    "clozeAnswer": "Answer: {word}",
+    "@clozeAnswer": {
+        "placeholders": { "word": { "type": "String" } }
+    },
+
+    "sriReviewHeader": "Review",
+    "reviewNoWordsYet": "No words to review yet.\nPlay a few rounds so the system can identify your weak spots!",
+    "difficultyVeryHard": "Very hard",
+    "difficultyHard": "Difficult",
+    "difficultyPractice": "Practice",
+    "challengeTypeArticle": "Choose article",
+    "challengeTypeSpelling": "Correct spelling",
+    "challengeTypeDefinition": "Which word matches?",
+    "articleChallengePrompt": "Which article?\n\"___ {word}\"",
+    "@articleChallengePrompt": {
+        "placeholders": { "word": { "type": "String" } }
+    },
+
+    "wordOfTheDay": "Word of the Day",
+    "pronounce": "Pronounce",
+    "tapToPractise": "Tap to practise →",
+    "gradeLabel": "Grade {grade}",
+    "@gradeLabel": {
+        "placeholders": { "grade": { "type": "int" } }
+    },
+    "sectionDefinitions": "Definitions",
+    "sectionExamples": "Examples",
+    "sectionSynonyms": "Synonyms",
+    "sectionAntonyms": "Antonyms",
+    "didYouKnow": "Did you know?",
+    "practiceNow": "Practice now",
+
+    "karteikasten": "Flashcard Box",
+    "karteikastenCardMoved": "Card moved to Box {box} – {label}",
+    "@karteikastenCardMoved": {
+        "placeholders": {
+            "box": { "type": "int" },
+            "label": { "type": "String" }
+        }
+    },
+    "boxLabel": "Box {n}",
+    "@boxLabel": {
+        "placeholders": { "n": { "type": "int" } }
+    },
+    "boxLabelCurrent": "(current)",
+    "moveCard": "Move",
+    "boxEmptyMastered": "No mastered cards in this box yet.",
+    "boxEmptyDefault": "This box is empty.",
+
+    "antonymFlashOnboardingBody1": "A word appears — tap its opposite as fast as you can.",
+    "hypernymFlashOnboardingBody1": "A word appears — tap the correct category as fast as you can.",
+    "noHypernymData": "No category data available at this level.",
+    "hypernymFlashPrompt": "Category for …",
+    "spellingForDefinition": "Correct spelling for:\n\"{definition}\"",
+    "@spellingForDefinition": {
+        "placeholders": { "definition": { "type": "String" } }
+    },
+    "conjugationDrillOnboardingBody1": "A verb and a personal pronoun are shown — choose the correct present tense form.",
+    "conjugationDrillOnboardingBody2": "All four options are forms of the same pronoun from different verbs.",
+    "conjugationDrillOnboardingBody3": "This game focuses on German: English verbs barely change in present tense — only the third person singular differs.",
+    "spellingSpotterOnboardingBody1": "Four words are shown — one is spelled correctly, the others contain common mistakes.",
+    "spellingSpotterOnboardingBody2": "Words are sorted by difficulty based on real learner spelling errors.",
+
+    "correctAnswerReveal": "Correct answer: {word}",
+    "@correctAnswerReveal": {
+        "placeholders": { "word": { "type": "String" } }
+    },
+    "exampleLabel": "Example:",
+
+    "definitionQuizPrompt": "Which word is being described?",
+    "noDefinitionData": "No definitions available at this level.",
+    "definitionQuizOnboardingBody1": "A definition is shown — pick the matching word from four options.",
+    "definitionQuizOnboardingBody2": "All options come from the same CEFR level so nothing is too obvious.",
+    "definitionQuizOnboardingBody3": "For grade 5+ a language note appears after a correct answer.",
+
+    "sentenceCompletionPrompt": "Which word completes the sentence?",
+    "sentenceCompletionOnboardingBody1": "A sentence with a gap is shown — pick the word that fits.",
+    "sentenceCompletionOnboardingBody2": "Only nouns, verbs, and adjectives are tested — they are uniquely identifiable in context.",
+    "sentenceCompletionOnboardingBody3": "A meaning hint appears after each correct answer.",
+
+    "spellingSpotterPrompt": "Which one is spelled correctly?",
+    "noSpellingData": "No spelling data available at this level.",
+
+    "synonymFlashOnboardingBody1": "A word appears — tap a word with the same meaning as fast as you can.",
+    "synonymFlashOnboardingTimer": "You have 30 seconds. More correct answers means a better score.",
+
+    "clozeFlashOnboardingBody1": "A sentence appears with a missing word — tap the correct answer.",
+    "clozeFlashOnboardingTimer": "You have 30 seconds. Read the context — it helps!",
+
+    "sriReviewOnboardingBody1": "Practice your weakest words — selected based on your learning history.",
+    "sriReviewOnboardingBody2": "Each challenge adapts to the word: article, spelling, or definition.",
+    "sriReviewOnboardingBody3": "Every correct answer raises the easiness factor of that word.",
+
+    "achievementGrade2Title": "Grade 2 Graduate",
+    "achievementGrade2Desc": "Advanced to Grade 2.",
+    "achievementGrade3Title": "Grade 3 Graduate",
+    "achievementGrade3Desc": "Advanced to Grade 3.",
+    "achievementGrade4Title": "Grade 4 Graduate",
+    "achievementGrade4Desc": "Advanced to Grade 4.",
+    "achievementGrade5Title": "Grade 5 Graduate",
+    "achievementGrade5Desc": "Advanced to Grade 5.",
+    "achievementGrade6Title": "Grade 6 Graduate",
+    "achievementGrade6Desc": "Advanced to Grade 6.",
+
+    "semanticsBack": "Go back",
+    "semanticsScore": "Score: {n}",
+    "@semanticsScore": { "placeholders": { "n": { "type": "int" } } },
+    "semanticsProgress": "Progress: {done} of {total}",
+    "@semanticsProgress": { "placeholders": { "done": { "type": "int" }, "total": { "type": "int" } } },
+    "semanticsCombo": "Combo x{n}",
+    "@semanticsCombo": { "placeholders": { "n": { "type": "int" } } },
+
+    "syllableCountOnboardingBody1": "A word appears — tap how many syllables it has.",
+    "syllableCountOnboardingTimer": "You have 30 seconds. Say the word aloud to feel its syllables.",
+    "noSyllableData": "No syllable data available at this level.",
+
+    "wordClassFlashOnboardingBody1": "A word appears — tap its word class as fast as you can.",
+    "wordClassFlashOnboardingTimer": "You have 30 seconds. Noun, Verb, Adjective or Adverb?",
+    "wordClassFlashOnboardingTip": "Think about the word's meaning and form.",
+    "noWordClassData": "No word class data available at this level.",
+    "wordTypeNoun": "Noun",
+    "wordTypeVerb": "Verb",
+    "wordTypeAdjective": "Adjective",
+    "wordTypeAdverb": "Adverb"
 }

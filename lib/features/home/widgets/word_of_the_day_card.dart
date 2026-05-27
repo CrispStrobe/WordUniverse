@@ -16,6 +16,7 @@ import '../../../core/models/vocabulary_models.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/vocabulary_service.dart';
 import '../../../core/theme/space_theme.dart';
+import '../../../generated/l10n.dart';
 import '../../games/providers/game_provider.dart';
 import '../../games/screens/definition_quiz_game.dart';
 import '../../games/widgets/cefr_chip.dart';
@@ -81,6 +82,7 @@ class _WordOfTheDayContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final audioService = context.read<AudioService>();
     final isDE = context.read<VocabularyService>().learningLanguage == 'de';
     final definition = _definition;
@@ -121,7 +123,7 @@ class _WordOfTheDayContent extends StatelessWidget {
                   size: isVerySmall ? 14 : 16),
               const SizedBox(width: 6),
               Text(
-                isDE ? 'Wort des Tages' : 'Word of the Day',
+                s.wordOfTheDay,
                 style: TextStyle(
                   color: SpaceTheme.starYellow,
                   fontSize: isVerySmall ? 11 : 12,
@@ -164,7 +166,7 @@ class _WordOfTheDayContent extends StatelessWidget {
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(
                     minWidth: 32, minHeight: 32),
-                tooltip: isDE ? 'Aussprechen' : 'Pronounce',
+                tooltip: s.pronounce,
               ),
             ],
           ),
@@ -229,7 +231,7 @@ class _WordOfTheDayContent extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Text(
-                isDE ? 'Tippen zum Üben →' : 'Tap to practise →',
+                s.tapToPractise,
                 style: TextStyle(
                   color: SpaceTheme.starYellow.withValues(alpha: 0.6),
                   fontSize: isVerySmall ? 10 : 11,
@@ -283,6 +285,7 @@ class _WordDetailSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final audioService = context.read<AudioService>();
     final defs = word.apiEnrichment?.definitions ?? [];
     final synonyms = word.apiEnrichment?.synonyms ?? [];
@@ -345,7 +348,7 @@ class _WordDetailSheet extends StatelessWidget {
                   ),
                   icon: const Icon(Icons.volume_up_rounded,
                       color: Colors.white60, size: 22),
-                  tooltip: isDE ? 'Aussprechen' : 'Pronounce',
+                  tooltip: s.pronounce,
                 ),
                 if (word.cefrLevel != null) CefrChip(word.cefrLevel!),
               ],
@@ -354,16 +357,14 @@ class _WordDetailSheet extends StatelessWidget {
 
             // Grade badge
             Text(
-              isDE
-                  ? 'Klasse ${word.gradeLevel}'
-                  : 'Grade ${word.gradeLevel}',
+              s.gradeLabel(word.gradeLevel),
               style: const TextStyle(color: Colors.white38, fontSize: 12),
             ),
             const SizedBox(height: 16),
 
             // Definitions
             if (defs.isNotEmpty) ...[
-              _SectionHeader(isDE ? 'Bedeutungen' : 'Definitions'),
+              _SectionHeader(s.sectionDefinitions),
               const SizedBox(height: 6),
               for (final d in defs.take(4))
                 Padding(
@@ -388,7 +389,7 @@ class _WordDetailSheet extends StatelessWidget {
 
             // Examples
             if (allExamples.isNotEmpty) ...[
-              _SectionHeader(isDE ? 'Beispiele' : 'Examples'),
+              _SectionHeader(s.sectionExamples),
               const SizedBox(height: 6),
               for (final ex in allExamples)
                 Padding(
@@ -408,7 +409,7 @@ class _WordDetailSheet extends StatelessWidget {
 
             // Synonyms
             if (synonyms.isNotEmpty) ...[
-              _SectionHeader(isDE ? 'Synonyme' : 'Synonyms'),
+              _SectionHeader(s.sectionSynonyms),
               const SizedBox(height: 6),
               Wrap(
                 spacing: 7,
@@ -423,7 +424,7 @@ class _WordDetailSheet extends StatelessWidget {
 
             // Antonyms
             if (antonyms.isNotEmpty) ...[
-              _SectionHeader(isDE ? 'Antonyme' : 'Antonyms'),
+              _SectionHeader(s.sectionAntonyms),
               const SizedBox(height: 6),
               Wrap(
                 spacing: 7,
@@ -438,7 +439,7 @@ class _WordDetailSheet extends StatelessWidget {
 
             // Entry notes (etymology for grade 5+)
             if (entryNotes.isNotEmpty && word.gradeLevel >= 5) ...[
-              _SectionHeader('💡 ${isDE ? 'Wissenswertes' : 'Did you know?'}'),
+              _SectionHeader('💡 ${s.didYouKnow}'),
               const SizedBox(height: 6),
               Text(
                 entryNotes.first,
@@ -465,7 +466,7 @@ class _WordDetailSheet extends StatelessWidget {
                   );
                 },
                 icon: const Icon(Icons.play_arrow_rounded),
-                label: Text(isDE ? 'Jetzt üben' : 'Practice now'),
+                label: Text(s.practiceNow),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: SpaceTheme.starYellow,
                   foregroundColor: Colors.black87,
