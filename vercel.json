@@ -2,5 +2,5 @@
   "framework": null,
   "buildCommand": null,
   "outputDirectory": "build/web",
-  "ignoreCommand": "exit 1"
+  "ignoreCommand": "exit 0"
 }
