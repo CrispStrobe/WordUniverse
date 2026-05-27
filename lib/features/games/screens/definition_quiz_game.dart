@@ -100,29 +100,22 @@ class _DefinitionQuizGameState extends State<DefinitionQuizGame>
     _buildChallenges();
     if (!_onboardingScheduled) {
       _onboardingScheduled = true;
-      final isDE = _isDE;
       OnboardingOverlay.maybeShow(
         context,
         gameKey: 'definition_quiz',
-        title: isDE ? 'Definitions-Quiz' : 'Definition Quiz',
+        title: _s.definitionQuizTitle,
         steps: [
           OnboardingStep(
             icon: Icons.menu_book,
-            body: isDE
-                ? 'Eine Definition wird gezeigt — wähle das passende Wort aus vier Optionen.'
-                : 'A definition is shown — pick the matching word from four options.',
+            body: _s.definitionQuizOnboardingBody1,
           ),
           OnboardingStep(
             icon: Icons.school,
-            body: isDE
-                ? 'Alle Optionen kommen aus derselben CEFR-Stufe, damit nichts zu leicht wird.'
-                : 'All options come from the same CEFR level so nothing is too obvious.',
+            body: _s.definitionQuizOnboardingBody2,
           ),
           OnboardingStep(
             icon: Icons.tips_and_updates,
-            body: isDE
-                ? 'Für Klasse 5+ erscheint nach richtiger Antwort ein Sprach-Tipp zum Wort.'
-                : 'For grade 5+ a language note appears after a correct answer.',
+            body: _s.definitionQuizOnboardingBody3,
           ),
         ],
       );
@@ -341,7 +334,7 @@ class _DefinitionQuizGameState extends State<DefinitionQuizGame>
             ),
             const SizedBox(height: 4),
             Text(
-              _isDE ? 'richtig' : 'correct',
+              _s.correct,
               style: SpaceTheme.bodyStyle.copyWith(color: Colors.white70),
             ),
             const SizedBox(height: 8),
@@ -392,9 +385,7 @@ class _DefinitionQuizGameState extends State<DefinitionQuizGame>
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Text(
-          _isDE
-              ? 'Keine Definitionen für diese Stufe verfügbar.'
-              : 'No definitions available at this level.',
+          _s.noDefinitionData,
           style: SpaceTheme.bodyStyle,
           textAlign: TextAlign.center,
         ),
@@ -414,7 +405,7 @@ class _DefinitionQuizGameState extends State<DefinitionQuizGame>
               children: [
                 const SizedBox(height: 8),
                 Text(
-                  _isDE ? 'Welches Wort wird beschrieben?' : 'Which word is being described?',
+                  _s.definitionQuizPrompt,
                   style: SpaceTheme.headlineStyle
                       .copyWith(color: Colors.white, fontSize: 17),
                   textAlign: TextAlign.center,
@@ -457,7 +448,7 @@ class _DefinitionQuizGameState extends State<DefinitionQuizGame>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _isDE ? 'Definitions-Quiz' : 'Definition Quiz',
+                  _s.definitionQuizTitle,
                   style: SpaceTheme.titleStyle
                       .copyWith(color: SpaceTheme.starYellow),
                 ),
@@ -617,9 +608,7 @@ class _DefinitionQuizGameState extends State<DefinitionQuizGame>
             color: SpaceTheme.alienGreen.withValues(alpha: 0.4)),
       ),
       child: Text(
-        _isDE
-            ? 'Richtige Antwort: ${challenge.options[challenge.correctIndex]}'
-            : 'Correct answer: ${challenge.options[challenge.correctIndex]}',
+        _s.correctAnswerReveal(challenge.options[challenge.correctIndex]),
         style: SpaceTheme.bodyStyle
             .copyWith(color: SpaceTheme.alienGreen, fontSize: 13),
         textAlign: TextAlign.center,

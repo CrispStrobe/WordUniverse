@@ -79,7 +79,6 @@ class _SynonymFlashGameState extends State<SynonymFlashGame>
 
   final _rng = Random();
 
-  bool get _isDE => _vocabService.learningLanguage == 'de';
 
   @override
   void initState() {
@@ -115,24 +114,19 @@ class _SynonymFlashGameState extends State<SynonymFlashGame>
     _buildChallenges();
     if (!_onboardingScheduled) {
       _onboardingScheduled = true;
-      final isDE = _isDE;
       OnboardingOverlay.maybeShow(
         context,
         gameKey: 'synonym_flash',
-        title: isDE ? 'Synonym-Blitz' : 'Synonym Flash',
+        title: _s.synonymFlashTitle,
         steps: [
           OnboardingStep(
             icon: Icons.sync_alt,
-            body: isDE
-                ? 'Ein Wort erscheint — tippe schnell auf ein Wort mit gleicher Bedeutung.'
-                : 'A word appears — tap a word with the same meaning as fast as you can.',
+            body: _s.synonymFlashOnboardingBody1,
           ),
           if (_gameProvider.puzzleTimerEnabled)
             OnboardingStep(
               icon: Icons.timer,
-              body: isDE
-                  ? 'Du hast 30 Sekunden. Je mehr richtige Antworten, desto besser dein Score.'
-                  : 'You have 30 seconds. More correct answers means a better score.',
+              body: _s.synonymFlashOnboardingTimer,
             ),
         ],
       );
@@ -343,9 +337,7 @@ class _SynonymFlashGameState extends State<SynonymFlashGame>
             const SizedBox(height: 4),
             if (_gameProvider.puzzleTimerEnabled)
               Text(
-                _isDE
-                    ? 'richtig in ${_sessionSeconds - _secondsLeft}s'
-                    : 'correct in ${_sessionSeconds - _secondsLeft}s',
+                _s.correctInSeconds(_sessionSeconds - _secondsLeft),
                 style: SpaceTheme.bodyStyle.copyWith(color: Colors.white70),
               ),
           ],
@@ -394,9 +386,7 @@ class _SynonymFlashGameState extends State<SynonymFlashGame>
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Text(
-          _isDE
-              ? 'Keine Synonym-Daten für diese Stufe verfügbar.'
-              : 'No synonym data available at this level.',
+          _s.noSynonymData,
           style: SpaceTheme.bodyStyle,
           textAlign: TextAlign.center,
         ),
@@ -443,12 +433,12 @@ class _SynonymFlashGameState extends State<SynonymFlashGame>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _isDE ? 'Synonym-Blitz' : 'Synonym Flash',
+                  _s.synonymFlashTitle,
                   style: SpaceTheme.titleStyle
                       .copyWith(color: SpaceTheme.starYellow),
                 ),
                 Text(
-                  '$_correct ${_isDE ? 'richtig' : 'correct'}',
+                  '$_correct ${_s.correct}',
                   style: SpaceTheme.bodyStyle.copyWith(color: Colors.white60),
                 ),
               ],
@@ -542,7 +532,7 @@ class _SynonymFlashGameState extends State<SynonymFlashGame>
         child: Column(
           children: [
             Text(
-              _isDE ? 'Gleichbedeutend mit …' : 'Synonym for …',
+              _s.synonymFlashPrompt,
               style: SpaceTheme.bodyStyle.copyWith(
                 color: Colors.white60,
                 fontSize: 13,

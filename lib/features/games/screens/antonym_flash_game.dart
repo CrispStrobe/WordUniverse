@@ -81,8 +81,6 @@ class _AntonymFlashGameState extends State<AntonymFlashGame>
 
   final _rng = Random();
 
-  bool get _isDE => _vocabService.learningLanguage == 'de';
-
   @override
   void initState() {
     super.initState();
@@ -118,24 +116,19 @@ class _AntonymFlashGameState extends State<AntonymFlashGame>
     _buildChallenges();
     if (!_onboardingScheduled) {
       _onboardingScheduled = true;
-      final isDE = _isDE;
       OnboardingOverlay.maybeShow(
         context,
         gameKey: 'antonym_flash',
-        title: isDE ? 'Gegenwort-Blitz' : 'Antonym Flash',
+        title: _s.antonymFlashTitle,
         steps: [
           OnboardingStep(
             icon: Icons.flash_on,
-            body: isDE
-                ? 'Ein Wort erscheint — tippe schnell auf sein Gegenteil.'
-                : 'A word appears — tap its opposite as fast as you can.',
+            body: _s.antonymFlashOnboardingBody1,
           ),
           if (_gameProvider.puzzleTimerEnabled)
             OnboardingStep(
               icon: Icons.timer,
-              body: isDE
-                  ? 'Du hast 30 Sekunden. Je mehr richtige Antworten, desto besser dein Score.'
-                  : 'You have 30 seconds. More correct answers means a better score.',
+              body: _s.synonymFlashOnboardingTimer,
             ),
         ],
       );

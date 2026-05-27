@@ -1582,4 +1582,323 @@ class SDe extends S {
 
   @override
   String get fontFamilySubtitle => 'Wähle eine Schriftart für Lerninhalte';
+
+  @override
+  String get skip => 'Überspringen';
+
+  @override
+  String get gotIt => 'Verstanden';
+
+  @override
+  String get next => 'Weiter';
+
+  @override
+  String get debugModeEnabled => 'Debug-Modus aktiviert!';
+
+  @override
+  String get synonymFlashPrompt => 'Gleichbedeutend mit …';
+
+  @override
+  String get noSynonymData => 'Keine Synonym-Daten für diese Stufe verfügbar.';
+
+  @override
+  String get noClozeSentences =>
+      'Keine Beispielsätze für diese Stufe verfügbar.';
+
+  @override
+  String clozeAnswer(String word) {
+    return 'Antwort: $word';
+  }
+
+  @override
+  String get sriReviewHeader => 'Wiederholung';
+
+  @override
+  String get reviewNoWordsYet =>
+      'Noch keine Wörter zum Wiederholen.\nSpiele ein paar Runden, damit das System deine schwachen Punkte erkennt!';
+
+  @override
+  String get difficultyVeryHard => 'Sehr schwierig';
+
+  @override
+  String get difficultyHard => 'Schwierig';
+
+  @override
+  String get difficultyPractice => 'Zum Üben';
+
+  @override
+  String get challengeTypeArticle => 'Artikel wählen';
+
+  @override
+  String get challengeTypeSpelling => 'Richtige Schreibweise';
+
+  @override
+  String get challengeTypeDefinition => 'Welches Wort passt?';
+
+  @override
+  String articleChallengePrompt(String word) {
+    return 'Welcher Artikel passt?\n\"___ $word\"';
+  }
+
+  @override
+  String get wordOfTheDay => 'Wort des Tages';
+
+  @override
+  String get pronounce => 'Aussprechen';
+
+  @override
+  String get tapToPractise => 'Tippen zum Üben →';
+
+  @override
+  String gradeLabel(int grade) {
+    return 'Klasse $grade';
+  }
+
+  @override
+  String get sectionDefinitions => 'Bedeutungen';
+
+  @override
+  String get sectionExamples => 'Beispiele';
+
+  @override
+  String get sectionSynonyms => 'Synonyme';
+
+  @override
+  String get sectionAntonyms => 'Antonyme';
+
+  @override
+  String get didYouKnow => 'Wissenswertes';
+
+  @override
+  String get practiceNow => 'Jetzt üben';
+
+  @override
+  String get karteikasten => 'Karteikasten';
+
+  @override
+  String karteikastenCardMoved(int box, String label) {
+    return 'Karte verschoben nach Box $box – $label';
+  }
+
+  @override
+  String boxLabel(int n) {
+    return 'Box $n';
+  }
+
+  @override
+  String get boxLabelCurrent => '(jetzt)';
+
+  @override
+  String get moveCard => 'Verschieben';
+
+  @override
+  String get boxEmptyMastered =>
+      'Noch keine gemeisterten Karten in dieser Box.';
+
+  @override
+  String get boxEmptyDefault => 'Diese Box ist leer.';
+
+  @override
+  String get antonymFlashOnboardingBody1 =>
+      'Ein Wort erscheint — tippe schnell auf sein Gegenteil.';
+
+  @override
+  String get hypernymFlashOnboardingBody1 =>
+      'Ein Wort erscheint — tippe schnell auf den passenden Oberbegriff.';
+
+  @override
+  String get noHypernymData =>
+      'Keine Oberbegriff-Daten für diese Stufe verfügbar.';
+
+  @override
+  String get hypernymFlashPrompt => 'Oberbegriff für …';
+
+  @override
+  String spellingForDefinition(String definition) {
+    return 'Richtige Schreibweise für:\n\"$definition\"';
+  }
+
+  @override
+  String get conjugationDrillOnboardingBody1 =>
+      'Ein Verb und ein Personalpronomen werden gezeigt — wähle die richtige Präsens-Form.';
+
+  @override
+  String get conjugationDrillOnboardingBody2 =>
+      'Alle vier Optionen sind Formen desselben Pronomens aus verschiedenen Verben.';
+
+  @override
+  String get conjugationDrillOnboardingBody3 =>
+      'Dieses Spiel ist auf Deutsch: Englische Verben konjugieren im Präsens kaum — nur die 3. Person Singular weicht ab.';
+
+  @override
+  String get spellingSpotterOnboardingBody1 =>
+      'Vier Wörter werden gezeigt — eines ist richtig geschrieben, die anderen enthalten typische Fehler.';
+
+  @override
+  String get spellingSpotterOnboardingBody2 =>
+      'Wörter sind nach Schwierigkeit sortiert — basierend auf echten Rechtschreibfehlern.';
+
+  @override
+  String correctAnswerReveal(String word) {
+    return 'Richtige Antwort: $word';
+  }
+
+  @override
+  String get exampleLabel => 'Beispiel:';
+
+  @override
+  String get definitionQuizPrompt => 'Welches Wort wird beschrieben?';
+
+  @override
+  String get noDefinitionData =>
+      'Keine Definitionen für diese Stufe verfügbar.';
+
+  @override
+  String get definitionQuizOnboardingBody1 =>
+      'Eine Definition wird gezeigt — wähle das passende Wort aus vier Optionen.';
+
+  @override
+  String get definitionQuizOnboardingBody2 =>
+      'Alle Optionen kommen aus derselben CEFR-Stufe, damit nichts zu leicht wird.';
+
+  @override
+  String get definitionQuizOnboardingBody3 =>
+      'Für Klasse 5+ erscheint nach richtiger Antwort ein Sprach-Tipp zum Wort.';
+
+  @override
+  String get sentenceCompletionPrompt => 'Welches Wort passt in die Lücke?';
+
+  @override
+  String get sentenceCompletionOnboardingBody1 =>
+      'Ein Satz mit einer Lücke wird gezeigt — wähle das passende Wort.';
+
+  @override
+  String get sentenceCompletionOnboardingBody2 =>
+      'Es werden nur Nomen, Verben und Adjektive abgefragt, da diese eindeutig im Satz erkennbar sind.';
+
+  @override
+  String get sentenceCompletionOnboardingBody3 =>
+      'Bei richtiger Antwort siehst du einen Hinweis auf die Wortbedeutung.';
+
+  @override
+  String get spellingSpotterPrompt => 'Welches Wort ist richtig geschrieben?';
+
+  @override
+  String get noSpellingData =>
+      'Keine Rechtschreibdaten für diese Stufe verfügbar.';
+
+  @override
+  String get synonymFlashOnboardingBody1 =>
+      'Ein Wort erscheint — tippe schnell auf ein Wort mit gleicher Bedeutung.';
+
+  @override
+  String get synonymFlashOnboardingTimer =>
+      'Du hast 30 Sekunden. Je mehr richtige Antworten, desto besser dein Score.';
+
+  @override
+  String get clozeFlashOnboardingBody1 =>
+      'Ein Satz erscheint mit einem fehlenden Wort — tippe die richtige Antwort.';
+
+  @override
+  String get clozeFlashOnboardingTimer =>
+      'Du hast 30 Sekunden. Lies den Kontext — er hilft dir!';
+
+  @override
+  String get sriReviewOnboardingBody1 =>
+      'Hier übst du deine schwächsten Wörter — basierend auf deiner Lernhistorie.';
+
+  @override
+  String get sriReviewOnboardingBody2 =>
+      'Jede Aufgabe passt sich dem Wort an: Artikel, Schreibweise oder Definition.';
+
+  @override
+  String get sriReviewOnboardingBody3 =>
+      'Mit jeder richtigen Antwort steigt der Easiness Factor des Wortes.';
+
+  @override
+  String get achievementGrade2Title => 'Klasse-2-Aufsteiger';
+
+  @override
+  String get achievementGrade2Desc => 'Auf Klasse 2 aufgestiegen.';
+
+  @override
+  String get achievementGrade3Title => 'Klasse-3-Aufsteiger';
+
+  @override
+  String get achievementGrade3Desc => 'Auf Klasse 3 aufgestiegen.';
+
+  @override
+  String get achievementGrade4Title => 'Klasse-4-Aufsteiger';
+
+  @override
+  String get achievementGrade4Desc => 'Auf Klasse 4 aufgestiegen.';
+
+  @override
+  String get achievementGrade5Title => 'Klasse-5-Aufsteiger';
+
+  @override
+  String get achievementGrade5Desc => 'Auf Klasse 5 aufgestiegen.';
+
+  @override
+  String get achievementGrade6Title => 'Klasse-6-Aufsteiger';
+
+  @override
+  String get achievementGrade6Desc => 'Auf Klasse 6 aufgestiegen.';
+
+  @override
+  String get semanticsBack => 'Zurück';
+
+  @override
+  String semanticsScore(int n) {
+    return 'Punkte: $n';
+  }
+
+  @override
+  String semanticsProgress(int done, int total) {
+    return 'Fortschritt: $done von $total';
+  }
+
+  @override
+  String semanticsCombo(int n) {
+    return 'Kombo mal $n';
+  }
+
+  @override
+  String get syllableCountOnboardingBody1 =>
+      'Ein Wort erscheint — tippe, wie viele Silben es hat.';
+
+  @override
+  String get syllableCountOnboardingTimer =>
+      'Du hast 30 Sekunden. Sprich das Wort laut aus, um die Silben zu spüren.';
+
+  @override
+  String get noSyllableData => 'Keine Silbendaten für diese Stufe verfügbar.';
+
+  @override
+  String get wordClassFlashOnboardingBody1 =>
+      'Ein Wort erscheint — tippe schnell auf seine Wortart.';
+
+  @override
+  String get wordClassFlashOnboardingTimer =>
+      'Du hast 30 Sekunden. Nomen, Verb, Adjektiv oder Adverb?';
+
+  @override
+  String get wordClassFlashOnboardingTip =>
+      'Entscheide nach Bedeutung und Form des Wortes.';
+
+  @override
+  String get noWordClassData =>
+      'Keine Wortart-Daten für diese Stufe verfügbar.';
+
+  @override
+  String get wordTypeNoun => 'Nomen';
+
+  @override
+  String get wordTypeVerb => 'Verb';
+
+  @override
+  String get wordTypeAdjective => 'Adjektiv';
+
+  @override
+  String get wordTypeAdverb => 'Adverb';
 }

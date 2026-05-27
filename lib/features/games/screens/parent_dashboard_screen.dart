@@ -51,7 +51,7 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
       });
     } else {
       final s = S.of(context);
-      setState(() => _pinError = s?.parentPinWrong ?? 'Falscher Code');
+      setState(() => _pinError = s?.parentPinWrong ?? '');
     }
   }
 

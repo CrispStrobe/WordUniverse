@@ -105,22 +105,23 @@ class _ConjugationDrillGameState extends State<ConjugationDrillGame>
     _buildChallenges();
     if (!_onboardingScheduled) {
       _onboardingScheduled = true;
+      final s = S.of(context)!;
       OnboardingOverlay.maybeShow(
         context,
         gameKey: 'conjugation_drill',
-        title: 'Konjugations-Drill',
+        title: s.conjugationDrillTitle,
         steps: [
           OnboardingStep(
             icon: Icons.text_fields,
-            body: 'Ein Verb und ein Personalpronomen werden gezeigt — wähle die richtige Präsens-Form.',
+            body: s.conjugationDrillOnboardingBody1,
           ),
           OnboardingStep(
             icon: Icons.school,
-            body: 'Alle vier Optionen sind Formen desselben Pronomens aus verschiedenen Verben.',
+            body: s.conjugationDrillOnboardingBody2,
           ),
           OnboardingStep(
             icon: Icons.tips_and_updates,
-            body: 'Dieses Spiel ist auf Deutsch: Englische Verben konjugieren im Präsens kaum — nur die 3. Person Singular weicht ab.',
+            body: s.conjugationDrillOnboardingBody3,
           ),
         ],
       );

@@ -2900,6 +2900,540 @@ abstract class S {
   /// In en, this message translates to:
   /// **'Choose a font for learning content'**
   String get fontFamilySubtitle;
+
+  /// No description provided for @skip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get skip;
+
+  /// No description provided for @gotIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get gotIt;
+
+  /// No description provided for @next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get next;
+
+  /// No description provided for @debugModeEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Debug Mode Enabled!'**
+  String get debugModeEnabled;
+
+  /// No description provided for @synonymFlashPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Synonym for …'**
+  String get synonymFlashPrompt;
+
+  /// No description provided for @noSynonymData.
+  ///
+  /// In en, this message translates to:
+  /// **'No synonym data available at this level.'**
+  String get noSynonymData;
+
+  /// No description provided for @noClozeSentences.
+  ///
+  /// In en, this message translates to:
+  /// **'No example sentences available at this level.'**
+  String get noClozeSentences;
+
+  /// No description provided for @clozeAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer: {word}'**
+  String clozeAnswer(String word);
+
+  /// No description provided for @sriReviewHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get sriReviewHeader;
+
+  /// No description provided for @reviewNoWordsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No words to review yet.\nPlay a few rounds so the system can identify your weak spots!'**
+  String get reviewNoWordsYet;
+
+  /// No description provided for @difficultyVeryHard.
+  ///
+  /// In en, this message translates to:
+  /// **'Very hard'**
+  String get difficultyVeryHard;
+
+  /// No description provided for @difficultyHard.
+  ///
+  /// In en, this message translates to:
+  /// **'Difficult'**
+  String get difficultyHard;
+
+  /// No description provided for @difficultyPractice.
+  ///
+  /// In en, this message translates to:
+  /// **'Practice'**
+  String get difficultyPractice;
+
+  /// No description provided for @challengeTypeArticle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose article'**
+  String get challengeTypeArticle;
+
+  /// No description provided for @challengeTypeSpelling.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct spelling'**
+  String get challengeTypeSpelling;
+
+  /// No description provided for @challengeTypeDefinition.
+  ///
+  /// In en, this message translates to:
+  /// **'Which word matches?'**
+  String get challengeTypeDefinition;
+
+  /// No description provided for @articleChallengePrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Which article?\n\"___ {word}\"'**
+  String articleChallengePrompt(String word);
+
+  /// No description provided for @wordOfTheDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Word of the Day'**
+  String get wordOfTheDay;
+
+  /// No description provided for @pronounce.
+  ///
+  /// In en, this message translates to:
+  /// **'Pronounce'**
+  String get pronounce;
+
+  /// No description provided for @tapToPractise.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to practise →'**
+  String get tapToPractise;
+
+  /// No description provided for @gradeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade {grade}'**
+  String gradeLabel(int grade);
+
+  /// No description provided for @sectionDefinitions.
+  ///
+  /// In en, this message translates to:
+  /// **'Definitions'**
+  String get sectionDefinitions;
+
+  /// No description provided for @sectionExamples.
+  ///
+  /// In en, this message translates to:
+  /// **'Examples'**
+  String get sectionExamples;
+
+  /// No description provided for @sectionSynonyms.
+  ///
+  /// In en, this message translates to:
+  /// **'Synonyms'**
+  String get sectionSynonyms;
+
+  /// No description provided for @sectionAntonyms.
+  ///
+  /// In en, this message translates to:
+  /// **'Antonyms'**
+  String get sectionAntonyms;
+
+  /// No description provided for @didYouKnow.
+  ///
+  /// In en, this message translates to:
+  /// **'Did you know?'**
+  String get didYouKnow;
+
+  /// No description provided for @practiceNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Practice now'**
+  String get practiceNow;
+
+  /// No description provided for @karteikasten.
+  ///
+  /// In en, this message translates to:
+  /// **'Flashcard Box'**
+  String get karteikasten;
+
+  /// No description provided for @karteikastenCardMoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Card moved to Box {box} – {label}'**
+  String karteikastenCardMoved(int box, String label);
+
+  /// No description provided for @boxLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Box {n}'**
+  String boxLabel(int n);
+
+  /// No description provided for @boxLabelCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'(current)'**
+  String get boxLabelCurrent;
+
+  /// No description provided for @moveCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Move'**
+  String get moveCard;
+
+  /// No description provided for @boxEmptyMastered.
+  ///
+  /// In en, this message translates to:
+  /// **'No mastered cards in this box yet.'**
+  String get boxEmptyMastered;
+
+  /// No description provided for @boxEmptyDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'This box is empty.'**
+  String get boxEmptyDefault;
+
+  /// No description provided for @antonymFlashOnboardingBody1.
+  ///
+  /// In en, this message translates to:
+  /// **'A word appears — tap its opposite as fast as you can.'**
+  String get antonymFlashOnboardingBody1;
+
+  /// No description provided for @hypernymFlashOnboardingBody1.
+  ///
+  /// In en, this message translates to:
+  /// **'A word appears — tap the correct category as fast as you can.'**
+  String get hypernymFlashOnboardingBody1;
+
+  /// No description provided for @noHypernymData.
+  ///
+  /// In en, this message translates to:
+  /// **'No category data available at this level.'**
+  String get noHypernymData;
+
+  /// No description provided for @hypernymFlashPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Category for …'**
+  String get hypernymFlashPrompt;
+
+  /// No description provided for @spellingForDefinition.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct spelling for:\n\"{definition}\"'**
+  String spellingForDefinition(String definition);
+
+  /// No description provided for @conjugationDrillOnboardingBody1.
+  ///
+  /// In en, this message translates to:
+  /// **'A verb and a personal pronoun are shown — choose the correct present tense form.'**
+  String get conjugationDrillOnboardingBody1;
+
+  /// No description provided for @conjugationDrillOnboardingBody2.
+  ///
+  /// In en, this message translates to:
+  /// **'All four options are forms of the same pronoun from different verbs.'**
+  String get conjugationDrillOnboardingBody2;
+
+  /// No description provided for @conjugationDrillOnboardingBody3.
+  ///
+  /// In en, this message translates to:
+  /// **'This game focuses on German: English verbs barely change in present tense — only the third person singular differs.'**
+  String get conjugationDrillOnboardingBody3;
+
+  /// No description provided for @spellingSpotterOnboardingBody1.
+  ///
+  /// In en, this message translates to:
+  /// **'Four words are shown — one is spelled correctly, the others contain common mistakes.'**
+  String get spellingSpotterOnboardingBody1;
+
+  /// No description provided for @spellingSpotterOnboardingBody2.
+  ///
+  /// In en, this message translates to:
+  /// **'Words are sorted by difficulty based on real learner spelling errors.'**
+  String get spellingSpotterOnboardingBody2;
+
+  /// No description provided for @correctAnswerReveal.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct answer: {word}'**
+  String correctAnswerReveal(String word);
+
+  /// No description provided for @exampleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Example:'**
+  String get exampleLabel;
+
+  /// No description provided for @definitionQuizPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Which word is being described?'**
+  String get definitionQuizPrompt;
+
+  /// No description provided for @noDefinitionData.
+  ///
+  /// In en, this message translates to:
+  /// **'No definitions available at this level.'**
+  String get noDefinitionData;
+
+  /// No description provided for @definitionQuizOnboardingBody1.
+  ///
+  /// In en, this message translates to:
+  /// **'A definition is shown — pick the matching word from four options.'**
+  String get definitionQuizOnboardingBody1;
+
+  /// No description provided for @definitionQuizOnboardingBody2.
+  ///
+  /// In en, this message translates to:
+  /// **'All options come from the same CEFR level so nothing is too obvious.'**
+  String get definitionQuizOnboardingBody2;
+
+  /// No description provided for @definitionQuizOnboardingBody3.
+  ///
+  /// In en, this message translates to:
+  /// **'For grade 5+ a language note appears after a correct answer.'**
+  String get definitionQuizOnboardingBody3;
+
+  /// No description provided for @sentenceCompletionPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Which word completes the sentence?'**
+  String get sentenceCompletionPrompt;
+
+  /// No description provided for @sentenceCompletionOnboardingBody1.
+  ///
+  /// In en, this message translates to:
+  /// **'A sentence with a gap is shown — pick the word that fits.'**
+  String get sentenceCompletionOnboardingBody1;
+
+  /// No description provided for @sentenceCompletionOnboardingBody2.
+  ///
+  /// In en, this message translates to:
+  /// **'Only nouns, verbs, and adjectives are tested — they are uniquely identifiable in context.'**
+  String get sentenceCompletionOnboardingBody2;
+
+  /// No description provided for @sentenceCompletionOnboardingBody3.
+  ///
+  /// In en, this message translates to:
+  /// **'A meaning hint appears after each correct answer.'**
+  String get sentenceCompletionOnboardingBody3;
+
+  /// No description provided for @spellingSpotterPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Which one is spelled correctly?'**
+  String get spellingSpotterPrompt;
+
+  /// No description provided for @noSpellingData.
+  ///
+  /// In en, this message translates to:
+  /// **'No spelling data available at this level.'**
+  String get noSpellingData;
+
+  /// No description provided for @synonymFlashOnboardingBody1.
+  ///
+  /// In en, this message translates to:
+  /// **'A word appears — tap a word with the same meaning as fast as you can.'**
+  String get synonymFlashOnboardingBody1;
+
+  /// No description provided for @synonymFlashOnboardingTimer.
+  ///
+  /// In en, this message translates to:
+  /// **'You have 30 seconds. More correct answers means a better score.'**
+  String get synonymFlashOnboardingTimer;
+
+  /// No description provided for @clozeFlashOnboardingBody1.
+  ///
+  /// In en, this message translates to:
+  /// **'A sentence appears with a missing word — tap the correct answer.'**
+  String get clozeFlashOnboardingBody1;
+
+  /// No description provided for @clozeFlashOnboardingTimer.
+  ///
+  /// In en, this message translates to:
+  /// **'You have 30 seconds. Read the context — it helps!'**
+  String get clozeFlashOnboardingTimer;
+
+  /// No description provided for @sriReviewOnboardingBody1.
+  ///
+  /// In en, this message translates to:
+  /// **'Practice your weakest words — selected based on your learning history.'**
+  String get sriReviewOnboardingBody1;
+
+  /// No description provided for @sriReviewOnboardingBody2.
+  ///
+  /// In en, this message translates to:
+  /// **'Each challenge adapts to the word: article, spelling, or definition.'**
+  String get sriReviewOnboardingBody2;
+
+  /// No description provided for @sriReviewOnboardingBody3.
+  ///
+  /// In en, this message translates to:
+  /// **'Every correct answer raises the easiness factor of that word.'**
+  String get sriReviewOnboardingBody3;
+
+  /// No description provided for @achievementGrade2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade 2 Graduate'**
+  String get achievementGrade2Title;
+
+  /// No description provided for @achievementGrade2Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced to Grade 2.'**
+  String get achievementGrade2Desc;
+
+  /// No description provided for @achievementGrade3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade 3 Graduate'**
+  String get achievementGrade3Title;
+
+  /// No description provided for @achievementGrade3Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced to Grade 3.'**
+  String get achievementGrade3Desc;
+
+  /// No description provided for @achievementGrade4Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade 4 Graduate'**
+  String get achievementGrade4Title;
+
+  /// No description provided for @achievementGrade4Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced to Grade 4.'**
+  String get achievementGrade4Desc;
+
+  /// No description provided for @achievementGrade5Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade 5 Graduate'**
+  String get achievementGrade5Title;
+
+  /// No description provided for @achievementGrade5Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced to Grade 5.'**
+  String get achievementGrade5Desc;
+
+  /// No description provided for @achievementGrade6Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade 6 Graduate'**
+  String get achievementGrade6Title;
+
+  /// No description provided for @achievementGrade6Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced to Grade 6.'**
+  String get achievementGrade6Desc;
+
+  /// No description provided for @semanticsBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Go back'**
+  String get semanticsBack;
+
+  /// No description provided for @semanticsScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Score: {n}'**
+  String semanticsScore(int n);
+
+  /// No description provided for @semanticsProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress: {done} of {total}'**
+  String semanticsProgress(int done, int total);
+
+  /// No description provided for @semanticsCombo.
+  ///
+  /// In en, this message translates to:
+  /// **'Combo x{n}'**
+  String semanticsCombo(int n);
+
+  /// No description provided for @syllableCountOnboardingBody1.
+  ///
+  /// In en, this message translates to:
+  /// **'A word appears — tap how many syllables it has.'**
+  String get syllableCountOnboardingBody1;
+
+  /// No description provided for @syllableCountOnboardingTimer.
+  ///
+  /// In en, this message translates to:
+  /// **'You have 30 seconds. Say the word aloud to feel its syllables.'**
+  String get syllableCountOnboardingTimer;
+
+  /// No description provided for @noSyllableData.
+  ///
+  /// In en, this message translates to:
+  /// **'No syllable data available at this level.'**
+  String get noSyllableData;
+
+  /// No description provided for @wordClassFlashOnboardingBody1.
+  ///
+  /// In en, this message translates to:
+  /// **'A word appears — tap its word class as fast as you can.'**
+  String get wordClassFlashOnboardingBody1;
+
+  /// No description provided for @wordClassFlashOnboardingTimer.
+  ///
+  /// In en, this message translates to:
+  /// **'You have 30 seconds. Noun, Verb, Adjective or Adverb?'**
+  String get wordClassFlashOnboardingTimer;
+
+  /// No description provided for @wordClassFlashOnboardingTip.
+  ///
+  /// In en, this message translates to:
+  /// **'Think about the word\'s meaning and form.'**
+  String get wordClassFlashOnboardingTip;
+
+  /// No description provided for @noWordClassData.
+  ///
+  /// In en, this message translates to:
+  /// **'No word class data available at this level.'**
+  String get noWordClassData;
+
+  /// No description provided for @wordTypeNoun.
+  ///
+  /// In en, this message translates to:
+  /// **'Noun'**
+  String get wordTypeNoun;
+
+  /// No description provided for @wordTypeVerb.
+  ///
+  /// In en, this message translates to:
+  /// **'Verb'**
+  String get wordTypeVerb;
+
+  /// No description provided for @wordTypeAdjective.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjective'**
+  String get wordTypeAdjective;
+
+  /// No description provided for @wordTypeAdverb.
+  ///
+  /// In en, this message translates to:
+  /// **'Adverb'**
+  String get wordTypeAdverb;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

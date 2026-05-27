@@ -806,5 +806,139 @@
     "wordSortCategoryAdverb": "Adverb",
     "wordSortCategoryPronoun": "Pronomen",
     "fontFamilyTitle": "Schriftart",
-    "fontFamilySubtitle": "Wähle eine Schriftart für Lerninhalte"
+    "fontFamilySubtitle": "Wähle eine Schriftart für Lerninhalte",
+
+    "skip": "Überspringen",
+    "gotIt": "Verstanden",
+    "next": "Weiter",
+    "debugModeEnabled": "Debug-Modus aktiviert!",
+
+    "synonymFlashPrompt": "Gleichbedeutend mit …",
+    "noSynonymData": "Keine Synonym-Daten für diese Stufe verfügbar.",
+
+    "noClozeSentences": "Keine Beispielsätze für diese Stufe verfügbar.",
+    "clozeAnswer": "Antwort: {word}",
+    "@clozeAnswer": {
+        "placeholders": { "word": { "type": "String" } }
+    },
+
+    "sriReviewHeader": "Wiederholung",
+    "reviewNoWordsYet": "Noch keine Wörter zum Wiederholen.\nSpiele ein paar Runden, damit das System deine schwachen Punkte erkennt!",
+    "difficultyVeryHard": "Sehr schwierig",
+    "difficultyHard": "Schwierig",
+    "difficultyPractice": "Zum Üben",
+    "challengeTypeArticle": "Artikel wählen",
+    "challengeTypeSpelling": "Richtige Schreibweise",
+    "challengeTypeDefinition": "Welches Wort passt?",
+    "articleChallengePrompt": "Welcher Artikel passt?\n\"___ {word}\"",
+    "@articleChallengePrompt": {
+        "placeholders": { "word": { "type": "String" } }
+    },
+
+    "wordOfTheDay": "Wort des Tages",
+    "pronounce": "Aussprechen",
+    "tapToPractise": "Tippen zum Üben →",
+    "gradeLabel": "Klasse {grade}",
+    "@gradeLabel": {
+        "placeholders": { "grade": { "type": "int" } }
+    },
+    "sectionDefinitions": "Bedeutungen",
+    "sectionExamples": "Beispiele",
+    "sectionSynonyms": "Synonyme",
+    "sectionAntonyms": "Antonyme",
+    "didYouKnow": "Wissenswertes",
+    "practiceNow": "Jetzt üben",
+
+    "karteikasten": "Karteikasten",
+    "karteikastenCardMoved": "Karte verschoben nach Box {box} – {label}",
+    "@karteikastenCardMoved": {
+        "placeholders": {
+            "box": { "type": "int" },
+            "label": { "type": "String" }
+        }
+    },
+    "boxLabel": "Box {n}",
+    "@boxLabel": {
+        "placeholders": { "n": { "type": "int" } }
+    },
+    "boxLabelCurrent": "(jetzt)",
+    "moveCard": "Verschieben",
+    "boxEmptyMastered": "Noch keine gemeisterten Karten in dieser Box.",
+    "boxEmptyDefault": "Diese Box ist leer.",
+
+    "antonymFlashOnboardingBody1": "Ein Wort erscheint — tippe schnell auf sein Gegenteil.",
+    "hypernymFlashOnboardingBody1": "Ein Wort erscheint — tippe schnell auf den passenden Oberbegriff.",
+    "noHypernymData": "Keine Oberbegriff-Daten für diese Stufe verfügbar.",
+    "hypernymFlashPrompt": "Oberbegriff für …",
+    "spellingForDefinition": "Richtige Schreibweise für:\n\"{definition}\"",
+    "@spellingForDefinition": {
+        "placeholders": { "definition": { "type": "String" } }
+    },
+    "conjugationDrillOnboardingBody1": "Ein Verb und ein Personalpronomen werden gezeigt — wähle die richtige Präsens-Form.",
+    "conjugationDrillOnboardingBody2": "Alle vier Optionen sind Formen desselben Pronomens aus verschiedenen Verben.",
+    "conjugationDrillOnboardingBody3": "Dieses Spiel ist auf Deutsch: Englische Verben konjugieren im Präsens kaum — nur die 3. Person Singular weicht ab.",
+    "spellingSpotterOnboardingBody1": "Vier Wörter werden gezeigt — eines ist richtig geschrieben, die anderen enthalten typische Fehler.",
+    "spellingSpotterOnboardingBody2": "Wörter sind nach Schwierigkeit sortiert — basierend auf echten Rechtschreibfehlern.",
+
+    "correctAnswerReveal": "Richtige Antwort: {word}",
+    "@correctAnswerReveal": {
+        "placeholders": { "word": { "type": "String" } }
+    },
+    "exampleLabel": "Beispiel:",
+
+    "definitionQuizPrompt": "Welches Wort wird beschrieben?",
+    "noDefinitionData": "Keine Definitionen für diese Stufe verfügbar.",
+    "definitionQuizOnboardingBody1": "Eine Definition wird gezeigt — wähle das passende Wort aus vier Optionen.",
+    "definitionQuizOnboardingBody2": "Alle Optionen kommen aus derselben CEFR-Stufe, damit nichts zu leicht wird.",
+    "definitionQuizOnboardingBody3": "Für Klasse 5+ erscheint nach richtiger Antwort ein Sprach-Tipp zum Wort.",
+
+    "sentenceCompletionPrompt": "Welches Wort passt in die Lücke?",
+    "sentenceCompletionOnboardingBody1": "Ein Satz mit einer Lücke wird gezeigt — wähle das passende Wort.",
+    "sentenceCompletionOnboardingBody2": "Es werden nur Nomen, Verben und Adjektive abgefragt, da diese eindeutig im Satz erkennbar sind.",
+    "sentenceCompletionOnboardingBody3": "Bei richtiger Antwort siehst du einen Hinweis auf die Wortbedeutung.",
+
+    "spellingSpotterPrompt": "Welches Wort ist richtig geschrieben?",
+    "noSpellingData": "Keine Rechtschreibdaten für diese Stufe verfügbar.",
+
+    "synonymFlashOnboardingBody1": "Ein Wort erscheint — tippe schnell auf ein Wort mit gleicher Bedeutung.",
+    "synonymFlashOnboardingTimer": "Du hast 30 Sekunden. Je mehr richtige Antworten, desto besser dein Score.",
+
+    "clozeFlashOnboardingBody1": "Ein Satz erscheint mit einem fehlenden Wort — tippe die richtige Antwort.",
+    "clozeFlashOnboardingTimer": "Du hast 30 Sekunden. Lies den Kontext — er hilft dir!",
+
+    "sriReviewOnboardingBody1": "Hier übst du deine schwächsten Wörter — basierend auf deiner Lernhistorie.",
+    "sriReviewOnboardingBody2": "Jede Aufgabe passt sich dem Wort an: Artikel, Schreibweise oder Definition.",
+    "sriReviewOnboardingBody3": "Mit jeder richtigen Antwort steigt der Easiness Factor des Wortes.",
+
+    "achievementGrade2Title": "Klasse-2-Aufsteiger",
+    "achievementGrade2Desc": "Auf Klasse 2 aufgestiegen.",
+    "achievementGrade3Title": "Klasse-3-Aufsteiger",
+    "achievementGrade3Desc": "Auf Klasse 3 aufgestiegen.",
+    "achievementGrade4Title": "Klasse-4-Aufsteiger",
+    "achievementGrade4Desc": "Auf Klasse 4 aufgestiegen.",
+    "achievementGrade5Title": "Klasse-5-Aufsteiger",
+    "achievementGrade5Desc": "Auf Klasse 5 aufgestiegen.",
+    "achievementGrade6Title": "Klasse-6-Aufsteiger",
+    "achievementGrade6Desc": "Auf Klasse 6 aufgestiegen.",
+
+    "semanticsBack": "Zurück",
+    "semanticsScore": "Punkte: {n}",
+    "@semanticsScore": { "placeholders": { "n": { "type": "int" } } },
+    "semanticsProgress": "Fortschritt: {done} von {total}",
+    "@semanticsProgress": { "placeholders": { "done": { "type": "int" }, "total": { "type": "int" } } },
+    "semanticsCombo": "Kombo mal {n}",
+    "@semanticsCombo": { "placeholders": { "n": { "type": "int" } } },
+
+    "syllableCountOnboardingBody1": "Ein Wort erscheint — tippe, wie viele Silben es hat.",
+    "syllableCountOnboardingTimer": "Du hast 30 Sekunden. Sprich das Wort laut aus, um die Silben zu spüren.",
+    "noSyllableData": "Keine Silbendaten für diese Stufe verfügbar.",
+
+    "wordClassFlashOnboardingBody1": "Ein Wort erscheint — tippe schnell auf seine Wortart.",
+    "wordClassFlashOnboardingTimer": "Du hast 30 Sekunden. Nomen, Verb, Adjektiv oder Adverb?",
+    "wordClassFlashOnboardingTip": "Entscheide nach Bedeutung und Form des Wortes.",
+    "noWordClassData": "Keine Wortart-Daten für diese Stufe verfügbar.",
+    "wordTypeNoun": "Nomen",
+    "wordTypeVerb": "Verb",
+    "wordTypeAdjective": "Adjektiv",
+    "wordTypeAdverb": "Adverb"
 }

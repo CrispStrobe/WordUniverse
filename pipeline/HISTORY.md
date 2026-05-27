@@ -580,6 +580,53 @@ inflections, pronunciation. Status updated to success/no_data.
 
 ---
 
+## 2026-05-27 — App l10n / a11y pass (games + UI)
+
+Full systematic pass replacing all hardcoded DE/EN strings in game screens
+with l10n ARB keys and Semantics labels.
+
+### ARB keys added (app_en.arb + app_de.arb)
+
+Over two sessions (~150 new keys total), covering:
+
+- `wordOfTheDay`, `pronounce`, `tapToPractise`, `gradeLabel`, section headers
+  (`sectionDefinitions/Examples/Synonyms/Antonyms`), `didYouKnow`, `practiceNow`
+- Karteikasten: `karteikasten`, `karteikastenCardMoved`, `boxLabel`, `boxLabelCurrent`,
+  `moveCard`, `boxEmptyMastered/Default`
+- Game onboarding bodies: synonym, cloze, antonym, hypernym, sri_review, definition_quiz,
+  sentence_completion, spelling_spotter, conjugation_drill, syllable_count, word_class_flash
+- Game empty states: `noSynonymData`, `noClozeSentences`, `noHypernymData`, `noDefinitionData`,
+  `noSpellingData`, `noSyllableData`, `noWordClassData`
+- Semantics accessibility labels: `semanticsBack`, `semanticsScore({n})`,
+  `semanticsProgress({done},{total})`, `semanticsCombo({n})`
+- Word type names: `wordTypeNoun/Verb/Adjective/Adverb`
+- Achievement keys: `achievementGrade2–6Title/Desc`
+- Misc: `skip`, `gotIt`, `next`, `debugModeEnabled`, `gameLvlBadge`
+
+### Files modified
+
+- `lib/l10n/app_en.arb` + `lib/l10n/app_de.arb` — ~150 new keys
+- `lib/generated/l10n.dart` — regenerated
+- `lib/features/games/screens/` — 12 game screens localised:
+  synonym_flash, cloze_flash, antonym_flash, hypernym_flash, sri_review,
+  definition_quiz, sentence_completion, spelling_spotter, conjugation_drill,
+  karteikasten, syllable_count, word_class_flash
+- `lib/features/games/screens/verbtrenner_game.dart` — Semantics labels
+- `lib/features/games/screens/parent_dashboard_screen.dart` — hardcoded fallback removed
+- `lib/features/home/widgets/word_of_the_day_card.dart` — full l10n
+- `lib/shared/widgets/onboarding_overlay.dart` — Skip/Got it/Next localised
+- `lib/features/home/screens/home_screen.dart` — debug snackbar localised
+- `lib/features/achievements/screens/achievements_screen.dart` — grade_2–6 achievements
+
+### Clean-ups
+
+- `_isDE` getter removed from synonym_flash, cloze_flash, antonym_flash, syllable_count,
+  word_class_flash (fully unused after ternary replacements)
+- Orphaned `final isDE = _isDE;` locals removed from antonym_flash, hypernym_flash,
+  definition_quiz, sentence_completion
+
+---
+
 ## Tail — what isn't dated
 
 - The `top10000en.txt`, `top1000en.txt`, `top1000fr.txt` at the project

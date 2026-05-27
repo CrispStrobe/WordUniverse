@@ -583,7 +583,7 @@ class _VerbtrennerGameState extends State<VerbtrennerGame>
         children: [
           // Back button
           Semantics(
-            label: 'Zurück',
+            label: s.semanticsBack,
             button: true,
             child: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
@@ -598,7 +598,7 @@ class _VerbtrennerGameState extends State<VerbtrennerGame>
           const SizedBox(width: 12),
           // Level
           Semantics(
-            label: 'Stufe $_level',
+            label: s.gameLvlBadge(_level),
             container: true,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -623,20 +623,20 @@ class _VerbtrennerGameState extends State<VerbtrennerGame>
           const SizedBox(width: 8),
           // Score
           Semantics(
-            label: 'Punkte: $_score',
+            label: s.semanticsScore(_score),
             child: _buildCompactStat(Icons.stars, '$_score', SpaceTheme.starYellow),
           ),
           const SizedBox(width: 8),
           // Progress
           Semantics(
-            label: 'Fortschritt: $_itemsCompleted von $_totalItems',
+            label: s.semanticsProgress(_itemsCompleted, _totalItems),
             child: _buildCompactStat(Icons.check_circle_outline, '$_itemsCompleted/$_totalItems', SpaceTheme.cosmicPink),
           ),
           const Spacer(),
           // Combo (Replacing Timer slot)
           if (_combo > 1)
             Semantics(
-              label: 'Kombo mal $_combo',
+              label: s.semanticsCombo(_combo),
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(

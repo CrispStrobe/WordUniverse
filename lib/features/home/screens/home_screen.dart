@@ -181,8 +181,8 @@ class _HomeScreenState extends State<HomeScreen>
               if (_debugTapCount >= 7) {
                 context.read<DebugProvider>().enableDebugMenu();
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Debug Mode Enabled! 🕵️'),
+                  SnackBar(
+                    content: Text(S.of(context)!.debugModeEnabled),
                     backgroundColor: SpaceTheme.alienGreen,
                   ),
                 );

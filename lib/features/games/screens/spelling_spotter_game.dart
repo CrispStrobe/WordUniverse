@@ -21,6 +21,7 @@ import '../services/spelling_spotter_service.dart';
 import '../widgets/cefr_chip.dart';
 import '../widgets/space_background.dart';
 import '../widgets/spelling_strategy_badge.dart';
+import '../../../shared/widgets/onboarding_overlay.dart';
 
 class SpellingSpotterGame extends StatefulWidget {
   final GradeLevel gradeLevel;
@@ -58,6 +59,7 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
   static const int _optionCount = 4;
 
   bool _isLoading = true;
+  bool _onboardingScheduled = false;
   List<_SpellingChallenge> _challenges = [];
   int _currentIndex = 0;
   int _score = 0;
@@ -114,6 +116,24 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
       await _vocabularyService.initialize();
     }
     _buildChallenges();
+    if (!_onboardingScheduled) {
+      _onboardingScheduled = true;
+      OnboardingOverlay.maybeShow(
+        context,
+        gameKey: 'spelling_spotter',
+        title: _s.spellingSpotterTitle,
+        steps: [
+          OnboardingStep(
+            icon: Icons.spellcheck,
+            body: _s.spellingSpotterOnboardingBody1,
+          ),
+          OnboardingStep(
+            icon: Icons.school,
+            body: _s.spellingSpotterOnboardingBody2,
+          ),
+        ],
+      );
+    }
   }
 
   static String _norm(String w) => normWord(w);
@@ -345,9 +365,7 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              _isDE
-                  ? '$_correct / ${_challenges.length} richtig'
-                  : '$_correct / ${_challenges.length} correct',
+              '$_correct / ${_challenges.length} ${_s.correct}',
               style: SpaceTheme.titleStyle
                   .copyWith(color: SpaceTheme.starYellow),
             ),
@@ -397,9 +415,7 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Text(
-          _isDE
-              ? 'Keine Rechtschreibdaten für diese Stufe verfügbar.'
-              : 'No spelling data available at this level.',
+          _s.noSpellingData,
           style: SpaceTheme.bodyStyle,
           textAlign: TextAlign.center,
         ),
@@ -454,7 +470,7 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Spelling Spotter',
+                  _s.spellingSpotterTitle,
                   style: SpaceTheme.titleStyle
                       .copyWith(color: SpaceTheme.starYellow),
                 ),
@@ -481,9 +497,7 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
     return Column(
       children: [
         Text(
-          _isDE
-              ? 'Welches Wort ist richtig geschrieben?'
-              : 'Which one is spelled correctly?',
+          _s.spellingSpotterPrompt,
           style: SpaceTheme.headlineStyle
               .copyWith(color: Colors.white, fontSize: 18),
           textAlign: TextAlign.center,
@@ -662,7 +676,7 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              _isDE ? 'Beispiel:' : 'Example:',
+              _s.exampleLabel,
               style: SpaceTheme.bodyStyle.copyWith(
                 color: SpaceTheme.starYellow,
                 fontSize: 11,

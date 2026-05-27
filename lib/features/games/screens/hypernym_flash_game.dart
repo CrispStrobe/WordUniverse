@@ -119,24 +119,19 @@ class _HypernymFlashGameState extends State<HypernymFlashGame>
     _buildChallenges();
     if (!_onboardingScheduled) {
       _onboardingScheduled = true;
-      final isDE = _isDE;
       OnboardingOverlay.maybeShow(
         context,
         gameKey: 'hypernym_flash',
-        title: isDE ? 'Oberbegriff-Blitz' : 'Category Flash',
+        title: _s.hypernymFlashTitle,
         steps: [
           OnboardingStep(
             icon: Icons.category,
-            body: isDE
-                ? 'Ein Wort erscheint — tippe schnell auf den passenden Oberbegriff.'
-                : 'A word appears — tap the correct category as fast as you can.',
+            body: _s.hypernymFlashOnboardingBody1,
           ),
           if (_gameProvider.puzzleTimerEnabled)
             OnboardingStep(
               icon: Icons.timer,
-              body: isDE
-                  ? 'Du hast 30 Sekunden. Je mehr richtige Antworten, desto besser dein Score.'
-                  : 'You have 30 seconds. More correct answers means a better score.',
+              body: _s.synonymFlashOnboardingTimer,
             ),
         ],
       );
@@ -340,9 +335,7 @@ class _HypernymFlashGameState extends State<HypernymFlashGame>
             const SizedBox(height: 4),
             if (_gameProvider.puzzleTimerEnabled)
               Text(
-                _isDE
-                    ? 'richtig in ${_sessionSeconds - _secondsLeft}s'
-                    : 'correct in ${_sessionSeconds - _secondsLeft}s',
+                _s.correctInSeconds(_sessionSeconds - _secondsLeft),
                 style: SpaceTheme.bodyStyle.copyWith(color: Colors.white70),
               ),
           ],
@@ -391,9 +384,7 @@ class _HypernymFlashGameState extends State<HypernymFlashGame>
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Text(
-          _isDE
-              ? 'Keine Oberbegriff-Daten für diese Stufe verfügbar.'
-              : 'No category data available at this level.',
+          _s.noHypernymData,
           style: SpaceTheme.bodyStyle,
           textAlign: TextAlign.center,
         ),
@@ -440,12 +431,12 @@ class _HypernymFlashGameState extends State<HypernymFlashGame>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _isDE ? 'Oberbegriff-Blitz' : 'Category Flash',
+                  _s.hypernymFlashTitle,
                   style: SpaceTheme.titleStyle
                       .copyWith(color: SpaceTheme.starYellow),
                 ),
                 Text(
-                  '$_correct ${_isDE ? 'richtig' : 'correct'}',
+                  '$_correct ${_s.correct}',
                   style: SpaceTheme.bodyStyle.copyWith(color: Colors.white60),
                 ),
               ],
@@ -539,7 +530,7 @@ class _HypernymFlashGameState extends State<HypernymFlashGame>
         child: Column(
           children: [
             Text(
-              _isDE ? 'Oberbegriff für …' : 'Category for …',
+              _s.hypernymFlashPrompt,
               style: SpaceTheme.bodyStyle.copyWith(
                 color: Colors.white60,
                 fontSize: 13,
