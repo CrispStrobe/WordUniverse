@@ -179,12 +179,13 @@ class _ClozeFlashGameState extends State<ClozeFlashGame>
                 ? 'Ein Satz erscheint mit einem fehlenden Wort — tippe die richtige Antwort.'
                 : 'A sentence appears with a missing word — tap the correct answer.',
           ),
-          OnboardingStep(
-            icon: Icons.timer,
-            body: isDE
-                ? 'Du hast 30 Sekunden. Lies den Kontext — er hilft dir!'
-                : 'You have 30 seconds. Read the context — it helps!',
-          ),
+          if (_gameProvider.puzzleTimerEnabled)
+            OnboardingStep(
+              icon: Icons.timer,
+              body: isDE
+                  ? 'Du hast 30 Sekunden. Lies den Kontext — er hilft dir!'
+                  : 'You have 30 seconds. Read the context — it helps!',
+            ),
         ],
       );
     }
@@ -272,6 +273,7 @@ class _ClozeFlashGameState extends State<ClozeFlashGame>
   // ─── timer ─────────────────────────────────────────────────────────────────
 
   void _startTimer() {
+    if (!_gameProvider.puzzleTimerEnabled) return;
     _timerCtrl.forward(from: 0);
     _sessionTimer?.cancel();
     _sessionTimer = Timer.periodic(const Duration(seconds: 1), (t) {
@@ -369,12 +371,13 @@ class _ClozeFlashGameState extends State<ClozeFlashGame>
                   .copyWith(color: SpaceTheme.starYellow, fontSize: 32),
             ),
             const SizedBox(height: 4),
-            Text(
-              _isDE
-                  ? 'richtig in ${_sessionSeconds - _secondsLeft}s'
-                  : 'correct in ${_sessionSeconds - _secondsLeft}s',
-              style: SpaceTheme.bodyStyle.copyWith(color: Colors.white70),
-            ),
+            if (_gameProvider.puzzleTimerEnabled)
+              Text(
+                _isDE
+                    ? 'richtig in ${_sessionSeconds - _secondsLeft}s'
+                    : 'correct in ${_sessionSeconds - _secondsLeft}s',
+                style: SpaceTheme.bodyStyle.copyWith(color: Colors.white70),
+              ),
           ],
         ),
         actions: [
@@ -436,7 +439,7 @@ class _ClozeFlashGameState extends State<ClozeFlashGame>
     return Column(
       children: [
         _buildHeader(),
-        _buildTimerBar(),
+        if (_gameProvider.puzzleTimerEnabled) _buildTimerBar(),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -481,31 +484,32 @@ class _ClozeFlashGameState extends State<ClozeFlashGame>
               ],
             ),
           ),
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: _secondsLeft <= 5
-                    ? SpaceTheme.rocketRed
-                    : SpaceTheme.starYellow,
-                width: 2,
-              ),
-            ),
-            child: Center(
-              child: Text(
-                '$_secondsLeft',
-                style: TextStyle(
+          if (_gameProvider.puzzleTimerEnabled)
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
                   color: _secondsLeft <= 5
                       ? SpaceTheme.rocketRed
                       : SpaceTheme.starYellow,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                  width: 2,
+                ),
+              ),
+              child: Center(
+                child: Text(
+                  '$_secondsLeft',
+                  style: TextStyle(
+                    color: _secondsLeft <= 5
+                        ? SpaceTheme.rocketRed
+                        : SpaceTheme.starYellow,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
-          ),
         ],
       ),
     );

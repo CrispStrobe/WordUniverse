@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
@@ -217,7 +218,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
       puzzle = WordSnakeGenerator().generate(word.word, adjustedDifficulty);
       
       if (puzzle != null && (puzzle.rows < 2 || puzzle.cols < 2)) {
-        debugPrint("WordSnakeGenerator created an invalid 1-D grid. Discarding.");
+        if (kDebugMode) debugPrint("WordSnakeGenerator created an invalid 1-D grid. Discarding.");
         puzzle = null;
       }
       
@@ -228,7 +229,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
     }
 
     if (puzzle == null || selectedWord == null) {
-      debugPrint("Could not generate word snake puzzle");
+      if (kDebugMode) debugPrint("Could not generate word snake puzzle");
       if (mounted) {
         Navigator.of(context).pop();
       }
@@ -488,7 +489,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
               erForm = conjugations['er/sie/es'] as String?;
             }
           } catch (e) {
-            debugPrint('Error parsing verb inflectionData for ${word.word}: $e');
+            if (kDebugMode) debugPrint('Error parsing verb inflectionData for ${word.word}: $e');
           }
         }
         
@@ -517,7 +518,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
                 superlativ = comparison['Superlativ'] as String?;
               }
             } catch (e) {
-               debugPrint('Error parsing adj inflectionData for ${word.word}: $e');
+               if (kDebugMode) debugPrint('Error parsing adj inflectionData for ${word.word}: $e');
             }
         }
 

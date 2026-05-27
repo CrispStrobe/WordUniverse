@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/services/custom_licenses_registry.dart';
@@ -12,7 +13,7 @@ class ImprintDialog extends StatelessWidget {
     final Uri url = Uri.parse(urlString);
     if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
       // Could not launch
-      debugPrint("Could not launch $urlString");
+      if (kDebugMode) debugPrint("Could not launch $urlString");
     }
   }
 

@@ -1,4 +1,4 @@
-name: CI
+name: CI / CD
 
 on:
   push:
@@ -7,9 +7,10 @@ on:
     branches: [main]
 
 jobs:
-  analyze-and-test:
+  build:
+    name: Analyze, test & build
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
 
     steps:
       - name: Checkout
@@ -18,7 +19,6 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.38.5'
           channel: 'stable'
           cache: true
 
@@ -33,3 +33,37 @@ jobs:
 
       - name: Run tests
         run: flutter test --reporter expanded
+
+      - name: Build web
+        run: flutter build web --release
+
+      - name: Upload web artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: build/web
+          retention-days: 1
+
+  deploy:
+    name: Deploy to Vercel
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Download web artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: web-build
+          path: build/web
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Deploy
+        working-directory: build/web
+        run: vercel --token "${{ secrets.VERCEL_TOKEN }}" --prod --yes
+        env:
+          VERCEL_ORG_ID: team_uvAE8yHK3Zi7pXobhJmwckcQ
+          VERCEL_PROJECT_ID: prj_f5CVyUNQuu49kMJxgbxoBwj9xEjS

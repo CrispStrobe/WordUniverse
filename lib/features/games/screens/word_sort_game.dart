@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:collection';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
@@ -251,7 +252,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     _wordQueue = Queue.from(wordsForGame);
 
     if (_wordQueue.isEmpty) {
-      debugPrint("No words found for WordSortGame");
+      if (kDebugMode) debugPrint("No words found for WordSortGame");
       setState(() => _isLoading = false);
       if (mounted) Navigator.of(context).pop();
       return;

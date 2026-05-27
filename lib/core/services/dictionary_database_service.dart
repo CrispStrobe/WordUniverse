@@ -38,7 +38,7 @@ class DictionaryDatabaseService {
     }
 
     if (_isInitializing) {
-      debugPrint(
+      if (kDebugMode) debugPrint(
           "[DB_SERVICE] ⏳ Initialization already in progress, waiting...");
       // Wait for ongoing initialization (with timeout)
       int attempts = 0;
@@ -57,7 +57,7 @@ class DictionaryDatabaseService {
     try {
       // PHASE 1: Start initialization (0.0 - 0.05)
       onProgress?.call(0.0, 'Starting database initialization...');
-      debugPrint("[DB_SERVICE] 📚 Initializing database service...");
+      if (kDebugMode) debugPrint("[DB_SERVICE] 📚 Initializing database service...");
 
       // PHASE 2: Platform-specific initialization (0.05 - 0.90)
       // This handles the heavy lifting: extraction, decompression, writing
@@ -86,17 +86,17 @@ class DictionaryDatabaseService {
         throw Exception('Database is empty or invalid');
       }
 
-      debugPrint("[DB_SERVICE] ✅ Database verified with $count words");
+      if (kDebugMode) debugPrint("[DB_SERVICE] ✅ Database verified with $count words");
       onProgress?.call(0.95, 'Database verified: $count words');
 
       // PHASE 4: Complete (0.95 - 1.0)
       onProgress?.call(1.0, 'Database initialization complete!');
-      debugPrint("[DB_SERVICE] ✅ Database service ready");
+      if (kDebugMode) debugPrint("[DB_SERVICE] ✅ Database service ready");
       _assetPath = assetPath;
       _databaseName = databaseName;
     } catch (e, stackTrace) {
-      debugPrint("[DB_SERVICE] ❌ Critical error initializing database: $e");
-      debugPrint("[DB_SERVICE] Stack trace: $stackTrace");
+      if (kDebugMode) debugPrint("[DB_SERVICE] ❌ Critical error initializing database: $e");
+      if (kDebugMode) debugPrint("[DB_SERVICE] Stack trace: $stackTrace");
       onProgress?.call(0.0, 'Database initialization failed: $e');
       _database = null; // Ensure we can retry
       _assetPath = null;
@@ -112,7 +112,7 @@ class DictionaryDatabaseService {
   /// Get all words from the database
   Future<List<GermanWord>> getAllWords() async {
     if (_database == null) {
-      debugPrint("[DB_SERVICE] Database not initialized, initializing now...");
+      if (kDebugMode) debugPrint("[DB_SERVICE] Database not initialized, initializing now...");
       await initialize();
       if (_database == null) return [];
     }
@@ -120,10 +120,10 @@ class DictionaryDatabaseService {
     try {
       final List<Map<String, dynamic>> results =
           await _database!.query('words');
-      debugPrint("[DB_SERVICE] Fetched ${results.length} words");
+      if (kDebugMode) debugPrint("[DB_SERVICE] Fetched ${results.length} words");
       return results.map((row) => _mapRowToGermanWord(row)).toList();
     } catch (e) {
-      debugPrint("[DB_SERVICE] Error fetching all words: $e");
+      if (kDebugMode) debugPrint("[DB_SERVICE] Error fetching all words: $e");
       return [];
     }
   }
@@ -152,11 +152,11 @@ class DictionaryDatabaseService {
         LIMIT 50
       ''', ['$sanitized*']);
 
-      debugPrint(
+      if (kDebugMode) debugPrint(
           "[DB_SERVICE] FTS search for '$query' returned ${results.length} results");
       return results.map((row) => _mapRowToGermanWord(row)).toList();
     } catch (e) {
-      debugPrint("[DB_SERVICE] FTS search error: $e");
+      if (kDebugMode) debugPrint("[DB_SERVICE] FTS search error: $e");
       return [];
     }
   }
@@ -179,7 +179,7 @@ class DictionaryDatabaseService {
       if (results.isEmpty) return null;
       return _mapRowToGermanWord(results.first);
     } catch (e) {
-      debugPrint("[DB_SERVICE] Error fetching word by ID '$id': $e");
+      if (kDebugMode) debugPrint("[DB_SERVICE] Error fetching word by ID '$id': $e");
       return null;
     }
   }
@@ -198,11 +198,11 @@ class DictionaryDatabaseService {
         whereArgs: [gradeLevel],
       );
 
-      debugPrint(
+      if (kDebugMode) debugPrint(
           "[DB_SERVICE] Fetched ${results.length} words for grade $gradeLevel");
       return results.map((row) => _mapRowToGermanWord(row)).toList();
     } catch (e) {
-      debugPrint("[DB_SERVICE] Error fetching words by grade $gradeLevel: $e");
+      if (kDebugMode) debugPrint("[DB_SERVICE] Error fetching words by grade $gradeLevel: $e");
       return [];
     }
   }
@@ -241,7 +241,7 @@ class DictionaryDatabaseService {
         'typeDistribution': typeDistribution,
       };
     } catch (e) {
-      debugPrint("[DB_SERVICE] Error getting statistics: $e");
+      if (kDebugMode) debugPrint("[DB_SERVICE] Error getting statistics: $e");
       return {};
     }
   }
@@ -253,7 +253,7 @@ class DictionaryDatabaseService {
       _database = null;
       _assetPath = null;
       _databaseName = null;
-      debugPrint("[DB_SERVICE] Database connection closed");
+      if (kDebugMode) debugPrint("[DB_SERVICE] Database connection closed");
     }
   }
 
@@ -276,7 +276,7 @@ class DictionaryDatabaseService {
         try {
           frequencyData = jsonDecode(freqJson) as Map<String, dynamic>;
         } catch (e) {
-          debugPrint("[DB_SERVICE] Error parsing frequency_json: $e");
+          if (kDebugMode) debugPrint("[DB_SERVICE] Error parsing frequency_json: $e");
         }
       }
 
@@ -284,7 +284,7 @@ class DictionaryDatabaseService {
         try {
           apiEnrichment = jsonDecode(enrichmentJson) as Map<String, dynamic>;
         } catch (e) {
-          debugPrint("[DB_SERVICE] Error parsing enrichment_json: $e");
+          if (kDebugMode) debugPrint("[DB_SERVICE] Error parsing enrichment_json: $e");
         }
       }
 
@@ -292,7 +292,7 @@ class DictionaryDatabaseService {
         try {
           metadata = jsonDecode(metadataJson) as Map<String, dynamic>;
         } catch (e) {
-          debugPrint("[DB_SERVICE] Error parsing metadata_json: $e");
+          if (kDebugMode) debugPrint("[DB_SERVICE] Error parsing metadata_json: $e");
         }
       }
 
@@ -326,9 +326,9 @@ class DictionaryDatabaseService {
 
       return GermanWord.fromJson(wordMap);
     } catch (e, stackTrace) {
-      debugPrint("[DB_SERVICE] Error mapping row to GermanWord: $e");
-      debugPrint("[DB_SERVICE] Stack trace: $stackTrace");
-      debugPrint("[DB_SERVICE] Problematic row: $row");
+      if (kDebugMode) debugPrint("[DB_SERVICE] Error mapping row to GermanWord: $e");
+      if (kDebugMode) debugPrint("[DB_SERVICE] Stack trace: $stackTrace");
+      if (kDebugMode) debugPrint("[DB_SERVICE] Problematic row: $row");
 
       // Return a minimal fallback word to prevent crashes
       return GermanWord.fromJson({

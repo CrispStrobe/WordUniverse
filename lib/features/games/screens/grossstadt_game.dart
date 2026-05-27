@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
@@ -87,7 +88,7 @@ class _GrossstadtGameState extends State<GrossstadtGame>
   late AnimationController _errorController;
 
   void _log(String message) {
-    debugPrint('[GROSSSTADT] $message');
+    if (kDebugMode) debugPrint('[GROSSSTADT] $message');
   }
 
   @override

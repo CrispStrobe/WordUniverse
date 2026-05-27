@@ -1154,6 +1154,12 @@ class SDe extends S {
       'Wähle die richtige Verbform für jedes Personalpronomen';
 
   @override
+  String get conjugationDrillGameOverTitle => 'Übung beendet';
+
+  @override
+  String get conjugationDrillGameOverLabel => 'richtige Konjugationen';
+
+  @override
   String get homophoneDrillTitle => 'Homophone Drill';
 
   @override

@@ -1053,9 +1053,9 @@ Future<void> ensureCustomLicensesRegistered() async {
       ]);
     });
     _customLicensesAdded = true;
-    debugPrint(
+    if (kDebugMode) debugPrint(
         "[LICENSES] 📚 Custom licenses registered (fonts + data sources + libraries).");
   } catch (e) {
-    debugPrint('[LICENSES] ❌ Error registering custom licenses: $e');
+    if (kDebugMode) debugPrint('[LICENSES] ❌ Error registering custom licenses: $e');
   }
 }

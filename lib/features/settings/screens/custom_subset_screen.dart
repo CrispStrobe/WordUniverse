@@ -1,5 +1,6 @@
 // lib/features/settings/screens/custom_subset_screen.dart
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/services/vocabulary_service.dart';
@@ -200,7 +201,7 @@ class _CustomSubsetScreenState extends State<CustomSubsetScreen> {
       }
 
     } catch (e) {
-      debugPrint("Error saving custom set: $e");
+      if (kDebugMode) debugPrint("Error saving custom set: $e");
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

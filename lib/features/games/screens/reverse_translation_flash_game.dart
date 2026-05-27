@@ -128,10 +128,11 @@ class _ReverseTranslationFlashGameState
             body:
                 'Ein englisches Wort erscheint — tippe das passende deutsche Wort.',
           ),
-          const OnboardingStep(
-            icon: Icons.timer,
-            body: '30 Sekunden, so viele richtige wie möglich!',
-          ),
+          if (_gameProvider.puzzleTimerEnabled)
+            OnboardingStep(
+              icon: Icons.timer,
+              body: '30 Sekunden, so viele richtige wie möglich!',
+            ),
         ],
       );
     }
@@ -234,6 +235,7 @@ class _ReverseTranslationFlashGameState
   // ─── Timer ─────────────────────────────────────────────────────────────────
 
   void _startTimer() {
+    if (!_gameProvider.puzzleTimerEnabled) return;
     _timerCtrl.forward(from: 0);
     _sessionTimer?.cancel();
     _sessionTimer = Timer.periodic(const Duration(seconds: 1), (t) {
@@ -331,10 +333,11 @@ class _ReverseTranslationFlashGameState
                   .copyWith(color: SpaceTheme.starYellow, fontSize: 32),
             ),
             const SizedBox(height: 4),
-            Text(
-              'richtig in ${_sessionSeconds - _secondsLeft}s',
-              style: SpaceTheme.bodyStyle.copyWith(color: Colors.white70),
-            ),
+            if (_gameProvider.puzzleTimerEnabled)
+              Text(
+                'richtig in ${_sessionSeconds - _secondsLeft}s',
+                style: SpaceTheme.bodyStyle.copyWith(color: Colors.white70),
+              ),
           ],
         ),
         actions: [
@@ -394,7 +397,7 @@ class _ReverseTranslationFlashGameState
     return Column(
       children: [
         _buildHeader(),
-        _buildTimerBar(),
+        if (_gameProvider.puzzleTimerEnabled) _buildTimerBar(),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -439,31 +442,32 @@ class _ReverseTranslationFlashGameState
               ],
             ),
           ),
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: _secondsLeft <= 5
-                    ? SpaceTheme.rocketRed
-                    : SpaceTheme.starYellow,
-                width: 2,
-              ),
-            ),
-            child: Center(
-              child: Text(
-                '$_secondsLeft',
-                style: TextStyle(
+          if (_gameProvider.puzzleTimerEnabled)
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
                   color: _secondsLeft <= 5
                       ? SpaceTheme.rocketRed
                       : SpaceTheme.starYellow,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                  width: 2,
+                ),
+              ),
+              child: Center(
+                child: Text(
+                  '$_secondsLeft',
+                  style: TextStyle(
+                    color: _secondsLeft <= 5
+                        ? SpaceTheme.rocketRed
+                        : SpaceTheme.starYellow,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
-          ),
         ],
       ),
     );

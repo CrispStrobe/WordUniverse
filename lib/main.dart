@@ -1,5 +1,6 @@
 // lib/main.dart
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -183,7 +184,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         }
       }
     } catch (e) {
-      debugPrint('Error loading language preference: $e');
+      if (kDebugMode) debugPrint('Error loading language preference: $e');
       // Fallback to English
       if (mounted) {
         setState(() => _locale = const Locale('en'));
@@ -210,9 +211,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         await widget.prefs.setString('language', _locale!.languageCode);
       }
       
-      debugPrint('[APP] State saved successfully');
+      if (kDebugMode) debugPrint('[APP] State saved successfully');
     } catch (e) {
-      debugPrint('[APP] Error saving app state: $e');
+      if (kDebugMode) debugPrint('[APP] Error saving app state: $e');
     }
   }
 
@@ -235,7 +236,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       builder: (context, child) {
         // Global error widget builder
         ErrorWidget.builder = (FlutterErrorDetails errorDetails) {
-          debugPrint("[APP] Caught Flutter Error: ${errorDetails.exception}");
+          if (kDebugMode) debugPrint("[APP] Caught Flutter Error: ${errorDetails.exception}");
           debugPrintStack(stackTrace: errorDetails.stack);
           
           return SpaceErrorScreen(
@@ -503,8 +504,8 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
       }
       
     } catch (e, stackTrace) {
-      debugPrint('[SPLASH] ❌ Initialization error: $e');
-      debugPrint('[SPLASH] Stack trace: $stackTrace');
+      if (kDebugMode) debugPrint('[SPLASH] ❌ Initialization error: $e');
+      if (kDebugMode) debugPrint('[SPLASH] Stack trace: $stackTrace');
       
       if (mounted) {
         // Show error dialog with retry option

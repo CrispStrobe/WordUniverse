@@ -700,6 +700,8 @@
 
     "conjugationDrillTitle": "Conjugation Drill",
     "conjugationDrillDescription": "Pick the right verb form for each pronoun",
+    "conjugationDrillGameOverTitle": "Exercise complete",
+    "conjugationDrillGameOverLabel": "correct conjugations",
 
     "homophoneDrillTitle": "Homophone Drill",
     "homophoneDrillDescription": "Pick the right spelling — hear vs here, to vs too vs two",

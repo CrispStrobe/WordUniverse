@@ -43,7 +43,7 @@ class VocabularyService with ChangeNotifier {
   Object? get initError => _initError;
 
   void _log(String message) {
-    debugPrint('[VOCABULARY_SERVICE] 📚 $message');
+    if (kDebugMode) debugPrint('[VOCABULARY_SERVICE] 📚 $message');
   }
 
   /// Initializes the service by loading data from SQLite and SharedPrefs

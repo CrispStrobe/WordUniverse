@@ -14,7 +14,7 @@ class DifficultyManager {
 
     // --- NEW: Check for and apply custom settings ---
     if (gameProvider.useCustomProblemSettings && gameProvider.customOperations.isNotEmpty) {
-      debugPrint("[DifficultyManager] 🔧 Using custom problem settings override.");
+      if (kDebugMode) debugPrint("[DifficultyManager] 🔧 Using custom problem settings override.");
       final customOps = gameProvider.customOperations.map((opString) {
         return MathOperation.values.firstWhere((e) => e.toString() == 'MathOperation.$opString');
       }).toList();

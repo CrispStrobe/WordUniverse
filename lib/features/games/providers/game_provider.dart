@@ -224,7 +224,7 @@ class GameProvider extends ChangeNotifier {
           .map((a) => Achievement.fromJson(jsonDecode(a)))
           .toList();
     } catch (e) {
-      debugPrint("Error loading achievements, resetting: $e");
+      if (kDebugMode) debugPrint("Error loading achievements, resetting: $e");
       _achievements = [];
     }
 
@@ -318,7 +318,7 @@ class GameProvider extends ChangeNotifier {
   /// Returns true iff the player advanced to the next level as a result
   /// of this outcome.
   bool reportOutcome(GameOutcome outcome) {
-    debugPrint(
+    if (kDebugMode) debugPrint(
         '[GAME_PROVIDER] 🎯 Recording ${outcome.gameType} result: '
         '${outcome.wasSuccessful ? "WIN" : "LOSS"} at difficulty ${outcome.difficulty}');
 
@@ -330,7 +330,7 @@ class GameProvider extends ChangeNotifier {
 
     final skill = gameSkillMap[outcome.gameType];
     if (skill == null) {
-      debugPrint('[GAME_PROVIDER] ⚠️ Unknown game type: ${outcome.gameType}');
+      if (kDebugMode) debugPrint('[GAME_PROVIDER] ⚠️ Unknown game type: ${outcome.gameType}');
       return false;
     }
 
@@ -374,7 +374,7 @@ class GameProvider extends ChangeNotifier {
 
   bool canAdvanceToNextLevel(String gameType, int currentLevel) {
     if ((_currentLevelWins[gameType] ?? 0) < kWinsRequiredForLevelUp) {
-      debugPrint('[GAME_PROVIDER] ❌ $gameType: '
+      if (kDebugMode) debugPrint('[GAME_PROVIDER] ❌ $gameType: '
           'Only ${_currentLevelWins[gameType] ?? 0}/$kWinsRequiredForLevelUp wins');
       return false;
     }
@@ -390,7 +390,7 @@ class GameProvider extends ChangeNotifier {
   }
 
   void advanceLevel(String gameType) {
-    debugPrint('[GAME_PROVIDER] 📈 $gameType advancing to level ${(_gameProgress[gameType] ?? 1) + 1}');
+    if (kDebugMode) debugPrint('[GAME_PROVIDER] 📈 $gameType advancing to level ${(_gameProgress[gameType] ?? 1) + 1}');
     updateGameProgress(gameType, (_gameProgress[gameType] ?? 1) + 1);
     _currentLevelWins[gameType] = 0;
   }
@@ -405,7 +405,7 @@ class GameProvider extends ChangeNotifier {
 
     final hasMastery = stat.tracked >= kMinTrackedItemsForMastery &&
         stat.successRate >= kDefaultPassThreshold;
-    debugPrint('[GAME_PROVIDER] Spelling mastery @ Grade $_grade: ${stat.mastered}/${stat.tracked} (${stat.successRate * 100}%) ${hasMastery ? "✓" : "✗"}');
+    if (kDebugMode) debugPrint('[GAME_PROVIDER] Spelling mastery @ Grade $_grade: ${stat.mastered}/${stat.tracked} (${stat.successRate * 100}%) ${hasMastery ? "✓" : "✗"}');
     return hasMastery;
   }
 

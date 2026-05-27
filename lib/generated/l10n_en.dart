@@ -1147,6 +1147,12 @@ class SEn extends S {
       'Pick the right verb form for each pronoun';
 
   @override
+  String get conjugationDrillGameOverTitle => 'Exercise complete';
+
+  @override
+  String get conjugationDrillGameOverLabel => 'correct conjugations';
+
+  @override
   String get homophoneDrillTitle => 'Homophone Drill';
 
   @override

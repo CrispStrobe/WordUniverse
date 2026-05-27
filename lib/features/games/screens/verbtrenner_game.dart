@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
@@ -171,7 +172,7 @@ class _VerbtrennerGameState extends State<VerbtrennerGame>
             w.gradeLevel <= widget.gradeLevel.index + 3) // Slightly above grade
         .toList();
 
-    debugPrint('[TRENNBARE VERBEN] Found ${verbs.length} verbs to check');
+    if (kDebugMode) debugPrint('[TRENNBARE VERBEN] Found ${verbs.length} verbs to check');
 
     // Process each verb to find separable ones
     for (final verb in verbs) {
@@ -187,7 +188,7 @@ class _VerbtrennerGameState extends State<VerbtrennerGame>
       _pairQueue.removeRange(_totalItems, _pairQueue.length);
     }
 
-    debugPrint('[TRENNBARE VERBEN] Generated ${_pairQueue.length} verb pairs');
+    if (kDebugMode) debugPrint('[TRENNBARE VERBEN] Generated ${_pairQueue.length} verb pairs');
   }
 
   /// Check if a verb is separable based on Wiktionary inflections

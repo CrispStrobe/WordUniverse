@@ -395,8 +395,8 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
       _roundHistory.add(RoundStats(targetType: _currentTargetType!));
     });
 
-    _startRoundTimer();
-    _startWordSpawning(); 
+    if (_gameProvider.puzzleTimerEnabled) _startRoundTimer();
+    _startWordSpawning();
 
     _audioService.playSound('tap');
   }
@@ -834,7 +834,9 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
   }
 
   Widget _buildTopBar() {
-    final totalGems = context.watch<GameProvider>().score;
+    final gp = context.watch<GameProvider>();
+    final totalGems = gp.score;
+    final timerEnabled = gp.puzzleTimerEnabled;
     final timeColor = _roundTimeRemaining < 5 ? SpaceTheme.rocketRed : SpaceTheme.alienGreen;
 
     return Container(
@@ -894,12 +896,14 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
                   label: 'Serie: $_streak',
                   child: _buildStatCompact(Icons.local_fire_department_rounded, '$_streak', Colors.orange),
                 ),
-                _buildVerticalDivider(),
-                // Time (no liveRegion: ticks every second).
-                Semantics(
-                  label: 'Zeit: $_roundTimeRemaining Sekunden',
-                  child: _buildStatCompact(Icons.timer_rounded, '${_roundTimeRemaining}s', timeColor),
-                ),
+                if (timerEnabled) ...[
+                  _buildVerticalDivider(),
+                  // Time (no liveRegion: ticks every second).
+                  Semantics(
+                    label: 'Zeit: $_roundTimeRemaining Sekunden',
+                    child: _buildStatCompact(Icons.timer_rounded, '${_roundTimeRemaining}s', timeColor),
+                  ),
+                ],
               ],
             ),
           ),

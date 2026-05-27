@@ -130,12 +130,13 @@ class _AntonymFlashGameState extends State<AntonymFlashGame>
                 ? 'Ein Wort erscheint — tippe schnell auf sein Gegenteil.'
                 : 'A word appears — tap its opposite as fast as you can.',
           ),
-          OnboardingStep(
-            icon: Icons.timer,
-            body: isDE
-                ? 'Du hast 30 Sekunden. Je mehr richtige Antworten, desto besser dein Score.'
-                : 'You have 30 seconds. More correct answers means a better score.',
-          ),
+          if (_gameProvider.puzzleTimerEnabled)
+            OnboardingStep(
+              icon: Icons.timer,
+              body: isDE
+                  ? 'Du hast 30 Sekunden. Je mehr richtige Antworten, desto besser dein Score.'
+                  : 'You have 30 seconds. More correct answers means a better score.',
+            ),
         ],
       );
     }
@@ -221,6 +222,7 @@ class _AntonymFlashGameState extends State<AntonymFlashGame>
   }
 
   void _startTimer() {
+    if (!_gameProvider.puzzleTimerEnabled) return;
     _timerCtrl.forward(from: 0);
     _sessionTimer?.cancel();
     _sessionTimer = Timer.periodic(const Duration(seconds: 1), (t) {
@@ -316,11 +318,12 @@ class _AntonymFlashGameState extends State<AntonymFlashGame>
                   .copyWith(color: SpaceTheme.starYellow, fontSize: 32),
             ),
             const SizedBox(height: 4),
-            Text(
-              _isDE ? 'richtig in ${_sessionSeconds - _secondsLeft}s'
-                    : 'correct in ${_sessionSeconds - _secondsLeft}s',
-              style: SpaceTheme.bodyStyle.copyWith(color: Colors.white70),
-            ),
+            if (_gameProvider.puzzleTimerEnabled)
+              Text(
+                _isDE ? 'richtig in ${_sessionSeconds - _secondsLeft}s'
+                      : 'correct in ${_sessionSeconds - _secondsLeft}s',
+                style: SpaceTheme.bodyStyle.copyWith(color: Colors.white70),
+              ),
           ],
         ),
         actions: [
@@ -382,7 +385,7 @@ class _AntonymFlashGameState extends State<AntonymFlashGame>
     return Column(
       children: [
         _buildHeader(),
-        _buildTimerBar(),
+        if (_gameProvider.puzzleTimerEnabled) _buildTimerBar(),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -427,31 +430,32 @@ class _AntonymFlashGameState extends State<AntonymFlashGame>
               ],
             ),
           ),
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: _secondsLeft <= 5
-                    ? SpaceTheme.rocketRed
-                    : SpaceTheme.starYellow,
-                width: 2,
-              ),
-            ),
-            child: Center(
-              child: Text(
-                '$_secondsLeft',
-                style: TextStyle(
+          if (_gameProvider.puzzleTimerEnabled)
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
                   color: _secondsLeft <= 5
                       ? SpaceTheme.rocketRed
                       : SpaceTheme.starYellow,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                  width: 2,
+                ),
+              ),
+              child: Center(
+                child: Text(
+                  '$_secondsLeft',
+                  style: TextStyle(
+                    color: _secondsLeft <= 5
+                        ? SpaceTheme.rocketRed
+                        : SpaceTheme.starYellow,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
-          ),
         ],
       ),
     );

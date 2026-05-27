@@ -2145,6 +2145,18 @@ abstract class S {
   /// **'Pick the right verb form for each pronoun'**
   String get conjugationDrillDescription;
 
+  /// No description provided for @conjugationDrillGameOverTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Exercise complete'**
+  String get conjugationDrillGameOverTitle;
+
+  /// No description provided for @conjugationDrillGameOverLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'correct conjugations'**
+  String get conjugationDrillGameOverLabel;
+
   /// No description provided for @homophoneDrillTitle.
   ///
   /// In en, this message translates to:
