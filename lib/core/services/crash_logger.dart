@@ -72,7 +72,7 @@ class CrashLogger {
     } catch (e) {
       // If we can't even open the file we still install handlers; entries
       // will just be debugPrint'd. Better than crashing the crash logger.
-      debugPrint('[CrashLogger] Could not open log file: $e');
+      if (kDebugMode) debugPrint('[CrashLogger] Could not open log file: $e');
     }
 
     FlutterError.onError = (details) {
@@ -126,7 +126,7 @@ class CrashLogger {
       context: context,
     );
 
-    debugPrint('[CrashLogger] $source: $summary');
+    if (kDebugMode) debugPrint('[CrashLogger] $source: $summary');
 
     final file = _file;
     if (file == null) return;
@@ -142,7 +142,7 @@ class CrashLogger {
         );
         await _maybeRotate();
       } catch (e) {
-        debugPrint('[CrashLogger] write failed: $e');
+        if (kDebugMode) debugPrint('[CrashLogger] write failed: $e');
       }
     }());
   }

@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
@@ -95,7 +96,7 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
   bool _showTitle = true;
 
   void _log(String message) {
-    debugPrint('[GROSSSCHREIBUNG] $message');
+    if (kDebugMode) debugPrint('[GROSSSCHREIBUNG] $message');
   }
 
   @override

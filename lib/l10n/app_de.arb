@@ -642,6 +642,8 @@
 
     "conjugationDrillTitle": "Konjugations-Drill",
     "conjugationDrillDescription": "Wähle die richtige Verbform für jedes Personalpronomen",
+    "conjugationDrillGameOverTitle": "Übung beendet",
+    "conjugationDrillGameOverLabel": "richtige Konjugationen",
 
     "homophoneDrillTitle": "Homophone Drill",
     "homophoneDrillDescription": "Pick the right spelling — hear vs here, to vs too vs two",

@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/services/audio_service.dart';
@@ -171,8 +172,8 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
     }
 
     _loadNextWord();
-    _startTimer();
-    
+    if (_gameProvider.puzzleTimerEnabled) _startTimer();
+
     _instructionTimer?.cancel();
     _instructionTimer = Timer(const Duration(seconds: 3), () {
       if (mounted) {
@@ -262,7 +263,7 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
     }
 
     if (candidateWords.isEmpty) {
-      debugPrint("No words found for WordBuilderGame");
+      if (kDebugMode) debugPrint("No words found for WordBuilderGame");
       if (mounted) {
         Navigator.of(context).pop();
       }
@@ -373,7 +374,9 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
       _wordsCompleted++;
       
       int baseScore = 100;
-      _timeBonus = (_secondsRemaining > 45) ? 50 : ((_secondsRemaining > 30) ? 25 : 0);
+      _timeBonus = _gameProvider.puzzleTimerEnabled
+          ? ((_secondsRemaining > 45) ? 50 : ((_secondsRemaining > 30) ? 25 : 0))
+          : 0;
       int hintPenalty = _hintsUsed * 10;
       
       _score += baseScore + _timeBonus - hintPenalty;
@@ -664,8 +667,10 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
 
   // NEW: Unified compact top bar with icon buttons
   Widget _buildUnifiedTopBar(S s) {
-    final timeColor = _secondsRemaining < 10 
-        ? SpaceTheme.rocketRed 
+    final gp = context.watch<GameProvider>();
+    final timerEnabled = gp.puzzleTimerEnabled;
+    final timeColor = _secondsRemaining < 10
+        ? SpaceTheme.rocketRed
         : (_secondsRemaining < 30 ? SpaceTheme.planetOrange : SpaceTheme.alienGreen);
 
     return Container(
@@ -818,10 +823,11 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
           const Spacer(),
 
           // Time (no liveRegion: ticks every second, would spam screen readers).
-          Semantics(
-            label: 'Zeit: $_secondsRemaining Sekunden',
-            child: _buildCompactStat(Icons.timer, '${_secondsRemaining}s', timeColor),
-          ),
+          if (timerEnabled)
+            Semantics(
+              label: 'Zeit: $_secondsRemaining Sekunden',
+              child: _buildCompactStat(Icons.timer, '${_secondsRemaining}s', timeColor),
+            ),
         ],
       ),
     );

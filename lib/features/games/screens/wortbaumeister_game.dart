@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
@@ -162,7 +163,7 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
 
   void _generateChallengeQueue() {
     _challengeQueue.clear();
-    debugPrint('[WORTBAUMEISTER] 🏗️ Generating new queue from Database examples...');
+    if (kDebugMode) debugPrint('[WORTBAUMEISTER] 🏗️ Generating new queue from Database examples...');
 
     final allWords = _vocabularyService.getAllWords(_gameProvider);
 
@@ -176,7 +177,7 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
 
     final nounChallenges = _generateNounChallenges(nouns, nounMap)..shuffle();
 
-    debugPrint('[WORTBAUMEISTER] 📊 Generated Pool: ${nounChallenges.length} Nouns');
+    if (kDebugMode) debugPrint('[WORTBAUMEISTER] 📊 Generated Pool: ${nounChallenges.length} Nouns');
 
     for (final c in nounChallenges) {
       if (_challengeQueue.length >= _totalItems) break;

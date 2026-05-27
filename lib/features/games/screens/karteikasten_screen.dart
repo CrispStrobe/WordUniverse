@@ -7,7 +7,6 @@
 // onto a target box card.
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/services/sri_service.dart';
@@ -80,7 +79,7 @@ class _KarteikastenScreenState extends State<KarteikastenScreen> {
             child: DragTarget<String>(
               onWillAcceptWithDetails: (_) => true,
               onAcceptWithDetails: (d) async {
-                if (context.read<GameProvider>().hapticEnabled) HapticFeedback.mediumImpact();
+                context.read<GameProvider>().hapticMedium();
                 await context
                     .read<SriService>()
                     .moveItemToBox(d.data, boxNum);

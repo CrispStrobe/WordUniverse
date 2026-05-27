@@ -177,10 +177,11 @@ class _ProverbClozeGameState extends State<ProverbClozeGame>
             icon: Icons.auto_stories,
             body: 'Ein Sprichwort erscheint mit einer Lücke — tippe das richtige Wort.',
           ),
-          const OnboardingStep(
-            icon: Icons.timer,
-            body: '30 Sekunden, so viele Sprichwörter wie möglich!',
-          ),
+          if (_gameProvider.puzzleTimerEnabled)
+            OnboardingStep(
+              icon: Icons.timer,
+              body: '30 Sekunden, so viele Sprichwörter wie möglich!',
+            ),
         ],
       );
     }
@@ -286,6 +287,7 @@ class _ProverbClozeGameState extends State<ProverbClozeGame>
   // ─── timer ─────────────────────────────────────────────────────────────────
 
   void _startTimer() {
+    if (!_gameProvider.puzzleTimerEnabled) return;
     _timerCtrl.forward(from: 0);
     _sessionTimer?.cancel();
     _sessionTimer = Timer.periodic(const Duration(seconds: 1), (t) {
@@ -383,10 +385,11 @@ class _ProverbClozeGameState extends State<ProverbClozeGame>
                   .copyWith(color: SpaceTheme.starYellow, fontSize: 32),
             ),
             const SizedBox(height: 4),
-            Text(
-              'richtig in ${_sessionSeconds - _secondsLeft}s',
-              style: SpaceTheme.bodyStyle.copyWith(color: Colors.white70),
-            ),
+            if (_gameProvider.puzzleTimerEnabled)
+              Text(
+                'richtig in ${_sessionSeconds - _secondsLeft}s',
+                style: SpaceTheme.bodyStyle.copyWith(color: Colors.white70),
+              ),
           ],
         ),
         actions: [
@@ -446,7 +449,7 @@ class _ProverbClozeGameState extends State<ProverbClozeGame>
     return Column(
       children: [
         _buildHeader(),
-        _buildTimerBar(),
+        if (_gameProvider.puzzleTimerEnabled) _buildTimerBar(),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -491,31 +494,32 @@ class _ProverbClozeGameState extends State<ProverbClozeGame>
               ],
             ),
           ),
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: _secondsLeft <= 5
-                    ? SpaceTheme.rocketRed
-                    : SpaceTheme.starYellow,
-                width: 2,
-              ),
-            ),
-            child: Center(
-              child: Text(
-                '$_secondsLeft',
-                style: TextStyle(
+          if (_gameProvider.puzzleTimerEnabled)
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
                   color: _secondsLeft <= 5
                       ? SpaceTheme.rocketRed
                       : SpaceTheme.starYellow,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                  width: 2,
+                ),
+              ),
+              child: Center(
+                child: Text(
+                  '$_secondsLeft',
+                  style: TextStyle(
+                    color: _secondsLeft <= 5
+                        ? SpaceTheme.rocketRed
+                        : SpaceTheme.starYellow,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
-          ),
         ],
       ),
     );

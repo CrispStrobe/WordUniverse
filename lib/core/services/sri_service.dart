@@ -83,7 +83,7 @@ class SriService with ChangeNotifier {
 
   // UNCHANGED - Keep logging functionality
   void _log(String message) {
-    debugPrint('[SRI_SERVICE] 🚀 $message');
+    if (kDebugMode) debugPrint('[SRI_SERVICE] 🚀 $message');
   }
 
   // UNCHANGED

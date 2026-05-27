@@ -17,6 +17,7 @@ import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart';
 import '../../../core/theme/space_theme.dart';
+import '../../../generated/l10n.dart';
 import '../models/game_outcome.dart';
 import '../providers/game_provider.dart';
 import '../services/conjugation_drill_service.dart';
@@ -256,13 +257,14 @@ class _ConjugationDrillGameState extends State<ConjugationDrillGame>
       wasSuccessful: _total > 0 && (_correct / _total) >= 0.7,
     ));
 
+    final s = S.of(context)!;
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
         backgroundColor: SpaceTheme.deepSpace,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text('Übung beendet', style: SpaceTheme.headlineStyle),
+        title: Text(s.conjugationDrillGameOverTitle, style: SpaceTheme.headlineStyle),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -273,7 +275,7 @@ class _ConjugationDrillGameState extends State<ConjugationDrillGame>
             ),
             const SizedBox(height: 4),
             Text(
-              'richtige Konjugationen',
+              s.conjugationDrillGameOverLabel,
               style: SpaceTheme.bodyStyle.copyWith(color: Colors.white70),
             ),
           ],
@@ -284,7 +286,7 @@ class _ConjugationDrillGameState extends State<ConjugationDrillGame>
               Navigator.of(ctx).pop();
               Navigator.of(context).pop();
             },
-            child: const Text('Zurück'),
+            child: Text(s.backToMenu),
           ),
           ElevatedButton(
             onPressed: () {
@@ -293,7 +295,7 @@ class _ConjugationDrillGameState extends State<ConjugationDrillGame>
             },
             style: ElevatedButton.styleFrom(
                 backgroundColor: SpaceTheme.planetOrange),
-            child: const Text('Nochmal'),
+            child: Text(s.gameReplay),
           ),
         ],
       ),

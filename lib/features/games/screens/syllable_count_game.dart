@@ -162,12 +162,13 @@ class _SyllableCountGameState extends State<SyllableCountGame>
                 ? 'Ein Wort erscheint — tippe, wie viele Silben es hat.'
                 : 'A word appears — tap how many syllables it has.',
           ),
-          OnboardingStep(
-            icon: Icons.timer,
-            body: isDE
-                ? 'Du hast 30 Sekunden. Sprich das Wort laut aus, um die Silben zu spüren.'
-                : 'You have 30 seconds. Say the word aloud to feel its syllables.',
-          ),
+          if (_gameProvider.puzzleTimerEnabled)
+            OnboardingStep(
+              icon: Icons.timer,
+              body: isDE
+                  ? 'Du hast 30 Sekunden. Sprich das Wort laut aus, um die Silben zu spüren.'
+                  : 'You have 30 seconds. Say the word aloud to feel its syllables.',
+            ),
         ],
       );
     }
@@ -235,6 +236,7 @@ class _SyllableCountGameState extends State<SyllableCountGame>
   // ─── timer ─────────────────────────────────────────────────────────────────
 
   void _startTimer() {
+    if (!_gameProvider.puzzleTimerEnabled) return;
     _timerCtrl.forward(from: 0);
     _sessionTimer?.cancel();
     _sessionTimer = Timer.periodic(const Duration(seconds: 1), (t) {
@@ -332,12 +334,13 @@ class _SyllableCountGameState extends State<SyllableCountGame>
                   .copyWith(color: SpaceTheme.starYellow, fontSize: 32),
             ),
             const SizedBox(height: 4),
-            Text(
-              _isDE
-                  ? 'richtig in ${_sessionSeconds - _secondsLeft}s'
-                  : 'correct in ${_sessionSeconds - _secondsLeft}s',
-              style: SpaceTheme.bodyStyle.copyWith(color: Colors.white70),
-            ),
+            if (_gameProvider.puzzleTimerEnabled)
+              Text(
+                _isDE
+                    ? 'richtig in ${_sessionSeconds - _secondsLeft}s'
+                    : 'correct in ${_sessionSeconds - _secondsLeft}s',
+                style: SpaceTheme.bodyStyle.copyWith(color: Colors.white70),
+              ),
           ],
         ),
         actions: [
@@ -399,7 +402,7 @@ class _SyllableCountGameState extends State<SyllableCountGame>
     return Column(
       children: [
         _buildHeader(),
-        _buildTimerBar(),
+        if (_gameProvider.puzzleTimerEnabled) _buildTimerBar(),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -448,31 +451,32 @@ class _SyllableCountGameState extends State<SyllableCountGame>
               ],
             ),
           ),
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: _secondsLeft <= 5
-                    ? SpaceTheme.rocketRed
-                    : SpaceTheme.starYellow,
-                width: 2,
-              ),
-            ),
-            child: Center(
-              child: Text(
-                '$_secondsLeft',
-                style: TextStyle(
+          if (_gameProvider.puzzleTimerEnabled)
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
                   color: _secondsLeft <= 5
                       ? SpaceTheme.rocketRed
                       : SpaceTheme.starYellow,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                  width: 2,
+                ),
+              ),
+              child: Center(
+                child: Text(
+                  '$_secondsLeft',
+                  style: TextStyle(
+                    color: _secondsLeft <= 5
+                        ? SpaceTheme.rocketRed
+                        : SpaceTheme.starYellow,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
-          ),
         ],
       ),
     );
