@@ -389,6 +389,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         gradient: const LinearGradient(
             colors: [Color(0xFFFFA500), Color(0xFFFF6347)]),
         supportedLearningLanguages: const ['de', 'en'],
+        isPremium: true,
         onTap: () => _navigateToGame(WordBuilderGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
@@ -399,6 +400,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         gradient: const LinearGradient(
             colors: [Color(0xFF667eea), Color(0xFF764ba2)]),
         supportedLearningLanguages: const ['de', 'en'],
+        isPremium: true,
         onTap: () => _navigateToGame(WordTypeWhirlGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
@@ -409,6 +411,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         gradient: const LinearGradient(
             colors: [Color(0xFF00B4DB), Color(0xFF0083B0)]),
         supportedLearningLanguages: const ['de', 'en'],
+        isPremium: true,
         onTap: () => _navigateToGame(SpellingSpotterGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
@@ -419,6 +422,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         gradient: const LinearGradient(
             colors: [Color(0xFF43C6AC), Color(0xFF191654)]),
         supportedLearningLanguages: const ['de', 'en'],
+        isPremium: true,
         onTap: () => _navigateToGame(SentenceCompletionGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
@@ -429,6 +433,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         gradient: const LinearGradient(
             colors: [Color(0xFFDA22FF), Color(0xFF9733EE)]),
         supportedLearningLanguages: const ['de', 'en'],
+        isPremium: true,
         onTap: () => _navigateToGame(DefinitionQuizGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
@@ -448,6 +453,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         gradient: const LinearGradient(
             colors: [Color(0xFFFC4A1A), Color(0xFFF7B733)]),
         supportedLearningLanguages: const ['de', 'en'],
+        isPremium: true,
         onTap: () => _navigateToGame(AntonymFlashGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
@@ -458,6 +464,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         gradient: const LinearGradient(
             colors: [Color(0xFF11998E), Color(0xFF38EF7D)]),
         supportedLearningLanguages: const ['de', 'en'],
+        isPremium: true,
         onTap: () => _navigateToGame(SynonymFlashGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
@@ -468,6 +475,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         gradient: const LinearGradient(
             colors: [Color(0xFF00B09B), Color(0xFF96C93D)]),
         supportedLearningLanguages: const ['de'],
+        isPremium: true,
         onTap: () => _navigateToGame(ConjugationDrillGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
@@ -488,6 +496,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         gradient: const LinearGradient(
             colors: [Color(0xFF009FFF), Color(0xFFec2F4B)]),
         supportedLearningLanguages: const ['de', 'en'],
+        isPremium: true,
         onTap: () => _navigateToGame(SyllableCountGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
@@ -498,6 +507,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         gradient: const LinearGradient(
             colors: [Color(0xFFF7971E), Color(0xFFFFD200)]),
         supportedLearningLanguages: const ['de', 'en'],
+        isPremium: true,
         onTap: () => _navigateToGame(ClozeFlashGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
@@ -508,6 +518,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         gradient: const LinearGradient(
             colors: [Color(0xFF2193b0), Color(0xFF6dd5ed)]),
         supportedLearningLanguages: const ['de'],
+        isPremium: true,
         onTap: () => _navigateToGame(ExpressionFlashGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
@@ -518,6 +529,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         gradient: const LinearGradient(
             colors: [Color(0xFF4776E6), Color(0xFF8E54E9)]),
         supportedLearningLanguages: const ['en'],
+        isPremium: true,
         onTap: () => _navigateToGame(HomophoneDrillGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
@@ -528,6 +540,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         gradient: const LinearGradient(
             colors: [Color(0xFFEB3349), Color(0xFFF45C43)]),
         supportedLearningLanguages: const ['en'],
+        isPremium: true,
         onTap: () => _navigateToGame(HomophoneDrillGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade),
             mode: HomophoneGameMode.confusables)),
@@ -539,6 +552,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         gradient: const LinearGradient(
             colors: [Color(0xFFF2994A), Color(0xFFF2C94C)]),
         supportedLearningLanguages: const ['de'],
+        isPremium: true,
         onTap: () => _navigateToGame(WortbaumeisterGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
@@ -549,6 +563,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         gradient: const LinearGradient(
             colors: [Color(0xFF30E8BF), Color(0xFFFF8235)]),
         supportedLearningLanguages: const ['de'],
+        isPremium: true,
         onTap: () => _navigateToGame(GrossstadtGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
@@ -559,6 +574,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         gradient: const LinearGradient(
             colors: [Color(0xFF11998e), Color(0xFF38ef7d)]),
         supportedLearningLanguages: const ['de'],
+        isPremium: true,
         onTap: () => _navigateToGame(GrossschreibungsGalaxieGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
@@ -569,6 +585,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         gradient: const LinearGradient(
             colors: [Color(0xFF6A11CB), Color(0xFF2575FC)]),
         supportedLearningLanguages: const ['de'],
+        isPremium: true,
         onTap: () => _navigateToGame(VerbtrennerGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
@@ -579,6 +596,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         gradient: const LinearGradient(
             colors: [Color(0xFF7F00FF), Color(0xFFE100FF)]),
         supportedLearningLanguages: const ['de', 'en'],
+        isPremium: true,
         onTap: () => _navigateToGame(HypernymFlashGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
@@ -589,6 +607,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         gradient: const LinearGradient(
             colors: [Color(0xFF203A43), Color(0xFF2C5364)]),
         supportedLearningLanguages: const ['de', 'en'],
+        isPremium: true,
         onTap: () => _navigateToGame(WordClassFlashGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
@@ -599,6 +618,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         gradient: const LinearGradient(
             colors: [Color(0xFFc6a700), Color(0xFF5f0f40)]),
         supportedLearningLanguages: const ['de'],
+        isPremium: true,
         onTap: () => _navigateToGame(ProverbClozeGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
@@ -609,6 +629,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         gradient: const LinearGradient(
             colors: [Color(0xFF134E5E), Color(0xFF71B280)]),
         supportedLearningLanguages: const ['de'],
+        isPremium: true,
         onTap: () => _navigateToGame(ReverseTranslationFlashGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
@@ -623,10 +644,9 @@ class _GameMenuScreenState extends State<GameMenuScreen>
   Widget _buildGameCard(int index, GameInfo game) {
     final gameProvider = context.read<GameProvider>();
     final debugProvider = context.read<DebugProvider>();
-    final bool isPremiumContent = index > 1;
     final bool isUnlocked = gameProvider.isFullVersionUnlocked ||
         debugProvider.isPaidUnlockedForced;
-    final bool isLocked = isPremiumContent && !isUnlocked;
+    final bool isLocked = game.isPremium && !isUnlocked;
 
     if (index >= _cardAnimations.length) return const SizedBox.shrink();
 
@@ -738,13 +758,15 @@ class GameInfo {
   final Gradient gradient;
   final List<String> supportedLearningLanguages;
   final VoidCallback onTap;
+  final bool isPremium;
   GameInfo(
       {required this.title,
       required this.description,
       required this.icon,
       required this.gradient,
       this.supportedLearningLanguages = const ['de'],
-      required this.onTap});
+      required this.onTap,
+      this.isPremium = false});
 }
 
 class GameCard extends StatefulWidget {

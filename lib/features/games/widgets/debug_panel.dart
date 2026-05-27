@@ -6,7 +6,6 @@ import '../../../features/games/providers/game_provider.dart';
 import '../../../generated/l10n.dart';
 
 class DebugPanel extends StatefulWidget {
-  // FIX: Removed the onSettingsApplied parameter, making the constructor const.
   const DebugPanel({super.key});
 
   @override
@@ -16,6 +15,8 @@ class DebugPanel extends StatefulWidget {
 class _DebugPanelState extends State<DebugPanel> {
   late int _grade;
   late int _level;
+  Set<String> _selectedGameKeys = {};
+  bool _selectAll = false;
 
   @override
   void didChangeDependencies() {
@@ -39,7 +40,7 @@ class _DebugPanelState extends State<DebugPanel> {
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: SpaceTheme.nebulaPurple, width: 2),
         ),
-        child: SingleChildScrollView( // prevents overflow
+        child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -49,17 +50,26 @@ class _DebugPanelState extends State<DebugPanel> {
                 context.read<DebugProvider>().setPaidUnlock(value);
               }),
               const Divider(color: SpaceTheme.nebulaPurple, height: 32),
-              _buildSlider('Skill Level', _grade.toDouble(), 1, 4, (value) {
+              _buildSlider('Grade', _grade.toDouble(), 1, 6, (value) {
                 setState(() => _grade = value.toInt());
               }),
               _buildSlider('Game Level', _level.toDouble(), 1, 20, (value) {
                 setState(() => _level = value.toInt());
               }),
+              const Divider(color: SpaceTheme.nebulaPurple, height: 32),
+              Text(
+                'Force level for selected games:',
+                style: SpaceTheme.bodyStyle.copyWith(color: SpaceTheme.starYellow),
+              ),
+              _buildSelectAllToggle(),
+              _buildGameCheckboxList(),
               const SizedBox(height: 24),
               ElevatedButton.icon(
                 icon: const Icon(Icons.check),
                 onPressed: () {
-                  context.read<GameProvider>().setDifficulty(_grade, _level);
+                  final gp = context.read<GameProvider>();
+                  gp.setDifficulty(_grade, _level);
+                  gp.debugSetGameLevels(_level, _selectedGameKeys.toList());
                   Navigator.of(context).pop();
                 },
                 style: SpaceTheme.primaryButtonStyle,
@@ -68,6 +78,69 @@ class _DebugPanelState extends State<DebugPanel> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildSelectAllToggle() {
+    return CheckboxListTile(
+      title: Text(
+        'Select all games',
+        style: SpaceTheme.bodyStyle.copyWith(fontStyle: FontStyle.italic),
+      ),
+      value: _selectAll,
+      onChanged: (bool? value) {
+        setState(() {
+          _selectAll = value ?? false;
+          if (_selectAll) {
+            _selectedGameKeys = context.read<GameProvider>().gameSkillMap.keys.toSet();
+          } else {
+            _selectedGameKeys.clear();
+          }
+        });
+      },
+      controlAffinity: ListTileControlAffinity.leading,
+      activeColor: SpaceTheme.alienGreen,
+      checkColor: SpaceTheme.deepSpace,
+      dense: true,
+    );
+  }
+
+  Widget _buildGameCheckboxList() {
+    final allGameKeys = context.read<GameProvider>().gameSkillMap.keys.toList()..sort();
+
+    return Container(
+      height: 200,
+      width: double.maxFinite,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: SpaceTheme.nebulaPurple.withValues(alpha: 0.5)),
+      ),
+      child: ListView.builder(
+        shrinkWrap: true,
+        itemCount: allGameKeys.length,
+        itemBuilder: (context, index) {
+          final gameKey = allGameKeys[index];
+          return CheckboxListTile(
+            title: Text(gameKey, style: SpaceTheme.bodyStyle.copyWith(fontSize: 12)),
+            value: _selectedGameKeys.contains(gameKey),
+            onChanged: (bool? value) {
+              final total = allGameKeys.length;
+              setState(() {
+                if (value == true) {
+                  _selectedGameKeys.add(gameKey);
+                } else {
+                  _selectedGameKeys.remove(gameKey);
+                }
+                _selectAll = _selectedGameKeys.length == total;
+              });
+            },
+            dense: true,
+            controlAffinity: ListTileControlAffinity.leading,
+            activeColor: SpaceTheme.alienGreen,
+            checkColor: SpaceTheme.deepSpace,
+          );
+        },
       ),
     );
   }
@@ -90,7 +163,10 @@ class _DebugPanelState extends State<DebugPanel> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('$label: ${value.toInt()}', style: SpaceTheme.bodyStyle.copyWith(color: SpaceTheme.starYellow)),
+        Text(
+          '$label: ${value.toInt()}',
+          style: SpaceTheme.bodyStyle.copyWith(color: SpaceTheme.starYellow),
+        ),
         Slider(
           value: value,
           min: min,
