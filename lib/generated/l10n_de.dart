@@ -1901,4 +1901,78 @@ class SDe extends S {
 
   @override
   String get wordTypeAdverb => 'Adverb';
+
+  @override
+  String get wordTypePronoun => 'Pronomen';
+
+  @override
+  String get wordSortHintCorrect => '✓ Richtig!';
+
+  @override
+  String get wordSortHintWrong => '✗ Falsch!';
+
+  @override
+  String wordSortHintNotA(String type) {
+    return '✗ Kein $type!';
+  }
+
+  @override
+  String wordSortHintSynonym(String synonyms) {
+    return '✓ Synonym: $synonyms';
+  }
+
+  @override
+  String wordSortHintAntonym(String antonym) {
+    return '✓ Gegenteil: $antonym';
+  }
+
+  @override
+  String wordSortHintNounNaming(String word) {
+    return '✓ Nomen groß: $word (Großschreibung!)';
+  }
+
+  @override
+  String wordSortHintVerbAction(String word) {
+    return '✓ Verb: $word → beschreibt Handlung';
+  }
+
+  @override
+  String wordSortHintAdjQuality(String word) {
+    return '✓ Adjektiv: $word → Eigenschaft';
+  }
+
+  @override
+  String wordSortHintAdjQuestion(String word) {
+    return '✓ Wie-Frage: \"Wie ist es?\" → $word';
+  }
+
+  @override
+  String wordSortHintAdverbAction(String word) {
+    return '✓ Adverb: $word → unveränderlich!';
+  }
+
+  @override
+  String wordSortHintAdverbQuestion(String word) {
+    return '✓ Wie-Frage: \"Wie?\" → $word';
+  }
+
+  @override
+  String wordSortHintPronounReplaces(String word) {
+    return '✓ Pronomen: $word → ersetzt Nomen';
+  }
+
+  @override
+  String wordSortHintPronounStands(String word) {
+    return '✓ $word → steht für ein Nomen';
+  }
+
+  @override
+  String wordSortDragLabel(String word) {
+    return 'Wort: $word. Ziehe es auf die richtige Wortart.';
+  }
+
+  @override
+  String wordSortHintCorrectAs(String word, String type) {
+    return '✓ Richtig: $word ist ein $type!';
+  }
 }

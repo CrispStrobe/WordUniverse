@@ -849,7 +849,7 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
       child: Row(
         children: [
           Semantics(
-            label: 'Zurück',
+            label: S.of(context)!.semanticsBack,
             button: true,
             child: IconButton(
               icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),

@@ -3434,6 +3434,102 @@ abstract class S {
   /// In en, this message translates to:
   /// **'Adverb'**
   String get wordTypeAdverb;
+
+  /// No description provided for @wordTypePronoun.
+  ///
+  /// In en, this message translates to:
+  /// **'Pronoun'**
+  String get wordTypePronoun;
+
+  /// No description provided for @wordSortHintCorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ Correct!'**
+  String get wordSortHintCorrect;
+
+  /// No description provided for @wordSortHintWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'✗ Wrong!'**
+  String get wordSortHintWrong;
+
+  /// No description provided for @wordSortHintNotA.
+  ///
+  /// In en, this message translates to:
+  /// **'✗ Not a {type}!'**
+  String wordSortHintNotA(String type);
+
+  /// No description provided for @wordSortHintSynonym.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ Also: {synonyms}'**
+  String wordSortHintSynonym(String synonyms);
+
+  /// No description provided for @wordSortHintAntonym.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ Opposite: {antonym}'**
+  String wordSortHintAntonym(String antonym);
+
+  /// No description provided for @wordSortHintNounNaming.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ Noun: {word} (a naming word)'**
+  String wordSortHintNounNaming(String word);
+
+  /// No description provided for @wordSortHintVerbAction.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ Verb: {word} → action or state'**
+  String wordSortHintVerbAction(String word);
+
+  /// No description provided for @wordSortHintAdjQuality.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ Adjective: {word} → describes a quality'**
+  String wordSortHintAdjQuality(String word);
+
+  /// No description provided for @wordSortHintAdjQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ Answers \"What is it like?\" → {word}'**
+  String wordSortHintAdjQuestion(String word);
+
+  /// No description provided for @wordSortHintAdverbAction.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ Adverb: {word} → tells how/when/where'**
+  String wordSortHintAdverbAction(String word);
+
+  /// No description provided for @wordSortHintAdverbQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ Answers: how? when? where? → {word}'**
+  String wordSortHintAdverbQuestion(String word);
+
+  /// No description provided for @wordSortHintPronounReplaces.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ Pronoun: {word} → replaces a noun'**
+  String wordSortHintPronounReplaces(String word);
+
+  /// No description provided for @wordSortHintPronounStands.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ {word} → stands for a noun or noun phrase'**
+  String wordSortHintPronounStands(String word);
+
+  /// No description provided for @wordSortDragLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Word: {word}. Drag it to the correct word class.'**
+  String wordSortDragLabel(String word);
+
+  /// No description provided for @wordSortHintCorrectAs.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ Correct: {word} is a {type}!'**
+  String wordSortHintCorrectAs(String word, String type);
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

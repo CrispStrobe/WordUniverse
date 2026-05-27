@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/theme/space_theme.dart';
+import '../../../generated/l10n.dart';
 import '../providers/game_provider.dart';
 
 /// A smart, responsive, and backward-compatible UI header for all mini-games.
@@ -44,7 +45,7 @@ class GameUI extends StatelessWidget {
             children: [
               // Back Button
               Semantics(
-                label: 'Zurück',
+                label: S.of(context)!.semanticsBack,
                 button: true,
                 child: IconButton(
                   icon: Icon(

@@ -422,7 +422,7 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
           children: [
             // --- LEFT SECTION: Back & Level ---
             Semantics(
-              label: 'Zurück',
+              label: S.of(context)!.semanticsBack,
               button: true,
               child: IconButton(
                 icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),

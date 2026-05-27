@@ -712,7 +712,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
         children: [
           // Back button
           Semantics(
-            label: 'Zurück',
+            label: S.of(context)!.semanticsBack,
             button: true,
             child: IconButton(
               icon: Icon(Icons.arrow_back, color: Colors.white, size: isLandscape ? 20 : 24),

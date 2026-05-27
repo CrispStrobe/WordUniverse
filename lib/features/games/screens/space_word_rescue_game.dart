@@ -832,7 +832,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Semantics(
-              label: 'Zurück',
+              label: S.of(context)!.semanticsBack,
               button: true,
               child: IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.white, size: 18),
@@ -882,7 +882,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
         child: Row(
           children: [
             Semantics(
-              label: 'Zurück',
+              label: S.of(context)!.semanticsBack,
               button: true,
               child: IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
@@ -964,7 +964,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
           Row(
             children: [
               Semantics(
-                label: 'Zurück',
+                label: S.of(context)!.semanticsBack,
                 button: true,
                 child: IconButton(
                   icon: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
