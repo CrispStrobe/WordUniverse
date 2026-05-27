@@ -7,6 +7,8 @@ import 'dart:async';
 import '../../../core/services/debug_provider.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/streak_service.dart';
+import '../../../shared/widgets/purchase_dialog.dart';
+import '../../../shared/widgets/parental_gate.dart';
 import '../../games/screens/karteikasten_screen.dart';
 import '../../games/screens/cognitive_profile_screen.dart';
 import '../../achievements/screens/achievements_screen.dart';
@@ -297,18 +299,37 @@ class _HomeScreenState extends State<HomeScreen>
                 );
               },
             ),
-            Consumer<SriService>(
-              builder: (context, sri, _) {
+            Consumer2<SriService, GameProvider>(
+              builder: (context, sri, gameProvider, _) {
+                final debugProvider = context.read<DebugProvider>();
+                final isUnlocked = gameProvider.isFullVersionUnlocked ||
+                    debugProvider.isPaidUnlockedForced;
                 final due = sri.getAvailableReviewCount();
                 final btn = IconButton(
                   onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => const KarteikastenScreen(),
-                    ));
+                    if (isUnlocked) {
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => const KarteikastenScreen(),
+                      ));
+                    } else {
+                      showDialog(
+                        context: context,
+                        builder: (_) => ParentalGateDialog(
+                          onSuccess: () {
+                            Navigator.of(context).pop();
+                            showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (_) => const PurchaseDialog(),
+                            );
+                          },
+                        ),
+                      );
+                    }
                   },
                   icon: Icon(
-                    Icons.menu_book,
-                    color: Colors.white,
+                    isUnlocked ? Icons.menu_book : Icons.menu_book_outlined,
+                    color: isUnlocked ? Colors.white : SpaceTheme.moonSilver,
                     size: isVerySmall ? 22 : 28,
                   ),
                   tooltip: 'Review',
@@ -318,6 +339,7 @@ class _HomeScreenState extends State<HomeScreen>
                     padding: EdgeInsets.all(isVerySmall ? 8 : 12),
                   ),
                 );
+                if (!isUnlocked) return btn;
                 return due > 0
                     ? Badge.count(count: due, child: btn)
                     : btn;

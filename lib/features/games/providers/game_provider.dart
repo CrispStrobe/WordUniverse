@@ -527,6 +527,14 @@ class GameProvider extends ChangeNotifier {
     _saveProgress();
   }
 
+  void debugSetGameLevels(int newLevel, List<String> gameKeys) {
+    for (final key in gameKeys) {
+      _gameProgress[key] = newLevel;
+    }
+    notifyListeners();
+    _saveProgress();
+  }
+
   // Grade/Skill Level management
   void setGrade(int grade) {
     _grade = grade.clamp(1, 6); 
