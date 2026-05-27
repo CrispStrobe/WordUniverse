@@ -184,7 +184,7 @@ class _SettingsScreenState extends State<SettingsScreen>
         if (customSets.isEmpty)
           Center(
             child: Text(
-              "No custom sets created yet.",
+              S.of(context)!.noCustomSetsYet,
               style: SpaceTheme.bodyStyle
                   .copyWith(color: Colors.white54, fontStyle: FontStyle.italic),
             ),
@@ -733,7 +733,7 @@ class _SettingsScreenState extends State<SettingsScreen>
             : _availableSources.isEmpty
                 ? Center(
                     child: Text(
-                      "Keine Quellen gefunden",
+                      S.of(context)!.noSourcesFound,
                       style:
                           SpaceTheme.bodyStyle.copyWith(color: Colors.white54),
                     ),
@@ -1296,8 +1296,8 @@ class _SettingsScreenState extends State<SettingsScreen>
             },
           ),
           _buildFeatureRow(
-            title: 'Diagnostics',
-            subtitle: 'View crash log (stays on device)',
+            title: S.of(context)!.diagnosticsTitle,
+            subtitle: S.of(context)!.diagnosticsSubtitle,
             icon: Icons.bug_report,
             isLocked: false,
             onTap: () {
@@ -1309,8 +1309,8 @@ class _SettingsScreenState extends State<SettingsScreen>
             },
           ),
           _buildFeatureRow(
-            title: 'Eltern-Übersicht',
-            subtitle: 'Fortschritt, mit PIN geschützt',
+            title: S.of(context)!.parentDashboardTitle,
+            subtitle: S.of(context)!.parentDashboardSubtitle,
             icon: Icons.family_restroom,
             isLocked: false,
             onTap: () {
@@ -1322,8 +1322,8 @@ class _SettingsScreenState extends State<SettingsScreen>
             },
           ),
           _buildFeatureRow(
-            title: 'Datenschutz',
-            subtitle: 'Was auf diesem Gerät gespeichert wird',
+            title: S.of(context)!.privacyTitle,
+            subtitle: S.of(context)!.privacySubtitle,
             icon: Icons.shield_outlined,
             isLocked: false,
             onTap: () {
@@ -1334,8 +1334,8 @@ class _SettingsScreenState extends State<SettingsScreen>
             },
           ),
           _buildFeatureRow(
-            title: 'Alle Daten löschen',
-            subtitle: 'Fortschritt auf diesem Gerät zurücksetzen',
+            title: S.of(context)!.deleteAllDataTitle,
+            subtitle: S.of(context)!.deleteAllDataSubtitle,
             icon: Icons.delete_forever,
             isLocked: false,
             onTap: () => _confirmResetAllData(context),

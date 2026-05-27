@@ -2337,11 +2337,311 @@ abstract class S {
   /// **'Play at least four different games.'**
   String get achievementVielseitigDesc;
 
+  /// No description provided for @achievementAntonymAceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Antonym Ace'**
+  String get achievementAntonymAceTitle;
+
+  /// No description provided for @achievementAntonymAceDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Antonym Flash 3 times.'**
+  String get achievementAntonymAceDesc;
+
+  /// No description provided for @achievementSynonymScholarTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Synonym Scholar'**
+  String get achievementSynonymScholarTitle;
+
+  /// No description provided for @achievementSynonymScholarDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Synonym Flash 3 times.'**
+  String get achievementSynonymScholarDesc;
+
+  /// No description provided for @achievementClozeMasterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloze Master'**
+  String get achievementClozeMasterTitle;
+
+  /// No description provided for @achievementClozeMasterDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Cloze Flash 3 times.'**
+  String get achievementClozeMasterDesc;
+
+  /// No description provided for @achievementTranslationTitanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Translation Titan'**
+  String get achievementTranslationTitanTitle;
+
+  /// No description provided for @achievementTranslationTitanDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Translation Flash 3 times.'**
+  String get achievementTranslationTitanDesc;
+
+  /// No description provided for @achievementReverseLinguistTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reverse Linguist'**
+  String get achievementReverseLinguistTitle;
+
+  /// No description provided for @achievementReverseLinguistDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Reverse Translation 3 times.'**
+  String get achievementReverseLinguistDesc;
+
+  /// No description provided for @achievementSyllableCounterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Syllable Counter'**
+  String get achievementSyllableCounterTitle;
+
+  /// No description provided for @achievementSyllableCounterDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Syllable Count 3 times.'**
+  String get achievementSyllableCounterDesc;
+
+  /// No description provided for @achievementExpressionExpertTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Expression Expert'**
+  String get achievementExpressionExpertTitle;
+
+  /// No description provided for @achievementExpressionExpertDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Expression Flash 3 times.'**
+  String get achievementExpressionExpertDesc;
+
+  /// No description provided for @achievementHypernymHunterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hypernym Hunter'**
+  String get achievementHypernymHunterTitle;
+
+  /// No description provided for @achievementHypernymHunterDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Hypernym Flash 3 times.'**
+  String get achievementHypernymHunterDesc;
+
+  /// No description provided for @achievementWordClassWhizTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Word Class Whiz'**
+  String get achievementWordClassWhizTitle;
+
+  /// No description provided for @achievementWordClassWhizDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Word Class Flash 3 times.'**
+  String get achievementWordClassWhizDesc;
+
+  /// No description provided for @achievementProverbSageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Proverb Sage'**
+  String get achievementProverbSageTitle;
+
+  /// No description provided for @achievementProverbSageDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Proverb Cloze 3 times.'**
+  String get achievementProverbSageDesc;
+
+  /// No description provided for @achievementConjugationKingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Conjugation King'**
+  String get achievementConjugationKingTitle;
+
+  /// No description provided for @achievementConjugationKingDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Conjugation Drill 3 times.'**
+  String get achievementConjugationKingDesc;
+
+  /// No description provided for @achievementVerbSplitterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Verb Splitter'**
+  String get achievementVerbSplitterTitle;
+
+  /// No description provided for @achievementVerbSplitterDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Verbtrenner 3 times.'**
+  String get achievementVerbSplitterDesc;
+
+  /// No description provided for @achievementDefinitionWizardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Definition Wizard'**
+  String get achievementDefinitionWizardTitle;
+
+  /// No description provided for @achievementDefinitionWizardDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Definition Quiz 3 times.'**
+  String get achievementDefinitionWizardDesc;
+
+  /// No description provided for @achievementSentenceSmithTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sentence Smith'**
+  String get achievementSentenceSmithTitle;
+
+  /// No description provided for @achievementSentenceSmithDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Sentence Completion 3 times.'**
+  String get achievementSentenceSmithDesc;
+
+  /// No description provided for @achievementSpellingSleutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Spelling Sleuth'**
+  String get achievementSpellingSleutTitle;
+
+  /// No description provided for @achievementSpellingSleutDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Spelling Spotter 3 times.'**
+  String get achievementSpellingSleutDesc;
+
+  /// No description provided for @achievementHomophoneHeroTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Homophone Hero'**
+  String get achievementHomophoneHeroTitle;
+
+  /// No description provided for @achievementHomophoneHeroDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Homophone Drill 3 times.'**
+  String get achievementHomophoneHeroDesc;
+
+  /// No description provided for @achievementConfusableProTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confusable Pro'**
+  String get achievementConfusableProTitle;
+
+  /// No description provided for @achievementConfusableProDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Confusable Drill 3 times.'**
+  String get achievementConfusableProDesc;
+
+  /// No description provided for @achievementReviewRegularTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review Regular'**
+  String get achievementReviewRegularTitle;
+
+  /// No description provided for @achievementReviewRegularDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete SRI Review 5 times.'**
+  String get achievementReviewRegularDesc;
+
+  /// No description provided for @diagnosticsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Diagnostics'**
+  String get diagnosticsTitle;
+
+  /// No description provided for @diagnosticsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'View crash log (stays on device)'**
+  String get diagnosticsSubtitle;
+
   /// No description provided for @parentDashboardTitle.
   ///
   /// In en, this message translates to:
   /// **'Parent Overview'**
   String get parentDashboardTitle;
+
+  /// No description provided for @parentDashboardSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress, PIN-protected'**
+  String get parentDashboardSubtitle;
+
+  /// No description provided for @privacyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy'**
+  String get privacyTitle;
+
+  /// No description provided for @privacySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What is stored on this device'**
+  String get privacySubtitle;
+
+  /// No description provided for @deleteAllDataTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete All Data'**
+  String get deleteAllDataTitle;
+
+  /// No description provided for @deleteAllDataSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset progress on this device'**
+  String get deleteAllDataSubtitle;
+
+  /// No description provided for @noSourcesFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No sources found'**
+  String get noSourcesFound;
+
+  /// No description provided for @noCustomSetsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No custom sets created yet.'**
+  String get noCustomSetsYet;
+
+  /// No description provided for @antonymFlashPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Opposite of …'**
+  String get antonymFlashPrompt;
+
+  /// No description provided for @syllableCountPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'How many syllables?'**
+  String get syllableCountPrompt;
+
+  /// No description provided for @wordClassFlashPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'What word class?'**
+  String get wordClassFlashPrompt;
+
+  /// No description provided for @noAntonymData.
+  ///
+  /// In en, this message translates to:
+  /// **'No antonym data available at this level.'**
+  String get noAntonymData;
+
+  /// No description provided for @correctInSeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'correct in {n}s'**
+  String correctInSeconds(int n);
 
   /// No description provided for @parentPinTitle.
   ///

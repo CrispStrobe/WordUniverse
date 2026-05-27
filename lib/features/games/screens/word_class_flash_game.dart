@@ -277,9 +277,7 @@ class _WordClassFlashGameState extends State<WordClassFlashGame>
             const SizedBox(height: 4),
             if (_gameProvider.puzzleTimerEnabled)
               Text(
-                _isDE
-                    ? 'richtig in ${_sessionSeconds - _secondsLeft}s'
-                    : 'correct in ${_sessionSeconds - _secondsLeft}s',
+                _s.correctInSeconds(_sessionSeconds - _secondsLeft),
                 style: SpaceTheme.bodyStyle.copyWith(color: Colors.white70),
               ),
           ],
@@ -407,14 +405,12 @@ class _WordClassFlashGameState extends State<WordClassFlashGame>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _isDE ? 'Wortart-Blitz' : 'Word Class Flash',
+                  _s.wordClassFlashTitle,
                   style: SpaceTheme.titleStyle
                       .copyWith(color: SpaceTheme.starYellow),
                 ),
                 Text(
-                  _isDE
-                      ? '$_correct richtig'
-                      : '$_correct correct',
+                  '$_correct ${_s.correct}',
                   style: SpaceTheme.bodyStyle.copyWith(color: Colors.white60),
                 ),
               ],
@@ -508,7 +504,7 @@ class _WordClassFlashGameState extends State<WordClassFlashGame>
         child: Column(
           children: [
             Text(
-              _isDE ? 'Welche Wortart?' : 'What word class?',
+              _s.wordClassFlashPrompt,
               style: SpaceTheme.bodyStyle.copyWith(
                 color: Colors.white60,
                 fontSize: 13,
