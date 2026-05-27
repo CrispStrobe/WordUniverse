@@ -510,20 +510,26 @@ abstract class S {
   /// No description provided for @correct.
   ///
   /// In en, this message translates to:
-  /// **'Correct!'**
+  /// **'correct'**
   String get correct;
 
   /// No description provided for @gameOver.
   ///
   /// In en, this message translates to:
-  /// **'Expedition Complete!'**
+  /// **'Game Over'**
   String get gameOver;
 
   /// No description provided for @backToMenu.
   ///
   /// In en, this message translates to:
-  /// **'Back to the Word Universe'**
+  /// **'Back to Menu'**
   String get backToMenu;
+
+  /// No description provided for @goBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Go Back'**
+  String get goBack;
 
   /// No description provided for @playAgain.
   ///

@@ -279,17 +279,17 @@ class SpaceErrorScreen extends StatelessWidget {
                         ElevatedButton.icon(
                           onPressed: onBack,
                           icon: const Icon(Icons.arrow_back),
-                          label: const Text('Go Back'),
+                          label: Text(S.of(context)!.goBack),
                           style: SpaceTheme.secondaryButtonStyle,
                         ),
                         const SizedBox(width: 16),
                       ],
-                      
+
                       if (onRetry != null)
                         ElevatedButton.icon(
                           onPressed: onRetry,
                           icon: const Icon(Icons.refresh),
-                          label: const Text('Try Again'),
+                          label: Text(S.of(context)!.tryAgain),
                           style: SpaceTheme.primaryButtonStyle,
                         ),
                     ],
