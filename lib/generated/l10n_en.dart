@@ -1251,7 +1251,171 @@ class SEn extends S {
   String get achievementVielseitigDesc => 'Play at least four different games.';
 
   @override
+  String get achievementAntonymAceTitle => 'Antonym Ace';
+
+  @override
+  String get achievementAntonymAceDesc => 'Complete Antonym Flash 3 times.';
+
+  @override
+  String get achievementSynonymScholarTitle => 'Synonym Scholar';
+
+  @override
+  String get achievementSynonymScholarDesc => 'Complete Synonym Flash 3 times.';
+
+  @override
+  String get achievementClozeMasterTitle => 'Cloze Master';
+
+  @override
+  String get achievementClozeMasterDesc => 'Complete Cloze Flash 3 times.';
+
+  @override
+  String get achievementTranslationTitanTitle => 'Translation Titan';
+
+  @override
+  String get achievementTranslationTitanDesc =>
+      'Complete Translation Flash 3 times.';
+
+  @override
+  String get achievementReverseLinguistTitle => 'Reverse Linguist';
+
+  @override
+  String get achievementReverseLinguistDesc =>
+      'Complete Reverse Translation 3 times.';
+
+  @override
+  String get achievementSyllableCounterTitle => 'Syllable Counter';
+
+  @override
+  String get achievementSyllableCounterDesc =>
+      'Complete Syllable Count 3 times.';
+
+  @override
+  String get achievementExpressionExpertTitle => 'Expression Expert';
+
+  @override
+  String get achievementExpressionExpertDesc =>
+      'Complete Expression Flash 3 times.';
+
+  @override
+  String get achievementHypernymHunterTitle => 'Hypernym Hunter';
+
+  @override
+  String get achievementHypernymHunterDesc =>
+      'Complete Hypernym Flash 3 times.';
+
+  @override
+  String get achievementWordClassWhizTitle => 'Word Class Whiz';
+
+  @override
+  String get achievementWordClassWhizDesc =>
+      'Complete Word Class Flash 3 times.';
+
+  @override
+  String get achievementProverbSageTitle => 'Proverb Sage';
+
+  @override
+  String get achievementProverbSageDesc => 'Complete Proverb Cloze 3 times.';
+
+  @override
+  String get achievementConjugationKingTitle => 'Conjugation King';
+
+  @override
+  String get achievementConjugationKingDesc =>
+      'Complete Conjugation Drill 3 times.';
+
+  @override
+  String get achievementVerbSplitterTitle => 'Verb Splitter';
+
+  @override
+  String get achievementVerbSplitterDesc => 'Complete Verbtrenner 3 times.';
+
+  @override
+  String get achievementDefinitionWizardTitle => 'Definition Wizard';
+
+  @override
+  String get achievementDefinitionWizardDesc =>
+      'Complete Definition Quiz 3 times.';
+
+  @override
+  String get achievementSentenceSmithTitle => 'Sentence Smith';
+
+  @override
+  String get achievementSentenceSmithDesc =>
+      'Complete Sentence Completion 3 times.';
+
+  @override
+  String get achievementSpellingSleutTitle => 'Spelling Sleuth';
+
+  @override
+  String get achievementSpellingSleutDesc =>
+      'Complete Spelling Spotter 3 times.';
+
+  @override
+  String get achievementHomophoneHeroTitle => 'Homophone Hero';
+
+  @override
+  String get achievementHomophoneHeroDesc =>
+      'Complete Homophone Drill 3 times.';
+
+  @override
+  String get achievementConfusableProTitle => 'Confusable Pro';
+
+  @override
+  String get achievementConfusableProDesc =>
+      'Complete Confusable Drill 3 times.';
+
+  @override
+  String get achievementReviewRegularTitle => 'Review Regular';
+
+  @override
+  String get achievementReviewRegularDesc => 'Complete SRI Review 5 times.';
+
+  @override
+  String get diagnosticsTitle => 'Diagnostics';
+
+  @override
+  String get diagnosticsSubtitle => 'View crash log (stays on device)';
+
+  @override
   String get parentDashboardTitle => 'Parent Overview';
+
+  @override
+  String get parentDashboardSubtitle => 'Progress, PIN-protected';
+
+  @override
+  String get privacyTitle => 'Privacy';
+
+  @override
+  String get privacySubtitle => 'What is stored on this device';
+
+  @override
+  String get deleteAllDataTitle => 'Delete All Data';
+
+  @override
+  String get deleteAllDataSubtitle => 'Reset progress on this device';
+
+  @override
+  String get noSourcesFound => 'No sources found';
+
+  @override
+  String get noCustomSetsYet => 'No custom sets created yet.';
+
+  @override
+  String get antonymFlashPrompt => 'Opposite of …';
+
+  @override
+  String get syllableCountPrompt => 'How many syllables?';
+
+  @override
+  String get wordClassFlashPrompt => 'What word class?';
+
+  @override
+  String get noAntonymData => 'No antonym data available at this level.';
+
+  @override
+  String correctInSeconds(int n) {
+    return 'correct in ${n}s';
+  }
 
   @override
   String get parentPinTitle => 'Parent PIN';

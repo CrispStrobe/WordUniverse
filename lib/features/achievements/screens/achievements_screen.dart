@@ -27,7 +27,7 @@ const List<String> _kAchievementIds = [
   // Level-based
   'level_explorer',
   'space_commander',
-  // Per-game (3 levels)
+  // Per-game (3 sessions)
   'triangle_wizard',
   'bubble_popper',
   'puzzle_solver',
@@ -36,6 +36,24 @@ const List<String> _kAchievementIds = [
   'master_builder',
   'city_planner',
   'connection_expert',
+  'antonym_ace',
+  'synonym_scholar',
+  'cloze_master',
+  'translation_titan',
+  'reverse_linguist',
+  'syllable_counter',
+  'expression_expert',
+  'hypernym_hunter',
+  'word_class_whiz',
+  'proverb_sage',
+  'conjugation_king',
+  'verb_splitter',
+  'definition_wizard',
+  'sentence_smith',
+  'spelling_sleuth',
+  'homophone_hero',
+  'confusable_pro',
+  'review_regular',
   // Cross-game milestones
   'arithmetic_ace',
   'all_rounder',
@@ -56,6 +74,24 @@ const Map<String, String> _kAchievementIcons = {
   'master_builder': '🏗️',
   'city_planner': '🏙️',
   'connection_expert': '🌌',
+  'antonym_ace': '⚡',
+  'synonym_scholar': '📚',
+  'cloze_master': '✏️',
+  'translation_titan': '🌍',
+  'reverse_linguist': '🔄',
+  'syllable_counter': '🎵',
+  'expression_expert': '💬',
+  'hypernym_hunter': '🌳',
+  'word_class_whiz': '🏷️',
+  'proverb_sage': '📜',
+  'conjugation_king': '👑',
+  'verb_splitter': '✂️',
+  'definition_wizard': '🔮',
+  'sentence_smith': '⚒️',
+  'spelling_sleuth': '🔎',
+  'homophone_hero': '👂',
+  'confusable_pro': '🎯',
+  'review_regular': '🔁',
   'arithmetic_ace': '🎯',
   'all_rounder': '🎮',
 };
@@ -107,6 +143,42 @@ _AchievementInfo _infoFor(S s, String id) {
     case 'all_rounder':
       return _AchievementInfo(
           s.achievementVielseitigTitle, s.achievementVielseitigDesc, '🎮');
+    case 'antonym_ace':
+      return _AchievementInfo(s.achievementAntonymAceTitle, s.achievementAntonymAceDesc, '⚡');
+    case 'synonym_scholar':
+      return _AchievementInfo(s.achievementSynonymScholarTitle, s.achievementSynonymScholarDesc, '📚');
+    case 'cloze_master':
+      return _AchievementInfo(s.achievementClozeMasterTitle, s.achievementClozeMasterDesc, '✏️');
+    case 'translation_titan':
+      return _AchievementInfo(s.achievementTranslationTitanTitle, s.achievementTranslationTitanDesc, '🌍');
+    case 'reverse_linguist':
+      return _AchievementInfo(s.achievementReverseLinguistTitle, s.achievementReverseLinguistDesc, '🔄');
+    case 'syllable_counter':
+      return _AchievementInfo(s.achievementSyllableCounterTitle, s.achievementSyllableCounterDesc, '🎵');
+    case 'expression_expert':
+      return _AchievementInfo(s.achievementExpressionExpertTitle, s.achievementExpressionExpertDesc, '💬');
+    case 'hypernym_hunter':
+      return _AchievementInfo(s.achievementHypernymHunterTitle, s.achievementHypernymHunterDesc, '🌳');
+    case 'word_class_whiz':
+      return _AchievementInfo(s.achievementWordClassWhizTitle, s.achievementWordClassWhizDesc, '🏷️');
+    case 'proverb_sage':
+      return _AchievementInfo(s.achievementProverbSageTitle, s.achievementProverbSageDesc, '📜');
+    case 'conjugation_king':
+      return _AchievementInfo(s.achievementConjugationKingTitle, s.achievementConjugationKingDesc, '👑');
+    case 'verb_splitter':
+      return _AchievementInfo(s.achievementVerbSplitterTitle, s.achievementVerbSplitterDesc, '✂️');
+    case 'definition_wizard':
+      return _AchievementInfo(s.achievementDefinitionWizardTitle, s.achievementDefinitionWizardDesc, '🔮');
+    case 'sentence_smith':
+      return _AchievementInfo(s.achievementSentenceSmithTitle, s.achievementSentenceSmithDesc, '⚒️');
+    case 'spelling_sleuth':
+      return _AchievementInfo(s.achievementSpellingSleutTitle, s.achievementSpellingSleutDesc, '🔎');
+    case 'homophone_hero':
+      return _AchievementInfo(s.achievementHomophoneHeroTitle, s.achievementHomophoneHeroDesc, '👂');
+    case 'confusable_pro':
+      return _AchievementInfo(s.achievementConfusableProTitle, s.achievementConfusableProDesc, '🎯');
+    case 'review_regular':
+      return _AchievementInfo(s.achievementReviewRegularTitle, s.achievementReviewRegularDesc, '🔁');
     default:
       return _AchievementInfo(id, '', _kAchievementIcons[id] ?? '🏅');
   }

@@ -1264,7 +1264,175 @@ class SDe extends S {
       'Spiele mindestens vier verschiedene Spiele.';
 
   @override
+  String get achievementAntonymAceTitle => 'Gegenwort-Ass';
+
+  @override
+  String get achievementAntonymAceDesc => 'Schließe Gegenwort-Blitz 3-mal ab.';
+
+  @override
+  String get achievementSynonymScholarTitle => 'Synonym-Forscher';
+
+  @override
+  String get achievementSynonymScholarDesc =>
+      'Schließe Synonym-Blitz 3-mal ab.';
+
+  @override
+  String get achievementClozeMasterTitle => 'Lückentext-Meister';
+
+  @override
+  String get achievementClozeMasterDesc =>
+      'Schließe Lückentext-Blitz 3-mal ab.';
+
+  @override
+  String get achievementTranslationTitanTitle => 'Übersetzungs-Titan';
+
+  @override
+  String get achievementTranslationTitanDesc =>
+      'Schließe Übersetzungs-Blitz 3-mal ab.';
+
+  @override
+  String get achievementReverseLinguistTitle => 'Rückwärts-Linguist';
+
+  @override
+  String get achievementReverseLinguistDesc =>
+      'Schließe Rückwärts-Übersetzung 3-mal ab.';
+
+  @override
+  String get achievementSyllableCounterTitle => 'Silben-Zähler';
+
+  @override
+  String get achievementSyllableCounterDesc =>
+      'Schließe Silben zählen 3-mal ab.';
+
+  @override
+  String get achievementExpressionExpertTitle => 'Ausdruck-Experte';
+
+  @override
+  String get achievementExpressionExpertDesc =>
+      'Schließe Ausdruck-Blitz 3-mal ab.';
+
+  @override
+  String get achievementHypernymHunterTitle => 'Oberbegriff-Jäger';
+
+  @override
+  String get achievementHypernymHunterDesc =>
+      'Schließe Oberbegriff-Blitz 3-mal ab.';
+
+  @override
+  String get achievementWordClassWhizTitle => 'Wortart-Profi';
+
+  @override
+  String get achievementWordClassWhizDesc => 'Schließe Wortart-Blitz 3-mal ab.';
+
+  @override
+  String get achievementProverbSageTitle => 'Sprichwort-Weise';
+
+  @override
+  String get achievementProverbSageDesc =>
+      'Schließe Sprichwort-Lückentext 3-mal ab.';
+
+  @override
+  String get achievementConjugationKingTitle => 'Konjugations-König';
+
+  @override
+  String get achievementConjugationKingDesc =>
+      'Schließe Konjugations-Training 3-mal ab.';
+
+  @override
+  String get achievementVerbSplitterTitle => 'Verb-Trenner';
+
+  @override
+  String get achievementVerbSplitterDesc => 'Schließe Verbtrenner 3-mal ab.';
+
+  @override
+  String get achievementDefinitionWizardTitle => 'Definitions-Zauberer';
+
+  @override
+  String get achievementDefinitionWizardDesc =>
+      'Schließe Definition-Quiz 3-mal ab.';
+
+  @override
+  String get achievementSentenceSmithTitle => 'Satz-Schmied';
+
+  @override
+  String get achievementSentenceSmithDesc => 'Schließe Satzergänzung 3-mal ab.';
+
+  @override
+  String get achievementSpellingSleutTitle => 'Rechtschreib-Spürnase';
+
+  @override
+  String get achievementSpellingSleutDesc =>
+      'Schließe Rechtschreib-Sucher 3-mal ab.';
+
+  @override
+  String get achievementHomophoneHeroTitle => 'Homophon-Held';
+
+  @override
+  String get achievementHomophoneHeroDesc =>
+      'Schließe Homophon-Training 3-mal ab.';
+
+  @override
+  String get achievementConfusableProTitle => 'Wortfallen-Profi';
+
+  @override
+  String get achievementConfusableProDesc => 'Schließe Wortfalle 3-mal ab.';
+
+  @override
+  String get achievementReviewRegularTitle => 'Wiederholungs-Champion';
+
+  @override
+  String get achievementReviewRegularDesc =>
+      'Schließe SRS-Wiederholung 5-mal ab.';
+
+  @override
+  String get diagnosticsTitle => 'Diagnose';
+
+  @override
+  String get diagnosticsSubtitle =>
+      'Absturzprotokoll anzeigen (bleibt auf dem Gerät)';
+
+  @override
   String get parentDashboardTitle => 'Eltern-Übersicht';
+
+  @override
+  String get parentDashboardSubtitle => 'Fortschritt, mit PIN geschützt';
+
+  @override
+  String get privacyTitle => 'Datenschutz';
+
+  @override
+  String get privacySubtitle => 'Was auf diesem Gerät gespeichert wird';
+
+  @override
+  String get deleteAllDataTitle => 'Alle Daten löschen';
+
+  @override
+  String get deleteAllDataSubtitle =>
+      'Fortschritt auf diesem Gerät zurücksetzen';
+
+  @override
+  String get noSourcesFound => 'Keine Quellen gefunden';
+
+  @override
+  String get noCustomSetsYet => 'Noch keine eigenen Sets erstellt.';
+
+  @override
+  String get antonymFlashPrompt => 'Gegenteil von …';
+
+  @override
+  String get syllableCountPrompt => 'Wie viele Silben?';
+
+  @override
+  String get wordClassFlashPrompt => 'Welche Wortart?';
+
+  @override
+  String get noAntonymData =>
+      'Keine Gegenwort-Daten für diese Stufe verfügbar.';
+
+  @override
+  String correctInSeconds(int n) {
+    return 'richtig in ${n}s';
+  }
 
   @override
   String get parentPinTitle => 'Eltern-PIN';

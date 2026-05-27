@@ -336,9 +336,7 @@ class _SyllableCountGameState extends State<SyllableCountGame>
             const SizedBox(height: 4),
             if (_gameProvider.puzzleTimerEnabled)
               Text(
-                _isDE
-                    ? 'richtig in ${_sessionSeconds - _secondsLeft}s'
-                    : 'correct in ${_sessionSeconds - _secondsLeft}s',
+                _s.correctInSeconds(_sessionSeconds - _secondsLeft),
                 style: SpaceTheme.bodyStyle.copyWith(color: Colors.white70),
               ),
           ],
@@ -440,12 +438,12 @@ class _SyllableCountGameState extends State<SyllableCountGame>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _isDE ? 'Silben zählen' : 'Syllable Count',
+                  _s.syllableCountTitle,
                   style: SpaceTheme.titleStyle
                       .copyWith(color: SpaceTheme.starYellow),
                 ),
                 Text(
-                  '$_correct ${_isDE ? 'richtig' : 'correct'}',
+                  '$_correct ${_s.correct}',
                   style: SpaceTheme.bodyStyle.copyWith(color: Colors.white60),
                 ),
               ],
@@ -539,7 +537,7 @@ class _SyllableCountGameState extends State<SyllableCountGame>
         child: Column(
           children: [
             Text(
-              _isDE ? 'Wie viele Silben?' : 'How many syllables?',
+              _s.syllableCountPrompt,
               style: SpaceTheme.bodyStyle.copyWith(
                 color: Colors.white60,
                 fontSize: 13,

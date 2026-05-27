@@ -320,8 +320,7 @@ class _AntonymFlashGameState extends State<AntonymFlashGame>
             const SizedBox(height: 4),
             if (_gameProvider.puzzleTimerEnabled)
               Text(
-                _isDE ? 'richtig in ${_sessionSeconds - _secondsLeft}s'
-                      : 'correct in ${_sessionSeconds - _secondsLeft}s',
+                _s.correctInSeconds(_sessionSeconds - _secondsLeft),
                 style: SpaceTheme.bodyStyle.copyWith(color: Colors.white70),
               ),
           ],
@@ -370,9 +369,7 @@ class _AntonymFlashGameState extends State<AntonymFlashGame>
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Text(
-          _isDE
-              ? 'Keine Gegenwort-Daten für diese Stufe verfügbar.'
-              : 'No antonym data available at this level.',
+          _s.noAntonymData,
           style: SpaceTheme.bodyStyle,
           textAlign: TextAlign.center,
         ),
@@ -419,12 +416,12 @@ class _AntonymFlashGameState extends State<AntonymFlashGame>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _isDE ? 'Gegenwort-Blitz' : 'Antonym Flash',
+                  _s.antonymFlashTitle,
                   style: SpaceTheme.titleStyle
                       .copyWith(color: SpaceTheme.starYellow),
                 ),
                 Text(
-                  '${_correct} ${_isDE ? 'richtig' : 'correct'}',
+                  '$_correct ${_s.correct}',
                   style: SpaceTheme.bodyStyle.copyWith(color: Colors.white60),
                 ),
               ],
@@ -518,7 +515,7 @@ class _AntonymFlashGameState extends State<AntonymFlashGame>
         child: Column(
           children: [
             Text(
-              _isDE ? 'Gegenteil von …' : 'Opposite of …',
+              _s.antonymFlashPrompt,
               style: SpaceTheme.bodyStyle.copyWith(
                 color: Colors.white60,
                 fontSize: 13,
