@@ -424,7 +424,7 @@ class _DefinitionQuizGameState extends State<DefinitionQuizGame>
                 ],
                 if (_feedbackState == _FeedbackState.correct) ...[
                   const SizedBox(height: 10),
-                  EtymologyBanner(word: challenge.word, isDE: _isDE),
+                  EtymologyBanner(word: challenge.word),
                 ],
               ],
             ),

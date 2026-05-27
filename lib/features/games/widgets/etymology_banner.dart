@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/models/vocabulary_models.dart';
 import '../../../core/theme/space_theme.dart';
+import '../../../generated/l10n.dart';
 
 /// Returns the first entry note for [word] when the word is grade 5 or 6
 /// and notes are available. Returns null otherwise.
@@ -20,20 +21,16 @@ String? etymologyNoteFor(GermanWord word) {
 
 class EtymologyBanner extends StatelessWidget {
   final GermanWord word;
-  final bool isDE;
 
   const EtymologyBanner({
     super.key,
     required this.word,
-    required this.isDE,
   });
 
   @override
   Widget build(BuildContext context) {
     final note = etymologyNoteFor(word);
     if (note == null) return const SizedBox.shrink();
-
-    final label = isDE ? 'Wissenswertes' : 'Did you know?';
 
     return Container(
       width: double.infinity,
@@ -54,7 +51,7 @@ class EtymologyBanner extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  label,
+                  S.of(context)!.didYouKnow,
                   style: TextStyle(
                     color: SpaceTheme.starYellow.withValues(alpha: 0.9),
                     fontSize: 11,

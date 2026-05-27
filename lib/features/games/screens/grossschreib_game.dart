@@ -703,7 +703,7 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
       child: Row(
         children: [
           Semantics(
-            label: 'Zurück',
+            label: S.of(context)!.semanticsBack,
             button: true,
             child: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white, size: 24),

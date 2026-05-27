@@ -385,7 +385,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       case GermanWordType.pronomen:
         return _getPronomenHint(word, apiData, advanced);
       default:
-        return _isDE ? '✓ Richtig!' : '✓ Correct!';
+        return _s.wordSortHintCorrect;
     }
   }
 
@@ -422,23 +422,17 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       hints.add('✓ ${apiData!.definitions.first}');
     }
 
-    if (_isDE) {
-      hints.add('✓ Nomen groß: ${word.word} (Großschreibung!)');
-    } else {
-      hints.add('✓ Noun: ${word.word} (a naming word)');
-    }
+    hints.add(_s.wordSortHintNounNaming(word.word));
 
     if (apiData?.synonyms.isNotEmpty ?? false) {
-      hints.add('✓ ${_isDE ? "Synonym" : "Also"}: ${apiData!.synonyms.take(2).join(', ')}');
+      hints.add(_s.wordSortHintSynonym(apiData!.synonyms.take(2).join(', ')));
     }
     if (apiData?.antonyms.isNotEmpty ?? false) {
-      hints.add('✓ ${_isDE ? "Gegenteil" : "Opposite"}: ${apiData!.antonyms.first}');
+      hints.add(_s.wordSortHintAntonym(apiData!.antonyms.first));
     }
 
     if (hints.isEmpty) {
-      hints.add(_isDE
-          ? '✓ Richtig: ${word.word} ist ein Nomen!'
-          : '✓ Correct: ${word.word} is a Noun!');
+      hints.add(_s.wordSortHintCorrectAs(word.word, _s.wordTypeNoun));
     }
 
     return _selectHintFromList(hints);
@@ -478,21 +472,17 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       hints.add('✓ ${apiData!.definitions.first}');
     }
 
-    hints.add(_isDE
-        ? '✓ Verb: ${word.word} → beschreibt Handlung'
-        : '✓ Verb: ${word.word} → action or state');
+    hints.add(_s.wordSortHintVerbAction(word.word));
 
     if (apiData?.synonyms.isNotEmpty ?? false) {
-      hints.add('✓ ${_isDE ? "Synonym" : "Also"}: ${apiData!.synonyms.take(2).join(', ')}');
+      hints.add(_s.wordSortHintSynonym(apiData!.synonyms.take(2).join(', ')));
     }
     if (apiData?.antonyms.isNotEmpty ?? false) {
-      hints.add('✓ ${_isDE ? "Gegenteil" : "Opposite"}: ${apiData!.antonyms.first}');
+      hints.add(_s.wordSortHintAntonym(apiData!.antonyms.first));
     }
 
     if (hints.isEmpty) {
-      hints.add(_isDE
-          ? '✓ Richtig: ${word.word} ist ein Verb!'
-          : '✓ Correct: ${word.word} is a Verb!');
+      hints.add(_s.wordSortHintCorrectAs(word.word, _s.wordTypeVerb));
     }
 
     return _selectHintFromList(hints);
@@ -518,40 +508,28 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       hints.add('✓ ${apiData!.definitions.first}');
     }
 
-    if (_isDE) {
-      hints.add('✓ Adjektiv: ${word.word} → Eigenschaft');
-      hints.add('✓ Wie-Frage: "Wie ist es?" → ${word.word}');
-    } else {
-      hints.add('✓ Adjective: ${word.word} → describes a quality');
-      hints.add('✓ Answers "What is it like?" → ${word.word}');
-    }
+    hints.add(_s.wordSortHintAdjQuality(word.word));
+    hints.add(_s.wordSortHintAdjQuestion(word.word));
 
     if (apiData?.synonyms.isNotEmpty ?? false) {
-      hints.add('✓ ${_isDE ? "Synonym" : "Also"}: ${apiData!.synonyms.take(2).join(', ')}');
+      hints.add(_s.wordSortHintSynonym(apiData!.synonyms.take(2).join(', ')));
     }
     if (apiData?.antonyms.isNotEmpty ?? false) {
-      hints.add('✓ ${_isDE ? "Gegenteil" : "Opposite"}: ${apiData!.antonyms.first}');
+      hints.add(_s.wordSortHintAntonym(apiData!.antonyms.first));
     }
 
     if (hints.isEmpty) {
-      hints.add(_isDE
-          ? '✓ Richtig: ${word.word} ist ein Adjektiv!'
-          : '✓ Correct: ${word.word} is an Adjective!');
+      hints.add(_s.wordSortHintCorrectAs(word.word, _s.wordTypeAdjective));
     }
 
     return _selectHintFromList(hints);
   }
 
   String _getAdverbHint(GermanWord word, ApiEnrichment? apiData, bool advanced) {
-    final hints = _isDE
-        ? [
-            '✓ Adverb: ${word.word} → unveränderlich!',
-            '✓ Wie-Frage: "Wie?" → ${word.word}',
-          ]
-        : [
-            '✓ Adverb: ${word.word} → tells how/when/where',
-            '✓ Answers "how?", "when?", or "where?"',
-          ];
+    final hints = [
+      _s.wordSortHintAdverbAction(word.word),
+      _s.wordSortHintAdverbQuestion(word.word),
+    ];
     
     if (advanced && (apiData?.definitions.isNotEmpty ?? false)) {
       hints.add('✓ ${apiData!.definitions.first}');
@@ -561,15 +539,10 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
   }
 
   String _getPronomenHint(GermanWord word, ApiEnrichment? apiData, bool advanced) {
-    final hints = _isDE
-        ? [
-            '✓ Pronomen: ${word.word} → ersetzt Nomen',
-            '✓ ${word.word} → steht für ein Nomen',
-          ]
-        : [
-            '✓ Pronoun: ${word.word} → replaces a noun',
-            '✓ ${word.word} → stands for a noun or noun phrase',
-          ];
+    final hints = [
+      _s.wordSortHintPronounReplaces(word.word),
+      _s.wordSortHintPronounStands(word.word),
+    ];
     
     if (advanced && (apiData?.definitions.isNotEmpty ?? false)) {
       hints.add('✓ ${apiData!.definitions.first}');
@@ -582,10 +555,8 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       GermanWordType? guessedType, bool advanced) {
     
     String wrongPart = guessedType != null
-        ? (_isDE
-            ? '✗ Kein ${_getCategoryName(guessedType)}!\n'
-            : '✗ Not a ${_getCategoryName(guessedType)}!\n')
-        : (_isDE ? '✗ Falsch!\n' : '✗ Wrong!\n');
+        ? '${_s.wordSortHintNotA(_getCategoryName(guessedType))}\n'
+        : '${_s.wordSortHintWrong}\n';
     
     String correctPart = _getDetailedCorrectExplanation(word, apiData, patternData, guessedType);
     
@@ -703,24 +674,13 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
   }
 
   String _getCategoryName(GermanWordType type) {
-    if (_isDE) {
-      switch (type) {
-        case GermanWordType.substantiv: return 'Nomen';
-        case GermanWordType.verb: return 'Verb';
-        case GermanWordType.adjektiv: return 'Adjektiv';
-        case GermanWordType.adverb: return 'Adverb';
-        case GermanWordType.pronomen: return 'Pronomen';
-        default: return type.toString().split('.').last;
-      }
-    } else {
-      switch (type) {
-        case GermanWordType.substantiv: return 'Noun';
-        case GermanWordType.verb: return 'Verb';
-        case GermanWordType.adjektiv: return 'Adjective';
-        case GermanWordType.adverb: return 'Adverb';
-        case GermanWordType.pronomen: return 'Pronoun';
-        default: return type.toString().split('.').last;
-      }
+    switch (type) {
+      case GermanWordType.substantiv: return _s.wordTypeNoun;
+      case GermanWordType.verb: return _s.wordTypeVerb;
+      case GermanWordType.adjektiv: return _s.wordTypeAdjective;
+      case GermanWordType.adverb: return _s.wordTypeAdverb;
+      case GermanWordType.pronomen: return _s.wordTypePronoun;
+      default: return type.toString().split('.').last;
     }
   }
 
@@ -977,7 +937,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
             feedback: _buildWordCard(displayWord, selectedFontFamily, isFeedback: true),
             childWhenDragging: _buildWordCard(displayWord, selectedFontFamily, isPlaceholder: true),
             child: Semantics(
-              label: 'Wort: $displayWord. Ziehe es auf die richtige Wortart.',
+              label: _s.wordSortDragLabel(displayWord),
               child: _buildWordCard(displayWord, selectedFontFamily),
             ),
           ),

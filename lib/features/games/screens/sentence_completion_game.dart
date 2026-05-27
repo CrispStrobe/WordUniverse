@@ -475,7 +475,7 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
                 ],
                 if (_feedbackState == _FeedbackState.correct) ...[
                   const SizedBox(height: 12),
-                  EtymologyBanner(word: challenge.word, isDE: _isDE),
+                  EtymologyBanner(word: challenge.word),
                 ],
               ],
             ),

@@ -1879,4 +1879,78 @@ class SEn extends S {
 
   @override
   String get wordTypeAdverb => 'Adverb';
+
+  @override
+  String get wordTypePronoun => 'Pronoun';
+
+  @override
+  String get wordSortHintCorrect => '✓ Correct!';
+
+  @override
+  String get wordSortHintWrong => '✗ Wrong!';
+
+  @override
+  String wordSortHintNotA(String type) {
+    return '✗ Not a $type!';
+  }
+
+  @override
+  String wordSortHintSynonym(String synonyms) {
+    return '✓ Also: $synonyms';
+  }
+
+  @override
+  String wordSortHintAntonym(String antonym) {
+    return '✓ Opposite: $antonym';
+  }
+
+  @override
+  String wordSortHintNounNaming(String word) {
+    return '✓ Noun: $word (a naming word)';
+  }
+
+  @override
+  String wordSortHintVerbAction(String word) {
+    return '✓ Verb: $word → action or state';
+  }
+
+  @override
+  String wordSortHintAdjQuality(String word) {
+    return '✓ Adjective: $word → describes a quality';
+  }
+
+  @override
+  String wordSortHintAdjQuestion(String word) {
+    return '✓ Answers \"What is it like?\" → $word';
+  }
+
+  @override
+  String wordSortHintAdverbAction(String word) {
+    return '✓ Adverb: $word → tells how/when/where';
+  }
+
+  @override
+  String wordSortHintAdverbQuestion(String word) {
+    return '✓ Answers: how? when? where? → $word';
+  }
+
+  @override
+  String wordSortHintPronounReplaces(String word) {
+    return '✓ Pronoun: $word → replaces a noun';
+  }
+
+  @override
+  String wordSortHintPronounStands(String word) {
+    return '✓ $word → stands for a noun or noun phrase';
+  }
+
+  @override
+  String wordSortDragLabel(String word) {
+    return 'Word: $word. Drag it to the correct word class.';
+  }
+
+  @override
+  String wordSortHintCorrectAs(String word, String type) {
+    return '✓ Correct: $word is a $type!';
+  }
 }
