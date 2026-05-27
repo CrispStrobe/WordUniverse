@@ -260,13 +260,16 @@ class SDe extends S {
   String get score => 'Punkte';
 
   @override
-  String get correct => 'Richtig!';
+  String get correct => 'richtig';
 
   @override
-  String get gameOver => 'Erkundung abgeschlossen!';
+  String get gameOver => 'Spiel vorbei';
 
   @override
-  String get backToMenu => 'Zurück ins Wort-Universum';
+  String get backToMenu => 'Zurück zum Menü';
+
+  @override
+  String get goBack => 'Zurück';
 
   @override
   String get playAgain => 'Nochmal spielen';
@@ -1160,18 +1163,18 @@ class SDe extends S {
   String get conjugationDrillGameOverLabel => 'richtige Konjugationen';
 
   @override
-  String get homophoneDrillTitle => 'Homophone Drill';
+  String get homophoneDrillTitle => 'Homophon-Training';
 
   @override
   String get homophoneDrillDescription =>
-      'Pick the right spelling — hear vs here, to vs too vs two';
+      'Wähle die richtige Schreibweise — hear vs. here, to vs. too vs. two';
 
   @override
-  String get confusableDrillTitle => 'Word Trap';
+  String get confusableDrillTitle => 'Wortfalle';
 
   @override
   String get confusableDrillDescription =>
-      'Spot the right word — affect vs effect, lose vs loose';
+      'Finde das richtige Wort — affect vs. effect, lose vs. loose';
 
   @override
   String get wortbaumeisterCardTitle => 'Wort-Stückler';

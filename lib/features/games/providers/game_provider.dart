@@ -629,10 +629,29 @@ class GameProvider extends ChangeNotifier {
       newAchievements.add(Achievement(id: 'connection_expert')); 
     }
 
-    if ((_gameProgress['word_memory_game'] ?? 0) >= 5 && 
+    if ((_gameProgress['antonym_flash'] ?? 0) >= 3 && !hasAchievement('antonym_ace')) { newAchievements.add(Achievement(id: 'antonym_ace')); }
+    if ((_gameProgress['synonym_flash'] ?? 0) >= 3 && !hasAchievement('synonym_scholar')) { newAchievements.add(Achievement(id: 'synonym_scholar')); }
+    if ((_gameProgress['cloze_flash'] ?? 0) >= 3 && !hasAchievement('cloze_master')) { newAchievements.add(Achievement(id: 'cloze_master')); }
+    if ((_gameProgress['translation_flash'] ?? 0) >= 3 && !hasAchievement('translation_titan')) { newAchievements.add(Achievement(id: 'translation_titan')); }
+    if ((_gameProgress['reverse_translation_flash'] ?? 0) >= 3 && !hasAchievement('reverse_linguist')) { newAchievements.add(Achievement(id: 'reverse_linguist')); }
+    if ((_gameProgress['syllable_count'] ?? 0) >= 3 && !hasAchievement('syllable_counter')) { newAchievements.add(Achievement(id: 'syllable_counter')); }
+    if ((_gameProgress['expression_flash'] ?? 0) >= 3 && !hasAchievement('expression_expert')) { newAchievements.add(Achievement(id: 'expression_expert')); }
+    if ((_gameProgress['hypernym_flash'] ?? 0) >= 3 && !hasAchievement('hypernym_hunter')) { newAchievements.add(Achievement(id: 'hypernym_hunter')); }
+    if ((_gameProgress['word_class_flash'] ?? 0) >= 3 && !hasAchievement('word_class_whiz')) { newAchievements.add(Achievement(id: 'word_class_whiz')); }
+    if ((_gameProgress['proverb_cloze'] ?? 0) >= 3 && !hasAchievement('proverb_sage')) { newAchievements.add(Achievement(id: 'proverb_sage')); }
+    if ((_gameProgress['conjugation_drill'] ?? 0) >= 3 && !hasAchievement('conjugation_king')) { newAchievements.add(Achievement(id: 'conjugation_king')); }
+    if ((_gameProgress['verbtrenner_game'] ?? 0) >= 3 && !hasAchievement('verb_splitter')) { newAchievements.add(Achievement(id: 'verb_splitter')); }
+    if ((_gameProgress['definition_quiz'] ?? 0) >= 3 && !hasAchievement('definition_wizard')) { newAchievements.add(Achievement(id: 'definition_wizard')); }
+    if ((_gameProgress['sentence_completion'] ?? 0) >= 3 && !hasAchievement('sentence_smith')) { newAchievements.add(Achievement(id: 'sentence_smith')); }
+    if ((_gameProgress['spelling_spotter'] ?? 0) >= 3 && !hasAchievement('spelling_sleuth')) { newAchievements.add(Achievement(id: 'spelling_sleuth')); }
+    if ((_gameProgress['homophone_drill'] ?? 0) >= 3 && !hasAchievement('homophone_hero')) { newAchievements.add(Achievement(id: 'homophone_hero')); }
+    if ((_gameProgress['confusable_drill'] ?? 0) >= 3 && !hasAchievement('confusable_pro')) { newAchievements.add(Achievement(id: 'confusable_pro')); }
+    if ((_gameProgress['sri_review'] ?? 0) >= 5 && !hasAchievement('review_regular')) { newAchievements.add(Achievement(id: 'review_regular')); }
+
+    if ((_gameProgress['word_memory_game'] ?? 0) >= 5 &&
         (_gameProgress['word_type_whirl_game'] ?? 0) >= 5 &&
-        !hasAchievement('arithmetic_ace')) { 
-        newAchievements.add(Achievement(id: 'arithmetic_ace')); 
+        !hasAchievement('arithmetic_ace')) {
+        newAchievements.add(Achievement(id: 'arithmetic_ace'));
     }
 
     final gamesCompleted = _gameProgress.values.where((level) => level >= 1).length;

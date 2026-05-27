@@ -260,13 +260,16 @@ class SEn extends S {
   String get score => 'Score';
 
   @override
-  String get correct => 'Correct!';
+  String get correct => 'correct';
 
   @override
-  String get gameOver => 'Expedition Complete!';
+  String get gameOver => 'Game Over';
 
   @override
-  String get backToMenu => 'Back to the Word Universe';
+  String get backToMenu => 'Back to Menu';
+
+  @override
+  String get goBack => 'Go Back';
 
   @override
   String get playAgain => 'Play Again';

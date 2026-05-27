@@ -199,6 +199,7 @@
     "correct": "correct",
     "gameOver": "Game Over",
     "backToMenu": "Back to Menu",
+    "goBack": "Go Back",
     "playAgain": "Play Again",
 
     "adaptiveDifficulty": "Adaptive Difficulty",
@@ -207,18 +208,13 @@
     "gameMenu": "Word Universe",
 
     "level": "Level",
-    "score": "Score",
     "lives": "Hull Integrity",
     "time": "Time",
-    "correct": "Correct!",
     "incorrect": "Error!",
     "excellent": "Excellent, Explorer!",
     "good": "Good job!",
     "tryAgain": "Try Again!",
-    "gameOver": "Expedition Complete!",
     "nextLevel": "Next Expedition",
-    "playAgain": "Play Again",
-    "backToMenu": "Back to the Word Universe",
     "settings": "Settings",
     "sound": "Sound FX",
     "music": "Music",
@@ -372,7 +368,6 @@
     "imprintDisclaimer": "Disclaimer",
     "imprintDisclaimerText": "This app is provided as is, exclusively for educational and creative purposes, without any liability.",
     "imprintWebsite": "www.crispstro.be",
-    "close": "Close",
 
     "taskCustomizationTitle": "Task Customization",
     "@taskCustomizationTitle": {
