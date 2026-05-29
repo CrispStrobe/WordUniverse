@@ -69,7 +69,7 @@ work), and the **pipeline scripts are MIT**.
 
 | Source | License | Contribution |
 |---|---|---|
-| Wiktionary (EN) | CC BY-SA 4.0 | Definitions, IPA, inflections, examples, etymology, synonyms, antonyms; phrasal verbs (`phrasal_verbs` table — verb, particle, meaning, example sentences) |
+| Wiktionary (EN) | CC BY-SA 4.0 | Definitions, IPA, inflections, examples, etymology, synonyms, antonyms; phrasal verbs (`phrasal_verbs` table); EN→DE translations (`translations` table) |
 | Open English WordNet (OEWN) | CC BY 4.0 | Sense expansion, synonym/antonym sets |
 | ConceptNet 5.x | CC BY-SA 4.0 | Semantic relations |
 | Norvig spell-errors.txt | MIT / CC BY-SA (upstream Wikipedia) | `commonLearnerErrors` (~4,600 entries) |
