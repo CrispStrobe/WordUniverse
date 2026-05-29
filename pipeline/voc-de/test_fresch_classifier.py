@@ -109,6 +109,29 @@ def test_merkwort_on_dehnungs_h():
     assert MERKWORT in c.detailed
 
 
+def test_merkwort_on_ch_pronounced_k():
+    # Chor → [koːɐ̯]: 'ch' read as [k] is irregular (German 'ch' is normally
+    # [ç]/[x]) → Merkwort. (experiment_fresch_levers.py "L2")
+    c = classify(WordFeatures(word="Chor", lemma="Chor", word_type="substantiv",
+                              article="der", ipa="[koːɐ̯]"))
+    assert MERKWORT in c.detailed
+
+
+def test_merkwort_on_initial_c_pronounced_ts():
+    # Cent → [t͡sɛnt]: word-initial 'c' as [ts] is irregular → Merkwort
+    c = classify(WordFeatures(word="Cent", lemma="Cent", word_type="substantiv",
+                              article="der", ipa="[t͡sɛnt]"))
+    assert MERKWORT in c.detailed
+
+
+def test_merkwort_NOT_on_regular_ch():
+    # 'ich'/'machen': medial/final 'ch' as [ç]/[x] is the regular realisation —
+    # must NOT fire the ch→[k] Merkwort rule.
+    for w, ipa in (("ich", "[ɪç]"), ("machen", "[ˈmaxn̩]")):
+        c = classify(WordFeatures(word=w, lemma=w, ipa=ipa))
+        assert MERKWORT not in c.detailed, w
+
+
 def test_function_word_is_NOT_forced_to_merkwort():
     # 'auf' is Mitsprechen in the gold — must stay klangtreu, not merkwort
     c = classify(WordFeatures(word="auf", lemma="auf", word_type="praeposition",

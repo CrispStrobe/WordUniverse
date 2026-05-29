@@ -232,7 +232,18 @@ def _detect_irregular_spelling(lemma: str, ipa: str) -> bool:
         return True
     # v pronounced [f] in a native word (Vogel, Vater, viel, von) — confirm via IPA
     bare = _strip_ipa(ipa)
-    if "v" in lemma.lower() and "f" in bare and "v" not in bare:
+    low = lemma.lower()
+    if "v" in low and "f" in bare and "v" not in bare:
+        return True
+    # ch→[k] (Chor, Charakter, Christ) and word-initial c→[ts]/[s] (Cent, Celia):
+    # irregular grapheme→phoneme mappings, IPA-confirmed. German 'ch' is normally
+    # [ç]/[x] (ich/Buch) — only the [k] realisation must be memorised. Gated on
+    # word-initial position + IPA so it never fires on regular ch (validated:
+    # touches 12 DB words, all genuinely irregular, zero gold false positives —
+    # see experiment_fresch_levers.py "L2").
+    if low.startswith("ch") and bare[:1] in ("k", "ç") and "k" in bare[:2]:
+        return True
+    if low.startswith("c") and not low.startswith("ch") and bare[:2] in ("t͡", "ts", "t", "s"):
         return True
     return False
 
