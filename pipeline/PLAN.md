@@ -15,6 +15,27 @@ The DB build is done; what remains is optional/forward-looking.
 | §7 | Additional free-licensed data sources | ✅ Priority-1 fully integrated (Tatoeba, Bundesländer, DWDS, misspellings, childLex, **Falsche Freunde**); open: Priority-2-if-verified + optional FF game screen |
 | §8 | Copyleft App/Play Store compliance (DE GPL-3.0 / EN CC-BY-SA-4.0) | ⬚ **pre-launch checklist** — gate before first store submission |
 
+### Remaining work (all optional / forward-looking — shipped DBs + app are done)
+
+Nothing below blocks the app. License column = verified status.
+
+| Item | § | Effort | Who | License |
+|---|---|---|---|---|
+| **Wiktionary EN→DE translations** — fills the EN DB's empty `translations` table (0 rows); top value for DE→EN learners | §7 | ~0.5 d (data is local) | **me** | CC-BY-SA ✅ |
+| **Falsche-Freunde game screen** — data already shipped, only the UI is missing | §7 | ~0.5 d | **me** | — |
+| **Hunspell DE** plural/conjugation fallback | §7 | ~0.5 d | **me** | GPL-2/3 ✅ (DE DB already GPL-3.0) |
+| **LanguageTool DE** "triggers spelling-rule X" tags | §7 | ~1 d | **me** | LGPL-2.1 ✅ |
+| **Wikidata Lexemes** — inflections / senses / DE↔EN translations | §7 | ~1–2 d | **me** | CC0 ✅ |
+| **Tatoeba EN** example sentences | §7 | ~0.5 d | **me** | CC-BY 2.0 ✅ |
+| **FRESCH classifier v2** — coverage/accuracy (see §6) | §6 | ~1–2 d | **me** | — |
+| **DWDS Wortprofil** collocations | §7 | — | me, *after* license check | ⚠️ verify `dwds.de/wortprofil` |
+| **ConceptNet all-languages rebuild** — optional dataset; script ready (`pipeline/conceptnet/`) | §3 | 4–10 h run | **you** (VPS + ~60–70 GB disk) | CC-BY-SA |
+| **HF dataset upload** — `voc-de` (GPL-3.0) + `voc-en` (CC-BY-SA-4.0) | §8 | — | **you** (HF account) | — |
+| **Device / visual QA** of the games | — | — | **you** | — |
+| **Store-submission compliance** final pass | §8 | — | you (pre-launch) | — |
+
+**Recommended next autonomous step:** Wiktionary EN→DE translations — clean license, data on disk, fills a real gap, same pipeline pattern as phrasal/false-friends.
+
 ---
 
 ## 1. DE DB safe rebuild ✅ **complete** → see HISTORY
