@@ -7,8 +7,12 @@
 2. **§2 — EN DB at DE parity** — port the cleaned pipeline to English.
 3. **§3 — CC-BY-SA App Store / Play Store compliance** — half-day
    pre-submission checklist; gate on §1+§2 outputs.
-4. **§4 — ConceptNet all-languages expansion** — deferred until §1–§3
-   ship.
+4. **§4 — ConceptNet all-languages expansion** — §1–§3 now shipped, so the
+   ordering blocker is lifted. This is an **independent, optional dataset
+   project** (build `cstr/conceptnet-normalized-all`): ConceptNet relations
+   are *already* in the shipped voc DBs, so it does NOT gate the app or any
+   game. Runs on an 8 GB VPS — see §3. Do it when a multi-language ConceptNet
+   DB is actually wanted.
 
 The rest is reference / enrichment / cleanup material:
 
@@ -251,11 +255,30 @@ HfApi().upload_file(
 full set scales ~4× since most edges are EN/FR/IT/DE/ES + the long tail of
 ~370 languages adds a few hundred MB.)
 
-**Hardware:** 32 GB RAM machine with ≥60 GB free SSD (source + dest + WAL
-+ temp space). Single‑VPS run preferred — `cstr/conceptnet-de-indexed` is
-hosted in `eu-west-1`; downloading to a Hetzner box is fast (10–15 min)
-vs ~1 h to a laptop on residential connection. Wall time 4–10 h
-dominated by the 34 M‑row join.
+**Hardware:** the binding constraint is **disk (~60–70 GB free** for source
+23.6 GB + dest ~8 GB + index/VACUUM temp), **not RAM** — the recipe is a
+batched disk-based SQLite pipeline, not an in-memory job. Single‑VPS run
+preferred — `cstr/conceptnet-de-indexed` is hosted in `eu-west-1`; downloading
+to a Hetzner box is fast (10–15 min) vs ~1 h to a laptop on residential
+connection. Wall time 4–10 h dominated by the 34 M‑row join + index sorts.
+
+> **Runs fine on an 8 GB VPS** (the earlier "32 GB" was conservative
+> boilerplate, not derived from this batched recipe). Apply these deltas:
+> - `PRAGMA cache_size = -262144;` (256 MB, not 1 GB) — pure RAM page cache.
+> - `PRAGMA temp_store = FILE;` and point `SQLITE_TMPDIR` at the big disk —
+>   **the real fix**: creating `ix_node_url` (28 M rows) and the two
+>   `edge_norm` indexes (34 M rows) runs an external merge sort that would OOM
+>   with `temp_store = MEMORY` but spills to disk in bounded RAM with `FILE`.
+> - `PRAGMA journal_mode = OFF;` for the one-shot build (no WAL growth, fastest;
+>   it's reproducible so crash-safety is moot).
+> - Replace `LIMIT ? OFFSET ?` edge paging with keyset paging
+>   (`WHERE e.rowid > ? ORDER BY e.rowid LIMIT ?`) — `OFFSET` is O(n²) over
+>   34 M rows (a speed fix, not memory).
+> - Run `VACUUM`/`ANALYZE` last; `VACUUM` needs ~dest-size free disk for its
+>   temp copy (already covered by the 60–70 GB budget), little RAM.
+>
+> Peak RAM ≈ `cache_size` + a modest working set → comfortably under 8 GB.
+> Disk and wall-time are unchanged.
 
 **Alternative source:** for ConceptNet 5.8 (newer) instead of 5.7,
 download `https://zenodo.org/record/3739540/files/conceptnet-raw-data-5.8.zip`
@@ -284,10 +307,15 @@ existing 11‑lang Space keeps serving.
 
 ## 4. Housekeeping
 
-### 4.1 Rotate the leaked HF token
+### 4.1 HF token hygiene (low priority — no real exposure)
 
-`hf_***REDACTED***` was committed to VPS_2
-(`/root/.bash_history`) in plaintext via `export HF_TOKEN=...` and `./run_wiktionary_extract.sh`. Anyone who reads that file gets the token. **Token value redacted from these docs 2026-05-29; still present in git history — rotation on HF is the real fix.**
+`hf_***REDACTED***` was written to VPS_2's `/root/.bash_history` via
+`export HF_TOKEN=...`, and recorded in these (private-repo) docs. **Re-assessed
+2026-05-29: there was no third-party exposure** — the GitHub repo is private,
+the bash_history is on your own VPS, and `.env` is local. The original
+"leaked — rotate now" framing was overcautious. Token value redacted from the
+working-tree docs as a tidy-up; rotating on HF is **optional hygiene**, worth
+doing only if that VPS has other users.
 
 Recovery:
 
