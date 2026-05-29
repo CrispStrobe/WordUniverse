@@ -7,8 +7,8 @@ Last updated: 2026-05-26.
 | Field | Value |
 |---|---|
 | File | `pipeline/voc-en/grundwortschatz_en.db` |
-| Asset | `assets/grundwortschatz_en.db.gz` — **17 MB** (92 MB uncompressed) |
-| Entries | **11,539** (7,815 success + 3,658 minimal→enriched + 66 no_data) |
+| Asset | `assets/grundwortschatz_en.db.gz` — **~18 MB** (includes `phrasal_verbs` table, 2026-05-29) |
+| Entries | **11,539** words (7,815 success + 3,658 minimal→enriched + 66 no_data) + 400 phrasal verbs |
 | `enrichment_status='minimal'` | **0** — all enriched via VPS run 2026-05-26 |
 | `definitions` | 11,486 (99%) |
 | `grade_examples` | 11,481 (99%) |
@@ -78,11 +78,15 @@ ssh root@168.119.190.252 "cd /root/voc-enrich/voc-en-minimal && nohup python3 en
 scp root@168.119.190.252:/root/voc-enrich/voc-en-minimal/grundwortschatz_en.db .
 ```
 
-## Remaining work (game UI — deferred)
+## Game UI — DONE
 
-- L2L (language-to-learn) picker in Settings
-- `großschreib` / `großstadt` hidden for `L2L=en`
-- New EN-only games: `phrasal_verbs`, `homophones`
-- ARB strings for new game labels + L2L picker
+- [x] L2L (language-to-learn) picker in Settings; menu filters by `supportedLearningLanguages`
+- [x] `großschreib` / `großstadt` etc. hidden for `L2L=en` (DE-only)
+- [x] EN-only games shipped:
+  - `homophone_drill` + `confusable_drill` (hardcoded catalogue)
+  - **`phrasal_verb_power` (#46)** + **`phrasal_verb_match` (#47)** — backed by the
+    `phrasal_verbs` table (see `add_phrasal_verbs_en.py` + HISTORY 2026-05-29).
+    398/400 LLM-graded, content-filtered for K-6, deduped.
+- [x] ARB strings (EN+DE) for all new game labels + L2L picker
 </content>
 </invoke>
