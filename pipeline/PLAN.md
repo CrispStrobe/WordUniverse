@@ -12,29 +12,39 @@ The DB build is done; what remains is optional/forward-looking.
 | §4 | Housekeeping (token / scripts / build box) | ✅ resolved → HISTORY |
 | §5 | Open decisions | ✅ resolved (ConceptNet sibling-vs-replace + 5.7 still apply *when* §3 runs) |
 | §6 | Algorithmic spelling-strategy classifier (FRESCH) | ⬚ ongoing improvement |
-| §7 | Additional free-licensed data sources | ✅ Priority-1 fully integrated (Tatoeba, Bundesländer, DWDS, misspellings, childLex, **Falsche Freunde**); open: Priority-2-if-verified + optional FF game screen |
+| §7 | Additional free-licensed data sources | ✅ Priority-1 integrated + EN→DE translations + False Friends game (#48); remaining Priority-2 sources assessed & **deferred** (low value — see Remaining work) |
 | §8 | Copyleft App/Play Store compliance (DE GPL-3.0 / EN CC-BY-SA-4.0) | ⬚ **pre-launch checklist** — gate before first store submission |
 
-### Remaining work (all optional / forward-looking — shipped DBs + app are done)
+### Remaining work (2026-05-29) — shipped DBs + app are done
 
-Nothing below blocks the app. License column = verified status.
+Two high-value enrichments were done this session; the rest were **assessed and
+deferred** (low payoff / high effort — gap sizes below). Nothing blocks the app.
 
-| Item | § | Effort | Who | License |
-|---|---|---|---|---|
-| **Wiktionary EN→DE translations** — fills the EN DB's empty `translations` table (0 rows); top value for DE→EN learners | §7 | ~0.5 d (data is local) | **me** | CC-BY-SA ✅ |
-| ~~Falsche-Freunde game screen~~ ✅ **done** (`false_friends_game.dart`, #48) | §7 | — | me | — |
-| **Hunspell DE** plural/conjugation fallback | §7 | ~0.5 d | **me** | GPL-2/3 ✅ (DE DB already GPL-3.0) |
-| **LanguageTool DE** "triggers spelling-rule X" tags | §7 | ~1 d | **me** | LGPL-2.1 ✅ |
-| **Wikidata Lexemes** — inflections / senses / DE↔EN translations | §7 | ~1–2 d | **me** | CC0 ✅ |
-| **Tatoeba EN** example sentences | §7 | ~0.5 d | **me** | CC-BY 2.0 ✅ |
-| **FRESCH classifier v2** — coverage/accuracy (see §6) | §6 | ~1–2 d | **me** | — |
-| **DWDS Wortprofil** collocations | §7 | — | me, *after* license check | ⚠️ verify `dwds.de/wortprofil` |
-| **ConceptNet all-languages rebuild** — optional dataset; script ready (`pipeline/conceptnet/`) | §3 | 4–10 h run | **you** (VPS + ~60–70 GB disk) | CC-BY-SA |
-| **HF dataset upload** — `voc-de` (GPL-3.0) + `voc-en` (CC-BY-SA-4.0) | §8 | — | **you** (HF account) | — |
-| **Device / visual QA** of the games | — | — | **you** | — |
-| **Store-submission compliance** final pass | §8 | — | you (pre-launch) | — |
+**✅ Done this session**
+- **Wiktionary EN→DE translations** — filled the EN DB's empty `translations`
+  table (0 → 9,317 across 8,112 words). `add_translations_en.py`. CC-BY-SA.
+- **False Friends game** (#48, EN-only) — `false_friends_game.dart` on the
+  shipped `false_friends` data (62 pairs).
 
-**Recommended next autonomous step:** Wiktionary EN→DE translations — clean license, data on disk, fills a real gap, same pipeline pattern as phrasal/false-friends.
+**Assessed & deferred** (autonomous-doable but low value / high effort — build only on request)
+
+| Item | § | Why deferred | License |
+|---|---|---|---|
+| Hunspell DE inflection fallback | §7 | only ~930 content words (7%) lack inflections; German affix expansion is fragile + lower quality than the existing Wiktionary/DWDSmor inflections | GPL-2/3 ✅ |
+| LanguageTool "rule X" tags | §7 | niche metadata; overlaps the existing `spellingStrategy` classifier | LGPL-2.1 ✅ |
+| Wikidata Lexemes | §7 | overlaps what now exists (DE+EN translations, ~93% inflections); heavy (SPARQL/dumps) | CC0 ✅ |
+| Tatoeba EN examples | §7 | EN already has 99% grade examples + Gutenberg + Wiktionary examples — redundant | CC-BY 2.0 ✅ |
+| FRESCH classifier v2 | §6 | v1 ships; this is an accuracy/coverage refinement — heavy heuristic project | — |
+| DWDS Wortprofil collocations | §7 | separate product — verify `dwds.de/wortprofil` license first | ⚠️ verify |
+
+**Needs you (external)**
+
+| Item | § | Who |
+|---|---|---|
+| ConceptNet all-languages rebuild — script ready (`pipeline/conceptnet/`) | §3 | you — VPS + ~60–70 GB disk, 4–10 h |
+| HF dataset upload — `voc-de` (GPL-3.0) + `voc-en` (CC-BY-SA-4.0) | §8 | you — HF account |
+| Device / visual QA of the games | — | you |
+| Store-submission compliance final pass | §8 | you (pre-launch) |
 
 ---
 
@@ -522,7 +532,7 @@ confirmed non-commercial-OK. Record the per-source verdict in Notes as checked.
 
 | Source | License (verified) | Benefit |
 |---|---|---|
-| **Wiktionary EN→DE translations** (local `en_wiktionary_normalized.db`, 156,732 de rows) | ✅ CC-BY-SA 4.0 | **Fills the empty EN `translations` table (0 rows today)** — directly useful for German learners of English. Data is on disk; ~0.5 day. **Highest-value clean add.** |
+| **Wiktionary EN→DE translations** (local `en_wiktionary_normalized.db`, 156,732 de rows) | ✅ CC-BY-SA 4.0 | ✅ **DONE 2026-05-29** — `add_translations_en.py` filled the EN `translations` table (0 → 9,317 across 8,112 words). |
 | **Wikidata Lexemes** | ✅ **CC0** (public domain) | Inflection forms, senses, IPA, and DE↔EN translations, multilingual. Ideal license. Could fill inflection/translation gaps in both DBs. ~1-2 days (SPARQL/dump). |
 | **Tatoeba EN** | ✅ CC-BY 2.0 | More EN example sentences (the DE DB already uses Tatoeba). Medium value — EN already has Wiktionary + Gutenberg + LLM examples. ~0.5 day. |
 
@@ -551,13 +561,10 @@ the in-app license registry (which already declared the GPL-3.0 posture).
 
 ### What actually remains (2026-05-29)
 
-Priority 1 is now **fully integrated** (incl. Falsche Freunde) — see below.
-Genuinely open:
-
-1. **Priority 2** sources — case-by-case, each only after its data license is
-   verified non-NC (else skipped).
-2. *(optional)* a Falsche-Freunde **game screen** — the data + reader ship; only
-   a UI is missing.
+Priority 1 + EN→DE translations + the False Friends game (#48) are all done.
+The remaining Priority-2 sources were assessed and **deferred** (low value /
+high effort) — see the consolidated **Remaining work** table at the top of
+this file for the per-item rationale.
 
 ### Falsche Freunde — ✅ DONE (2026-05-29)
 
