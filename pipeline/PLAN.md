@@ -12,7 +12,7 @@ The DB build is done; what remains is optional/forward-looking.
 | §4 | Housekeeping (token / scripts / build box) | ✅ resolved → HISTORY |
 | §5 | Open decisions | ✅ resolved (ConceptNet sibling-vs-replace + 5.7 still apply *when* §3 runs) |
 | §6 | Algorithmic spelling-strategy classifier (FRESCH) | ⬚ ongoing improvement |
-| §7 | Additional free-licensed data sources | ⬚ future |
+| §7 | Additional free-licensed data sources | ⬚ **planned** — do all Priority-1; childLex (GPL) approved; Priority-2 only if no-NC verified |
 | §8 | CC-BY-SA App/Play Store compliance | ⬚ **pre-launch checklist** — gate before first store submission |
 
 ---
@@ -455,7 +455,15 @@ overlapping words. (We're at 6.2 % exact / ~85 % superset today.)
 
 Catalogued by free-license suitability for a commercial app.
 
-### Priority 1 — clear license, high pedagogical value
+**Decisions (2026-05-29):**
+- **Priority 1 → integrate all.** Licenses are clear and no-NC; high value.
+- **Priority 2 → per-source, and only after a clear no-NC *data* license is
+  verified first.** The code licenses (LGPL/MPL) are fine; the gate is the
+  *data* each ships. Default is skip until non-NC is confirmed.
+- **GPL is acceptable** — childLex (GPL-3.0) is approved; see "GPL-licensed" below.
+- **Priority 3 → skip** (NC / paid / academic-only).
+
+### Priority 1 — ✅ DO ALL (clear license, high pedagogical value)
 
 | Source | URL | License | What it adds | Effort |
 |---|---|---|---|---|
@@ -466,7 +474,10 @@ Catalogued by free-license suitability for a commercial app.
 | **DWDS Häufigkeitsklassen** | https://www.dwds.de/d/api | CC-BY-SA via DWDS terms | log-frequency band (1–25) per headword. More pedagogically useful than raw rank. | 0.25 day |
 | **Wiktionary "Liste falscher Freunde"** (DE↔EN) | https://de.wiktionary.org/wiki/Verzeichnis:Deutsch/Falsche_Freunde | CC-BY-SA 4.0 | False-friend warnings for the EN learning-mode (when DE-speaker is learning EN, or vice versa). | 0.5 day |
 
-### Priority 2 — useful, license caveats to verify
+### Priority 2 — integrate ONLY if a clear no-NC data license is verified first
+
+Default = **skip** until the *data* license (not just the code license) is
+confirmed non-commercial-OK. Record the per-source verdict in Notes as checked.
 
 | Source | License | Notes |
 |---|---|---|
@@ -475,7 +486,7 @@ Catalogued by free-license suitability for a commercial app.
 | **Hunspell DE affix file** | LGPL/MPL on the dictionary | Systematic plural/conjugation fallback when API enrichment misses. |
 | **OPUS DE corpora** (Books, EUbookshop, Wikipedia, etc) | Per-corpus, mostly CC-BY-SA | Additional frequency signals. Diminishing returns over HermitDave + Leipzig. Skip for v1. |
 
-### Priority 3 — skip (NC clauses / academic-only)
+### Priority 3 — ✅ decision: SKIP (NC clauses / paid / academic-only)
 
 | Source | Issue |
 |---|---|
@@ -485,22 +496,37 @@ Catalogued by free-license suitability for a commercial app.
 | CELEX2 | Paid commercial license |
 | MERLIN, KOLAS, DGS-Korpus | NC clauses |
 
-### Deferred — license verification needed
+### GPL-licensed — ✅ approved (license cascade accepted 2026-05-29)
 
-| Source | URL | License status | Notes |
+| Source | URL | License | What it adds |
 |---|---|---|---|
-| **childLex** (Schroeder et al., HU Berlin) | https://childlex.de + https://osf.io/tqgjs | **GNU GPL-3.0** per the OSF project page (verified via OSF API 2026-05-21). The earlier "research-only NC" framing was stale. GPL-3.0 permits commercial use; integration would cascade the shipped DB's license CC-BY-SA-4.0 → GPL-3.0 (these are one-way compatible per Creative Commons' 2015 v4-compatible decision). App code stays proprietary either way. | Strategic call: integrating cascades the DB license. Worth doing for the grade-band accuracy boost (childLex norms cover ages 6–8 / 9–10 / 11–12 — natural fit for Klassen 1-6 grade-band signal). |
+| **childLex** (Schroeder et al., HU Berlin) | https://childlex.de + https://osf.io/tqgjs | **GPL-3.0** (verified via OSF API 2026-05-21; the old "research-only NC" framing was stale) | Child-corpus age-band norms (ages 6–8 / 9–10 / 11–12) → sharpens the Klassen 1–6 grade-band signal |
 
-### Recommended integration order
+**Decision: integrate it — GPL is fine.** Consequence to handle *on*
+integration: bundling GPL-3.0 data **cascades the shipped DB license
+CC-BY-SA-4.0 → GPL-3.0** (one-way compatible per Creative Commons' 2015
+decision). Only the **DB blob** becomes GPL-3.0; the Flutter **app code stays
+proprietary** (the DB is bundled data, not linked code). When integrated,
+update `DATA_LICENSE.md`, §8 (store-compliance), and the in-app license screen
+to state the DB is GPL-3.0.
 
-If we ship the next DE DB rebuild with one fresh source per week:
+### Integration plan (decided 2026-05-29)
 
-1. **Tatoeba DE** — visible UX improvement (better example sentences)
-2. **Wiktionary Fehlschreibungen + Wikipedia common misspellings** — clean replacement for Tacke
-3. **Bundesländer Grundwortschätze (start with Hessen + BW)** — adds curricular tags
+Priority-1 set (all approved), best-first:
+
+1. **Tatoeba DE** — biggest visible UX win (better example sentences)
+2. **Wiktionary Fehlschreibungen + Wikipedia common misspellings** — clean misspelling list (replaces removed Tacke/Menzel)
+3. **Bundesländer Grundwortschätze** (start Hessen + BW) — per-state curricular tags
 4. **DWDS Häufigkeitsklassen** — cheap small win
+5. **Wiktionary Falsche Freunde** — feeds an EN-learning-mode false-friends feature
 
-That's about **2–4 days of focused work** for a materially upgraded DE DB.
+≈ **2–4 days** for the Priority-1 DE DB upgrade.
+
+Then, incrementally:
+6. **childLex** (GPL) — alongside/after, accepting the DB → GPL-3.0 relicense
+   and the doc updates noted above.
+7. **Priority 2** sources case-by-case, each only after its data license is
+   verified non-NC (else skipped).
 
 ---
 
