@@ -657,62 +657,51 @@ bash_history is on our own VPS, `.env` is local — no third-party exposure.
 The "leaked, rotate now" framing was overcautious; value redacted from the
 working-tree docs, rotation is optional hygiene.
 
-### FRESCH spelling-strategy classifier v2 (§6) — DE DB re-tagged
+### Spelling-strategy classifier — re-grounded on the orthographic principles (§6)
 
-Replaced the v1 spelling-strategy derivation (NRW-xlsx feature mapping for
-~533 words + crude surface-regex fallback for ~9.5k) with a principled v2 that
-reads each word's *existing* DB enrichment — `hyphenation`, full `inflections`
-tables, IPA, and `litkey_error_rate` — none of which v1 used. New files in
-`pipeline/voc-de/`:
+> A first cut of this classifier (2026-05-29, intra-day) was fit to an NRW
+> classroom worksheet (`532Strategien.csv`) and is **fully superseded** by the
+> science-grounded version below. The worksheet was found to be linguistically
+> inconsistent (it split identical cases like `Tasse` vs `Puppe` and mis-filed
+> rule-governed words as exceptions), so it was demoted from gold standard to an
+> advisory smell test. The superseding work and its files are described here;
+> the worksheet-era scripts were removed.
 
-- `fresch_classifier_v2.py` — pure classifier. §6.3 tuning realised:
-  `verwandt` only on real alternation (umlaut plural like `Ball→Bälle`, or
-  IPA-confirmed final devoicing `Berg→[bɛʁk]`), `morphem` from
-  high-confidence inseparable prefixes + suffixes + **separable-particle
-  evidence read off the inflection table** (`baue ab` → morphem; kills the old
-  `geben`≠ge+ben false matches), `merkwort` from irregular grapheme markers
-  (Dehnungs-h, aa/ee/oo, v→[f]) + high child-error-rate, `klangtreu`
-  residual-only (no more over-tagging on any digraph).
-- `fresch_db_features.py` — DB-row → feature extractor (shared).
-- `validate_fresch.py` — the §6.6 harness; scheme-aware metric vs the curated
-  `532Strategien.csv` gold (vendored into the repo as a fixture).
-- `patch_spelling_strategy_v2.py` — applies v2 to **all 10,890 non-Vorname
-  words** in `grundwortschatz.db` (idempotent; Vornamen skipped;
-  `nrwLinguisticFeatures` provenance kept). Measured even on the 463
-  former `nrw_derived` words, v2 beats the v1 NRW mapping (clean 14→52%).
-- `test_fresch_classifier.py` — 13 regression tests (anchor words + aggregate
-  threshold guard).
+A cited deep-research pass (Eisenberg & Fuhrhop, Maas, Gallmann, Schmidt/Fuhrhop,
+the amtliches Regelwerk, Günther Thomé) re-grounded the classifier on the
+**orthographic principles of German**. Spec + citations:
+`pipeline/voc-de/SPELLING_STRATEGY_SPEC.md`. New files in `pipeline/voc-de/`:
 
-Validation vs gold (`532Strategien.csv`, 389 rated words):
+- `spelling_strategy_classifier.py` — pure classifier, **7 categories**
+  (adds `dehnung` for long-vowel marking) + a **per-word German explanation**
+  per word (e.g. „Verlängere: Mann → Männer"), with a category-template
+  fallback. Key science decisions: doubling is the Thomé function-based reading
+  (all short-vowel doublings = `doppelkonsonant`, `Tasse` = `Mann`), reversing
+  the earlier wrong "intervocalic → klangtreu"; `verwandt` = Auslautverhärtung
+  (Stammkonstanz); `merkwort` narrowed to genuine etymological exceptions
+  (v→[f], ch→[k]); silbentrennendes-h is rule-governed, not a Merkwort.
+- `spelling_db_features.py` — DB-row → feature extractor.
+- `spelling_strategy_gold.csv` — a 54-word **literature-sourced** exemplar gold
+  (each word cites its scholarly source); replaces the worksheet as ground
+  truth. `validate_spelling.py` reports **100% primary / 100% set-exact**.
+- `test_spelling_strategy.py` — 15 regression tests.
+- `patch_spelling_strategy.py` — re-tagged all 10,890 non-Vorname words;
+  writes `spellingStrategy` / `spellingStrategyPrimary` / `spellingExplanation`
+  / `spellingStrategySource="principle_based_v3"`; drops the obsolete
+  dual-taxonomy fields; `nrwLinguisticFeatures` provenance kept.
 
-| metric | v1 baseline | v2 |
-|---|---|---|
-| clean (scheme-aware exact) | 22.6% | **64.3%** |
-| primary-category match | 56.6% | **82.5%** |
-| mean precision | 53.1% | **79.8%** |
-| merkwort P / R | 24 / 27% | 88 / 58% |
-| doppelkonsonant precision | 31% | 62% |
+Full-DB primary distribution: grossschreibung 27%, klangtreu 21%,
+doppelkonsonant 20%, morphem 12%, dehnung 11%, verwandt 5%, merkwort 3%
+(the old worksheet-fit over-assigned grossschreibung at 49%).
 
-Two further gold-derived refinements drove alignment up from the first pass
-(51%/76%) to 64%/83%, both grounded in *audibility* (the FRESCH principle):
-- `doppelkonsonant` only on **closed-syllable** doubling (`Bett`, `Glück`);
-  intervocalic doubling (`alle`, `Wasser`) is audible → klangtreu.
-- `verwandt` only on **inaudible final devoicing** (`Berg→[bɛʁk]`); audible
-  umlaut alternation (`Ball→Bälle`) → klangtreu, not Ableiten.
-- `merkwort` no longer keys off child-error-rate (regular words are
-  mis-spelled too — was ~19% precise); irregular grapheme markers only.
-
-Key finding (PLAN §6): FRESCH and our 6-category scheme partition the space
-differently and the gold is internally inconsistent (`alle`/`essen` are
-"Mitsprechen" despite doubled consonants; `Ball`="Merken" vs `Bett`=
-"Weiterschwingen"). The remaining non-clean cases are dominated by the gold
-*under-marking* Großschreibung on real nouns and arbitrary `Merken` words with
-no orthographic signal — unfixable without overfitting. The ">=50% exact"
-§6.6 target is exceeded. Asset recompressed (`grundwortschatz.db.gz`, 26 MB,
-integrity ok); pubspec → 1.3.1; all 464 Flutter tests pass; analyze clean. No
-Dart change needed — v2 reuses the same 6 category tokens the
-`SpellingStrategyBadge` already renders. Regression-guarded by
-`test_fresch_classifier.py` (14 tests).
+App side: `spellingExplanation` added to `ApiEnrichment` (flows through the DB
+service automatically); `SpellingStrategyBadge` gained the `dehnung` chip and
+now shows the per-word explanation as its tooltip. Asset recompressed
+(`grundwortschatz.db.gz`, ~26 MB, integrity ok). Documented limitations: noun
+compound detection deferred; Umlaut-Stammkonstanz surfaced in explanations but
+not auto-tagged (DB inflections too noisy). All Flutter tests pass; analyze
+clean. Regression-guarded by `test_spelling_strategy.py` (pipeline) +
+`test/features/games/spelling_strategy_test.dart` (25 tests, app).
 
 ---
 

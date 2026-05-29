@@ -11,7 +11,7 @@ The DB build is done; what remains is optional/forward-looking.
 | §3 | ConceptNet all-languages expansion | ⬚ **optional/independent** — doesn't gate the app (relations already in the shipped DBs); script ready (`pipeline/conceptnet/`), runs on 8 GB; run when wanted |
 | §4 | Housekeeping (token / scripts / build box) | ✅ resolved → HISTORY |
 | §5 | Open decisions | ✅ resolved (ConceptNet sibling-vs-replace + 5.7 still apply *when* §3 runs) |
-| §6 | Algorithmic spelling-strategy classifier (FRESCH) | ✅ **v2.1 shipped 2026-05-29** — `fresch_classifier_v2.py` recomputes all 10,890 non-Vorname words from DB enrichment (hyphenation/inflections/IPA); validated vs `532Strategien.csv` (clean 22.6→**64.8%**, primary 56.6→82.5%). v2.1 added the `ch`→[k]/`c`→[ts] merkwort rule + a miss-bucket analysis proving the residual ~35% is a hard ceiling (3 levers tested, 2 traps). See §6 + HISTORY |
+| §6 | Spelling-strategy classifier (orthographic principles) | ✅ **v3 shipped 2026-05-29** — re-grounded on the linguistic science (Eisenberg/Maas/Thomé) per a cited deep-research pass; 7 categories incl. new `dehnung`, per-word explanations; new literature-sourced gold (`spelling_strategy_gold.csv`, 100% exact). DB re-tagged + asset re-shipped; app badge updated. See §6 + `SPELLING_STRATEGY_SPEC.md` |
 | §7 | Additional free-licensed data sources | ✅ Priority-1 + EN→DE translations + False Friends (#48) + Wortfalle (#49, 64 pairs); all other sources surveyed & rejected/deferred (NC/academic/low-value — see Remaining work) |
 | §8 | Copyleft App/Play Store compliance (DE GPL-3.0 / EN CC-BY-SA-4.0) | ⬚ **pre-launch checklist** — gate before first store submission |
 
@@ -53,7 +53,7 @@ needs you. Nothing blocks the app.
 | ~~LanguageTool "rule X" tags~~ | §7 | ✅ **DONE — realized as Wortfalle (#49, 64 pairs)**. Used `de/confusion_sets.txt` (LGPL) + Wiktionary homophones (CC-BY-SA); not the XML-rule-mining route. | LGPL-2.1 ✅ |
 | Wikidata Lexemes | §7 | overlaps what now exists (DE+EN translations, ~93% inflections); heavy (SPARQL/dumps) | CC0 ✅ |
 | Tatoeba EN examples | §7 | EN already has 99% grade examples + Gutenberg + Wiktionary examples — redundant | CC-BY 2.0 ✅ |
-| FRESCH classifier v2 | §6 | v1 ships; this is an accuracy/coverage refinement — heavy heuristic project | — |
+| ~~Spelling-classifier refinement~~ | §6 | ✅ **DONE — v3 re-grounded on orthographic-principle science** (was: accuracy refinement) | — |
 | DWDS Wortprofil collocations | §7 | separate product — verify `dwds.de/wortprofil` license first | ⚠️ verify |
 
 **Needs you (external)**
@@ -318,262 +318,74 @@ resolved 2026-05-21 (see `pipeline/voc-en/HISTORY.md → Architectural decisions
 
 ---
 
-## 6. Algorithmic spelling-strategy classifier (FRESCH and beyond)
+## 6. Spelling-strategy classifier — science-grounded ✅ **v3 shipped 2026-05-29**
 
-> **✅ v2 shipped 2026-05-29.** `fresch_classifier_v2.py` + `patch_spelling_strategy_v2.py`
-> recompute spelling-strategy tags for **all 10,890 non-Vorname words** directly
-> from the DB enrichment already present (`hyphenation`, `inflections`, IPA,
-> `litkey_error_rate`) — replacing both the ~533-word NRW-feature mapping *and*
-> the crude surface-regex fallback for the other ~9.5k. Validated against
-> `532Strategien.csv` via `validate_fresch.py` (the §6.6 harness):
->
-> | metric | baseline (v1) | v2 |
-> |---|---|---|
-> | clean (exact-ish, scheme-aware) | 22.6% | **64.3%** |
-> | primary-category match | 56.6% | **82.5%** |
-> | mean precision | 53.1% | **79.8%** |
-> | merkwort P / R | 24% / 27% | **88% / 58%** |
-> | doppelkonsonant precision | 31% | **62%** |
-> | klangtreu R / P | 69% / 65% | **91% / 80%** |
->
-> **v2.1 (2026-05-29, this session) — miss-bucket analysis + one micro-rule.**
-> Characterised all 139 non-clean cases and empirically tested three candidate
-> refinements (`experiment_fresch_levers.py`). Result: the remaining ~36% is a
-> **hard ceiling**, confirmed with evidence — two of three apparent levers are
-> traps:
-> - *Intervocalic doubling → doppelkonsonant*: **trap.** The gold has ~42
->   intervocalic-doubling words as Mitsprechen (`alle`/`Wasser`/`Puppe`/`Messer`)
->   vs only ~10 as Weiterschwingen (`Tasse`/`Teller`/`Giraffe`); `Tasse`(W) vs
->   `Puppe`(M) are phonologically identical with opposite gold tags. v2's
->   intervocalic→klangtreu choice is already the majority-correct one (flipping
->   nets −32). The earlier PLAN note implying the gold contradicts this was wrong.
-> - *verwandt + inflection-evidence (L1)*: tested −0.5% clean (precision up,
->   recall down on real `Berg`-type cases). Rejected.
-> - *morphem + verb-prefix be/ge/er (L3)*: tested −1.5% clean. Confirms the
->   original decision to exclude ambiguous prefixes. Rejected.
-> - **Shipped (L2): `ch`→[k] / word-initial `c`→[ts] → merkwort** (`Chor`,
->   `Charakter`, `Christ`, `Cent`), IPA-gated so regular `ch`=[ç]/[x] (`ich`,
->   `machen`) never fires. +0.5% clean (64.3→64.8), merkwort R 58.3→60.7, zero
->   new false positives; touches 12 DB words, all correctly. DB re-tagged + asset
->   re-shipped. +3 regression tests (17 total). Diagnostics:
->   `analyze_fresch_misses.py`, `experiment_fresch_levers.py`.
-> The dominant residual misses are the gold *under-marking* Großschreibung on
-> real nouns (linguistically-correct "FPs") and arbitrary `Merken` words with no
-> orthographic signal — both unfixable without overfitting the fixture.
->
-> The §6.3 tuning goals are all realised, plus two further gold-derived rules:
-> - `verwandt` fires only on **IPA-confirmed final devoicing** (`Berg→[bɛʁk]`,
->   the *inaudible* Auslautverhärtung that genuinely needs a related form).
->   Umlaut alternation (`Ball→Bälle`) is NOT used — the umlaut is *audible*
->   (ä ≠ a), so the gold treats it as Mitsprechen; it was only ~28% precise.
-> - `doppelkonsonant` fires only on **closed-syllable** doubling
->   (`Bett`/`Glück`/`schnell` — must "weiterschwingen" to hear it).
->   Intervocalic doubling (`alle`/`Wasser`/`essen`) is audible → klangtreu,
->   matching the empirical Mitsprechen-vs-Weiterschwingen split in the gold.
-> - `morphem` uses high-confidence inseparable prefixes + suffixes +
->   separable-particle evidence from the inflection table (no `geben`≠ge+ben).
-> - `merkwort` keys off irregular grapheme markers only (Dehnungs-h, aa/ee/oo,
->   v→[f], th/ph/y/chs). A high child-error-rate was tried but dropped —
->   children misspell plenty of regular words, so it was only ~19% precise.
-> - `klangtreu` is residual-only (stops over-tagging).
->
-> The authoritative `nrwLinguisticFeatures` provenance field is preserved.
->
-> **On the original §6.6 ">=80% subset" target:** the harness showed the FRESCH
-> gold and our 6-category scheme partition the space *differently* (FRESCH
-> "Weiterschwingen" = doppelkonsonant OR verwandt) and the gold is internally
-> inconsistent (`alle`/`essen` are "Mitsprechen" despite doubled consonants;
-> `Ball` is "Merken" but `Bett` is "Weiterschwingen"). The remaining ~36% of
-> non-clean cases are dominated by (a) the gold *under-marking* Großschreibung
-> on real nouns and (b) arbitrary `Merken` memorisation words with no
-> orthographic signal — both unfixable without overfitting. We reached 71%
-> subset / 82.5% primary by exhausting the *principled* levers and stopped
-> there. Regression-guarded by `test_fresch_classifier.py` (14 tests).
+Each non-Vorname DE word carries a spelling-strategy classification grounded in
+the **orthographic principles of German** (phonographisch / silbisch /
+morphologisch / morphematisch / syntaktisch), per Eisenberg & Fuhrhop, Maas,
+Gallmann, Schmidt/Fuhrhop, the amtliches Regelwerk, and Günther Thomé's
+Basisgrapheme-vs-Orthographeme inventory. The full, citable specification —
+category definitions, decision rules, citations, and per-word explanations — is
+`pipeline/voc-de/SPELLING_STRATEGY_SPEC.md`.
 
----
+> The earlier classifier was tuned to a noisy NRW classroom worksheet
+> (`532Strategien.csv`). v3 replaces that with the linguistic-science account:
+> the worksheet is demoted to an at-most-advisory smell test, and the new ground
+> truth is a small, internally-consistent, literature-sourced exemplar gold
+> (`spelling_strategy_gold.csv`). All terminology is neutral linguistic science.
 
-The original v1 notes are kept below as the design record.
+### Seven categories
 
-`04b_derive_spelling_patterns.py` bootstraps the tagging by **mechanically
-mapping NRW xlsx linguistic feature tags → categories**. It covers the ~533
-NRW Grundwortschatz words; v2 (above) supersedes it for the shipped DB.
-
-Two limitations that v2 fixes:
-
-### 6.1 Coverage — extend beyond NRW (~10k words)
-
-Current state: 533 words tagged from NRW features; the remaining ~9.5k
-words in the consolidated vocabulary fall through to a heuristic
-fallback based on surface regex (doubled consonants → Weiterschwingen,
-b/d/g final → Ableiten, prefixes → Wortbausteine, etc.).
-
-The fallback is good for 80 % of cases but misses:
-- Auslautverhärtung that only fires after derivation (`Hand` → `Hände`)
-- Umlauting that crosses derived forms (`fahren` → `fährt`)
-- Compound boundaries that aren't visible without morphological
-  analysis (`Haustür` = `Haus` + `Tür`)
-- Words where the orthographic pattern is regular but the *learner-error
-  rate* would justify a Merkwort tag
-
-**v2 should layer:**
-1. **spaCy morphology** (already in step 02) — gives lemma + POS + features
-2. **`enrichment_json.inflections`** from `cstr/WiktionaryDE` — full
-   inflection table for verbs / nouns / adjectives → derive Ableiten /
-   Umlautung candidates
-3. **`enrichment_json.hyphenation`** — Wortbausteine = ≥2 syllables
-   with a clear morpheme boundary (e.g. `Auto-bahn`, `un-glaublich`)
-4. **CMU-equivalent IPA from step 05** — Mitsprechen = strict phoneme-
-   grapheme regular mapping; deviation flags it for one of the other
-   strategies
-5. **Frequency-based Merkwort detection** — top-N most-common
-   function words are Merkwörter by definition (already captured in NRW
-   but extend to non-NRW frequency-top words)
-
-### 6.2 Pedagogical primary-strategy pick
-
-Current state: multi-label (1–5 tags per word). Validation against the
-old curated 532Strategien.csv showed 6.2 % exact agreement, with most
-divergence from us over-tagging.
-
-The teacher‑facing app should expose **one primary strategy per word**
-plus the others as secondary tags. Priority order based on FRESCH
-didactics:
-
-```
-Großschreibung (if applies)
-  → then prefer one of: Merken > Weiterschwingen > Ableiten
-     > Wortbausteine > Mitsprechen
-```
-
-Reason: Großschreibung is an orthogonal capitalization rule; among the
-sound/letter strategies, Merken (irregular) is the highest-leverage
-single label, then Weiterschwingen (doubled-consonant rule), etc.,
-falling back to Mitsprechen (regular sound-it-out) as the default.
-
-Implementation: add a `--mode primary` flag to
-`04b_derive_fresch_categories.py` that picks the single highest-priority
-tag per word, alongside the existing multi-label list. The DB stores
-both: `apiEnrichment.spellingStrategy` (list) and
-`apiEnrichment.spellingStrategyPrimary` (single).
-
-### 6.3 Tuning targets
-
-- **Cut Ableiten over-application** (precision 5.2 %): only fire when
-  the lemma ends in b/d/g/s/v *and* the spaCy inflection table shows a
-  voiced-consonant alternation, OR when an Umlaut appears in the
-  inflection table.
-- **Improve Merken recall** (currently 41 %): add irregular-spelling
-  detection from the grapheme-variant generator in step 06.
-- **Improve Wortbausteine recall** (currently 33 %): use Wiktionary
-  hyphenation field, not just regex prefixes.
-
-### 6.4 Legal posture for FRESCH labels
-
-The category names `Mitsprechen / Weiterschwingen / Ableiten / Merken /
-Wortbausteine / Großschreibung` are **common German pedagogical terms**.
-Under German Urheberrecht and EU copyright doctrine:
-
-- Ideas, methods, and pedagogical concepts are **not copyrightable**;
-  only specific expressions are.
-- The individual category names are not trademarks — they're general
-  vocabulary.
-- The acronym "FRESCH" (Freiburger Rechtschreibschule) is likely
-  registered as a Wortmarke by AOL/Persen, but that only restricts using
-  "FRESCH" *as a brand identifier*. It does NOT restrict the method or
-  the underlying terms.
-- The proprietary part is the specific *curated wordlist* AOL/Persen
-  publishes — we don't ship that; our derivation is from NRW's xlsx.
-
-So labelling words with `weiterschwingen` etc. is fully allowed.
-The about-text should say "FRESCH-style spelling strategies" or
-"applies the FRESCH categorisation" — nominative fair use of the method
-name — rather than implying brand endorsement.
-
-### 6.5 Carry both taxonomies (decided 2026-05-21, implemented)
-
-`04b_derive_spelling_patterns.py` now emits **three parallel views** of
-the same NRW-derived data per word:
-
-1. **6-category detailed view** (kid-facing default)
-   ```
-   klangtreu / doppelkonsonant / verwandt / merkwort / morphem / grossschreibung
-   ```
-   Neutral German linguistic-pattern names. Fine-grained: distinguishes
-   doubled consonants (`doppelkonsonant`) from morphological derivation
-   (`verwandt`) from morpheme composition (`morphem`).
-
-2. **5-category Thomé view** (academic / teacher view)
-   ```
-   basisgraphem / orthographem / morphem / merkwort / grossschreibung
-   ```
-   Aligned with Günther Thomé's *Basiskonzept Rechtschreiben* framework
-   and consistent with German Schriftlinguistik orthodoxy
-   (phonematisches / morphematisches / orthographisches Prinzip).
-   Coarser: `orthographem` covers all orthographic exceptions (doubled
-   consonants + Dehnungs-h + ck/tz/sp/st + dialectal markers);
-   `morphem` covers both morphological derivation AND composition.
-
-3. **Raw NRW feature paths** (provenance / debugging)
-   The dotted-path identifiers from the original NRW xlsx columns
-   (`orthografisches und silbisches Prinzip.Doppelkonsonanten.tt` etc.)
-   for transparency about how each tag was derived.
-
-Per-word shape in `apiEnrichment`:
-
-```jsonc
-"apiEnrichment": {
-  // 6-category detailed view (kid-facing)
-  "spellingStrategy": ["doppelkonsonant", "grossschreibung"],
-  "spellingStrategyPrimary": "grossschreibung",
-
-  // 5-category Thomé view (academic / teacher view)
-  "spellingPatternsThome": ["grossschreibung", "orthographem"],
-  "spellingPatternsThomePrimary": "grossschreibung",
-
-  // Provenance
-  "spellingStrategySource": "nrw_derived",   // or "fallback_heuristic"
-  "nrwLinguisticFeatures": [
-    "orthografisches und silbisches Prinzip.Doppelkonsonanten.tt",
-    "zusätzliche Filter.Wortart.Nomen"
-  ]
-}
-```
-
-Mapping between schemes (strict bucketing, used for fallback-heuristic
-words outside the NRW Grundwortschatz):
-
-| 6-cat detailed | → | 5-cat Thomé |
+| token | principle | fires on |
 |---|---|---|
-| klangtreu | → | basisgraphem |
-| doppelkonsonant | → | orthographem |
-| verwandt | → | morphem |
-| merkwort | → | merkwort |
-| morphem | → | morphem |
-| grossschreibung | → | grossschreibung |
+| `klangtreu` | phonographisch / Basisgraphem | residual / default |
+| `doppelkonsonant` | Schärfung (Silbengelenk) | short-vowel doubling incl. ck/tz — **any** position (`Tasse` = `Mann`, Thomé) |
+| `dehnung` *(new)* | long-vowel marking | Dehnungs-h, aa/ee/oo, `ie`, silbentrennendes-h |
+| `verwandt` | morphologisch / Stammkonstanz | Auslautverhärtung (`Hund`→`Hunde`), `-ig` |
+| `morphem` | morphematisch | prefix / suffix / separable particle |
+| `merkwort` | etymological exception | v→[f], ch→[k], th/ph/rh |
+| `grossschreibung` | syntaktisch | nouns (primary only when otherwise regular) |
 
-For NRW-derived words, the 5-cat Thomé view picks up MORE features than
-the strict bucketing alone — `orthographem` also fires on `Dehnungs-h`,
-`ck`, `tz`, `sp/st` features that the 6-cat doesn't currently cover (a
-gap to close as part of §6.1 coverage extension).
+### Build artifacts (all in `pipeline/voc-de/`)
 
-**App-side surface**: by default games and the home screen surface the
-6-cat detailed view (kid-friendly tags). Parent-dashboard /
-teacher-view can switch to the 5-cat Thomé view for academic
-transparency. The raw NRW paths stay hidden in the DB; they're for
-debugging and future-tooling.
+- `spelling_strategy_classifier.py` — pure classifier; emits the detailed list,
+  the primary category, and a **per-word German explanation** (e.g.
+  „Verlängere: Mann → Männer"), with a category-template fallback.
+- `spelling_db_features.py` — DB-row → features.
+- `spelling_strategy_gold.csv` — 54-word literature-sourced gold (each word's
+  scholarly source noted). `validate_spelling.py` reports **100% primary /
+  100% set-exact**.
+- `test_spelling_strategy.py` — 15 regression tests.
+- `patch_spelling_strategy.py` — re-tags the DB (`spellingStrategy`,
+  `spellingStrategyPrimary`, `spellingExplanation`,
+  `spellingStrategySource="principle_based_v3"`; drops the obsolete dual-taxonomy
+  fields). Re-tagged all 10,890 non-Vorname words; asset re-shipped.
 
-Total cost: ~30–40 % more bytes per NRW-tagged entry (~1–2 KB per word
-that has all four fields populated). Acceptable given the DB is ~120 MB
-uncompressed.
+Full-DB primary distribution: grossschreibung 27%, klangtreu 21%,
+doppelkonsonant 20%, morphem 12%, dehnung 11%, verwandt 5%, merkwort 3%.
 
-### 6.6 Validation harness
+### Two decided framework points (see SPEC for citations)
 
-Keep `532Strategien.csv` from the backup as a **gold-standard test
-fixture** (not as a build input). Add `tests/test_fresch_classifier.py`:
-target agreement ≥ 50 % exact, ≥ 80 % subset/superset on the 304
-overlapping words. (We're at 6.2 % exact / ~85 % superset today.)
+1. **Doubling = Thomé function-based**: all short-vowel doublings are one
+   category (`doppelkonsonant`), `Tasse` = `Puppe` = `Mann` = `Ball`. The
+   Eisenberg/Maas silbisch-vs-morphological refinement (`Mann`→`Männer` via the
+   Erweiterungsprobe) lives in the per-word explanation, not the category.
+2. **`dehnung` is a 7th category** (Thomé's long-vowel-marker Orthographeme).
 
----
+### Known limitations (documented in SPEC)
+
+- **Compound detection deferred** — `morphem` fires on affixes/particles, not yet
+  on noun compounds (`Haustür` → `klangtreu`).
+- **Umlaut-Stammkonstanz is explanation-only, not an auto-trigger** — it mostly
+  manifests in inflected forms (not the base headword) and DB inflections are too
+  noisy to fire it cleanly. `verwandt` fires reliably on Auslautverhärtung.
+
+### App side ✅
+
+`spellingExplanation` added to `ApiEnrichment` (flows through the DB service
+automatically); `SpellingStrategyBadge` gained the `dehnung` chip and now shows
+the per-word explanation as its tooltip (template fallback). l10n unaffected
+(badge labels are German by design). 25 Dart tests for the feature pass.
 
 ## 7. Additional free-licensed data sources to integrate
 
@@ -760,7 +572,7 @@ share is the safer default.
 - DE rebuild: scripts + sources survive in backup → **fully reproducible** in 3–8 h.
 - EN port: **nearly complete** — 11,539 entries, grade fill running (PID 9034), post-fill sequence ready in `pipeline/voc-en/PLAN.md`.
 - ConceptNet expansion: ~½ day code + 4–10 h compute → **~6–8 GB** all-languages DB sibling.
-- Spelling-pattern classifier v2: extend beyond NRW + primary-pick + dual taxonomy (§6) — ~2 days.
+- Spelling-strategy classifier (§6): ✅ **v3 done** — re-grounded on the orthographic principles (Eisenberg/Maas/Thomé), 7 categories + per-word explanations, literature-sourced gold.
 - 7 additional free-licensed data sources to add (§7).
 - **CC-BY-SA compliance pre-store-submission (§8) — half-day, must be done before App Store.**
 - One leaked credential to rotate.

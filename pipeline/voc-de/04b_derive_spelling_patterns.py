@@ -88,7 +88,9 @@ REPORT = HERE / "pattern_coverage_report.txt"
 # the broad view (5 categories, research-supported).
 
 # ── 6-category detailed view (kid-facing default) ──
-# Neutral German linguistic-pattern names. No FRESCH-branded terminology.
+# Neutral German linguistic-pattern names (no method-brand terminology).
+# NOTE: this v1 derivation is SUPERSEDED by spelling_strategy_classifier.py +
+# patch_spelling_strategy.py (science-grounded v3); see SPELLING_STRATEGY_SPEC.md.
 KLANGTREU = "klangtreu"             # regular phoneme-grapheme (sound-it-out)
 DOPPELKONSONANT = "doppelkonsonant" # doubled-consonant pattern
 VERWANDT = "verwandt"               # related-word derivation (Auslautverhärtung, Umlautung)

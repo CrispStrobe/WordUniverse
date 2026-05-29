@@ -37,7 +37,7 @@ alternate to pick, and the filename‑drift chain.
 | `422_NRW_Nachdenkwörter.txt` | 01, 04 | NRW: words requiring rule reasoning |
 | `100Fehler.csv` / `200Fehler.csv` / `300Fehler.csv` | 01 | Real children's misspellings |
 | `400Fehler.txt` | 01 | Larger generated error set |
-| `532Strategien.csv` | 01 | Spelling strategy mapping |
+| `532Strategien.csv` | — | Legacy NRW worksheet — **advisory only**; superseded by `SPELLING_STRATEGY_SPEC.md` + `spelling_strategy_gold.csv` |
 | `739Leo.csv` | 01 | Leo.org corpus |
 | `Buchmeier20k.txt` | 01 | Children's book frequency |
 | `de_50k_hermitdave.txt` | 01 | HermitDave frequency |

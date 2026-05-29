@@ -36,9 +36,16 @@ const _strategyInfo = {
   ),
   'doppelkonsonant': (
     label: 'Doppelkonsonant',
-    tip: 'Kurzer Vokal vor Doppelkonsonant: „rennen", „Wasser".',
+    tip: 'Kurzer Vokal vor Doppelkonsonant: „rennen", „Wasser", „Mann".',
     icon: Icons.format_bold,
     color: Color(0xFFC62828),
+  ),
+  'dehnung': (
+    label: 'Dehnung',
+    tip: 'Langer Vokal, markiert mit Dehnungs-h, Doppelvokal oder „ie": '
+        '„Stuhl", „Boot", „Brief".',
+    icon: Icons.straighten,
+    color: Color(0xFF00838F),
   ),
   'merkwort': (
     label: 'Merkwort',
@@ -61,8 +68,12 @@ class SpellingStrategyBadge extends StatelessWidget {
     final info = _strategyInfo[strategy];
     if (info == null) return const SizedBox.shrink();
 
+    // Prefer the per-word, science-grounded explanation shipped in the DB
+    // (e.g. „Verlängere: Mann → Männer"); fall back to the category template.
+    final tip = word.apiEnrichment?.spellingExplanation ?? info.tip;
+
     return Tooltip(
-      message: info.tip,
+      message: tip,
       preferBelow: true,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
