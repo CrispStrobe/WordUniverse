@@ -117,8 +117,8 @@ RE_DEHNUNGS_H = re.compile(r"[aeiouäöü]h(?:[bcdfgjklmnpqrstvwxzß]|\b)", re.I
 RE_IEH_IH = re.compile(r"(ieh|ih)", re.IGNORECASE)
 RE_TH_PH_RH_Y = re.compile(r"(th|ph|rh|chs)|y", re.IGNORECASE)
 
-RE_DOUBLED = re.compile("(" + "|".join(DOUBLED) + ")", re.IGNORECASE)
-RE_UMLAUT = re.compile(r"[äöüÄÖÜ]")
+RE_DOUBLED_ITER = re.compile("(" + "|".join(DOUBLED) + ")", re.IGNORECASE)
+VOWELS = set("aeiouäöüyAEIOUÄÖÜY")
 
 # IPA voiceless obstruents that signal final devoicing of a voiced grapheme.
 DEVOICE_MAP = {"b": "p", "d": "t", "g": "k"}
@@ -155,12 +155,6 @@ def _strip_ipa(ipa: Optional[str]) -> str:
     return ipa.strip().strip("[]/").strip()
 
 
-def _deumlaut(s: str) -> str:
-    return (s.replace("ä", "a").replace("ö", "o").replace("ü", "u")
-             .replace("Ä", "A").replace("Ö", "O").replace("Ü", "U")
-             .replace("äu", "au"))
-
-
 def _has_prefix(lemma: str) -> bool:
     low = lemma.lower()
     for p in PREFIXES:
@@ -174,44 +168,35 @@ def _has_suffix(lemma: str) -> bool:
     return any(low.endswith(s) and len(low) > len(s) + 2 for s in SUFFIXES)
 
 
+def _closed_syllable_doubling(lemma: str) -> bool:
+    """True if a doubled consonant sits in a CLOSED syllable — i.e. word-final
+    or followed by another consonant — so the doubling is NOT audible in the
+    base form and must be found by "Weiterschwingen" (extending the word):
+    Bett→[bɛt], Mann→[man], Glück→[ɡlʏk], Platz, schnell.
+
+    Returns False when every doubling is INTERVOCALIC (followed by a vowel):
+    alle, essen, Wasser, Sonne, Jacke — there the short vowel is audible, so
+    FRESCH treats the word as "Mitsprechen" (our klangtreu), not a doubling
+    case. This is the empirical Mitsprechen-vs-Weiterschwingen split observed
+    in the 532Strategien gold."""
+    for m in RE_DOUBLED_ITER.finditer(lemma):
+        nxt = lemma[m.end():m.end() + 1]
+        if nxt == "" or nxt not in VOWELS:
+            return True
+    return False
+
+
 def _separable_particle_in_forms(forms: list[str]) -> bool:
     """True if any inflected form places a separable particle at the end
     ("baue ab") — precise evidence of a separable-prefix (morphem) verb."""
     return any(RE_SEP_PARTICLE.search(f or "") for f in forms)
 
 
-def _morpheme_parts(hyph: list[str]) -> int:
-    """Count hyphenation parts of the first variant (rough syllable count)."""
-    if not hyph:
-        return 0
-    return len([p for p in str(hyph[0]).split("-") if p])
-
-
-def _detect_umlaut_alternation(lemma: str, forms: list[str]) -> bool:
-    """True if an inflected form introduces an umlaut the lemma lacks, where
-    de-umlauting the form maps it back onto the lemma stem (so we know it is a
-    morphological relative, not a different lexeme). E.g. Ball→Bälle,
-    Boot→Böte, fahren→fährt, Arzt→Ärzte."""
-    low = lemma.lower()
-    # If the lemma is ALREADY umlauted (böse, grün, Tür, fünf), the umlaut is
-    # not an alternation a child derives from a related form — skip. This was
-    # the v2.0 over-firing bug (böse, schön → spurious verwandt).
-    if RE_UMLAUT.search(low):
-        return False
-    base = _deumlaut(low)
-    for f in forms:
-        fl = f.lower()
-        # strip leading articles the form_text often carries
-        fl = re.sub(r"^(der|die|das|den|dem|des)\s+", "", fl).strip()
-        if not RE_UMLAUT.search(fl):
-            continue
-        fd = _deumlaut(fl)
-        # the de-umlauted form must share a real stem with the lemma, so we
-        # know it is a morphological relative (Ball→Bälle), not a homograph.
-        stem = base[:max(3, len(base) - 3)]
-        if stem and fd.startswith(stem):
-            return True
-    return False
+# NOTE: umlaut alternation (Ball→Bälle) was tried as a verwandt trigger but
+# dropped — the umlaut is audible (ä ≠ a), so the gold treats it as Mitsprechen
+# (klangtreu); it was only ~28% precise. verwandt now keys off final devoicing
+# alone (the inaudible Auslautverhärtung), which is why no umlaut detector
+# remains here. See classify() step 3.
 
 
 def _detect_final_devoicing(lemma: str, ipa: str) -> bool:
@@ -263,13 +248,18 @@ def classify(f: WordFeatures) -> Classification:
     if is_noun or f.article in ("der", "die", "das"):
         cats.add(GROSSSCHREIBUNG)
 
-    # 2. doppelkonsonant — explicit doubled-consonant / ck / tz marker
-    if RE_DOUBLED.search(lemma):
+    # 2. doppelkonsonant — only CLOSED-syllable doubling (the "Weiterschwingen"
+    #    case). Intervocalic doubling (alle, Wasser) is audible → klangtreu.
+    if _closed_syllable_doubling(lemma):
         cats.add(DOPPELKONSONANT)
 
-    # 3. verwandt — ONLY on real morphological alternation (§6.3 precision fix)
-    if _detect_umlaut_alternation(lemma, f.inflected_forms) or \
-       _detect_final_devoicing(lemma, f.ipa or ""):
+    # 3. verwandt — ONLY on IPA-confirmed final devoicing (Auslautverhärtung):
+    #    Berg→[bɛʁk], ab→[ap]. This is the INAUDIBLE alternation that genuinely
+    #    needs a related form to resolve, which is why FRESCH files it under
+    #    Weiterschwingen/Ableiten. Umlaut alternation (Ball→Bälle) is NOT used:
+    #    the umlaut is *audible* (ä ≠ a), so the gold treats it as Mitsprechen
+    #    (klangtreu) — keying verwandt off umlaut was ~28% precision (41 FPs).
+    if _detect_final_devoicing(lemma, f.ipa or ""):
         cats.add(VERWANDT)
 
     # 4. morphem — prefix / suffix / separable-verb evidence (§6.3 recall fix,
@@ -279,16 +269,14 @@ def classify(f: WordFeatures) -> Classification:
             or _separable_particle_in_forms(f.inflected_forms)):
         cats.add(MORPHEM)
 
-    # 5. merkwort — irregular spelling / empirically hard (§6.3 recall fix).
-    #    NOTE: we deliberately do NOT key merkwort off "is a function word" —
-    #    many short function words (als, auf, bei) are regular sound-it-out
-    #    (Mitsprechen) in the gold, so that heuristic over-tagged badly.
-    irregular = _detect_irregular_spelling(lemma, f.ipa or "")
-    very_hard = (f.litkey_error_rate is not None and f.litkey_error_rate >= 0.6)
-    if irregular:
-        cats.add(MERKWORT)
-    elif very_hard and not (cats - {GROSSSCHREIBUNG}):
-        # high child-error words with no other letter/sound strategy → memorize
+    # 5. merkwort — irregular spelling only (§6.3 recall fix). The signal is a
+    #    grapheme a child cannot sound out: Dehnungs-h, aa/ee/oo, v→[f],
+    #    th/ph/y/chs, ieh/ih. We deliberately do NOT key merkwort off either:
+    #      • "is a function word"  — als/auf/bei are regular Mitsprechen, and
+    #      • a high litkey_error_rate — children misspell plenty of REGULAR
+    #        words (kennen, klettern, dürfen), so error-rate was only ~19%
+    #        precise for merkwort (21 FPs). Both heuristics over-tagged.
+    if _detect_irregular_spelling(lemma, f.ipa or ""):
         cats.add(MERKWORT)
 
     # 6. klangtreu — RESIDUAL only (§6.3 over-tagging fix). Assigned when no

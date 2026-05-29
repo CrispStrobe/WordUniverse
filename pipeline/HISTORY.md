@@ -687,19 +687,32 @@ Validation vs gold (`532Strategien.csv`, 389 rated words):
 
 | metric | v1 baseline | v2 |
 |---|---|---|
-| clean (scheme-aware exact) | 22.6% | 51.2% |
-| primary-category match | 56.6% | 75.8% |
-| merkwort P / R | 24 / 27% | 77 / 62% |
-| morphem P / R | 31 / 50% | 65 / 56% |
+| clean (scheme-aware exact) | 22.6% | **64.3%** |
+| primary-category match | 56.6% | **82.5%** |
+| mean precision | 53.1% | **79.8%** |
+| merkwort P / R | 24 / 27% | 88 / 58% |
+| doppelkonsonant precision | 31% | 62% |
 
-Key finding documented in PLAN §6: FRESCH and our 6-category scheme partition
-the space differently (FRESCH "Weiterschwingen" = doppelkonsonant OR verwandt;
-gold is internally inconsistent), so the original §6.6 ">=80% subset" target
-is not pursued — reaching it would mean suppressing linguistically-correct
-tags. The ">=50% exact" target is met. Asset recompressed
-(`grundwortschatz.db.gz`, 26 MB, integrity ok); pubspec → 1.3.1; all 464
-Flutter tests pass; analyze clean. No Dart change needed — v2 reuses the same
-6 category tokens the `SpellingStrategyBadge` already renders.
+Two further gold-derived refinements drove alignment up from the first pass
+(51%/76%) to 64%/83%, both grounded in *audibility* (the FRESCH principle):
+- `doppelkonsonant` only on **closed-syllable** doubling (`Bett`, `Glück`);
+  intervocalic doubling (`alle`, `Wasser`) is audible → klangtreu.
+- `verwandt` only on **inaudible final devoicing** (`Berg→[bɛʁk]`); audible
+  umlaut alternation (`Ball→Bälle`) → klangtreu, not Ableiten.
+- `merkwort` no longer keys off child-error-rate (regular words are
+  mis-spelled too — was ~19% precise); irregular grapheme markers only.
+
+Key finding (PLAN §6): FRESCH and our 6-category scheme partition the space
+differently and the gold is internally inconsistent (`alle`/`essen` are
+"Mitsprechen" despite doubled consonants; `Ball`="Merken" vs `Bett`=
+"Weiterschwingen"). The remaining non-clean cases are dominated by the gold
+*under-marking* Großschreibung on real nouns and arbitrary `Merken` words with
+no orthographic signal — unfixable without overfitting. The ">=50% exact"
+§6.6 target is exceeded. Asset recompressed (`grundwortschatz.db.gz`, 26 MB,
+integrity ok); pubspec → 1.3.1; all 464 Flutter tests pass; analyze clean. No
+Dart change needed — v2 reuses the same 6 category tokens the
+`SpellingStrategyBadge` already renders. Regression-guarded by
+`test_fresch_classifier.py` (14 tests).
 
 ---
 

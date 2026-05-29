@@ -40,9 +40,19 @@ def test_grossschreibung_for_nouns():
     assert GROSSSCHREIBUNG in c.detailed
 
 
-def test_doppelkonsonant_marker():
-    c = classify(WordFeatures(word="rennen", lemma="rennen", word_type="verb"))
+def test_doppelkonsonant_on_closed_syllable():
+    # Bett → [bɛt]: doubling is word-final/closed, not audible → Weiterschwingen
+    c = classify(WordFeatures(word="Bett", lemma="Bett", word_type="substantiv",
+                              article="das"))
     assert DOPPELKONSONANT in c.detailed
+
+
+def test_doppelkonsonant_NOT_on_intervocalic_doubling():
+    # rennen / alle / Wasser: ll/nn/ss followed by a vowel → audible short
+    # vowel → Mitsprechen (klangtreu), NOT a Weiterschwingen doubling case
+    for w in ("rennen", "alle", "Wasser"):
+        c = classify(WordFeatures(word=w, lemma=w))
+        assert DOPPELKONSONANT not in c.detailed, w
 
 
 def test_verwandt_fires_on_final_devoicing():
@@ -52,18 +62,21 @@ def test_verwandt_fires_on_final_devoicing():
     assert VERWANDT in c.detailed
 
 
-def test_verwandt_fires_on_umlaut_alternation():
-    # Ball → Bälle: plain a in lemma, ä in plural form
+def test_verwandt_does_NOT_fire_on_umlaut_alone():
+    # Ball → Bälle: the umlaut is AUDIBLE (ä ≠ a), so FRESCH treats it as
+    # Mitsprechen (klangtreu), not Ableiten/verwandt. Keying verwandt off
+    # umlaut was only ~28% precise against the gold.
     c = classify(WordFeatures(word="Ball", lemma="Ball", word_type="substantiv",
                               article="der", inflected_forms=["die Bälle", "des Balls"]))
-    assert VERWANDT in c.detailed
-
-
-def test_verwandt_does_NOT_fire_on_already_umlauted_lemma():
-    # böse is always umlauted — not an alternation a child derives (v2.0 bug)
-    c = classify(WordFeatures(word="böse", lemma="böse", word_type="adjektiv",
-                              inflected_forms=["böser", "böseste"]))
     assert VERWANDT not in c.detailed
+
+
+def test_merkwort_NOT_from_error_rate_alone():
+    # 'kennen' is a high-child-error but regular (Mitsprechen) word — a high
+    # litkey_error_rate must NOT force merkwort.
+    c = classify(WordFeatures(word="kennen", lemma="kennen", word_type="verb",
+                              litkey_error_rate=0.9))
+    assert MERKWORT not in c.detailed
 
 
 def test_morphem_does_NOT_false_match_ge_root():
@@ -142,9 +155,9 @@ def test_aggregate_thresholds():
     assert n >= 380, f"expected ~389 gold words present in DB, got {n}"
     clean_pct = 100 * clean / n
     primary_pct = 100 * primary / n
-    # achieved 51.2% clean / 75.8% primary — guard a small margin below
-    assert clean_pct >= 48.0, f"clean agreement regressed: {clean_pct:.1f}%"
-    assert primary_pct >= 72.0, f"primary agreement regressed: {primary_pct:.1f}%"
+    # achieved 64.3% clean / 82.5% primary — guard a small margin below
+    assert clean_pct >= 60.0, f"clean agreement regressed: {clean_pct:.1f}%"
+    assert primary_pct >= 78.0, f"primary agreement regressed: {primary_pct:.1f}%"
 
 
 if __name__ == "__main__":
