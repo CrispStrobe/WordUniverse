@@ -12,7 +12,7 @@ The DB build is done; what remains is optional/forward-looking.
 | §4 | Housekeeping (token / scripts / build box) | ✅ resolved → HISTORY |
 | §5 | Open decisions | ✅ resolved (ConceptNet sibling-vs-replace + 5.7 still apply *when* §3 runs) |
 | §6 | Algorithmic spelling-strategy classifier (FRESCH) | ⬚ ongoing improvement |
-| §7 | Additional free-licensed data sources | ✅ mostly **already integrated** (Tatoeba, Bundesländer, DWDS, misspellings, childLex); open: Falsche Freunde + childLex license declaration + Priority-2-if-verified |
+| §7 | Additional free-licensed data sources | ✅ Priority-1 fully integrated (Tatoeba, Bundesländer, DWDS, misspellings, childLex, **Falsche Freunde**); open: Priority-2-if-verified + optional FF game screen |
 | §8 | Copyleft App/Play Store compliance (DE GPL-3.0 / EN CC-BY-SA-4.0) | ⬚ **pre-launch checklist** — gate before first store submission |
 
 ---
@@ -522,13 +522,23 @@ the in-app license registry (which already declared the GPL-3.0 posture).
 
 ### What actually remains (2026-05-29)
 
-Priority 1, Bundesländer, DWDS, misspellings, Tatoeba, and childLex are all
-**already in the shipped DB**. Genuinely open:
+Priority 1 is now **fully integrated** (incl. Falsche Freunde) — see below.
+Genuinely open:
 
-1. **Wiktionary "Falsche Freunde"** — the only undone Priority-1 source; build a
-   false-friends feature for the EN learning mode (~0.5 day data + a game/hint).
-2. **Priority 2** sources — case-by-case, each only after its data license is
+1. **Priority 2** sources — case-by-case, each only after its data license is
    verified non-NC (else skipped).
+2. *(optional)* a Falsche-Freunde **game screen** — the data + reader ship; only
+   a UI is missing.
+
+### Falsche Freunde — ✅ DONE (2026-05-29)
+
+Curated DE↔EN false friends (62 pairs; correct, common, K-6+-appropriate —
+the raw Wikipedia/Wiktionary lists have errors + vulgar entries). Reference:
+Wikipedia "Liste falscher Freunde" (CC-BY-SA 4.0 → EN DB stays CC-BY-SA).
+`pipeline/voc-en/add_false_friends_en.py` → `false_friends` table in the EN DB
+(55/62 linked to a `words` row). Dart: `FalseFriend` model +
+`DictionaryDatabaseService.getFalseFriends()` + `VocabularyService.getFalseFriends()`
++ 3 unit tests. Shipped in `grundwortschatz_en.db.gz`.
 
 ---
 

@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // --- APP IMPORTS ---
+import '../../features/games/models/false_friend.dart';
 import '../../features/games/models/phrasal_verb.dart';
 import '../../features/games/providers/game_provider.dart';
 import '../models/skill_category.dart';
@@ -202,6 +203,12 @@ class VocabularyService with ChangeNotifier {
   Future<List<PhrasalVerb>> getPhrasalVerbs() async {
     final rows = await _dbService.getPhrasalVerbs();
     return rows.map(PhrasalVerb.fromRow).toList();
+  }
+
+  /// DE↔EN false friends (EN database only). Empty for the German database.
+  Future<List<FalseFriend>> getFalseFriends() async {
+    final rows = await _dbService.getFalseFriends();
+    return rows.map(FalseFriend.fromRow).toList();
   }
 
   List<GermanWord> getWordsByGrade(
