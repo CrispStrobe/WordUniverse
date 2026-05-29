@@ -11,7 +11,7 @@ The DB build is done; what remains is optional/forward-looking.
 | §3 | ConceptNet all-languages expansion | ⬚ **optional/independent** — doesn't gate the app (relations already in the shipped DBs); script ready (`pipeline/conceptnet/`), runs on 8 GB; run when wanted |
 | §4 | Housekeeping (token / scripts / build box) | ✅ resolved → HISTORY |
 | §5 | Open decisions | ✅ resolved (ConceptNet sibling-vs-replace + 5.7 still apply *when* §3 runs) |
-| §6 | Algorithmic spelling-strategy classifier (FRESCH) | ✅ **v2 shipped 2026-05-29** — `fresch_classifier_v2.py` recomputes all 10,890 non-Vorname words from DB enrichment (hyphenation/inflections/IPA); validated vs `532Strategien.csv` (clean 22.6→64.3%, primary 56.6→82.5%). See §6 + HISTORY |
+| §6 | Algorithmic spelling-strategy classifier (FRESCH) | ✅ **v2.1 shipped 2026-05-29** — `fresch_classifier_v2.py` recomputes all 10,890 non-Vorname words from DB enrichment (hyphenation/inflections/IPA); validated vs `532Strategien.csv` (clean 22.6→**64.8%**, primary 56.6→82.5%). v2.1 added the `ch`→[k]/`c`→[ts] merkwort rule + a miss-bucket analysis proving the residual ~35% is a hard ceiling (3 levers tested, 2 traps). See §6 + HISTORY |
 | §7 | Additional free-licensed data sources | ✅ Priority-1 + EN→DE translations + False Friends (#48) + Wortfalle (#49, 64 pairs); all other sources surveyed & rejected/deferred (NC/academic/low-value — see Remaining work) |
 | §8 | Copyleft App/Play Store compliance (DE GPL-3.0 / EN CC-BY-SA-4.0) | ⬚ **pre-launch checklist** — gate before first store submission |
 
@@ -335,6 +335,31 @@ resolved 2026-05-21 (see `pipeline/voc-en/HISTORY.md → Architectural decisions
 > | merkwort P / R | 24% / 27% | **88% / 58%** |
 > | doppelkonsonant precision | 31% | **62%** |
 > | klangtreu R / P | 69% / 65% | **91% / 80%** |
+>
+> **v2.1 (2026-05-29, this session) — miss-bucket analysis + one micro-rule.**
+> Characterised all 139 non-clean cases and empirically tested three candidate
+> refinements (`experiment_fresch_levers.py`). Result: the remaining ~36% is a
+> **hard ceiling**, confirmed with evidence — two of three apparent levers are
+> traps:
+> - *Intervocalic doubling → doppelkonsonant*: **trap.** The gold has ~42
+>   intervocalic-doubling words as Mitsprechen (`alle`/`Wasser`/`Puppe`/`Messer`)
+>   vs only ~10 as Weiterschwingen (`Tasse`/`Teller`/`Giraffe`); `Tasse`(W) vs
+>   `Puppe`(M) are phonologically identical with opposite gold tags. v2's
+>   intervocalic→klangtreu choice is already the majority-correct one (flipping
+>   nets −32). The earlier PLAN note implying the gold contradicts this was wrong.
+> - *verwandt + inflection-evidence (L1)*: tested −0.5% clean (precision up,
+>   recall down on real `Berg`-type cases). Rejected.
+> - *morphem + verb-prefix be/ge/er (L3)*: tested −1.5% clean. Confirms the
+>   original decision to exclude ambiguous prefixes. Rejected.
+> - **Shipped (L2): `ch`→[k] / word-initial `c`→[ts] → merkwort** (`Chor`,
+>   `Charakter`, `Christ`, `Cent`), IPA-gated so regular `ch`=[ç]/[x] (`ich`,
+>   `machen`) never fires. +0.5% clean (64.3→64.8), merkwort R 58.3→60.7, zero
+>   new false positives; touches 12 DB words, all correctly. DB re-tagged + asset
+>   re-shipped. +3 regression tests (17 total). Diagnostics:
+>   `analyze_fresch_misses.py`, `experiment_fresch_levers.py`.
+> The dominant residual misses are the gold *under-marking* Großschreibung on
+> real nouns (linguistically-correct "FPs") and arbitrary `Merken` words with no
+> orthographic signal — both unfixable without overfitting the fixture.
 >
 > The §6.3 tuning goals are all realised, plus two further gold-derived rules:
 > - `verwandt` fires only on **IPA-confirmed final devoicing** (`Berg→[bɛʁk]`,
