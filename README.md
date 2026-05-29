@@ -122,7 +122,8 @@ lib/
 This project uses a dual-license model — see [DATA_LICENSE.md](DATA_LICENSE.md) for the full breakdown:
 
 - **Application code** (`lib/`, platform directories) — proprietary, all rights reserved.
-- **Vocabulary databases** (`assets/grundwortschatz.db.gz`, `assets/grundwortschatz_en.db.gz`) — **CC BY-SA 4.0**, inherited from upstream sources (Wiktionary, ConceptNet, OEWN, LiTKey, Tatoeba, and others). Available for redistribution at [cstr/grundwortschatz-voc-de](https://huggingface.co/datasets/cstr/grundwortschatz-voc-de) and [cstr/grundwortschatz-voc-en](https://huggingface.co/datasets/cstr/grundwortschatz-voc-en) on Hugging Face.
+- **German vocabulary database** (`assets/grundwortschatz.db.gz`) — **GNU GPL-3.0**: it bundles childLex (GPL-3.0) age-band norms, and GPL-3.0 content cannot be redistributed under CC-BY-SA-4.0 (one-way compatible), so the combined DE DB is GPL-3.0. Redistribution: [cstr/grundwortschatz-voc-de](https://huggingface.co/datasets/cstr/grundwortschatz-voc-de).
+- **English vocabulary database** (`assets/grundwortschatz_en.db.gz`) — **CC BY-SA 4.0**, inherited from upstream sources (Wiktionary, ConceptNet, OEWN, and others). Redistribution: [cstr/grundwortschatz-voc-en](https://huggingface.co/datasets/cstr/grundwortschatz-voc-en).
 - **Pipeline scripts** (`pipeline/`) — MIT License.
 
 Full attribution for every data source is shown in the in-app **Settings → Licenses** screen.
