@@ -49,6 +49,7 @@ work), and the **pipeline scripts are MIT**.
 | OpenThesaurus | CC BY-SA 3.0 | Synonym/hypernym/hyponym closure |
 | OdeNet (German WordNet) | CC BY-SA 4.0 | Sense data, wordnet synsets |
 | HermitDave / OpenSubtitles | CC BY-SA 4.0 | Frequency rank fields |
+| DWDS-Lemmadatenbank | CC BY-SA 4.0 (per dwds.de/lemma/list) | `frequency_json.dwds` — Häufigkeitsklasse + Wortklasse per lemma. Attribution: "Digitales Wörterbuch der deutschen Sprache (DWDS)" |
 | LiTKey corpus (Müller et al. 2021, RUB Bochum) | CC BY-SA 4.0 | `commonMistakes` — primary-school spelling errors |
 | DysList (Rauschii et al. 2014) | CC BY-SA 4.0 | `commonMistakes` — dyslexic spelling errors |
 | Tatoeba | CC BY 2.0 | Example sentences |

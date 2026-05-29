@@ -482,7 +482,7 @@ Remaining:
 | **Wiktionary "Verzeichnis:Deutsch/Fehlschreibungen"** | https://de.wiktionary.org/wiki/Verzeichnis:Deutsch/Fehlschreibungen | CC-BY-SA 4.0 | Clean replacement for the Tacke/Menzel `100/300/400 Fehler` list. | 0.5 day |
 | **Wikipedia "Liste häufiger Rechtschreibfehler"** | https://de.wikipedia.org/wiki/Wikipedia:Liste_h%C3%A4ufiger_Rechtschreibfehler | CC-BY-SA 4.0 | Same role as above; complementary coverage. | (combined with above) |
 | **Bundesländer Grundwortschätze (Hessen, BW, RLP, Bayern, Sachsen, S-H)** | gov ministries, see LICENSES.md | Public administrative material, attribution typical | Per-Bundesland tags. Widens grade coverage; lets teachers filter by their state. ~500–870 words each, 70-80 % overlap with NRW but the diff is pedagogically interesting. | 1 day total |
-| **DWDS Häufigkeitsklassen** | https://www.dwds.de/d/api | CC-BY-SA via DWDS terms | log-frequency band (1–25) per headword. More pedagogically useful than raw rank. | 0.25 day |
+| **DWDS Häufigkeitsklassen** | https://www.dwds.de/lemma/csv | ✅ **CC-BY-SA 4.0** — the DWDS-Lemmadatenbank is explicitly CC-BY-SA-4.0 per dwds.de/lemma/list (NB: the general site ToS / TDM-reservation restrict the *corpora*, not this separately-licensed lemma DB) | log-frequency class per lemma. **Done** — `frequency_json.dwds`. | done |
 | **Wiktionary "Liste falscher Freunde"** (DE↔EN) | https://de.wiktionary.org/wiki/Verzeichnis:Deutsch/Falsche_Freunde | CC-BY-SA 4.0 | False-friend warnings for the EN learning-mode (when DE-speaker is learning EN, or vice versa). | 0.5 day |
 
 ### Priority 2 — integrate ONLY if a clear no-NC data license is verified first
@@ -492,7 +492,7 @@ confirmed non-commercial-OK. Record the per-source verdict in Notes as checked.
 
 | Source | License (verified 2026-05-29) | Verdict |
 |---|---|---|
-| **DWDS Wortprofil API** (collocations) | ❌ **proprietary/restricted** — DWDS Nutzungsbedingungen forbid automated use/redistribution without permission; only the *Blog Corpus* is CC-BY-SA 3.0 | **SKIP.** ⚠️ also re-verify the already-shipped DWDS Häufigkeitsklassen (the `add_dwds_haeufigkeitsklassen.py` "CC-BY-SA 4.0" claim conflicts with these terms). |
+| **DWDS Wortprofil API** (collocations) | ⚠️ **separate product — verify** | The DWDS-**Lemmadatenbank** is explicitly CC-BY-SA 4.0 (see note), but that grant covers the lemma list, NOT necessarily the *Wortprofil* collocations. Check `dwds.de/wortprofil` terms before using; the general site ToS/TDM-reservation restrict corpus content. |
 | **LanguageTool DE rule patterns** | ✅ **LGPL-2.1** (commercial OK; rule files in-repo) | OK to extract per-word "triggers rule X" tags. Low-medium value. |
 | **Hunspell DE (igerman98)** | ✅ **GPL-2.0/3.0** (commercial OK; verified igerman98 README) | OK — DE DB is already GPL-3.0, so no new license exposure. Systematic plural/conjugation fallback. |
 | **OPUS DE corpora** | ⚠️ per-corpus, mixed (some CC-BY-SA, some NC) | Skip for v1 — diminishing returns over HermitDave/Leipzig; would need per-corpus license checks. |
