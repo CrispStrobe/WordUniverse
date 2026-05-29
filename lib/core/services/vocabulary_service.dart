@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // --- APP IMPORTS ---
+import '../../features/games/models/phrasal_verb.dart';
 import '../../features/games/providers/game_provider.dart';
 import '../models/skill_category.dart';
 import '../models/vocabulary_models.dart';
@@ -194,6 +195,13 @@ class VocabularyService with ChangeNotifier {
   List<GermanWord> getAllWords(GameProvider settingsProvider) {
     final baseWords = _getBaseWordList(settingsProvider);
     return _applyVocabularyFilters(baseWords, settingsProvider);
+  }
+
+  /// Phrasal verbs for the EN-only Phrasal Verb Power game. Empty for the
+  /// German database (the `phrasal_verbs` table only exists in the EN DB).
+  Future<List<PhrasalVerb>> getPhrasalVerbs() async {
+    final rows = await _dbService.getPhrasalVerbs();
+    return rows.map(PhrasalVerb.fromRow).toList();
   }
 
   List<GermanWord> getWordsByGrade(

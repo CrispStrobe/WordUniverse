@@ -5,6 +5,49 @@ Chronological record of the English vocabulary DB build. Active plan lives in
 
 ---
 
+## 2026-05-29 — Phrasal verbs + Phrasal Verb Power game (#46)
+
+Added a `phrasal_verbs` table to `grundwortschatz_en.db` and an EN-only game.
+
+### Source & licensing
+- Wiktionary "English phrasal verbs" category + 44 "formed with X" subcategories
+  (`en_wiktionary_normalized.db`). **CC-BY-SA 4.0, no NC** — clean to ship.
+- 2,471 phrasal verbs extracted, all with glosses. Particle comes directly from
+  the subcategory name; meaning from the first gloss; example sentences from the
+  Wiktionary `examples` table.
+
+### Pipeline — `add_phrasal_verbs_en.py` (5 stages)
+- `--extract` — set-based bulk queries (the `examples` table has **no index on
+  sense_id**; per-entry queries were hours, bulk is seconds). → `phrasal_candidates_en.jsonl`
+- `--rank` — keep core-particle + `verb + particle` shape + base `word_type='verb'`
+  + not be/have; rank by base-verb zipf (from `words.frequency_json`); diversity
+  cap `--max-per-base 8` so get/come/go don't swamp; `--top 400`. 85 distinct
+  base verbs in the kept set. → `phrasal_ranked_en.jsonl`
+- `--grade` / `--check` — LLM grade-leveled sentences + kid meaning, reusing the
+  `add_llm_examples_en.py` `LLMClient` round-robin (Scaleway/Nebius/Mistral),
+  `response_format`, `GRADE_BATCH=1`, JSONL checkpoints. **Distractor particles
+  are generated WITHOUT an LLM** (other particles the same base verb really
+  forms phrasal verbs with).
+- `--load [--compress]` — idempotent rebuild of `phrasal_verbs`, writes the asset.
+
+### Shipped
+- 400 phrasal verbs, 371 immediately playable via Wiktionary-example fallback.
+  **LLM grade pass not yet run** — run `--grade` → `--check` → `--load --compress`
+  to upgrade sentence quality and fill the rest.
+- Flutter: `PhrasalVerb` model → `DictionaryDatabaseService.getPhrasalVerbs()`
+  → `VocabularyService.getPhrasalVerbs()` → `phrasal_verb_service.dart` → two
+  EN-only games sharing the table:
+  - **Phrasal Verb Power (#46)** — `buildPhrasalChallenges` → `PhrasalVerbPowerGame`
+    (pick the particle that fills the blank).
+  - **Phrasal Verb Match (#47)** — `buildPhrasalMatchChallenges` → `PhrasalVerbMatchGame`
+    (pick the meaning; distractors are real meanings of other phrasal verbs;
+    optional context sentence shown).
+  Both wired: menu GameInfo EN-only, `gameSkillMap` (`phrasal_verb_power`→word_types,
+  `phrasal_verb_match`→basic_vocab), l10n EN+DE. 13 service unit tests. Full
+  suite 452/452 green.
+
+---
+
 ## 2026-05-21/22 — EN DB v1 shipped (7,878 lemmas, 8.6 MB)
 
 Built via `11b_enrich_local.py` on Hetzner VPS (`168.119.190.252`, CX22,

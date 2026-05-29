@@ -207,6 +207,37 @@ class DictionaryDatabaseService {
     }
   }
 
+  /// Get all phrasal verbs (EN database only). Returns rows from the
+  /// `phrasal_verbs` table; empty if the table is absent (e.g. DE database).
+  Future<List<Map<String, dynamic>>> getPhrasalVerbs() async {
+    if (_database == null) {
+      await initialize();
+      if (_database == null) return [];
+    }
+
+    try {
+      final hasTable = Sqflite.firstIntValue(await _database!.rawQuery(
+            "SELECT COUNT(*) FROM sqlite_master "
+            "WHERE type='table' AND name='phrasal_verbs'",
+          )) ??
+          0;
+      if (hasTable == 0) {
+        if (kDebugMode) {
+          debugPrint("[DB_SERVICE] No phrasal_verbs table (non-EN database)");
+        }
+        return [];
+      }
+      final results = await _database!.query('phrasal_verbs');
+      if (kDebugMode) {
+        debugPrint("[DB_SERVICE] Fetched ${results.length} phrasal verbs");
+      }
+      return results;
+    } catch (e) {
+      if (kDebugMode) debugPrint("[DB_SERVICE] Error fetching phrasal verbs: $e");
+      return [];
+    }
+  }
+
   /// Get database statistics
   Future<Map<String, dynamic>> getStatistics() async {
     if (_database == null) {

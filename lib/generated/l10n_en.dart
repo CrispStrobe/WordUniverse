@@ -1170,6 +1170,70 @@ class SEn extends S {
       'Spot the right word — affect vs effect, lose vs loose';
 
   @override
+  String get phrasalVerbPowerTitle => 'Phrasal Verb Power';
+
+  @override
+  String get phrasalVerbPowerDescription =>
+      'Pick the word that completes the phrasal verb — give ___, take ___';
+
+  @override
+  String get phrasalVerbPowerPrompt => 'Which word completes the phrasal verb?';
+
+  @override
+  String get phrasalVerbPowerEmpty => 'No phrasal-verb data available yet.';
+
+  @override
+  String get phrasalVerbPowerOnboard1 =>
+      'Phrasal verbs are a verb plus a little word like up, off or away — give up, take off, look after.';
+
+  @override
+  String get phrasalVerbPowerOnboard2 =>
+      'A sentence with a missing word is shown. Tap the word that completes the phrasal verb.';
+
+  @override
+  String get phrasalVerbPowerOnboard3 =>
+      'After each answer you\'ll see what the phrasal verb means.';
+
+  @override
+  String get phrasalVerbMatchTitle => 'Phrasal Verb Match';
+
+  @override
+  String get phrasalVerbMatchDescription =>
+      'Match the phrasal verb to its meaning — give up, take off, look after';
+
+  @override
+  String get phrasalVerbMatchPrompt => 'What does this phrasal verb mean?';
+
+  @override
+  String get phrasalVerbMatchEmpty => 'No phrasal-verb data available yet.';
+
+  @override
+  String get phrasalVerbMatchOnboard1 =>
+      'A phrasal verb is shown — sometimes with an example sentence for context.';
+
+  @override
+  String get phrasalVerbMatchOnboard2 =>
+      'Tap the meaning that matches the phrasal verb. The other choices are real meanings of different phrasal verbs.';
+
+  @override
+  String get phrasalVerbMatchOnboard3 =>
+      'Reading the example can help you work out the meaning.';
+
+  @override
+  String get gameRoundComplete => 'Round complete!';
+
+  @override
+  String get gameBack => 'Back';
+
+  @override
+  String get gamePlayAgain => 'Play again';
+
+  @override
+  String gameCorrectOfTotal(int correct, int total) {
+    return '$correct of $total correct';
+  }
+
+  @override
   String get wortbaumeisterCardTitle => 'Wort-Stückler';
 
   @override

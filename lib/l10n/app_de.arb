@@ -644,6 +644,28 @@
     "confusableDrillTitle": "Wortfalle",
     "confusableDrillDescription": "Finde das richtige Wort — affect vs. effect, lose vs. loose",
 
+    "phrasalVerbPowerTitle": "Phrasal-Verb-Power",
+    "phrasalVerbPowerDescription": "Wähle das Wort, das das Phrasal Verb vervollständigt — give ___, take ___",
+    "phrasalVerbPowerPrompt": "Welches Wort vervollständigt das Phrasal Verb?",
+    "phrasalVerbPowerEmpty": "Noch keine Phrasal-Verb-Daten verfügbar.",
+    "phrasalVerbPowerOnboard1": "Phrasal Verbs sind ein Verb plus ein kleines Wort wie up, off oder away — give up, take off, look after.",
+    "phrasalVerbPowerOnboard2": "Es wird ein Satz mit einer Lücke gezeigt. Tippe das Wort, das das Phrasal Verb vervollständigt.",
+    "phrasalVerbPowerOnboard3": "Nach jeder Antwort siehst du, was das Phrasal Verb bedeutet.",
+    "phrasalVerbMatchTitle": "Phrasal-Verb-Memory",
+    "phrasalVerbMatchDescription": "Ordne dem Phrasal Verb seine Bedeutung zu — give up, take off, look after",
+    "phrasalVerbMatchPrompt": "Was bedeutet dieses Phrasal Verb?",
+    "phrasalVerbMatchEmpty": "Noch keine Phrasal-Verb-Daten verfügbar.",
+    "phrasalVerbMatchOnboard1": "Ein Phrasal Verb wird gezeigt — manchmal mit einem Beispielsatz als Hilfe.",
+    "phrasalVerbMatchOnboard2": "Tippe die passende Bedeutung. Die anderen Auswahlmöglichkeiten sind echte Bedeutungen anderer Phrasal Verbs.",
+    "phrasalVerbMatchOnboard3": "Der Beispielsatz kann dir helfen, die Bedeutung zu erschließen.",
+    "gameRoundComplete": "Runde geschafft!",
+    "gameBack": "Zurück",
+    "gamePlayAgain": "Nochmal spielen",
+    "gameCorrectOfTotal": "{correct} von {total} richtig",
+    "@gameCorrectOfTotal": {
+        "placeholders": { "correct": { "type": "int" }, "total": { "type": "int" } }
+    },
+
     "wortbaumeisterCardTitle": "Wort-Stückler",
     "wortbaumeisterCardDescription": "Zusammengesetzte Nomen Stück für Stück bauen",
 

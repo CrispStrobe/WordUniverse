@@ -2187,6 +2187,114 @@ abstract class S {
   /// **'Spot the right word — affect vs effect, lose vs loose'**
   String get confusableDrillDescription;
 
+  /// No description provided for @phrasalVerbPowerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Phrasal Verb Power'**
+  String get phrasalVerbPowerTitle;
+
+  /// No description provided for @phrasalVerbPowerDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick the word that completes the phrasal verb — give ___, take ___'**
+  String get phrasalVerbPowerDescription;
+
+  /// No description provided for @phrasalVerbPowerPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Which word completes the phrasal verb?'**
+  String get phrasalVerbPowerPrompt;
+
+  /// No description provided for @phrasalVerbPowerEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No phrasal-verb data available yet.'**
+  String get phrasalVerbPowerEmpty;
+
+  /// No description provided for @phrasalVerbPowerOnboard1.
+  ///
+  /// In en, this message translates to:
+  /// **'Phrasal verbs are a verb plus a little word like up, off or away — give up, take off, look after.'**
+  String get phrasalVerbPowerOnboard1;
+
+  /// No description provided for @phrasalVerbPowerOnboard2.
+  ///
+  /// In en, this message translates to:
+  /// **'A sentence with a missing word is shown. Tap the word that completes the phrasal verb.'**
+  String get phrasalVerbPowerOnboard2;
+
+  /// No description provided for @phrasalVerbPowerOnboard3.
+  ///
+  /// In en, this message translates to:
+  /// **'After each answer you\'ll see what the phrasal verb means.'**
+  String get phrasalVerbPowerOnboard3;
+
+  /// No description provided for @phrasalVerbMatchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Phrasal Verb Match'**
+  String get phrasalVerbMatchTitle;
+
+  /// No description provided for @phrasalVerbMatchDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Match the phrasal verb to its meaning — give up, take off, look after'**
+  String get phrasalVerbMatchDescription;
+
+  /// No description provided for @phrasalVerbMatchPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'What does this phrasal verb mean?'**
+  String get phrasalVerbMatchPrompt;
+
+  /// No description provided for @phrasalVerbMatchEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No phrasal-verb data available yet.'**
+  String get phrasalVerbMatchEmpty;
+
+  /// No description provided for @phrasalVerbMatchOnboard1.
+  ///
+  /// In en, this message translates to:
+  /// **'A phrasal verb is shown — sometimes with an example sentence for context.'**
+  String get phrasalVerbMatchOnboard1;
+
+  /// No description provided for @phrasalVerbMatchOnboard2.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the meaning that matches the phrasal verb. The other choices are real meanings of different phrasal verbs.'**
+  String get phrasalVerbMatchOnboard2;
+
+  /// No description provided for @phrasalVerbMatchOnboard3.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading the example can help you work out the meaning.'**
+  String get phrasalVerbMatchOnboard3;
+
+  /// No description provided for @gameRoundComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Round complete!'**
+  String get gameRoundComplete;
+
+  /// No description provided for @gameBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get gameBack;
+
+  /// No description provided for @gamePlayAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Play again'**
+  String get gamePlayAgain;
+
+  /// No description provided for @gameCorrectOfTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'{correct} of {total} correct'**
+  String gameCorrectOfTotal(int correct, int total);
+
   /// No description provided for @wortbaumeisterCardTitle.
   ///
   /// In en, this message translates to:
