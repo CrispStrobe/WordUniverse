@@ -556,7 +556,7 @@ Future<void> ensureCustomLicensesRegistered() async {
           'Age 1 (6–8 years / Klasse 1–2), Age 2 (9–10 / Klasse 3–4), Age 3 '
           '(11–12 / Klasse 5–6). Used in this app to populate frequency_json.'
           'childlex with age1_freq_norm / age2_freq_norm / age3_freq_norm per '
-          'lemma. 9307 of 10450 vocabulary words have childLex coverage.\n\n'
+          'lemma. 9,008 of 13,040 vocabulary entries have childLex coverage.\n\n'
           'License cascade note: GPL-3.0 is the most restrictive license '
           'among the upstream sources that contribute substantial data to '
           'this app\'s vocabulary database. Per Creative Commons\' 2015 '

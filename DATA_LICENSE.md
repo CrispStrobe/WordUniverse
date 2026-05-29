@@ -78,6 +78,7 @@ work), and the **pipeline scripts are MIT**.
 | Cambridge YLE vocabulary lists | Permissive (non-commercial restriction lifted for inclusion as tags only) | YLE level tags |
 | Project Gutenberg (EN texts, pre-1928) | Public Domain | Example sentences |
 | wordfreq | MIT | Frequency bands |
+| Wikipedia "Liste falscher Freunde" | CC BY-SA 4.0 | `false_friends` table — curated DE↔EN false friends (reference source; pairs are factual) |
 
 **Changes made to upstream data:**
 - Filtered to ~11,500 primary-school-relevant entries (CEFR A1–B2)

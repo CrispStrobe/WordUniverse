@@ -238,6 +238,28 @@ class DictionaryDatabaseService {
     }
   }
 
+  /// Get all false friends (EN database only). Empty if the table is absent
+  /// (e.g. DE database).
+  Future<List<Map<String, dynamic>>> getFalseFriends() async {
+    if (_database == null) {
+      await initialize();
+      if (_database == null) return [];
+    }
+
+    try {
+      final hasTable = Sqflite.firstIntValue(await _database!.rawQuery(
+            "SELECT COUNT(*) FROM sqlite_master "
+            "WHERE type='table' AND name='false_friends'",
+          )) ??
+          0;
+      if (hasTable == 0) return [];
+      return await _database!.query('false_friends');
+    } catch (e) {
+      if (kDebugMode) debugPrint("[DB_SERVICE] Error fetching false friends: $e");
+      return [];
+    }
+  }
+
   /// Get database statistics
   Future<Map<String, dynamic>> getStatistics() async {
     if (_database == null) {
