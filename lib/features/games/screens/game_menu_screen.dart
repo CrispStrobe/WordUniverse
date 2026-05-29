@@ -15,6 +15,8 @@ import 'sentence_completion_game.dart';
 import 'antonym_flash_game.dart';
 import 'conjugation_drill_game.dart';
 import 'homophone_drill_game.dart';
+import 'phrasal_verb_power_game.dart';
+import 'phrasal_verb_match_game.dart';
 import '../services/homophone_drill_service.dart' show HomophoneGameMode;
 import 'cloze_flash_game.dart';
 import 'expression_flash_game.dart';
@@ -544,6 +546,28 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         onTap: () => _navigateToGame(HomophoneDrillGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade),
             mode: HomophoneGameMode.confusables)),
+      ),
+      GameInfo(
+        title: s.phrasalVerbPowerTitle,
+        description: s.phrasalVerbPowerDescription,
+        icon: Icons.bolt,
+        gradient: const LinearGradient(
+            colors: [Color(0xFF11998e), Color(0xFF38ef7d)]),
+        supportedLearningLanguages: const ['en'],
+        isPremium: true,
+        onTap: () => _navigateToGame(PhrasalVerbPowerGame(
+            gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
+      ),
+      GameInfo(
+        title: s.phrasalVerbMatchTitle,
+        description: s.phrasalVerbMatchDescription,
+        icon: Icons.link,
+        gradient: const LinearGradient(
+            colors: [Color(0xFF8E2DE2), Color(0xFF4A00E0)]),
+        supportedLearningLanguages: const ['en'],
+        isPremium: true,
+        onTap: () => _navigateToGame(PhrasalVerbMatchGame(
+            gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
         title: s.wortbaumeisterCardTitle,

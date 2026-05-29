@@ -704,6 +704,28 @@
     "confusableDrillTitle": "Word Trap",
     "confusableDrillDescription": "Spot the right word — affect vs effect, lose vs loose",
 
+    "phrasalVerbPowerTitle": "Phrasal Verb Power",
+    "phrasalVerbPowerDescription": "Pick the word that completes the phrasal verb — give ___, take ___",
+    "phrasalVerbPowerPrompt": "Which word completes the phrasal verb?",
+    "phrasalVerbPowerEmpty": "No phrasal-verb data available yet.",
+    "phrasalVerbPowerOnboard1": "Phrasal verbs are a verb plus a little word like up, off or away — give up, take off, look after.",
+    "phrasalVerbPowerOnboard2": "A sentence with a missing word is shown. Tap the word that completes the phrasal verb.",
+    "phrasalVerbPowerOnboard3": "After each answer you'll see what the phrasal verb means.",
+    "phrasalVerbMatchTitle": "Phrasal Verb Match",
+    "phrasalVerbMatchDescription": "Match the phrasal verb to its meaning — give up, take off, look after",
+    "phrasalVerbMatchPrompt": "What does this phrasal verb mean?",
+    "phrasalVerbMatchEmpty": "No phrasal-verb data available yet.",
+    "phrasalVerbMatchOnboard1": "A phrasal verb is shown — sometimes with an example sentence for context.",
+    "phrasalVerbMatchOnboard2": "Tap the meaning that matches the phrasal verb. The other choices are real meanings of different phrasal verbs.",
+    "phrasalVerbMatchOnboard3": "Reading the example can help you work out the meaning.",
+    "gameRoundComplete": "Round complete!",
+    "gameBack": "Back",
+    "gamePlayAgain": "Play again",
+    "gameCorrectOfTotal": "{correct} of {total} correct",
+    "@gameCorrectOfTotal": {
+        "placeholders": { "correct": { "type": "int" }, "total": { "type": "int" } }
+    },
+
     "wortbaumeisterCardTitle": "Wort-Stückler",
     "wortbaumeisterCardDescription": "Build compound nouns piece by piece",
 

@@ -1177,6 +1177,73 @@ class SDe extends S {
       'Finde das richtige Wort — affect vs. effect, lose vs. loose';
 
   @override
+  String get phrasalVerbPowerTitle => 'Phrasal-Verb-Power';
+
+  @override
+  String get phrasalVerbPowerDescription =>
+      'Wähle das Wort, das das Phrasal Verb vervollständigt — give ___, take ___';
+
+  @override
+  String get phrasalVerbPowerPrompt =>
+      'Welches Wort vervollständigt das Phrasal Verb?';
+
+  @override
+  String get phrasalVerbPowerEmpty =>
+      'Noch keine Phrasal-Verb-Daten verfügbar.';
+
+  @override
+  String get phrasalVerbPowerOnboard1 =>
+      'Phrasal Verbs sind ein Verb plus ein kleines Wort wie up, off oder away — give up, take off, look after.';
+
+  @override
+  String get phrasalVerbPowerOnboard2 =>
+      'Es wird ein Satz mit einer Lücke gezeigt. Tippe das Wort, das das Phrasal Verb vervollständigt.';
+
+  @override
+  String get phrasalVerbPowerOnboard3 =>
+      'Nach jeder Antwort siehst du, was das Phrasal Verb bedeutet.';
+
+  @override
+  String get phrasalVerbMatchTitle => 'Phrasal-Verb-Memory';
+
+  @override
+  String get phrasalVerbMatchDescription =>
+      'Ordne dem Phrasal Verb seine Bedeutung zu — give up, take off, look after';
+
+  @override
+  String get phrasalVerbMatchPrompt => 'Was bedeutet dieses Phrasal Verb?';
+
+  @override
+  String get phrasalVerbMatchEmpty =>
+      'Noch keine Phrasal-Verb-Daten verfügbar.';
+
+  @override
+  String get phrasalVerbMatchOnboard1 =>
+      'Ein Phrasal Verb wird gezeigt — manchmal mit einem Beispielsatz als Hilfe.';
+
+  @override
+  String get phrasalVerbMatchOnboard2 =>
+      'Tippe die passende Bedeutung. Die anderen Auswahlmöglichkeiten sind echte Bedeutungen anderer Phrasal Verbs.';
+
+  @override
+  String get phrasalVerbMatchOnboard3 =>
+      'Der Beispielsatz kann dir helfen, die Bedeutung zu erschließen.';
+
+  @override
+  String get gameRoundComplete => 'Runde geschafft!';
+
+  @override
+  String get gameBack => 'Zurück';
+
+  @override
+  String get gamePlayAgain => 'Nochmal spielen';
+
+  @override
+  String gameCorrectOfTotal(int correct, int total) {
+    return '$correct von $total richtig';
+  }
+
+  @override
   String get wortbaumeisterCardTitle => 'Wort-Stückler';
 
   @override
