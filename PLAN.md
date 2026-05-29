@@ -1,5 +1,10 @@
 # Improvement Plan — space_math_academy & voc (WortUniversum)
 
+> **✅ Complete as of 2026-05-29 — this is now a historical record, not a
+> live plan.** Every item below is `[x]` done or `[-]` declined; there is no
+> pending work. New work starts a fresh plan. Pipeline build history lives in
+> `pipeline/HISTORY.md` (+ `pipeline/voc-{de,en}/HISTORY.md`).
+
 A consolidated punch list across both apps, written after a two-pass audit
 (`flutter analyze` clean-up + gameplay/architecture review). Items are
 roughly ordered by impact-per-effort. Sibling repo: `../voc` for
@@ -415,7 +420,21 @@ blanking "know". 24 unit tests, `supportedLearningLanguages: ['en']`.
 
 ---
 
+### [x] 39. Phrasal Verb Power (EN-only) — 2026-05-29
+Sentence with a blanked particle (*Please ___ your toys* → put **away**);
+pick the particle. Distractors are real particles that form *other* phrasal
+verbs of the same base verb. Backed by a new `phrasal_verbs` table (400 verbs,
+Wiktionary CC-BY-SA + LLM grade examples; `add_phrasal_verbs_en.py`). 8 service
+unit tests; `supportedLearningLanguages: ['en']`. See `pipeline/voc-en/HISTORY.md`.
+
+### [x] 40. Phrasal Verb Match (EN-only) — 2026-05-29
+Show a phrasal verb (+ optional context sentence); pick its meaning. Distractors
+are real meanings of other phrasal verbs. Shares the `phrasal_verbs` table.
+5 additional service unit tests; `supportedLearningLanguages: ['en']`.
+
+---
+
 ## Execution order
 
-Tier 9 complete (#25–#34 all done). #35–38 also done.
-All pending items shipped.
+All items shipped: Tier 9 #25–#40 done; Tiers 1–8 done or declined.
+Nothing pending (see banner at top).

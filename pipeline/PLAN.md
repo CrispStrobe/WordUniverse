@@ -1,125 +1,33 @@
 # PLAN — Reproduce voc-de, build voc-en, expand ConceptNet
 
-## Priority order (decided 2026-05-21)
+## Status map (updated 2026-05-29)
 
-1. **§1 — DE DB safe rebuild** — produce a feature-complete (≥ current
-   shipped DB) German DB using only **100 % safely-licensed** data.
-2. **§2 — EN DB at DE parity** — port the cleaned pipeline to English.
-3. **§3 — CC-BY-SA App Store / Play Store compliance** — half-day
-   pre-submission checklist; gate on §1+§2 outputs.
-4. **§4 — ConceptNet all-languages expansion** — §1–§3 now shipped, so the
-   ordering blocker is lifted. This is an **independent, optional dataset
-   project** (build `cstr/conceptnet-normalized-all`): ConceptNet relations
-   are *already* in the shipped voc DBs, so it does NOT gate the app or any
-   game. Runs on an 8 GB VPS — see §3. Do it when a multi-language ConceptNet
-   DB is actually wanted.
+The DB build is done; what remains is optional/forward-looking.
 
-The rest is reference / enrichment / cleanup material:
-
-- §5 — Reproducibility recipe for the **historical** DE DB (the "as-is"
-  baseline; useful for diff against §1 output).
-- §6 — Algorithmic spelling-pattern classifier (ongoing improvement).
-- §7 — Additional free-licensed data sources to add over time.
-- §8 — Housekeeping (rotate leaked HF token, etc.).
-- §9 — Open decisions still pending.
-
----
-
-## 1. DE DB safe rebuild ✅ **fully complete 2026-05-25**
-
-Completed via in-place patching + post-build enrichment passes. Full record in
-`pipeline/HISTORY.md → 2026-05-21` and `pipeline/voc-de/README.md`.
-
-**Final state (2026-05-25):**
-- Asset: `assets/grundwortschatz.db.gz` — **24 MB** (148 MB uncompressed)
-- 13,040 entries (2,150 Vornamen + 10,890 regular)
-- 10,890 entries with word_type (2,150 Vornamen intentionally blank)
-- grade_examples: **10,876/10,890 = 99%** (14 very hard words failed all LLM attempts)
-- 2,401 entries with commonMistakes (LiTKey errors)
-- 3,487 entries with litkey_profiles (spelling difficulty data)
-- check pass: 1,944 entries corrected
-
-**Post-build patchers run (2026-05-21 → 2026-05-25):**
-- `add_gutenberg_examples.py` — Gutenberg corpus sentence extraction
-- `add_llm_examples.py --grade --workers 3` — per-grade LLM examples (3 passes + retry)
-- `add_llm_examples.py --check --workers 3` — grammar/gap correction (1,944 entries)
-- `add_litkey_errors.py` — LiTKey commonMistakes (2,401 entries; 2026-05-24)
-- `add_litkey_profiles.py` — LiTKey spelling difficulty profiles (3,487 entries; 2026-05-24)
-- `add_vornamen.py` — 2,109 German first names from Standesamt tables
-- `patch_vorname_rang.py` — frequency ranking for all Vornamen
-- word_type backfill — 885 LITKEY entries got word_type from enrichment_json.partOfSpeech
-
-**Key fixes applied during enrichment (both DE + EN scripts):**
-- `response_format={"type":"json_object"}` in `llm.call()` for `mode=="fill"` — fixes Llama-3.3-70B malformed JSON
-- `GRADE_MAX_WORDS` raised for DE: `{1:10,2:10,3:14,4:14,5:18,6:18}` — German sentences are naturally longer
-- Exclude Groq/Cohere: `env GROQ_API_KEY="" COHERE_API_KEY=""` — rate-limit constantly, produce bad output
-
----
-
-## 2. Build the EN DB at DE parity ✅ **fully complete 2026-05-26**
-
-Full pipeline record in `pipeline/voc-en/HISTORY.md`.
-
-### Final state (2026-05-26)
-
-- Asset: `assets/grundwortschatz_en.db.gz` — **17 MB** (92 MB uncompressed)
-- **11,539 entries** — success=7,815 / minimal→success=3,658 / no_data=66
-
-| Layer | Status |
-|---|---|
-| Wiktionary enrichment (defs, IPA, inflections) | ✅ 11,486/11,539 (99%) — via VPS `168.119.190.252` |
-| OEWN WordNet sense expansion | ✅ 9,186 entries (79%) |
-| Common learner errors (Norvig + Wikipedia) | ✅ 27,363 annotations |
-| Dialect spelling variants (SCOWL UK↔US) | ✅ 270 variants |
-| Frequency bands (wordfreq) | ✅ all 11,539 |
-| CEFR-J level tags | ✅ 6,879 entries |
-| Cambridge YLE + UK DfE statutory lists | ✅ |
-| gradeLevelEstimate + grade_level column | ✅ synced via `add_uk_curriculum.py --grade-only` |
-| Gutenberg example sentences | ✅ 6,274 entries (54%) |
-| Grade-differentiated examples (LLM) | ✅ 11,481/11,539 (99%) |
-| LLM check-all (grammar/gap correction) | ✅ 10,692/11,481 corrected |
-
-### `enrich_minimal_en.py` — VPS run note
-
-Originally ran locally (external USB drive, 0.1/s = 16h ETA). Killed and re-run on
-VPS `168.119.190.252` where Wiktionary DB is on NVMe (1.4/s, completed in 27 min).
-Script path on VPS: `/root/voc-enrich/voc-en-minimal/enrich_minimal_en.py`
-Wiktionary DB on VPS: `/root/voc-enrich/en_wiktionary_normalized_all.db`
-
-### Game UI — completed 2026-05-26
-
-- ✅ L2L picker in Settings (already existed, working)
-- ✅ DE-only games (`großschreib`, `großstadt`, `verbTrenner`, `wortbaumeister`) hidden for L2L=en via `supportedLearningLanguages`
-- ✅ `wortbaumeister` fixed from `['de','en']` → `['de']` (it teaches German compound nouns)
-- ✅ ARB strings added for L2L picker section (`learningLanguage`, `learningLanguageDesc`)
-- ✅ ARB strings added for all DE-only game card titles/descriptions (`grossschreibDescription`, `grossstadtCardTitle/Desc`, `wortbaumeisterCardTitle/Desc`, `verbtrennerCardTitle/Desc`)
-- ✅ WordSort + WordTypeWhirl hint text localised — EN words now get English feedback
-
-- ✅ `SpellingSpotterGame` — EN-only game using `commonLearnerErrors` data (8,314 words); 4-option MCQ, grade-filtered, with context sentences
-
-- ✅ **L10n / a11y pass (2026-05-27)** — All hardcoded DE/EN ternaries replaced with ARB keys
-  across 12 game screens. Semantics labels added to verbtrenner (back, level, score, progress,
-  combo). Word type names, onboarding bodies, empty states, karteikasten box labels,
-  word-of-the-day card, onboarding overlay buttons, debug snackbar all localised.
-  ~150 new ARB keys. `_isDE` getter removed from 5 files where fully unused.
-
-### Remaining (deferred)
-
-- New EN-only games needing pipeline data first: `phrasal_verbs` (need phrasal verb DB data); `homophones` (need homophone pairs)
-- HF dataset export updated: `pipeline/voc-en/hf_export/` — 11,539 words + 18,642 examples (re-run 2026-05-26)
-
-### Architectural decisions (locked in)
-
-| Decision | Value | Rationale |
+| § | Topic | Status |
 |---|---|---|
-| Canonical variant | UK English | Aligns with UK Year 1–6 statutory spelling lists; US spellings carried as `commonLearnerErrors` |
-| Vocabulary size | ~11.5k, filterable | CEFR-J A1-B2 + YLE + UK curriculum superset; tags control app subsets |
-| Grade mapping | UK Y1–6 primary, CEFR + freq fallback | Same role as NRW Grundwortschatz for DE |
-| Misspellings | `commonLearnerErrors[]` under correct lemma only | Matches DE; never standalone entries |
-| Wiktionary enrichment | `enrich_minimal_en.py` locally (external drive) or VPS | 1.9 GB Wiktionary DB at `/Volumes/backups/code/WiktionaryEN-space/` |
-| OEWN enrichment | `add_oewn_en.py` single-threaded | wn not thread-safe; ~600/s; 6k entries ≈ 10s |
-| grade_examples storage | `metadata_json.grade_examples` | Mirrors `gutenberg_examples`; injected by Dart service before `ApiEnrichment.fromJson` |
-| App shape | Single app, both DBs bundled; L2L × GUI matrix | L2L picker in Settings (deferred game UI work) |
+| §1 | DE DB safe rebuild | ✅ done → HISTORY |
+| §2 | EN DB at DE parity (+ games) | ✅ done → HISTORY |
+| §3 | ConceptNet all-languages expansion | ⬚ **optional/independent** — doesn't gate the app (relations already in the shipped DBs); script ready (`pipeline/conceptnet/`), runs on 8 GB; run when wanted |
+| §4 | Housekeeping (token / scripts / build box) | ✅ resolved → HISTORY |
+| §5 | Open decisions | ✅ resolved (ConceptNet sibling-vs-replace + 5.7 still apply *when* §3 runs) |
+| §6 | Algorithmic spelling-strategy classifier (FRESCH) | ⬚ ongoing improvement |
+| §7 | Additional free-licensed data sources | ⬚ future |
+| §8 | CC-BY-SA App/Play Store compliance | ⬚ **pre-launch checklist** — gate before first store submission |
+
+---
+
+## 1. DE DB safe rebuild ✅ **complete** → see HISTORY
+
+Shipped `assets/grundwortschatz.db.gz` (13,040 entries, 24 MB). Full record:
+`pipeline/HISTORY.md` (2026-05-21 → 2026-05-25), `pipeline/voc-de/README.md`.
+
+## 2. EN DB at DE parity ✅ **complete** → see HISTORY
+
+Shipped `assets/grundwortschatz_en.db.gz` (11,539 words + 400 phrasal verbs,
+~18 MB). Game UI, l10n/a11y, and the two phrasal-verb games are done. Full
+record: `pipeline/voc-en/HISTORY.md` and `pipeline/HISTORY.md`
+(2026-05-26/27/29).
 
 ---
 
@@ -314,49 +222,31 @@ existing 11‑lang Space keeps serving.
 
 ## 4. Housekeeping
 
-### 4.1 HF token hygiene (low priority — no real exposure)
+### 4.1 HF token — ✅ resolved (non-issue)
 
-`hf_***REDACTED***` was written to VPS_2's `/root/.bash_history` via
-`export HF_TOKEN=...`, and recorded in these (private-repo) docs. **Re-assessed
-2026-05-29: there was no third-party exposure** — the GitHub repo is private,
-the bash_history is on your own VPS, and `.env` is local. The original
-"leaked — rotate now" framing was overcautious. Token value redacted from the
-working-tree docs as a tidy-up; rotating on HF is **optional hygiene**, worth
-doing only if that VPS has other users.
+Re-assessed 2026-05-29: no real exposure (private repo, own-VPS bash_history,
+local `.env`). Value redacted from docs; rotation is optional hygiene. See
+`pipeline/HISTORY.md → 2026-05-29`.
 
-Recovery:
+### 4.2 Canonical build VPS — mostly moot
 
-1. Visit `https://huggingface.co/settings/tokens`, revoke the token.
-2. Issue two new tokens:
-   - A **write‑scoped** token, used only locally for `push_to_hub`, kept in `~/.config/huggingface/token` (per HF CLI default), never in env or bash_history.
-   - A **read‑only** token for the Gradio Spaces, set as a Space secret in the HF UI — never inline in code.
-3. Wipe `/root/.bash_history` on VPS_2: `cat /dev/null > ~/.bash_history && history -c && exit` (re‑login).
-4. Update `/Users/christianstrobele/code/.env` and any scripts referencing the token.
+The ConceptNet normalizer is no longer lost (rebuilt at
+`pipeline/conceptnet/build_normalized.py`) and now **runs on an 8 GB VPS** —
+the extra RAM that motivated "use VPS_3" isn't needed. Just keep ≥60-70 GB
+free disk; the script writes its own build log to `pipeline/conceptnet/runs/`.
 
-### 4.2 Pick a canonical build VPS
+### 4.3 voc-de scripts in the repo — ✅ done
 
-VPS_2 is committed to wiktionary work and that's fine. ConceptNet rebuilds
-benefit from more RAM and disk than VPS_2 has — recommend doing the
-rebuild on **VPS_3 if we can get back in**, otherwise on the user's
-desktop. Either way, after the run, `rsync` the script and a build log
-back to `pipeline/conceptnet/build/` and commit. **No more lost scripts.**
-
-### 4.3 Restore the voc-de scripts to the working repo
-
-Copy `/Volumes/backups/code/voc/lib/features/games/data/*.py` →
-`pipeline/voc-de/` and commit. Don't put them back into
-`lib/features/games/data/` (they'll get re‑deleted next time someone
-shrinks the Flutter bundle).
-
-A `.gitignore` carve‑out: ignore intermediate JSON outputs but commit the
-scripts and source CSVs/TXTs that the pipeline reads.
+72 `pipeline/voc-de/*.py` scripts are committed; the `.gitignore` carve-out
+(ignore intermediate JSON, keep scripts + source CSVs/TXTs) is in place.
 
 ---
 
 ## 5. Open decisions
 
-These block forward progress. EN port decisions resolved 2026-05-21 and
-moved to `pipeline/voc-en/HISTORY.md → Architectural decisions`.
+Nothing here blocks the app (the DBs shipped). These are the calls to make
+*if/when* the optional §3 ConceptNet rebuild is run. EN port decisions were
+resolved 2026-05-21 (see `pipeline/voc-en/HISTORY.md → Architectural decisions`).
 
 ### ConceptNet (§3)
 
@@ -370,10 +260,11 @@ moved to `pipeline/voc-en/HISTORY.md → Architectural decisions`.
    - 5.8 — newer, but requires running the upstream Snakefile fresh (~6 h CPU job).
    - Recommendation: **5.7** for v1 of the all‑languages build. Defer 5.8.
 
-### Housekeeping (§4)
+### Housekeeping (§4) — resolved
 
-7. **Rotate the HF token now**? — recommended yes, before any other work.
-8. **Try VPS_3 with updated credentials**? — only path to recovering the lost normalize script.
+7. ~~Rotate the HF token~~ — non-issue (no exposure); optional. See §4.1.
+8. ~~Recover the lost normalize script via VPS_3~~ — done: rebuilt at
+   `pipeline/conceptnet/build_normalized.py`, runs on 8 GB. See §4.2.
 
 ---
 
