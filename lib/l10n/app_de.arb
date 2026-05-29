@@ -669,6 +669,12 @@
     "@falseFriendsExplain": {
         "placeholders": { "english": { "type": "String" }, "correctMeaning": { "type": "String" }, "german": { "type": "String" }, "germanMeans": { "type": "String" } }
     },
+    "wortfalleTitle": "Wortfalle",
+    "wortfalleDescription": "Wähle das richtige Wort — das/dass, seit/seid, Lärche/Lerche",
+    "wortfallePrompt": "Welches Wort passt?",
+    "wortfalleOnboard1": "Manche deutschen Wörter sehen oder klingen fast gleich, bedeuten aber Verschiedenes — das/dass, seit/seid, Lärche/Lerche.",
+    "wortfalleOnboard2": "Es wird ein Satz mit einer Lücke gezeigt. Wähle das Wort, das zur Bedeutung passt.",
+    "wortfalleOnboard3": "Nach jeder Antwort siehst du, was die Wörter bedeuten.",
     "gameRoundComplete": "Runde geschafft!",
     "gameBack": "Zurück",
     "gamePlayAgain": "Nochmal spielen",

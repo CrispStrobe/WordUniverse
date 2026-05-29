@@ -729,6 +729,12 @@
     "@falseFriendsExplain": {
         "placeholders": { "english": { "type": "String" }, "correctMeaning": { "type": "String" }, "german": { "type": "String" }, "germanMeans": { "type": "String" } }
     },
+    "wortfalleTitle": "Word Trap (DE)",
+    "wortfalleDescription": "Pick the right word — das/dass, seit/seid, Lärche/Lerche",
+    "wortfallePrompt": "Which word fits?",
+    "wortfalleOnboard1": "Some German words look or sound almost the same but mean different things — das/dass, seit/seid, Lärche/Lerche.",
+    "wortfalleOnboard2": "A sentence with a gap is shown. Pick the word that fits the meaning.",
+    "wortfalleOnboard3": "After each answer you'll see what each word means.",
     "gameRoundComplete": "Round complete!",
     "gameBack": "Back",
     "gamePlayAgain": "Play again",

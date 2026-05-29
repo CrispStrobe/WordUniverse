@@ -119,6 +119,7 @@ class GameProvider extends ChangeNotifier {
     'phrasal_verb_power': SkillCategories.getById('word_types')!,
     'phrasal_verb_match': SkillCategories.getById('basic_vocab')!,
     'false_friends': SkillCategories.getById('basic_vocab')!,
+    'wortfalle': SkillCategories.getById('basic_spelling')!,
   };
 
   int _score = 0;

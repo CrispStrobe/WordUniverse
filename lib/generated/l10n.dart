@@ -2320,6 +2320,42 @@ abstract class S {
   String falseFriendsExplain(
       String english, String correctMeaning, String german, String germanMeans);
 
+  /// No description provided for @wortfalleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Word Trap (DE)'**
+  String get wortfalleTitle;
+
+  /// No description provided for @wortfalleDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick the right word — das/dass, seit/seid, Lärche/Lerche'**
+  String get wortfalleDescription;
+
+  /// No description provided for @wortfallePrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Which word fits?'**
+  String get wortfallePrompt;
+
+  /// No description provided for @wortfalleOnboard1.
+  ///
+  /// In en, this message translates to:
+  /// **'Some German words look or sound almost the same but mean different things — das/dass, seit/seid, Lärche/Lerche.'**
+  String get wortfalleOnboard1;
+
+  /// No description provided for @wortfalleOnboard2.
+  ///
+  /// In en, this message translates to:
+  /// **'A sentence with a gap is shown. Pick the word that fits the meaning.'**
+  String get wortfalleOnboard2;
+
+  /// No description provided for @wortfalleOnboard3.
+  ///
+  /// In en, this message translates to:
+  /// **'After each answer you\'ll see what each word means.'**
+  String get wortfalleOnboard3;
+
   /// No description provided for @gameRoundComplete.
   ///
   /// In en, this message translates to:
