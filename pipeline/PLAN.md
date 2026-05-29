@@ -12,7 +12,7 @@ The DB build is done; what remains is optional/forward-looking.
 | §4 | Housekeeping (token / scripts / build box) | ✅ resolved → HISTORY |
 | §5 | Open decisions | ✅ resolved (ConceptNet sibling-vs-replace + 5.7 still apply *when* §3 runs) |
 | §6 | Algorithmic spelling-strategy classifier (FRESCH) | ⬚ ongoing improvement |
-| §7 | Additional free-licensed data sources | ⬚ **planned** — do all Priority-1; childLex (GPL) approved; Priority-2 only if no-NC verified |
+| §7 | Additional free-licensed data sources | ✅ mostly **already integrated** (Tatoeba, Bundesländer, DWDS, misspellings, childLex); open: Falsche Freunde + childLex license declaration + Priority-2-if-verified |
 | §8 | CC-BY-SA App/Play Store compliance | ⬚ **pre-launch checklist** — gate before first store submission |
 
 ---
@@ -455,15 +455,26 @@ overlapping words. (We're at 6.2 % exact / ~85 % superset today.)
 
 Catalogued by free-license suitability for a commercial app.
 
-**Decisions (2026-05-29):**
-- **Priority 1 → integrate all.** Licenses are clear and no-NC; high value.
-- **Priority 2 → per-source, and only after a clear no-NC *data* license is
-  verified first.** The code licenses (LGPL/MPL) are fine; the gate is the
-  *data* each ships. Default is skip until non-NC is confirmed.
-- **GPL is acceptable** — childLex (GPL-3.0) is approved; see "GPL-licensed" below.
+**Status (re-verified against the shipped DB 2026-05-29):** almost all of
+Priority 1 is **already integrated** — the earlier "to integrate" framing was
+stale. Source tags in `grundwortschatz.db.gz` confirm: `TATOEBA` (9,757), all
+Bundesländer (`HESSEN`/`BAYERN`/`BERLIN`/`BRANDENBURG`/`NIEDERSACHSEN`/
+`RHEINLAND_PFALZ`/`SCHLESWIG_HOLSTEIN`), `LITKEY`/DysList/Hurraki misspellings
+(10,388 `commonMistakes`), DWDS frequency, and **childLex GPL-3.0 norms (5,082
+entries)**. Scripts already in `pipeline/voc-de/`: `add_tatoeba_examples.py`,
+`add_*_grundwortschatz.py`, `add_dwds_haeufigkeitsklassen.py`,
+`add_childlex_norms.py`, `00b_fetch_de_misspellings.py`.
+
+Remaining:
+- **Priority 1 → DONE**, except **Wiktionary "Falsche Freunde"** as a distinct
+  false-friends feature (not in the DB — the one genuine open P1 item; EN-mode relevant).
+- **Priority 2 → per-source, only after a clear no-NC *data* license is verified.** Default skip.
+- **childLex (GPL-3.0) is already shipped in the DB** → see the licensing note
+  below + `DATA_LICENSE.md`. GPL is fine (user confirmed); the open call is
+  whether to *declare* the combined DB GPL-3.0.
 - **Priority 3 → skip** (NC / paid / academic-only).
 
-### Priority 1 — ✅ DO ALL (clear license, high pedagogical value)
+### Priority 1 — ✅ ALREADY INTEGRATED (except Falsche Freunde)
 
 | Source | URL | License | What it adds | Effort |
 |---|---|---|---|---|
@@ -496,36 +507,36 @@ confirmed non-commercial-OK. Record the per-source verdict in Notes as checked.
 | CELEX2 | Paid commercial license |
 | MERLIN, KOLAS, DGS-Korpus | NC clauses |
 
-### GPL-licensed — ✅ approved (license cascade accepted 2026-05-29)
+### childLex (GPL-3.0) — ✅ ALREADY INTEGRATED
 
-| Source | URL | License | What it adds |
+| Source | URL | License | Status |
 |---|---|---|---|
-| **childLex** (Schroeder et al., HU Berlin) | https://childlex.de + https://osf.io/tqgjs | **GPL-3.0** (verified via OSF API 2026-05-21; the old "research-only NC" framing was stale) | Child-corpus age-band norms (ages 6–8 / 9–10 / 11–12) → sharpens the Klassen 1–6 grade-band signal |
+| **childLex** (Schroeder et al., HU Berlin) | https://childlex.de + https://osf.io/tqgjs | **GPL-3.0** | **Shipped** — `add_childlex_norms.py`; 5,082 entries carry `frequency_json.childlex` age-band norms (ages 6–8 / 9–10 / 11–12) |
 
-**Decision: integrate it — GPL is fine.** Consequence to handle *on*
-integration: bundling GPL-3.0 data **cascades the shipped DB license
-CC-BY-SA-4.0 → GPL-3.0** (one-way compatible per Creative Commons' 2015
-decision). Only the **DB blob** becomes GPL-3.0; the Flutter **app code stays
-proprietary** (the DB is bundled data, not linked code). When integrated,
-update `DATA_LICENSE.md`, §8 (store-compliance), and the in-app license screen
-to state the DB is GPL-3.0.
+**Open licensing call (the DB already contains this GPL-3.0 data):**
+`DATA_LICENSE.md` currently headlines the DB as **CC-BY-SA-4.0** while also
+listing childLex as GPL-3.0 that "triggers ShareAlike cascade" — internally
+inconsistent. Two defensible resolutions:
+- **(A) Declare the DB GPL-3.0** — safe/strict: GPL-3.0 data, if copyrightable,
+  can't live inside a CC-BY-SA-4.0 work (CC-BY-SA→GPL is one-way). User has
+  confirmed GPL is fine. Requires updating `DATA_LICENSE.md`, README dual-license
+  note, in-app license registry, and §8.
+- **(B) Keep CC-BY-SA-4.0** — treat childLex's per-word *frequency numbers* as
+  non-copyrightable facts (same stance as the YLE word lists), childLex
+  attributed as courtesy. No GPL obligation triggered.
 
-### Integration plan (decided 2026-05-29)
+Recommendation: **(A)** since the user is fine with GPL and it removes all
+ambiguity. Pending user confirmation before propagating the license change.
 
-Priority-1 set (all approved), best-first:
+### What actually remains (2026-05-29)
 
-1. **Tatoeba DE** — biggest visible UX win (better example sentences)
-2. **Wiktionary Fehlschreibungen + Wikipedia common misspellings** — clean misspelling list (replaces removed Tacke/Menzel)
-3. **Bundesländer Grundwortschätze** (start Hessen + BW) — per-state curricular tags
-4. **DWDS Häufigkeitsklassen** — cheap small win
-5. **Wiktionary Falsche Freunde** — feeds an EN-learning-mode false-friends feature
+Priority 1, Bundesländer, DWDS, misspellings, Tatoeba, and childLex are all
+**already in the shipped DB**. Genuinely open:
 
-≈ **2–4 days** for the Priority-1 DE DB upgrade.
-
-Then, incrementally:
-6. **childLex** (GPL) — alongside/after, accepting the DB → GPL-3.0 relicense
-   and the doc updates noted above.
-7. **Priority 2** sources case-by-case, each only after its data license is
+1. **Wiktionary "Falsche Freunde"** — the only undone Priority-1 source; build a
+   false-friends feature for the EN learning mode (~0.5 day data + a game/hint).
+2. **childLex license declaration** — resolve the CC-BY-SA-vs-GPL call above.
+3. **Priority 2** sources — case-by-case, each only after its data license is
    verified non-NC (else skipped).
 
 ---
