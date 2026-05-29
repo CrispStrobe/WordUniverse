@@ -490,12 +490,20 @@ Remaining:
 Default = **skip** until the *data* license (not just the code license) is
 confirmed non-commercial-OK. Record the per-source verdict in Notes as checked.
 
-| Source | License | Notes |
+| Source | License (verified 2026-05-29) | Verdict |
 |---|---|---|
-| **DWDS Wortprofil API** | CC-BY-SA via DWDS | Per-headword typical collocations. Could power a "passendes Wort" game mode. Per-request API; would batch the 10k words. |
-| **LanguageTool DE rule patterns** | LGPL on the codebase; rule data are structured facts | Extract just the headwords each rule fires on → "this word commonly involves rule X" tag. |
-| **Hunspell DE affix file** | LGPL/MPL on the dictionary | Systematic plural/conjugation fallback when API enrichment misses. |
-| **OPUS DE corpora** (Books, EUbookshop, Wikipedia, etc) | Per-corpus, mostly CC-BY-SA | Additional frequency signals. Diminishing returns over HermitDave + Leipzig. Skip for v1. |
+| **DWDS Wortprofil API** (collocations) | ❌ **proprietary/restricted** — DWDS Nutzungsbedingungen forbid automated use/redistribution without permission; only the *Blog Corpus* is CC-BY-SA 3.0 | **SKIP.** ⚠️ also re-verify the already-shipped DWDS Häufigkeitsklassen (the `add_dwds_haeufigkeitsklassen.py` "CC-BY-SA 4.0" claim conflicts with these terms). |
+| **LanguageTool DE rule patterns** | ✅ **LGPL-2.1** (commercial OK; rule files in-repo) | OK to extract per-word "triggers rule X" tags. Low-medium value. |
+| **Hunspell DE (igerman98)** | ✅ **GPL-2.0/3.0** (commercial OK; verified igerman98 README) | OK — DE DB is already GPL-3.0, so no new license exposure. Systematic plural/conjugation fallback. |
+| **OPUS DE corpora** | ⚠️ per-corpus, mixed (some CC-BY-SA, some NC) | Skip for v1 — diminishing returns over HermitDave/Leipzig; would need per-corpus license checks. |
+
+### Stronger candidates than Priority 2 (added 2026-05-29)
+
+| Source | License (verified) | Benefit |
+|---|---|---|
+| **Wiktionary EN→DE translations** (local `en_wiktionary_normalized.db`, 156,732 de rows) | ✅ CC-BY-SA 4.0 | **Fills the empty EN `translations` table (0 rows today)** — directly useful for German learners of English. Data is on disk; ~0.5 day. **Highest-value clean add.** |
+| **Wikidata Lexemes** | ✅ **CC0** (public domain) | Inflection forms, senses, IPA, and DE↔EN translations, multilingual. Ideal license. Could fill inflection/translation gaps in both DBs. ~1-2 days (SPARQL/dump). |
+| **Tatoeba EN** | ✅ CC-BY 2.0 | More EN example sentences (the DE DB already uses Tatoeba). Medium value — EN already has Wiktionary + Gutenberg + LLM examples. ~0.5 day. |
 
 ### Priority 3 — ✅ decision: SKIP (NC clauses / paid / academic-only)
 
