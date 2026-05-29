@@ -11,7 +11,7 @@ The DB build is done; what remains is optional/forward-looking.
 | §3 | ConceptNet all-languages expansion | ⬚ **optional/independent** — doesn't gate the app (relations already in the shipped DBs); script ready (`pipeline/conceptnet/`), runs on 8 GB; run when wanted |
 | §4 | Housekeeping (token / scripts / build box) | ✅ resolved → HISTORY |
 | §5 | Open decisions | ✅ resolved (ConceptNet sibling-vs-replace + 5.7 still apply *when* §3 runs) |
-| §6 | Algorithmic spelling-strategy classifier (FRESCH) | ✅ **v2 shipped 2026-05-29** — `fresch_classifier_v2.py` recomputes all 10,890 non-Vorname words from DB enrichment (hyphenation/inflections/IPA/error-rate); validated vs `532Strategien.csv` (clean 14→51%, primary 59→76%). See §6 + HISTORY |
+| §6 | Algorithmic spelling-strategy classifier (FRESCH) | ✅ **v2 shipped 2026-05-29** — `fresch_classifier_v2.py` recomputes all 10,890 non-Vorname words from DB enrichment (hyphenation/inflections/IPA); validated vs `532Strategien.csv` (clean 22.6→64.3%, primary 56.6→82.5%). See §6 + HISTORY |
 | §7 | Additional free-licensed data sources | ✅ Priority-1 + EN→DE translations + False Friends (#48) + Wortfalle (#49, 64 pairs); all other sources surveyed & rejected/deferred (NC/academic/low-value — see Remaining work) |
 | §8 | Copyleft App/Play Store compliance (DE GPL-3.0 / EN CC-BY-SA-4.0) | ⬚ **pre-launch checklist** — gate before first store submission |
 
@@ -329,29 +329,41 @@ resolved 2026-05-21 (see `pipeline/voc-en/HISTORY.md → Architectural decisions
 >
 > | metric | baseline (v1) | v2 |
 > |---|---|---|
-> | clean (exact-ish, scheme-aware) | 22.6% | **51.2%** |
-> | primary-category match | 56.6% | **75.8%** |
-> | merkwort P / R | 24% / 27% | **77% / 62%** |
-> | morphem P / R | 31% / 50% | **65% / 56%** |
-> | klangtreu precision | 65% | **86%** |
+> | clean (exact-ish, scheme-aware) | 22.6% | **64.3%** |
+> | primary-category match | 56.6% | **82.5%** |
+> | mean precision | 53.1% | **79.8%** |
+> | merkwort P / R | 24% / 27% | **88% / 58%** |
+> | doppelkonsonant precision | 31% | **62%** |
+> | klangtreu R / P | 69% / 65% | **91% / 80%** |
 >
-> The §6.3 tuning goals below are all realised: `verwandt` fires only on real
-> inflection-table alternation (umlaut plural or IPA-confirmed final
-> devoicing), `morphem` uses high-confidence prefixes + suffixes +
-> separable-particle evidence from the inflection table (no more `geben`≠ge+ben
-> false matches), `merkwort` keys off irregular grapheme markers + child
-> error-rate, and `klangtreu` is residual-only (stops over-tagging). The
-> authoritative `nrwLinguisticFeatures` provenance field is preserved.
+> The §6.3 tuning goals are all realised, plus two further gold-derived rules:
+> - `verwandt` fires only on **IPA-confirmed final devoicing** (`Berg→[bɛʁk]`,
+>   the *inaudible* Auslautverhärtung that genuinely needs a related form).
+>   Umlaut alternation (`Ball→Bälle`) is NOT used — the umlaut is *audible*
+>   (ä ≠ a), so the gold treats it as Mitsprechen; it was only ~28% precise.
+> - `doppelkonsonant` fires only on **closed-syllable** doubling
+>   (`Bett`/`Glück`/`schnell` — must "weiterschwingen" to hear it).
+>   Intervocalic doubling (`alle`/`Wasser`/`essen`) is audible → klangtreu,
+>   matching the empirical Mitsprechen-vs-Weiterschwingen split in the gold.
+> - `morphem` uses high-confidence inseparable prefixes + suffixes +
+>   separable-particle evidence from the inflection table (no `geben`≠ge+ben).
+> - `merkwort` keys off irregular grapheme markers only (Dehnungs-h, aa/ee/oo,
+>   v→[f], th/ph/y/chs). A high child-error-rate was tried but dropped —
+>   children misspell plenty of regular words, so it was only ~19% precise.
+> - `klangtreu` is residual-only (stops over-tagging).
 >
-> **Why not the original §6.6 ">=80% subset" target:** the harness showed the
-> FRESCH gold and our 6-category scheme partition the space *differently* —
-> FRESCH "Weiterschwingen" = our doppelkonsonant OR verwandt, and the gold is
-> internally inconsistent (`alle`/`essen` are "Mitsprechen" despite doubled
-> consonants; `bald` is "Mitsprechen" despite final devoicing). Pushing past
-> ~58% subset would mean *suppressing linguistically-correct tags* to fit an
-> inconsistent fixture, degrading the app. The ">=50% exact" target is met;
-> subset/superset are reported but not force-fit. Regression-guarded by
-> `test_fresch_classifier.py` (13 tests).
+> The authoritative `nrwLinguisticFeatures` provenance field is preserved.
+>
+> **On the original §6.6 ">=80% subset" target:** the harness showed the FRESCH
+> gold and our 6-category scheme partition the space *differently* (FRESCH
+> "Weiterschwingen" = doppelkonsonant OR verwandt) and the gold is internally
+> inconsistent (`alle`/`essen` are "Mitsprechen" despite doubled consonants;
+> `Ball` is "Merken" but `Bett` is "Weiterschwingen"). The remaining ~36% of
+> non-clean cases are dominated by (a) the gold *under-marking* Großschreibung
+> on real nouns and (b) arbitrary `Merken` memorisation words with no
+> orthographic signal — both unfixable without overfitting. We reached 71%
+> subset / 82.5% primary by exhausting the *principled* levers and stopped
+> there. Regression-guarded by `test_fresch_classifier.py` (14 tests).
 
 ---
 
