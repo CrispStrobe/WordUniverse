@@ -26,11 +26,22 @@ deferred** (low payoff / high effort — gap sizes below). Nothing blocks the ap
 - **False Friends game** (#48, EN-only) — `false_friends_game.dart` on the
   shipped `false_friends` data (62 pairs).
 - **Wortfalle — German confusables drill** (#49, DE-only) — `wortfalle_game.dart`,
-  **35** curated confusion pairs (das/dass, Lärche/Lerche, fast/fasst, Mine/Miene, …) with embedded
-  sentences (self-contained). Realizes the "LanguageTool confusables" idea via
-  a curated catalogue (15 pairs harvested from `de/confusion_sets.txt` via a
-  subagent + curated). 62/68 pair-words already in the DE DB (missing: Laib,
-  Mahl, Miene, Stiel, Stätte, Waise — game doesn't need them; optional add later).
+  **64** curated confusion pairs (das/dass, Wal/Wahl, isst/ist, fährt/fahrt,
+  Kirsche/Kirche, …) with embedded sentences (self-contained). Sources: classic
+  catalogue + `de/confusion_sets.txt` (LanguageTool, LGPL) + **Wiktionary
+  Verzeichnis:Deutsch/Homophone (CC-BY-SA, ~200 pairs)**, harvested via subagents
+  and curated/reviewed (dropped rhyming/onset pairs, archaic/dialect words, slur
+  risks). Self-contained, so DB-word gaps don't matter.
+
+### Data sources evaluated & rejected 2026-05-29 (do not re-evaluate)
+
+| Source | Verdict |
+|---|---|
+| Leipzig Corpora (co-occurrences/sentences) | corpora "protected by copyright"; SentiWS CC-BY-**NC** → skip (freq *facts* already used) |
+| UZH digitale Sprachressourcen | aggregator; listed corpora academic/access-restricted (DeReKo query-only, Falko/KiDKo) — not redistributable |
+| ispell/aspell/hunspell (igerman98) | GPL ✅ but only a wordlist + affixes → low value (= the deferred inflection fallback) |
+| github davidak/wortliste | plain 240k wordlist for passphrases; mixes CC-BY-**ND** (DWDS) + CC-BY-**NC** (DeReWo) → unusable + no structure |
+| DWDS Wortprofil | separate product, license unverified — only `dwds.de/wortprofil` check would settle it |
 
 **Assessed & deferred** (autonomous-doable but low value / high effort — build only on request)
 

@@ -168,6 +168,123 @@ const wortfalleCatalogue = <ConfusionPair>[
     (sentence: 'Berlin und Hamburg sind große ___.', answer: 'Städte'),
     (sentence: 'Die alte Burg ist eine geschichtliche ___.', answer: 'Stätte'),
   ]),
+  // ── homophones harvested from Wiktionary Verzeichnis:Deutsch/Homophone (CC-BY-SA) + classic confusables, curated 2026-05-29 ──
+  ConfusionPair(words: ['Wal', 'Wahl'], meanings: ['großes Tier im Meer', 'eine Entscheidung treffen'], examples: [
+    (sentence: 'Im Meer schwimmt ein riesiger ___ vorbei.', answer: 'Wal'),
+    (sentence: 'Bei der ___ darf jeder seine Stimme abgeben.', answer: 'Wahl'),
+  ]),
+  ConfusionPair(words: ['Bad', 'bat'], meanings: ['Raum zum Waschen / Schwimmen', 'Form von bitten'], examples: [
+    (sentence: 'Nach dem Sport gehe ich ins ___ und dusche.', answer: 'Bad'),
+    (sentence: 'Er ___ seine Mutter um ein Eis.', answer: 'bat'),
+  ]),
+  ConfusionPair(words: ['rein', 'Rain'], meanings: ['sauber / hinein', 'schmaler Streifen am Feldrand'], examples: [
+    (sentence: 'Komm schnell ___ ins warme Haus.', answer: 'rein'),
+    (sentence: 'Am ___ zwischen den Feldern wachsen Blumen.', answer: 'Rain'),
+  ]),
+  ConfusionPair(words: ['Zuname', 'Zunahme'], meanings: ['der Nachname', 'das Mehrwerden'], examples: [
+    (sentence: 'Trag deinen Vornamen und deinen ___ ein.', answer: 'Zuname'),
+    (sentence: 'Der Arzt freut sich über die ___ an Gewicht.', answer: 'Zunahme'),
+  ]),
+  ConfusionPair(words: ['Bote', 'Boote'], meanings: ['jemand, der etwas überbringt', 'mehrere kleine Schiffe'], examples: [
+    (sentence: 'Der ___ bringt uns ein wichtiges Päckchen.', answer: 'Bote'),
+    (sentence: 'Am Steg liegen viele bunte ___ im Wasser.', answer: 'Boote'),
+  ]),
+  ConfusionPair(words: ['bunt', 'Bund'], meanings: ['viele Farben', 'eine Gruppe / ein Gebinde'], examples: [
+    (sentence: 'Im Frühling ist die Wiese ___ und voller Farben.', answer: 'bunt'),
+    (sentence: 'Sie kauft einen ___ frische Möhren.', answer: 'Bund'),
+  ]),
+  ConfusionPair(words: ['hol', 'hohl'], meanings: ['Form von holen', 'innen leer'], examples: [
+    (sentence: 'Bitte ___ mir mal das Buch vom Regal.', answer: 'hol'),
+    (sentence: 'Der alte Baumstamm ist innen ganz ___.', answer: 'hohl'),
+  ]),
+  ConfusionPair(words: ['malen', 'mahlen'], meanings: ['ein Bild machen', 'Korn zu Mehl zerkleinern'], examples: [
+    (sentence: 'Im Kunstunterricht ___ wir ein buntes Bild.', answer: 'malen'),
+    (sentence: 'In der Mühle ___ sie das Korn zu Mehl.', answer: 'mahlen'),
+  ]),
+  ConfusionPair(words: ['wer', 'Wehr'], meanings: ['Frage nach einer Person', 'Feuerwehr / Stauwerk im Fluss'], examples: [
+    (sentence: 'Weißt du, ___ heute Geburtstag hat?', answer: 'wer'),
+    (sentence: 'Am Fluss staut ein ___ das Wasser auf.', answer: 'Wehr'),
+  ]),
+  ConfusionPair(words: ['Wände', 'Wende'], meanings: ['mehrere Mauern eines Raumes', 'Kehrtwende / Drehung'], examples: [
+    (sentence: 'Die ___ in meinem Zimmer sind hellblau.', answer: 'Wände'),
+    (sentence: 'Beim Schwimmen mache ich an der ___ kehrt.', answer: 'Wende'),
+  ]),
+  ConfusionPair(words: ['Namen', 'nahmen'], meanings: ['wie jemand heißt', 'Form von nehmen'], examples: [
+    (sentence: 'Schreib bitte deinen ___ auf das Blatt.', answer: 'Namen'),
+    (sentence: 'Sie ___ sich gestern ein großes Stück Kuchen.', answer: 'nahmen'),
+  ]),
+  ConfusionPair(words: ['Verben', 'werben'], meanings: ['Tunwörter', 'Reklame machen'], examples: [
+    (sentence: 'In dem Satz sollst du alle ___ unterstreichen.', answer: 'Verben'),
+    (sentence: 'Die Firma will mit Plakaten für ihr Spielzeug ___.', answer: 'werben'),
+  ]),
+  ConfusionPair(words: ['ist', 'isst'], meanings: ['Form von sein', 'Form von essen'], examples: [
+    (sentence: 'Mein kleiner Bruder ___ erst drei Jahre alt.', answer: 'ist'),
+    (sentence: 'Sie ___ am liebsten Nudeln mit Tomatensoße.', answer: 'isst'),
+  ]),
+  ConfusionPair(words: ['gibt', 'gebt'], meanings: ['er/sie gibt', 'ihr gebt'], examples: [
+    (sentence: 'Die Lehrerin ___ uns morgen die Hefte zurück.', answer: 'gibt'),
+    (sentence: 'Ihr ___ dem Hund bitte frisches Wasser.', answer: 'gebt'),
+  ]),
+  ConfusionPair(words: ['nimmt', 'nehmt'], meanings: ['er/sie nimmt', 'ihr nehmt'], examples: [
+    (sentence: 'Oma ___ sich noch ein Stück Schokolade.', answer: 'nimmt'),
+    (sentence: 'Ihr ___ bitte eure Jacken mit nach draußen.', answer: 'nehmt'),
+  ]),
+  ConfusionPair(words: ['fährt', 'fahrt'], meanings: ['er/sie fährt', 'ihr fahrt'], examples: [
+    (sentence: 'Der Bus ___ jeden Morgen um acht Uhr ab.', answer: 'fährt'),
+    (sentence: 'Ihr ___ in den Ferien ans Meer.', answer: 'fahrt'),
+  ]),
+  ConfusionPair(words: ['Recht', 'recht'], meanings: ['Anspruch / Gesetz', 'richtig / ziemlich'], examples: [
+    (sentence: 'Jedes Kind hat ein ___ auf Schule und Spiel.', answer: 'Recht'),
+    (sentence: 'Du hast völlig ___, das stimmt genau so.', answer: 'recht'),
+  ]),
+  ConfusionPair(words: ['Weg', 'weg'], meanings: ['Pfad / Strecke', 'fort / verschwunden'], examples: [
+    (sentence: 'Der schmale ___ führt durch den Wald zum See.', answer: 'Weg'),
+    (sentence: 'Mein Radiergummi ist plötzlich ___.', answer: 'weg'),
+  ]),
+  ConfusionPair(words: ['Wagen', 'wagen'], meanings: ['Auto / Fahrzeug', 'sich trauen'], examples: [
+    (sentence: 'Vor dem Haus steht ein roter ___.', answer: 'Wagen'),
+    (sentence: 'Ich möchte den Sprung vom Brett endlich ___.', answer: 'wagen'),
+  ]),
+  ConfusionPair(words: ['Leid', 'leid'], meanings: ['großer Kummer', 'in „es tut mir leid"'], examples: [
+    (sentence: 'Das große ___ der Familie macht alle traurig.', answer: 'Leid'),
+    (sentence: 'Es tut mir sehr ___, dass ich zu spät komme.', answer: 'leid'),
+  ]),
+  ConfusionPair(words: ['Ofen', 'offen'], meanings: ['Gerät zum Heizen / Backen', 'nicht zu, geöffnet'], examples: [
+    (sentence: 'Der Kuchen backt im heißen ___ goldgelb.', answer: 'Ofen'),
+    (sentence: 'Das Fenster steht weit ___ und es zieht.', answer: 'offen'),
+  ]),
+  ConfusionPair(words: ['Bett', 'Beet'], meanings: ['Möbel zum Schlafen', 'Stück Erde für Pflanzen'], examples: [
+    (sentence: 'Am Abend kuschle ich mich müde in mein ___.', answer: 'Bett'),
+    (sentence: 'Im ___ vor dem Haus blühen rote Tulpen.', answer: 'Beet'),
+  ]),
+  ConfusionPair(words: ['Tür', 'Tier'], meanings: ['Eingang zu einem Raum', 'Lebewesen wie Hund oder Katze'], examples: [
+    (sentence: 'Bitte mach die ___ leise zu, wenn du gehst.', answer: 'Tür'),
+    (sentence: 'Das süßeste ___ im Zoo ist für mich der Panda.', answer: 'Tier'),
+  ]),
+  ConfusionPair(words: ['Nadel', 'Nudel'], meanings: ['spitzes Ding zum Nähen', 'Essen aus Teig'], examples: [
+    (sentence: 'Mit ___ und Faden näht Oma den Knopf an.', answer: 'Nadel'),
+    (sentence: 'Eine lange ___ rutscht mir von der Gabel.', answer: 'Nudel'),
+  ]),
+  ConfusionPair(words: ['Kirsche', 'Kirche'], meanings: ['rote süße Frucht', 'Gebäude zum Beten'], examples: [
+    (sentence: 'Ich pflücke eine reife rote ___ vom Baum.', answer: 'Kirsche'),
+    (sentence: 'Sonntags läuten die Glocken der ___ im Dorf.', answer: 'Kirche'),
+  ]),
+  ConfusionPair(words: ['Schule', 'Schale'], meanings: ['Ort zum Lernen', 'Hülle einer Frucht / ein Gefäß'], examples: [
+    (sentence: 'Jeden Morgen gehe ich mit dem Ranzen zur ___.', answer: 'Schule'),
+    (sentence: 'Die ___ der Banane werfe ich in den Müll.', answer: 'Schale'),
+  ]),
+  ConfusionPair(words: ['singen', 'sinken'], meanings: ['mit der Stimme Töne machen', 'nach unten gehen, untergehen'], examples: [
+    (sentence: 'Im Chor ___ wir gemeinsam ein fröhliches Lied.', answer: 'singen'),
+    (sentence: 'Das Spielzeugboot beginnt langsam zu ___.', answer: 'sinken'),
+  ]),
+  ConfusionPair(words: ['Grad', 'Grat'], meanings: ['Maß für Temperatur / Winkel', 'schmaler Bergkamm'], examples: [
+    (sentence: 'Heute sind es draußen dreißig ___ im Schatten.', answer: 'Grad'),
+    (sentence: 'Die Wanderer gehen vorsichtig über den schmalen ___.', answer: 'Grat'),
+  ]),
+  ConfusionPair(words: ['Waage', 'wage'], meanings: ['Gerät zum Wiegen', 'Form von wagen'], examples: [
+    (sentence: 'Der Apfel liegt auf der ___ und wird gewogen.', answer: 'Waage'),
+    (sentence: 'Ich ___ es kaum, vom hohen Turm zu springen.', answer: 'wage'),
+  ]),
 ];
 
 class WortfalleChallenge {
