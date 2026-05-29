@@ -132,9 +132,16 @@ language ConceptNet covers (~370).
 The 11‑language subset stays in place for backward compatibility (external
 consumers, e.g. `enc-app_5b.py`, still query it via the Gradio Space).
 
-### The lost script
+### The lost script → rebuilt 2026-05-29
 
-The script that took
+A runnable, resumable, 8 GB-friendly reimplementation now lives at
+**`pipeline/conceptnet/build_normalized.py`** (see `pipeline/conceptnet/README.md`).
+It encodes the recipe below plus the low-memory tweaks (keyset paging,
+`temp_store=FILE`, WAL+checkpoint resume). Verified end-to-end on a synthetic
+source; not yet run on the real 23.6 GB dump. The recipe below is kept as the
+spec.
+
+The original script that took
 `cstr/conceptnet-de-indexed/conceptnet-de-indexed.db` (23.6 GB,
 all‑languages, un‑normalized) →
 `cstr/conceptnet-normalized-multi/conceptnet_normalized.db` (1.78 GB,
