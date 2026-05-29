@@ -1,0 +1,55 @@
+word,primary,all,source,note
+malen,klangtreu,klangtreu,Thomé Basisgraphem,regular sound-letter; long a unmarked
+lesen,klangtreu,klangtreu,Thomé Basisgraphem,regular; long e unmarked
+rot,klangtreu,klangtreu,Basisgraphem,final t already voiceless; no marker
+gut,klangtreu,klangtreu,Basisgraphem,long u unmarked; final t voiceless
+Nase,grossschreibung,grossschreibung klangtreu,Basisgraphem,noun otherwise regular → gross primary
+Blume,grossschreibung,grossschreibung klangtreu,Basisgraphem,noun otherwise regular
+Schule,grossschreibung,grossschreibung klangtreu,Basisgraphem,long u unmarked; noun
+Fisch,grossschreibung,grossschreibung klangtreu,Thomé /f/=<f> Basisgraphem,sch is one phoneme (regular); noun
+Apfel,grossschreibung,grossschreibung klangtreu,contrast,pf not a doubling; Äpfel-umlaut is the PLURAL's issue not the base → no verwandt
+Katze,doppelkonsonant,doppelkonsonant grossschreibung,Wikipedia Silbengelenk / IDS,tz after short a
+Tasse,doppelkonsonant,doppelkonsonant grossschreibung,Wikipedia Silbengelenk,intervocalic ss (was wrongly klangtreu)
+Mitte,doppelkonsonant,doppelkonsonant grossschreibung,Wikipedia Silbengelenk,intervocalic tt
+Ratte,doppelkonsonant,doppelkonsonant grossschreibung,Wikipedia Silbengelenk,intervocalic tt
+Schlitten,doppelkonsonant,doppelkonsonant grossschreibung,Wikipedia Silbengelenk,intervocalic tt
+Wasser,doppelkonsonant,doppelkonsonant grossschreibung,Eisenberg/Maas,intervocalic ss (worksheet wrongly Mitsprechen)
+alle,doppelkonsonant,doppelkonsonant,Eisenberg/Maas,intervocalic ll; NOT klangtreu — key reversal
+rennen,doppelkonsonant,doppelkonsonant,Schärfung,intervocalic nn
+Mann,doppelkonsonant,doppelkonsonant grossschreibung,Gallmann/Schmidt,monosyllabic nn (Männer); same category as Tasse per Thomé
+Ball,doppelkonsonant,doppelkonsonant grossschreibung,Gallmann,monosyllabic ll (Bälle)
+Bett,doppelkonsonant,doppelkonsonant grossschreibung,Schärfung,monosyllabic tt
+satt,doppelkonsonant,doppelkonsonant,Gallmann (satt/satte),adjective; Erweiterungsprobe satte
+Fass,doppelkonsonant,doppelkonsonant grossschreibung,Gallmann (Fass/Fässer),monosyllabic ss
+schnell,doppelkonsonant,doppelkonsonant,Schärfung,monosyllabic ll
+Glück,doppelkonsonant,doppelkonsonant grossschreibung,Schärfung,ck after short ü
+Bahn,dehnung,dehnung grossschreibung,Dehnungs-h,a+h+n
+Stuhl,dehnung,dehnung grossschreibung,Dehnungs-h,u+h+l
+mehr,dehnung,dehnung,Dehnungs-h,e+h+r
+fehlen,dehnung,dehnung,Dehnungs-h,e+h+l
+Saal,dehnung,dehnung grossschreibung,Doppelvokal,aa
+Meer,dehnung,dehnung grossschreibung,Doppelvokal,ee
+Boot,dehnung,dehnung grossschreibung,Doppelvokal,oo
+Brief,dehnung,dehnung grossschreibung,ie long i,ie + [iː]
+Tier,dehnung,dehnung grossschreibung,ie long i,ie + [iː]
+gehen,dehnung,dehnung,Schmidt/Fuhrhop silbentrennendes-h,intervocalic h (ge-hen)
+sehen,dehnung,dehnung,Schmidt/Fuhrhop silbentrennendes-h,intervocalic h (se-hen)
+Ruhe,dehnung,dehnung grossschreibung,silbentrennendes-h,intervocalic h (Ru-he)
+Hund,verwandt,grossschreibung verwandt,Eisenberg/Fuhrhop & Schmidt,Auslautverhärtung d→[t] (Hunde)
+Tag,verwandt,grossschreibung verwandt,Schmidt (Tag/Tak),Auslautverhärtung g→[k] (Tage)
+Wald,verwandt,grossschreibung verwandt,Eisenberg/Fuhrhop (<wald>),Auslautverhärtung d→[t] (Wälder)
+Berg,verwandt,grossschreibung verwandt,Auslautverhärtung,g→[k] (Berge)
+Dieb,verwandt,dehnung grossschreibung verwandt,Auslautverhärtung+ie,b→[p] (Diebe); ie long i
+Zug,verwandt,grossschreibung verwandt,Auslautverhärtung,g→[k] (Züge); long u unmarked
+lustig,verwandt,morphem verwandt,Thomé stem-preservation -ig,-ig is suffix (morphem) + g→[ç] (verwandt)
+verkaufen,morphem,morphem,morphematisch,ver- prefix
+Freundschaft,morphem,grossschreibung morphem,morphematisch,-schaft suffix
+möglich,morphem,morphem,morphematisch,-lich suffix
+Freiheit,morphem,grossschreibung morphem,morphematisch,-heit suffix
+einkaufen,morphem,morphem,morphematisch,separable particle (kaufe ein)
+Vater,merkwort,grossschreibung merkwort,Thomé sonstige Orthographeme,v→[f]
+Vogel,merkwort,grossschreibung merkwort,Thomé,v→[f]
+viel,merkwort,dehnung merkwort,etymologisch,v→[f] + ie long i
+Chor,merkwort,grossschreibung merkwort,etymologisch,ch→[k]
+Theater,merkwort,grossschreibung merkwort,etymologisch,th
+Cent,merkwort,grossschreibung merkwort,etymologisch,c→[ts]

@@ -110,9 +110,15 @@ class ApiEnrichment {
   // Each entry is a misspelled form string.
   final List<String> commonLearnerErrors;
 
-  // DE spelling strategy (from German orthography didactics):
-  // 'grossschreibung' | 'klangtreu' | 'morphem' | 'verwandt' | 'doppelkonsonant' | 'merkwort'
+  // DE spelling strategy, grounded in the orthographic principles of German
+  // (Eisenberg/Fuhrhop, Maas, Thomé): one of
+  // 'grossschreibung' | 'klangtreu' | 'doppelkonsonant' | 'dehnung' |
+  // 'verwandt' | 'morphem' | 'merkwort'
   final String? spellingStrategyPrimary;
+
+  // Per-word, science-grounded German explanation of the spelling strategy
+  // (e.g. „Verlängere: Mann → Männer"). Falls back to a category template.
+  final String? spellingExplanation;
 
   ApiEnrichment({
     required this.enrichmentStatus,
@@ -145,6 +151,7 @@ class ApiEnrichment {
     required this.gutenbergExamples,
     required this.commonLearnerErrors,
     this.spellingStrategyPrimary,
+    this.spellingExplanation,
   });
 
   factory ApiEnrichment.fromJson(Map<String, dynamic> json) {
@@ -227,6 +234,7 @@ class ApiEnrichment {
           List<String>.from(json['gutenberg_examples'] ?? []),
       commonLearnerErrors: _parseCommonLearnerErrors(json['commonLearnerErrors']),
       spellingStrategyPrimary: json['spellingStrategyPrimary'] as String?,
+      spellingExplanation: json['spellingExplanation'] as String?,
     );
   }
 

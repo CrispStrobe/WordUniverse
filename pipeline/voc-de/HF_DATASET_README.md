@@ -364,12 +364,16 @@ This database powers WortUniversum, an orthography and grammar learning
 app targeting German-speaking primary-school children (Klasse 1–6) and
 language learners.
 
-Spelling-pattern taxonomies (`spellingStrategy` 6-cat detailed + broad
-`spellingPatterns` 5-cat) reflect contemporary German Schriftlinguistik
-(phonematisches / orthografisches / morphematisches Prinzip). The
-detailed view uses neutral German pedagogical-pattern names — not
-FRESCH-branded terminology — and is derived algorithmically from the
-NRW Grundwortschatz xlsx's own linguistic-feature taxonomy.
+The spelling-strategy taxonomy (`spellingStrategy` list +
+`spellingStrategyPrimary` + a per-word `spellingExplanation`) is grounded in
+the orthographic principles of German (phonographisch / silbisch /
+morphologisch / morphematisch / syntaktisch), per Eisenberg & Fuhrhop, Maas,
+Gallmann, Schmidt/Fuhrhop, the amtliches Regelwerk, and Günther Thomé's
+Basisgrapheme-vs-Orthographeme inventory. Seven neutral linguistic categories:
+`klangtreu`, `doppelkonsonant`, `dehnung`, `verwandt`, `morphem`, `merkwort`,
+`grossschreibung`. Derived algorithmically from each word's own enrichment
+(hyphenation, inflections, IPA). Full spec + citations:
+`pipeline/voc-de/SPELLING_STRATEGY_SPEC.md`.
 
 The childLex age-graded norms and Bundesländer category labels together
 provide an algorithmic basis for grade-band classification: a word

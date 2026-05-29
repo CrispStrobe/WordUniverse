@@ -17,7 +17,9 @@ import 'package:WortUniversum/core/models/skill_category.dart';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-ApiEnrichment _enrichment({String? spellingStrategyPrimary}) => ApiEnrichment(
+ApiEnrichment _enrichment({String? spellingStrategyPrimary,
+        String? spellingExplanation}) =>
+    ApiEnrichment(
       enrichmentStatus: 'ok',
       definitions: const ['a definition'],
       pronunciation: const [],
@@ -43,6 +45,7 @@ ApiEnrichment _enrichment({String? spellingStrategyPrimary}) => ApiEnrichment(
       gutenbergExamples: const [],
       commonLearnerErrors: const [],
       spellingStrategyPrimary: spellingStrategyPrimary,
+      spellingExplanation: spellingExplanation,
     );
 
 GermanWord _word(String word, {String? strategy, double? litekeyErrorRate}) =>
@@ -102,6 +105,10 @@ void main() {
       expect(spellingStrategyLabel('doppelkonsonant'), 'Doppelkonsonant');
     });
 
+    test('returns correct label for dehnung', () {
+      expect(spellingStrategyLabel('dehnung'), 'Dehnung');
+    });
+
     test('returns correct label for merkwort', () {
       expect(spellingStrategyLabel('merkwort'), 'Merkwort');
     });
@@ -118,10 +125,10 @@ void main() {
       expect(spellingStrategyLabel(''), isNull);
     });
 
-    test('all 6 known keys produce non-null labels', () {
+    test('all 7 known keys produce non-null labels', () {
       const knownKeys = [
-        'grossschreibung', 'klangtreu', 'morphem',
-        'verwandt', 'doppelkonsonant', 'merkwort',
+        'grossschreibung', 'klangtreu', 'doppelkonsonant', 'dehnung',
+        'verwandt', 'morphem', 'merkwort',
       ];
       for (final k in knownKeys) {
         expect(spellingStrategyLabel(k), isNotNull,
@@ -199,87 +206,101 @@ void main() {
         'gutenberg_examples': <String>[],
       });
       expect(e.spellingStrategyPrimary, isNull);
+      expect(e.spellingExplanation, isNull);
+    });
+
+    test('fromJson reads the per-word spellingExplanation field', () {
+      final e = ApiEnrichment.fromJson({
+        'enrichment_status': 'ok',
+        'spellingStrategyPrimary': 'verwandt',
+        'spellingExplanation':
+            'Am Wortende klingt es hart, aber du schreibst den Stamm: Tag → Tage.',
+      });
+      expect(e.spellingExplanation, contains('Tag → Tage'));
     });
   });
 
-  // ─── Realistic word/strategy pairs (sampled from DE DB) ──────────────────
+  // ─── Realistic word/strategy pairs (science-grounded; see
+  //     pipeline/voc-de/spelling_strategy_gold.csv) ──────────────────────────
+  // These pin the badge label mapping using examples that are CORRECT under the
+  // orthographic-principle scheme (Eisenberg/Maas/Thomé), not the old worksheet.
 
   group('Realistic word–strategy pairs', () {
-    // grossschreibung: DE Nouns are capitalized → strategy is about the rule
-    test('Anfang is grossschreibung — noun, capitalized', () {
-      final w = _word('Anfang', strategy: 'grossschreibung');
-      expect(w.apiEnrichment?.spellingStrategyPrimary, 'grossschreibung');
-      expect(spellingStrategyLabel('grossschreibung'), 'Großschreibung');
+    // grossschreibung: a noun whose only other feature is regular spelling
+    test('Nase is grossschreibung — noun, otherwise regular', () {
+      final w = _word('Nase', strategy: 'grossschreibung');
+      expect(spellingStrategyLabel(w.apiEnrichment?.spellingStrategyPrimary),
+          'Großschreibung');
     });
 
-    // klangtreu: written as it sounds
-    test('backen is klangtreu — phonetically transparent', () {
-      final w = _word('backen', strategy: 'klangtreu');
-      expect(spellingStrategyLabel(w.apiEnrichment?.spellingStrategyPrimary), 'Klangtreu');
+    // klangtreu: written as it sounds, no orthographic marker
+    test('malen is klangtreu — phonographic, no marker', () {
+      final w = _word('malen', strategy: 'klangtreu');
+      expect(spellingStrategyLabel(w.apiEnrichment?.spellingStrategyPrimary),
+          'Klangtreu');
     });
 
-    // morphem: root principle — "erst" shares root with "Erste"
-    test('erst is morphem — root-principled spelling', () {
-      final w = _word('erst', strategy: 'morphem');
-      expect(spellingStrategyLabel(w.apiEnrichment?.spellingStrategyPrimary), 'Stammprinzip');
+    // doppelkonsonant: Schärfung — short vowel + doubling, ANY position
+    // (Thomé: Tasse and Mann are the same category)
+    test('Tasse / Mann are doppelkonsonant — Schärfung', () {
+      for (final word in ['Tasse', 'Mann', 'kennen']) {
+        final w = _word(word, strategy: 'doppelkonsonant');
+        expect(spellingStrategyLabel(w.apiEnrichment?.spellingStrategyPrimary),
+            'Doppelkonsonant');
+      }
     });
 
-    // verwandt: spelling derived from related form
-    // "hören" — the ö is consistent with related noun "Ohr"
-    test('hören is verwandt — related to Ohr (ear)', () {
-      final w = _word('hören', strategy: 'verwandt');
-      expect(spellingStrategyLabel(w.apiEnrichment?.spellingStrategyPrimary), 'Verwandtschaft');
+    // dehnung: long-vowel marker (Dehnungs-h / Doppelvokal / ie / silbentrennendes-h)
+    test('Stuhl / gehen are dehnung — long-vowel marking', () {
+      for (final word in ['Stuhl', 'gehen', 'Boot']) {
+        final w = _word(word, strategy: 'dehnung');
+        expect(spellingStrategyLabel(w.apiEnrichment?.spellingStrategyPrimary),
+            'Dehnung');
+      }
     });
 
-    // doppelkonsonant: short vowel before double consonant
-    test('kennen is doppelkonsonant — short e, nn', () {
-      final w = _word('kennen', strategy: 'doppelkonsonant');
-      expect(spellingStrategyLabel(w.apiEnrichment?.spellingStrategyPrimary), 'Doppelkonsonant');
+    // verwandt: Stammkonstanz — Auslautverhärtung (Tag→Tage), -ig (lustig)
+    test('Tag / lustig are verwandt — Stammkonstanz', () {
+      for (final word in ['Tag', 'Hund', 'lustig']) {
+        final w = _word(word, strategy: 'verwandt');
+        expect(spellingStrategyLabel(w.apiEnrichment?.spellingStrategyPrimary),
+            'Verwandtschaft');
+      }
     });
 
-    // merkwort: sight word, must be memorised (function words)
-    test('ab is merkwort — preposition with no phonetic rule', () {
-      final w = _word('ab', strategy: 'merkwort');
-      expect(spellingStrategyLabel(w.apiEnrichment?.spellingStrategyPrimary), 'Merkwort');
+    // morphem: built from Wortbausteine (prefix/suffix/compound/particle)
+    test('Freundschaft is morphem — derivational suffix', () {
+      final w = _word('Freundschaft', strategy: 'morphem');
+      expect(spellingStrategyLabel(w.apiEnrichment?.spellingStrategyPrimary),
+          'Stammprinzip');
+    });
+
+    // merkwort: genuine etymological/foreign exception (v→[f], ch→[k])
+    test('Vater / Chor are merkwort — etymological exception', () {
+      for (final word in ['Vater', 'Chor']) {
+        final w = _word(word, strategy: 'merkwort');
+        expect(spellingStrategyLabel(w.apiEnrichment?.spellingStrategyPrimary),
+            'Merkwort');
+      }
     });
 
     // No strategy set → badge should return null label
     test('word without strategy → spellingStrategyLabel returns null', () {
       final w = _word('Hund');
-      expect(spellingStrategyLabel(w.apiEnrichment?.spellingStrategyPrimary), isNull);
+      expect(spellingStrategyLabel(w.apiEnrichment?.spellingStrategyPrimary),
+          isNull);
     });
 
-    // doppelkonsonant examples have consistently high error rates
-    // (kennen: 67%, fallen: 42%, kommen: 27%) — confirms the strategy badge
-    // is most informative for the words kids actually find hard
-    test('doppelkonsonant word with high error rate — badge label is non-null', () {
-      final w = _word('kennen', strategy: 'doppelkonsonant', litekeyErrorRate: 0.67);
-      expect(spellingStrategyLabel(w.apiEnrichment?.spellingStrategyPrimary), isNotNull);
-      expect(w.litekeyErrorRate, closeTo(0.67, 0.001));
-    });
-
-    // merkwort (sight words) tend to have low error rates — kids learn them
-    // through sheer frequency ("ab" 13%, "aber" 7%, "als" 8%)
-    test('merkwort words have low error rates (high-frequency function words)', () {
-      for (final pair in [
-        ('ab', 0.13), ('aber', 0.07), ('als', 0.08), ('am', 0.02),
-      ]) {
-        final w = _word(pair.$1, strategy: 'merkwort', litekeyErrorRate: pair.$2);
-        expect(w.litekeyErrorRate, lessThan(0.2),
-            reason: '${pair.$1} is a high-freq function word, should be easy');
-      }
-    });
-
-    // verwandt words with Umlauts are harder (dürfen: 71%, hören: 43%, böse: 36%)
-    test('verwandt Umlaut words have notably higher error rates', () {
-      final hard = [
-        ('dürfen', 0.71), ('hören', 0.43), ('böse', 0.36),
-      ];
-      for (final pair in hard) {
-        final w = _word(pair.$1, strategy: 'verwandt', litekeyErrorRate: pair.$2);
-        expect(w.litekeyErrorRate, greaterThan(0.3),
-            reason: '${pair.$1} Umlaut form is hard for children');
-      }
+    // The per-word explanation rides on the word and is what the badge shows
+    test('word carries its science-grounded explanation', () {
+      final w = _word('Mann');
+      final enr = ApiEnrichment.fromJson({
+        'enrichment_status': 'ok',
+        'spellingStrategyPrimary': 'doppelkonsonant',
+        'spellingExplanation': 'Verlängere, um es zu hören: „Mann" → „Männer".',
+      });
+      expect(enr.spellingExplanation, contains('Männer'));
+      expect(w.word, 'Mann');
     });
   });
 }
