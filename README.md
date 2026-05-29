@@ -37,8 +37,14 @@ The core of the app is a **Spaced Repetition (SRI) service** that tracks a stude
   * **Homophone Drill / Word Trap** (`homophone_drill_game.dart`) — pick the right spelling for the context (hear/here, affect/effect).
   * **Phrasal Verb Power** (`phrasal_verb_power_game.dart`) — pick the particle that completes a sentence (*Please ___ your toys* → put **away**).
   * **Phrasal Verb Match** (`phrasal_verb_match_game.dart`) — pick a phrasal verb's meaning; distractors are real meanings of other phrasal verbs.
+  * **False Friends** (`false_friends_game.dart`) — pick what an English word *really* means; the German look-alike is the trap (gift ≠ Gift).
 
-    These are backed by a `phrasal_verbs` table in the English database (Wiktionary CC-BY-SA + LLM grade-leveled examples). See `pipeline/voc-en/add_phrasal_verbs_en.py`.
+    The phrasal-verb games use a `phrasal_verbs` table (Wiktionary CC-BY-SA + LLM grade-leveled examples; `pipeline/voc-en/add_phrasal_verbs_en.py`); False Friends uses a curated `false_friends` table.
+
+### German-only games (learning language = German):
+
+  * **Wortfalle** (`wortfalle_game.dart`) — German confusables drill: pick the right word in a sentence (das/dass, Wal/Wahl, isst/ist, Kirsche/Kirche). 64 curated pairs (Wiktionary homophones CC-BY-SA + LanguageTool confusion sets).
+  * …plus the German falling-tile games (compound builder, capitalisation, separable verbs) and the shared flash games.
 
 ## 🛠️ Tech Stack
 

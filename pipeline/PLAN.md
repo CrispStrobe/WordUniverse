@@ -12,13 +12,15 @@ The DB build is done; what remains is optional/forward-looking.
 | §4 | Housekeeping (token / scripts / build box) | ✅ resolved → HISTORY |
 | §5 | Open decisions | ✅ resolved (ConceptNet sibling-vs-replace + 5.7 still apply *when* §3 runs) |
 | §6 | Algorithmic spelling-strategy classifier (FRESCH) | ⬚ ongoing improvement |
-| §7 | Additional free-licensed data sources | ✅ Priority-1 integrated + EN→DE translations + False Friends game (#48); remaining Priority-2 sources assessed & **deferred** (low value — see Remaining work) |
+| §7 | Additional free-licensed data sources | ✅ Priority-1 + EN→DE translations + False Friends (#48) + Wortfalle (#49, 64 pairs); all other sources surveyed & rejected/deferred (NC/academic/low-value — see Remaining work) |
 | §8 | Copyleft App/Play Store compliance (DE GPL-3.0 / EN CC-BY-SA-4.0) | ⬚ **pre-launch checklist** — gate before first store submission |
 
 ### Remaining work (2026-05-29) — shipped DBs + app are done
 
-Two high-value enrichments were done this session; the rest were **assessed and
-deferred** (low payoff / high effort — gap sizes below). Nothing blocks the app.
+This session added a translation enrichment + three games (False Friends,
+Wortfalle, on top of the two phrasal-verb games) and surveyed the remaining
+data sources. What's left is either deferred (low payoff / high effort) or
+needs you. Nothing blocks the app.
 
 **✅ Done this session**
 - **Wiktionary EN→DE translations** — filled the EN DB's empty `translations`
@@ -48,7 +50,7 @@ deferred** (low payoff / high effort — gap sizes below). Nothing blocks the ap
 | Item | § | Why deferred | License |
 |---|---|---|---|
 | Hunspell DE inflection fallback | §7 | only ~930 content words (7%) lack inflections; German affix expansion is fragile + lower quality than the existing Wiktionary/DWDSmor inflections | GPL-2/3 ✅ |
-| LanguageTool "rule X" tags | §7 | ✅ **realized as Wortfalle** (35 pairs). Mined `de/confusion_sets.txt` via a subagent → curated out the statistical/OCR noise → kept 15 clean pairs + agent-written German sentences/glosses. Further expansion possible but diminishing returns. | LGPL-2.1 ✅ |
+| ~~LanguageTool "rule X" tags~~ | §7 | ✅ **DONE — realized as Wortfalle (#49, 64 pairs)**. Used `de/confusion_sets.txt` (LGPL) + Wiktionary homophones (CC-BY-SA); not the XML-rule-mining route. | LGPL-2.1 ✅ |
 | Wikidata Lexemes | §7 | overlaps what now exists (DE+EN translations, ~93% inflections); heavy (SPARQL/dumps) | CC0 ✅ |
 | Tatoeba EN examples | §7 | EN already has 99% grade examples + Gutenberg + Wiktionary examples — redundant | CC-BY 2.0 ✅ |
 | FRESCH classifier v2 | §6 | v1 ships; this is an accuracy/coverage refinement — heavy heuristic project | — |
