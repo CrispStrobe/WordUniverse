@@ -118,6 +118,7 @@ class GameProvider extends ChangeNotifier {
     'confusable_drill': SkillCategories.getById('basic_spelling')!,
     'phrasal_verb_power': SkillCategories.getById('word_types')!,
     'phrasal_verb_match': SkillCategories.getById('basic_vocab')!,
+    'false_friends': SkillCategories.getById('basic_vocab')!,
   };
 
   int _score = 0;

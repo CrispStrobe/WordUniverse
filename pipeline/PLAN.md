@@ -22,7 +22,7 @@ Nothing below blocks the app. License column = verified status.
 | Item | § | Effort | Who | License |
 |---|---|---|---|---|
 | **Wiktionary EN→DE translations** — fills the EN DB's empty `translations` table (0 rows); top value for DE→EN learners | §7 | ~0.5 d (data is local) | **me** | CC-BY-SA ✅ |
-| **Falsche-Freunde game screen** — data already shipped, only the UI is missing | §7 | ~0.5 d | **me** | — |
+| ~~Falsche-Freunde game screen~~ ✅ **done** (`false_friends_game.dart`, #48) | §7 | — | me | — |
 | **Hunspell DE** plural/conjugation fallback | §7 | ~0.5 d | **me** | GPL-2/3 ✅ (DE DB already GPL-3.0) |
 | **LanguageTool DE** "triggers spelling-rule X" tags | §7 | ~1 d | **me** | LGPL-2.1 ✅ |
 | **Wikidata Lexemes** — inflections / senses / DE↔EN translations | §7 | ~1–2 d | **me** | CC0 ✅ |

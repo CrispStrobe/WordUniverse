@@ -1220,6 +1220,37 @@ class SEn extends S {
       'Reading the example can help you work out the meaning.';
 
   @override
+  String get falseFriendsTitle => 'False Friends';
+
+  @override
+  String get falseFriendsDescription =>
+      'Don\'t get tricked — gift ≠ Gift, become ≠ bekommen';
+
+  @override
+  String get falseFriendsPrompt => 'What does this English word really mean?';
+
+  @override
+  String get falseFriendsEmpty => 'No false-friend data available yet.';
+
+  @override
+  String get falseFriendsOnboard1 =>
+      'False friends are English words that look like a German word but mean something different — \"gift\" is not \"Gift\".';
+
+  @override
+  String get falseFriendsOnboard2 =>
+      'Pick the real German meaning. One choice is the look-alike trap!';
+
+  @override
+  String get falseFriendsOnboard3 =>
+      'After each answer you\'ll see the real meaning and the trap explained.';
+
+  @override
+  String falseFriendsExplain(String english, String correctMeaning,
+      String german, String germanMeans) {
+    return '$english = $correctMeaning — not “$german” ($germanMeans)!';
+  }
+
+  @override
   String get gameRoundComplete => 'Round complete!';
 
   @override
