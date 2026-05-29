@@ -93,7 +93,7 @@ Nov 7 although bash_history shows execution on Nov 8). It:
 Bash history shows it ran twice (once edited in between). The working
 tree `/tmp/wiktionary_extract/` was wiped after the run. **The HF token
 is committed to `/root/.bash_history` in plaintext** —
-`hf_REDACTED_ROTATED_TOKEN`. Rotate it (see LEARNINGS.md).
+`hf_***REDACTED***` (rotate on HF — token previously written here in full). See LEARNINGS.md.
 
 Locally, pattern‑de Space iterates: `de-wiktionary.py`, `enc-app.py`,
 `nlp-app_2.py`, test scripts `test4..test9.py`, `test_iwnlp*.py`,
