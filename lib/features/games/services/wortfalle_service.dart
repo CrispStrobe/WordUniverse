@@ -107,6 +107,67 @@ const wortfalleCatalogue = <ConfusionPair>[
     (sentence: 'Ich gehe ___ die Schule.', answer: 'in'),
     (sentence: 'Ich habe ___ dort gesehen.', answer: 'ihn'),
   ]),
+  // ── expanded from LanguageTool de/confusion_sets.txt (curated 2026-05-29) ──
+  ConfusionPair(words: ['Mine', 'Miene'], meanings: ['Bergwerk / Bleistiftmine', 'Gesichtsausdruck'], examples: [
+    (sentence: 'Im Bergwerk arbeiten viele Menschen in der ___.', answer: 'Mine'),
+    (sentence: 'Er machte eine finstere ___.', answer: 'Miene'),
+  ]),
+  ConfusionPair(words: ['Mark', 'Markt'], meanings: ['Knochenmark / frühere Währung', 'Platz zum Einkaufen'], examples: [
+    (sentence: 'Auf dem ___ kaufen wir frisches Gemüse.', answer: 'Markt'),
+    (sentence: 'In dem Knochen steckt das ___.', answer: 'Mark'),
+  ]),
+  ConfusionPair(words: ['wie', 'wir'], meanings: ['auf welche Art / Vergleich', 'mehrere Personen, ich und andere'], examples: [
+    (sentence: 'Heute gehen ___ zusammen ins Kino.', answer: 'wir'),
+    (sentence: 'Weißt du, ___ spät es ist?', answer: 'wie'),
+  ]),
+  ConfusionPair(words: ['ihm', 'im'], meanings: ['einer Person (Dativ von er)', 'in dem'], examples: [
+    (sentence: 'Ich gebe ___ das Buch zurück.', answer: 'ihm'),
+    (sentence: 'Die Katze schläft ___ Korb.', answer: 'im'),
+  ]),
+  ConfusionPair(words: ['im', 'um'], meanings: ['in dem', 'rundherum / zeitlich'], examples: [
+    (sentence: 'Wir treffen uns ___ drei Uhr.', answer: 'um'),
+    (sentence: 'Die Blumen stehen ___ Garten.', answer: 'im'),
+  ]),
+  ConfusionPair(words: ['fast', 'fasst'], meanings: ['beinahe', 'greift / packt (von fassen)'], examples: [
+    (sentence: 'Ich bin ___ fertig mit den Hausaufgaben.', answer: 'fast'),
+    (sentence: 'Sie ___ mutig nach dem Seil.', answer: 'fasst'),
+  ]),
+  ConfusionPair(words: ['hast', 'hasst'], meanings: ['du besitzt (von haben)', 'du magst gar nicht (von hassen)'], examples: [
+    (sentence: 'Du ___ ein neues Fahrrad bekommen.', answer: 'hast'),
+    (sentence: 'Warum ___ du Spinat so sehr?', answer: 'hasst'),
+  ]),
+  ConfusionPair(words: ['liest', 'lies'], meanings: ['er oder sie liest gerade', 'Aufforderung: lies vor!'], examples: [
+    (sentence: 'Meine Schwester ___ ein spannendes Buch.', answer: 'liest'),
+    (sentence: 'Bitte ___ mir die Geschichte vor!', answer: 'lies'),
+  ]),
+  ConfusionPair(words: ['Mahl', 'Mal'], meanings: ['Essen / Mahlzeit', 'ein Zeitpunkt, x-mal'], examples: [
+    (sentence: 'Das Mittagessen war ein leckeres ___.', answer: 'Mahl'),
+    (sentence: 'Wir waren schon ein ___ im Zoo.', answer: 'Mal'),
+  ]),
+  ConfusionPair(words: ['seht', 'sehr'], meanings: ['ihr seht (von sehen)', 'in hohem Maß, viel'], examples: [
+    (sentence: 'Das Eis schmeckt mir ___ gut.', answer: 'sehr'),
+    (sentence: 'Schaut mal, ___ ihr den Regenbogen?', answer: 'seht'),
+  ]),
+  ConfusionPair(words: ['seht', 'sieht'], meanings: ['ihr seht (von sehen)', 'er oder sie sieht'], examples: [
+    (sentence: 'Mein Bruder ___ den Vogel im Baum.', answer: 'sieht'),
+    (sentence: 'Heute Nacht, ___ ihr die Sterne?', answer: 'seht'),
+  ]),
+  ConfusionPair(words: ['Stich', 'Strich'], meanings: ['kleine Wunde, z. B. von einer Biene', 'gerade gezeichnete Linie'], examples: [
+    (sentence: 'Der ___ der Mücke juckt sehr.', answer: 'Stich'),
+    (sentence: 'Mit dem Lineal ziehe ich einen geraden ___.', answer: 'Strich'),
+  ]),
+  ConfusionPair(words: ['weit', 'weint'], meanings: ['eine große Entfernung', 'er oder sie weint (von weinen)'], examples: [
+    (sentence: 'Die Schule ist nicht ___ von hier.', answer: 'weit'),
+    (sentence: 'Das Baby ___ laut in der Nacht.', answer: 'weint'),
+  ]),
+  ConfusionPair(words: ['reist', 'reißt'], meanings: ['er oder sie reist, fährt weg', 'er oder sie reißt, macht kaputt'], examples: [
+    (sentence: 'Meine Tante ___ gern nach Italien.', answer: 'reist'),
+    (sentence: 'Der Hund ___ an der Leine.', answer: 'reißt'),
+  ]),
+  ConfusionPair(words: ['Städte', 'Stätte'], meanings: ['mehrere große Orte', 'ein bestimmter Platz / Ort'], examples: [
+    (sentence: 'Berlin und Hamburg sind große ___.', answer: 'Städte'),
+    (sentence: 'Die alte Burg ist eine geschichtliche ___.', answer: 'Stätte'),
+  ]),
 ];
 
 class WortfalleChallenge {

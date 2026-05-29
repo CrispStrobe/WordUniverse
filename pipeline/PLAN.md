@@ -26,7 +26,7 @@ deferred** (low payoff / high effort — gap sizes below). Nothing blocks the ap
 - **False Friends game** (#48, EN-only) — `false_friends_game.dart` on the
   shipped `false_friends` data (62 pairs).
 - **Wortfalle — German confusables drill** (#49, DE-only) — `wortfalle_game.dart`,
-  20 curated confusion pairs (das/dass, Lärche/Lerche, …) with embedded
+  **35** curated confusion pairs (das/dass, Lärche/Lerche, fast/fasst, Mine/Miene, …) with embedded
   sentences (self-contained). Realizes the "LanguageTool confusables" idea via
   a curated catalogue. 37/40 pair-words already in the DE DB (missing:
   Laib, Stiel, Waise — game doesn't need them; optional vocab add later).
@@ -36,7 +36,7 @@ deferred** (low payoff / high effort — gap sizes below). Nothing blocks the ap
 | Item | § | Why deferred | License |
 |---|---|---|---|
 | Hunspell DE inflection fallback | §7 | only ~930 content words (7%) lack inflections; German affix expansion is fragile + lower quality than the existing Wiktionary/DWDSmor inflections | GPL-2/3 ✅ |
-| LanguageTool "rule X" tags | §7 | the *game* idea was realized as **Wortfalle** (above) from a curated catalogue. Mining LT's `de/confusion_sets.txt` (~120-140 pairs) could expand it, but the file has NO meanings/sentences + ~half are statistical/OCR noise (Gbit/Gibt, kotet/kostet) → still needs curation + per-pair sentences (hand or LLM). Optional v2. | LGPL-2.1 ✅ |
+| LanguageTool "rule X" tags | §7 | ✅ **realized as Wortfalle** (35 pairs). Mined `de/confusion_sets.txt` via a subagent → curated out the statistical/OCR noise → kept 15 clean pairs + agent-written German sentences/glosses. Further expansion possible but diminishing returns. | LGPL-2.1 ✅ |
 | Wikidata Lexemes | §7 | overlaps what now exists (DE+EN translations, ~93% inflections); heavy (SPARQL/dumps) | CC0 ✅ |
 | Tatoeba EN examples | §7 | EN already has 99% grade examples + Gutenberg + Wiktionary examples — redundant | CC-BY 2.0 ✅ |
 | FRESCH classifier v2 | §6 | v1 ships; this is an accuracy/coverage refinement — heavy heuristic project | — |
