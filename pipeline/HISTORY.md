@@ -657,6 +657,50 @@ bash_history is on our own VPS, `.env` is local — no third-party exposure.
 The "leaked, rotate now" framing was overcautious; value redacted from the
 working-tree docs, rotation is optional hygiene.
 
+### FRESCH spelling-strategy classifier v2 (§6) — DE DB re-tagged
+
+Replaced the v1 spelling-strategy derivation (NRW-xlsx feature mapping for
+~533 words + crude surface-regex fallback for ~9.5k) with a principled v2 that
+reads each word's *existing* DB enrichment — `hyphenation`, full `inflections`
+tables, IPA, and `litkey_error_rate` — none of which v1 used. New files in
+`pipeline/voc-de/`:
+
+- `fresch_classifier_v2.py` — pure classifier. §6.3 tuning realised:
+  `verwandt` only on real alternation (umlaut plural like `Ball→Bälle`, or
+  IPA-confirmed final devoicing `Berg→[bɛʁk]`), `morphem` from
+  high-confidence inseparable prefixes + suffixes + **separable-particle
+  evidence read off the inflection table** (`baue ab` → morphem; kills the old
+  `geben`≠ge+ben false matches), `merkwort` from irregular grapheme markers
+  (Dehnungs-h, aa/ee/oo, v→[f]) + high child-error-rate, `klangtreu`
+  residual-only (no more over-tagging on any digraph).
+- `fresch_db_features.py` — DB-row → feature extractor (shared).
+- `validate_fresch.py` — the §6.6 harness; scheme-aware metric vs the curated
+  `532Strategien.csv` gold (vendored into the repo as a fixture).
+- `patch_spelling_strategy_v2.py` — applies v2 to **all 10,890 non-Vorname
+  words** in `grundwortschatz.db` (idempotent; Vornamen skipped;
+  `nrwLinguisticFeatures` provenance kept). Measured even on the 463
+  former `nrw_derived` words, v2 beats the v1 NRW mapping (clean 14→52%).
+- `test_fresch_classifier.py` — 13 regression tests (anchor words + aggregate
+  threshold guard).
+
+Validation vs gold (`532Strategien.csv`, 389 rated words):
+
+| metric | v1 baseline | v2 |
+|---|---|---|
+| clean (scheme-aware exact) | 22.6% | 51.2% |
+| primary-category match | 56.6% | 75.8% |
+| merkwort P / R | 24 / 27% | 77 / 62% |
+| morphem P / R | 31 / 50% | 65 / 56% |
+
+Key finding documented in PLAN §6: FRESCH and our 6-category scheme partition
+the space differently (FRESCH "Weiterschwingen" = doppelkonsonant OR verwandt;
+gold is internally inconsistent), so the original §6.6 ">=80% subset" target
+is not pursued — reaching it would mean suppressing linguistically-correct
+tags. The ">=50% exact" target is met. Asset recompressed
+(`grundwortschatz.db.gz`, 26 MB, integrity ok); pubspec → 1.3.1; all 464
+Flutter tests pass; analyze clean. No Dart change needed — v2 reuses the same
+6 category tokens the `SpellingStrategyBadge` already renders.
+
 ---
 
 ## Tail — what isn't dated
