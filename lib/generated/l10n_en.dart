@@ -1251,6 +1251,28 @@ class SEn extends S {
   }
 
   @override
+  String get wortfalleTitle => 'Word Trap (DE)';
+
+  @override
+  String get wortfalleDescription =>
+      'Pick the right word — das/dass, seit/seid, Lärche/Lerche';
+
+  @override
+  String get wortfallePrompt => 'Which word fits?';
+
+  @override
+  String get wortfalleOnboard1 =>
+      'Some German words look or sound almost the same but mean different things — das/dass, seit/seid, Lärche/Lerche.';
+
+  @override
+  String get wortfalleOnboard2 =>
+      'A sentence with a gap is shown. Pick the word that fits the meaning.';
+
+  @override
+  String get wortfalleOnboard3 =>
+      'After each answer you\'ll see what each word means.';
+
+  @override
   String get gameRoundComplete => 'Round complete!';
 
   @override

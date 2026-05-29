@@ -1263,6 +1263,28 @@ class SDe extends S {
   }
 
   @override
+  String get wortfalleTitle => 'Wortfalle';
+
+  @override
+  String get wortfalleDescription =>
+      'Wähle das richtige Wort — das/dass, seit/seid, Lärche/Lerche';
+
+  @override
+  String get wortfallePrompt => 'Welches Wort passt?';
+
+  @override
+  String get wortfalleOnboard1 =>
+      'Manche deutschen Wörter sehen oder klingen fast gleich, bedeuten aber Verschiedenes — das/dass, seit/seid, Lärche/Lerche.';
+
+  @override
+  String get wortfalleOnboard2 =>
+      'Es wird ein Satz mit einer Lücke gezeigt. Wähle das Wort, das zur Bedeutung passt.';
+
+  @override
+  String get wortfalleOnboard3 =>
+      'Nach jeder Antwort siehst du, was die Wörter bedeuten.';
+
+  @override
   String get gameRoundComplete => 'Runde geschafft!';
 
   @override
