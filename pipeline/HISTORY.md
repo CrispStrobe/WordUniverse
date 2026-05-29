@@ -627,6 +627,38 @@ Over two sessions (~150 new keys total), covering:
 
 ---
 
+## 2026-05-29 — Phrasal-verb games + ConceptNet normalizer rebuilt
+
+### EN phrasal verbs + two games (#46, #47)
+
+Added a `phrasal_verbs` table to `grundwortschatz_en.db` (400 verbs from
+Wiktionary's "English phrasal verbs" categories, CC-BY-SA) and two EN-only
+games on top of it: **Phrasal Verb Power** (pick the particle) and **Phrasal
+Verb Match** (pick the meaning). 398/400 LLM grade-leveled (nebius/scaleway/
+groq/openrouter), content-filtered for K-6 (`kill`/`do in` excluded), deduped.
+Pipeline: `pipeline/voc-en/add_phrasal_verbs_en.py`. Full detail in
+`pipeline/voc-en/HISTORY.md → 2026-05-29`. App at `pubspec` 1.3.0; `flutter
+build web` passes with the EN asset bundled; full test suite 452/452.
+
+### ConceptNet normalizer rebuilt (the lost §3 script)
+
+Materialized `pipeline/conceptnet/build_normalized.py` — the normalizer that
+turns `cstr/conceptnet-de-indexed.db` (23.6 GB) → `conceptnet_normalized_all.db`.
+Runs on an **8 GB VPS** (binding constraint is disk ~60-70 GB, not RAM):
+256 MB cache, `temp_store=FILE` for the big index sorts, keyset paging,
+WAL+checkpoint resume. Verified end-to-end on a synthetic source; not yet run
+on the real dump. ConceptNet expansion remains optional (relations are already
+in the shipped voc DBs).
+
+### HF token "leak" re-assessed → non-issue
+
+The `hf_…` token flagged in earlier docs was re-assessed: repo is private,
+bash_history is on our own VPS, `.env` is local — no third-party exposure.
+The "leaked, rotate now" framing was overcautious; value redacted from the
+working-tree docs, rotation is optional hygiene.
+
+---
+
 ## Tail — what isn't dated
 
 - The `top10000en.txt`, `top1000en.txt`, `top1000fr.txt` at the project
