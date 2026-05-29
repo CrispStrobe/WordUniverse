@@ -30,6 +30,16 @@ The core of the app is a **Spaced Repetition (SRI) service** that tracks a stude
       * **Skill:** Grammar (Wortarten)
       * **Gameplay:** The user is presented with a word (e.g., "Stock") and must drag-and-drop it into the correct category bin (Nomen, Verben, or Adjektive).
 
+*(…plus 40+ more mini-games. The menu filters by the chosen learning language.)*
+
+### English-only games (learning language = English):
+
+  * **Homophone Drill / Word Trap** (`homophone_drill_game.dart`) — pick the right spelling for the context (hear/here, affect/effect).
+  * **Phrasal Verb Power** (`phrasal_verb_power_game.dart`) — pick the particle that completes a sentence (*Please ___ your toys* → put **away**).
+  * **Phrasal Verb Match** (`phrasal_verb_match_game.dart`) — pick a phrasal verb's meaning; distractors are real meanings of other phrasal verbs.
+
+    These are backed by a `phrasal_verbs` table in the English database (Wiktionary CC-BY-SA + LLM grade-leveled examples). See `pipeline/voc-en/add_phrasal_verbs_en.py`.
+
 ## 🛠️ Tech Stack
 
   * **Framework:** Flutter

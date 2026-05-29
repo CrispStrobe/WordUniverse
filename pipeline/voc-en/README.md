@@ -126,7 +126,7 @@ display time (Core 3k / Extended 5k / Full 10k).
 | `article` | `der`/`die`/`das` | nullable; `a`/`an`/`the` filled for nouns at step 12 | EN has no grammatical gender; article is a usage hint |
 | `genus` | `Masculine`/`Feminine`/`Neuter` | always NULL | EN has no grammatical gender |
 | `word_type` | German tokens (`substantiv`, `adjektiv`, …) | English tokens (`noun`, `verb`, …) | step 14 canonicalizes both DBs to English tokens |
-| `enrichment_json.phrasalVerb` | not used | `{particle, meaning, examples}` for EN phrasal verbs | EN equivalent of DE separable verbs |
+| phrasal verbs | (DE separable verbs handled in-game) | dedicated **`phrasal_verbs` table** (400 rows: phrasal, base_verb, particle, meaning, grade examples, distractors) — built by `add_phrasal_verbs_en.py` | EN equivalent of DE separable verbs; powers the `phrasal_verb_power`/`phrasal_verb_match` games |
 | `enrichment_json.spellingRule` | NRW rule tag | UK spelling‑rule tag (silent‑e, magic‑e, doubled‑consonant, …) | different orthographic systems |
 | `enrichment_json.capitalizationCategory` | DE: all nouns capitalized | EN: `proper`/`common` | EN only capitalizes proper nouns |
 | `translations` | DE→EN (kept by step 10) | EN→DE (kept by step 10's EN mirror, when available) | mirror use case |

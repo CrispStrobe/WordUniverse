@@ -143,6 +143,27 @@ Schema: `id, word_id, lang_code, translation`.
 18,642 sentences from Wiktionary and Project Gutenberg example extraction.
 Schema: `id, word_id, sentence`.
 
+### Table: `phrasal_verbs`
+
+400 English phrasal verbs (added 2026-05-29) powering the in-app phrasal-verb
+games. Source: Wiktionary "English phrasal verbs" categories (CC BY-SA 4.0) +
+LLM grade-leveled example sentences. Content-filtered for a K-6 audience.
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | INTEGER PK | |
+| `word_id` | INTEGER FK → `words.id` | the base verb's row |
+| `phrasal` | TEXT | e.g. `give up` |
+| `base_verb` / `particle` | TEXT | `give` / `up` |
+| `meaning` | TEXT | short kid-friendly definition |
+| `senses_json` | TEXT (JSON) | up to 3 Wiktionary glosses |
+| `distractors_json` | TEXT (JSON) | wrong particles (real PVs of the same base verb) |
+| `examples_json` | TEXT (JSON) | `{"1":[…],…,"6":[…]}` grade-leveled sentences (398/400) |
+| `wiktionary_examples_json` | TEXT (JSON) | CC-BY-SA fallback sentences |
+| `grade_band` | INTEGER | 3–6 |
+| `base_zipf` | REAL | base-verb frequency (ranking signal) |
+| `source` / `license` | TEXT | `wiktionary` / `CC-BY-SA-4.0` |
+
 ## gradeLevelEstimate decision tree
 
 Priority: lowest cap wins.
