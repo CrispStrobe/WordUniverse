@@ -7,28 +7,40 @@ This repository contains two distinct types of content with different licenses:
 | Content | License |
 |---|---|
 | **Application source code** (`lib/`, `android/`, `ios/`, `web/`, etc.) | Proprietary — all rights reserved |
-| **Vocabulary databases** (`assets/grundwortschatz.db.gz`, `assets/grundwortschatz_en.db.gz`) | **Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)** |
+| **German vocabulary database** (`assets/grundwortschatz.db.gz`) | **GNU GPL-3.0** (bundles childLex GPL-3.0 data — see below) |
+| **English vocabulary database** (`assets/grundwortschatz_en.db.gz`) | **Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)** |
 | **Pipeline scripts** (`pipeline/`) | MIT License (see below) |
 
 ---
 
-## Vocabulary databases — CC BY-SA 4.0
+## Vocabulary databases
 
-The bundled vocabulary databases inherit CC BY-SA 4.0 from their upstream
-sources. The full license text is available at:
-<https://creativecommons.org/licenses/by-sa/4.0/>
+The bundled databases inherit copyleft obligations from their upstream sources:
 
-### What CC BY-SA 4.0 requires
+- **English DB (`grundwortschatz_en.db.gz`) — CC BY-SA 4.0.** All upstream
+  content is CC-BY-SA / CC-BY / permissive / public-domain.
+  <https://creativecommons.org/licenses/by-sa/4.0/>
+- **German DB (`grundwortschatz.db.gz`) — GNU GPL-3.0.** It bundles childLex
+  (GPL-3.0) age-band frequency norms. GPL-3.0 content cannot be redistributed
+  under CC-BY-SA-4.0 (compatibility is one-way: CC-BY-SA-4.0 → GPL-3.0), so the
+  **combined** German DB is GPL-3.0; the CC-BY-SA upstreams below are
+  forward-compatible into it. <https://www.gnu.org/licenses/gpl-3.0.html>
 
-- **Attribution** — credit the upstream sources (listed below and in the
-  in-app License screen).
-- **ShareAlike** — if you redistribute the databases or a derivative of
-  them, you must do so under CC BY-SA 4.0 or a compatible license.
-- **Indicate changes** — note what changes were made to the upstream data.
+This covers **only the bundled DB blob**. The Flutter **application code stays
+proprietary** (it reads the DB at runtime — mere aggregation, not a derived
+work), and the **pipeline scripts are MIT**.
+
+### What you must do if you redistribute a DB
+
+- **Attribution** — credit the upstream sources (listed below + the in-app
+  License screen).
+- **ShareAlike / copyleft** — redistribute the EN DB under CC-BY-SA-4.0 (or
+  compatible), the DE DB under GPL-3.0.
+- **Indicate changes** — note what was changed from the upstream data.
 
 ### Upstream sources and changes made
 
-#### German vocabulary database (`grundwortschatz.db.gz`)
+#### German vocabulary database (`grundwortschatz.db.gz`) — GPL-3.0
 
 | Source | License | Contribution |
 |---|---|---|
@@ -42,7 +54,7 @@ sources. The full license text is available at:
 | Tatoeba | CC BY 2.0 | Example sentences |
 | Project Gutenberg (DE texts) | Public Domain | Example sentences |
 | NRW Grundwortschatz (Baden-Württemberg curriculum) | Public domain / official government publication | Grade-level tags, curriculum membership |
-| childLex (Schroeder et al., HU Berlin) | GPL-3.0 | Reading difficulty norms; triggers ShareAlike cascade |
+| childLex (Schroeder et al., HU Berlin) | **GPL-3.0** | Age-band reading-difficulty frequency norms (`frequency_json.childlex`, 9,008 entries) — **makes the combined DE DB GPL-3.0** |
 
 **Changes made to upstream data:**
 - Filtered to ~13,000 primary-school-relevant entries
@@ -52,7 +64,7 @@ sources. The full license text is available at:
 - Added per-grade example sentences via LLM paraphrasing (marked with `source:llm`)
 - Frequency ranking added from HermitDave/OpenSubtitles
 
-#### English vocabulary database (`grundwortschatz_en.db.gz`)
+#### English vocabulary database (`grundwortschatz_en.db.gz`) — CC BY-SA 4.0
 
 | Source | License | Contribution |
 |---|---|---|
@@ -76,11 +88,11 @@ sources. The full license text is available at:
 
 ### Dataset availability
 
-In compliance with the ShareAlike requirement, the databases are available for
-download and redistribution under CC BY-SA 4.0 at:
+In compliance with the copyleft requirements, the databases are available for
+download and redistribution at:
 
-- **DE**: <https://huggingface.co/datasets/cstr/grundwortschatz-voc-de>
-- **EN**: <https://huggingface.co/datasets/cstr/grundwortschatz-voc-en>
+- **DE** (GPL-3.0): <https://huggingface.co/datasets/cstr/grundwortschatz-voc-de>
+- **EN** (CC BY-SA 4.0): <https://huggingface.co/datasets/cstr/grundwortschatz-voc-en>
 
 ---
 
@@ -120,5 +132,5 @@ SOFTWARE.
 The End User License Agreement for the application does **not** restrict users
 from extracting, copying, or redistributing the vocabulary database blobs
 (`assets/grundwortschatz.db.gz`, `assets/grundwortschatz_en.db.gz`), as doing
-so would conflict with the CC BY-SA 4.0 ShareAlike obligation. Users may
-freely redistribute the databases under CC BY-SA 4.0 terms.
+so would conflict with their copyleft obligations. Users may freely
+redistribute the German DB under GPL-3.0 and the English DB under CC BY-SA 4.0.

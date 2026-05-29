@@ -13,7 +13,7 @@ The DB build is done; what remains is optional/forward-looking.
 | §5 | Open decisions | ✅ resolved (ConceptNet sibling-vs-replace + 5.7 still apply *when* §3 runs) |
 | §6 | Algorithmic spelling-strategy classifier (FRESCH) | ⬚ ongoing improvement |
 | §7 | Additional free-licensed data sources | ✅ mostly **already integrated** (Tatoeba, Bundesländer, DWDS, misspellings, childLex); open: Falsche Freunde + childLex license declaration + Priority-2-if-verified |
-| §8 | CC-BY-SA App/Play Store compliance | ⬚ **pre-launch checklist** — gate before first store submission |
+| §8 | Copyleft App/Play Store compliance (DE GPL-3.0 / EN CC-BY-SA-4.0) | ⬚ **pre-launch checklist** — gate before first store submission |
 
 ---
 
@@ -460,7 +460,7 @@ Priority 1 is **already integrated** — the earlier "to integrate" framing was
 stale. Source tags in `grundwortschatz.db.gz` confirm: `TATOEBA` (9,757), all
 Bundesländer (`HESSEN`/`BAYERN`/`BERLIN`/`BRANDENBURG`/`NIEDERSACHSEN`/
 `RHEINLAND_PFALZ`/`SCHLESWIG_HOLSTEIN`), `LITKEY`/DysList/Hurraki misspellings
-(10,388 `commonMistakes`), DWDS frequency, and **childLex GPL-3.0 norms (5,082
+(10,388 `commonMistakes`), DWDS frequency, and **childLex GPL-3.0 norms (9,008
 entries)**. Scripts already in `pipeline/voc-de/`: `add_tatoeba_examples.py`,
 `add_*_grundwortschatz.py`, `add_dwds_haeufigkeitsklassen.py`,
 `add_childlex_norms.py`, `00b_fetch_de_misspellings.py`.
@@ -511,22 +511,14 @@ confirmed non-commercial-OK. Record the per-source verdict in Notes as checked.
 
 | Source | URL | License | Status |
 |---|---|---|---|
-| **childLex** (Schroeder et al., HU Berlin) | https://childlex.de + https://osf.io/tqgjs | **GPL-3.0** | **Shipped** — `add_childlex_norms.py`; 5,082 entries carry `frequency_json.childlex` age-band norms (ages 6–8 / 9–10 / 11–12) |
+| **childLex** (Schroeder et al., HU Berlin) | https://childlex.de + https://osf.io/tqgjs | **GPL-3.0** | **Shipped** — `add_childlex_norms.py`; 9,008 entries carry `frequency_json.childlex` age-band norms (ages 6–8 / 9–10 / 11–12) |
 
-**Open licensing call (the DB already contains this GPL-3.0 data):**
-`DATA_LICENSE.md` currently headlines the DB as **CC-BY-SA-4.0** while also
-listing childLex as GPL-3.0 that "triggers ShareAlike cascade" — internally
-inconsistent. Two defensible resolutions:
-- **(A) Declare the DB GPL-3.0** — safe/strict: GPL-3.0 data, if copyrightable,
-  can't live inside a CC-BY-SA-4.0 work (CC-BY-SA→GPL is one-way). User has
-  confirmed GPL is fine. Requires updating `DATA_LICENSE.md`, README dual-license
-  note, in-app license registry, and §8.
-- **(B) Keep CC-BY-SA-4.0** — treat childLex's per-word *frequency numbers* as
-  non-copyrightable facts (same stance as the YLE word lists), childLex
-  attributed as courtesy. No GPL obligation triggered.
-
-Recommendation: **(A)** since the user is fine with GPL and it removes all
-ambiguity. Pending user confirmation before propagating the license change.
+**Licensing — ✅ resolved 2026-05-29: the DE DB is declared GPL-3.0.** Because
+childLex (GPL-3.0) is bundled and GPL-3.0 content can't be redistributed under
+CC-BY-SA-4.0 (one-way compatible), the **combined German DB is GPL-3.0**; the
+**English DB stays CC-BY-SA-4.0** (no GPL data). App code stays proprietary;
+pipeline scripts stay MIT. Propagated to `DATA_LICENSE.md`, `README.md`, and
+the in-app license registry (which already declared the GPL-3.0 posture).
 
 ### What actually remains (2026-05-29)
 
@@ -535,65 +527,60 @@ Priority 1, Bundesländer, DWDS, misspellings, Tatoeba, and childLex are all
 
 1. **Wiktionary "Falsche Freunde"** — the only undone Priority-1 source; build a
    false-friends feature for the EN learning mode (~0.5 day data + a game/hint).
-2. **childLex license declaration** — resolve the CC-BY-SA-vs-GPL call above.
-3. **Priority 2** sources — case-by-case, each only after its data license is
+2. **Priority 2** sources — case-by-case, each only after its data license is
    verified non-NC (else skipped).
 
 ---
 
-## 8. Pre-launch: CC-BY-SA compliance for App Store / Play Store release
+## 8. Pre-launch: copyleft compliance for App Store / Play Store release
+
+**License posture (2026-05-29):** DE DB = **GPL-3.0** (bundles childLex), EN DB
+= **CC-BY-SA-4.0**. App code proprietary; pipeline scripts MIT.
 
 **Triggering event**: the moment we submit to Apple App Store or Google
-Play, the app reaches a meaningfully wider audience and the CC-BY-SA
-obligations on the shipped DB become operationally important. The current
+Play, the app reaches a meaningfully wider audience and the copyleft
+obligations on the shipped DBs become operationally important. The current
 Vercel deployment is technically already a "distribution", but exposure
 is low. **All of the below should be done before the first store
-submission.**
+submission.** (Most boxes below are already ticked — verify, don't redo.)
 
-### 8.1 Why the DB is CC-BY-SA 4.0
+### 8.1 Why the DBs are copyleft (DE GPL-3.0 / EN CC-BY-SA-4.0)
 
-`assets/grundwortschatz.db.gz` inherits CC-BY-SA from upstream content:
+Both DBs inherit copyleft from upstream content:
 
 | Upstream | What it contributes |
 |---|---|
-| **Wiktionary (DE/EN)** | Definitions, IPA, inflections, examples, etymology, syn/ant, hyper/hypo/mero/holo (~all enrichment_json content) |
-| **ConceptNet 5.x** | Semantic relations under enrichment_json.conceptnet |
-| **OpenThesaurus** | Synonym/hypernym/hyponym closure |
-| **OdeNet** | DE WordNet sense data |
-| **HermitDave / OpenSubtitles** | Frequency rank fields |
-| **Wikipedia commonly-misspelled** | (planned) commonLearnerErrors seed |
+| **Wiktionary (DE/EN)** | Definitions, IPA, inflections, examples, etymology, syn/ant, hyper/hypo/mero/holo (~all enrichment_json content) — CC-BY-SA |
+| **ConceptNet 5.x** | Semantic relations under enrichment_json.conceptnet — CC-BY-SA |
+| **OpenThesaurus / OdeNet** | Synonym closure / DE WordNet sense data — CC-BY-SA |
+| **HermitDave / OpenSubtitles** | Frequency rank fields — CC-BY-SA |
+| **childLex** (DE only) | **GPL-3.0** age-band norms → makes the **DE** DB GPL-3.0 |
 
-The Flutter app code itself stays proprietary — only the DB blob is
-CC-BY-SA. Same legal model as Wikipedia/Britannica mobile apps.
+The Flutter app code stays proprietary — only the DB blobs carry copyleft. The
+**EN** DB is CC-BY-SA-4.0 (no GPL upstream); the **DE** DB is GPL-3.0 (CC-BY-SA
+upstreams are forward-compatible into GPL-3.0). Same legal model as
+Wikipedia/Britannica mobile apps, with GPL on the DE data blob.
 
-### 8.2 What CC-BY-SA 4.0 actually requires (concretely)
+### 8.2 What the copyleft licenses require (concretely)
 
 | Requirement | How we satisfy it |
 |---|---|
-| **Attribution** | In-app Settings → Licenses screen (already wired up via `LicenseRegistry.addLicense` for every CC-BY-* source). Visible link from Settings. ✅ |
-| **ShareAlike** | The DB must be redistributable under CC-BY-SA. **Action**: upload `assets/grundwortschatz.db.gz` as an HF dataset (e.g. `cstr/grundwortschatz-voc-de`) marked CC-BY-SA 4.0, link to it from the in-app license screen. Not required to make easy — just possible. |
-| **Indicate changes** | Per-source license entries already note "Changes made: …" (filter to 10k, NRW grade tags merged in, etc.). ✅ |
-| **No additional restrictions** | App EULA must not forbid extracting / redistributing the DB. Currently no EULA — when one is added (App Store-required), explicitly exempt the DB. |
-| **Notice of license** | Add a one-line statement at the top of the License screen and in the public-facing README: *"The vocabulary database is licensed under CC BY-SA 4.0. The application code is proprietary."* |
+| **Attribution** | In-app Settings → Licenses screen (wired via `LicenseRegistry.addLicense` for every source, incl. the childLex GPL-3.0 entry). ✅ |
+| **ShareAlike / copyleft** | Each DB must be redistributable under its license. **Action**: publish `grundwortschatz.db.gz` as `cstr/grundwortschatz-voc-de` marked **GPL-3.0**, and `grundwortschatz_en.db.gz` as `cstr/grundwortschatz-voc-en` marked **CC-BY-SA-4.0**; link both from the license screen. |
+| **Indicate changes** | Per-source license entries already note "Changes made: …". ✅ |
+| **No additional restrictions** | App EULA must not forbid extracting / redistributing the DB. The EULA note in `DATA_LICENSE.md` already exempts both blobs. ✅ |
+| **Notice of license** | One-line statement on the License screen + public README — done: README states DE GPL-3.0 / EN CC-BY-SA-4.0. ✅ |
 
-### 8.3 Pre-submission checklist (~half-day of work)
+### 8.3 Pre-submission checklist
 
-- [ ] Upload `assets/grundwortschatz.db.gz` to new HF dataset
-      `cstr/grundwortschatz-voc-de`. Include in the dataset README:
-      - CC-BY-SA 4.0 statement
-      - Full attribution list (same as in-app License screen)
-      - "Changes made" section: filtering to 10k, NRW grade tag merge,
-        spelling-pattern derivation (own derivation from NRW xlsx), etc.
-      - Citation: how to credit the dataset
-- [ ] Same for `cstr/grundwortschatz-voc-en` when EN ships.
-- [ ] Add top-of-screen line to in-app License screen: *"Vocabulary
-      database licensed under CC BY-SA 4.0 — `cstr/grundwortschatz-voc-de`
-      on Hugging Face"* with tap-to-open link.
-- [ ] Add `DATA_LICENSE.md` to repo root explaining the dual-license
-      stance (app code proprietary, DB blob CC-BY-SA).
-- [ ] Repo README: add a one-paragraph note linking to DATA_LICENSE.md.
-- [ ] Verify the soon-to-be-written App Store EULA does NOT contain
-      clauses that restrict reverse-engineering / extracting the DB.
+- [x] `DATA_LICENSE.md` at repo root — dual-license stance, DE GPL-3.0 / EN CC-BY-SA-4.0.
+- [x] Repo README note linking to `DATA_LICENSE.md`.
+- [x] In-app License screen carries every source incl. childLex GPL-3.0 + the GPL-3.0 DB posture.
+- [ ] Upload the DBs as HF datasets with matching license tags:
+      **`cstr/grundwortschatz-voc-de` (GPL-3.0)** and
+      **`cstr/grundwortschatz-voc-en` (CC-BY-SA-4.0)**, each with full
+      attribution + "Changes made" in the dataset README. *(user action — HF account)*
+- [ ] Verify the eventual App Store EULA does NOT restrict extracting the DB blobs.
 
 ### 8.4 What we are NOT required to publish
 
