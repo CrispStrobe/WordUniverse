@@ -28,8 +28,9 @@ deferred** (low payoff / high effort — gap sizes below). Nothing blocks the ap
 - **Wortfalle — German confusables drill** (#49, DE-only) — `wortfalle_game.dart`,
   **35** curated confusion pairs (das/dass, Lärche/Lerche, fast/fasst, Mine/Miene, …) with embedded
   sentences (self-contained). Realizes the "LanguageTool confusables" idea via
-  a curated catalogue. 37/40 pair-words already in the DE DB (missing:
-  Laib, Stiel, Waise — game doesn't need them; optional vocab add later).
+  a curated catalogue (15 pairs harvested from `de/confusion_sets.txt` via a
+  subagent + curated). 62/68 pair-words already in the DE DB (missing: Laib,
+  Mahl, Miene, Stiel, Stätte, Waise — game doesn't need them; optional add later).
 
 **Assessed & deferred** (autonomous-doable but low value / high effort — build only on request)
 
