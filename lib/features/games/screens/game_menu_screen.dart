@@ -17,6 +17,7 @@ import 'conjugation_drill_game.dart';
 import 'homophone_drill_game.dart';
 import 'phrasal_verb_power_game.dart';
 import 'phrasal_verb_match_game.dart';
+import 'false_friends_game.dart';
 import '../services/homophone_drill_service.dart' show HomophoneGameMode;
 import 'cloze_flash_game.dart';
 import 'expression_flash_game.dart';
@@ -567,6 +568,17 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         supportedLearningLanguages: const ['en'],
         isPremium: true,
         onTap: () => _navigateToGame(PhrasalVerbMatchGame(
+            gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
+      ),
+      GameInfo(
+        title: s.falseFriendsTitle,
+        description: s.falseFriendsDescription,
+        icon: Icons.warning_amber,
+        gradient: const LinearGradient(
+            colors: [Color(0xFFee0979), Color(0xFFff6a00)]),
+        supportedLearningLanguages: const ['en'],
+        isPremium: true,
+        onTap: () => _navigateToGame(FalseFriendsGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(

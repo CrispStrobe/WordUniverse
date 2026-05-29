@@ -718,6 +718,17 @@
     "phrasalVerbMatchOnboard1": "A phrasal verb is shown — sometimes with an example sentence for context.",
     "phrasalVerbMatchOnboard2": "Tap the meaning that matches the phrasal verb. The other choices are real meanings of different phrasal verbs.",
     "phrasalVerbMatchOnboard3": "Reading the example can help you work out the meaning.",
+    "falseFriendsTitle": "False Friends",
+    "falseFriendsDescription": "Don't get tricked — gift ≠ Gift, become ≠ bekommen",
+    "falseFriendsPrompt": "What does this English word really mean?",
+    "falseFriendsEmpty": "No false-friend data available yet.",
+    "falseFriendsOnboard1": "False friends are English words that look like a German word but mean something different — \"gift\" is not \"Gift\".",
+    "falseFriendsOnboard2": "Pick the real German meaning. One choice is the look-alike trap!",
+    "falseFriendsOnboard3": "After each answer you'll see the real meaning and the trap explained.",
+    "falseFriendsExplain": "{english} = {correctMeaning} — not “{german}” ({germanMeans})!",
+    "@falseFriendsExplain": {
+        "placeholders": { "english": { "type": "String" }, "correctMeaning": { "type": "String" }, "german": { "type": "String" }, "germanMeans": { "type": "String" } }
+    },
     "gameRoundComplete": "Round complete!",
     "gameBack": "Back",
     "gamePlayAgain": "Play again",

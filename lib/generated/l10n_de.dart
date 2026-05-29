@@ -1230,6 +1230,39 @@ class SDe extends S {
       'Der Beispielsatz kann dir helfen, die Bedeutung zu erschließen.';
 
   @override
+  String get falseFriendsTitle => 'Falsche Freunde';
+
+  @override
+  String get falseFriendsDescription =>
+      'Lass dich nicht täuschen — gift ≠ Gift, become ≠ bekommen';
+
+  @override
+  String get falseFriendsPrompt =>
+      'Was bedeutet dieses englische Wort wirklich?';
+
+  @override
+  String get falseFriendsEmpty =>
+      'Noch keine Daten zu falschen Freunden verfügbar.';
+
+  @override
+  String get falseFriendsOnboard1 =>
+      'Falsche Freunde sind englische Wörter, die wie ein deutsches Wort aussehen, aber etwas anderes bedeuten — \"gift\" ist nicht \"Gift\".';
+
+  @override
+  String get falseFriendsOnboard2 =>
+      'Wähle die richtige deutsche Bedeutung. Eine Auswahl ist die Lookalike-Falle!';
+
+  @override
+  String get falseFriendsOnboard3 =>
+      'Nach jeder Antwort siehst du die echte Bedeutung und die Falle erklärt.';
+
+  @override
+  String falseFriendsExplain(String english, String correctMeaning,
+      String german, String germanMeans) {
+    return '$english = $correctMeaning — nicht „$german“ ($germanMeans)!';
+  }
+
+  @override
   String get gameRoundComplete => 'Runde geschafft!';
 
   @override

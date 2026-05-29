@@ -2271,6 +2271,55 @@ abstract class S {
   /// **'Reading the example can help you work out the meaning.'**
   String get phrasalVerbMatchOnboard3;
 
+  /// No description provided for @falseFriendsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'False Friends'**
+  String get falseFriendsTitle;
+
+  /// No description provided for @falseFriendsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t get tricked — gift ≠ Gift, become ≠ bekommen'**
+  String get falseFriendsDescription;
+
+  /// No description provided for @falseFriendsPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'What does this English word really mean?'**
+  String get falseFriendsPrompt;
+
+  /// No description provided for @falseFriendsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No false-friend data available yet.'**
+  String get falseFriendsEmpty;
+
+  /// No description provided for @falseFriendsOnboard1.
+  ///
+  /// In en, this message translates to:
+  /// **'False friends are English words that look like a German word but mean something different — \"gift\" is not \"Gift\".'**
+  String get falseFriendsOnboard1;
+
+  /// No description provided for @falseFriendsOnboard2.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick the real German meaning. One choice is the look-alike trap!'**
+  String get falseFriendsOnboard2;
+
+  /// No description provided for @falseFriendsOnboard3.
+  ///
+  /// In en, this message translates to:
+  /// **'After each answer you\'ll see the real meaning and the trap explained.'**
+  String get falseFriendsOnboard3;
+
+  /// No description provided for @falseFriendsExplain.
+  ///
+  /// In en, this message translates to:
+  /// **'{english} = {correctMeaning} — not “{german}” ({germanMeans})!'**
+  String falseFriendsExplain(
+      String english, String correctMeaning, String german, String germanMeans);
+
   /// No description provided for @gameRoundComplete.
   ///
   /// In en, this message translates to:

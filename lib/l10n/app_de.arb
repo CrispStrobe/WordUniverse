@@ -658,6 +658,17 @@
     "phrasalVerbMatchOnboard1": "Ein Phrasal Verb wird gezeigt — manchmal mit einem Beispielsatz als Hilfe.",
     "phrasalVerbMatchOnboard2": "Tippe die passende Bedeutung. Die anderen Auswahlmöglichkeiten sind echte Bedeutungen anderer Phrasal Verbs.",
     "phrasalVerbMatchOnboard3": "Der Beispielsatz kann dir helfen, die Bedeutung zu erschließen.",
+    "falseFriendsTitle": "Falsche Freunde",
+    "falseFriendsDescription": "Lass dich nicht täuschen — gift ≠ Gift, become ≠ bekommen",
+    "falseFriendsPrompt": "Was bedeutet dieses englische Wort wirklich?",
+    "falseFriendsEmpty": "Noch keine Daten zu falschen Freunden verfügbar.",
+    "falseFriendsOnboard1": "Falsche Freunde sind englische Wörter, die wie ein deutsches Wort aussehen, aber etwas anderes bedeuten — \"gift\" ist nicht \"Gift\".",
+    "falseFriendsOnboard2": "Wähle die richtige deutsche Bedeutung. Eine Auswahl ist die Lookalike-Falle!",
+    "falseFriendsOnboard3": "Nach jeder Antwort siehst du die echte Bedeutung und die Falle erklärt.",
+    "falseFriendsExplain": "{english} = {correctMeaning} — nicht „{german}“ ({germanMeans})!",
+    "@falseFriendsExplain": {
+        "placeholders": { "english": { "type": "String" }, "correctMeaning": { "type": "String" }, "german": { "type": "String" }, "germanMeans": { "type": "String" } }
+    },
     "gameRoundComplete": "Runde geschafft!",
     "gameBack": "Zurück",
     "gamePlayAgain": "Nochmal spielen",
