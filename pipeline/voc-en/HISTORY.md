@@ -20,20 +20,25 @@ Added a `phrasal_verbs` table to `grundwortschatz_en.db` and an EN-only game.
 - `--extract` — set-based bulk queries (the `examples` table has **no index on
   sense_id**; per-entry queries were hours, bulk is seconds). → `phrasal_candidates_en.jsonl`
 - `--rank` — keep core-particle + `verb + particle` shape + base `word_type='verb'`
-  + not be/have; rank by base-verb zipf (from `words.frequency_json`); diversity
-  cap `--max-per-base 8` so get/come/go don't swamp; `--top 400`. 85 distinct
-  base verbs in the kept set. → `phrasal_ranked_en.jsonl`
-- `--grade` / `--check` — LLM grade-leveled sentences + kid meaning, reusing the
-  `add_llm_examples_en.py` `LLMClient` round-robin (Scaleway/Nebius/Mistral),
-  `response_format`, `GRADE_BATCH=1`, JSONL checkpoints. **Distractor particles
-  are generated WITHOUT an LLM** (other particles the same base verb really
-  forms phrasal verbs with).
-- `--load [--compress]` — idempotent rebuild of `phrasal_verbs`, writes the asset.
+  + not be/have/**kill**; drop PHRASAL_STOPLIST (`do in`); **dedupe by phrasal**;
+  rank by base-verb zipf (from `words.frequency_json`); diversity cap
+  `--max-per-base 8` so get/come/go don't swamp; `--top 400`. 87 distinct
+  base verbs, no dupes. → `phrasal_ranked_en.jsonl`
+  Content filter for K-6: `kill`-based + `do in` excluded; `die out/off/away`
+  kept (benign science / sound-fading vocab).
+- `--grade` / `--check` — **RAN 2026-05-29.** LLM grade-leveled sentences + kid
+  meaning, reusing the `add_llm_examples_en.py` `LLMClient` round-robin via
+  providers **nebius / scaleway / groq / openrouter**. OpenRouter was added by
+  a local `_llm_client()` subclass in `add_phrasal_verbs_en.py` — the shared
+  `add_llm_examples_en.py` was NOT modified. `LLMClient` needs `openai`; the
+  system python lacked it, so a throwaway `/tmp` venv was used. **Distractor
+  particles are generated WITHOUT an LLM.** `response_format`, `GRADE_BATCH=1`,
+  JSONL checkpoints (resume-safe; took 3 grade passes to reach 398/400).
+- `--load --compress` — idempotent rebuild of `phrasal_verbs`, writes the asset.
 
 ### Shipped
-- 400 phrasal verbs, 371 immediately playable via Wiktionary-example fallback.
-  **LLM grade pass not yet run** — run `--grade` → `--check` → `--load --compress`
-  to upgrade sentence quality and fill the rest.
+- 400 phrasal verbs (no dupes, content-filtered), **398 with LLM grade examples**,
+  2 on Wiktionary-example fallback.
 - Flutter: `PhrasalVerb` model → `DictionaryDatabaseService.getPhrasalVerbs()`
   → `VocabularyService.getPhrasalVerbs()` → `phrasal_verb_service.dart` → two
   EN-only games sharing the table:

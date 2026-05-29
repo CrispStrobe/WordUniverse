@@ -278,7 +278,12 @@ def _primary_meaning(glosses: list[str]) -> str:
 
 # Copula / auxiliary base verbs whose "phrasal verbs" (be on, have on, ...)
 # are mostly compositional and make poor game material — exclude them.
-BASE_VERB_STOPLIST = {"be", "have"}
+# `kill` is excluded on content grounds (K-6 audience). `die *` is kept —
+# "die out/off/away/down" are benign science / sound-fading vocab.
+BASE_VERB_STOPLIST = {"be", "have", "kill"}
+
+# Specific phrasal verbs excluded as inappropriate for a K-6 audience.
+PHRASAL_STOPLIST = {"do in"}  # = to murder / exhaust
 
 # Pool to pad distractors when the base verb doesn't form enough real
 # alternative phrasal verbs. Ordered by general frequency.
@@ -355,7 +360,8 @@ def rank(top: int, max_per_base: int) -> int:
         if len(r["phrasal"].split()) < 2:
             drop_shape += 1
             continue
-        if r["base_verb"].lower() in BASE_VERB_STOPLIST:
+        if (r["base_verb"].lower() in BASE_VERB_STOPLIST
+                or r["phrasal"].lower() in PHRASAL_STOPLIST):
             drop_aux += 1
             continue
         info = lookup(r["base_verb"])
@@ -384,11 +390,18 @@ def rank(top: int, max_per_base: int) -> int:
         })
     con.close()
 
+    # Dedupe by phrasal (a phrasal verb can have several Wiktionary entries;
+    # keep the first / highest-zipf one) so the game never repeats a verb.
+    ranked.sort(key=lambda x: x["base_zipf"], reverse=True)
+    seen_phrasal: set[str] = set()
+    ranked = [r for r in ranked
+              if r["phrasal"].lower() not in seen_phrasal
+              and not seen_phrasal.add(r["phrasal"].lower())]
+
     # Diversity-aware capping: a few base verbs (get/come/go) form dozens of
     # phrasal verbs and would otherwise swamp the set. Pass 1 takes up to
     # max_per_base of each (zipf order); pass 2 backfills any remaining slots
     # from the leftovers so we still hit `top`.
-    ranked.sort(key=lambda x: x["base_zipf"], reverse=True)
     per_base: dict[str, int] = {}
     capped, leftovers = [], []
     for r in ranked:
@@ -457,6 +470,28 @@ PHRASAL_MAX_WORDS = {"1": 8, "2": 8, "3": 11, "4": 11, "5": 14, "6": 14}
 _GRADE_KEYS = ("1", "2", "3", "4", "5", "6")
 
 
+def _llm_client():
+    """Build an LLMClient that adds OpenRouter to the inherited round-robin
+    WITHOUT modifying the shared add_llm_examples_en.py. nebius / scaleway /
+    groq come from the base PROVIDER_TABLE; OpenRouter is appended here.
+    Clear unused keys at the env, e.g.:
+        env CEREBRAS_API_KEY="" MISTRAL_API_KEY="" COHERE_API_KEY="" ...
+    """
+    from add_llm_examples_en import LLMClient as _BaseLLMClient
+
+    class _PhrasalLLMClient(_BaseLLMClient):
+        PROVIDER_TABLE = _BaseLLMClient.PROVIDER_TABLE + [
+            (
+                "OPENROUTER_API_KEY",
+                "https://openrouter.ai/api/v1",
+                "meta-llama/llama-3.3-70b-instruct",
+                "meta-llama/llama-3.3-70b-instruct",
+            ),
+        ]
+
+    return _PhrasalLLMClient()
+
+
 def _phrasal_present(sentence: str, phrasal: str) -> bool:
     """Loose check: the particle appears as a whole word (the verb may be
     inflected, so we don't insist on the exact base form)."""
@@ -486,7 +521,7 @@ def _valid_phrasal_block(block, phrasal: str):
 
 
 def run_grade(limit: int | None, dry_run: bool) -> int:
-    from add_llm_examples_en import LLMClient, parse_json, load_dotenv
+    from add_llm_examples_en import parse_json, load_dotenv
     load_dotenv()
 
     rows = _load_jsonl(RANKED_JSONL)
@@ -508,7 +543,7 @@ def run_grade(limit: int | None, dry_run: bool) -> int:
         print(f"  [dry-run] {len(todo)} calls; providers not contacted.")
         return 0
 
-    llm = LLMClient()
+    llm = _llm_client()
     ok = bad = 0
     for i, r in enumerate(todo, 1):
         user = (f'Phrasal verb: "{r["phrasal"]}"\n'
@@ -543,7 +578,7 @@ def run_grade(limit: int | None, dry_run: bool) -> int:
 # ---------------------------------------------------------------------------
 
 def run_check(dry_run: bool) -> int:
-    from add_llm_examples_en import LLMClient, parse_json, load_dotenv
+    from add_llm_examples_en import parse_json, load_dotenv
     load_dotenv()
 
     graded = {r["phrasal"]: r for r in _load_jsonl(GRADE_JSONL)}
@@ -569,7 +604,7 @@ def run_check(dry_run: bool) -> int:
         print(f"  [dry-run] {len(todo)} calls; providers not contacted.")
         return 0
 
-    llm = LLMClient()
+    llm = _llm_client()
     fixed = 0
     for r in todo:
         ph = r["phrasal"]
