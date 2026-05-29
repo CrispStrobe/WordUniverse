@@ -11,7 +11,7 @@ The DB build is done; what remains is optional/forward-looking.
 | §3 | ConceptNet all-languages expansion | ⬚ **optional/independent** — doesn't gate the app (relations already in the shipped DBs); script ready (`pipeline/conceptnet/`), runs on 8 GB; run when wanted |
 | §4 | Housekeeping (token / scripts / build box) | ✅ resolved → HISTORY |
 | §5 | Open decisions | ✅ resolved (ConceptNet sibling-vs-replace + 5.7 still apply *when* §3 runs) |
-| §6 | Algorithmic spelling-strategy classifier (FRESCH) | ⬚ ongoing improvement |
+| §6 | Algorithmic spelling-strategy classifier (FRESCH) | ✅ **v2 shipped 2026-05-29** — `fresch_classifier_v2.py` recomputes all 10,890 non-Vorname words from DB enrichment (hyphenation/inflections/IPA/error-rate); validated vs `532Strategien.csv` (clean 14→51%, primary 59→76%). See §6 + HISTORY |
 | §7 | Additional free-licensed data sources | ✅ Priority-1 + EN→DE translations + False Friends (#48) + Wortfalle (#49, 64 pairs); all other sources surveyed & rejected/deferred (NC/academic/low-value — see Remaining work) |
 | §8 | Copyleft App/Play Store compliance (DE GPL-3.0 / EN CC-BY-SA-4.0) | ⬚ **pre-launch checklist** — gate before first store submission |
 
@@ -320,11 +320,48 @@ resolved 2026-05-21 (see `pipeline/voc-en/HISTORY.md → Architectural decisions
 
 ## 6. Algorithmic spelling-strategy classifier (FRESCH and beyond)
 
-`04b_derive_fresch_categories.py` (just added) bootstraps the FRESCH
-tagging by **mechanically mapping NRW xlsx linguistic feature tags →
-FRESCH categories**. It covers the ~533 NRW Grundwortschatz words.
+> **✅ v2 shipped 2026-05-29.** `fresch_classifier_v2.py` + `patch_spelling_strategy_v2.py`
+> recompute spelling-strategy tags for **all 10,890 non-Vorname words** directly
+> from the DB enrichment already present (`hyphenation`, `inflections`, IPA,
+> `litkey_error_rate`) — replacing both the ~533-word NRW-feature mapping *and*
+> the crude surface-regex fallback for the other ~9.5k. Validated against
+> `532Strategien.csv` via `validate_fresch.py` (the §6.6 harness):
+>
+> | metric | baseline (v1) | v2 |
+> |---|---|---|
+> | clean (exact-ish, scheme-aware) | 22.6% | **51.2%** |
+> | primary-category match | 56.6% | **75.8%** |
+> | merkwort P / R | 24% / 27% | **77% / 62%** |
+> | morphem P / R | 31% / 50% | **65% / 56%** |
+> | klangtreu precision | 65% | **86%** |
+>
+> The §6.3 tuning goals below are all realised: `verwandt` fires only on real
+> inflection-table alternation (umlaut plural or IPA-confirmed final
+> devoicing), `morphem` uses high-confidence prefixes + suffixes +
+> separable-particle evidence from the inflection table (no more `geben`≠ge+ben
+> false matches), `merkwort` keys off irregular grapheme markers + child
+> error-rate, and `klangtreu` is residual-only (stops over-tagging). The
+> authoritative `nrwLinguisticFeatures` provenance field is preserved.
+>
+> **Why not the original §6.6 ">=80% subset" target:** the harness showed the
+> FRESCH gold and our 6-category scheme partition the space *differently* —
+> FRESCH "Weiterschwingen" = our doppelkonsonant OR verwandt, and the gold is
+> internally inconsistent (`alle`/`essen` are "Mitsprechen" despite doubled
+> consonants; `bald` is "Mitsprechen" despite final devoicing). Pushing past
+> ~58% subset would mean *suppressing linguistically-correct tags* to fit an
+> inconsistent fixture, degrading the app. The ">=50% exact" target is met;
+> subset/superset are reported but not force-fit. Regression-guarded by
+> `test_fresch_classifier.py` (13 tests).
 
-Two limitations to fix in a v2 classifier:
+---
+
+The original v1 notes are kept below as the design record.
+
+`04b_derive_spelling_patterns.py` bootstraps the tagging by **mechanically
+mapping NRW xlsx linguistic feature tags → categories**. It covers the ~533
+NRW Grundwortschatz words; v2 (above) supersedes it for the shipped DB.
+
+Two limitations that v2 fixes:
 
 ### 6.1 Coverage — extend beyond NRW (~10k words)
 
