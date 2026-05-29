@@ -286,8 +286,8 @@ existing 11‑lang Space keeps serving.
 
 ### 4.1 Rotate the leaked HF token
 
-`hf_REDACTED_ROTATED_TOKEN` was committed to VPS_2
-(`/root/.bash_history`) in plaintext via `export HF_TOKEN=...` and `./run_wiktionary_extract.sh`. Anyone who reads that file gets the token.
+`hf_***REDACTED***` was committed to VPS_2
+(`/root/.bash_history`) in plaintext via `export HF_TOKEN=...` and `./run_wiktionary_extract.sh`. Anyone who reads that file gets the token. **Token value redacted from these docs 2026-05-29; still present in git history — rotation on HF is the real fix.**
 
 Recovery:
 
