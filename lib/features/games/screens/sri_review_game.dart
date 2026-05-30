@@ -163,8 +163,19 @@ class _SriReviewGameState extends State<SriReviewGame>
   }
 
   void _buildChallenges() {
-    // Fetch more than needed so we can skip words without valid challenges.
-    final sriItems = _sriService.getMostDifficultItems(limit: _targetRounds * 2);
+    // Respect spaced repetition: prefer items that are actually DUE
+    // (getItemsForReview excludes mastered/not-yet-due), ranked by difficulty.
+    // Only fall back to hardest-overall when nothing is due, so the game stays
+    // playable but doesn't resurface the same low-EF words every session.
+    final dueIds =
+        _sriService.getItemsForReview(limit: _targetRounds * 4).toSet();
+    var sriItems = _sriService
+        .getMostDifficultItems(limit: _targetRounds * 4)
+        .where((d) => dueIds.contains(d.itemId))
+        .toList();
+    if (sriItems.isEmpty) {
+      sriItems = _sriService.getMostDifficultItems(limit: _targetRounds * 2);
+    }
     if (sriItems.isEmpty) {
       setState(() => _isLoading = false);
       return;
@@ -325,7 +336,10 @@ class _SriReviewGameState extends State<SriReviewGame>
       _correct++;
       _sriService.recordResponse(
         skillType: challenge.sriData.skillType,
-        baseWord: challenge.word.word,
+        // Use the base recovered from the item's own id so we UPDATE the
+        // reviewed item rather than create a new lemma-keyed duplicate (the
+        // word may have been matched via its lemma, not its surface form).
+        baseWord: _baseWordFromId(challenge.sriData),
         wasCorrect: true,
       );
     } else {
@@ -334,7 +348,7 @@ class _SriReviewGameState extends State<SriReviewGame>
       _shakeCtrl.forward(from: 0).then((_) => _shakeCtrl.reverse());
       _sriService.recordResponse(
         skillType: challenge.sriData.skillType,
-        baseWord: challenge.word.word,
+        baseWord: _baseWordFromId(challenge.sriData),
         wasCorrect: false,
       );
     }

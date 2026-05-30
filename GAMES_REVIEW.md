@@ -17,7 +17,15 @@
   VERIFIED FALSE ALARM**: wortbaumeister/verbtrenner/grossstadt all set
   `_feedbackState` synchronously in both `_handleChoice` and `_handleMiss`, and
   `stop()` completes the TickerFuture immediately — no double-count possible.
-- Next: Tier 3 (SRI integrity C10 + label mislabel C11).
+- **2026-05-30 — Tier 3 done & committed:** C11 label — `gameCorrectOfTotal`
+  now uses `_total` (answered count) not `_index+1` in false_friends, wortfalle,
+  phrasal_match, phrasal_power ✓ (homophone/conjugation use hardcoded strings →
+  Tier 4). C10 sri_review — now pulls the DUE queue (`getItemsForReview`,
+  excludes mastered/not-due) ranked by difficulty, falls back to hardest-overall
+  only when nothing's due ✓; records via the item's recovered base id so it
+  UPDATES the reviewed item instead of creating a lemma-keyed duplicate ✓.
+  (word_builder/word_find/verbtrenner SRI-keying consistency → deferred to Tier 6.)
+- Next: Tier 4 (i18n C1 + a11y C8) — the largest, most mechanical tier.
 
 ---
 
