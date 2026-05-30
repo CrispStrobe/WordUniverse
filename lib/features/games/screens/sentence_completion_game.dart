@@ -71,8 +71,6 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
 
   final _rng = Random();
 
-  bool get _isDE => _vocabularyService.learningLanguage == 'de';
-
   @override
   void initState() {
     super.initState();
@@ -231,12 +229,18 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
         caseSensitive: false);
     var m = exact.firstMatch(sentence);
 
-    // Fall back to starts-with match for inflected forms
+    // Fall back to starts-with match for inflected forms, but only accept a
+    // short suffix (German inflection endings are ≤3 chars: -e/-en/-es/-er/-em
+    // /-s/-st…). Prevents blanking an unrelated longer word, e.g. target
+    // "Hund" wrongly matching "Hunderte".
     if (m == null) {
       final prefix = RegExp(
           r'\b' + RegExp.escape(word) + r'\w*',
           caseSensitive: false);
-      m = prefix.firstMatch(sentence);
+      final pm = prefix.firstMatch(sentence);
+      if (pm != null && (pm.end - pm.start) <= word.length + 3) {
+        m = pm;
+      }
     }
 
     if (m == null) return null;
@@ -244,10 +248,10 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
   }
 
   String _displayOption(GermanWord w) {
-    if (_isDE && w.wordType == GermanWordType.substantiv &&
-        w.article != null && w.article!.isNotEmpty) {
-      return '${w.article} ${w.word}';
-    }
+    // Do NOT prepend the article here: the cloze sentence already supplies the
+    // article in its correct grammatical case ("Ich sehe den ___"), so adding
+    // the nominative "der/die/das" would both clash with that case and double
+    // the article. Show the bare noun.
     return w.word;
   }
 

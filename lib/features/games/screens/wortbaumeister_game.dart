@@ -222,24 +222,33 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
   }
 
   CompoundSplit? _findValidCompoundSplit(String word, Map<String, GermanWord> nounMap) {
+    // Collect every split where both halves are real DB nouns (≥4 chars each),
+    // then pick the most BALANCED one (largest min-part-length). Returning the
+    // first match favoured a tiny coincidental modifier and produced wrong
+    // decompositions; balanced splits track real compound boundaries better.
+    CompoundSplit? best;
+    int bestScore = -1;
     for (int i = 4; i < word.length - 3; i++) {
-      String p1 = word.substring(0, i);
-      String p2 = word.substring(i);
-      String p1Lower = p1.toLowerCase();
-      String p2Lower = p2.toLowerCase();
+      final String p1 = word.substring(0, i);
+      final String p2 = word.substring(i);
+      final String p1Lower = p1.toLowerCase();
+      final String p2Lower = p2.toLowerCase();
 
-      if (_isValidNoun(p1Lower, nounMap) && _isValidNoun(p2Lower, nounMap)) {
-        return CompoundSplit(part1: p1, part2: p2, difficulty: 1);
+      bool valid = _isValidNoun(p1Lower, nounMap) && _isValidNoun(p2Lower, nounMap);
+      // Allow a single Fugen-s on the modifier (Geburts+tag).
+      if (!valid && p1Lower.endsWith('s')) {
+        valid = _isValidNoun(p1Lower.substring(0, p1Lower.length - 1), nounMap) &&
+            _isValidNoun(p2Lower, nounMap);
       }
-
-      if (p1Lower.endsWith('s')) {
-        String p1NoS = p1Lower.substring(0, p1Lower.length - 1);
-        if (_isValidNoun(p1NoS, nounMap) && _isValidNoun(p2Lower, nounMap)) {
-           return CompoundSplit(part1: p1, part2: p2, difficulty: 1);
+      if (valid) {
+        final score = p1.length < p2.length ? p1.length : p2.length;
+        if (score > bestScore) {
+          bestScore = score;
+          best = CompoundSplit(part1: p1, part2: p2, difficulty: 1);
         }
       }
     }
-    return null;
+    return best;
   }
 
   bool _isValidNoun(String key, Map<String, GermanWord> map) {

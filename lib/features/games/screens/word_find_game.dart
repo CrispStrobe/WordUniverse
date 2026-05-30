@@ -325,19 +325,28 @@ class _WordFindGameState extends State<WordFindGame> {
           _foundCells.addAll(_selectedCells);
         });
 
-        // Find the original GermanWord to record in SRI
-        final originalWord = _wordsToFind.firstWhere(
-            (w) => w.word.toUpperCase() == placedWord.word);
+        // Find the original GermanWord to record in SRI. Compare against the
+        // same space-stripped+uppercased form used to build the grid, and
+        // tolerate a miss (no StateError crash on an unexpected mismatch).
+        GermanWord? originalWord;
+        for (final w in _wordsToFind) {
+          if (w.word.replaceAll(' ', '').toUpperCase() == placedWord.word) {
+            originalWord = w;
+            break;
+          }
+        }
 
-        _sriService.recordResponse(
-          skillType: LanguageSkillType.vocabulary,
-          baseWord: originalWord.word,
-          wasCorrect: true,
-          metadata: {
-            'gradeLevel': originalWord.gradeLevel,
-            'wordType': originalWord.wordType.toString(),
-          },
-        );
+        if (originalWord != null) {
+          _sriService.recordResponse(
+            skillType: LanguageSkillType.vocabulary,
+            baseWord: originalWord.word,
+            wasCorrect: true,
+            metadata: {
+              'gradeLevel': originalWord.gradeLevel,
+              'wordType': originalWord.wordType.toString(),
+            },
+          );
+        }
 
         // Check for game over
         if (_foundWords.length == _placedWords.length) {

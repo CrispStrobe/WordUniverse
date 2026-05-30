@@ -338,12 +338,22 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
       return;
     }
 
-    final validTypes = _wordTypes.keys
+    // Prefer types with a healthy pool (>=5); fall back to a lower threshold
+    // so a sparse grade still yields a round rather than hanging forever.
+    var validTypes = _wordTypes.keys
         .where((type) => _wordPool.where((w) => w.wordType == type).length >= 5)
         .toList();
+    if (validTypes.isEmpty) {
+      validTypes = _wordTypes.keys
+          .where((type) => _wordPool.where((w) => w.wordType == type).length >= 2)
+          .toList();
+    }
 
     if (validTypes.isEmpty) {
-       return;
+      // Nothing playable — end gracefully instead of leaving an empty whirl
+      // with no round, no spawn timer, and no game-over.
+      if (mounted) _showGameOver();
+      return;
     }
 
     validTypes.shuffle();

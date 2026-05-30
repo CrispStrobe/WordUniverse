@@ -180,7 +180,7 @@ class _ReverseTranslationFlashGameState
     final pool = gradePool.length >= 10 ? gradePool : allWords;
     pool.shuffle(_rng);
 
-    final dePool = allWords.map((w) => w.word).toList()..shuffle(_rng);
+    final dePool = allWords.toList()..shuffle(_rng);
 
     final challenges = <_ReverseChallenge>[];
     for (final word in pool) {
@@ -204,19 +204,24 @@ class _ReverseTranslationFlashGameState
     _startTimer();
   }
 
-  _ReverseChallenge? _buildChallenge(GermanWord word, List<String> dePool) {
+  _ReverseChallenge? _buildChallenge(GermanWord word, List<GermanWord> dePool) {
     final enPrompt = _primaryEnTranslation(word);
     if (enPrompt == null) return null;
 
+    final answerEn = enPrompt.toLowerCase();
     final distractors = <String>[];
-    for (final d in dePool) {
+    for (final cand in dePool) {
       if (distractors.length >= _optionCount - 1) break;
-      if (d.toLowerCase() != word.word.toLowerCase() &&
-          !distractors.any((x) => x.toLowerCase() == d.toLowerCase())) {
-        distractors.add(d);
+      if (cand.word.toLowerCase() == word.word.toLowerCase()) continue;
+      // Skip distractors that ALSO translate the shown English word
+      // (e.g. Frau/Ehefrau both → "wife") — they'd be wrong-but-valid.
+      if (_primaryEnTranslation(cand)?.toLowerCase() == answerEn) continue;
+      if (distractors.any((x) => x.toLowerCase() == cand.word.toLowerCase())) {
+        continue;
       }
+      distractors.add(cand.word);
     }
-    if (distractors.isEmpty) return null;
+    if (distractors.length < _optionCount - 1) return null;
 
     final options = [word.word, ...distractors.take(_optionCount - 1)];
     options.shuffle(_rng);

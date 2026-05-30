@@ -211,12 +211,20 @@ class _HypernymFlashGameState extends State<HypernymFlashGame>
     final correct = _pickHypernym(word);
     if (correct == null) return null;
 
+    // Exclude EVERY hypernym of this word from the distractor pool, not just
+    // the chosen `correct` — a word often has several valid hypernyms, and any
+    // of them appearing as a "wrong" option would actually be correct.
+    final ownHypernyms = (word.apiEnrichment?.hypernyms ?? [])
+        .map((h) => (h.word ?? '').trim().toLowerCase())
+        .where((s) => s.isNotEmpty)
+        .toSet();
+
     final distractors = <String>[];
     for (final h in hypernymPool) {
       if (distractors.length >= _optionCount - 1) break;
-      if (h.toLowerCase() != correct.toLowerCase() &&
-          !distractors
-              .any((d) => d.toLowerCase() == h.toLowerCase())) {
+      final hl = h.toLowerCase();
+      if (!ownHypernyms.contains(hl) &&
+          !distractors.any((d) => d.toLowerCase() == hl)) {
         distractors.add(h);
       }
     }

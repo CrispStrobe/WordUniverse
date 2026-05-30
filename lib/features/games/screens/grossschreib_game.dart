@@ -203,8 +203,13 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
 
     _log('Total words with examples: ${allWords.length}');
 
-    // Separate by type
-    final nouns = allWords.where((w) => w.wordType == GermanWordType.substantiv).toList();
+    // Separate by type. Exclude proper nouns: they're stored as `substantiv`
+    // but are capitalized because they're names, not because of the
+    // "Nomen werden großgeschrieben" rule this game teaches — presenting them
+    // under that rule teaches the wrong reason.
+    final nouns = allWords
+        .where((w) => w.wordType == GermanWordType.substantiv && !w.isProperNoun)
+        .toList();
     final verbs = allWords.where((w) => w.wordType == GermanWordType.verb).toList();
     final adjectives = allWords.where((w) => w.wordType == GermanWordType.adjektiv).toList();
 

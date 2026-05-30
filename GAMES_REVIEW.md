@@ -1,5 +1,21 @@
 # Games review — findings & fix tracker
 
+## Progress log
+- **2026-05-30 — Tier 1 (crashes/hangs/mis-teaching) done & committed:**
+  word_find `firstWhere` crash (+ space-strip match) ✓ · space_word_rescue
+  `words.first` crash ✓ · word_type_whirl empty-validTypes hang ✓ · hypernym
+  exclude-all-hypernyms ✓ · definition_quiz def-leak + double-shuffle ✓ ·
+  conjugation plural==infinitive giveaway ✓ · grossstadt malformed nominalization
+  (now skips unsafe -e/-el/-er) ✓ · grossschreib proper-noun filter ✓ (DE-guard
+  moot: menu-gated) · sentence_completion blank-suffix bound + drop wrong-case
+  article ✓ · reverse_translation reverse-synonym guard (+ thin-pool) ✓ ·
+  wortbaumeister most-balanced compound split ✓ · verbtrenner mapping
+  **verified correct, not a bug**.
+- Next: Tier 2 (thin-pool C5 + falling-timer race C6).
+
+---
+
+
 Source: 11 parallel read-only reviewer agents, one family per agent, every game
 reviewed individually (2026-05-30). Severity: **[H]** correctness/crash/mis-teach,
 **[M]** pedagogy/UX/i18n, **[L]** nit/quality. Check the box when fixed.
@@ -142,8 +158,8 @@ reviewed individually (2026-05-30). Severity: **[H]** correctness/crash/mis-teac
 - [ ] [L] :162 always same hardest-10 (no shuffle within tier); [L] :251 options can be <4
 
 **grossschreib_game.dart**
-- [ ] [H] no DE-language guard → EN words taught German caps rule
-- [ ] [H] :207 proper nouns classed `substantiv`, no `isProperNoun` filter → mis-teach
+- [x] [H] no DE-language guard — **moot**: game is menu-gated to `['de']`, not reachable in EN mode
+- [x] [H] :207 proper nouns classed `substantiv`, no `isProperNoun` filter → **fixed** (added `!w.isProperNoun`)
 - [ ] [H] :411 `isAtStart = wordIndex < 3` fragile → detect via trimmed `beforeWord` terminator
 - [ ] [M] :576 `_totalItems` stays 25 though queue often shorter → set to queue length
 - [ ] [M] :98 `_log` arg strings built in all builds → guard call sites
@@ -172,8 +188,8 @@ reviewed individually (2026-05-30). Severity: **[H]** correctness/crash/mis-teac
 - [ ] [L] :600 `height-400` magic can go negative → clamp
 
 **verbtrenner_game.dart**
-- [ ] [H] :996 button→answer mapping INVERTED vs wortbaumeister → use named enum
-- [ ] [H] :273 RULE2 infixed `zu` split wrong (aufzustehen)
+- [x] [H] :996 button→answer mapping — **VERIFIED CORRECT (not a bug)**: `_handleChoice(chooseSeparated)` compares to `shouldBeSeparated`; sibling uses `chooseTogether`/`shouldBeTogether`. Different param semantics, each internally consistent. Optional: named enum (Tier 7).
+- [ ] [L] :273 RULE2 infixed `zu` split is only a cosmetic display split; the `zusammen` label is correct → defer to Tier 6
 - [ ] [H] :379 falling-timer race (C6)
 - [ ] [M] :759 large dead code (`_buildVerbParts`/`_buildSinglePart`) → single forms render as 2 blocks
 - [ ] [M] :167 grade filter always +3 above player
