@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: [main]
 
+# Only one run per ref at a time; a newer push cancels the older in-progress
+# run so rapid pushes don't create racing production deploys.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     name: Analyze, test & build
