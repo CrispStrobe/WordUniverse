@@ -157,6 +157,36 @@ abstract class S {
   /// **'View open-source licenses'**
   String get viewOssLicenses;
 
+  /// No description provided for @downloadDbTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'First-time setup'**
+  String get downloadDbTitle;
+
+  /// No description provided for @downloadDbMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The German word database (about {size}) will be downloaded once and saved on your device for offline use.'**
+  String downloadDbMessage(String size);
+
+  /// No description provided for @downloadDbConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Download'**
+  String get downloadDbConfirm;
+
+  /// No description provided for @downloadDbCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get downloadDbCancel;
+
+  /// No description provided for @downloadDbDeclined.
+  ///
+  /// In en, this message translates to:
+  /// **'The German word database is needed to continue. Tap Retry to download it, or switch to English in Settings.'**
+  String get downloadDbDeclined;
+
   /// No description provided for @appName.
   ///
   /// In en, this message translates to:

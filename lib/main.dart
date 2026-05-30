@@ -463,17 +463,32 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
       await _updateProgress(0.0, s.preparingSpaceStation, s.preparingMission);
       
       if (mounted) {
-        await context.read<VocabularyService>().initialize(
-          onProgress: (vocabProgress, vocabMessage) {
-            // Map vocabulary progress (0.0-1.0) to overall progress (0.0-0.6)
-            final overallProgress = vocabProgress * 0.6;
-            _updateProgress(
-              overallProgress,
-              s.preparingSpaceStation,
-              vocabMessage,
-            );
-          },
-        );
+        final vocab = context.read<VocabularyService>();
+        // Apple App Store Review Guidelines §2.4.2 / §4.2.3: disclose the size
+        // and prompt before downloading resources on first launch. The German
+        // DB (GPL-3.0, intentionally not bundled — see db_remote.dart) is
+        // fetched here; ask the user first, once, when it isn't yet cached.
+        final dl = await vocab.remoteDownloadInfo();
+        if (dl.consentRequired && mounted) {
+          final approved = await _confirmDatabaseDownload(s, dl.compressedBytes);
+          if (approved != true) {
+            // Surface the existing retry dialog with a clear message.
+            throw StateError(s.downloadDbDeclined);
+          }
+        }
+        if (mounted) {
+          await vocab.initialize(
+            onProgress: (vocabProgress, vocabMessage) {
+              // Map vocabulary progress (0.0-1.0) to overall progress (0.0-0.6)
+              final overallProgress = vocabProgress * 0.6;
+              _updateProgress(
+                overallProgress,
+                s.preparingSpaceStation,
+                vocabMessage,
+              );
+            },
+          );
+        }
       }
 
       // PHASE 2: Progress Service (0.6 - 0.7)
@@ -572,6 +587,42 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
         );
       }
     }
+  }
+
+  /// First-launch consent dialog for the German DB download. Returns true if
+  /// the user approved. Discloses the download size (Apple §2.4.2/§4.2.3).
+  Future<bool?> _confirmDatabaseDownload(S s, int? compressedBytes) {
+    final sizeLabel = compressedBytes != null
+        ? '${(compressedBytes / (1024 * 1024)).round()} MB'
+        : '~25 MB';
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: SpaceTheme.deepSpace,
+        title: Text(
+          s.downloadDbTitle,
+          style: SpaceTheme.headlineStyle.copyWith(fontSize: 18),
+        ),
+        content: Text(
+          s.downloadDbMessage(sizeLabel),
+          style: SpaceTheme.bodyStyle,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(s.downloadDbCancel, style: SpaceTheme.bodyStyle),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(
+              s.downloadDbConfirm,
+              style: SpaceTheme.buttonStyle.copyWith(color: SpaceTheme.starYellow),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _updateProgress(double progress, String message, [String detail = '']) async {

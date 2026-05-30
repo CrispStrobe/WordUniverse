@@ -7,9 +7,10 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:archive/archive_io.dart';
+import 'db_remote.dart';
 
 /// Top-level entry point for [compute]. Runs in a background isolate so the
-/// ~14MB gzip → ~50MB decompression doesn't block the UI thread.
+/// ~25MB gzip → ~150MB decompression doesn't block the UI thread.
 List<int> _decodeGzipBytes(Uint8List bytes) {
   return GZipDecoder().decodeBytes(bytes);
 }
@@ -17,6 +18,10 @@ List<int> _decodeGzipBytes(Uint8List bytes) {
 Future<Database> initPlatformDatabase({
   required String assetPath,
   required String databaseName,
+  String? remoteUrl,
+  int? expectedCompressedBytes,
+  int? expectedDecompressedBytes,
+  String? expectedDecompressedSha256,
   void Function(double progress, String message)? onProgress,
 }) async {
   try {
@@ -72,25 +77,38 @@ Future<Database> initPlatformDatabase({
     onProgress?.call(0.10, 'Preparing storage...');
     await Directory(dirname(path)).create(recursive: true);
 
-    // PHASE 4: Load compressed asset (0.10 - 0.20)
-    onProgress?.call(0.15, 'Loading compressed database from assets...');
-    final ByteData data = await rootBundle.load(assetPath);
-    final Uint8List compressedBytes = data.buffer.asUint8List();
+    // PHASE 4: Obtain compressed bytes — download (GPL DE DB) or asset (0.10 - 0.55)
+    final Uint8List compressedBytes;
+    if (remoteUrl != null && remoteUrl.isNotEmpty) {
+      if (kDebugMode) debugPrint("[DB_MOBILE] Downloading database from: $remoteUrl");
+      compressedBytes = await downloadCompressedDb(
+        url: remoteUrl,
+        expectedCompressedBytes: expectedCompressedBytes,
+        // Download occupies the bulk of first-launch time → map to 0.10-0.55.
+        onProgress: (p, m) => onProgress?.call(0.10 + p * 0.45, m),
+      );
+    } else {
+      onProgress?.call(0.15, 'Loading compressed database from assets...');
+      final ByteData data = await rootBundle.load(assetPath);
+      compressedBytes = data.buffer.asUint8List();
+    }
     final compressedSizeMB =
         (compressedBytes.length / (1024 * 1024)).toStringAsFixed(1);
 
-    if (kDebugMode) debugPrint("[DB_MOBILE] Loaded $compressedSizeMB MB compressed data");
-    onProgress?.call(0.20, 'Loaded $compressedSizeMB MB compressed data');
+    if (kDebugMode) debugPrint("[DB_MOBILE] Have $compressedSizeMB MB compressed data");
+    onProgress?.call(0.55, 'Loaded $compressedSizeMB MB compressed data');
 
-    // PHASE 5: Decompress (0.20 - 0.80) - THIS IS THE LONG PART
+    // PHASE 5: Decompress (0.55 - 0.80) - THIS IS THE LONG PART
     if (kDebugMode) debugPrint("[DB_MOBILE] Starting decompression on background isolate...");
-    onProgress?.call(0.25, 'Decompressing database...');
+    onProgress?.call(0.60, 'Decompressing database...');
 
     final stopwatch = Stopwatch()..start();
     final List<int> decompressedBytes;
     try {
       // Offload sync gzip decode to a background isolate so the splash
-      // animation keeps running smoothly during the ~50MB decompression.
+      // animation keeps running smoothly during the ~150MB decompression.
+      // gzip's CRC-32 trailer validates the payload here — a corrupt/truncated
+      // download throws instead of yielding garbage.
       decompressedBytes = await compute(_decodeGzipBytes, compressedBytes);
 
       final decompressedSizeMB =
@@ -101,8 +119,22 @@ Future<Database> initPlatformDatabase({
     } catch (e) {
       if (kDebugMode) debugPrint("[DB_MOBILE] ❌ Decompression error: $e");
       onProgress?.call(0.0, 'Decompression failed: $e');
+      // A failed gzip decode on a downloaded file means corruption.
+      if (remoteUrl != null && remoteUrl.isNotEmpty) {
+        throw DbDownloadException(
+          'The downloaded database was corrupted (decompression failed). '
+          'Please check your connection and try again.',
+        );
+      }
       rethrow;
     }
+
+    // Integrity gate over the decompressed bytes (hard size; soft sha256).
+    verifyDecompressedDb(
+      decompressedBytes,
+      expectedDecompressedBytes: expectedDecompressedBytes,
+      expectedDecompressedSha256: expectedDecompressedSha256,
+    );
 
     // PHASE 6: Write to disk (0.80 - 0.90)
     onProgress?.call(0.85, 'Writing database to storage...');

@@ -15,6 +15,44 @@ import '../models/vocabulary_models.dart';
 import 'sri_service.dart';
 import 'dictionary_database_service.dart';
 
+/// Where a language's compressed vocabulary DB comes from. The English DB is
+/// CC-BY-SA-4.0 and stays bundled as an asset for instant first launch. The
+/// German DB is GPL-3.0 (it includes data derived from childLex) and is
+/// intentionally NOT bundled in any store binary — it is downloaded once on
+/// first launch from the GPL-compliant Hugging Face dataset and cached. See
+/// db_remote.dart for the licensing rationale (the VLC-on-App-Store / FairPlay
+/// DRM conflict) and the integrity policy.
+class _DbSource {
+  final String databaseName;
+  final String? assetPath; // bundled (EN); null when remote-only
+  final String? remoteUrl; // HF resolve URL (DE); null when asset-only
+  final int? expectedCompressedBytes;
+  final int? expectedDecompressedBytes;
+  final String? expectedDecompressedSha256;
+  const _DbSource({
+    required this.databaseName,
+    this.assetPath,
+    this.remoteUrl,
+    this.expectedCompressedBytes,
+    this.expectedDecompressedBytes,
+    this.expectedDecompressedSha256,
+  });
+}
+
+/// Result of [VocabularyService.remoteDownloadInfo]: whether the next
+/// initialize() for a language would trigger a first-time remote download the
+/// user should consent to, and how big it is (compressed bytes) for disclosure.
+/// Apple App Store Review Guidelines §2.4.2/§4.2.3 require disclosing the size
+/// and prompting before downloading resources on first launch.
+class RemoteDownloadInfo {
+  final bool consentRequired;
+  final int? compressedBytes;
+  const RemoteDownloadInfo({
+    required this.consentRequired,
+    this.compressedBytes,
+  });
+}
+
 class VocabularyService with ChangeNotifier {
   // In-memory cache for fast game logic access
   Map<String, GermanWord> _vocabulary = {};
@@ -29,9 +67,25 @@ class VocabularyService with ChangeNotifier {
   static const _setsStorageKey = 'vocabulary_sets';
   static const _customWordsKey = 'custom_words';
   static const _learningLanguageKey = 'learning_language';
-  static const _dbAssets = {
-    'de': 'assets/grundwortschatz.db.gz',
-    'en': 'assets/grundwortschatz_en.db.gz',
+  // Integrity pins for the downloaded German DB. If the German DB is ever
+  // rebuilt and re-uploaded to Hugging Face, update expectedCompressedBytes
+  // (compressed size) and expectedDecompressedSha256 (sha256 of the .db). The
+  // sha256 is a soft check (logged, not fatal — see db_remote.dart), so a
+  // forgotten bump degrades gracefully rather than bricking first launch.
+  static const _dbSources = <String, _DbSource>{
+    'de': _DbSource(
+      databaseName: 'grundwortschatz.db',
+      remoteUrl:
+          'https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/main/grundwortschatz.db.gz',
+      expectedCompressedBytes: 26619920,
+      expectedDecompressedBytes: 156913664,
+      expectedDecompressedSha256:
+          'c66e3b49192694c00d7c2a171562ac8fe4f54c05d986adb0ebf276f141aa00df',
+    ),
+    'en': _DbSource(
+      databaseName: 'grundwortschatz_en.db',
+      assetPath: 'assets/grundwortschatz_en.db.gz',
+    ),
   };
 
   bool _isInitialized = false;
@@ -54,7 +108,7 @@ class VocabularyService with ChangeNotifier {
     void Function(double progress, String message)? onProgress,
   }) async {
     final requestedLanguage = learningLanguage ?? await _loadLearningLanguage();
-    if (!_dbAssets.containsKey(requestedLanguage)) {
+    if (!_dbSources.containsKey(requestedLanguage)) {
       throw ArgumentError.value(
         requestedLanguage,
         'learningLanguage',
@@ -76,9 +130,14 @@ class VocabularyService with ChangeNotifier {
     try {
       // 1. Initialize DB with progress tracking
       onProgress?.call(0.0, 'Preparing vocabulary database...');
+      final source = _dbSources[_learningLanguage]!;
       await _dbService.initialize(
-        assetPath: _dbAssets[_learningLanguage]!,
-        databaseName: _dbNameForLanguage(_learningLanguage),
+        assetPath: source.assetPath ?? '',
+        databaseName: source.databaseName,
+        remoteUrl: source.remoteUrl,
+        expectedCompressedBytes: source.expectedCompressedBytes,
+        expectedDecompressedBytes: source.expectedDecompressedBytes,
+        expectedDecompressedSha256: source.expectedDecompressedSha256,
         onProgress: (dbProgress, dbMessage) {
           // Map DB progress (0.0-1.0) to vocabulary service progress (0.0-0.6)
           onProgress?.call(dbProgress * 0.6, dbMessage);
@@ -106,6 +165,12 @@ class VocabularyService with ChangeNotifier {
       onProgress?.call(1.0, 'Ready!');
       _isInitialized = true;
       _initError = null;
+      // Remember that a remotely-downloaded DB is now cached, so we don't
+      // re-prompt for consent on subsequent launches.
+      if (source.remoteUrl != null) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool(_downloadedFlagKey(_learningLanguage), true);
+      }
       _log('✅ Vocabulary service initialized with ${_vocabulary.length} words');
       notifyListeners();
     } catch (e) {
@@ -117,19 +182,36 @@ class VocabularyService with ChangeNotifier {
     }
   }
 
+  static String _downloadedFlagKey(String language) =>
+      'db_downloaded_$language';
+
+  /// Whether starting [language] (or the saved language) would trigger a
+  /// first-time remote DB download, plus its size for disclosure. Returns
+  /// `consentRequired: false` for bundled languages (e.g. English) and for a
+  /// remote language whose DB is already cached on this device.
+  Future<RemoteDownloadInfo> remoteDownloadInfo({String? language}) async {
+    final lang = language ?? await _loadLearningLanguage();
+    final source = _dbSources[lang];
+    if (source?.remoteUrl == null) {
+      return const RemoteDownloadInfo(consentRequired: false);
+    }
+    final prefs = await SharedPreferences.getInstance();
+    final alreadyDownloaded =
+        prefs.getBool(_downloadedFlagKey(lang)) ?? false;
+    return RemoteDownloadInfo(
+      consentRequired: !alreadyDownloaded,
+      compressedBytes: source!.expectedCompressedBytes,
+    );
+  }
+
   Future<String> _loadLearningLanguage() async {
     final prefs = await SharedPreferences.getInstance();
     final language = prefs.getString(_learningLanguageKey) ?? 'de';
-    return _dbAssets.containsKey(language) ? language : 'de';
-  }
-
-  String _dbNameForLanguage(String language) {
-    if (language == 'de') return 'grundwortschatz.db';
-    return 'grundwortschatz_$language.db';
+    return _dbSources.containsKey(language) ? language : 'de';
   }
 
   Future<void> setLearningLanguage(String language) async {
-    if (!_dbAssets.containsKey(language)) {
+    if (!_dbSources.containsKey(language)) {
       throw ArgumentError.value(
         language,
         'language',

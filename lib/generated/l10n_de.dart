@@ -39,6 +39,24 @@ class SDe extends S {
   String get viewOssLicenses => 'Zeige die open-source Lizenzen';
 
   @override
+  String get downloadDbTitle => 'Ersteinrichtung';
+
+  @override
+  String downloadDbMessage(String size) {
+    return 'Die deutsche Wörter-Datenbank (etwa $size) wird einmalig heruntergeladen und für die Offline-Nutzung auf deinem Gerät gespeichert.';
+  }
+
+  @override
+  String get downloadDbConfirm => 'Herunterladen';
+
+  @override
+  String get downloadDbCancel => 'Jetzt nicht';
+
+  @override
+  String get downloadDbDeclined =>
+      'Die deutsche Wörter-Datenbank wird zum Fortfahren benötigt. Tippe auf Wiederholen, um sie herunterzuladen, oder wechsle in den Einstellungen zu Englisch.';
+
+  @override
   String get appName => 'Wort-Universum';
 
   @override

@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:archive/archive_io.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
+import 'db_remote.dart';
 
 /// Top-level entry point passed to [compute]. On mobile/desktop this runs in
 /// a background isolate; on web `compute` falls back to the main thread but
@@ -16,6 +17,10 @@ List<int> _decodeGzipBytes(Uint8List bytes) {
 Future<Database> initPlatformDatabase({
   required String assetPath,
   required String databaseName,
+  String? remoteUrl,
+  int? expectedCompressedBytes,
+  int? expectedDecompressedBytes,
+  String? expectedDecompressedSha256,
   void Function(double progress, String message)? onProgress,
 }) async {
   try {
@@ -55,21 +60,33 @@ Future<Database> initPlatformDatabase({
       // Continue with extraction
     }
 
-    // PHASE 3: Load compressed asset (0.15 - 0.25)
-    onProgress?.call(0.15, 'Loading compressed database...');
-    if (kDebugMode) debugPrint("[DB_WEB] Loading compressed asset...");
-
-    final ByteData data = await rootBundle.load(assetPath);
-    final Uint8List compressedBytes = data.buffer.asUint8List();
+    // PHASE 3: Obtain compressed bytes — download (GPL DE DB) or asset (0.15 - 0.55)
+    final Uint8List compressedBytes;
+    if (remoteUrl != null && remoteUrl.isNotEmpty) {
+      if (kDebugMode) debugPrint("[DB_WEB] Downloading database from: $remoteUrl");
+      // package:http on web buffers the body (no incremental stream), so
+      // progress jumps once the fetch completes — acceptable for a one-time
+      // first-launch download that's then cached in IndexedDB.
+      compressedBytes = await downloadCompressedDb(
+        url: remoteUrl,
+        expectedCompressedBytes: expectedCompressedBytes,
+        onProgress: (p, m) => onProgress?.call(0.15 + p * 0.40, m),
+      );
+    } else {
+      onProgress?.call(0.15, 'Loading compressed database...');
+      if (kDebugMode) debugPrint("[DB_WEB] Loading compressed asset...");
+      final ByteData data = await rootBundle.load(assetPath);
+      compressedBytes = data.buffer.asUint8List();
+    }
     final compressedSizeMB =
         (compressedBytes.length / (1024 * 1024)).toStringAsFixed(1);
 
-    if (kDebugMode) debugPrint("[DB_WEB] Loaded $compressedSizeMB MB compressed data");
-    onProgress?.call(0.25, 'Loaded $compressedSizeMB MB compressed');
+    if (kDebugMode) debugPrint("[DB_WEB] Have $compressedSizeMB MB compressed data");
+    onProgress?.call(0.55, 'Loaded $compressedSizeMB MB compressed');
 
-    // PHASE 4: Decompress (0.25 - 0.75) - THE LONG PART
+    // PHASE 4: Decompress (0.55 - 0.75) - THE LONG PART
     if (kDebugMode) debugPrint("[DB_WEB] Starting decompression...");
-    onProgress?.call(0.30, 'Decompressing database...');
+    onProgress?.call(0.60, 'Decompressing database...');
 
     final stopwatch = Stopwatch()..start();
     final List<int> decompressedBytes;
@@ -77,7 +94,8 @@ Future<Database> initPlatformDatabase({
     try {
       // compute() routes through an isolate on mobile/desktop and through a
       // microtask on web; either way the prior progress update has a chance
-      // to paint before this long sync call.
+      // to paint before this long sync call. gzip's CRC-32 validates the
+      // payload — a corrupt download throws here.
       decompressedBytes = await compute(_decodeGzipBytes, compressedBytes);
 
       final decompressedSizeMB =
@@ -88,8 +106,21 @@ Future<Database> initPlatformDatabase({
     } catch (e) {
       if (kDebugMode) debugPrint("[DB_WEB] ❌ Decompression error: $e");
       onProgress?.call(0.0, 'Decompression failed');
+      if (remoteUrl != null && remoteUrl.isNotEmpty) {
+        throw DbDownloadException(
+          'The downloaded database was corrupted (decompression failed). '
+          'Please check your connection and try again.',
+        );
+      }
       rethrow;
     }
+
+    // Integrity gate over the decompressed bytes (hard size; soft sha256).
+    verifyDecompressedDb(
+      decompressedBytes,
+      expectedDecompressedBytes: expectedDecompressedBytes,
+      expectedDecompressedSha256: expectedDecompressedSha256,
+    );
 
     // PHASE 5: Convert to Uint8List and write to IndexedDB (0.75 - 0.90)
     onProgress?.call(0.80, 'Writing to browser storage...');

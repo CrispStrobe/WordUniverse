@@ -18,6 +18,16 @@ Licenses (declared in each card's YAML front matter):
   voc-de = GPL-3.0  (bundles childLex GPL-3.0)
   voc-en = CC-BY-SA-4.0
 
+IMPORTANT — German DB is downloaded by the app at first launch (it is GPL-3.0
+and intentionally NOT bundled in the store binary). After rebuilding +
+re-uploading `grundwortschatz.db.gz` here, update the integrity pins in
+`lib/core/services/vocabulary_service.dart` (`_dbSources['de']`):
+  - expectedCompressedBytes      = byte size of the new grundwortschatz.db.gz
+  - expectedDecompressedBytes    = byte size of the decompressed .db
+  - expectedDecompressedSha256   = `shasum -a 256` of the decompressed .db
+The sha256 is a soft check (logged, non-fatal), so a forgotten bump degrades
+gracefully rather than bricking first launch — but keep it correct.
+
 Requirements (NOT in the system python — use the conda base which has them):
   ~/miniconda3/bin/python -m pip install pyarrow huggingface_hub   # if missing
 

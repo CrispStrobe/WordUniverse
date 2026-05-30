@@ -9,6 +9,16 @@
     "grade6": "Level 4",
     "licensesTitle": "Licenses",
     "viewOssLicenses": "View open-source licenses",
+    "downloadDbTitle": "First-time setup",
+    "downloadDbMessage": "The German word database (about {size}) will be downloaded once and saved on your device for offline use.",
+    "@downloadDbMessage": {
+        "placeholders": {
+            "size": { "type": "String" }
+        }
+    },
+    "downloadDbConfirm": "Download",
+    "downloadDbCancel": "Not now",
+    "downloadDbDeclined": "The German word database is needed to continue. Tap Retry to download it, or switch to English in Settings.",
     "appName": "Word Universe",
     "appLegalese": "© 2025–2026 CrispStrobe\n\nGerman vocabulary database licensed under GPL-3.0 (it includes data derived from childLex); English vocabulary database under CC BY-SA 4.0. Sources: Wiktionary, ConceptNet, OEWN, OpenThesaurus, OdeNet, LiTKey, Tatoeba, Project Gutenberg, childLex, and others. Full attribution in the license entries below.\n\nDatasets: huggingface.co/datasets/cstr/grundwortschatz-voc-de  ·  cstr/grundwortschatz-voc-en\n\nApp code is proprietary.",
 
