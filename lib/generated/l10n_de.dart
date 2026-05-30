@@ -2115,4 +2115,427 @@ class SDe extends S {
   String wordSortHintCorrectAs(String word, String type) {
     return '✓ Richtig: $word ist ein $type!';
   }
+
+  @override
+  String get homophoneTitleHomophone => 'Klangzwillinge';
+
+  @override
+  String get homophoneTitleTrap => 'Wortfalle';
+
+  @override
+  String get homophoneOnboardHomophone1 =>
+      'Klangzwillinge klingen gleich, werden aber unterschiedlich geschrieben — wie \"Lärche\" und \"Lerche\" oder \"Seite\" und \"Saite\".';
+
+  @override
+  String get homophoneOnboardHomophone2 =>
+      'Es wird ein Satz mit einer Lücke gezeigt. Wähle die Schreibweise, die zur Bedeutung passt.';
+
+  @override
+  String get homophoneOnboardHomophone3 =>
+      'Nach jeder Antwort verrät dir ein Bedeutungs-Tipp, was jede Schreibweise besonders macht.';
+
+  @override
+  String get homophoneOnboardConfusable1 =>
+      'Manche Wörter sehen sich ähnlich oder klingen ähnlich, bedeuten aber etwas anderes — wie \"das\" und \"dass\" oder \"wider\" und \"wieder\".';
+
+  @override
+  String get homophoneOnboardConfusable2 =>
+      'Es wird ein Satz mit einer Lücke gezeigt. Wähle das Wort, dessen Bedeutung in den Satz passt.';
+
+  @override
+  String get homophoneOnboardConfusable3 =>
+      'Nach jeder Antwort siehst du eine klare Erklärung, was jedes Wort unterscheidet.';
+
+  @override
+  String get homophoneEmpty =>
+      'Für diese Stufe gibt es noch keine passenden Wörter.';
+
+  @override
+  String get homophonePromptHomophone => 'Welches Wort passt?';
+
+  @override
+  String get homophonePromptConfusable => 'Welches Wort ist hier richtig?';
+
+  @override
+  String get homophoneMeanings => 'Bedeutungen';
+
+  @override
+  String get homophoneSubtitleHomophone => 'richtige Klangzwillinge';
+
+  @override
+  String get homophoneSubtitleTrap => 'richtige Wörter';
+
+  @override
+  String wordBuilderHintsUsed(int count) {
+    return '$count verwendet';
+  }
+
+  @override
+  String wordBuilderLevelLabel(int level) {
+    return 'Stufe $level';
+  }
+
+  @override
+  String wordBuilderLevelShort(int level) {
+    return 'Stufe $level';
+  }
+
+  @override
+  String wordBuilderWordsProgress(int done, int total) {
+    return 'Wörter: $done von $total';
+  }
+
+  @override
+  String wordBuilderLetterTile(String letter) {
+    return 'Buchstabenkachel $letter';
+  }
+
+  @override
+  String get wordBuilderTileHint => 'Tippe oder ziehe in den Wortbereich';
+
+  @override
+  String wordBuilderTimeRemaining(int seconds) {
+    return 'Zeit: $seconds Sekunden';
+  }
+
+  @override
+  String get wordSnakeResetSelection => 'Auswahl zurücksetzen';
+
+  @override
+  String wordSnakeScoreLabel(int score) {
+    return 'Punkte: $score';
+  }
+
+  @override
+  String wordSnakeCell(String letter) {
+    return 'Buchstabe $letter';
+  }
+
+  @override
+  String wordSnakeCellSelected(String letter, int position) {
+    return 'Buchstabe $letter, Position $position';
+  }
+
+  @override
+  String get wordSnakeNoPuzzles =>
+      'Gerade konnte kein Rätsel erstellt werden. Probier eine andere Klassenstufe oder komm später wieder.';
+
+  @override
+  String get wordSnakeBasicVocabulary => '⭐ Grundwortschatz';
+
+  @override
+  String get wordSnakeNoun => 'Nomen';
+
+  @override
+  String wordSnakeNounWithArticle(String article) {
+    return 'Nomen ($article)';
+  }
+
+  @override
+  String wordSnakeGenus(String genus) {
+    return 'Genus: $genus';
+  }
+
+  @override
+  String wordSnakePlural(String plural) {
+    return 'Plural: $plural';
+  }
+
+  @override
+  String get wordSnakeVerb => 'Verb (Tun-Wort)';
+
+  @override
+  String wordSnakeVerbForms(String ich, String du, String er) {
+    return 'z.B. ich $ich, du $du, er $er';
+  }
+
+  @override
+  String wordSnakeForms(String forms) {
+    return 'Formen: $forms';
+  }
+
+  @override
+  String get wordSnakeAdjective => 'Adjektiv (Wie-Wort)';
+
+  @override
+  String get wordSnakeAdjectivePositive => 'Adjektiv (Positiv)';
+
+  @override
+  String wordSnakeComparison(String forms) {
+    return 'Steigerung: $forms';
+  }
+
+  @override
+  String get wordSnakePronoun => 'Pronomen';
+
+  @override
+  String get wordSnakeArticle => 'Artikel';
+
+  @override
+  String get wordSnakeAdverb => 'Adverb';
+
+  @override
+  String get wordSnakePreposition => 'Präposition';
+
+  @override
+  String get wordSnakeConjunction => 'Konjunktion';
+
+  @override
+  String get wordSnakeParticle => 'Partikel';
+
+  @override
+  String get wordSnakeNumeral => 'Numerale';
+
+  @override
+  String get wordSnakeCaseNominative => 'Nominativ';
+
+  @override
+  String get wordSnakeCaseAccusative => 'Akkusativ';
+
+  @override
+  String get wordSnakeCaseDative => 'Dativ';
+
+  @override
+  String get wordSnakeCaseGenitive => 'Genitiv';
+
+  @override
+  String wordSnakeExample(String example) {
+    return 'z.B.: $example';
+  }
+
+  @override
+  String get rescueHintHeardAgain => 'Wort noch einmal angehört!';
+
+  @override
+  String rescueHintStartsWith(String prefix) {
+    return 'Beginnt mit: $prefix...';
+  }
+
+  @override
+  String rescueHintLetterCount(int count) {
+    return '$count Buchstaben';
+  }
+
+  @override
+  String rescueBestStreak(int count) {
+    return 'Beste Serie: $count 🔥';
+  }
+
+  @override
+  String rescueSemanticsScore(int score) {
+    return 'Punkte: $score';
+  }
+
+  @override
+  String rescueSemanticsStreak(int count) {
+    return 'Serie: $count';
+  }
+
+  @override
+  String rescueSemanticsRescued(int rescued, int total) {
+    return 'Gerettet: $rescued von $total';
+  }
+
+  @override
+  String rescueSemanticsLevel(int level) {
+    return 'Stufe $level';
+  }
+
+  @override
+  String get rescueSemanticsInputField => 'Tippe das Wort hier ein';
+
+  @override
+  String get rescueSemanticsShowHint => 'Tipp anzeigen';
+
+  @override
+  String get rescueSemanticsReadWord => 'Wort vorlesen';
+
+  @override
+  String wordMemoryScoreLabel(int score) {
+    return 'Punkte: $score';
+  }
+
+  @override
+  String wordMemoryMovesLabel(int moves) {
+    return 'Züge: $moves';
+  }
+
+  @override
+  String wordMemoryPairsLabel(int found, int total) {
+    return 'Paare: $found von $total';
+  }
+
+  @override
+  String wordMemoryTotalGemsLabel(int gems) {
+    return 'Gesamtsumme Edelsteine: $gems';
+  }
+
+  @override
+  String wordMemoryCardMatched(String text) {
+    return 'Karte $text, gefunden';
+  }
+
+  @override
+  String wordMemoryCardRevealed(String text) {
+    return 'Karte $text, aufgedeckt';
+  }
+
+  @override
+  String get wordMemoryCardHidden => 'Verdeckte Karte';
+
+  @override
+  String wordSortDropZoneLabel(String label) {
+    return 'Ablagebereich: $label';
+  }
+
+  @override
+  String get wordSortEmptyTitle => 'Keine Wörter verfügbar';
+
+  @override
+  String get wordSortEmptyMessage =>
+      'Für diese Klassenstufe gibt es noch keine Wörter zum Sortieren. Probiere eine andere Stufe oder komm später wieder.';
+
+  @override
+  String get wordSortGenderMasculine => 'maskulin (der)';
+
+  @override
+  String get wordSortGenderFeminine => 'feminin (die)';
+
+  @override
+  String get wordSortGenderNeuter => 'neutral (das)';
+
+  @override
+  String wordSortHintNounPluralForm(String word, String plural) {
+    return '✓ Mehrzahl: $word → $plural';
+  }
+
+  @override
+  String wordSortHintNounGender(String gender) {
+    return '✓ Genus: $gender';
+  }
+
+  @override
+  String wordSortHintNounWithArticle(String article, String word) {
+    return '✓ Nomen: $article $word';
+  }
+
+  @override
+  String wordSortHintDefinition(String definition) {
+    return '✓ $definition';
+  }
+
+  @override
+  String wordSortHintVerbPersonalForms(String ich, String du) {
+    return '✓ Personalformen: ich $ich, du $du';
+  }
+
+  @override
+  String wordSortHintVerbPerfect(String form) {
+    return '✓ Perfekt: $form';
+  }
+
+  @override
+  String wordSortHintVerbPast(String form) {
+    return '✓ Präteritum: ich $form';
+  }
+
+  @override
+  String wordSortHintAdjComparison(
+      String word, String comparative, String superlative) {
+    return '✓ Steigerung: $word → $comparative → $superlative';
+  }
+
+  @override
+  String wordSortHintAdjComparative(String word, String comparative) {
+    return '✓ Komparativ: $word → $comparative';
+  }
+
+  @override
+  String wordSortExplainCategoryDefinition(String category, String definition) {
+    return '✓ $category: \"$definition\"';
+  }
+
+  @override
+  String wordSortExplainCategory(String word, String category) {
+    return '✓ $word → $category';
+  }
+
+  @override
+  String get wordSortReasonNotConjugable => 'nicht konjugierbar';
+
+  @override
+  String get wordSortReasonNotComparable => 'nicht steigerbar';
+
+  @override
+  String wordSortReasonPlural(String plural) {
+    return 'Plural: $plural';
+  }
+
+  @override
+  String wordSortExplainNounCapitalized(String word) {
+    return '✓ $word → Nomen (Großschreibung!)';
+  }
+
+  @override
+  String wordSortExplainNounNaming(String word) {
+    return '✓ $word → Nomen (ein Namenwort)';
+  }
+
+  @override
+  String wordSortExplainNounReasons(String reasons) {
+    return '✓ Nomen: $reasons';
+  }
+
+  @override
+  String wordSortReasonVerbForms(String ich, String du) {
+    return 'ich $ich, du $du';
+  }
+
+  @override
+  String wordSortReasonVerbFormExample(String ich) {
+    return 'z.B. ich $ich';
+  }
+
+  @override
+  String get wordSortReasonNoArticle => 'kein Artikel';
+
+  @override
+  String wordSortExplainVerbAction(String word) {
+    return '✓ Verb: $word → Handlung!';
+  }
+
+  @override
+  String wordSortExplainVerbReasons(String reasons) {
+    return '✓ Verb: $reasons';
+  }
+
+  @override
+  String wordSortExplainVerbDefinition(String definition) {
+    return '✓ Verb: \"$definition\"';
+  }
+
+  @override
+  String wordSortReasonComparable(String comparative) {
+    return 'steigerbar: $comparative';
+  }
+
+  @override
+  String wordSortReasonAdjExample(String word) {
+    return 'der ${word}e Mann';
+  }
+
+  @override
+  String wordSortExplainAdjReasons(String reasons) {
+    return '✓ Adjektiv: $reasons';
+  }
+
+  @override
+  String wordSortExplainAdjDefinition(String definition) {
+    return '✓ Adjektiv: \"$definition\"';
+  }
+
+  @override
+  String wordSortExplainAdjQuality(String word) {
+    return '✓ Adjektiv: $word → beschreibt eine Eigenschaft';
+  }
 }

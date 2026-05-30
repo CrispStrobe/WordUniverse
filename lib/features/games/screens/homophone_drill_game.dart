@@ -20,6 +20,7 @@ import '../providers/game_provider.dart';
 import '../services/homophone_drill_service.dart';
 import '../widgets/space_background.dart';
 import '../../../shared/widgets/onboarding_overlay.dart';
+import '../../../generated/l10n.dart';
 
 class HomophoneDrillGame extends StatefulWidget {
   final GradeLevel gradeLevel;
@@ -92,37 +93,38 @@ class _HomophoneDrillGameState extends State<HomophoneDrillGame>
     if (!_onboardingScheduled) {
       _onboardingScheduled = true;
       final isConfusable = widget.mode == HomophoneGameMode.confusables;
+      final s = S.of(context)!;
       OnboardingOverlay.maybeShow(
         context,
         gameKey: isConfusable ? 'confusable_drill' : 'homophone_drill',
-        title: isConfusable ? 'Word Trap' : 'Homophone Drill',
+        title: isConfusable ? s.homophoneTitleTrap : s.homophoneTitleHomophone,
         steps: isConfusable
             ? [
-                const OnboardingStep(
+                OnboardingStep(
                   icon: Icons.warning_amber,
-                  body: 'Some words look or sound similar but mean different things — "affect" vs "effect", "loose" vs "lose".',
+                  body: s.homophoneOnboardConfusable1,
                 ),
-                const OnboardingStep(
+                OnboardingStep(
                   icon: Icons.text_fields,
-                  body: 'A sentence with a missing word is shown. Pick the word whose meaning fits the context.',
+                  body: s.homophoneOnboardConfusable2,
                 ),
-                const OnboardingStep(
+                OnboardingStep(
                   icon: Icons.tips_and_updates,
-                  body: 'After each answer you\'ll see a clear explanation of what makes each word distinct.',
+                  body: s.homophoneOnboardConfusable3,
                 ),
               ]
             : [
-                const OnboardingStep(
+                OnboardingStep(
                   icon: Icons.record_voice_over,
-                  body: 'Homophones sound the same but are spelled differently — "hear" vs "here", "to" vs "too" vs "two".',
+                  body: s.homophoneOnboardHomophone1,
                 ),
-                const OnboardingStep(
+                OnboardingStep(
                   icon: Icons.text_fields,
-                  body: 'A sentence with a missing word is shown. Pick the spelling that fits the meaning.',
+                  body: s.homophoneOnboardHomophone2,
                 ),
-                const OnboardingStep(
+                OnboardingStep(
                   icon: Icons.tips_and_updates,
-                  body: 'After each answer a meaning hint reveals what makes each spelling unique.',
+                  body: s.homophoneOnboardHomophone3,
                 ),
               ],
       );
@@ -212,23 +214,28 @@ class _HomophoneDrillGameState extends State<HomophoneDrillGame>
       wasSuccessful: _total > 0 && (_correct / _total) >= 0.7,
     ));
 
+    final s = S.of(context)!;
+    final isConfusable = widget.mode == HomophoneGameMode.confusables;
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
         backgroundColor: SpaceTheme.deepSpace,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text('Round complete!', style: SpaceTheme.headlineStyle),
+        title: Text(s.gameRoundComplete, style: SpaceTheme.headlineStyle),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              '$_correct / $_total',
+              s.gameCorrectOfTotal(_correct, _total),
               style: SpaceTheme.titleStyle.copyWith(
                   color: SpaceTheme.starYellow, fontSize: 32),
             ),
             const SizedBox(height: 4),
-            Text('correct homophones',
+            Text(
+                isConfusable
+                    ? s.homophoneSubtitleTrap
+                    : s.homophoneSubtitleHomophone,
                 style: SpaceTheme.bodyStyle.copyWith(color: Colors.white70)),
           ],
         ),
@@ -238,7 +245,7 @@ class _HomophoneDrillGameState extends State<HomophoneDrillGame>
               Navigator.of(ctx).pop();
               Navigator.of(context).pop();
             },
-            child: const Text('Back'),
+            child: Text(s.gameBack),
           ),
           ElevatedButton(
             onPressed: () {
@@ -247,7 +254,7 @@ class _HomophoneDrillGameState extends State<HomophoneDrillGame>
             },
             style: ElevatedButton.styleFrom(
                 backgroundColor: SpaceTheme.planetOrange),
-            child: const Text('Play again'),
+            child: Text(s.gamePlayAgain),
           ),
         ],
       ),
@@ -272,13 +279,13 @@ class _HomophoneDrillGameState extends State<HomophoneDrillGame>
   }
 
   Widget _buildEmptyState() {
-    return const Center(
+    return Center(
       child: Padding(
-        padding: EdgeInsets.all(24),
+        padding: const EdgeInsets.all(24),
         child: Text(
-          'No homophone data available for this level.',
+          S.of(context)!.homophoneEmpty,
           textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.white70),
+          style: const TextStyle(color: Colors.white70),
         ),
       ),
     );
@@ -291,7 +298,7 @@ class _HomophoneDrillGameState extends State<HomophoneDrillGame>
         _buildHeader(),
         _buildProgressBar(),
         Expanded(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             child: Column(
               children: [
@@ -311,6 +318,7 @@ class _HomophoneDrillGameState extends State<HomophoneDrillGame>
   }
 
   Widget _buildHeader() {
+    final s = S.of(context)!;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
@@ -325,12 +333,12 @@ class _HomophoneDrillGameState extends State<HomophoneDrillGame>
               children: [
                 Text(
                   widget.mode == HomophoneGameMode.confusables
-                      ? 'Word Trap'
-                      : 'Homophone Drill',
+                      ? s.homophoneTitleTrap
+                      : s.homophoneTitleHomophone,
                   style: SpaceTheme.titleStyle
                       .copyWith(color: SpaceTheme.starYellow),
                 ),
-                Text('$_correct of ${_index + 1} correct',
+                Text(s.gameCorrectOfTotal(_correct, _index + 1),
                     style: SpaceTheme.bodyStyle
                         .copyWith(color: Colors.white60)),
               ],
@@ -403,8 +411,8 @@ class _HomophoneDrillGameState extends State<HomophoneDrillGame>
           children: [
             Text(
               widget.mode == HomophoneGameMode.confusables
-                  ? 'Which word is correct here?'
-                  : 'Which word fits?',
+                  ? S.of(context)!.homophonePromptConfusable
+                  : S.of(context)!.homophonePromptHomophone,
               style: SpaceTheme.bodyStyle.copyWith(
                 color: Colors.white60,
                 fontSize: 13,
@@ -503,24 +511,29 @@ class _HomophoneDrillGameState extends State<HomophoneDrillGame>
             hasAnswered && isCorrect ? 1.0 + (_pulseCtrl.value * 0.04) : 1.0,
         child: child,
       ),
-      child: GestureDetector(
-        onTap: hasAnswered ? null : () => _handleTap(index),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          width: 120,
-          padding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: border, width: 1.5),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            challenge.options[index],
-            style: TextStyle(
-                color: text, fontSize: 20, fontWeight: FontWeight.w700),
-            textAlign: TextAlign.center,
+      child: Semantics(
+        button: true,
+        label: challenge.options[index],
+        child: GestureDetector(
+          onTap: hasAnswered ? null : () => _handleTap(index),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            width: 120,
+            constraints: const BoxConstraints(minHeight: 48),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: BoxDecoration(
+              color: bg,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: border, width: 1.5),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              challenge.options[index],
+              style: TextStyle(
+                  color: text, fontSize: 20, fontWeight: FontWeight.w700),
+              textAlign: TextAlign.center,
+            ),
           ),
         ),
       ),
@@ -538,7 +551,7 @@ class _HomophoneDrillGameState extends State<HomophoneDrillGame>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Meanings',
+          Text(S.of(context)!.homophoneMeanings,
               style: SpaceTheme.bodyStyle.copyWith(
                   color: Colors.white54, fontSize: 11)),
           const SizedBox(height: 8),

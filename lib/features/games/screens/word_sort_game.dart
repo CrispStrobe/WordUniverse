@@ -38,6 +38,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
   late S _s;
 
   bool _isLoading = true;
+  bool _isEmpty = false;
   Queue<GermanWord> _wordQueue = Queue<GermanWord>();
   GermanWord? _currentWord;
   int _score = 0;
@@ -192,11 +193,19 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
   void _loadLevel() {
     _score = 0;
     _wordsCorrect = 0;
+    _isEmpty = false;
     _hintUsageCount.clear();
     _recentHints.clear();
 
     final List<GermanWord> wordsForGame = [];
     final Set<String> addedWordIds = {};
+
+    // Build a single lookup map keyed by lowercased word instead of
+    // re-scanning the full word list for every review id below.
+    final Map<String, GermanWord> wordsByLower = {};
+    for (final w in _vocabularyService.getAllWords(_gameProvider)) {
+      wordsByLower.putIfAbsent(w.word.toLowerCase(), () => w);
+    }
 
     int reviewWordCount = (_wordsTotal * 0.5).ceil();
     final reviewItemIds = _sriService.getItemsForReview(
@@ -209,16 +218,14 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       final wordString = _extractBaseWordFromSriId(id);
       if (wordString == null) continue;
 
-      try {
-        final word = _vocabularyService.getAllWords(_gameProvider).firstWhere(
-            (w) => w.word.toLowerCase() == wordString.toLowerCase());
+      final word = wordsByLower[wordString.toLowerCase()];
+      if (word == null) continue;
 
-        if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
-          wordsForGame.add(word);
-          addedWordIds.add(word.id);
-          if (wordsForGame.length >= reviewWordCount) break;
-        }
-      } catch (e) {}
+      if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
+        wordsForGame.add(word);
+        addedWordIds.add(word.id);
+        if (wordsForGame.length >= reviewWordCount) break;
+      }
     }
 
     final newWords = _vocabularyService.getNewWords(
@@ -253,8 +260,10 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
 
     if (_wordQueue.isEmpty) {
       if (kDebugMode) debugPrint("No words found for WordSortGame");
-      setState(() => _isLoading = false);
-      if (mounted) Navigator.of(context).pop();
+      setState(() {
+        _isLoading = false;
+        _isEmpty = true;
+      });
       return;
     }
 
@@ -276,6 +285,9 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
 
   void _handleDrop(GermanWordType droppedType, GermanWordType targetCategory) {
     if (_currentWord == null) return;
+    // Ignore drops while feedback for the current word is still showing —
+    // otherwise a second drop would double-record/double-score the same word.
+    if (_feedbackState != FeedbackState.none) return;
     final bool isCorrect = (droppedType == targetCategory);
 
     _sriService.recordResponse(
@@ -310,6 +322,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     if (_gameProvider.hintsEnabled) _showSmartHint(_currentWord!, isCorrect: true);
     _confettiController.forward(from: 0.0);
 
+    _feedbackTimer?.cancel();
     _feedbackTimer = Timer(const Duration(milliseconds: 1500), () {
       if (mounted) {
         setState(() {
@@ -330,6 +343,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
 
     if (_gameProvider.hintsEnabled) _showSmartHint(_currentWord!, isCorrect: false, guessedType: guessedCategory);
 
+    _feedbackTimer?.cancel();
     _feedbackTimer = Timer(const Duration(milliseconds: 2000), () {
       if (mounted) {
         setState(() {
@@ -398,28 +412,28 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       try {
         final plural = patternData['plural'];
         if (plural != null && plural is String && plural.isNotEmpty && plural != word.word && plural != '-') {
-          hints.add('✓ Mehrzahl: ${word.word} → $plural');
+          hints.add(_s.wordSortHintNounPluralForm(word.word, plural));
         }
-        
+
         final gender = patternData['gender'];
         if (gender != null && gender is String) {
           final genderMap = {
-            'Masculine': 'maskulin (der)',
-            'Feminine': 'feminin (die)',
-            'Neuter': 'neutral (das)',
+            'Masculine': _s.wordSortGenderMasculine,
+            'Feminine': _s.wordSortGenderFeminine,
+            'Neuter': _s.wordSortGenderNeuter,
           };
           final genderLabel = genderMap[gender] ?? gender;
-          hints.add('✓ Genus: $genderLabel');
+          hints.add(_s.wordSortHintNounGender(genderLabel));
         }
       } catch (e) {}
     }
     
     if (_isDE && word.article != null && word.article!.isNotEmpty) {
-      hints.add('✓ Nomen: ${word.article} ${word.word}');
+      hints.add(_s.wordSortHintNounWithArticle(word.article!, word.word));
     }
 
     if (apiData?.definitions.isNotEmpty ?? false) {
-      hints.add('✓ ${apiData!.definitions.first}');
+      hints.add(_s.wordSortHintDefinition(apiData!.definitions.first));
     }
 
     hints.add(_s.wordSortHintNounNaming(word.word));
@@ -449,27 +463,27 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
           final du = conjugation['du'];
           
           if (ich != null && du != null) {
-            hints.add('✓ Personalformen: ich $ich, du $du');
+            hints.add(_s.wordSortHintVerbPersonalForms('$ich', '$du'));
           }
         }
-        
+
         final participles = patternData['participles'];
         if (participles != null && participles is Map) {
           final partizipII = participles['Partizip Perfekt'];
           if (partizipII != null && partizipII is String) {
-            hints.add('✓ Perfekt: $partizipII');
+            hints.add(_s.wordSortHintVerbPerfect(partizipII));
           }
         }
-        
+
         final prateritum = patternData['conjugation']?['Präteritum'];
         if (prateritum != null && prateritum is Map && prateritum['ich'] != null) {
-          hints.add('✓ Präteritum: ich ${prateritum['ich']}');
+          hints.add(_s.wordSortHintVerbPast('${prateritum['ich']}'));
         }
       } catch (e) {}
     }
-    
+
     if (apiData?.definitions.isNotEmpty ?? false) {
-      hints.add('✓ ${apiData!.definitions.first}');
+      hints.add(_s.wordSortHintDefinition(apiData!.definitions.first));
     }
 
     hints.add(_s.wordSortHintVerbAction(word.word));
@@ -497,15 +511,15 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
         final superl = patternData['superlative'];
         
         if (comp != null && superl != null && comp is String && superl is String && comp.isNotEmpty && superl.isNotEmpty) {
-          hints.add('✓ Steigerung: ${word.word} → $comp → $superl');
+          hints.add(_s.wordSortHintAdjComparison(word.word, comp, superl));
         } else if (comp != null && comp is String && comp.isNotEmpty) {
-          hints.add('✓ Komparativ: ${word.word} → $comp');
+          hints.add(_s.wordSortHintAdjComparative(word.word, comp));
         }
       } catch (e) {}
     }
-    
+
     if (apiData?.definitions.isNotEmpty ?? false) {
-      hints.add('✓ ${apiData!.definitions.first}');
+      hints.add(_s.wordSortHintDefinition(apiData!.definitions.first));
     }
 
     hints.add(_s.wordSortHintAdjQuality(word.word));
@@ -532,9 +546,9 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     ];
     
     if (advanced && (apiData?.definitions.isNotEmpty ?? false)) {
-      hints.add('✓ ${apiData!.definitions.first}');
+      hints.add(_s.wordSortHintDefinition(apiData!.definitions.first));
     }
-    
+
     return _selectHintFromList(hints);
   }
 
@@ -543,9 +557,9 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       _s.wordSortHintPronounReplaces(word.word),
       _s.wordSortHintPronounStands(word.word),
     ];
-    
+
     if (advanced && (apiData?.definitions.isNotEmpty ?? false)) {
-      hints.add('✓ ${apiData!.definitions.first}');
+      hints.add(_s.wordSortHintDefinition(apiData!.definitions.first));
     }
     
     return _selectHintFromList(hints);
@@ -573,9 +587,9 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
         return _getAdjectiveCorrectExplanation(word, apiData, patternData, guessedType);
       default:
         if (apiData?.definitions.isNotEmpty ?? false) {
-          return '✓ ${_getCategoryName(word.wordType)}: "${apiData!.definitions.first}"';
+          return _s.wordSortExplainCategoryDefinition(_getCategoryName(word.wordType), apiData!.definitions.first);
         }
-        return '✓ ${word.word} → ${_getCategoryName(word.wordType)}';
+        return _s.wordSortExplainCategory(word.word, _getCategoryName(word.wordType));
     }
   }
 
@@ -587,27 +601,27 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
         reasons.add('${word.article} ${word.word}');
       }
       if (guessedType == GermanWordType.verb) {
-        reasons.add('nicht konjugierbar');
+        reasons.add(_s.wordSortReasonNotConjugable);
       } else if (guessedType == GermanWordType.adjektiv) {
-        reasons.add('nicht steigerbar');
+        reasons.add(_s.wordSortReasonNotComparable);
       }
       try {
         final plural = patternData?['plural'];
         if (plural != null && plural is String && plural.isNotEmpty && plural != word.word && plural != '-') {
-          reasons.add('Plural: $plural');
+          reasons.add(_s.wordSortReasonPlural(plural));
         }
       } catch (e) {}
-      if (reasons.isEmpty) return '✓ ${word.word} → Nomen (Großschreibung!)';
-      return '✓ Nomen: ${reasons.join(' • ')}';
+      if (reasons.isEmpty) return _s.wordSortExplainNounCapitalized(word.word);
+      return _s.wordSortExplainNounReasons(reasons.join(' • '));
     } else {
       try {
         final plural = patternData?['plural'];
         if (plural != null && plural is String && plural.isNotEmpty && plural != word.word && plural != '-') {
-          reasons.add('plural: $plural');
+          reasons.add(_s.wordSortReasonPlural(plural));
         }
       } catch (e) {}
-      if (reasons.isEmpty) return '✓ ${word.word} → Noun (a naming word)';
-      return '✓ Noun: ${reasons.join(' • ')}';
+      if (reasons.isEmpty) return _s.wordSortExplainNounNaming(word.word);
+      return _s.wordSortExplainNounReasons(reasons.join(' • '));
     }
   }
 
@@ -621,20 +635,20 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
           final ich = conj['ich'];
           final du = conj['du'];
           if (ich != null && du != null) {
-            reasons.add('ich $ich, du $du');
+            reasons.add(_s.wordSortReasonVerbForms('$ich', '$du'));
           } else if (ich != null) {
-            reasons.add('z.B. ich $ich');
+            reasons.add(_s.wordSortReasonVerbFormExample('$ich'));
           }
         }
       } catch (e) {}
-      if (guessedType == GermanWordType.substantiv) reasons.add('kein Artikel');
-      if (reasons.isEmpty) return '✓ Verb: ${word.word} → Handlung!';
-      return '✓ Verb: ${reasons.join(' • ')}';
+      if (guessedType == GermanWordType.substantiv) reasons.add(_s.wordSortReasonNoArticle);
+      if (reasons.isEmpty) return _s.wordSortExplainVerbAction(word.word);
+      return _s.wordSortExplainVerbReasons(reasons.join(' • '));
     } else {
       if (apiData?.definitions.isNotEmpty ?? false) {
-        return '✓ Verb: "${apiData!.definitions.first}"';
+        return _s.wordSortExplainVerbDefinition(apiData!.definitions.first);
       }
-      return '✓ Verb: ${word.word} → action or state';
+      return _s.wordSortExplainVerbAction(word.word);
     }
   }
 
@@ -645,26 +659,26 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       try {
         final comp = patternData?['comparative'];
         if (comp != null && comp is String && comp.isNotEmpty) {
-          reasons.add('steigerbar: $comp');
+          reasons.add(_s.wordSortReasonComparable(comp));
         }
       } catch (e) {}
-      if (guessedType == GermanWordType.substantiv) reasons.add('kein Artikel');
-      if (reasons.isEmpty) reasons.add('der ${word.word}e Mann');
-      return '✓ Adjektiv: ${reasons.join(' • ')}';
+      if (guessedType == GermanWordType.substantiv) reasons.add(_s.wordSortReasonNoArticle);
+      if (reasons.isEmpty) reasons.add(_s.wordSortReasonAdjExample(word.word));
+      return _s.wordSortExplainAdjReasons(reasons.join(' • '));
     } else {
       try {
         final comp = patternData?['comparative'];
         if (comp != null && comp is String && comp.isNotEmpty) {
-          reasons.add('comparative: $comp');
+          reasons.add(_s.wordSortReasonComparable(comp));
         }
       } catch (e) {}
       if (reasons.isEmpty) {
         if (apiData?.definitions.isNotEmpty ?? false) {
-          return '✓ Adjective: "${apiData!.definitions.first}"';
+          return _s.wordSortExplainAdjDefinition(apiData!.definitions.first);
         }
-        return '✓ Adjective: ${word.word} → describes a quality';
+        return _s.wordSortExplainAdjQuality(word.word);
       }
-      return '✓ Adjective: ${reasons.join(' • ')}';
+      return _s.wordSortExplainAdjReasons(reasons.join(' • '));
     }
   }
   
@@ -744,10 +758,44 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
               ),
               if (_isLoading)
                 const Expanded(child: Center(child: CircularProgressIndicator()))
+              else if (_isEmpty)
+                Expanded(child: _buildEmptyState())
               else
                 Expanded(child: _buildGameContent(selectedFontFamily)),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.inbox_outlined, size: 72, color: Colors.white70),
+            const SizedBox(height: 24),
+            Text(
+              _s.wordSortEmptyTitle,
+              style: SpaceTheme.titleStyle,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              _s.wordSortEmptyMessage,
+              style: SpaceTheme.bodyStyle,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(),
+              style: ElevatedButton.styleFrom(backgroundColor: SpaceTheme.planetOrange),
+              child: Text(_s.gameBack),
+            ),
+          ],
         ),
       ),
     );
@@ -937,6 +985,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
             feedback: _buildWordCard(displayWord, selectedFontFamily, isFeedback: true),
             childWhenDragging: _buildWordCard(displayWord, selectedFontFamily, isPlaceholder: true),
             child: Semantics(
+              button: true,
               label: _s.wordSortDragLabel(displayWord),
               child: _buildWordCard(displayWord, selectedFontFamily),
             ),
@@ -1040,10 +1089,13 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       builder: (context, candidateData, rejectedData) {
         final bool isHighlighted = candidateData.isNotEmpty;
         return Semantics(
-          label: 'Ablagebereich: $label',
+          button: true,
+          label: _s.wordSortDropZoneLabel(label),
           child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          // Width is handled by parent column/stretch
+          // Width is handled by parent column/stretch; enforce a minimum
+          // touch-target height (≥48dp) for accessibility.
+          constraints: const BoxConstraints(minHeight: 56),
           decoration: BoxDecoration(
             color: isHighlighted
                 ? color.withValues(alpha: 0.4)

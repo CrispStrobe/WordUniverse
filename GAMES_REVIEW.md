@@ -25,7 +25,19 @@
   only when nothing's due ✓; records via the item's recovered base id so it
   UPDATES the reviewed item instead of creating a lemma-keyed duplicate ✓.
   (word_builder/word_find/verbtrenner SRI-keying consistency → deferred to Tier 6.)
-- Next: Tier 4 (i18n C1 + a11y C8) — the largest, most mechanical tier.
+- **2026-05-30 — Tier 4 batch 1 done & committed** (parallel fixer agents +
+  central ARB consolidation, +101 localized keys): **homophone_drill** (was
+  ZERO l10n → fully localized + a11y + scroll), **word_builder** (German
+  labels → S; fixed per-second whole-board rebuild via `_TimePill`/`read`;
+  48dp targets), **word_snake** (educational German → S; empty-state instead of
+  silent pop; stale-feedback-timer guard), **space_word_rescue** (German → S;
+  `WidgetsBindingObserver` pause-on-background; uniform article-strip), **word_memory**
+  (German → S; synchronous tap-race lock; painter repaint gate), **word_sort**
+  (German hints/Semantics → S; empty-state; double-drop guard; hoisted lookup).
+  Full analyze clean, 465 tests pass.
+- Next: Tier 4 batch 2 (word_type_whirl, word_find, translation/reverse/
+  expression/proverb_cloze, conjugation, grossschreib/grossstadt, spelling_spotter,
+  flash a11y) + Tier 5/6.
 
 ---
 

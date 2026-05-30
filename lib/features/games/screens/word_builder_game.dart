@@ -55,7 +55,7 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
   List<LetterTile?> _buildArea = [];
   int _score = 0;
   int _wordsCompleted = 0;
-  int _totalWords = 8;
+  final int _totalWords = 8;
   int _hintsUsed = 0;
   
   FeedbackState _feedbackState = FeedbackState.none;
@@ -74,6 +74,9 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
   // Time tracking
   Timer? _gameTimer;
   int _secondsRemaining = 60;
+  // Per-second display value: an isolated widget listens to this so the 1Hz
+  // tick does not rebuild the whole board via setState.
+  final ValueNotifier<int> _secondsNotifier = ValueNotifier<int>(60);
   int _timeBonus = 0;
 
   // Animation controllers
@@ -111,6 +114,7 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
     _gameTimer?.cancel();
     _educationalInfoTimer?.cancel();
     _instructionTimer?.cancel();
+    _secondsNotifier.dispose();
     _successController.dispose();
     _shakeController.dispose();
     _hintController.dispose();
@@ -170,6 +174,7 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
       default:
         _secondsRemaining = 60;
     }
+    _secondsNotifier.value = _secondsRemaining;
 
     _loadNextWord();
     if (_gameProvider.puzzleTimerEnabled) _startTimer();
@@ -190,7 +195,10 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
     _gameTimer?.cancel();
     _gameTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_secondsRemaining > 0) {
-        setState(() => _secondsRemaining--);
+        // Update only the isolated time pill (via the notifier) instead of
+        // setState, so the board is not rebuilt every second.
+        _secondsRemaining--;
+        _secondsNotifier.value = _secondsRemaining;
       } else {
         _gameTimer?.cancel();
         if (mounted) {
@@ -598,7 +606,9 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
   @override
   Widget build(BuildContext context) {
     final s = S.of(context)!;
-    final selectedFontFamily = context.watch<GameProvider>().selectedFontFamily;
+    // Font family does not change mid-game; read (not watch) so the 1Hz
+    // timer's setState does not rebuild the whole board every second.
+    final selectedFontFamily = context.read<GameProvider>().selectedFontFamily;
 
     return Scaffold(
       body: SpaceBackground(
@@ -667,11 +677,11 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
 
   // NEW: Unified compact top bar with icon buttons
   Widget _buildUnifiedTopBar(S s) {
-    final gp = context.watch<GameProvider>();
+    // Read (not watch): these settings are fixed for the duration of a level,
+    // so the per-second timer's notifier update must not rebuild the bar/board.
+    final gp = context.read<GameProvider>();
     final timerEnabled = gp.puzzleTimerEnabled;
-    final timeColor = _secondsRemaining < 10
-        ? SpaceTheme.rocketRed
-        : (_secondsRemaining < 30 ? SpaceTheme.planetOrange : SpaceTheme.alienGreen);
+    final levelNumber = widget.gradeLevel.index + 1;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -697,7 +707,7 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
                 Navigator.of(context).pop();
               },
               padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+              constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
             ),
           ),
           
@@ -705,7 +715,7 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
           
           // Hint button (icon only)
           Semantics(
-            label: '${s.wordBuilderHint} ($_hintsUsed verwendet)',
+            label: '${s.wordBuilderHint} (${s.wordBuilderHintsUsed(_hintsUsed)})',
             button: true,
             enabled: !(_feedbackState == FeedbackState.correct || _showHint),
             child: IconButton(
@@ -750,7 +760,7 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
                   ? null
                   : _useHint,
               padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+              constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
               tooltip: '${s.wordBuilderHint} (-10)',
             ),
           ),
@@ -772,7 +782,7 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
               ),
               onPressed: _feedbackState == FeedbackState.correct ? null : _skipWord,
               padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+              constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
               tooltip: s.wordBuilderSkip,
             ),
           ),
@@ -781,7 +791,7 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
           
           // Level
           Semantics(
-            label: 'Stufe ${widget.gradeLevel.index + 1}',
+            label: s.wordBuilderLevelLabel(levelNumber),
             container: true,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -793,7 +803,7 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
               child: FittedBox(
                 fit: BoxFit.scaleDown,
                 child: Text(
-                  'Lvl ${widget.gradeLevel.index + 1}',
+                  s.wordBuilderLevelShort(levelNumber),
                   style: SpaceTheme.bodyStyle.copyWith(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
@@ -808,7 +818,7 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
 
           // Score
           Semantics(
-            label: 'Punkte: $_score',
+            label: '${s.gameScore}: $_score',
             child: _buildCompactStat(Icons.stars, _score.toString(), SpaceTheme.starYellow),
           ),
 
@@ -816,18 +826,16 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
 
           // Words
           Semantics(
-            label: 'Wörter: $_wordsCompleted von $_totalWords',
+            label: s.wordBuilderWordsProgress(_wordsCompleted, _totalWords),
             child: _buildCompactStat(Icons.spellcheck, '$_wordsCompleted/$_totalWords', SpaceTheme.cosmicPink),
           ),
 
           const Spacer(),
 
           // Time (no liveRegion: ticks every second, would spam screen readers).
+          // Isolated widget: only this pill rebuilds on each 1Hz tick.
           if (timerEnabled)
-            Semantics(
-              label: 'Zeit: $_secondsRemaining Sekunden',
-              child: _buildCompactStat(Icons.timer, '${_secondsRemaining}s', timeColor),
-            ),
+            _TimePill(seconds: _secondsNotifier, s: s),
         ],
       ),
     );
@@ -1075,9 +1083,10 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
   }
 
   Widget _buildDraggableTile(LetterTile tile, String selectedFontFamily) {
+    final s = S.of(context)!;
     return Semantics(
-      label: 'Buchstabenkachel ${tile.letter}',
-      hint: 'Tippe oder ziehe in den Wortbereich',
+      label: s.wordBuilderLetterTile(tile.letter),
+      hint: s.wordBuilderTileHint,
       button: true,
       child: Draggable<LetterTile>(
         data: tile,
@@ -1159,6 +1168,58 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
                   ],
                 ),
               ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Isolated time pill that rebuilds on each 1Hz tick via [seconds], so the
+/// rest of the board does not rebuild every second.
+class _TimePill extends StatelessWidget {
+  final ValueNotifier<int> seconds;
+  final S s;
+
+  const _TimePill({required this.seconds, required this.s});
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<int>(
+      valueListenable: seconds,
+      builder: (context, value, _) {
+        final timeColor = value < 10
+            ? SpaceTheme.rocketRed
+            : (value < 30 ? SpaceTheme.planetOrange : SpaceTheme.alienGreen);
+
+        // No liveRegion: ticks every second, would spam screen readers.
+        return Semantics(
+          label: s.wordBuilderTimeRemaining(value),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: timeColor.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: timeColor.withValues(alpha: 0.5)),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.timer, color: timeColor, size: 16),
+                const SizedBox(width: 4),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    '${value}s',
+                    style: SpaceTheme.bodyStyle.copyWith(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: timeColor,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         );

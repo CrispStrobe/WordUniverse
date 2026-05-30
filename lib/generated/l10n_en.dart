@@ -2088,4 +2088,426 @@ class SEn extends S {
   String wordSortHintCorrectAs(String word, String type) {
     return '✓ Correct: $word is a $type!';
   }
+
+  @override
+  String get homophoneTitleHomophone => 'Homophone Drill';
+
+  @override
+  String get homophoneTitleTrap => 'Word Trap';
+
+  @override
+  String get homophoneOnboardHomophone1 =>
+      'Homophones sound the same but are spelled differently — \"hear\" vs \"here\", \"to\" vs \"too\" vs \"two\".';
+
+  @override
+  String get homophoneOnboardHomophone2 =>
+      'A sentence with a missing word is shown. Pick the spelling that fits the meaning.';
+
+  @override
+  String get homophoneOnboardHomophone3 =>
+      'After each answer a meaning hint reveals what makes each spelling unique.';
+
+  @override
+  String get homophoneOnboardConfusable1 =>
+      'Some words look or sound similar but mean different things — \"affect\" vs \"effect\", \"loose\" vs \"lose\".';
+
+  @override
+  String get homophoneOnboardConfusable2 =>
+      'A sentence with a missing word is shown. Pick the word whose meaning fits the context.';
+
+  @override
+  String get homophoneOnboardConfusable3 =>
+      'After each answer you\'ll see a clear explanation of what makes each word distinct.';
+
+  @override
+  String get homophoneEmpty => 'No homophone data available for this level.';
+
+  @override
+  String get homophonePromptHomophone => 'Which word fits?';
+
+  @override
+  String get homophonePromptConfusable => 'Which word is correct here?';
+
+  @override
+  String get homophoneMeanings => 'Meanings';
+
+  @override
+  String get homophoneSubtitleHomophone => 'correct homophones';
+
+  @override
+  String get homophoneSubtitleTrap => 'correct words';
+
+  @override
+  String wordBuilderHintsUsed(int count) {
+    return '$count used';
+  }
+
+  @override
+  String wordBuilderLevelLabel(int level) {
+    return 'Level $level';
+  }
+
+  @override
+  String wordBuilderLevelShort(int level) {
+    return 'Lvl $level';
+  }
+
+  @override
+  String wordBuilderWordsProgress(int done, int total) {
+    return 'Words: $done of $total';
+  }
+
+  @override
+  String wordBuilderLetterTile(String letter) {
+    return 'Letter tile $letter';
+  }
+
+  @override
+  String get wordBuilderTileHint => 'Tap or drag into the word area';
+
+  @override
+  String wordBuilderTimeRemaining(int seconds) {
+    return 'Time: $seconds seconds';
+  }
+
+  @override
+  String get wordSnakeResetSelection => 'Reset selection';
+
+  @override
+  String wordSnakeScoreLabel(int score) {
+    return 'Points: $score';
+  }
+
+  @override
+  String wordSnakeCell(String letter) {
+    return 'Letter $letter';
+  }
+
+  @override
+  String wordSnakeCellSelected(String letter, int position) {
+    return 'Letter $letter, position $position';
+  }
+
+  @override
+  String get wordSnakeNoPuzzles =>
+      'No puzzle could be made right now. Please try another grade or come back later.';
+
+  @override
+  String get wordSnakeBasicVocabulary => '⭐ Core vocabulary';
+
+  @override
+  String get wordSnakeNoun => 'Noun (naming word)';
+
+  @override
+  String wordSnakeNounWithArticle(String article) {
+    return 'Noun ($article)';
+  }
+
+  @override
+  String wordSnakeGenus(String genus) {
+    return 'Gender: $genus';
+  }
+
+  @override
+  String wordSnakePlural(String plural) {
+    return 'Plural: $plural';
+  }
+
+  @override
+  String get wordSnakeVerb => 'Verb (action word)';
+
+  @override
+  String wordSnakeVerbForms(String ich, String du, String er) {
+    return 'e.g. ich $ich, du $du, er $er';
+  }
+
+  @override
+  String wordSnakeForms(String forms) {
+    return 'Forms: $forms';
+  }
+
+  @override
+  String get wordSnakeAdjective => 'Adjective (describing word)';
+
+  @override
+  String get wordSnakeAdjectivePositive => 'Adjective (positive)';
+
+  @override
+  String wordSnakeComparison(String forms) {
+    return 'Comparison: $forms';
+  }
+
+  @override
+  String get wordSnakePronoun => 'Pronoun';
+
+  @override
+  String get wordSnakeArticle => 'Article';
+
+  @override
+  String get wordSnakeAdverb => 'Adverb';
+
+  @override
+  String get wordSnakePreposition => 'Preposition';
+
+  @override
+  String get wordSnakeConjunction => 'Conjunction';
+
+  @override
+  String get wordSnakeParticle => 'Particle';
+
+  @override
+  String get wordSnakeNumeral => 'Numeral';
+
+  @override
+  String get wordSnakeCaseNominative => 'Nominative';
+
+  @override
+  String get wordSnakeCaseAccusative => 'Accusative';
+
+  @override
+  String get wordSnakeCaseDative => 'Dative';
+
+  @override
+  String get wordSnakeCaseGenitive => 'Genitive';
+
+  @override
+  String wordSnakeExample(String example) {
+    return 'e.g.: $example';
+  }
+
+  @override
+  String get rescueHintHeardAgain => 'Listened to the word again!';
+
+  @override
+  String rescueHintStartsWith(String prefix) {
+    return 'Starts with: $prefix...';
+  }
+
+  @override
+  String rescueHintLetterCount(int count) {
+    return '$count letters';
+  }
+
+  @override
+  String rescueBestStreak(int count) {
+    return 'Best streak: $count 🔥';
+  }
+
+  @override
+  String rescueSemanticsScore(int score) {
+    return 'Score: $score';
+  }
+
+  @override
+  String rescueSemanticsStreak(int count) {
+    return 'Streak: $count';
+  }
+
+  @override
+  String rescueSemanticsRescued(int rescued, int total) {
+    return 'Rescued: $rescued of $total';
+  }
+
+  @override
+  String rescueSemanticsLevel(int level) {
+    return 'Level $level';
+  }
+
+  @override
+  String get rescueSemanticsInputField => 'Type the word here';
+
+  @override
+  String get rescueSemanticsShowHint => 'Show hint';
+
+  @override
+  String get rescueSemanticsReadWord => 'Read word aloud';
+
+  @override
+  String wordMemoryScoreLabel(int score) {
+    return 'Points: $score';
+  }
+
+  @override
+  String wordMemoryMovesLabel(int moves) {
+    return 'Moves: $moves';
+  }
+
+  @override
+  String wordMemoryPairsLabel(int found, int total) {
+    return 'Pairs: $found of $total';
+  }
+
+  @override
+  String wordMemoryTotalGemsLabel(int gems) {
+    return 'Total gems: $gems';
+  }
+
+  @override
+  String wordMemoryCardMatched(String text) {
+    return 'Card $text, matched';
+  }
+
+  @override
+  String wordMemoryCardRevealed(String text) {
+    return 'Card $text, revealed';
+  }
+
+  @override
+  String get wordMemoryCardHidden => 'Hidden card';
+
+  @override
+  String wordSortDropZoneLabel(String label) {
+    return 'Drop zone: $label';
+  }
+
+  @override
+  String get wordSortEmptyTitle => 'No words available';
+
+  @override
+  String get wordSortEmptyMessage =>
+      'There are no words to sort for this grade yet. Try another grade or come back later.';
+
+  @override
+  String get wordSortGenderMasculine => 'masculine (der)';
+
+  @override
+  String get wordSortGenderFeminine => 'feminine (die)';
+
+  @override
+  String get wordSortGenderNeuter => 'neuter (das)';
+
+  @override
+  String wordSortHintNounPluralForm(String word, String plural) {
+    return '✓ Plural: $word → $plural';
+  }
+
+  @override
+  String wordSortHintNounGender(String gender) {
+    return '✓ Gender: $gender';
+  }
+
+  @override
+  String wordSortHintNounWithArticle(String article, String word) {
+    return '✓ Noun: $article $word';
+  }
+
+  @override
+  String wordSortHintDefinition(String definition) {
+    return '✓ $definition';
+  }
+
+  @override
+  String wordSortHintVerbPersonalForms(String ich, String du) {
+    return '✓ Personal forms: ich $ich, du $du';
+  }
+
+  @override
+  String wordSortHintVerbPerfect(String form) {
+    return '✓ Perfect: $form';
+  }
+
+  @override
+  String wordSortHintVerbPast(String form) {
+    return '✓ Past: ich $form';
+  }
+
+  @override
+  String wordSortHintAdjComparison(
+      String word, String comparative, String superlative) {
+    return '✓ Comparison: $word → $comparative → $superlative';
+  }
+
+  @override
+  String wordSortHintAdjComparative(String word, String comparative) {
+    return '✓ Comparative: $word → $comparative';
+  }
+
+  @override
+  String wordSortExplainCategoryDefinition(String category, String definition) {
+    return '✓ $category: \"$definition\"';
+  }
+
+  @override
+  String wordSortExplainCategory(String word, String category) {
+    return '✓ $word → $category';
+  }
+
+  @override
+  String get wordSortReasonNotConjugable => 'not conjugable';
+
+  @override
+  String get wordSortReasonNotComparable => 'not comparable';
+
+  @override
+  String wordSortReasonPlural(String plural) {
+    return 'plural: $plural';
+  }
+
+  @override
+  String wordSortExplainNounCapitalized(String word) {
+    return '✓ $word → Noun (capitalized!)';
+  }
+
+  @override
+  String wordSortExplainNounNaming(String word) {
+    return '✓ $word → Noun (a naming word)';
+  }
+
+  @override
+  String wordSortExplainNounReasons(String reasons) {
+    return '✓ Noun: $reasons';
+  }
+
+  @override
+  String wordSortReasonVerbForms(String ich, String du) {
+    return 'ich $ich, du $du';
+  }
+
+  @override
+  String wordSortReasonVerbFormExample(String ich) {
+    return 'e.g. ich $ich';
+  }
+
+  @override
+  String get wordSortReasonNoArticle => 'no article';
+
+  @override
+  String wordSortExplainVerbAction(String word) {
+    return '✓ Verb: $word → action!';
+  }
+
+  @override
+  String wordSortExplainVerbReasons(String reasons) {
+    return '✓ Verb: $reasons';
+  }
+
+  @override
+  String wordSortExplainVerbDefinition(String definition) {
+    return '✓ Verb: \"$definition\"';
+  }
+
+  @override
+  String wordSortReasonComparable(String comparative) {
+    return 'comparable: $comparative';
+  }
+
+  @override
+  String wordSortReasonAdjExample(String word) {
+    return 'the $word thing';
+  }
+
+  @override
+  String wordSortExplainAdjReasons(String reasons) {
+    return '✓ Adjective: $reasons';
+  }
+
+  @override
+  String wordSortExplainAdjDefinition(String definition) {
+    return '✓ Adjective: \"$definition\"';
+  }
+
+  @override
+  String wordSortExplainAdjQuality(String word) {
+    return '✓ Adjective: $word → describes a quality';
+  }
 }
