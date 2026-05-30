@@ -72,8 +72,8 @@ English Vocabulary Profile, SUBTLEX‑US**.
 | `200Fehler.csv` | RICHTIG / FALSCH pairs — likely self‑compiled or aggregated from open mirrors | Unknown / probably safe | step 01 |
 | ~~`532Strategien.csv`~~ — **removed 2026-05-21** | The wordlist was the NRW Grundwortschatz (verified by exact match against `wortliste-grundwortschatz-nrw.xlsx` shared strings); the worksheet's spelling-strategy category overlay was of uncertain provenance and was dropped. Spelling-strategy tagging is now done algorithmically by `spelling_strategy_classifier.py` (science-grounded; see `SPELLING_STRATEGY_SPEC.md`). | (no longer used) |
 | ~~`739Leo.csv`~~ — **removed 2026-05-21**; shipped-DB attribution stripped same day via `strip_leo_attribution.py` | Confirmed source: **Leoschule Lünen** (Catholic primary school, NRW), Rechtschreibwortschatz page at `https://www.leoschule-luenen.de/index.php/rechtschreibwortschatz/`. Their list is NRW core (533) + school‑specific additions (206) = 739 words. The page carries no explicit license. The NRW 533‑word core is already covered by our other sources; the 206 school‑specific additions are not pedagogically significant enough to justify the license uncertainty. 731 words in the shipped DB had a `LEO739` source-attribution token; after the strip, 693 remain in the DB with their other source tags intact, and 38 (school-context vocabulary that was solely-LEO-sourced) remain in the DB but with an empty `sources` array. | (no longer used) |
-| `Leipzig Corpora Collection` (`top10000de_unileipzig.txt`) | Universität Leipzig, Wortschatz Leipzig | Wordlists (rank/freq only) are CC‑BY for redistributable derivatives; the full corpus has per‑sub‑corpus licenses, some with NC clauses for the underlying text. We ship only ranks (facts), which is safe; the raw text is not shipped. | step 01 frequency signal |
-| Leeds Corpora (`leeds_freq.num`) | University of Leeds, Centre for Translation Studies | Their internet corpora are typically CC‑BY for research; commercial use of Web 1T‑derived counts may be restricted. We ship only the rank, not the source corpus. | step 01 frequency signal |
+| `Leipzig Corpora Collection` (`top10000de_unileipzig.txt`) | Universität Leipzig, Wortschatz Leipzig | **The downloadable frequency word lists are CC‑BY** — CC‑BY 3.0 on the older Frequency-Dictionaries release, CC‑BY 4.0 on the current downloadable lists — which **permits commercial use + redistribution with attribution** (verified 2026-05-30, see citation below). The NC restriction at Leipzig applies only to (a) the **live online service / automated querying** (CC‑BY‑NC per the Terms of Usage) and (b) **SentiWS** (CC‑BY‑NC‑SA 4.0) — neither of which we use. So our frequency ranks rest on an explicit open license; we do **not** need the "they're just facts" fallback. Raw corpus text is not shipped. | step 01 frequency signal |
+| Leeds Corpora (`leeds_freq.num`) | Serge Sharoff, University of Leeds, Centre for Translation Studies | We use the **internet-corpus German frequency list** (rank/ipm/lemma, from Sharoff's web-crawled corpora) — **not** the Kelly list. Leeds' internet corpora + derived wordlists are documented as **CC‑BY** (Sharoff); the one **NC** product at Leeds is the separate **Kelly** language-learner list (**CC‑BY‑NC‑SA 2.0**), which we do **not** use. Primary safety basis: we ship only a single numeric **frequency rank** (a fact), not the wordlist or corpus text. **Caveat:** `corpus.leeds.ac.uk` was unreachable on 2026-05-30 (repeated timeouts), so the CC‑BY characterization is from Leeds' corpus-description pages / Sharoff's documentation, **not a quoted license file** — re-confirm the verbatim license if Leeds usage is ever widened beyond the rank. | step 01 frequency signal |
 
 ### Concrete cleanup actions before commercial release
 
@@ -91,7 +91,32 @@ English Vocabulary Profile, SUBTLEX‑US**.
    formal license), dropped from the pipeline, and the residual
    `LEO739` source-attribution token stripped from the shipped DB
    metadata via `pipeline/voc-de/strip_leo_attribution.py`.
-4. **Leipzig + Leeds** — current usage (rank only) is safe. Don't widen.
+4. **Leipzig + Leeds** — current usage (rank only) is safe. **Leipzig's
+   downloadable frequency lists are affirmatively CC‑BY** (commercial use +
+   redistribution OK with attribution — not merely a "facts" argument); only
+   Leipzig's online service (CC‑BY‑NC) and SentiWS (CC‑BY‑NC‑SA) carry NC, and
+   we use neither. **Leeds**: we use the internet-corpus frequency list (CC‑BY
+   per Sharoff's docs — *not* the NC Kelly list) and ship only the rank (fact);
+   the verbatim Leeds license string couldn't be re-confirmed on 2026-05-30
+   (server down), so don't widen Leeds usage without re-checking. Attribution is
+   handled by the in‑app Licenses screen. Don't widen into co‑occurrence/sentence
+   data without a fresh per‑asset check.
+
+### License citations (verified 2026-05-30)
+
+- **Leipzig frequency lists — CC‑BY** (3.0 Frequency-Dictionaries / 4.0 current
+  downloads): <https://wortschatz-leipzig.de/en/freqdict> and
+  <https://wortschatz.uni-leipzig.de/en/download/>
+- **Leipzig online-service / general data — CC‑BY‑NC** (Terms of Usage):
+  <https://wortschatz.uni-leipzig.de/en/usage>
+- **SentiWS — CC‑BY‑NC‑SA 4.0** (NC; not used): stated on the Leipzig download
+  page above.
+- **Leeds internet corpora / wordlists — CC‑BY** (Sharoff): described at
+  <http://corpus.leeds.ac.uk/list.html> and <http://corpus.leeds.ac.uk/internet.html>
+  (server unreachable 2026-05-30 — characterization from the corpus-description
+  pages, not a quoted license file).
+- **Leeds *Kelly* language-learner lists — CC‑BY‑NC‑SA 2.0** (NC; a *different*
+  product, **not used**): <http://corpus.leeds.ac.uk/serge/kelly/>
 
 ---
 
