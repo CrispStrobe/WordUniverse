@@ -206,13 +206,21 @@ class _ClozeFlashGameState extends State<ClozeFlashGame>
     final pool = gradePool.length >= 10 ? gradePool : allWords;
     pool.shuffle(_rng);
 
-    // Distractor pool: just the word strings, shuffled
-    final wordStrings = allWords.map((w) => w.word).toList()..shuffle(_rng);
+    // Distractor pools: bucketed by word type (so distractors match the
+    // target's part of speech) plus a global fallback, all shuffled.
+    final byType = <GermanWordType, List<String>>{};
+    for (final w in allWords) {
+      byType.putIfAbsent(w.wordType, () => []).add(w.word);
+    }
+    for (final list in byType.values) {
+      list.shuffle(_rng);
+    }
+    final allWordStrings = allWords.map((w) => w.word).toList()..shuffle(_rng);
 
     final challenges = <_ClozeChallenge>[];
     for (final word in pool) {
       if (challenges.length >= _maxRounds) break;
-      final c = _buildChallenge(word, wordStrings);
+      final c = _buildChallenge(word, byType, allWordStrings);
       if (c != null) challenges.add(c);
     }
 
@@ -231,37 +239,69 @@ class _ClozeFlashGameState extends State<ClozeFlashGame>
     _startTimer();
   }
 
-  _ClozeChallenge? _buildChallenge(GermanWord word, List<String> wordPool) {
+  _ClozeChallenge? _buildChallenge(
+    GermanWord word,
+    Map<GermanWordType, List<String>> byType,
+    List<String> allWordStrings,
+  ) {
     final examples = word.apiEnrichment?.examples ?? [];
+
+    // Collect all usable (text, cloze) candidates.
+    final candidates = <(String, _ClozeResult)>[];
     for (final ex in examples) {
       final text = ex.text;
       if (text == null || text.length < 20 || text.length > 180) continue;
       final cloze = _tryBlank(text, word.word);
       if (cloze == null) continue;
-
-      final distractors = <String>[];
-      for (final w in wordPool) {
-        if (distractors.length >= _optionCount - 1) break;
-        if (w.toLowerCase() != word.word.toLowerCase()) distractors.add(w);
-      }
-      if (distractors.isEmpty) return null;
-
-      final options = [word.word, ...distractors.take(_optionCount - 1)];
-      options.shuffle(_rng);
-      final correctIndex =
-          options.indexWhere((o) => o.toLowerCase() == word.word.toLowerCase());
-      if (correctIndex < 0) return null;
-
-      return _ClozeChallenge(
-        word: word,
-        before: cloze.before,
-        after: cloze.after,
-        matchedForm: cloze.matchedForm,
-        options: options,
-        correctIndex: correctIndex,
-      );
+      candidates.add((text, cloze));
     }
-    return null;
+    if (candidates.isEmpty) return null;
+
+    // C4: the blank is filled by the form that actually appears in the
+    // sentence, which can be inflected, while the options would otherwise be
+    // bare lemmas. Prefer sentences where the matched form equals the lemma so
+    // the correct option reads naturally; otherwise surface the matched form
+    // (not the lemma) as the correct option so it actually fits the gap.
+    candidates.sort((a, b) {
+      final aExact =
+          a.$2.matchedForm.toLowerCase() == word.word.toLowerCase() ? 0 : 1;
+      final bExact =
+          b.$2.matchedForm.toLowerCase() == word.word.toLowerCase() ? 0 : 1;
+      return aExact.compareTo(bExact);
+    });
+
+    final (_, cloze) = candidates.first;
+    // Use the form that actually appears in the sentence as the correct answer.
+    final correctForm = cloze.matchedForm;
+
+    // C2: distractors restricted to the same word type as the target, deduped
+    // against the answer, the lemma and each other (case-insensitive).
+    final sameType = byType[word.wordType] ?? [];
+    final distractors = <String>[];
+    for (final d in [...sameType, ...allWordStrings]) {
+      if (distractors.length >= _optionCount - 1) break;
+      if (d.toLowerCase() != correctForm.toLowerCase() &&
+          d.toLowerCase() != word.word.toLowerCase() &&
+          !distractors.any((x) => x.toLowerCase() == d.toLowerCase())) {
+        distractors.add(d);
+      }
+    }
+    if (distractors.isEmpty) return null;
+
+    final options = [correctForm, ...distractors.take(_optionCount - 1)];
+    options.shuffle(_rng);
+    final correctIndex =
+        options.indexWhere((o) => o.toLowerCase() == correctForm.toLowerCase());
+    if (correctIndex < 0) return null;
+
+    return _ClozeChallenge(
+      word: word,
+      before: cloze.before,
+      after: cloze.after,
+      matchedForm: cloze.matchedForm,
+      options: options,
+      correctIndex: correctIndex,
+    );
   }
 
   // ─── timer ─────────────────────────────────────────────────────────────────
@@ -269,6 +309,28 @@ class _ClozeFlashGameState extends State<ClozeFlashGame>
   void _startTimer() {
     if (!_gameProvider.puzzleTimerEnabled) return;
     _timerCtrl.forward(from: 0);
+    _runCountdown();
+  }
+
+  // Pause the countdown (ticker + progress bar) during the feedback delay so the
+  // player isn't penalised for the answer-reveal pause; also keeps it from
+  // running once the game is over.
+  void _pauseTimer() {
+    _sessionTimer?.cancel();
+    _sessionTimer = null;
+    _timerCtrl.stop();
+  }
+
+  void _resumeTimer() {
+    if (!_gameProvider.puzzleTimerEnabled || _gameOver) return;
+    if (_secondsLeft <= 0) return;
+    // Resume the progress bar from where it left off.
+    _timerCtrl.forward(
+        from: 1.0 - (_secondsLeft / _sessionSeconds).clamp(0.0, 1.0));
+    _runCountdown();
+  }
+
+  void _runCountdown() {
     _sessionTimer?.cancel();
     _sessionTimer = Timer.periodic(const Duration(seconds: 1), (t) {
       if (!mounted) {
@@ -294,6 +356,9 @@ class _ClozeFlashGameState extends State<ClozeFlashGame>
 
     final challenge = _challenges[_index];
     final isCorrect = index == challenge.correctIndex;
+
+    // Freeze the session timer during the answer-reveal delay.
+    _pauseTimer();
 
     setState(() {
       _selectedOption = index;
@@ -325,7 +390,6 @@ class _ClozeFlashGameState extends State<ClozeFlashGame>
     Future.delayed(_advanceDelay, () {
       if (!mounted || _gameOver) return;
       if (_index + 1 >= _challenges.length) {
-        _sessionTimer?.cancel();
         _showGameOver();
         return;
       }
@@ -334,13 +398,15 @@ class _ClozeFlashGameState extends State<ClozeFlashGame>
         _selectedOption = null;
         _feedback = _Feedback.none;
       });
+      // Resume the timer once the next sentence is shown.
+      _resumeTimer();
     });
   }
 
   void _showGameOver() {
     if (_gameOver) return;
     _gameOver = true;
-    _sessionTimer?.cancel();
+    _pauseTimer();
 
     _gameProvider.reportOutcome(GameOutcome(
       gameType: 'cloze_flash',
@@ -673,23 +739,30 @@ class _ClozeFlashGameState extends State<ClozeFlashGame>
             hasAnswered && isCorrect ? 1.0 + (_pulseCtrl.value * 0.04) : 1.0,
         child: child,
       ),
-      child: GestureDetector(
-        onTap: hasAnswered ? null : () => _handleTap(index),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: border, width: 1.5),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            challenge.options[index],
-            style: TextStyle(
-                color: text, fontSize: 15, fontWeight: FontWeight.w500),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+      child: Semantics(
+        button: true,
+        enabled: !hasAnswered,
+        selected: isSelected,
+        label: challenge.options[index],
+        child: GestureDetector(
+          onTap: hasAnswered ? null : () => _handleTap(index),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            constraints: const BoxConstraints(minHeight: 48, minWidth: 48),
+            decoration: BoxDecoration(
+              color: bg,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: border, width: 1.5),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              challenge.options[index],
+              style: TextStyle(
+                  color: text, fontSize: 15, fontWeight: FontWeight.w500),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ),
       ),

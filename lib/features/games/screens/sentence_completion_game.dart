@@ -154,7 +154,7 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
       return;
     }
 
-    // Prefer SRI-weighted order (harder words first), shuffle as tiebreak
+    // Random order: words are presented in shuffled sequence (no SRI weighting).
     allWords.shuffle(_rng);
 
     final challenges = <_SentenceChallenge>[];
@@ -454,7 +454,7 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
       children: [
         _buildHeader(),
         Expanded(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
             child: Column(
               children: [
@@ -646,6 +646,8 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
           onTap: () => _handleTap(index),
           child: Container(
             width: double.infinity,
+            // Enforce the 48dp minimum touch target for accessibility.
+            constraints: const BoxConstraints(minHeight: 48),
             padding:
                 const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(

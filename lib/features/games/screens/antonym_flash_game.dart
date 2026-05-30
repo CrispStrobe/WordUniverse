@@ -35,11 +35,13 @@ class AntonymFlashGame extends StatefulWidget {
 class _AntonymChallenge {
   final GermanWord word;
   final String correctAntonym;
+  final List<String> antonyms;
   final List<String> options;
   final int correctIndex;
   const _AntonymChallenge({
     required this.word,
     required this.correctAntonym,
+    required this.antonyms,
     required this.options,
     required this.correctIndex,
   });
@@ -157,13 +159,10 @@ class _AntonymFlashGameState extends State<AntonymFlashGame>
     final pool = gradePool.length >= 10 ? gradePool : allWords;
     pool.shuffle(_rng);
 
-    // All word texts for distractor selection
-    final wordTexts = allWords.map((w) => w.word).toList()..shuffle(_rng);
-
     final challenges = <_AntonymChallenge>[];
     for (final word in pool) {
       if (challenges.length >= _maxRounds) break;
-      final c = _buildChallenge(word, wordTexts);
+      final c = _buildChallenge(word, allWords);
       if (c != null) challenges.add(c);
     }
 
@@ -183,25 +182,43 @@ class _AntonymFlashGameState extends State<AntonymFlashGame>
   }
 
   _AntonymChallenge? _buildChallenge(
-      GermanWord word, List<String> allTexts) {
-    final antonyms = word.apiEnrichment!.antonyms;
+      GermanWord word, List<GermanWord> allWords) {
+    final antonyms = word.apiEnrichment!.antonyms
+        .where((a) => a.trim().isNotEmpty)
+        .toList();
     if (antonyms.isEmpty) return null;
-    // Pick the first (most prominent) antonym as the correct answer.
-    final correct = antonyms.first;
+    // Variety: pick a random antonym among the clean ones as the displayed
+    // correct answer (any listed antonym is still accepted on tap).
+    final correct = antonyms[_rng.nextInt(antonyms.length)];
 
-    // Distractors: words of the same type, different from correct and from word
-    final distractors = <String>{};
-    for (final t in allTexts) {
-      if (distractors.length >= _optionCount - 1) break;
-      if (t != word.word &&
-          t.toLowerCase() != correct.toLowerCase() &&
-          !antonyms.map((a) => a.toLowerCase()).contains(t.toLowerCase())) {
-        distractors.add(t);
-      }
+    final antonymsLower = antonyms.map((a) => a.toLowerCase()).toSet();
+    bool isUsableDistractor(String t) =>
+        t.isNotEmpty &&
+        t != word.word &&
+        t.toLowerCase() != correct.toLowerCase() &&
+        !antonymsLower.contains(t.toLowerCase());
+
+    // Distractor pool: prefer words sharing the prompt's part of speech so the
+    // options are grammatically plausible. Fall back to the broader pool only
+    // when the same-type pool is too small to fill the options.
+    List<String> distractorPool(Iterable<GermanWord> source) =>
+        source.map((w) => w.word).where(isUsableDistractor).toSet().toList();
+
+    var sourceTexts = distractorPool(
+        allWords.where((w) => w.wordType == word.wordType));
+    if (sourceTexts.length < _optionCount - 1) {
+      // Not enough same-type words; widen to the full pool (deduped).
+      final widened = distractorPool(allWords);
+      sourceTexts = {...sourceTexts, ...widened}.toList();
     }
+    // Reshuffle the distractor source per challenge so the same filler words
+    // don't recur every round.
+    sourceTexts.shuffle(_rng);
+
+    final distractors = sourceTexts.take(_optionCount - 1).toList();
     if (distractors.isEmpty) return null;
 
-    final options = [correct, ...distractors.take(_optionCount - 1)];
+    final options = [correct, ...distractors];
     options.shuffle(_rng);
     final correctIndex = options.indexOf(correct);
     if (correctIndex < 0) return null;
@@ -209,6 +226,7 @@ class _AntonymFlashGameState extends State<AntonymFlashGame>
     return _AntonymChallenge(
       word: word,
       correctAntonym: correct,
+      antonyms: antonyms,
       options: options,
       correctIndex: correctIndex,
     );
@@ -239,7 +257,11 @@ class _AntonymFlashGameState extends State<AntonymFlashGame>
     if (_index >= _challenges.length) return;
 
     final challenge = _challenges[_index];
-    final isCorrect = index == challenge.correctIndex;
+    // Accept any of the word's listed antonyms as correct, not just the one
+    // chosen as the displayed answer.
+    final tappedText = challenge.options[index].toLowerCase();
+    final isCorrect = index == challenge.correctIndex ||
+        challenge.antonyms.any((a) => a.toLowerCase() == tappedText);
 
     setState(() {
       _selectedOption = index;
@@ -295,6 +317,7 @@ class _AntonymFlashGameState extends State<AntonymFlashGame>
       wasSuccessful: _total > 0 && (_correct / _total) >= 0.7,
     ));
 
+    if (!mounted) return;
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -577,23 +600,28 @@ class _AntonymFlashGameState extends State<AntonymFlashGame>
             : 1.0,
         child: child,
       ),
-      child: GestureDetector(
-        onTap: hasAnswered ? null : () => _handleTap(index),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: border, width: 1.5),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            challenge.options[index],
-            style: TextStyle(
-                color: text, fontSize: 15, fontWeight: FontWeight.w500),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+      child: Semantics(
+        button: true,
+        label: challenge.options[index],
+        child: GestureDetector(
+          onTap: hasAnswered ? null : () => _handleTap(index),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            constraints: const BoxConstraints(minHeight: 48),
+            decoration: BoxDecoration(
+              color: bg,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: border, width: 1.5),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              challenge.options[index],
+              style: TextStyle(
+                  color: text, fontSize: 15, fontWeight: FontWeight.w500),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ),
       ),

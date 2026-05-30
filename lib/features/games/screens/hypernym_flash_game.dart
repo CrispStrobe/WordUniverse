@@ -157,14 +157,17 @@ class _HypernymFlashGameState extends State<HypernymFlashGame>
   }
 
   void _buildChallenges() {
-    final allWords = _vocabService
-        .getAllWords(_gameProvider)
-        .where((w) =>
-            !w.isProperNoun &&
-            !w.word.contains('_') &&
-            !w.word.contains(' ') &&
-            _pickHypernym(w) != null)
-        .toList();
+    // Compute the chosen hypernym once per word and reuse it everywhere
+    // (filter, distractor pool, and challenge build) instead of recomputing.
+    final picked = <GermanWord, String>{};
+    for (final w in _vocabService.getAllWords(_gameProvider)) {
+      if (w.isProperNoun || w.word.contains('_') || w.word.contains(' ')) {
+        continue;
+      }
+      final h = _pickHypernym(w);
+      if (h != null) picked[w] = h;
+    }
+    final allWords = picked.keys.toList();
 
     if (allWords.isEmpty) {
       setState(() => _isLoading = false);
@@ -177,17 +180,13 @@ class _HypernymFlashGameState extends State<HypernymFlashGame>
     final pool = gradePool.length >= 10 ? gradePool : allWords;
     pool.shuffle(_rng);
 
-    final hypernymPool = <String>[];
-    for (final w in allWords) {
-      final h = _pickHypernym(w);
-      if (h != null) hypernymPool.add(h);
-    }
+    final hypernymPool = picked.values.toList();
     hypernymPool.shuffle(_rng);
 
     final challenges = <_HypernymChallenge>[];
     for (final word in pool) {
       if (challenges.length >= _maxRounds) break;
-      final c = _buildChallenge(word, hypernymPool);
+      final c = _buildChallenge(word, picked[word]!, hypernymPool);
       if (c != null) challenges.add(c);
     }
 
@@ -207,10 +206,7 @@ class _HypernymFlashGameState extends State<HypernymFlashGame>
   }
 
   _HypernymChallenge? _buildChallenge(
-      GermanWord word, List<String> hypernymPool) {
-    final correct = _pickHypernym(word);
-    if (correct == null) return null;
-
+      GermanWord word, String correct, List<String> hypernymPool) {
     // Exclude EVERY hypernym of this word from the distractor pool, not just
     // the chosen `correct` — a word often has several valid hypernyms, and any
     // of them appearing as a "wrong" option would actually be correct.
@@ -325,6 +321,7 @@ class _HypernymFlashGameState extends State<HypernymFlashGame>
       wasSuccessful: _total > 0 && (_correct / _total) >= 0.7,
     ));
 
+    if (!mounted) return;
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -619,23 +616,30 @@ class _HypernymFlashGameState extends State<HypernymFlashGame>
             : 1.0,
         child: child,
       ),
-      child: GestureDetector(
-        onTap: hasAnswered ? null : () => _handleTap(index),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: border, width: 1.5),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            challenge.options[index],
-            style: TextStyle(
-                color: text, fontSize: 15, fontWeight: FontWeight.w500),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+      child: Semantics(
+        button: true,
+        label: challenge.options[index],
+        child: GestureDetector(
+          onTap: hasAnswered ? null : () => _handleTap(index),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 48),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              decoration: BoxDecoration(
+                color: bg,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: border, width: 1.5),
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                challenge.options[index],
+                style: TextStyle(
+                    color: text, fontSize: 15, fontWeight: FontWeight.w500),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
           ),
         ),
       ),

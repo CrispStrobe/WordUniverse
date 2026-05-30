@@ -97,7 +97,7 @@ class _GrossstadtGameState extends State<GrossstadtGame>
 
     _conveyorController = AnimationController(
       vsync: this,
-      duration: Duration(seconds: _conveyorSpeed.toInt()),
+      duration: Duration(milliseconds: (_conveyorSpeed * 1000).toInt()),
     );
 
     _conveyorAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
@@ -170,15 +170,17 @@ class _GrossstadtGameState extends State<GrossstadtGame>
     final adjectives = _getWordsForGame(GermanWordType.adjektiv, 12);
     final nouns = _getWordsForGame(GermanWordType.substantiv, 12);
 
-    _log('Available: ${verbs.length} verbs, ${adjectives.length} adjectives, ${nouns.length} nouns');
-    _log('');
+    if (kDebugMode) {
+      _log('Available: ${verbs.length} verbs, ${adjectives.length} adjectives, ${nouns.length} nouns');
+      _log('');
+    }
 
     // Generate variants
     _log('--- GENERATING VERB VARIANTS ---');
     for (final word in verbs) {
       final variants = _generateVerbVariants(word);
       _itemQueue.addAll(variants);
-      if (variants.isNotEmpty) {
+      if (kDebugMode && variants.isNotEmpty) {
         _log('  Generated ${variants.length} variants for "${word.lemma}"');
       }
     }
@@ -188,7 +190,7 @@ class _GrossstadtGameState extends State<GrossstadtGame>
     for (final word in adjectives) {
       final variants = _generateAdjectiveVariants(word);
       _itemQueue.addAll(variants);
-      if (variants.isNotEmpty) {
+      if (kDebugMode && variants.isNotEmpty) {
         _log('  Generated ${variants.length} variants for "${word.lemma}"');
       }
     }
@@ -198,7 +200,7 @@ class _GrossstadtGameState extends State<GrossstadtGame>
     for (final word in nouns) {
       final variants = _generateNounVariants(word);
       _itemQueue.addAll(variants);
-      if (variants.isNotEmpty) {
+      if (kDebugMode && variants.isNotEmpty) {
         _log('  Generated ${variants.length} variants for "${word.word}"');
       }
     }
@@ -209,10 +211,12 @@ class _GrossstadtGameState extends State<GrossstadtGame>
       _itemQueue.removeRange(_totalItems, _itemQueue.length);
     }
 
-    _log('');
-    _log('========================================');
-    _log('Total items generated: ${_itemQueue.length}');
-    _log('========================================');
+    if (kDebugMode) {
+      _log('');
+      _log('========================================');
+      _log('Total items generated: ${_itemQueue.length}');
+      _log('========================================');
+    }
   }
 
   /// Check if a verb is in infinitive form (base form)
@@ -244,22 +248,17 @@ class _GrossstadtGameState extends State<GrossstadtGame>
     if (type == GermanWordType.verb) {
       // For verbs: Only keep infinitives (lemma ends in -en, -ern, -eln)
       filtered = allWords.where((w) => _isInfinitive(w.lemma)).toList();
-      _log('Filtered verbs: ${filtered.length} infinitives out of ${allWords.length} total');
+      if (kDebugMode) {
+        _log('Filtered verbs: ${filtered.length} infinitives out of ${allWords.length} total');
+      }
     } else if (type == GermanWordType.adjektiv) {
       // For adjectives: Prefer words with clean lemmas
       filtered = allWords;
     } else {
-      // For nouns: All are okay but filter out proper nouns that are just names
-      filtered = allWords.where((w) {
-        // Keep common nouns, filter out single-letter names or very short proper nouns
-        if (w.word.length < 3) return false;
-        // Basic check: if it's a proper noun but has no article/genus info, might be a name
-        final isLikelyProperName = w.word[0] == w.word[0].toUpperCase() && 
-                                    w.article == null && 
-                                    w.genus == null &&
-                                    w.word.length < 6;
-        return !isLikelyProperName;
-      }).toList();
+      // For nouns: exclude proper nouns using the model's flag (German nouns are
+      // all capitalized, so a case/length heuristic over/under-filters). This
+      // mirrors the other games.
+      filtered = allWords.where((w) => !w.isProperNoun).toList();
     }
 
     filtered.shuffle();
@@ -270,12 +269,16 @@ class _GrossstadtGameState extends State<GrossstadtGame>
 
   /// Helper to get present tense conjugated form from API data
   String? _getConjugatedForm(GermanWord word, String person) {
-    _log('    → Looking for conjugation: $person form of "${word.lemma}"');
-    
+    if (kDebugMode) {
+      _log('    → Looking for conjugation: $person form of "${word.lemma}"');
+    }
+
     // Try API data first
     if (word.wiktionaryInflections.isNotEmpty) {
-      _log('      → Found ${word.wiktionaryInflections.length} inflections in data');
-      
+      if (kDebugMode) {
+        _log('      → Found ${word.wiktionaryInflections.length} inflections in data');
+      }
+
       for (final inflection in word.wiktionaryInflections) {
         final formText = inflection['form_text'] as String?;
         final tagsRaw = inflection['tags'];
@@ -306,7 +309,7 @@ class _GrossstadtGameState extends State<GrossstadtGame>
         }
         
         if (matches) {
-          _log('      ✓ Found: "$formText" (tags: $tagString)');
+          if (kDebugMode) _log('      ✓ Found: "$formText" (tags: $tagString)');
           return formText;
         }
       }
@@ -328,7 +331,7 @@ class _GrossstadtGameState extends State<GrossstadtGame>
       } else {
         return null;
       }
-      _log('      ✓ Fallback: "$result"');
+      if (kDebugMode) _log('      ✓ Fallback: "$result"');
       return result;
     }
     
@@ -356,7 +359,7 @@ class _GrossstadtGameState extends State<GrossstadtGame>
 
   String _getPossessiveArticle(String baseArticle, String nounArticle) {
     final result = getPossessiveArticle(baseArticle, nounArticle);
-    _log('    → Noun article: $nounArticle → $result');
+    if (kDebugMode) _log('    → Noun article: $nounArticle → $result');
     return result;
   }
 
@@ -367,12 +370,14 @@ class _GrossstadtGameState extends State<GrossstadtGame>
     
     // Skip if lemma is not an infinitive
     if (!_isInfinitive(word.lemma)) {
-      _log('  Verb: "${word.word}" - SKIPPED (lemma "${word.lemma}" is not infinitive)');
+      if (kDebugMode) {
+        _log('  Verb: "${word.word}" - SKIPPED (lemma "${word.lemma}" is not infinitive)');
+      }
       return items;
     }
-    
-    _log('  Verb: "${word.word}" (lemma: "${word.lemma}")');
-    
+
+    if (kDebugMode) _log('  Verb: "${word.word}" (lemma: "${word.lemma}")');
+
     final infinitive = word.lemma.toLowerCase(); 
 
     // 1. Nominalization (Groß) -> "DAS LAUFEN"
@@ -389,7 +394,7 @@ class _GrossstadtGameState extends State<GrossstadtGame>
       wordId: word.id,
       lemma: word.lemma,
     ));
-    _log('    ✓ Created: "$article $infinitive" (capitalized)');
+    if (kDebugMode) _log('    ✓ Created: "$article $infinitive" (capitalized)');
 
     // 2. Conjugated (Klein) -> "ICH LAUFE"
     final pronouns = ['ICH', 'DU', 'WIR'];
@@ -407,7 +412,7 @@ class _GrossstadtGameState extends State<GrossstadtGame>
         wordId: word.id,
         lemma: word.lemma,
       ));
-      _log('    ✓ Created: "$pronoun $conjugated" (lowercase)');
+      if (kDebugMode) _log('    ✓ Created: "$pronoun $conjugated" (lowercase)');
     } else {
       _log('    ✗ Skipped conjugated form (could not conjugate)');
     }
@@ -426,7 +431,7 @@ class _GrossstadtGameState extends State<GrossstadtGame>
       wordId: word.id,
       lemma: word.lemma,
     ));
-    _log('    ✓ Created: "$modal $infinitive" (lowercase)');
+    if (kDebugMode) _log('    ✓ Created: "$modal $infinitive" (lowercase)');
 
     return items;
   }
@@ -436,7 +441,9 @@ class _GrossstadtGameState extends State<GrossstadtGame>
     
     // Get clean base form
     final adjBase = _getAdjectiveBase(word.lemma);
-    _log('  Adjective: "${word.word}" (lemma: "${word.lemma}", base: "$adjBase")');
+    if (kDebugMode) {
+      _log('  Adjective: "${word.word}" (lemma: "${word.lemma}", base: "$adjBase")');
+    }
 
     // 1. Nominalization (Groß) -> "ETWAS GUTES" — only when we can form the
     //    nominalised word correctly; otherwise skip this variant.
@@ -454,7 +461,7 @@ class _GrossstadtGameState extends State<GrossstadtGame>
         wordId: word.id,
         lemma: adjBase, // Use clean base for SRI
       ));
-      _log('    ✓ Created: "$indefinite $nominalizedForm" (capitalized)');
+      if (kDebugMode) _log('    ✓ Created: "$indefinite $nominalizedForm" (capitalized)');
     }
 
     // 2. Predicative (Klein) -> "IST GUT"
@@ -471,7 +478,7 @@ class _GrossstadtGameState extends State<GrossstadtGame>
       wordId: word.id,
       lemma: adjBase, // Use clean base for SRI
     ));
-    _log('    ✓ Created: "$copula $adjBase" (lowercase)');
+    if (kDebugMode) _log('    ✓ Created: "$copula $adjBase" (lowercase)');
 
     return items;
   }
@@ -479,7 +486,9 @@ class _GrossstadtGameState extends State<GrossstadtGame>
   List<CapitalizationItem> _generateNounVariants(GermanWord word) {
     final items = <CapitalizationItem>[];
     final noun = word.word;
-    _log('  Noun: "$noun" (article: ${word.article}, genus: ${word.genus})');
+    if (kDebugMode) {
+      _log('  Noun: "$noun" (article: ${word.article}, genus: ${word.genus})');
+    }
     
     // Get proper article
     String article = (word.article ?? 'das').toUpperCase();
@@ -498,7 +507,7 @@ class _GrossstadtGameState extends State<GrossstadtGame>
       wordId: word.id,
       lemma: word.lemma,
     ));
-    _log('    ✓ Created: "$article $noun" (capitalized)');
+    if (kDebugMode) _log('    ✓ Created: "$article $noun" (capitalized)');
 
     // 2. Possessive Context (Groß) -> "MEIN TISCH" / "MEINE STIRN"
     final possessiveBases = ['MEIN', 'DEIN', 'UNSER', 'KEIN'];
@@ -515,7 +524,7 @@ class _GrossstadtGameState extends State<GrossstadtGame>
       wordId: word.id,
       lemma: word.lemma,
     ));
-    _log('    ✓ Created: "$poss $noun" (capitalized)');
+    if (kDebugMode) _log('    ✓ Created: "$poss $noun" (capitalized)');
 
     return items;
   }

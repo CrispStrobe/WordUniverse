@@ -35,9 +35,23 @@
   (German → S; synchronous tap-race lock; painter repaint gate), **word_sort**
   (German hints/Semantics → S; empty-state; double-drop guard; hoisted lookup).
   Full analyze clean, 465 tests pass.
-- Next: Tier 4 batch 2 (word_type_whirl, word_find, translation/reverse/
-  expression/proverb_cloze, conjugation, grossschreib/grossstadt, spelling_spotter,
-  flash a11y) + Tier 5/6.
+- **2026-05-30 — Tier 4 batch 2 done & committed** (8 games, +35 keys):
+  word_type_whirl, word_find, translation_flash, expression_flash, proverb_cloze,
+  conjugation_drill, grossschreib, spelling_spotter (i18n + a11y + the C4 cloze
+  fix for expression/proverb + spelling badge-on-wrong). Full analyze, 465 tests.
+- **2026-05-30 — Tier 4 batch 3 + Tier 5/6 finish done & committed** (8 games,
+  no new keys — reused visible text for Semantics): antonym_flash, synonym_flash,
+  hypernym_flash, word_class_flash, cloze_flash (C4 + POS distractors + timer
+  pause), definition_quiz (scroll + tap-to-advance + state semantics),
+  sentence_completion (scroll + comment fix), grossstadt (isProperNoun filter +
+  ms duration + log guards). C2 distractor POS-filtering applied to the semantic
+  flash trio; synonym ASCII-regex fixed (keeps ä/ö/ü/ß). a11y `Semantics(button)`
+  + ≥48dp across the option-based games. Full analyze clean.
+- **Tier 7 (dedup refactors) — DEFERRED (recommended).** Every game now works
+  correctly; extracting shared flash/falling/quiz bases is a large structural
+  refactor touching ~20 files at once, with regression risk that outweighs the
+  maintainability gain at this point. Best done as its own focused effort with
+  the games stable. Documented as optional.
 
 ---
 
