@@ -8,6 +8,17 @@ from typing import Optional
 from spelling_strategy_classifier import WordFeatures
 
 
+def load_stems(con, min_len: int = 4) -> set:
+    """Build the compound-splitting stem lexicon: lowercased non-Vorname
+    headwords of length ≥ min_len. Pass the result to `classify(f, stems=...)`
+    to enable noun-compound detection."""
+    stems = set()
+    for word, wt in con.execute("SELECT word, word_type FROM words"):
+        if wt and str(wt).strip() and word and len(word) >= min_len:
+            stems.add(word.lower())
+    return stems
+
+
 def _first_ipa(enrich: dict) -> Optional[str]:
     pr = enrich.get("pronunciation") or []
     if isinstance(pr, list):

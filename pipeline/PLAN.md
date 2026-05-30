@@ -372,10 +372,18 @@ doppelkonsonant 20%, morphem 12%, dehnung 11%, verwandt 5%, merkwort 3%.
    Erweiterungsprobe) lives in the per-word explanation, not the category.
 2. **`dehnung` is a 7th category** (Thomé's long-vowel-marker Orthographeme).
 
+### Noun compounds ✅ (added 2026-05-30)
+
+`morphem` now also fires on **noun compounds**, detected by splitting the lemma
+into two known DB stems (modifier ≥4 + a ≥4-char or curated 3-char head),
+Fugenelement-aware (`Haus+Tür`, `Bahn+Hof`, `Geburts+tag`); the explanation
+names the parts. +491 net-new `morphem` nouns; high precision (simplex words like
+`Kamerad`/`Inserat` no longer false-split). Residual: a few proper-noun splits
+(`Dortmund`) and occasional imperfect parts on inflected heads (`Nachnamen`) —
+category correct, cosmetic only.
+
 ### Known limitations (documented in SPEC)
 
-- **Compound detection deferred** — `morphem` fires on affixes/particles, not yet
-  on noun compounds (`Haustür` → `klangtreu`).
 - **Umlaut-Stammkonstanz is explanation-only, not an auto-trigger** — it mostly
   manifests in inflected forms (not the base headword) and DB inflections are too
   noisy to fire it cleanly. `verwandt` fires reliably on Auslautverhärtung.

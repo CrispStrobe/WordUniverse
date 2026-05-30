@@ -206,11 +206,44 @@ def _separable_particle(forms: list[str]) -> bool:
     return any(RE_SEP_PARTICLE.search(f or "") for f in forms)
 
 
-def _is_compound(f: "WordFeatures") -> bool:
-    """Heuristic compound: a long noun whose hyphenation joins two parts each
-    of which could stand alone (≥3 chars). Conservative — only fires on clearly
-    multi-stem hyphenations like 'Haus-tür', not on syllabified simplexes."""
-    return False  # handled via suffix/prefix for v1; compound split deferred
+# Linking morphemes (Fugenelemente) between compound parts.
+FUGEN = ("", "s", "es", "n", "en", "er", "e", "ns")
+
+# Curated unambiguous 3-letter compound HEADS (concrete nouns). The general
+# stem set requires ≥4 chars to avoid junk heads (articles der/die/den, stray
+# fragments); these short, very common heads are safe to allow explicitly so we
+# still catch Haus-tür / Bahn-hof / Frei-tag / Hand-tuch etc.
+HEAD3_ALLOW = frozenset({
+    "tag", "tür", "hof", "weg", "zug", "rad", "uhr", "bad", "see", "tor",
+    "amt", "ohr", "arm", "hut", "bus", "eis", "öl", "kuh",
+})
+
+
+def _split_compound(low: str, stems: set):
+    """Split a (lowercased) NOUN lemma into modifier + head where both are known
+    stems (DB headwords ≥3 chars), allowing a Fugenelement between them. Returns
+    (modifier, head) or None. Caller restricts this to nouns; suffix-derived
+    words (romantisch, Freundschaft) are excluded so the suffix rule handles
+    them. Heuristic — favours the longest modifier; occasional imperfect part
+    splits on inflected heads (Nachnamen→nach+amen) but the morphem CATEGORY is
+    correct. Not run when stems is None (keeps classify() pure-by-default)."""
+    if not stems or len(low) < 7:
+        return None
+    if any(low.endswith(s) and len(low) > len(s) + 2 for s in SUFFIXES):
+        return None  # derivation, not a compound
+    for i in range(len(low) - 3, 3, -1):
+        head = low[i:]
+        head_ok = (len(head) >= 4 and head in stems) or head in HEAD3_ALLOW
+        if not head_ok:
+            continue
+        mod = low[:i]
+        for fz in FUGEN:
+            if fz and not mod.endswith(fz):
+                continue
+            base = mod[:len(mod) - len(fz)] if fz else mod
+            if len(base) >= 4 and base in stems:   # modifier ≥4 (no die/and/ins junk)
+                return (base, head)
+    return None
 
 
 def _merkwort(lemma: str, ipa: str) -> bool:
@@ -276,7 +309,7 @@ def _find_double_reveal(lemma: str, forms: list[str]) -> Optional[str]:
     return None
 
 
-def _explain(cats: set, primary: str, f: "WordFeatures") -> str:
+def _explain(cats: set, primary: str, f: "WordFeatures", compound=None) -> str:
     lemma = f.lemma or f.word
     forms = f.inflected_forms
     hy = f.hyphenation[0] if f.hyphenation else lemma
@@ -320,6 +353,10 @@ def _explain(cats: set, primary: str, f: "WordFeatures") -> str:
                 "verlängerst oder ein verwandtes Wort suchst.")
 
     if primary == MORPHEM:
+        if compound:
+            a, b = compound[0].capitalize(), compound[1].capitalize()
+            return (f"Das Wort ist zusammengesetzt: „{a} + {b}“. "
+                    "Schreibe beide Bausteine, dann stimmt das Wort.")
         return (f"Das Wort besteht aus Bausteinen ({hy}). Kennst du die "
                 f"Bausteine, schreibst du es richtig.")
 
@@ -342,12 +379,17 @@ def _explain(cats: set, primary: str, f: "WordFeatures") -> str:
 
 # ── core classifier ──────────────────────────────────────────────────────────
 
-def classify(f: WordFeatures) -> Classification:
+def classify(f: WordFeatures, stems: set = None) -> Classification:
+    """Classify one word. `stems` is an optional set of known DB headwords
+    (lowercased); when supplied, noun compounds are detected and tagged
+    `morphem` (with a "X + Y" explanation). Omitting it keeps classify() pure
+    and dependency-free (unit tests, ad-hoc use)."""
     lemma = (f.lemma or f.word or "").strip()
     ipa = f.ipa or ""
     cats: set[str] = set()
+    is_noun = _is_noun(f)
 
-    if _is_noun(f):
+    if is_noun:
         cats.add(GROSSSCHREIBUNG)
     if _doppelkonsonant(lemma):
         cats.add(DOPPELKONSONANT)
@@ -360,7 +402,9 @@ def classify(f: WordFeatures) -> Classification:
     # than auto-tagged here. See SPELLING_STRATEGY_SPEC.md §verwandt.
     if _final_devoicing(lemma, ipa):
         cats.add(VERWANDT)
-    if _has_prefix(lemma) or _has_suffix(lemma) or _separable_particle(f.inflected_forms):
+    compound = _split_compound(lemma.lower(), stems) if is_noun else None
+    if (compound or _has_prefix(lemma) or _has_suffix(lemma)
+            or _separable_particle(f.inflected_forms)):
         cats.add(MORPHEM)
     if _merkwort(lemma, ipa):
         cats.add(MERKWORT)
@@ -373,7 +417,7 @@ def classify(f: WordFeatures) -> Classification:
     return Classification(
         detailed=sorted(cats),
         detailed_primary=primary,
-        explanation=_explain(cats, primary, f),
+        explanation=_explain(cats, primary, f, compound),
     )
 
 

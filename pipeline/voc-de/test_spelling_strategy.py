@@ -19,7 +19,7 @@ from spelling_strategy_classifier import (
     WordFeatures, classify, KLANGTREU, DOPPELKONSONANT, DEHNUNG, VERWANDT,
     MORPHEM, MERKWORT, GROSSSCHREIBUNG,
 )
-from spelling_db_features import features_from_row
+from spelling_db_features import features_from_row, load_stems
 
 HERE = Path(__file__).parent
 DB = HERE / "grundwortschatz.db"
@@ -97,6 +97,29 @@ def test_klangtreu_is_residual():
     assert c.detailed == [KLANGTREU]
 
 
+def test_noun_compound_is_morphem_with_explanation():
+    # with a stem lexicon, a noun compound is tagged morphem and the
+    # explanation names the parts
+    stems = {"haus", "frau", "tür"}
+    c = classify(WF("Hausfrau", word_type="substantiv", article="die"), stems)
+    assert MORPHEM in c.detailed
+    assert "Haus" in c.explanation and "Frau" in c.explanation
+
+
+def test_no_compound_without_stems():
+    # classify() stays pure/compound-free when no stem lexicon is supplied
+    c = classify(WF("Hausfrau", word_type="substantiv", article="die"))
+    assert MORPHEM not in c.detailed
+
+
+def test_simplex_noun_not_falsely_split():
+    # Kamerad ends in the allowed 3-char head 'rad', but its modifier 'kame'
+    # is not a real stem → must NOT split (guards against simplex false splits)
+    stems = {"rad", "feind", "auto", "bahn"}  # realistic: 'kame' is not a word
+    c = classify(WF("Kamerad", word_type="substantiv", article="der"), stems)
+    assert MORPHEM not in c.detailed
+
+
 def test_grossschreibung_primary_only_when_otherwise_regular():
     # Nase: noun, otherwise regular → gross is primary
     c1 = classify(WF("Nase", word_type="substantiv", article="die", ipa="[ˈnaːzə]"))
@@ -125,6 +148,7 @@ def test_every_word_gets_an_explanation():
 def test_gold_exact_agreement():
     con = sqlite3.connect(DB)
     cur = con.cursor()
+    stems = load_stems(con)
     n = prim_ok = set_ok = 0
     with GOLD.open(encoding="utf-8") as f:
         for r in csv.DictReader(f):
@@ -136,7 +160,7 @@ def test_gold_exact_agreement():
             if not row:
                 continue
             n += 1
-            c = classify(features_from_row(*row))
+            c = classify(features_from_row(*row), stems)
             prim_ok += c.detailed_primary == r["primary"].strip()
             set_ok += set(c.detailed) == set(r["all"].split())
     con.close()

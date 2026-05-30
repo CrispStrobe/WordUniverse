@@ -100,8 +100,13 @@ Each entry: **principle** · **decision rule** (algorithmic) · **citation** ·
 ### 5. `morphem` — morphematisches Prinzip (Wortbausteine)
 - **Rule:** the word is built from recognizable morphemes — a high-confidence
   inseparable prefix (`ver/vor/ent/zer/über/unter/…`), a derivational suffix
-  (`ung/heit/keit/schaft/lich/bar/…`), a compound boundary, or a separable
-  particle read off the inflection table (`baue ab`).
+  (`ung/heit/keit/schaft/lich/bar/…`), a separable particle read off the
+  inflection table (`baue ab`), **or a noun compound** detected by splitting the
+  lemma into two known stems (DB headwords, modifier ≥4 chars + a ≥4-char or
+  curated 3-char head like `Tür`/`Tag`/`Hof`), allowing a Fugenelement
+  (`Geburts-tag`, `Sonnen-schein`). The explanation names the parts
+  („zusammengesetzt: Haus + Tür"). Suffix-derived words (`romantisch`) are
+  excluded from splitting so the suffix rule handles them.
 - **Citation:** Eisenberg/Fuhrhop morphematisches Prinzip; Thomé Wortstamm/
   word-formation.
 - **Explanation:** „Das Wort besteht aus Bausteinen — Vorsilbe, Nachsilbe oder

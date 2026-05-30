@@ -28,7 +28,7 @@ from collections import Counter
 from pathlib import Path
 
 from spelling_strategy_classifier import classify
-from spelling_db_features import features_from_row
+from spelling_db_features import features_from_row, load_stems
 
 HERE = Path(__file__).parent
 DEFAULT_DB = HERE / "grundwortschatz.db"
@@ -53,6 +53,7 @@ def main():
 
     con = sqlite3.connect(args.db)
     cur = con.cursor()
+    stems = load_stems(con)
     cur.execute("SELECT id, word, word_type, article, enrichment_json, "
                 "metadata_json FROM words")
     rows = cur.fetchall()
@@ -73,7 +74,7 @@ def main():
             skip_other += 1
             continue
 
-        c = classify(features_from_row(word, wt, art, ej, mj))
+        c = classify(features_from_row(word, wt, art, ej, mj), stems)
         enrich["spellingStrategy"] = c.detailed
         enrich["spellingStrategyPrimary"] = c.detailed_primary
         enrich["spellingExplanation"] = c.explanation
