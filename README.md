@@ -133,3 +133,9 @@ This project uses a dual-license model — see [DATA_LICENSE.md](DATA_LICENSE.md
 - **Pipeline scripts** (`pipeline/`) — MIT License.
 
 Full attribution for every data source is shown in the in-app **Settings → Licenses** screen.
+## Deploying
+
+Push to `main` → GitHub Actions builds the Flutter web app, runs analyze + tests,
+and deploys to Vercel production (aliased to `wortuniversum.vercel.app`). The
+`VERCEL_TOKEN` repo secret authenticates the deploy; Vercel's native Git
+integration is intentionally disconnected so Actions is the sole deployer.
