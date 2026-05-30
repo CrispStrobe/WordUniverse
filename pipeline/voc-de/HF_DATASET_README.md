@@ -219,8 +219,8 @@ wordlists declared this lemma. Distribution across the 10,450 words:
 |---|---|---|---|
 | `HERMIT` | 8,428 | HermitDave / OpenSubtitles 2018 frequency list | CC-BY-SA 4.0 |
 | `BUCHMEIER` | 7,846 | Matthias Buchmeier German frequency list (EN Wiktionary user namespace) | CC-BY-SA 4.0 |
-| `LEIPZIG` | 5,970 | Wortschatz Leipzig rank | facts (rank-only safe) |
-| `LEEDS` | 4,162 | Leeds Corpora rank | facts (rank-only safe) |
+| `LEIPZIG` | 5,970 | Wortschatz Leipzig frequency rank | CC-BY (downloadable frequency lists; commercial OK) |
+| `LEEDS` | 4,162 | Leeds internet-corpus frequency rank (Sharoff; not the Kelly list) | rank-only (fact); Leeds corpora documented CC-BY |
 | `B1` | 1,801 | DWDS Goethe-Zertifikat B1 lemma list | factual reference |
 | `HESSEN` | 1,599 | Grundwortschatz Hessen (Hess. Kultusministerium) | §5 UrhG amtliches Werk |
 | `NIEDERSACHSEN` | 1,455 | Orientierungswortschatz Niedersachsen (Nds. KuMi, 2015) | §5 UrhG amtliches Werk |

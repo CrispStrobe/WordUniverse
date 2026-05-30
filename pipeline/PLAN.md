@@ -39,7 +39,7 @@ needs you. Nothing blocks the app.
 
 | Source | Verdict |
 |---|---|
-| Leipzig Corpora (co-occurrences/sentences) | corpora "protected by copyright"; SentiWS CC-BY-**NC** → skip (freq *facts* already used) |
+| Leipzig Corpora (co-occurrences/sentences) | The downloadable frequency lists are **CC-BY** (3.0/4.0, commercial OK — [freqdict](https://wortschatz-leipzig.de/en/freqdict), [download](https://wortschatz.uni-leipzig.de/en/download/)); only the live online service is CC-BY-**NC** ([usage](https://wortschatz.uni-leipzig.de/en/usage)) and SentiWS is CC-BY-NC-SA. Frequency ranks already integrated under CC-BY → no need to widen into co-occurrence/sentence data; **skipped on value, not license** |
 | UZH digitale Sprachressourcen | aggregator; listed corpora academic/access-restricted (DeReKo query-only, Falko/KiDKo) — not redistributable |
 | ispell/aspell/hunspell (igerman98) | GPL ✅ but only a wordlist + affixes → low value (= the deferred inflection fallback) |
 | github davidak/wortliste | plain 240k wordlist for passphrases; mixes CC-BY-**ND** (DWDS) + CC-BY-**NC** (DeReWo) → unusable + no structure |
