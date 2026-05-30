@@ -2538,4 +2538,153 @@ class SDe extends S {
   String wordSortExplainAdjQuality(String word) {
     return '✓ Adjektiv: $word → beschreibt eine Eigenschaft';
   }
+
+  @override
+  String wordTypeWhirlSemanticsLevel(int level) {
+    return 'Stufe $level';
+  }
+
+  @override
+  String wordTypeWhirlSemanticsRound(int round, int total) {
+    return 'Runde $round von $total';
+  }
+
+  @override
+  String wordTypeWhirlSemanticsStreak(int streak) {
+    return 'Serie: $streak';
+  }
+
+  @override
+  String wordTypeWhirlSemanticsTime(int seconds) {
+    return 'Zeit: $seconds Sekunden';
+  }
+
+  @override
+  String wordTypeWhirlSemanticsGems(int gems) {
+    return 'Edelsteine: $gems';
+  }
+
+  @override
+  String wordTypeWhirlSemanticsWord(String word) {
+    return 'Wort $word';
+  }
+
+  @override
+  String wordTypeWhirlSemanticsTapHint(String wordType) {
+    return 'Tippe wenn es ein $wordType ist';
+  }
+
+  @override
+  String get wordFindPluralLabel => 'Plural';
+
+  @override
+  String get wordFindVerbFormInfinitive => 'Infinitiv';
+
+  @override
+  String get wordFindVerbFormFinite => 'finit';
+
+  @override
+  String get wordFindVerbFormParticiple => 'Partizip';
+
+  @override
+  String get translationFlashNoData =>
+      'Keine Übersetzungsdaten für diese Stufe verfügbar.';
+
+  @override
+  String get translationFlashPrompt => 'Auf Englisch …';
+
+  @override
+  String translationFlashCorrectCount(int count) {
+    return '$count richtig';
+  }
+
+  @override
+  String get translationFlashOnboardingTap =>
+      'Ein deutsches Wort erscheint — tippe schnell auf die richtige englische Übersetzung.';
+
+  @override
+  String translationFlashOnboardingTimer(int seconds) {
+    return 'Du hast $seconds Sekunden. Je mehr richtige Antworten, desto besser dein Score.';
+  }
+
+  @override
+  String get expressionFlashOnboardingTap =>
+      'Eine Redewendung erscheint mit einer Lücke — tippe das fehlende Wort.';
+
+  @override
+  String get expressionFlashOnboardingTimer =>
+      'Du hast 30 Sekunden. Kenne deine Redewendungen!';
+
+  @override
+  String get expressionFlashEmpty =>
+      'Keine Redewendungen für diese Stufe verfügbar.';
+
+  @override
+  String expressionFlashCorrectCount(int n) {
+    return '$n richtig';
+  }
+
+  @override
+  String get expressionFlashLabel => 'Redewendung';
+
+  @override
+  String get expressionFlashBlankHint => 'Lücke — finde das fehlende Wort';
+
+  @override
+  String get proverbClozeOnboardingBody =>
+      'Ein Sprichwort erscheint mit einer Lücke — tippe das richtige Wort.';
+
+  @override
+  String proverbClozeOnboardingTimer(int seconds) {
+    return '$seconds Sekunden, so viele Sprichwörter wie möglich!';
+  }
+
+  @override
+  String get proverbClozeEmpty =>
+      'Keine Sprichwort-Daten für diese Stufe verfügbar.';
+
+  @override
+  String proverbClozeCorrectCount(int count) {
+    return '$count richtig';
+  }
+
+  @override
+  String get proverbClozeLabel => 'Sprichwort';
+
+  @override
+  String get conjugationDrillPrompt => 'Wie lautet die Präsensform?';
+
+  @override
+  String get conjugationDrillNoData =>
+      'Keine Konjugationsdaten für diese Stufe verfügbar.';
+
+  @override
+  String grossschreibSemLevel(int level) {
+    return 'Stufe $level';
+  }
+
+  @override
+  String grossschreibSemScore(int score) {
+    return 'Punkte: $score';
+  }
+
+  @override
+  String grossschreibSemProgress(int done, int total) {
+    return 'Fortschritt: $done von $total';
+  }
+
+  @override
+  String grossschreibSemCombo(int combo) {
+    return 'Kombo mal $combo';
+  }
+
+  @override
+  String grossschreibSemWord(String word) {
+    return 'Wort: $word. Tippe, um die Schreibweise zu ändern.';
+  }
+
+  @override
+  String spellingSpotterCommonMistakes(String errors) {
+    return 'Häufige Fehler: $errors';
+  }
 }

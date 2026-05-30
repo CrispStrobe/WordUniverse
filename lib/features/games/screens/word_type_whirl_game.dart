@@ -93,7 +93,7 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
   int _streak = 0;
   int _maxStreak = 0;
   int _round = 1;
-  int _totalRounds = 8;
+  final int _totalRounds = 8;
   double _baseSpeed = 1.0;
   bool _isEndingRound = false;
 
@@ -118,6 +118,11 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
   final Stopwatch _whirlStopwatch = Stopwatch();
 
   Size _whirlAreaSize = Size.zero;
+  // True when a round started before the whirl area had been measured, so the
+  // initial forced-target spawn was skipped. The size callback replays it.
+  bool _spawnPending = false;
+  // Bumped on every round; closures capture it and bail if the round changed.
+  int _roundId = 0;
 
   final Queue<HintMessage> _hintQueue = Queue<HintMessage>();
   HintMessage? _currentHintMessage;
@@ -175,12 +180,12 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
 
     if (widget.gradeLevel.index >= 2) {
       _wordTypes[GermanWordType.adverb] =
-          (label: 'Adverb', icon: Icons.speed, color: Colors.purple);
+          (label: s.wordTypeAdverb, icon: Icons.speed, color: Colors.purple);
     }
 
     if (widget.gradeLevel.index >= 3) {
       _wordTypes[GermanWordType.pronomen] =
-          (label: 'Pronomen', icon: Icons.person, color: Colors.teal);
+          (label: s.wordTypePronoun, icon: Icons.person, color: Colors.teal);
     }
   }
 
@@ -333,6 +338,9 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
 
   void _startRound() {
     _isEndingRound = false;
+    _spawnPending = false;
+    // New round: invalidate any in-flight closures from the previous round.
+    _roundId++;
     if (_round > _totalRounds) {
       _showGameOver();
       return;
@@ -449,13 +457,30 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
       }
     });
 
+    // If the whirl area hasn't been measured yet (typical on the very first
+    // round) the forced-target spawns below would be skipped by the maxRadius
+    // guard. Defer them: the size callback will replay the initial spawn.
+    final maxRadius = min(_whirlAreaSize.width, _whirlAreaSize.height) / 2.0;
+    if (maxRadius <= 50) {
+      _spawnPending = true;
+      return;
+    }
+
+    _spawnInitialBurst();
+  }
+
+  void _spawnInitialBurst() {
+    _spawnPending = false;
+    final int roundId = _roundId;
     final random = Random();
     _spawnWord(forceTarget: true);
     _spawnWord(forceTarget: true);
-    
+
     for (int i = 0; i < 4; i++) {
       Future.delayed(Duration(milliseconds: i * 250 + random.nextInt(100)), () {
-        if (mounted) _spawnWord();
+        // Bail if unmounted, the round is ending, or a new round has begun.
+        if (!mounted || _isEndingRound || _roundId != roundId) return;
+        _spawnWord();
       });
     }
   }
@@ -606,13 +631,14 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
       _onIncorrectTap(whirlingWord);
     }
 
+    final int roundId = _roundId;
     Future.delayed(const Duration(milliseconds: 400), () {
-      if (mounted) {
-        setState(() {
-          whirlingWord.shouldRemove = true;
-          _whirlingWords.remove(whirlingWord);
-        });
-      }
+      // Don't mutate a later round's word list.
+      if (!mounted || _isEndingRound || _roundId != roundId) return;
+      setState(() {
+        whirlingWord.shouldRemove = true;
+        _whirlingWords.remove(whirlingWord);
+      });
     });
   }
 
@@ -696,8 +722,10 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
       metadata: {'game': 'word_type_whirl', 'wordType': whirlingWord.word.wordType.toString()},
     );
 
+    final int roundId = _roundId;
     Future.delayed(const Duration(milliseconds: 500), () {
-      if (mounted) _checkRoundCompletion();
+      if (!mounted || _isEndingRound || _roundId != roundId) return;
+      _checkRoundCompletion();
     });
   }
 
@@ -737,11 +765,13 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
       _roundHistory.last.missedWords = missedCount;
     }
 
+    final int roundId = _roundId;
     Future.delayed(const Duration(milliseconds: 1000), () {
-      if (mounted) {
-        setState(() => _round++);
-        _startRound();
-      }
+      // Guard against a stale completion firing after the round changed (e.g.
+      // both the timer and the last-target tap racing to end the same round).
+      if (!mounted || _roundId != roundId) return;
+      setState(() => _round++);
+      _startRound();
     });
   }
 
@@ -785,7 +815,7 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
             Text('${s.gameScore}: $_score',
                 style: SpaceTheme.bodyStyle.copyWith(fontSize: 18)),
             const SizedBox(height: 8),
-            Text('Streak: $_maxStreak',
+            Text('${s.wordWhirlStreak}: $_maxStreak',
                 style: SpaceTheme.bodyStyle.copyWith(fontSize: 16)),
           ],
         ),
@@ -844,6 +874,7 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
   }
 
   Widget _buildTopBar() {
+    final s = S.of(context)!;
     final gp = context.watch<GameProvider>();
     final totalGems = gp.score;
     final timerEnabled = gp.puzzleTimerEnabled;
@@ -859,7 +890,7 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
       child: Row(
         children: [
           Semantics(
-            label: S.of(context)!.semanticsBack,
+            label: s.semanticsBack,
             button: true,
             child: IconButton(
               icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
@@ -875,7 +906,7 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
           const SizedBox(width: 8),
 
           Semantics(
-            label: 'Stufe ${widget.gradeLevel.index + 1}',
+            label: s.wordTypeWhirlSemanticsLevel(widget.gradeLevel.index + 1),
             container: true,
             child: _buildMiniBadge(Icons.emoji_events_rounded, '${widget.gradeLevel.index + 1}', SpaceTheme.starYellow),
           ),
@@ -893,24 +924,24 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
               mainAxisSize: MainAxisSize.min,
               children: [
                 Semantics(
-                  label: 'Punkte: $_score',
+                  label: s.semanticsScore(_score),
                   child: _buildStatCompact(Icons.star_rounded, '$_score', SpaceTheme.starYellow),
                 ),
                 _buildVerticalDivider(),
                 Semantics(
-                  label: 'Runde: $_round von $_totalRounds',
+                  label: s.wordTypeWhirlSemanticsRound(_round, _totalRounds),
                   child: _buildStatCompact(Icons.replay_rounded, '$_round/$_totalRounds', SpaceTheme.cosmicPink),
                 ),
                 _buildVerticalDivider(),
                 Semantics(
-                  label: 'Serie: $_streak',
+                  label: s.wordTypeWhirlSemanticsStreak(_streak),
                   child: _buildStatCompact(Icons.local_fire_department_rounded, '$_streak', Colors.orange),
                 ),
                 if (timerEnabled) ...[
                   _buildVerticalDivider(),
                   // Time (no liveRegion: ticks every second).
                   Semantics(
-                    label: 'Zeit: $_roundTimeRemaining Sekunden',
+                    label: s.wordTypeWhirlSemanticsTime(_roundTimeRemaining),
                     child: _buildStatCompact(Icons.timer_rounded, '${_roundTimeRemaining}s', timeColor),
                   ),
                 ],
@@ -921,7 +952,7 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
           const Spacer(),
 
           Semantics(
-            label: 'Edelsteine: $totalGems',
+            label: s.wordTypeWhirlSemanticsGems(totalGems),
             container: true,
             child: _buildMiniBadge(Icons.diamond_rounded, '$totalGems', Colors.cyanAccent),
           ),
@@ -1100,7 +1131,15 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
       builder: (context, constraints) {
         if (constraints.biggest != _whirlAreaSize) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) setState(() => _whirlAreaSize = constraints.biggest);
+            if (!mounted) return;
+            setState(() => _whirlAreaSize = constraints.biggest);
+            // The first round may have deferred its initial spawn until the
+            // whirl area was measured — replay it now that the size is known.
+            final maxRadius =
+                min(_whirlAreaSize.width, _whirlAreaSize.height) / 2.0;
+            if (_spawnPending && !_isEndingRound && maxRadius > 50) {
+              _spawnInitialBurst();
+            }
           });
         }
 
@@ -1109,53 +1148,64 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
         final maxRadius = min(_whirlAreaSize.width, _whirlAreaSize.height) / 2.0;
         if (maxRadius <= 0) return const SizedBox.shrink();
 
+        // Card size depends only on the area, not the animation — compute once
+        // instead of per word per frame.
+        final cardWidth = (maxRadius * 0.4).clamp(90.0, 130.0);
+        // Reduce height slightly to ensure vertical clearance between tracks.
+        final cardHeight = (cardWidth * 0.4).clamp(40.0, 55.0);
+
+        // Static center icon: built once and passed through AnimatedBuilder's
+        // `child` so it isn't rebuilt on every animation tick.
+        final centerIcon = Positioned(
+          left: centerX - 30,
+          top: centerY - 30,
+          child: Opacity(
+            opacity: 0.3,
+            child: Container(
+              width: 60,
+              height: 60,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(colors: [SpaceTheme.cosmicPink, Colors.transparent]),
+              ),
+              child: const Icon(Icons.tornado, color: SpaceTheme.cosmicPink, size: 32),
+            ),
+          ),
+        );
+
         return AnimatedBuilder(
           animation: _whirlController,
+          child: centerIcon,
           builder: (context, child) {
             final double elapsedSeconds = _whirlStopwatch.elapsedMilliseconds / 1000.0;
-            final double baseRadsPerSec = pi / 4;
+            const double baseRadsPerSec = pi / 4;
 
             return Stack(
               clipBehavior: Clip.none,
               children: [
-                // ... (Center Icon code remains the same) ...
-                Positioned(
-                  left: centerX - 30,
-                  top: centerY - 30,
-                  child: Opacity(
-                    opacity: 0.3,
-                    child: Container(
-                      width: 60,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: RadialGradient(colors: [SpaceTheme.cosmicPink, Colors.transparent]),
-                      ),
-                      child: const Icon(Icons.tornado, color: SpaceTheme.cosmicPink, size: 32),
-                    ),
-                  ),
-                ),
+                // Static center icon (hoisted via `child`).
+                child!,
 
-                ..._whirlingWords.map((whirlingWord) {
-                  // Calculate current angle
-                  // Note: words in same track have same speed, so relative distance never changes!
-                  final currentAngle = whirlingWord.angle + (elapsedSeconds * baseRadsPerSec * whirlingWord.speed);
-                  
-                  // Use the track-defined radius
-                  final x = centerX + cos(currentAngle) * (whirlingWord.radius * maxRadius);
-                  final y = centerY + sin(currentAngle) * (whirlingWord.radius * maxRadius);
-                  
-                  final cardWidth = (maxRadius * 0.4).clamp(90.0, 130.0);
-                  // Reduce height slightly to ensure vertical clearance between tracks
-                  final cardHeight = (cardWidth * 0.4).clamp(40.0, 55.0);
+                // `for` builds positioned cards in-place — no intermediate
+                // list from `.map().toList()` each frame.
+                for (final whirlingWord in _whirlingWords)
+                  () {
+                    // Words in the same track share a speed, so their relative
+                    // spacing never changes.
+                    final currentAngle = whirlingWord.angle +
+                        (elapsedSeconds * baseRadsPerSec * whirlingWord.speed);
+                    final r = whirlingWord.radius * maxRadius;
+                    final x = centerX + cos(currentAngle) * r;
+                    final y = centerY + sin(currentAngle) * r;
 
-                  return Positioned(
-                    key: ValueKey<String>(whirlingWord.word.id),
-                    left: x - (cardWidth / 2),
-                    top: y - (cardHeight / 2),
-                    child: _buildWhirlingWordWidget(whirlingWord, selectedFontFamily, currentAngle, cardWidth, cardHeight),
-                  );
-                }).toList(),
+                    return Positioned(
+                      key: ValueKey<String>(whirlingWord.word.id),
+                      left: x - (cardWidth / 2),
+                      top: y - (cardHeight / 2),
+                      child: _buildWhirlingWordWidget(
+                          whirlingWord, selectedFontFamily, cardWidth, cardHeight),
+                    );
+                  }(),
               ],
             );
           },
@@ -1182,10 +1232,10 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
   Widget _buildWhirlingWordWidget(
     WhirlingWord whirlingWord,
     String selectedFontFamily,
-    double currentAngle,
     double cardWidth,
     double cardHeight,
   ) {
+    final s = S.of(context)!;
     final typeInfo = _wordTypes[whirlingWord.word.wordType];
     final isTarget = whirlingWord.word.wordType == _currentTargetType;
     final shouldHighlight = isTarget && _showAutoHints && !whirlingWord.isTapped;
@@ -1209,8 +1259,8 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
     }
 
     return Semantics(
-      label: 'Wort ${_getDisplayWord(whirlingWord.word)}',
-      hint: 'Tippe wenn es ein ${_wordTypes[_currentTargetType]?.label ?? ''} ist',
+      label: s.wordTypeWhirlSemanticsWord(_getDisplayWord(whirlingWord.word)),
+      hint: s.wordTypeWhirlSemanticsTapHint(_wordTypes[_currentTargetType]?.label ?? ''),
       button: true,
       child: GestureDetector(
         onTap: () => _onWordTapped(whirlingWord),

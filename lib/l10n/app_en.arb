@@ -1772,5 +1772,172 @@
                 "type": "String"
             }
         }
+    },
+    "wordTypeWhirlSemanticsLevel": "Level {level}",
+    "@wordTypeWhirlSemanticsLevel": {
+        "placeholders": {
+            "level": {
+                "type": "int"
+            }
+        }
+    },
+    "wordTypeWhirlSemanticsRound": "Round {round} of {total}",
+    "@wordTypeWhirlSemanticsRound": {
+        "placeholders": {
+            "round": {
+                "type": "int"
+            },
+            "total": {
+                "type": "int"
+            }
+        }
+    },
+    "wordTypeWhirlSemanticsStreak": "Streak: {streak}",
+    "@wordTypeWhirlSemanticsStreak": {
+        "placeholders": {
+            "streak": {
+                "type": "int"
+            }
+        }
+    },
+    "wordTypeWhirlSemanticsTime": "Time: {seconds} seconds",
+    "@wordTypeWhirlSemanticsTime": {
+        "placeholders": {
+            "seconds": {
+                "type": "int"
+            }
+        }
+    },
+    "wordTypeWhirlSemanticsGems": "Gems: {gems}",
+    "@wordTypeWhirlSemanticsGems": {
+        "placeholders": {
+            "gems": {
+                "type": "int"
+            }
+        }
+    },
+    "wordTypeWhirlSemanticsWord": "Word {word}",
+    "@wordTypeWhirlSemanticsWord": {
+        "placeholders": {
+            "word": {
+                "type": "String"
+            }
+        }
+    },
+    "wordTypeWhirlSemanticsTapHint": "Tap if it is a {wordType}",
+    "@wordTypeWhirlSemanticsTapHint": {
+        "placeholders": {
+            "wordType": {
+                "type": "String"
+            }
+        }
+    },
+    "wordFindPluralLabel": "Plural",
+    "wordFindVerbFormInfinitive": "Infinitive",
+    "wordFindVerbFormFinite": "finite",
+    "wordFindVerbFormParticiple": "Participle",
+    "translationFlashNoData": "No translation data available for this level.",
+    "translationFlashPrompt": "In English …",
+    "translationFlashCorrectCount": "{count} correct",
+    "@translationFlashCorrectCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "translationFlashOnboardingTap": "A German word appears — tap the correct English translation quickly.",
+    "translationFlashOnboardingTimer": "You have {seconds} seconds. The more correct answers, the better your score.",
+    "@translationFlashOnboardingTimer": {
+        "placeholders": {
+            "seconds": {
+                "type": "int"
+            }
+        }
+    },
+    "expressionFlashOnboardingTap": "An idiom appears with a gap — tap the missing word.",
+    "expressionFlashOnboardingTimer": "You have 30 seconds. Know your idioms!",
+    "expressionFlashEmpty": "No idioms available for this level.",
+    "expressionFlashCorrectCount": "{n} correct",
+    "@expressionFlashCorrectCount": {
+        "placeholders": {
+            "n": {
+                "type": "int"
+            }
+        }
+    },
+    "expressionFlashLabel": "Idiom",
+    "expressionFlashBlankHint": "Gap — find the missing word",
+    "proverbClozeOnboardingBody": "A proverb appears with a gap — tap the correct word.",
+    "proverbClozeOnboardingTimer": "{seconds} seconds — as many proverbs as you can!",
+    "@proverbClozeOnboardingTimer": {
+        "placeholders": {
+            "seconds": {
+                "type": "int"
+            }
+        }
+    },
+    "proverbClozeEmpty": "No proverb data available for this level.",
+    "proverbClozeCorrectCount": "{count} correct",
+    "@proverbClozeCorrectCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "proverbClozeLabel": "Proverb",
+    "conjugationDrillPrompt": "What is the present-tense form?",
+    "conjugationDrillNoData": "No conjugation data available for this level.",
+    "grossschreibSemLevel": "Level {level}",
+    "@grossschreibSemLevel": {
+        "placeholders": {
+            "level": {
+                "type": "int"
+            }
+        }
+    },
+    "grossschreibSemScore": "Points: {score}",
+    "@grossschreibSemScore": {
+        "placeholders": {
+            "score": {
+                "type": "int"
+            }
+        }
+    },
+    "grossschreibSemProgress": "Progress: {done} of {total}",
+    "@grossschreibSemProgress": {
+        "placeholders": {
+            "done": {
+                "type": "int"
+            },
+            "total": {
+                "type": "int"
+            }
+        }
+    },
+    "grossschreibSemCombo": "Combo times {combo}",
+    "@grossschreibSemCombo": {
+        "placeholders": {
+            "combo": {
+                "type": "int"
+            }
+        }
+    },
+    "grossschreibSemWord": "Word: {word}. Tap to change the spelling.",
+    "@grossschreibSemWord": {
+        "placeholders": {
+            "word": {
+                "type": "String"
+            }
+        }
+    },
+    "spellingSpotterCommonMistakes": "Common mistakes: {errors}",
+    "@spellingSpotterCommonMistakes": {
+        "placeholders": {
+            "errors": {
+                "type": "String"
+            }
+        }
     }
 }

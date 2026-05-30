@@ -4360,6 +4360,216 @@ abstract class S {
   /// In en, this message translates to:
   /// **'✓ Adjective: {word} → describes a quality'**
   String wordSortExplainAdjQuality(String word);
+
+  /// No description provided for @wordTypeWhirlSemanticsLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Level {level}'**
+  String wordTypeWhirlSemanticsLevel(int level);
+
+  /// No description provided for @wordTypeWhirlSemanticsRound.
+  ///
+  /// In en, this message translates to:
+  /// **'Round {round} of {total}'**
+  String wordTypeWhirlSemanticsRound(int round, int total);
+
+  /// No description provided for @wordTypeWhirlSemanticsStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Streak: {streak}'**
+  String wordTypeWhirlSemanticsStreak(int streak);
+
+  /// No description provided for @wordTypeWhirlSemanticsTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time: {seconds} seconds'**
+  String wordTypeWhirlSemanticsTime(int seconds);
+
+  /// No description provided for @wordTypeWhirlSemanticsGems.
+  ///
+  /// In en, this message translates to:
+  /// **'Gems: {gems}'**
+  String wordTypeWhirlSemanticsGems(int gems);
+
+  /// No description provided for @wordTypeWhirlSemanticsWord.
+  ///
+  /// In en, this message translates to:
+  /// **'Word {word}'**
+  String wordTypeWhirlSemanticsWord(String word);
+
+  /// No description provided for @wordTypeWhirlSemanticsTapHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap if it is a {wordType}'**
+  String wordTypeWhirlSemanticsTapHint(String wordType);
+
+  /// No description provided for @wordFindPluralLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Plural'**
+  String get wordFindPluralLabel;
+
+  /// No description provided for @wordFindVerbFormInfinitive.
+  ///
+  /// In en, this message translates to:
+  /// **'Infinitive'**
+  String get wordFindVerbFormInfinitive;
+
+  /// No description provided for @wordFindVerbFormFinite.
+  ///
+  /// In en, this message translates to:
+  /// **'finite'**
+  String get wordFindVerbFormFinite;
+
+  /// No description provided for @wordFindVerbFormParticiple.
+  ///
+  /// In en, this message translates to:
+  /// **'Participle'**
+  String get wordFindVerbFormParticiple;
+
+  /// No description provided for @translationFlashNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'No translation data available for this level.'**
+  String get translationFlashNoData;
+
+  /// No description provided for @translationFlashPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'In English …'**
+  String get translationFlashPrompt;
+
+  /// No description provided for @translationFlashCorrectCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} correct'**
+  String translationFlashCorrectCount(int count);
+
+  /// No description provided for @translationFlashOnboardingTap.
+  ///
+  /// In en, this message translates to:
+  /// **'A German word appears — tap the correct English translation quickly.'**
+  String get translationFlashOnboardingTap;
+
+  /// No description provided for @translationFlashOnboardingTimer.
+  ///
+  /// In en, this message translates to:
+  /// **'You have {seconds} seconds. The more correct answers, the better your score.'**
+  String translationFlashOnboardingTimer(int seconds);
+
+  /// No description provided for @expressionFlashOnboardingTap.
+  ///
+  /// In en, this message translates to:
+  /// **'An idiom appears with a gap — tap the missing word.'**
+  String get expressionFlashOnboardingTap;
+
+  /// No description provided for @expressionFlashOnboardingTimer.
+  ///
+  /// In en, this message translates to:
+  /// **'You have 30 seconds. Know your idioms!'**
+  String get expressionFlashOnboardingTimer;
+
+  /// No description provided for @expressionFlashEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No idioms available for this level.'**
+  String get expressionFlashEmpty;
+
+  /// No description provided for @expressionFlashCorrectCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} correct'**
+  String expressionFlashCorrectCount(int n);
+
+  /// No description provided for @expressionFlashLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Idiom'**
+  String get expressionFlashLabel;
+
+  /// No description provided for @expressionFlashBlankHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Gap — find the missing word'**
+  String get expressionFlashBlankHint;
+
+  /// No description provided for @proverbClozeOnboardingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A proverb appears with a gap — tap the correct word.'**
+  String get proverbClozeOnboardingBody;
+
+  /// No description provided for @proverbClozeOnboardingTimer.
+  ///
+  /// In en, this message translates to:
+  /// **'{seconds} seconds — as many proverbs as you can!'**
+  String proverbClozeOnboardingTimer(int seconds);
+
+  /// No description provided for @proverbClozeEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No proverb data available for this level.'**
+  String get proverbClozeEmpty;
+
+  /// No description provided for @proverbClozeCorrectCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} correct'**
+  String proverbClozeCorrectCount(int count);
+
+  /// No description provided for @proverbClozeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Proverb'**
+  String get proverbClozeLabel;
+
+  /// No description provided for @conjugationDrillPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'What is the present-tense form?'**
+  String get conjugationDrillPrompt;
+
+  /// No description provided for @conjugationDrillNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'No conjugation data available for this level.'**
+  String get conjugationDrillNoData;
+
+  /// No description provided for @grossschreibSemLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Level {level}'**
+  String grossschreibSemLevel(int level);
+
+  /// No description provided for @grossschreibSemScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Points: {score}'**
+  String grossschreibSemScore(int score);
+
+  /// No description provided for @grossschreibSemProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress: {done} of {total}'**
+  String grossschreibSemProgress(int done, int total);
+
+  /// No description provided for @grossschreibSemCombo.
+  ///
+  /// In en, this message translates to:
+  /// **'Combo times {combo}'**
+  String grossschreibSemCombo(int combo);
+
+  /// No description provided for @grossschreibSemWord.
+  ///
+  /// In en, this message translates to:
+  /// **'Word: {word}. Tap to change the spelling.'**
+  String grossschreibSemWord(String word);
+
+  /// No description provided for @spellingSpotterCommonMistakes.
+  ///
+  /// In en, this message translates to:
+  /// **'Common mistakes: {errors}'**
+  String spellingSpotterCommonMistakes(String errors);
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

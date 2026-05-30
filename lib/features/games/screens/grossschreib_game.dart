@@ -201,7 +201,7 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
             w.examples.isNotEmpty) // ONLY words with examples!
         .toList();
 
-    _log('Total words with examples: ${allWords.length}');
+    if (kDebugMode) _log('Total words with examples: ${allWords.length}');
 
     // Separate by type. Exclude proper nouns: they're stored as `substantiv`
     // but are capitalized because they're names, not because of the
@@ -213,9 +213,11 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
     final verbs = allWords.where((w) => w.wordType == GermanWordType.verb).toList();
     final adjectives = allWords.where((w) => w.wordType == GermanWordType.adjektiv).toList();
 
-    _log('Available nouns with examples: ${nouns.length}');
-    _log('Available verbs with examples: ${verbs.length}');
-    _log('Available adjectives with examples: ${adjectives.length}');
+    if (kDebugMode) {
+      _log('Available nouns with examples: ${nouns.length}');
+      _log('Available verbs with examples: ${verbs.length}');
+      _log('Available adjectives with examples: ${adjectives.length}');
+    }
 
     // Shuffle
     nouns.shuffle();
@@ -243,10 +245,10 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
       if (challenge != null) {
         challenges.add(challenge);
         nounSuccesses++;
-        _log('✓ Noun challenge $nounSuccesses created successfully');
+        if (kDebugMode) _log('✓ Noun challenge $nounSuccesses created successfully');
       }
     }
-    _log('Noun challenges: $nounSuccesses/$nounAttempts successful');
+    if (kDebugMode) _log('Noun challenges: $nounSuccesses/$nounAttempts successful');
 
     _log('');
     _log('--- GENERATING VERB CHALLENGES (lowercase in middle) ---');
@@ -269,10 +271,10 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
       if (challenge != null) {
         challenges.add(challenge);
         verbSuccesses++;
-        _log('✓ Verb challenge $verbSuccesses created successfully');
+        if (kDebugMode) _log('✓ Verb challenge $verbSuccesses created successfully');
       }
     }
-    _log('Verb challenges: $verbSuccesses/$verbAttempts successful');
+    if (kDebugMode) _log('Verb challenges: $verbSuccesses/$verbAttempts successful');
 
     _log('');
     _log('--- GENERATING ADJECTIVE CHALLENGES (lowercase in middle) ---');
@@ -295,10 +297,10 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
       if (challenge != null) {
         challenges.add(challenge);
         adjSuccesses++;
-        _log('✓ Adjective challenge $adjSuccesses created successfully');
+        if (kDebugMode) _log('✓ Adjective challenge $adjSuccesses created successfully');
       }
     }
-    _log('Adjective challenges: $adjSuccesses/$adjAttempts successful');
+    if (kDebugMode) _log('Adjective challenges: $adjSuccesses/$adjAttempts successful');
 
     _log('');
     _log('--- GENERATING SENTENCE START CHALLENGES (capitalized at start) ---');
@@ -321,20 +323,23 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
       if (challenge != null) {
         challenges.add(challenge);
         startSuccesses++;
-        _log('✓ Sentence start challenge $startSuccesses created successfully');
+        if (kDebugMode) _log('✓ Sentence start challenge $startSuccesses created successfully');
       }
     }
-    _log('Sentence start challenges: $startSuccesses/$startAttempts successful');
+    if (kDebugMode) _log('Sentence start challenges: $startSuccesses/$startAttempts successful');
 
     _log('');
-    _log('========================================');
-    _log('Total challenges created: ${challenges.length}');
+    if (kDebugMode) _log('Total challenges created: ${challenges.length}');
     
     // Shuffle and limit
     challenges.shuffle();
     _challengeQueue.addAll(challenges.take(_totalItems));
 
-    _log('Final queue size: ${_challengeQueue.length}');
+    // The generated queue is usually shorter than the initial cap; sync
+    // _totalItems to the real count so the progress bar can reach 100%.
+    _totalItems = _challengeQueue.length;
+
+    if (kDebugMode) _log('Final queue size: ${_challengeQueue.length}');
     _log('========================================');
   }
 
@@ -348,31 +353,33 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
     bool forceSentenceStart = false,
     required int attemptNumber,
   }) {
-    final wordTypeStr = word.wordType.toString().split('.').last;
-    _log('  Attempt #$attemptNumber: "${word.word}" ($wordTypeStr)');
-    
+    if (kDebugMode) {
+      final wordTypeStr = word.wordType.toString().split('.').last;
+      _log('  Attempt #$attemptNumber: "${word.word}" ($wordTypeStr)');
+    }
+
     if (word.examples.isEmpty) {
       _log('    ✗ No examples available');
       return null;
     }
 
-    _log('    → Found ${word.examples.length} example(s)');
+    if (kDebugMode) _log('    → Found ${word.examples.length} example(s)');
 
     // Try each example
     for (int i = 0; i < word.examples.length; i++) {
       final example = word.examples[i];
       
       if (example.text == null || example.text!.isEmpty) {
-        _log('    → Example ${i + 1}: empty text, skipping');
+        if (kDebugMode) _log('    → Example ${i + 1}: empty text, skipping');
         continue;
       }
 
       final sentence = example.text!;
-      _log('    → Example ${i + 1}: "$sentence"');
+      if (kDebugMode) _log('    → Example ${i + 1}: "$sentence"');
 
       // Check sentence length
       if (sentence.length > 120) {
-        _log('      ✗ Too long (${sentence.length} chars)');
+        if (kDebugMode) _log('      ✗ Too long (${sentence.length} chars)');
         continue;
       }
 
@@ -410,11 +417,17 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
         continue;
       }
 
-      _log('      → Word "$foundWord" found at [$wordIndex,$wordEnd]');
+      if (kDebugMode) _log('      → Word "$foundWord" found at [$wordIndex,$wordEnd]');
 
-      // Determine if word is at sentence start
-      final isAtStart = wordIndex < 3; // First few characters = sentence start
-      _log('      → Is at sentence start: $isAtStart');
+      // Determine if word is at sentence start: the trimmed text before the
+      // target must be empty or end with a sentence terminator (. ! ?),
+      // ignoring trailing quotes and spaces.
+      final beforeTarget = sentence.substring(0, wordIndex);
+      final trimmedBefore = beforeTarget
+          .replaceAll(RegExp('[\\s"“”«»‚‘’\']+\$'), '');
+      final isAtStart = trimmedBefore.isEmpty ||
+          RegExp(r'[.!?]$').hasMatch(trimmedBefore);
+      if (kDebugMode) _log('      → Is at sentence start: $isAtStart');
 
       // Check position requirements
       if (forceMiddlePosition && isAtStart) {
@@ -445,11 +458,11 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
         isAtSentenceStart: isAtStart,
       );
 
-      _log('      ✓ CREATED: "$before[$actualWordInSentence]$after"');
+      if (kDebugMode) _log('      ✓ CREATED: "$before[$actualWordInSentence]$after"');
       return challenge;
     }
 
-    _log('    ✗ No suitable example found after checking all ${word.examples.length} examples');
+    if (kDebugMode) _log('    ✗ No suitable example found after checking all ${word.examples.length} examples');
     return null;
   }
 
@@ -722,7 +735,7 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
           ),
           const SizedBox(width: 8),
           Semantics(
-            label: 'Stufe $_level',
+            label: s.grossschreibSemLevel(_level),
             container: true,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -746,18 +759,18 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
           ),
           const SizedBox(width: 6),
           Semantics(
-            label: 'Punkte: $_score',
+            label: s.grossschreibSemScore(_score),
             child: _buildCompactStat(Icons.stars, '$_score', SpaceTheme.starYellow),
           ),
           const SizedBox(width: 6),
           Semantics(
-            label: 'Fortschritt: $_itemsCompleted von $_totalItems',
+            label: s.grossschreibSemProgress(_itemsCompleted, _totalItems),
             child: _buildCompactStat(Icons.check_circle_outline, '$_itemsCompleted/$_totalItems', SpaceTheme.cosmicPink),
           ),
           if (_combo > 1) ...[
             const SizedBox(width: 6),
             Semantics(
-              label: 'Kombo mal $_combo',
+              label: s.grossschreibSemCombo(_combo),
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                 decoration: BoxDecoration(
@@ -934,8 +947,7 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
                           WidgetSpan(
                             alignment: PlaceholderAlignment.middle,
                             child: Semantics(
-                              label:
-                                  'Wort: ${_getDisplayWord()}. Tippe, um die Schreibweise zu ändern.',
+                              label: S.of(context)!.grossschreibSemWord(_getDisplayWord()),
                               button: true,
                               child: GestureDetector(
                                 onTap: _cycleWordCase,

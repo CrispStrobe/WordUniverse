@@ -2,7 +2,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-// import 'dart:collection';
 
 import '../../../core/models/skill_category.dart';
 import '../../../core/models/vocabulary_models.dart';
@@ -214,14 +213,13 @@ class _WordFindGameState extends State<WordFindGame> {
     final pos = _getGridPositionFromOffset(details.localPosition);
     if (pos != null && pos != _dragCurrent) {
       setState(() {
-        // Constrain to horizontal, vertical, or diagonal
+        // The generator only places words horizontally or vertically, so we
+        // constrain the selection to those two axes (no diagonals) to avoid
+        // misleading kids into dragging across letters that can never match.
         final dx = (pos.col - _dragStart!.col).abs();
         final dy = (pos.row - _dragStart!.row).abs();
 
-        if (dx == dy) {
-          // Diagonal
-          _dragCurrent = pos;
-        } else if (dx > dy) {
+        if (dx >= dy) {
           // Horizontal
           _dragCurrent = GridPosition(_dragStart!.row, pos.col);
         } else {
@@ -266,14 +264,8 @@ class _WordFindGameState extends State<WordFindGame> {
         _selectedCells.add(GridPosition(r, c1));
       }
     }
-    // Diagonal
-    else if ((r1 - r2).abs() == (c1 - c2).abs()) {
-      final int rStep = (r2 > r1) ? 1 : -1;
-      final int cStep = (c2 > c1) ? 1 : -1;
-      for (int i = 0; i <= (r1 - r2).abs(); i++) {
-        _selectedCells.add(GridPosition(r1 + i * rStep, c1 + i * cStep));
-      }
-    }
+    // Diagonals are intentionally not supported: the generator only places
+    // horizontal/vertical words.
   }
 
   /// Extracts the base word (e.g., "haus") from an SRI ID (e.g., "SPELL_haus").
@@ -363,6 +355,7 @@ class _WordFindGameState extends State<WordFindGame> {
 
   /// Generates compact educational info for a found word
   String _getEducationalInfo(GermanWord word) {
+    final s = S.of(context)!;
     final List<String> infoParts = [];
     final api = word.apiEnrichment;
 
@@ -390,7 +383,7 @@ class _WordFindGameState extends State<WordFindGame> {
     switch (word.wordType) {
       case GermanWordType.substantiv:
         if (word.plural != null && word.plural!.isNotEmpty && word.plural != '-') {
-          infoParts.add('Plural: ${word.plural}');
+          infoParts.add('${s.wordFindPluralLabel}: ${word.plural}');
         }
         if (word.genus != null && word.genus!.isNotEmpty) {
           infoParts.add(word.genus!.toLowerCase());
@@ -416,10 +409,14 @@ class _WordFindGameState extends State<WordFindGame> {
         if (conjugation != null) {
           infoParts.add(conjugation);
         } else if (word.verbFormSpacy != null) {
-          final verbFormMap = {'Inf': 'Infinitiv', 'Fin': 'finit', 'Part': 'Partizip'};
+          final verbFormMap = {
+            'Inf': s.wordFindVerbFormInfinitive,
+            'Fin': s.wordFindVerbFormFinite,
+            'Part': s.wordFindVerbFormParticiple,
+          };
           infoParts.add(verbFormMap[word.verbFormSpacy] ?? word.verbFormSpacy!);
         } else {
-          infoParts.add('Verb');
+          infoParts.add(s.wordTypeVerb);
         }
         break;
 
@@ -437,61 +434,67 @@ class _WordFindGameState extends State<WordFindGame> {
         }
         if (komp != null && komp.isNotEmpty && komp != '-') infoParts.add(komp);
         if (sup != null && sup.isNotEmpty && sup != '-') infoParts.add(sup);
-        if (infoParts.isEmpty) infoParts.add('Adjektiv');
+        if (infoParts.isEmpty) infoParts.add(s.wordTypeAdjective);
         break;
         
       case GermanWordType.pronomen:
         // Show case if available
         if (word.caseSpacy != null && word.caseSpacy!.isNotEmpty) {
           final caseMap = {
-            'Nom': 'Nominativ',
-            'Acc': 'Akkusativ',
-            'Dat': 'Dativ',
-            'Gen': 'Genitiv',
+            'Nom': s.wordSnakeCaseNominative,
+            'Acc': s.wordSnakeCaseAccusative,
+            'Dat': s.wordSnakeCaseDative,
+            'Gen': s.wordSnakeCaseGenitive,
           };
           infoParts.add(caseMap[word.caseSpacy] ?? word.caseSpacy!);
         }
-        
+
         // Show pronoun type
         if (word.pronTypeSpacy != null && word.pronTypeSpacy!.isNotEmpty) {
           infoParts.add(word.pronTypeSpacy!);
         }
-        
+
         if (infoParts.isEmpty) {
-          infoParts.add('Pronomen');
+          infoParts.add(s.wordTypePronoun);
         }
         break;
         
       case GermanWordType.artikel:
         // Show case and gender info
         if (word.caseSpacy != null && word.caseSpacy!.isNotEmpty) {
-          infoParts.add(word.caseSpacy!);
+          final caseMap = {
+            'Nom': s.wordSnakeCaseNominative,
+            'Acc': s.wordSnakeCaseAccusative,
+            'Dat': s.wordSnakeCaseDative,
+            'Gen': s.wordSnakeCaseGenitive,
+          };
+          infoParts.add(caseMap[word.caseSpacy] ?? word.caseSpacy!);
         }
         if (word.genus != null && word.genus!.isNotEmpty) {
           infoParts.add(word.genus!.toLowerCase());
         }
         if (infoParts.isEmpty) {
-          infoParts.add('Artikel');
+          infoParts.add(s.wordSnakeArticle);
         }
         break;
         
       case GermanWordType.adverb:
-        infoParts.add('Adverb');
+        infoParts.add(s.wordTypeAdverb);
         break;
-        
+
       case GermanWordType.praeposition:
-        infoParts.add('Präposition');
+        infoParts.add(s.wordSnakePreposition);
         break;
-        
+
       case GermanWordType.konjunktion:
-        infoParts.add('Konjunktion');
+        infoParts.add(s.wordSnakeConjunction);
         break;
-        
+
       default:
         // For other types, show the type name
         final typeMap = {
-          GermanWordType.partikel: 'Partikel',
-          GermanWordType.numerale: 'Numerale',
+          GermanWordType.partikel: s.wordSnakeParticle,
+          GermanWordType.numerale: s.wordSnakeNumeral,
         };
         final typeLabel = typeMap[word.wordType];
         if (typeLabel != null) {
