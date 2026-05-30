@@ -248,6 +248,9 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
     } else if (_secondSelected == null && card != _firstSelected) {
       _secondSelected = card;
       _moves++;
+      // Lock input synchronously so a fast double-tap cannot flip a 3rd card
+      // before the async _checkMatch sets _isChecking after its first await.
+      _isChecking = true;
       _checkMatch();
     }
   }
@@ -255,6 +258,8 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
   Future<void> _checkMatch() async {
     if (_firstSelected == null || _secondSelected == null) return;
 
+    // _isChecking is already set true synchronously in _onCardTapped; mirror it
+    // into a rebuild so the UI reflects the locked state immediately.
     setState(() => _isChecking = true);
     await Future.delayed(const Duration(milliseconds: 600));
 
@@ -406,8 +411,9 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
   // --- NEW: The "Everything in ONE top bar" Widget ---
   // --- FIX: Corrected 'score' getter and optimized layout ---
   Widget _buildAllInOneHeader(BuildContext context) {
+    final s = S.of(context)!;
     // 1. Get the global score correctly using the getter 'score'
-    final totalGems = context.watch<GameProvider>().score; 
+    final totalGems = context.watch<GameProvider>().score;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(8, 8, 12, 8),
@@ -434,7 +440,7 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
             ),
             const SizedBox(width: 12),
             Semantics(
-              label: 'Stufe ${widget.gradeLevel.index + 1}',
+              label: S.of(context)!.gradeN(widget.gradeLevel.index + 1),
               container: true,
               child: _buildMiniBadge(
                 Icons.emoji_events_rounded,
@@ -463,19 +469,19 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
                     children: [
                       // Local Score (Current Game)
                       Semantics(
-                        label: 'Punkte: $_score',
+                        label: s.wordMemoryScoreLabel(_score),
                         child: _buildStatItem(Icons.star_rounded, '$_score', SpaceTheme.starYellow),
                       ),
                       _buildVerticalDivider(),
                       // Moves
                       Semantics(
-                        label: 'Züge: $_moves',
+                        label: s.wordMemoryMovesLabel(_moves),
                         child: _buildStatItem(Icons.touch_app_rounded, '$_moves', SpaceTheme.alienGreen),
                       ),
                       _buildVerticalDivider(),
                       // Pairs Found
                       Semantics(
-                        label: 'Paare: $_pairsFound von $_totalPairs',
+                        label: s.wordMemoryPairsLabel(_pairsFound, _totalPairs),
                         child: _buildStatItem(Icons.check_circle_rounded, '$_pairsFound/$_totalPairs', SpaceTheme.cosmicPink),
                       ),
                     ],
@@ -488,7 +494,7 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
 
             // --- RIGHT SECTION: Global Gems ---
             Semantics(
-              label: 'Gesamtsumme Edelsteine: $totalGems',
+              label: s.wordMemoryTotalGemsLabel(totalGems),
               container: true,
               child: _buildMiniBadge(
                 Icons.diamond_rounded,
@@ -628,10 +634,10 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
             scale: scale,
             child: Semantics(
               label: card.isMatched
-                  ? 'Karte ${card.displayText}, gefunden'
+                  ? S.of(context)!.wordMemoryCardMatched(card.displayText)
                   : (isFlipped
-                      ? 'Karte ${card.displayText}, aufgedeckt'
-                      : 'Verdeckte Karte'),
+                      ? S.of(context)!.wordMemoryCardRevealed(card.displayText)
+                      : S.of(context)!.wordMemoryCardHidden),
               button: true,
               selected: isSelected,
               child: GestureDetector(
@@ -740,5 +746,6 @@ class _CardBackPainter extends CustomPainter {
     }
   }
   @override
-  bool shouldRepaint(_CardBackPainter oldDelegate) => true;
+  bool shouldRepaint(_CardBackPainter oldDelegate) =>
+      oldDelegate.animation.value != animation.value;
 }

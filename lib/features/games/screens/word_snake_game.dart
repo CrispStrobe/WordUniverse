@@ -37,6 +37,8 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
 
   // Game State
   bool _isLoading = true;
+  bool _loadFailed = false;
+  int _puzzleGeneration = 0;
   WordSnakeGrid? _currentPuzzle;
   GermanWord? _currentWord;
   int _score = 0;
@@ -231,18 +233,29 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
     if (puzzle == null || selectedWord == null) {
       if (kDebugMode) debugPrint("Could not generate word snake puzzle");
       if (mounted) {
-        Navigator.of(context).pop();
+        setState(() {
+          _isLoading = false;
+          _loadFailed = true;
+          _currentPuzzle = null;
+          _currentWord = null;
+        });
       }
       return;
     }
 
     final s = S.of(context)!;
+    // Advancing to a new puzzle invalidates any pending feedback timer.
+    _puzzleGeneration++;
     setState(() {
+      _loadFailed = false;
       _currentPuzzle = puzzle;
       _currentWord = selectedWord;
       _selectedPath.clear();
+      _feedbackState = FeedbackState.none;
+      _feedbackMessage = '';
+      _educationalInfo = '';
       _isLoading = false;
-      
+
       // Show instruction hint
       _instructionHint = s.wordSnakeConnectLetters(puzzle!.word.length);
     });
@@ -395,9 +408,10 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
       _audioService.playSound('success');
       _gameProvider.hapticLight();
       _gameProvider.addScore(20);
-      
-      final eduInfo = _getEducationalInfo(_currentWord!);
-      
+
+      final eduInfo = _getEducationalInfo(s, _currentWord!);
+      final int generation = _puzzleGeneration;
+
       setState(() {
         _score += 20;
         _puzzlesCompleted++;
@@ -407,27 +421,29 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
         _educationalInfo = eduInfo;
       });
 
-      _hintTimer = Timer(const Duration(seconds: 4), () {
-        if (mounted) {
-          setState(() {
-            _feedbackMessage = '';
-            _educationalInfo = '';
-            _feedbackState = FeedbackState.none;
-          });
-        }
-      });
-      
       Timer(const Duration(milliseconds: 500), () {
-        if (mounted) {
+        if (mounted && generation == _puzzleGeneration) {
           setState(() { _showConfetti = false; });
         }
       });
 
-      _loadNextPuzzle();
+      // Show the educational toast for a moment, then advance. Guarding on the
+      // captured generation stops a stale timer from wiping the next puzzle.
+      _hintTimer = Timer(const Duration(seconds: 4), () {
+        if (!mounted || generation != _puzzleGeneration) return;
+        setState(() {
+          _feedbackMessage = '';
+          _educationalInfo = '';
+          _feedbackState = FeedbackState.none;
+        });
+        _loadNextPuzzle();
+      });
 
     } else {
       _audioService.playSound('failure');
       _gameProvider.hapticHeavy();
+
+      final int generation = _puzzleGeneration;
 
       setState(() {
         _feedbackState = FeedbackState.incorrect;
@@ -436,7 +452,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
       });
 
       _hintTimer = Timer(const Duration(seconds: 2), () {
-        if (mounted) {
+        if (mounted && generation == _puzzleGeneration) {
           setState(() {
             _feedbackMessage = '';
             _feedbackState = FeedbackState.none;
@@ -445,39 +461,54 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
       });
 
       _feedbackTimer = Timer(const Duration(milliseconds: 1000), () {
-        if (mounted) {
+        if (mounted && generation == _puzzleGeneration) {
           _resetPath();
         }
       });
     }
   }
 
-  String _getEducationalInfo(GermanWord word) {
-    final List<String> infoParts = [];
-    
-    if (word.isGrundwortschatzBW) {
-      infoParts.add('⭐ Grundwortschatz');
+  String _caseLabel(S s, String? caseSpacy) {
+    switch (caseSpacy) {
+      case 'Nom':
+        return s.wordSnakeCaseNominative;
+      case 'Acc':
+        return s.wordSnakeCaseAccusative;
+      case 'Dat':
+        return s.wordSnakeCaseDative;
+      case 'Gen':
+        return s.wordSnakeCaseGenitive;
+      default:
+        return caseSpacy ?? '';
     }
-    
+  }
+
+  String _getEducationalInfo(S s, GermanWord word) {
+    final List<String> infoParts = [];
+
+    if (word.isGrundwortschatzBW) {
+      infoParts.add(s.wordSnakeBasicVocabulary);
+    }
+
     switch (word.wordType) {
       case GermanWordType.substantiv:
-        String nounInfo = 'Nomen';
         if (word.article != null && word.article!.isNotEmpty) {
-          nounInfo += ' (${word.article})';
+          infoParts.add(s.wordSnakeNounWithArticle(word.article!));
+        } else {
+          infoParts.add(s.wordSnakeNoun);
         }
-        infoParts.add(nounInfo);
-        
+
         if (word.genus != null && word.genus!.isNotEmpty) {
-          infoParts.add('Genus: ${word.genus}');
+          infoParts.add(s.wordSnakeGenus(word.genus!));
         }
 
         if (word.plural != null && word.plural!.isNotEmpty && word.plural != '-') {
-          infoParts.add('Plural: ${word.plural}');
+          infoParts.add(s.wordSnakePlural(word.plural!));
         }
         break;
-        
+
       case GermanWordType.verb:
-        infoParts.add('Verb (Tun-Wort)');
+        infoParts.add(s.wordSnakeVerb);
         String? ichForm, duForm, erForm;
 
         if (word.inflectionData != null) {
@@ -492,24 +523,24 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
             if (kDebugMode) debugPrint('Error parsing verb inflectionData for ${word.word}: $e');
           }
         }
-        
+
         if (ichForm != null && duForm != null && erForm != null) {
-          infoParts.add('z.B. ich $ichForm, du $duForm, er $erForm');
-        } 
+          infoParts.add(s.wordSnakeVerbForms(ichForm, duForm, erForm));
+        }
         else if (word.forms != null && word.forms!.isNotEmpty) {
-          infoParts.add('Formen: ${word.forms}');
+          infoParts.add(s.wordSnakeForms(word.forms!));
         }
         break;
-        
+
       case GermanWordType.adjektiv:
-        String adjInfo = 'Adjektiv (Wie-Wort)';
         if (word.degreeSpacy != null && word.degreeSpacy == 'Pos') {
-          adjInfo = 'Adjektiv (Positiv)';
+          infoParts.add(s.wordSnakeAdjectivePositive);
+        } else {
+          infoParts.add(s.wordSnakeAdjective);
         }
-        infoParts.add(adjInfo);
-        
+
         String? komparativ, superlativ;
-        
+
         if (word.inflectionData != null) {
            try {
               final comparison = word.inflectionData!['analyses']?['adjektiv']?['comparison'] as Map<String, dynamic>?;
@@ -523,54 +554,64 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
         }
 
         if (komparativ != null && superlativ != null && komparativ.isNotEmpty && superlativ.isNotEmpty) {
-          infoParts.add('Steigerung: ${word.word}, $komparativ, $superlativ');
-        } 
+          infoParts.add(s.wordSnakeComparison('${word.word}, $komparativ, $superlativ'));
+        }
         else if (word.forms != null && word.forms!.isNotEmpty) {
-          infoParts.add('Steigerung: ${word.forms}');
+          infoParts.add(s.wordSnakeComparison(word.forms!));
         }
         break;
-        
+
       case GermanWordType.pronomen:
-        infoParts.add('Pronomen');
+        infoParts.add(s.wordSnakePronoun);
         if (word.caseSpacy != null && word.caseSpacy!.isNotEmpty) {
-          final caseMap = {'Nom': 'Nominativ', 'Acc': 'Akkusativ', 'Dat': 'Dativ', 'Gen': 'Genitiv'};
-          infoParts.add(caseMap[word.caseSpacy] ?? word.caseSpacy!);
+          infoParts.add(_caseLabel(s, word.caseSpacy));
         }
         if (word.pronTypeSpacy != null && word.pronTypeSpacy!.isNotEmpty) {
           infoParts.add(word.pronTypeSpacy!);
         }
         break;
-        
+
       case GermanWordType.artikel:
-        infoParts.add('Artikel');
+        infoParts.add(s.wordSnakeArticle);
         if (word.caseSpacy != null && word.caseSpacy!.isNotEmpty) {
-          final caseMap = {'Nom': 'Nominativ', 'Acc': 'Akkusativ', 'Dat': 'Dativ', 'Gen': 'Genitiv'};
-          infoParts.add(caseMap[word.caseSpacy] ?? word.caseSpacy!);
+          infoParts.add(_caseLabel(s, word.caseSpacy));
         }
         if (word.genus != null && word.genus!.isNotEmpty) {
           infoParts.add(word.genus!.toLowerCase());
         }
         break;
-        
+
       default:
-        final typeMap = {
-          GermanWordType.adverb: 'Adverb',
-          GermanWordType.praeposition: 'Präposition',
-          GermanWordType.konjunktion: 'Konjunktion',
-          GermanWordType.partikel: 'Partikel',
-          GermanWordType.numerale: 'Numerale',
-        };
-        final typeLabel = typeMap[word.wordType];
+        String? typeLabel;
+        switch (word.wordType) {
+          case GermanWordType.adverb:
+            typeLabel = s.wordSnakeAdverb;
+            break;
+          case GermanWordType.praeposition:
+            typeLabel = s.wordSnakePreposition;
+            break;
+          case GermanWordType.konjunktion:
+            typeLabel = s.wordSnakeConjunction;
+            break;
+          case GermanWordType.partikel:
+            typeLabel = s.wordSnakeParticle;
+            break;
+          case GermanWordType.numerale:
+            typeLabel = s.wordSnakeNumeral;
+            break;
+          default:
+            typeLabel = null;
+        }
         if (typeLabel != null) {
           infoParts.add(typeLabel);
         }
     }
-    
+
     if (word.exampleSentences.isNotEmpty) {
       final example = word.exampleSentences[0];
-      infoParts.add('z.B.: $example');
+      infoParts.add(s.wordSnakeExample(example));
     }
-    
+
     if (infoParts.isEmpty) return '✓ ${word.word.toUpperCase()}';
     return infoParts.join(' • ');
   }
@@ -649,6 +690,8 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
               _buildTopBar(s),
               if (_isLoading)
                 const Expanded(child: Center(child: CircularProgressIndicator()))
+              else if (_loadFailed)
+                Expanded(child: _buildLoadFailed(s))
               else
                 Expanded(
                   child: Stack(
@@ -759,7 +802,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
           
           // Reset button
           Semantics(
-            label: 'Auswahl zurücksetzen',
+            label: s.wordSnakeResetSelection,
             button: true,
             enabled: _feedbackState == FeedbackState.none,
             child: Material(
@@ -784,7 +827,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
           
           // Score
           Semantics(
-            label: 'Punkte: $totalScore',
+            label: s.wordSnakeScoreLabel(totalScore),
             liveRegion: true,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -813,6 +856,38 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildLoadFailed(S s) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.sentiment_dissatisfied,
+                color: SpaceTheme.starYellow, size: 56),
+            const SizedBox(height: 16),
+            Text(
+              s.wordSnakeNoPuzzles,
+              style: SpaceTheme.bodyStyle,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 48),
+              child: ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: SpaceTheme.planetOrange,
+                ),
+                child: Text(s.backToMenu),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -847,8 +922,8 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
         // Use the smaller dimension to ensure grid fits
         double cellSize = min(cellSizeByWidth, cellSizeByHeight);
         
-        // Apply reasonable limits
-        cellSize = cellSize.clamp(40.0, 100.0);
+        // Apply reasonable limits. Floor of 48dp keeps tap targets accessible.
+        cellSize = cellSize.clamp(48.0, 100.0);
         
         // Calculate actual grid dimensions
         final gridWidth = (puzzle.cols * cellSize) + ((puzzle.cols - 1) * 6);
@@ -916,13 +991,16 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
       bgColor = SpaceTheme.nebulaPurple.withValues(alpha: 0.6);
     }
 
+    final s = S.of(context)!;
+
     return Semantics(
       label: isSelected
-          ? 'Buchstabe $letter, Position ${selectionIndex + 1}'
-          : 'Buchstabe $letter',
+          ? s.wordSnakeCellSelected(letter, selectionIndex + 1)
+          : s.wordSnakeCell(letter),
       button: true,
       selected: isSelected,
       child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: () => _onCellTapped(row, col),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),

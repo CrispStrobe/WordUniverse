@@ -3753,6 +3753,613 @@ abstract class S {
   /// In en, this message translates to:
   /// **'✓ Correct: {word} is a {type}!'**
   String wordSortHintCorrectAs(String word, String type);
+
+  /// No description provided for @homophoneTitleHomophone.
+  ///
+  /// In en, this message translates to:
+  /// **'Homophone Drill'**
+  String get homophoneTitleHomophone;
+
+  /// No description provided for @homophoneTitleTrap.
+  ///
+  /// In en, this message translates to:
+  /// **'Word Trap'**
+  String get homophoneTitleTrap;
+
+  /// No description provided for @homophoneOnboardHomophone1.
+  ///
+  /// In en, this message translates to:
+  /// **'Homophones sound the same but are spelled differently — \"hear\" vs \"here\", \"to\" vs \"too\" vs \"two\".'**
+  String get homophoneOnboardHomophone1;
+
+  /// No description provided for @homophoneOnboardHomophone2.
+  ///
+  /// In en, this message translates to:
+  /// **'A sentence with a missing word is shown. Pick the spelling that fits the meaning.'**
+  String get homophoneOnboardHomophone2;
+
+  /// No description provided for @homophoneOnboardHomophone3.
+  ///
+  /// In en, this message translates to:
+  /// **'After each answer a meaning hint reveals what makes each spelling unique.'**
+  String get homophoneOnboardHomophone3;
+
+  /// No description provided for @homophoneOnboardConfusable1.
+  ///
+  /// In en, this message translates to:
+  /// **'Some words look or sound similar but mean different things — \"affect\" vs \"effect\", \"loose\" vs \"lose\".'**
+  String get homophoneOnboardConfusable1;
+
+  /// No description provided for @homophoneOnboardConfusable2.
+  ///
+  /// In en, this message translates to:
+  /// **'A sentence with a missing word is shown. Pick the word whose meaning fits the context.'**
+  String get homophoneOnboardConfusable2;
+
+  /// No description provided for @homophoneOnboardConfusable3.
+  ///
+  /// In en, this message translates to:
+  /// **'After each answer you\'ll see a clear explanation of what makes each word distinct.'**
+  String get homophoneOnboardConfusable3;
+
+  /// No description provided for @homophoneEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No homophone data available for this level.'**
+  String get homophoneEmpty;
+
+  /// No description provided for @homophonePromptHomophone.
+  ///
+  /// In en, this message translates to:
+  /// **'Which word fits?'**
+  String get homophonePromptHomophone;
+
+  /// No description provided for @homophonePromptConfusable.
+  ///
+  /// In en, this message translates to:
+  /// **'Which word is correct here?'**
+  String get homophonePromptConfusable;
+
+  /// No description provided for @homophoneMeanings.
+  ///
+  /// In en, this message translates to:
+  /// **'Meanings'**
+  String get homophoneMeanings;
+
+  /// No description provided for @homophoneSubtitleHomophone.
+  ///
+  /// In en, this message translates to:
+  /// **'correct homophones'**
+  String get homophoneSubtitleHomophone;
+
+  /// No description provided for @homophoneSubtitleTrap.
+  ///
+  /// In en, this message translates to:
+  /// **'correct words'**
+  String get homophoneSubtitleTrap;
+
+  /// No description provided for @wordBuilderHintsUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} used'**
+  String wordBuilderHintsUsed(int count);
+
+  /// No description provided for @wordBuilderLevelLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Level {level}'**
+  String wordBuilderLevelLabel(int level);
+
+  /// No description provided for @wordBuilderLevelShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Lvl {level}'**
+  String wordBuilderLevelShort(int level);
+
+  /// No description provided for @wordBuilderWordsProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Words: {done} of {total}'**
+  String wordBuilderWordsProgress(int done, int total);
+
+  /// No description provided for @wordBuilderLetterTile.
+  ///
+  /// In en, this message translates to:
+  /// **'Letter tile {letter}'**
+  String wordBuilderLetterTile(String letter);
+
+  /// No description provided for @wordBuilderTileHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap or drag into the word area'**
+  String get wordBuilderTileHint;
+
+  /// No description provided for @wordBuilderTimeRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'Time: {seconds} seconds'**
+  String wordBuilderTimeRemaining(int seconds);
+
+  /// No description provided for @wordSnakeResetSelection.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset selection'**
+  String get wordSnakeResetSelection;
+
+  /// No description provided for @wordSnakeScoreLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Points: {score}'**
+  String wordSnakeScoreLabel(int score);
+
+  /// No description provided for @wordSnakeCell.
+  ///
+  /// In en, this message translates to:
+  /// **'Letter {letter}'**
+  String wordSnakeCell(String letter);
+
+  /// No description provided for @wordSnakeCellSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Letter {letter}, position {position}'**
+  String wordSnakeCellSelected(String letter, int position);
+
+  /// No description provided for @wordSnakeNoPuzzles.
+  ///
+  /// In en, this message translates to:
+  /// **'No puzzle could be made right now. Please try another grade or come back later.'**
+  String get wordSnakeNoPuzzles;
+
+  /// No description provided for @wordSnakeBasicVocabulary.
+  ///
+  /// In en, this message translates to:
+  /// **'⭐ Core vocabulary'**
+  String get wordSnakeBasicVocabulary;
+
+  /// No description provided for @wordSnakeNoun.
+  ///
+  /// In en, this message translates to:
+  /// **'Noun (naming word)'**
+  String get wordSnakeNoun;
+
+  /// No description provided for @wordSnakeNounWithArticle.
+  ///
+  /// In en, this message translates to:
+  /// **'Noun ({article})'**
+  String wordSnakeNounWithArticle(String article);
+
+  /// No description provided for @wordSnakeGenus.
+  ///
+  /// In en, this message translates to:
+  /// **'Gender: {genus}'**
+  String wordSnakeGenus(String genus);
+
+  /// No description provided for @wordSnakePlural.
+  ///
+  /// In en, this message translates to:
+  /// **'Plural: {plural}'**
+  String wordSnakePlural(String plural);
+
+  /// No description provided for @wordSnakeVerb.
+  ///
+  /// In en, this message translates to:
+  /// **'Verb (action word)'**
+  String get wordSnakeVerb;
+
+  /// No description provided for @wordSnakeVerbForms.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. ich {ich}, du {du}, er {er}'**
+  String wordSnakeVerbForms(String ich, String du, String er);
+
+  /// No description provided for @wordSnakeForms.
+  ///
+  /// In en, this message translates to:
+  /// **'Forms: {forms}'**
+  String wordSnakeForms(String forms);
+
+  /// No description provided for @wordSnakeAdjective.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjective (describing word)'**
+  String get wordSnakeAdjective;
+
+  /// No description provided for @wordSnakeAdjectivePositive.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjective (positive)'**
+  String get wordSnakeAdjectivePositive;
+
+  /// No description provided for @wordSnakeComparison.
+  ///
+  /// In en, this message translates to:
+  /// **'Comparison: {forms}'**
+  String wordSnakeComparison(String forms);
+
+  /// No description provided for @wordSnakePronoun.
+  ///
+  /// In en, this message translates to:
+  /// **'Pronoun'**
+  String get wordSnakePronoun;
+
+  /// No description provided for @wordSnakeArticle.
+  ///
+  /// In en, this message translates to:
+  /// **'Article'**
+  String get wordSnakeArticle;
+
+  /// No description provided for @wordSnakeAdverb.
+  ///
+  /// In en, this message translates to:
+  /// **'Adverb'**
+  String get wordSnakeAdverb;
+
+  /// No description provided for @wordSnakePreposition.
+  ///
+  /// In en, this message translates to:
+  /// **'Preposition'**
+  String get wordSnakePreposition;
+
+  /// No description provided for @wordSnakeConjunction.
+  ///
+  /// In en, this message translates to:
+  /// **'Conjunction'**
+  String get wordSnakeConjunction;
+
+  /// No description provided for @wordSnakeParticle.
+  ///
+  /// In en, this message translates to:
+  /// **'Particle'**
+  String get wordSnakeParticle;
+
+  /// No description provided for @wordSnakeNumeral.
+  ///
+  /// In en, this message translates to:
+  /// **'Numeral'**
+  String get wordSnakeNumeral;
+
+  /// No description provided for @wordSnakeCaseNominative.
+  ///
+  /// In en, this message translates to:
+  /// **'Nominative'**
+  String get wordSnakeCaseNominative;
+
+  /// No description provided for @wordSnakeCaseAccusative.
+  ///
+  /// In en, this message translates to:
+  /// **'Accusative'**
+  String get wordSnakeCaseAccusative;
+
+  /// No description provided for @wordSnakeCaseDative.
+  ///
+  /// In en, this message translates to:
+  /// **'Dative'**
+  String get wordSnakeCaseDative;
+
+  /// No description provided for @wordSnakeCaseGenitive.
+  ///
+  /// In en, this message translates to:
+  /// **'Genitive'**
+  String get wordSnakeCaseGenitive;
+
+  /// No description provided for @wordSnakeExample.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g.: {example}'**
+  String wordSnakeExample(String example);
+
+  /// No description provided for @rescueHintHeardAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Listened to the word again!'**
+  String get rescueHintHeardAgain;
+
+  /// No description provided for @rescueHintStartsWith.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts with: {prefix}...'**
+  String rescueHintStartsWith(String prefix);
+
+  /// No description provided for @rescueHintLetterCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} letters'**
+  String rescueHintLetterCount(int count);
+
+  /// No description provided for @rescueBestStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Best streak: {count} 🔥'**
+  String rescueBestStreak(int count);
+
+  /// No description provided for @rescueSemanticsScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Score: {score}'**
+  String rescueSemanticsScore(int score);
+
+  /// No description provided for @rescueSemanticsStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Streak: {count}'**
+  String rescueSemanticsStreak(int count);
+
+  /// No description provided for @rescueSemanticsRescued.
+  ///
+  /// In en, this message translates to:
+  /// **'Rescued: {rescued} of {total}'**
+  String rescueSemanticsRescued(int rescued, int total);
+
+  /// No description provided for @rescueSemanticsLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Level {level}'**
+  String rescueSemanticsLevel(int level);
+
+  /// No description provided for @rescueSemanticsInputField.
+  ///
+  /// In en, this message translates to:
+  /// **'Type the word here'**
+  String get rescueSemanticsInputField;
+
+  /// No description provided for @rescueSemanticsShowHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Show hint'**
+  String get rescueSemanticsShowHint;
+
+  /// No description provided for @rescueSemanticsReadWord.
+  ///
+  /// In en, this message translates to:
+  /// **'Read word aloud'**
+  String get rescueSemanticsReadWord;
+
+  /// No description provided for @wordMemoryScoreLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Points: {score}'**
+  String wordMemoryScoreLabel(int score);
+
+  /// No description provided for @wordMemoryMovesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Moves: {moves}'**
+  String wordMemoryMovesLabel(int moves);
+
+  /// No description provided for @wordMemoryPairsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Pairs: {found} of {total}'**
+  String wordMemoryPairsLabel(int found, int total);
+
+  /// No description provided for @wordMemoryTotalGemsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total gems: {gems}'**
+  String wordMemoryTotalGemsLabel(int gems);
+
+  /// No description provided for @wordMemoryCardMatched.
+  ///
+  /// In en, this message translates to:
+  /// **'Card {text}, matched'**
+  String wordMemoryCardMatched(String text);
+
+  /// No description provided for @wordMemoryCardRevealed.
+  ///
+  /// In en, this message translates to:
+  /// **'Card {text}, revealed'**
+  String wordMemoryCardRevealed(String text);
+
+  /// No description provided for @wordMemoryCardHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden card'**
+  String get wordMemoryCardHidden;
+
+  /// No description provided for @wordSortDropZoneLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop zone: {label}'**
+  String wordSortDropZoneLabel(String label);
+
+  /// No description provided for @wordSortEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No words available'**
+  String get wordSortEmptyTitle;
+
+  /// No description provided for @wordSortEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'There are no words to sort for this grade yet. Try another grade or come back later.'**
+  String get wordSortEmptyMessage;
+
+  /// No description provided for @wordSortGenderMasculine.
+  ///
+  /// In en, this message translates to:
+  /// **'masculine (der)'**
+  String get wordSortGenderMasculine;
+
+  /// No description provided for @wordSortGenderFeminine.
+  ///
+  /// In en, this message translates to:
+  /// **'feminine (die)'**
+  String get wordSortGenderFeminine;
+
+  /// No description provided for @wordSortGenderNeuter.
+  ///
+  /// In en, this message translates to:
+  /// **'neuter (das)'**
+  String get wordSortGenderNeuter;
+
+  /// No description provided for @wordSortHintNounPluralForm.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ Plural: {word} → {plural}'**
+  String wordSortHintNounPluralForm(String word, String plural);
+
+  /// No description provided for @wordSortHintNounGender.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ Gender: {gender}'**
+  String wordSortHintNounGender(String gender);
+
+  /// No description provided for @wordSortHintNounWithArticle.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ Noun: {article} {word}'**
+  String wordSortHintNounWithArticle(String article, String word);
+
+  /// No description provided for @wordSortHintDefinition.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ {definition}'**
+  String wordSortHintDefinition(String definition);
+
+  /// No description provided for @wordSortHintVerbPersonalForms.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ Personal forms: ich {ich}, du {du}'**
+  String wordSortHintVerbPersonalForms(String ich, String du);
+
+  /// No description provided for @wordSortHintVerbPerfect.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ Perfect: {form}'**
+  String wordSortHintVerbPerfect(String form);
+
+  /// No description provided for @wordSortHintVerbPast.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ Past: ich {form}'**
+  String wordSortHintVerbPast(String form);
+
+  /// No description provided for @wordSortHintAdjComparison.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ Comparison: {word} → {comparative} → {superlative}'**
+  String wordSortHintAdjComparison(
+      String word, String comparative, String superlative);
+
+  /// No description provided for @wordSortHintAdjComparative.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ Comparative: {word} → {comparative}'**
+  String wordSortHintAdjComparative(String word, String comparative);
+
+  /// No description provided for @wordSortExplainCategoryDefinition.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ {category}: \"{definition}\"'**
+  String wordSortExplainCategoryDefinition(String category, String definition);
+
+  /// No description provided for @wordSortExplainCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ {word} → {category}'**
+  String wordSortExplainCategory(String word, String category);
+
+  /// No description provided for @wordSortReasonNotConjugable.
+  ///
+  /// In en, this message translates to:
+  /// **'not conjugable'**
+  String get wordSortReasonNotConjugable;
+
+  /// No description provided for @wordSortReasonNotComparable.
+  ///
+  /// In en, this message translates to:
+  /// **'not comparable'**
+  String get wordSortReasonNotComparable;
+
+  /// No description provided for @wordSortReasonPlural.
+  ///
+  /// In en, this message translates to:
+  /// **'plural: {plural}'**
+  String wordSortReasonPlural(String plural);
+
+  /// No description provided for @wordSortExplainNounCapitalized.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ {word} → Noun (capitalized!)'**
+  String wordSortExplainNounCapitalized(String word);
+
+  /// No description provided for @wordSortExplainNounNaming.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ {word} → Noun (a naming word)'**
+  String wordSortExplainNounNaming(String word);
+
+  /// No description provided for @wordSortExplainNounReasons.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ Noun: {reasons}'**
+  String wordSortExplainNounReasons(String reasons);
+
+  /// No description provided for @wordSortReasonVerbForms.
+  ///
+  /// In en, this message translates to:
+  /// **'ich {ich}, du {du}'**
+  String wordSortReasonVerbForms(String ich, String du);
+
+  /// No description provided for @wordSortReasonVerbFormExample.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. ich {ich}'**
+  String wordSortReasonVerbFormExample(String ich);
+
+  /// No description provided for @wordSortReasonNoArticle.
+  ///
+  /// In en, this message translates to:
+  /// **'no article'**
+  String get wordSortReasonNoArticle;
+
+  /// No description provided for @wordSortExplainVerbAction.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ Verb: {word} → action!'**
+  String wordSortExplainVerbAction(String word);
+
+  /// No description provided for @wordSortExplainVerbReasons.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ Verb: {reasons}'**
+  String wordSortExplainVerbReasons(String reasons);
+
+  /// No description provided for @wordSortExplainVerbDefinition.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ Verb: \"{definition}\"'**
+  String wordSortExplainVerbDefinition(String definition);
+
+  /// No description provided for @wordSortReasonComparable.
+  ///
+  /// In en, this message translates to:
+  /// **'comparable: {comparative}'**
+  String wordSortReasonComparable(String comparative);
+
+  /// No description provided for @wordSortReasonAdjExample.
+  ///
+  /// In en, this message translates to:
+  /// **'the {word} thing'**
+  String wordSortReasonAdjExample(String word);
+
+  /// No description provided for @wordSortExplainAdjReasons.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ Adjective: {reasons}'**
+  String wordSortExplainAdjReasons(String reasons);
+
+  /// No description provided for @wordSortExplainAdjDefinition.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ Adjective: \"{definition}\"'**
+  String wordSortExplainAdjDefinition(String definition);
+
+  /// No description provided for @wordSortExplainAdjQuality.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ Adjective: {word} → describes a quality'**
+  String wordSortExplainAdjQuality(String word);
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

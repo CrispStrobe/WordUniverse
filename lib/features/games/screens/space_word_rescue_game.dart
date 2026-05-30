@@ -33,7 +33,7 @@ class SpaceWordRescueGame extends StatefulWidget {
 }
 
 class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   // Services
   late VocabularyService _vocabularyService;
   late SriService _sriService;
@@ -78,6 +78,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
   // Word scrolling & Fading
   double _wordPosition = 0.0;
   Timer? _fadeTimer;
+  Timer? _letterFadeTimer;
   int _nextLetterToFade = 0;
 
   // Adjustable fade start time
@@ -124,6 +125,8 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
   @override
   void initState() {
     super.initState();
+
+    WidgetsBinding.instance.addObserver(this);
 
     final baseScrollSeconds = 12.0;
     final scrollDifficultyFactor = 1.0 - (widget.gradeLevel.index * 0.1);
@@ -190,6 +193,27 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeGame();
     });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (!mounted) return;
+
+    if (state == AppLifecycleState.resumed) {
+      // Only resume the falling-word animation while a word is in play.
+      if (_currentWord != null && !_isAnswerChecked) {
+        _scrollController.forward();
+      }
+    } else {
+      // Backgrounded / inactive: pause everything so the word does not
+      // silently "escape" and timers do not keep firing.
+      _scrollController.stop();
+      _fadeTimer?.cancel();
+      _letterFadeTimer?.cancel();
+      _particleTimer?.cancel();
+      _hintTimer?.cancel();
+    }
   }
 
   Future<void> _initializeGame() async {
@@ -279,7 +303,8 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
   void _startFadingLetters() {
     if (_nextLetterToFade >= _displayedWord.length) return;
 
-    Timer.periodic(_letterFadeInterval, (timer) {
+    _letterFadeTimer?.cancel();
+    _letterFadeTimer = Timer.periodic(_letterFadeInterval, (timer) {
       if (!mounted) {
         timer.cancel();
         return;
@@ -461,12 +486,21 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
     final correctDisplayName = _currentWord!.displayName.toLowerCase();
     final correctArticle = _currentWord!.article?.toLowerCase();
 
+    // Strip a leading article uniformly so a child who types the noun
+    // without its article is judged the same way in the perfect-match path
+    // and the variant path below.
+    String userWordPart = userInput;
+    if (correctArticle != null && userInput.startsWith("$correctArticle ")) {
+      userWordPart = userInput.substring(correctArticle.length + 1);
+    }
+    final correctWordPart = _currentWord!.word.toLowerCase();
+
     bool wasCorrectForSRI = false;
     int scoreGained = 0;
-    
+
     _hintTimer?.cancel();
 
-    if (userInput == correctDisplayName) {
+    if (userInput == correctDisplayName || userWordPart == correctWordPart) {
         _answerResult = AnswerResultType.perfect;
         _feedbackMessage = s.gameplayCorrect;
         _educationalHint = generateEducationalHint(context, _currentWord!, isPerfect: true, gradeLevel: widget.gradeLevel);
@@ -482,12 +516,6 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
           _streakController.forward(from: 0.0);
         }
     } else {
-      String userWordPart = userInput;
-
-      if (correctArticle != null && userInput.startsWith("$correctArticle ")) {
-        userWordPart = userInput.substring(correctArticle.length + 1);
-      }
-      
       if (_currentWord!.graphematicVariants
           .any((v) => v.spelling.toLowerCase() == userWordPart)) {
         _answerResult = AnswerResultType.commonMistake;
@@ -569,19 +597,21 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
 
   void _showProgressiveHint() {
     if (_currentWord == null || _isAnswerChecked) return;
-    
+
+    final s = S.of(context)!;
+
     setState(() {
       _hintsUsed++;
-      
+
       if (_hintsUsed == 1) {
         _audioService.speak(_displayedWord);
-        _currentHintText = 'Wort noch einmal angehört!';
+        _currentHintText = s.rescueHintHeardAgain;
       } else if (_hintsUsed == 2) {
         final word = _currentWord!.word;
         final firstPart = word.length > 3 ? word.substring(0, 2) : word.substring(0, 1);
-        _currentHintText = 'Beginnt mit: $firstPart...';
+        _currentHintText = s.rescueHintStartsWith(firstPart);
       } else if (_hintsUsed == 3) {
-        _currentHintText = '${_currentWord!.word.length} Buchstaben';
+        _currentHintText = s.rescueHintLetterCount(_currentWord!.word.length);
       } else {
         final word = _currentWord!.word;
         final hint = word.split('').asMap().entries.map((e) {
@@ -649,7 +679,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
             if (_maxStreak > 1) ...[
               const SizedBox(height: 8),
               Text(
-                'Beste Serie: $_maxStreak 🔥',
+                s.rescueBestStreak(_maxStreak),
                 style: SpaceTheme.bodyStyle.copyWith(color: SpaceTheme.planetOrange),
               ),
             ],
@@ -693,12 +723,14 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _scrollController.dispose();
     _fadeController.dispose();
     _explosionController.dispose();
     _rescueController.dispose();
     _streakController.dispose();
     _fadeTimer?.cancel();
+    _letterFadeTimer?.cancel();
     _particleTimer?.cancel();
     _textController.dispose();
     _focusNode.dispose();
@@ -849,20 +881,20 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
               ),
             ),
             Semantics(
-              label: 'Punkte: $_score',
+              label: s.rescueSemanticsScore(_score),
               child: _buildCompactStat(Icons.stars, '$_score', SpaceTheme.starYellow),
             ),
             if (_currentStreak >= 2)
               Semantics(
-                label: 'Serie: $_currentStreak',
+                label: s.rescueSemanticsStreak(_currentStreak),
                 child: _buildCompactStat(Icons.local_fire_department, '$_currentStreak', SpaceTheme.planetOrange),
               ),
             Semantics(
-              label: 'Gerettet: $_wordsRescued von $_totalWords',
+              label: s.rescueSemanticsRescued(_wordsRescued, _totalWords),
               child: _buildCompactStat(Icons.check_circle, '$_wordsRescued/$_totalWords', SpaceTheme.alienGreen),
             ),
             Semantics(
-              label: 'Stufe ${widget.gradeLevel.index + 1}',
+              label: s.rescueSemanticsLevel(widget.gradeLevel.index + 1),
               container: true,
               child: _buildCompactStat(Icons.military_tech, '${widget.gradeLevel.index + 1}', SpaceTheme.planetOrange),
             ),
@@ -1038,7 +1070,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
                   Icon(Icons.stars, color: SpaceTheme.starYellow, size: 20),
                   const SizedBox(width: 8),
                   Text(
-                    'Punkte: $_score',
+                    '${s.score}: $_score',
                     style: SpaceTheme.bodyStyle.copyWith(
                       color: SpaceTheme.starYellow,
                       fontWeight: FontWeight.bold,
@@ -1238,7 +1270,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
             children: [
               Expanded(
                 child: Semantics(
-                  label: 'Tippe das Wort hier ein',
+                  label: s.rescueSemanticsInputField,
                   textField: true,
                   child: TextField(
                   controller: _textController,
@@ -1312,7 +1344,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
                 const SizedBox(width: 8),
 
                 Semantics(
-                  label: 'Tipp anzeigen',
+                  label: s.rescueSemanticsShowHint,
                   button: true,
                   child: Material(
                     color: SpaceTheme.starYellow,
@@ -1335,7 +1367,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
                 const SizedBox(width: 6),
 
                 Semantics(
-                  label: 'Wort vorlesen',
+                  label: s.rescueSemanticsReadWord,
                   button: true,
                   child: Material(
                     color: SpaceTheme.cosmicPink,

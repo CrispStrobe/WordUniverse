@@ -7,14 +7,15 @@
     "grade4": "Stufe 2",
     "grade5": "Stufe 3",
     "grade6": "Stufe 4",
-
     "licensesTitle": "Lizenzen",
     "viewOssLicenses": "Zeige die open-source Lizenzen",
     "downloadDbTitle": "Ersteinrichtung",
     "downloadDbMessage": "Die deutsche Wörter-Datenbank (etwa {size}) wird einmalig heruntergeladen und für die Offline-Nutzung auf deinem Gerät gespeichert.",
     "@downloadDbMessage": {
         "placeholders": {
-            "size": { "type": "String" }
+            "size": {
+                "type": "String"
+            }
         }
     },
     "downloadDbConfirm": "Herunterladen",
@@ -22,10 +23,8 @@
     "downloadDbDeclined": "Die deutsche Wörter-Datenbank wird zum Fortfahren benötigt. Tippe auf Wiederholen, um sie herunterzuladen, oder wechsle in den Einstellungen zu Englisch.",
     "appName": "Wort-Universum",
     "appLegalese": "© 2025–2026 CrispStrobe\n\nDeutsche Vokabular-Datenbank lizenziert unter GPL-3.0 (enthält aus childLex abgeleitete Daten); englische Vokabular-Datenbank unter CC BY-SA 4.0. Quellen: Wiktionary, ConceptNet, OEWN, OpenThesaurus, OdeNet, LiTKey, Tatoeba, Project Gutenberg, childLex u. a. Vollständige Quellenangaben in den Lizenzeinträgen unten.\n\nDatensätze: huggingface.co/datasets/cstr/grundwortschatz-voc-de  ·  cstr/grundwortschatz-voc-en\n\nApp-Code ist proprietär.",
-
     "spaceWordRescueTitle": "Wort-Rettung",
     "spaceWordRescueInstructions": "Rette Wörter vor dem Abdriften!",
-
     "wordMemoryDescription": "Finde passende Wortpaare in verschiedenen Schriften",
     "@wordMemoryDescription": {
         "description": "Description for memory game in menu"
@@ -38,7 +37,6 @@
     "@wordWhirlDescription": {
         "description": "Description for word whirl game in menu"
     },
-
     "wordRescueTitle": "Wort-Rettung",
     "wordRescueCardDescription": "Tippe Wörter bevor sie entkommen!",
     "wordRescueTypeWord": "Tippe das Wort um es zu retten!",
@@ -47,111 +45,92 @@
     "wordRescueFeedbackCommonMistake": "Fast! {word} gerettet!",
     "@wordRescueFeedbackCommonMistake": {
         "placeholders": {
-        "word": {
-            "type": "String"
-        }
+            "word": {
+                "type": "String"
+            }
         }
     },
     "wordRescueFeedbackIncorrect": "Zu spät! Das richtige Wort war: {word}",
     "@wordRescueFeedbackIncorrect": {
         "placeholders": {
-        "word": {
-            "type": "String"
-        }
+            "word": {
+                "type": "String"
+            }
         }
     },
     "wordRescueFeedbackLost": "Wort ins All entkommen! 💫",
     "wordRescueGameOverStats": "Du hast {rescued} von {total} Wörtern gerettet ({percentage}%)",
     "@wordRescueGameOverStats": {
         "placeholders": {
-        "rescued": {
-            "type": "int"
-        },
-        "total": {
-            "type": "int"
-        },
-        "percentage": {
-            "type": "int"
-        }
+            "rescued": {
+                "type": "int"
+            },
+            "total": {
+                "type": "int"
+            },
+            "percentage": {
+                "type": "int"
+            }
         }
     },
-
     "wordSnakeTitle": "Wortschlange",
     "wordSnakeDescription": "Verbinde Buchstaben zum Wort",
     "wordSnakeInstructions": "Tippe Zellen in Reihenfolge an, um einen Pfad zu bilden, der das Wort buchstabiert",
     "wordSnakeConnectLetters": "Verbinde {count} Buchstaben",
     "@wordSnakeConnectLetters": {
         "placeholders": {
-        "count": {
-            "type": "int"
-        }
+            "count": {
+                "type": "int"
+            }
         }
     },
     "wordSnakeReset": "Zurücksetzen",
     "wordSnakePuzzleProgress": "Rätsel {current} von {total}",
     "@wordSnakePuzzleProgress": {
         "placeholders": {
-        "current": {
-            "type": "int"
-        },
-        "total": {
-            "type": "int"
-        }
+            "current": {
+                "type": "int"
+            },
+            "total": {
+                "type": "int"
+            }
         }
     },
-
     "wordFindTitle": "Wortsuche",
     "wordFindDescription": "Finde die versteckten Wörter im Buchstaben-Gitter!",
     "wordFindWordsToFind": "Wörter finden:",
-
     "wordSortTitle": "Wortarten-Spiel",
     "wordSortDescription": "Sortiere Wörter in Kategorien: Nomen, Verben und Adjektive",
     "wordSortTitleTimeAttack": "Wortarten - Gegen die Zeit!",
     "wordSortCategoryNoun": "Nomen",
     "wordSortCategoryVerb": "Verb",
     "wordSortCategoryAdjective": "Adjektiv",
-    
     "wordSortCorrect": "Richtig! Gut gemacht!",
     "wordSortIncorrect": "Nicht ganz. Lass uns lernen!",
     "wordSortTimeUp": "Zeit abgelaufen!",
-    
     "wordSortStreakBonus": "🔥 {streak} hintereinander! Bonuspunkte!",
-    
     "wordSortHintNounArticle": "Richtig! Man sagt '{article}' - der Artikel zeigt, dass es ein {gender} Nomen ist.",
-    
     "wordSortHintNounPlural": "Die Mehrzahl von '{singular}' ist '{plural}'.",
-    
     "wordSortHintVerbConjugation": "Richtig! Verben verändern sich: '{ich}', '{du}' - sie konjugieren mit der Person!",
-    
     "wordSortHintAdjectiveComparison": "Adjektive haben Steigerungsformen: {base} → {comparative} → {superlative}",
-    
     "wordSortWhyNot": "Nein, es ist kein {type}.",
-    
     "wordSortWhyNoun": "Es ist ein NOMEN, weil man '{article}' sagt - Artikel stehen vor Nomen!",
-    
     "wordSortNounDeclensionExample": "Nomen verändern sich nach dem Fall: {nominative} → {genitive}",
-    
     "wordSortWhyVerb": "Es ist ein VERB, weil es konjugiert wird: {forms}",
-    
     "wordSortWhyAdjective": "Es ist ein ADJEKTIV, weil es Steigerungsformen hat: {base} → {comparative} → {superlative}",
-    
     "wordSortHintLookForArticle": "💡 Tipp: Achte auf den Artikel (der/die/das)!",
     "wordSortHintArticleExample": "Dieses Wort hat den Artikel '{article}'",
-    
     "wordSortHintLookForConjugation": "💡 Tipp: Kann man 'ich...' damit sagen?",
     "wordSortHintLookForComparison": "💡 Tipp: Kann dieses Wort etwas beschreiben? Kann es 'mehr' oder 'am meisten' werden?",
-    
     "wordSortToggleTimeAttack": "Zeit-Modus umschalten",
     "wordSortShowHint": "Tipp anzeigen",
     "wordSortTimeAttackComplete": "Zeit-Herausforderung abgeschlossen!",
-    
     "score": "Punkte",
     "correct": "richtig",
     "gameOver": "Spiel vorbei",
     "backToMenu": "Zurück zum Menü",
     "goBack": "Zurück",
     "playAgain": "Nochmal spielen",
-
     "gameplayHint": "Hinweis (-2 Punkte)",
     "gameplayCheck": "Prüfen",
     "gameplayCorrect": "Richtig! Gut gemacht! 🚀",
@@ -318,8 +297,6 @@
     "sriLearning": "Im Training",
     "progressMatrixTitle": "Fortschrittsmatrix",
     "progressMatrixDesc": "Die Farbe zeigt die Beherrschung (grün ist am besten). Die Zahl zeigt die Anzahl der Aufgaben in diesem Bereich.",
-
-
     "imprint": "Impressum",
     "imprintTitle": "Impressum.",
     "imprintDialog": "Imprint / Legal..",
@@ -332,7 +309,6 @@
     "imprintDisclaimer": "Haftungsausschluss",
     "imprintDisclaimerText": "Diese App wird 'as is' (so wie sie ist) ausschließlich zu Bildungs- und kreativen Zwecken bereitgestellt, ohne jegliche Haftung.",
     "imprintWebsite": "www.crispstro.be",
-
     "taskCustomizationTitle": "Aufgaben-Anpassung",
     "@taskCustomizationTitle": {
         "description": "Title for the task customization settings card"
@@ -353,12 +329,12 @@
     "@taskWordLengthRange": {
         "description": "Label showing the selected min/max word length. e.g. 'Wörter mit 3 bis 8 Buchstaben'",
         "placeholders": {
-        "min": {
-            "type": "int"
-        },
-        "max": {
-            "type": "int"
-        }
+            "min": {
+                "type": "int"
+            },
+            "max": {
+                "type": "int"
+            }
         }
     },
     "taskIncludedSourcesTitle": "Wortquellen",
@@ -410,9 +386,9 @@
     "customSetSelectedWords": "Ausgewählte Wörter ({count})",
     "@customSetSelectedWords": {
         "placeholders": {
-        "count": {
-            "type": "int"
-        }
+            "count": {
+                "type": "int"
+            }
         }
     },
     "customSetSearchHint": "Wörter filtern...",
@@ -425,16 +401,15 @@
     "customSetDeleteConfirmContent": "Möchtest du das Set {setName} wirklich löschen?",
     "@customSetDeleteConfirmContent": {
         "placeholders": {
-        "setName": {
-            "type": "String"
-        }
+            "setName": {
+                "type": "String"
+            }
         }
     },
-
     "wordMemoryTitle": "Memory",
     "@wordMemoryTitle": {
         "description": "Title for memory matching game"
-        },
+    },
     "wordMemoryComplete": "Geschafft!",
     "@wordMemoryComplete": {
         "description": "Memory game completion message"
@@ -451,7 +426,6 @@
     "@wordMemoryPairs": {
         "description": "Number of pairs found"
     },
-
     "wordBuilderTitle": "Wort-Baumeister",
     "@wordBuilderTitle": {
         "description": "Title for word builder game"
@@ -488,7 +462,6 @@
     "@wordBuilderTime": {
         "description": "Time label"
     },
-
     "wordWhirlTitle": "Wortarten-Wirbel",
     "@wordWhirlTitle": {
         "description": "Title for word type whirl game"
@@ -525,13 +498,12 @@
     "@wordWhirlTapAll": {
         "description": "Instruction to tap all words of a type",
         "placeholders": {
-        "wordType": {
-            "type": "String",
-            "example": "Nomen"
-        }
+            "wordType": {
+                "type": "String",
+                "example": "Nomen"
+            }
         }
     },
-
     "gameReplay": "Nochmal",
     "@gameReplay": {
         "description": "Replay button text"
@@ -559,9 +531,12 @@
     "streakLabel": "{count, plural, =1{1 Tag} other{{count} Tage}}",
     "@streakLabel": {
         "description": "Plural label for consecutive-day streak",
-        "placeholders": { "count": { "type": "int" } }
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
     },
-
     "gameTooSlow": "Zu langsam!",
     "@gameTooSlow": {
         "description": "Feedback when a falling/timed item is missed"
@@ -569,22 +544,37 @@
     "gameLevelLine": "Level: {level}",
     "@gameLevelLine": {
         "description": "Stat line shown in end-of-game dialog",
-        "placeholders": { "level": { "type": "int" } }
+        "placeholders": {
+            "level": {
+                "type": "int"
+            }
+        }
     },
     "gameMaxComboLine": "Max Combo: {combo}",
     "@gameMaxComboLine": {
         "description": "Stat line shown in end-of-game dialog",
-        "placeholders": { "combo": { "type": "int" } }
+        "placeholders": {
+            "combo": {
+                "type": "int"
+            }
+        }
     },
     "gameCombo": "Combo x{combo}",
     "@gameCombo": {
-        "placeholders": { "combo": { "type": "int" } }
+        "placeholders": {
+            "combo": {
+                "type": "int"
+            }
+        }
     },
     "gameLvlBadge": "Lvl {level}",
     "@gameLvlBadge": {
-        "placeholders": { "level": { "type": "int" } }
+        "placeholders": {
+            "level": {
+                "type": "int"
+            }
+        }
     },
-
     "verbtrennerSeparableTitle": "Trennbare Verben",
     "verbtrennerCompoundTitle": "Nomen-Komposita",
     "verbtrennerSeparatedLabel": "GETRENNT",
@@ -593,18 +583,15 @@
     "verbtrennerTogetherExample": "(aufstehen)",
     "wortbaumeisterSeparatedExample": "(z.B. stehe auf)",
     "wortbaumeisterTogetherExample": "(z.B. aufstehen)",
-
     "grossschreibTitle": "Wort-Galaxie",
     "grossschreibDescription": "Werden Worte im Satz groß oder klein geschrieben?",
     "grossschreibClickHint": "Klicke auf das Wort!",
     "grossschreibCheck": "PRÜFEN",
-
     "grossstadtTitle": "Groß oder klein?",
     "grossstadtCardTitle": "Wort-Sortierer",
     "grossstadtCardDescription": "Groß- und Kleinschreibung auf dem Förderband",
     "grossstadtCapital": "GROSS",
     "grossstadtLower": "klein",
-
     "spellingSpotterTitle": "Spelling Spotter",
     "spellingSpotterDescription": "Finde das korrekt geschriebene Wort — lerne häufige Rechtschreibfehler",
     "sentenceCompletionTitle": "Satzergänzung",
@@ -615,45 +602,32 @@
     "sriReviewDescription": "Übe deine schwierigsten Wörter gezielt",
     "antonymFlashTitle": "Gegenwort-Blitz",
     "antonymFlashDescription": "Tippe das Gegenteil — so schnell du kannst!",
-
     "synonymFlashTitle": "Synonym-Blitz",
     "synonymFlashDescription": "Tippe ein Wort mit gleicher Bedeutung — so schnell du kannst!",
-
     "translationFlashTitle": "Übersetzungs-Blitz",
     "translationFlashDescription": "Tippe die englische Übersetzung jedes deutschen Worts!",
-
     "syllableCountTitle": "Silben zählen",
     "syllableCountDescription": "Wie viele Silben hat das Wort? Zähl sie!",
-
     "clozeFlashTitle": "Lücken-Blitz",
     "clozeFlashDescription": "Füll die Lücke aus — tippe das richtige Wort!",
-
     "expressionFlashTitle": "Phrasen-Blitz",
     "expressionFlashDescription": "Ergänze die Redewendung — tippe das fehlende Wort!",
-
     "hypernymFlashTitle": "Oberbegriff-Blitz",
     "hypernymFlashDescription": "Welchem Oberbegriff gehört das Wort?",
-
     "wordClassFlashTitle": "Wortart-Blitz",
     "wordClassFlashDescription": "Nomen, Verb, Adjektiv oder Adverb — schnell tippen!",
-
     "proverbClozeTitle": "Sprichwort-Blitz",
     "proverbClozeDescription": "Ergänze das Sprichwort — tippe das fehlende Wort!",
-
     "reverseTranslationTitle": "Rück-Übersetzung",
     "reverseTranslationDescription": "Ein englisches Wort erscheint — finde das deutsche Wort!",
-
     "conjugationDrillTitle": "Konjugations-Drill",
     "conjugationDrillDescription": "Wähle die richtige Verbform für jedes Personalpronomen",
     "conjugationDrillGameOverTitle": "Übung beendet",
     "conjugationDrillGameOverLabel": "richtige Konjugationen",
-
     "homophoneDrillTitle": "Homophon-Training",
     "homophoneDrillDescription": "Wähle die richtige Schreibweise — hear vs. here, to vs. too vs. two",
-
     "confusableDrillTitle": "Wortfalle",
     "confusableDrillDescription": "Finde das richtige Wort — affect vs. effect, lose vs. loose",
-
     "phrasalVerbPowerTitle": "Phrasal-Verb-Power",
     "phrasalVerbPowerDescription": "Wähle das Wort, das das Phrasal Verb vervollständigt — give ___, take ___",
     "phrasalVerbPowerPrompt": "Welches Wort vervollständigt das Phrasal Verb?",
@@ -677,7 +651,20 @@
     "falseFriendsOnboard3": "Nach jeder Antwort siehst du die echte Bedeutung und die Falle erklärt.",
     "falseFriendsExplain": "{english} = {correctMeaning} — nicht „{german}“ ({germanMeans})!",
     "@falseFriendsExplain": {
-        "placeholders": { "english": { "type": "String" }, "correctMeaning": { "type": "String" }, "german": { "type": "String" }, "germanMeans": { "type": "String" } }
+        "placeholders": {
+            "english": {
+                "type": "String"
+            },
+            "correctMeaning": {
+                "type": "String"
+            },
+            "german": {
+                "type": "String"
+            },
+            "germanMeans": {
+                "type": "String"
+            }
+        }
     },
     "wortfalleTitle": "Wortfalle",
     "wortfalleDescription": "Wähle das richtige Wort — das/dass, seit/seid, Lärche/Lerche",
@@ -690,20 +677,28 @@
     "gamePlayAgain": "Nochmal spielen",
     "gameCorrectOfTotal": "{correct} von {total} richtig",
     "@gameCorrectOfTotal": {
-        "placeholders": { "correct": { "type": "int" }, "total": { "type": "int" } }
+        "placeholders": {
+            "correct": {
+                "type": "int"
+            },
+            "total": {
+                "type": "int"
+            }
+        }
     },
-
     "wortbaumeisterCardTitle": "Wort-Stückler",
     "wortbaumeisterCardDescription": "Zusammengesetzte Nomen Stück für Stück bauen",
-
     "verbtrennerCardTitle": "Verb-Trenner",
     "verbtrennerCardDescription": "Trennbare Verben erkennen: zusammen oder getrennt?",
-
     "achievementsBannerProgress": "{unlocked} von {total} Erfolgen freigeschaltet",
     "@achievementsBannerProgress": {
         "placeholders": {
-            "unlocked": { "type": "int" },
-            "total": { "type": "int" }
+            "unlocked": {
+                "type": "int"
+            },
+            "total": {
+                "type": "int"
+            }
         }
     },
     "achievementTriangleWizardTitle": "Wort-Schlange-Meister",
@@ -726,7 +721,6 @@
     "achievementArithmeticAceDesc": "Erreiche Level 5 in Memory und Wortarten-Wirbel.",
     "achievementVielseitigTitle": "Vielseitig",
     "achievementVielseitigDesc": "Spiele mindestens vier verschiedene Spiele.",
-
     "achievementAntonymAceTitle": "Gegenwort-Ass",
     "achievementAntonymAceDesc": "Schließe Gegenwort-Blitz 3-mal ab.",
     "achievementSynonymScholarTitle": "Synonym-Forscher",
@@ -763,7 +757,6 @@
     "achievementConfusableProDesc": "Schließe Wortfalle 3-mal ab.",
     "achievementReviewRegularTitle": "Wiederholungs-Champion",
     "achievementReviewRegularDesc": "Schließe SRS-Wiederholung 5-mal ab.",
-
     "diagnosticsTitle": "Diagnose",
     "diagnosticsSubtitle": "Absturzprotokoll anzeigen (bleibt auf dem Gerät)",
     "parentDashboardTitle": "Eltern-Übersicht",
@@ -774,7 +767,6 @@
     "deleteAllDataSubtitle": "Fortschritt auf diesem Gerät zurücksetzen",
     "noSourcesFound": "Keine Quellen gefunden",
     "noCustomSetsYet": "Noch keine eigenen Sets erstellt.",
-
     "antonymFlashPrompt": "Gegenteil von …",
     "syllableCountPrompt": "Wie viele Silben?",
     "wordClassFlashPrompt": "Welche Wortart?",
@@ -782,15 +774,19 @@
     "correctInSeconds": "richtig in {n}s",
     "@correctInSeconds": {
         "placeholders": {
-            "n": { "type": "int" }
+            "n": {
+                "type": "int"
+            }
         }
     },
-
-    "parentDashboardTitle": "Eltern-Übersicht",
     "parentPinTitle": "Eltern-PIN",
     "parentPinHelp": "Gib den 4-stelligen Code ein.\nStandard ist {pin}, bis du ihn änderst.",
     "@parentPinHelp": {
-        "placeholders": { "pin": { "type": "String" } }
+        "placeholders": {
+            "pin": {
+                "type": "String"
+            }
+        }
     },
     "parentPinWrong": "Falscher Code",
     "parentPinUnlock": "Entsperren",
@@ -807,8 +803,12 @@
     "parentItemsMasteredValue": "{count} ({pct}%)",
     "@parentItemsMasteredValue": {
         "placeholders": {
-            "count": { "type": "int" },
-            "pct": { "type": "int" }
+            "count": {
+                "type": "int"
+            },
+            "pct": {
+                "type": "int"
+            }
         }
     },
     "parentItemsDue": "Fällig zur Wiederholung",
@@ -820,8 +820,12 @@
     "parentCategoryValue": "{name} ({pct}%)",
     "@parentCategoryValue": {
         "placeholders": {
-            "name": { "type": "String" },
-            "pct": { "type": "int" }
+            "name": {
+                "type": "String"
+            },
+            "pct": {
+                "type": "int"
+            }
         }
     },
     "parentTotalAttempts": "Gesamtversuche",
@@ -830,16 +834,23 @@
     "parentNoneYet": "noch keine",
     "parentLevelValue": "Level {level}",
     "@parentLevelValue": {
-        "placeholders": { "level": { "type": "int" } }
+        "placeholders": {
+            "level": {
+                "type": "int"
+            }
+        }
     },
-
     "cognitiveProfileTitle": "Lernprofil",
     "cognitiveProfileEmpty": "Spiele ein paar Runden, um dein Profil aufzubauen.",
     "cognitiveProfileAttempts": "{attempts} Versuche in {areas, plural, =1{1 Skill-Bereich} other{{areas} Skill-Bereichen}}",
     "@cognitiveProfileAttempts": {
         "placeholders": {
-            "attempts": { "type": "int" },
-            "areas": { "type": "int" }
+            "attempts": {
+                "type": "int"
+            },
+            "areas": {
+                "type": "int"
+            }
         }
     },
     "categorySpelling": "Rechtschreibung",
@@ -847,7 +858,6 @@
     "categoryVocabulary": "Wortschatz",
     "categoryTextComprehension": "Textverständnis",
     "categoryExpression": "Ausdruck",
-
     "wordSortOnboardingTitle": "Wort-Sortierung",
     "wordSortOnboardingDrag": "Ziehe das Wort in die passende Wortart-Kategorie.",
     "wordSortOnboardingBuildingBlocks": "Nomen, Verben und Adjektive sind die Grundbausteine. Höhere Klassen bringen Adverbien und Pronomen dazu.",
@@ -856,21 +866,21 @@
     "wordSortCategoryPronoun": "Pronomen",
     "fontFamilyTitle": "Schriftart",
     "fontFamilySubtitle": "Wähle eine Schriftart für Lerninhalte",
-
     "skip": "Überspringen",
     "gotIt": "Verstanden",
     "next": "Weiter",
     "debugModeEnabled": "Debug-Modus aktiviert!",
-
     "synonymFlashPrompt": "Gleichbedeutend mit …",
     "noSynonymData": "Keine Synonym-Daten für diese Stufe verfügbar.",
-
     "noClozeSentences": "Keine Beispielsätze für diese Stufe verfügbar.",
     "clozeAnswer": "Antwort: {word}",
     "@clozeAnswer": {
-        "placeholders": { "word": { "type": "String" } }
+        "placeholders": {
+            "word": {
+                "type": "String"
+            }
+        }
     },
-
     "sriReviewHeader": "Wiederholung",
     "reviewNoWordsYet": "Noch keine Wörter zum Wiederholen.\nSpiele ein paar Runden, damit das System deine schwachen Punkte erkennt!",
     "difficultyVeryHard": "Sehr schwierig",
@@ -881,15 +891,22 @@
     "challengeTypeDefinition": "Welches Wort passt?",
     "articleChallengePrompt": "Welcher Artikel passt?\n\"___ {word}\"",
     "@articleChallengePrompt": {
-        "placeholders": { "word": { "type": "String" } }
+        "placeholders": {
+            "word": {
+                "type": "String"
+            }
+        }
     },
-
     "wordOfTheDay": "Wort des Tages",
     "pronounce": "Aussprechen",
     "tapToPractise": "Tippen zum Üben →",
     "gradeLabel": "Klasse {grade}",
     "@gradeLabel": {
-        "placeholders": { "grade": { "type": "int" } }
+        "placeholders": {
+            "grade": {
+                "type": "int"
+            }
+        }
     },
     "sectionDefinitions": "Bedeutungen",
     "sectionExamples": "Beispiele",
@@ -897,68 +914,74 @@
     "sectionAntonyms": "Antonyme",
     "didYouKnow": "Wissenswertes",
     "practiceNow": "Jetzt üben",
-
     "karteikasten": "Karteikasten",
     "karteikastenCardMoved": "Karte verschoben nach Box {box} – {label}",
     "@karteikastenCardMoved": {
         "placeholders": {
-            "box": { "type": "int" },
-            "label": { "type": "String" }
+            "box": {
+                "type": "int"
+            },
+            "label": {
+                "type": "String"
+            }
         }
     },
     "boxLabel": "Box {n}",
     "@boxLabel": {
-        "placeholders": { "n": { "type": "int" } }
+        "placeholders": {
+            "n": {
+                "type": "int"
+            }
+        }
     },
     "boxLabelCurrent": "(jetzt)",
     "moveCard": "Verschieben",
     "boxEmptyMastered": "Noch keine gemeisterten Karten in dieser Box.",
     "boxEmptyDefault": "Diese Box ist leer.",
-
     "antonymFlashOnboardingBody1": "Ein Wort erscheint — tippe schnell auf sein Gegenteil.",
     "hypernymFlashOnboardingBody1": "Ein Wort erscheint — tippe schnell auf den passenden Oberbegriff.",
     "noHypernymData": "Keine Oberbegriff-Daten für diese Stufe verfügbar.",
     "hypernymFlashPrompt": "Oberbegriff für …",
     "spellingForDefinition": "Richtige Schreibweise für:\n\"{definition}\"",
     "@spellingForDefinition": {
-        "placeholders": { "definition": { "type": "String" } }
+        "placeholders": {
+            "definition": {
+                "type": "String"
+            }
+        }
     },
     "conjugationDrillOnboardingBody1": "Ein Verb und ein Personalpronomen werden gezeigt — wähle die richtige Präsens-Form.",
     "conjugationDrillOnboardingBody2": "Alle vier Optionen sind Formen desselben Pronomens aus verschiedenen Verben.",
     "conjugationDrillOnboardingBody3": "Dieses Spiel ist auf Deutsch: Englische Verben konjugieren im Präsens kaum — nur die 3. Person Singular weicht ab.",
     "spellingSpotterOnboardingBody1": "Vier Wörter werden gezeigt — eines ist richtig geschrieben, die anderen enthalten typische Fehler.",
     "spellingSpotterOnboardingBody2": "Wörter sind nach Schwierigkeit sortiert — basierend auf echten Rechtschreibfehlern.",
-
     "correctAnswerReveal": "Richtige Antwort: {word}",
     "@correctAnswerReveal": {
-        "placeholders": { "word": { "type": "String" } }
+        "placeholders": {
+            "word": {
+                "type": "String"
+            }
+        }
     },
     "exampleLabel": "Beispiel:",
-
     "definitionQuizPrompt": "Welches Wort wird beschrieben?",
     "noDefinitionData": "Keine Definitionen für diese Stufe verfügbar.",
     "definitionQuizOnboardingBody1": "Eine Definition wird gezeigt — wähle das passende Wort aus vier Optionen.",
     "definitionQuizOnboardingBody2": "Alle Optionen kommen aus derselben CEFR-Stufe, damit nichts zu leicht wird.",
     "definitionQuizOnboardingBody3": "Für Klasse 5+ erscheint nach richtiger Antwort ein Sprach-Tipp zum Wort.",
-
     "sentenceCompletionPrompt": "Welches Wort passt in die Lücke?",
     "sentenceCompletionOnboardingBody1": "Ein Satz mit einer Lücke wird gezeigt — wähle das passende Wort.",
     "sentenceCompletionOnboardingBody2": "Es werden nur Nomen, Verben und Adjektive abgefragt, da diese eindeutig im Satz erkennbar sind.",
     "sentenceCompletionOnboardingBody3": "Bei richtiger Antwort siehst du einen Hinweis auf die Wortbedeutung.",
-
     "spellingSpotterPrompt": "Welches Wort ist richtig geschrieben?",
     "noSpellingData": "Keine Rechtschreibdaten für diese Stufe verfügbar.",
-
     "synonymFlashOnboardingBody1": "Ein Wort erscheint — tippe schnell auf ein Wort mit gleicher Bedeutung.",
     "synonymFlashOnboardingTimer": "Du hast 30 Sekunden. Je mehr richtige Antworten, desto besser dein Score.",
-
     "clozeFlashOnboardingBody1": "Ein Satz erscheint mit einem fehlenden Wort — tippe die richtige Antwort.",
     "clozeFlashOnboardingTimer": "Du hast 30 Sekunden. Lies den Kontext — er hilft dir!",
-
     "sriReviewOnboardingBody1": "Hier übst du deine schwächsten Wörter — basierend auf deiner Lernhistorie.",
     "sriReviewOnboardingBody2": "Jede Aufgabe passt sich dem Wort an: Artikel, Schreibweise oder Definition.",
     "sriReviewOnboardingBody3": "Mit jeder richtigen Antwort steigt der Easiness Factor des Wortes.",
-
     "achievementGrade2Title": "Klasse-2-Aufsteiger",
     "achievementGrade2Desc": "Auf Klasse 2 aufgestiegen.",
     "achievementGrade3Title": "Klasse-3-Aufsteiger",
@@ -969,19 +992,37 @@
     "achievementGrade5Desc": "Auf Klasse 5 aufgestiegen.",
     "achievementGrade6Title": "Klasse-6-Aufsteiger",
     "achievementGrade6Desc": "Auf Klasse 6 aufgestiegen.",
-
     "semanticsBack": "Zurück",
     "semanticsScore": "Punkte: {n}",
-    "@semanticsScore": { "placeholders": { "n": { "type": "int" } } },
+    "@semanticsScore": {
+        "placeholders": {
+            "n": {
+                "type": "int"
+            }
+        }
+    },
     "semanticsProgress": "Fortschritt: {done} von {total}",
-    "@semanticsProgress": { "placeholders": { "done": { "type": "int" }, "total": { "type": "int" } } },
+    "@semanticsProgress": {
+        "placeholders": {
+            "done": {
+                "type": "int"
+            },
+            "total": {
+                "type": "int"
+            }
+        }
+    },
     "semanticsCombo": "Kombo mal {n}",
-    "@semanticsCombo": { "placeholders": { "n": { "type": "int" } } },
-
+    "@semanticsCombo": {
+        "placeholders": {
+            "n": {
+                "type": "int"
+            }
+        }
+    },
     "syllableCountOnboardingBody1": "Ein Wort erscheint — tippe, wie viele Silben es hat.",
     "syllableCountOnboardingTimer": "Du hast 30 Sekunden. Sprich das Wort laut aus, um die Silben zu spüren.",
     "noSyllableData": "Keine Silbendaten für diese Stufe verfügbar.",
-
     "wordClassFlashOnboardingBody1": "Ein Wort erscheint — tippe schnell auf seine Wortart.",
     "wordClassFlashOnboardingTimer": "Du hast 30 Sekunden. Nomen, Verb, Adjektiv oder Adverb?",
     "wordClassFlashOnboardingTip": "Entscheide nach Bedeutung und Form des Wortes.",
@@ -991,33 +1032,644 @@
     "wordTypeAdjective": "Adjektiv",
     "wordTypeAdverb": "Adverb",
     "wordTypePronoun": "Pronomen",
-
     "wordSortHintCorrect": "✓ Richtig!",
     "wordSortHintWrong": "✗ Falsch!",
     "wordSortHintNotA": "✗ Kein {type}!",
-    "@wordSortHintNotA": { "placeholders": { "type": { "type": "String" } } },
+    "@wordSortHintNotA": {
+        "placeholders": {
+            "type": {
+                "type": "String"
+            }
+        }
+    },
     "wordSortHintSynonym": "✓ Synonym: {synonyms}",
-    "@wordSortHintSynonym": { "placeholders": { "synonyms": { "type": "String" } } },
+    "@wordSortHintSynonym": {
+        "placeholders": {
+            "synonyms": {
+                "type": "String"
+            }
+        }
+    },
     "wordSortHintAntonym": "✓ Gegenteil: {antonym}",
-    "@wordSortHintAntonym": { "placeholders": { "antonym": { "type": "String" } } },
+    "@wordSortHintAntonym": {
+        "placeholders": {
+            "antonym": {
+                "type": "String"
+            }
+        }
+    },
     "wordSortHintNounNaming": "✓ Nomen groß: {word} (Großschreibung!)",
-    "@wordSortHintNounNaming": { "placeholders": { "word": { "type": "String" } } },
+    "@wordSortHintNounNaming": {
+        "placeholders": {
+            "word": {
+                "type": "String"
+            }
+        }
+    },
     "wordSortHintVerbAction": "✓ Verb: {word} → beschreibt Handlung",
-    "@wordSortHintVerbAction": { "placeholders": { "word": { "type": "String" } } },
+    "@wordSortHintVerbAction": {
+        "placeholders": {
+            "word": {
+                "type": "String"
+            }
+        }
+    },
     "wordSortHintAdjQuality": "✓ Adjektiv: {word} → Eigenschaft",
-    "@wordSortHintAdjQuality": { "placeholders": { "word": { "type": "String" } } },
+    "@wordSortHintAdjQuality": {
+        "placeholders": {
+            "word": {
+                "type": "String"
+            }
+        }
+    },
     "wordSortHintAdjQuestion": "✓ Wie-Frage: \"Wie ist es?\" → {word}",
-    "@wordSortHintAdjQuestion": { "placeholders": { "word": { "type": "String" } } },
+    "@wordSortHintAdjQuestion": {
+        "placeholders": {
+            "word": {
+                "type": "String"
+            }
+        }
+    },
     "wordSortHintAdverbAction": "✓ Adverb: {word} → unveränderlich!",
-    "@wordSortHintAdverbAction": { "placeholders": { "word": { "type": "String" } } },
+    "@wordSortHintAdverbAction": {
+        "placeholders": {
+            "word": {
+                "type": "String"
+            }
+        }
+    },
     "wordSortHintAdverbQuestion": "✓ Wie-Frage: \"Wie?\" → {word}",
-    "@wordSortHintAdverbQuestion": { "placeholders": { "word": { "type": "String" } } },
+    "@wordSortHintAdverbQuestion": {
+        "placeholders": {
+            "word": {
+                "type": "String"
+            }
+        }
+    },
     "wordSortHintPronounReplaces": "✓ Pronomen: {word} → ersetzt Nomen",
-    "@wordSortHintPronounReplaces": { "placeholders": { "word": { "type": "String" } } },
+    "@wordSortHintPronounReplaces": {
+        "placeholders": {
+            "word": {
+                "type": "String"
+            }
+        }
+    },
     "wordSortHintPronounStands": "✓ {word} → steht für ein Nomen",
-    "@wordSortHintPronounStands": { "placeholders": { "word": { "type": "String" } } },
+    "@wordSortHintPronounStands": {
+        "placeholders": {
+            "word": {
+                "type": "String"
+            }
+        }
+    },
     "wordSortDragLabel": "Wort: {word}. Ziehe es auf die richtige Wortart.",
-    "@wordSortDragLabel": { "placeholders": { "word": { "type": "String" } } },
+    "@wordSortDragLabel": {
+        "placeholders": {
+            "word": {
+                "type": "String"
+            }
+        }
+    },
     "wordSortHintCorrectAs": "✓ Richtig: {word} ist ein {type}!",
-    "@wordSortHintCorrectAs": { "placeholders": { "word": { "type": "String" }, "type": { "type": "String" } } }
+    "@wordSortHintCorrectAs": {
+        "placeholders": {
+            "word": {
+                "type": "String"
+            },
+            "type": {
+                "type": "String"
+            }
+        }
+    },
+    "homophoneTitleHomophone": "Klangzwillinge",
+    "homophoneTitleTrap": "Wortfalle",
+    "homophoneOnboardHomophone1": "Klangzwillinge klingen gleich, werden aber unterschiedlich geschrieben — wie \"Lärche\" und \"Lerche\" oder \"Seite\" und \"Saite\".",
+    "homophoneOnboardHomophone2": "Es wird ein Satz mit einer Lücke gezeigt. Wähle die Schreibweise, die zur Bedeutung passt.",
+    "homophoneOnboardHomophone3": "Nach jeder Antwort verrät dir ein Bedeutungs-Tipp, was jede Schreibweise besonders macht.",
+    "homophoneOnboardConfusable1": "Manche Wörter sehen sich ähnlich oder klingen ähnlich, bedeuten aber etwas anderes — wie \"das\" und \"dass\" oder \"wider\" und \"wieder\".",
+    "homophoneOnboardConfusable2": "Es wird ein Satz mit einer Lücke gezeigt. Wähle das Wort, dessen Bedeutung in den Satz passt.",
+    "homophoneOnboardConfusable3": "Nach jeder Antwort siehst du eine klare Erklärung, was jedes Wort unterscheidet.",
+    "homophoneEmpty": "Für diese Stufe gibt es noch keine passenden Wörter.",
+    "homophonePromptHomophone": "Welches Wort passt?",
+    "homophonePromptConfusable": "Welches Wort ist hier richtig?",
+    "homophoneMeanings": "Bedeutungen",
+    "homophoneSubtitleHomophone": "richtige Klangzwillinge",
+    "homophoneSubtitleTrap": "richtige Wörter",
+    "wordBuilderHintsUsed": "{count} verwendet",
+    "@wordBuilderHintsUsed": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "wordBuilderLevelLabel": "Stufe {level}",
+    "@wordBuilderLevelLabel": {
+        "placeholders": {
+            "level": {
+                "type": "int"
+            }
+        }
+    },
+    "wordBuilderLevelShort": "Stufe {level}",
+    "@wordBuilderLevelShort": {
+        "placeholders": {
+            "level": {
+                "type": "int"
+            }
+        }
+    },
+    "wordBuilderWordsProgress": "Wörter: {done} von {total}",
+    "@wordBuilderWordsProgress": {
+        "placeholders": {
+            "done": {
+                "type": "int"
+            },
+            "total": {
+                "type": "int"
+            }
+        }
+    },
+    "wordBuilderLetterTile": "Buchstabenkachel {letter}",
+    "@wordBuilderLetterTile": {
+        "placeholders": {
+            "letter": {
+                "type": "String"
+            }
+        }
+    },
+    "wordBuilderTileHint": "Tippe oder ziehe in den Wortbereich",
+    "wordBuilderTimeRemaining": "Zeit: {seconds} Sekunden",
+    "@wordBuilderTimeRemaining": {
+        "placeholders": {
+            "seconds": {
+                "type": "int"
+            }
+        }
+    },
+    "wordSnakeResetSelection": "Auswahl zurücksetzen",
+    "wordSnakeScoreLabel": "Punkte: {score}",
+    "@wordSnakeScoreLabel": {
+        "placeholders": {
+            "score": {
+                "type": "int"
+            }
+        }
+    },
+    "wordSnakeCell": "Buchstabe {letter}",
+    "@wordSnakeCell": {
+        "placeholders": {
+            "letter": {
+                "type": "String"
+            }
+        }
+    },
+    "wordSnakeCellSelected": "Buchstabe {letter}, Position {position}",
+    "@wordSnakeCellSelected": {
+        "placeholders": {
+            "letter": {
+                "type": "String"
+            },
+            "position": {
+                "type": "int"
+            }
+        }
+    },
+    "wordSnakeNoPuzzles": "Gerade konnte kein Rätsel erstellt werden. Probier eine andere Klassenstufe oder komm später wieder.",
+    "wordSnakeBasicVocabulary": "⭐ Grundwortschatz",
+    "wordSnakeNoun": "Nomen",
+    "wordSnakeNounWithArticle": "Nomen ({article})",
+    "@wordSnakeNounWithArticle": {
+        "placeholders": {
+            "article": {
+                "type": "String"
+            }
+        }
+    },
+    "wordSnakeGenus": "Genus: {genus}",
+    "@wordSnakeGenus": {
+        "placeholders": {
+            "genus": {
+                "type": "String"
+            }
+        }
+    },
+    "wordSnakePlural": "Plural: {plural}",
+    "@wordSnakePlural": {
+        "placeholders": {
+            "plural": {
+                "type": "String"
+            }
+        }
+    },
+    "wordSnakeVerb": "Verb (Tun-Wort)",
+    "wordSnakeVerbForms": "z.B. ich {ich}, du {du}, er {er}",
+    "@wordSnakeVerbForms": {
+        "placeholders": {
+            "ich": {
+                "type": "String"
+            },
+            "du": {
+                "type": "String"
+            },
+            "er": {
+                "type": "String"
+            }
+        }
+    },
+    "wordSnakeForms": "Formen: {forms}",
+    "@wordSnakeForms": {
+        "placeholders": {
+            "forms": {
+                "type": "String"
+            }
+        }
+    },
+    "wordSnakeAdjective": "Adjektiv (Wie-Wort)",
+    "wordSnakeAdjectivePositive": "Adjektiv (Positiv)",
+    "wordSnakeComparison": "Steigerung: {forms}",
+    "@wordSnakeComparison": {
+        "placeholders": {
+            "forms": {
+                "type": "String"
+            }
+        }
+    },
+    "wordSnakePronoun": "Pronomen",
+    "wordSnakeArticle": "Artikel",
+    "wordSnakeAdverb": "Adverb",
+    "wordSnakePreposition": "Präposition",
+    "wordSnakeConjunction": "Konjunktion",
+    "wordSnakeParticle": "Partikel",
+    "wordSnakeNumeral": "Numerale",
+    "wordSnakeCaseNominative": "Nominativ",
+    "wordSnakeCaseAccusative": "Akkusativ",
+    "wordSnakeCaseDative": "Dativ",
+    "wordSnakeCaseGenitive": "Genitiv",
+    "wordSnakeExample": "z.B.: {example}",
+    "@wordSnakeExample": {
+        "placeholders": {
+            "example": {
+                "type": "String"
+            }
+        }
+    },
+    "rescueHintHeardAgain": "Wort noch einmal angehört!",
+    "rescueHintStartsWith": "Beginnt mit: {prefix}...",
+    "@rescueHintStartsWith": {
+        "placeholders": {
+            "prefix": {
+                "type": "String"
+            }
+        }
+    },
+    "rescueHintLetterCount": "{count} Buchstaben",
+    "@rescueHintLetterCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "rescueBestStreak": "Beste Serie: {count} 🔥",
+    "@rescueBestStreak": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "rescueSemanticsScore": "Punkte: {score}",
+    "@rescueSemanticsScore": {
+        "placeholders": {
+            "score": {
+                "type": "int"
+            }
+        }
+    },
+    "rescueSemanticsStreak": "Serie: {count}",
+    "@rescueSemanticsStreak": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "rescueSemanticsRescued": "Gerettet: {rescued} von {total}",
+    "@rescueSemanticsRescued": {
+        "placeholders": {
+            "rescued": {
+                "type": "int"
+            },
+            "total": {
+                "type": "int"
+            }
+        }
+    },
+    "rescueSemanticsLevel": "Stufe {level}",
+    "@rescueSemanticsLevel": {
+        "placeholders": {
+            "level": {
+                "type": "int"
+            }
+        }
+    },
+    "rescueSemanticsInputField": "Tippe das Wort hier ein",
+    "rescueSemanticsShowHint": "Tipp anzeigen",
+    "rescueSemanticsReadWord": "Wort vorlesen",
+    "wordMemoryScoreLabel": "Punkte: {score}",
+    "@wordMemoryScoreLabel": {
+        "placeholders": {
+            "score": {
+                "type": "int"
+            }
+        }
+    },
+    "wordMemoryMovesLabel": "Züge: {moves}",
+    "@wordMemoryMovesLabel": {
+        "placeholders": {
+            "moves": {
+                "type": "int"
+            }
+        }
+    },
+    "wordMemoryPairsLabel": "Paare: {found} von {total}",
+    "@wordMemoryPairsLabel": {
+        "placeholders": {
+            "found": {
+                "type": "int"
+            },
+            "total": {
+                "type": "int"
+            }
+        }
+    },
+    "wordMemoryTotalGemsLabel": "Gesamtsumme Edelsteine: {gems}",
+    "@wordMemoryTotalGemsLabel": {
+        "placeholders": {
+            "gems": {
+                "type": "int"
+            }
+        }
+    },
+    "wordMemoryCardMatched": "Karte {text}, gefunden",
+    "@wordMemoryCardMatched": {
+        "placeholders": {
+            "text": {
+                "type": "String"
+            }
+        }
+    },
+    "wordMemoryCardRevealed": "Karte {text}, aufgedeckt",
+    "@wordMemoryCardRevealed": {
+        "placeholders": {
+            "text": {
+                "type": "String"
+            }
+        }
+    },
+    "wordMemoryCardHidden": "Verdeckte Karte",
+    "wordSortDropZoneLabel": "Ablagebereich: {label}",
+    "@wordSortDropZoneLabel": {
+        "placeholders": {
+            "label": {
+                "type": "String"
+            }
+        }
+    },
+    "wordSortEmptyTitle": "Keine Wörter verfügbar",
+    "wordSortEmptyMessage": "Für diese Klassenstufe gibt es noch keine Wörter zum Sortieren. Probiere eine andere Stufe oder komm später wieder.",
+    "wordSortGenderMasculine": "maskulin (der)",
+    "wordSortGenderFeminine": "feminin (die)",
+    "wordSortGenderNeuter": "neutral (das)",
+    "wordSortHintNounPluralForm": "✓ Mehrzahl: {word} → {plural}",
+    "@wordSortHintNounPluralForm": {
+        "placeholders": {
+            "word": {
+                "type": "String"
+            },
+            "plural": {
+                "type": "String"
+            }
+        }
+    },
+    "wordSortHintNounGender": "✓ Genus: {gender}",
+    "@wordSortHintNounGender": {
+        "placeholders": {
+            "gender": {
+                "type": "String"
+            }
+        }
+    },
+    "wordSortHintNounWithArticle": "✓ Nomen: {article} {word}",
+    "@wordSortHintNounWithArticle": {
+        "placeholders": {
+            "article": {
+                "type": "String"
+            },
+            "word": {
+                "type": "String"
+            }
+        }
+    },
+    "wordSortHintDefinition": "✓ {definition}",
+    "@wordSortHintDefinition": {
+        "placeholders": {
+            "definition": {
+                "type": "String"
+            }
+        }
+    },
+    "wordSortHintVerbPersonalForms": "✓ Personalformen: ich {ich}, du {du}",
+    "@wordSortHintVerbPersonalForms": {
+        "placeholders": {
+            "ich": {
+                "type": "String"
+            },
+            "du": {
+                "type": "String"
+            }
+        }
+    },
+    "wordSortHintVerbPerfect": "✓ Perfekt: {form}",
+    "@wordSortHintVerbPerfect": {
+        "placeholders": {
+            "form": {
+                "type": "String"
+            }
+        }
+    },
+    "wordSortHintVerbPast": "✓ Präteritum: ich {form}",
+    "@wordSortHintVerbPast": {
+        "placeholders": {
+            "form": {
+                "type": "String"
+            }
+        }
+    },
+    "wordSortHintAdjComparison": "✓ Steigerung: {word} → {comparative} → {superlative}",
+    "@wordSortHintAdjComparison": {
+        "placeholders": {
+            "word": {
+                "type": "String"
+            },
+            "comparative": {
+                "type": "String"
+            },
+            "superlative": {
+                "type": "String"
+            }
+        }
+    },
+    "wordSortHintAdjComparative": "✓ Komparativ: {word} → {comparative}",
+    "@wordSortHintAdjComparative": {
+        "placeholders": {
+            "word": {
+                "type": "String"
+            },
+            "comparative": {
+                "type": "String"
+            }
+        }
+    },
+    "wordSortExplainCategoryDefinition": "✓ {category}: \"{definition}\"",
+    "@wordSortExplainCategoryDefinition": {
+        "placeholders": {
+            "category": {
+                "type": "String"
+            },
+            "definition": {
+                "type": "String"
+            }
+        }
+    },
+    "wordSortExplainCategory": "✓ {word} → {category}",
+    "@wordSortExplainCategory": {
+        "placeholders": {
+            "word": {
+                "type": "String"
+            },
+            "category": {
+                "type": "String"
+            }
+        }
+    },
+    "wordSortReasonNotConjugable": "nicht konjugierbar",
+    "wordSortReasonNotComparable": "nicht steigerbar",
+    "wordSortReasonPlural": "Plural: {plural}",
+    "@wordSortReasonPlural": {
+        "placeholders": {
+            "plural": {
+                "type": "String"
+            }
+        }
+    },
+    "wordSortExplainNounCapitalized": "✓ {word} → Nomen (Großschreibung!)",
+    "@wordSortExplainNounCapitalized": {
+        "placeholders": {
+            "word": {
+                "type": "String"
+            }
+        }
+    },
+    "wordSortExplainNounNaming": "✓ {word} → Nomen (ein Namenwort)",
+    "@wordSortExplainNounNaming": {
+        "placeholders": {
+            "word": {
+                "type": "String"
+            }
+        }
+    },
+    "wordSortExplainNounReasons": "✓ Nomen: {reasons}",
+    "@wordSortExplainNounReasons": {
+        "placeholders": {
+            "reasons": {
+                "type": "String"
+            }
+        }
+    },
+    "wordSortReasonVerbForms": "ich {ich}, du {du}",
+    "@wordSortReasonVerbForms": {
+        "placeholders": {
+            "ich": {
+                "type": "String"
+            },
+            "du": {
+                "type": "String"
+            }
+        }
+    },
+    "wordSortReasonVerbFormExample": "z.B. ich {ich}",
+    "@wordSortReasonVerbFormExample": {
+        "placeholders": {
+            "ich": {
+                "type": "String"
+            }
+        }
+    },
+    "wordSortReasonNoArticle": "kein Artikel",
+    "wordSortExplainVerbAction": "✓ Verb: {word} → Handlung!",
+    "@wordSortExplainVerbAction": {
+        "placeholders": {
+            "word": {
+                "type": "String"
+            }
+        }
+    },
+    "wordSortExplainVerbReasons": "✓ Verb: {reasons}",
+    "@wordSortExplainVerbReasons": {
+        "placeholders": {
+            "reasons": {
+                "type": "String"
+            }
+        }
+    },
+    "wordSortExplainVerbDefinition": "✓ Verb: \"{definition}\"",
+    "@wordSortExplainVerbDefinition": {
+        "placeholders": {
+            "definition": {
+                "type": "String"
+            }
+        }
+    },
+    "wordSortReasonComparable": "steigerbar: {comparative}",
+    "@wordSortReasonComparable": {
+        "placeholders": {
+            "comparative": {
+                "type": "String"
+            }
+        }
+    },
+    "wordSortReasonAdjExample": "der {word}e Mann",
+    "@wordSortReasonAdjExample": {
+        "placeholders": {
+            "word": {
+                "type": "String"
+            }
+        }
+    },
+    "wordSortExplainAdjReasons": "✓ Adjektiv: {reasons}",
+    "@wordSortExplainAdjReasons": {
+        "placeholders": {
+            "reasons": {
+                "type": "String"
+            }
+        }
+    },
+    "wordSortExplainAdjDefinition": "✓ Adjektiv: \"{definition}\"",
+    "@wordSortExplainAdjDefinition": {
+        "placeholders": {
+            "definition": {
+                "type": "String"
+            }
+        }
+    },
+    "wordSortExplainAdjQuality": "✓ Adjektiv: {word} → beschreibt eine Eigenschaft",
+    "@wordSortExplainAdjQuality": {
+        "placeholders": {
+            "word": {
+                "type": "String"
+            }
+        }
+    }
 }
