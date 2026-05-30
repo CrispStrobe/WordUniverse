@@ -1838,5 +1838,16 @@
                 "type": "String"
             }
         }
-    }
+    },
+    "skillLabelSpelling": "Rechtschreibung",
+    "skillLabelArticle": "Artikel",
+    "skillLabelPlural": "Plural",
+    "skillLabelWordType": "Wortart",
+    "skillLabelSentence": "Satzbau",
+    "skillLabelPunctuation": "Zeichensetzung",
+    "skillLabelCapitalization": "Großschreibung",
+    "skillLabelConjugation": "Konjugation",
+    "skillLabelCase": "Fall",
+    "skillLabelVocabulary": "Wortschatz",
+    "skillLabelReading": "Lesen"
 }

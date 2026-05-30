@@ -144,9 +144,13 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: true
-  macos: 
+  macos:
     generate: true
   image_path: "assets/images/app_icon.png"
+  # App Store rejects icons with an alpha channel. Flatten the iOS marketing
+  # icon onto an opaque deep-space background (matches the icon's own dark fill).
+  remove_alpha_ios: true
+  background_color_ios: "#0a0a2a"
   min_sdk_android: 21
   web:
     generate: true
