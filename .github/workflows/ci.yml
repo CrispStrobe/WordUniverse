@@ -63,7 +63,18 @@ jobs:
 
       - name: Deploy
         working-directory: build/web
-        run: vercel --token "${{ secrets.VERCEL_TOKEN }}" --prod --yes
         env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: team_uvAE8yHK3Zi7pXobhJmwckcQ
           VERCEL_PROJECT_ID: prj_f5CVyUNQuu49kMJxgbxoBwj9xEjS
+        run: |
+          if [ -z "$VERCEL_TOKEN" ]; then
+            echo "VERCEL_TOKEN secret is not set — skipping Vercel deploy."
+            echo "Add it under Settings → Secrets and variables → Actions to enable CI deploys."
+            exit 0
+          fi
+          # build/web is already the built output; tell Vercel not to build it.
+          cat > vercel.json <<'JSON'
+          { "framework": null, "buildCommand": "", "outputDirectory": ".", "ignoreCommand": "exit 0" }
+          JSON
+          vercel --token "$VERCEL_TOKEN" --prod --yes
