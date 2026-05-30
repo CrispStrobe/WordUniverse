@@ -19,7 +19,7 @@ import sqlite3
 from pathlib import Path
 
 from spelling_strategy_classifier import classify
-from spelling_db_features import features_from_row
+from spelling_db_features import features_from_row, load_stems
 
 HERE = Path(__file__).parent
 GOLD = HERE / "spelling_strategy_gold.csv"
@@ -44,6 +44,7 @@ def main():
     gold = load_gold()
     con = sqlite3.connect(args.db)
     cur = con.cursor()
+    stems = load_stems(con)
 
     n = prim_ok = set_ok = missing = 0
     mismatches = []
@@ -57,7 +58,7 @@ def main():
                                " ".join(sorted(gset)), note, ""))
             continue
         n += 1
-        c = classify(features_from_row(*row))
+        c = classify(features_from_row(*row), stems)
         pset = set(c.detailed)
         p_ok = c.detailed_primary == gprim
         s_ok = pset == gset

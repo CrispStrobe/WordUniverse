@@ -53,3 +53,7 @@ viel,merkwort,dehnung merkwort,etymologisch,v→[f] + ie long i
 Chor,merkwort,grossschreibung merkwort,etymologisch,ch→[k]
 Theater,merkwort,grossschreibung merkwort,etymologisch,th
 Cent,merkwort,grossschreibung merkwort,etymologisch,c→[ts]
+Haustür,morphem,grossschreibung morphem,compound,Haus + Tür (3-char head)
+Hausfrau,morphem,grossschreibung morphem,compound,Haus + Frau
+Handtuch,morphem,grossschreibung morphem,compound,Hand + Tuch
+Hausaufgabe,morphem,grossschreibung morphem,compound,Haus + Aufgabe

@@ -697,11 +697,19 @@ doppelkonsonant 20%, morphem 12%, dehnung 11%, verwandt 5%, merkwort 3%
 App side: `spellingExplanation` added to `ApiEnrichment` (flows through the DB
 service automatically); `SpellingStrategyBadge` gained the `dehnung` chip and
 now shows the per-word explanation as its tooltip. Asset recompressed
-(`grundwortschatz.db.gz`, ~26 MB, integrity ok). Documented limitations: noun
-compound detection deferred; Umlaut-Stammkonstanz surfaced in explanations but
-not auto-tagged (DB inflections too noisy). All Flutter tests pass; analyze
+(`grundwortschatz.db.gz`, ~26 MB, integrity ok). All Flutter tests pass; analyze
 clean. Regression-guarded by `test_spelling_strategy.py` (pipeline) +
 `test/features/games/spelling_strategy_test.dart` (25 tests, app).
+
+**Noun compounds (2026-05-30):** `morphem` extended to detect noun compounds by
+splitting the lemma into two known DB stems (modifier ≥4 + ≥4-char or curated
+3-char head, Fugenelement-aware); the explanation names the parts
+(„zusammengesetzt: Haus + Tür"). +491 net-new `morphem` nouns; precision held
+(simplex `Kamerad`/`Inserat`/`Feinden` no longer false-split). Residual cosmetic
+noise: a few proper-noun splits (`Dortmund`) and imperfect parts on inflected
+heads (`Nachnamen`) — category correct. DB re-tagged + asset re-shipped; 18
+pipeline tests + gold (now 58 words, 100% exact). Remaining documented
+limitation: Umlaut-Stammkonstanz is explanation-only, not auto-tagged.
 
 ---
 
