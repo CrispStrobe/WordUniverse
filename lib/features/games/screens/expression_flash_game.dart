@@ -266,7 +266,7 @@ class _ExpressionFlashGameState extends State<ExpressionFlashGame>
           distractors.add(d);
         }
       }
-      if (distractors.isEmpty) return null;
+      if (distractors.length < _optionCount - 1) return null; // need a full set
 
       final options = [word.word, ...distractors.take(_optionCount - 1)];
       options.shuffle(_rng);

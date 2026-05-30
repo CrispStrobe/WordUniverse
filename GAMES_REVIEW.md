@@ -11,7 +11,13 @@
   article ✓ · reverse_translation reverse-synonym guard (+ thin-pool) ✓ ·
   wortbaumeister most-balanced compound split ✓ · verbtrenner mapping
   **verified correct, not a bug**.
-- Next: Tier 2 (thin-pool C5 + falling-timer race C6).
+- **2026-05-30 — Tier 2 done & committed:** C5 thin-pool — require a full
+  option set in translation, expression, spelling_spotter, reverse_translation
+  (Tier 1), and both phrasal builders (≥3 options) ✓. **C6 falling-timer race —
+  VERIFIED FALSE ALARM**: wortbaumeister/verbtrenner/grossstadt all set
+  `_feedbackState` synchronously in both `_handleChoice` and `_handleMiss`, and
+  `stop()` completes the TickerFuture immediately — no double-count possible.
+- Next: Tier 3 (SRI integrity C10 + label mislabel C11).
 
 ---
 

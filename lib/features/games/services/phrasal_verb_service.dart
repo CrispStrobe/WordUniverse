@@ -63,6 +63,7 @@ List<PhrasalChallenge> buildPhrasalChallenges({
     final correctIndex =
         options.indexWhere((o) => o.toLowerCase() == pv.particle.toLowerCase());
     if (correctIndex < 0) continue;
+    if (options.length < 3) continue; // avoid 1-2 option (≥50/50) giveaways
 
     challenges.add(PhrasalChallenge(
       phrasal: pv.phrasal,
@@ -213,7 +214,7 @@ List<PhrasalMatchChallenge> buildPhrasalMatchChallenges({
       if (distractors.length >= optionCount - 1) break;
       if (used.add(c.meaning.toLowerCase())) distractors.add(c.meaning);
     }
-    if (distractors.length < min(1, optionCount - 1)) continue;
+    if (distractors.length < 2) continue; // ≥3 options; avoid 50/50 guessing
 
     final options = <String>[correct, ...distractors]..shuffle(r);
     final correctIndex =
