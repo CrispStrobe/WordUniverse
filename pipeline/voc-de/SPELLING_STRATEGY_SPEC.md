@@ -4,8 +4,10 @@ Status: **IMPLEMENTED & shipped** (2026-05-29). Supersedes the worksheet-fitted
 classifier. The taxonomy is grounded in the orthographic principles of German
 (phonographisch / silbisch / morphologisch / morphematisch / syntaktisch), per
 Eisenberg & Fuhrhop, Maas, Gallmann, Schmidt/Fuhrhop, the amtliches Regelwerk
-(Rat für deutsche Rechtschreibung, 2024), and **Günther Thomé's Basiskonzept
-Rechtschreiben** (Basisgrapheme vs Orthographeme).
+(Rat für deutsche Rechtschreibung, 2024), and the **basic-grapheme vs.
+orthographic-marker idea** associated with Günther Thomé. (We draw on these
+principles and ideas; we did not work from Thomé's catalogued grapheme
+inventory.)
 
 The old `532Strategien.csv` (an NRW classroom worksheet) is **demoted** from
 gold standard to an at-most-advisory smell test: it splits identical cases
@@ -19,16 +21,16 @@ doc (`spelling_strategy_gold.csv`).
 
 ## Framework decisions (confirmed)
 
-1. **Doubling = Thomé function-based.** All short-vowel consonant doublings are
+1. **Doubling = function-based.** All short-vowel consonant doublings are
    **one** category (`doppelkonsonant`), regardless of position:
-   `Tasse` = `Puppe` = `Wasser` = `Mann` = `Ball` = `Bett` = `Glück`. This
-   matches Thomé's "13 Konsonantenverdoppelungen zur Markierung von Kurzvokalen"
-   and our surface-named token (`Mann` visibly has a doubled consonant). The
+   `Tasse` = `Puppe` = `Wasser` = `Mann` = `Ball` = `Bett` = `Glück`. They all
+   share one function — Kurzvokalmarkierung — and our surface-named token fits
+   (`Mann` visibly has a doubled consonant). The
    Eisenberg/Maas refinement (intervocalic = Silbengelenk/silbisch vs
    monosyllabic = morphological Stammkonstanz, found via the Erweiterungsprobe
    `Mann→Männer`) is preserved **in the per-word explanation**, not as a
    separate category.
-2. **`dehnung` is a 7th category** (Thomé's "13 Langvokalmarkierungen"). Folding
+2. **`dehnung` is a 7th category** (long-vowel markers). Folding
    it into `merkwort`/`klangtreu` would contradict the science.
 3. **Intervocalic doubling is NOT `klangtreu`.** Under every account the doubling
    is an orthographic marking (Orthographem). This reverses the prior
@@ -46,8 +48,8 @@ Each entry: **principle** · **decision rule** (algorithmic) · **citation** ·
 ### 1. `klangtreu` — phonographisches Prinzip (Basisgraphem)
 - **Rule:** residual. Assigned when no Orthographem/marker fires (Großschreibung
   is orthogonal). The word is written with the default grapheme per phoneme.
-- **Citation:** Thomé — 41 Basisgrapheme, ~90.5% of written units; Eisenberg/
-  Fuhrhop phonographisches Prinzip.
+- **Citation:** Eisenberg/Fuhrhop phonographisches Prinzip; the basic-grapheme
+  idea (after Thomé) — the default grapheme per phoneme.
 - **Explanation:** „Du schreibst das Wort so, wie du es langsam und deutlich
   sprichst — jeder Laut bekommt seinen üblichen Buchstaben."
 - **Examples:** `malen`, `lesen`, `Nase`, `Blume`, `rot`, `Schule`.
@@ -56,8 +58,8 @@ Each entry: **principle** · **decision rule** (algorithmic) · **citation** ·
 - **Rule:** short **stressed** vowel immediately followed by a doubled consonant
   (`bb dd ff gg ll mm nn pp rr ss tt`) **or** `ck` **or** `tz` — at any position
   (intervocalic *or* word-final/pre-consonantal).
-- **Citation:** amtliches Regelwerk §2; Thomé group 1; Eisenberg/Fuhrhop
-  Silbengelenk; Gallmann (Erweiterungsprobe for monosyllables).
+- **Citation:** amtliches Regelwerk §2; Eisenberg/Fuhrhop Silbengelenk;
+  Gallmann (Erweiterungsprobe for monosyllables).
 - **Explanation:** „Nach einem kurzen, betonten Selbstlaut schreibst du den
   folgenden Mitlaut doppelt (oder `ck`/`tz`). Du hörst ihn nur einmal."
   *Optional derivation hint:* „Bei kurzen Wörtern kannst du verlängern, um es zu
@@ -73,7 +75,7 @@ Each entry: **principle** · **decision rule** (algorithmic) · **citation** ·
   `Tier`). **silbentrennendes-h** (intervocalic `h` in `gehen`, `sehen`, `Ruhe`)
   is included here as a length/h-marker for the learner, with the scientific
   note that its *function* is a syllable boundary, not vowel length.
-- **Citation:** Thomé group 2; Wikipedia/Duden Dehnungs-h vs Silbenfugen-h;
+- **Citation:** Wikipedia/Duden Dehnungs-h vs Silbenfugen-h;
   Schmidt/Fuhrhop on the silbeninitiale `h`.
 - **Explanation:** „Ein lang gesprochener Selbstlaut wird besonders markiert —
   mit einem stummen `h` (`Bahn`, `Stuhl`), einem doppelten Selbstlaut (`Saal`,
@@ -88,8 +90,7 @@ Each entry: **principle** · **decision rule** (algorithmic) · **citation** ·
   `ä/äu` traceable to an `a/au` base via the inflection/derivation table
   (`Hände`←`Hand`, `Bäume`←`Baum`, `läuft`←`laufen`).
 - **Citation:** Eisenberg/Fuhrhop (`<wald>` unterspezifiziert); Schmidt/Fuhrhop
-  Stammkonstanz "Kronzeuge … unstrittig"; Thomé group 3 (stem-preservation:
-  d/g/b, ä/äu, -ig).
+  Stammkonstanz "Kronzeuge … unstrittig" (stem-preservation: d/g/b, ä/äu, -ig).
 - **Explanation:** „Den richtigen Buchstaben findest du über ein verwandtes
   Wort. Am Wortende klingt es hart, aber du schreibst den Stamm-Buchstaben:
   `Hund` (wegen `Hunde`). Bei `ä`/`äu` denkst du ans Stammwort: `Hände` (wegen
@@ -107,8 +108,8 @@ Each entry: **principle** · **decision rule** (algorithmic) · **citation** ·
   (`Geburts-tag`, `Sonnen-schein`). The explanation names the parts
   („zusammengesetzt: Haus + Tür"). Suffix-derived words (`romantisch`) are
   excluded from splitting so the suffix rule handles them.
-- **Citation:** Eisenberg/Fuhrhop morphematisches Prinzip; Thomé Wortstamm/
-  word-formation.
+- **Citation:** Eisenberg/Fuhrhop morphematisches Prinzip (Wortstamm /
+  word-formation).
 - **Explanation:** „Das Wort besteht aus Bausteinen — Vorsilbe, Nachsilbe oder
   mehreren Wörtern. Kennst du die Bausteine, schreibst du es richtig:
   `un-freund-lich`, `Haus-tür`, `Freund-schaft`."
@@ -121,8 +122,8 @@ Each entry: **principle** · **decision rule** (algorithmic) · **citation** ·
   `ch`→[k] (`Chor`, `Charakter`), foreign `th/ph/rh` (`Theater`, `Physik`),
   word-initial `c`→[ts]/[s] (`Cent`). **Narrowed**: high error-rate or "it's a
   function word" do **not** trigger merkwort.
-- **Citation:** Thomé group 4 ("11 sonstige Orthographeme"); etymologisches
-  Prinzip.
+- **Citation:** etymologisches Prinzip (sonstige Orthographeme — irregular,
+  non-derivable graphemes).
 - **Explanation:** „Dieses Wort folgt keiner einfachen Regel — seine Schreibung
   musst du dir merken. Oft kommt es aus einer anderen Sprache: `Chor` (`ch` wie
   k), `Vater` (`v` wie f), `Theater` (`th`)."
@@ -171,7 +172,7 @@ grossschreibung-primary at 49%.)*
    "do we wildly diverge?" advisory diff.
 2. Rewrite the classifier (renamed `spelling_strategy_classifier.py`), feature
    extractor, validator, tests — no method-brand terms; emit `spellingStrategy`
-   (list), `spellingStrategyPrimary`, the Thomé 5→ now-aligned view, **and a new
+   (list), `spellingStrategyPrimary`, **and a new
    `spellingExplanation`** field per word.
 3. Re-tag the DB, re-ship the asset, rewrite PLAN §6, update the app-facing
    license/about text to the linguistic framing.

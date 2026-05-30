@@ -171,7 +171,8 @@ Spelling-strategy taxonomy (science-grounded — see
 - **`spellingStrategy`** / **`spellingStrategyPrimary`** — one or more of **7**
   neutral linguistic categories, each mapping to an orthographic principle of
   German (Eisenberg/Fuhrhop, Maas, Gallmann, Schmidt/Fuhrhop, the amtliches
-  Regelwerk, and Günther Thomé's Basisgrapheme-vs-Orthographeme inventory):
+  Regelwerk, and the basic-grapheme vs. orthographic-marker idea associated with
+  Günther Thomé — principles/ideas only, not his catalogued grapheme inventory):
   `klangtreu` (phonographisch / Basisgraphem), `doppelkonsonant` (Schärfung —
   all short-vowel doublings, `Tasse`=`Mann`), `dehnung` (long-vowel marking:
   Dehnungs-h, aa/ee/oo, ie, silbentrennendes-h), `verwandt` (Stammkonstanz:
@@ -377,8 +378,9 @@ The spelling-strategy taxonomy (`spellingStrategy` list +
 `spellingStrategyPrimary` + a per-word `spellingExplanation`) is grounded in
 the orthographic principles of German (phonographisch / silbisch /
 morphologisch / morphematisch / syntaktisch), per Eisenberg & Fuhrhop, Maas,
-Gallmann, Schmidt/Fuhrhop, the amtliches Regelwerk, and Günther Thomé's
-Basisgrapheme-vs-Orthographeme inventory. Seven neutral linguistic categories:
+Gallmann, Schmidt/Fuhrhop, the amtliches Regelwerk, and the basic-grapheme vs.
+orthographic-marker idea associated with Günther Thomé (principles/ideas only,
+not his catalogued grapheme inventory). Seven neutral linguistic categories:
 `klangtreu`, `doppelkonsonant`, `dehnung`, `verwandt`, `morphem`, `merkwort`,
 `grossschreibung`. Derived algorithmically from each word's own enrichment
 (hyphenation, inflections, IPA). Full spec + citations:

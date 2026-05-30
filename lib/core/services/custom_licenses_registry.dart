@@ -339,22 +339,25 @@ Future<void> ensureCustomLicensesRegistered() async {
         LicenseEntryWithLineBreaks(
           ['German spelling-pattern categorization'],
           'The spelling-pattern category labels used in this app\n'
-          '(klangtreu / doppelkonsonant / verwandt / merkwort / morphem / '
-          'grossschreibung) are neutral German linguistic-pattern names. They '
-          'describe the linguistic feature each word\'s spelling rests on; '
-          'they are not borrowed from any branded pedagogical method.\n\n'
+          '(klangtreu / doppelkonsonant / dehnung / verwandt / morphem / '
+          'merkwort / grossschreibung) are neutral German linguistic-pattern '
+          'names. They describe the orthographic principle each word\'s spelling '
+          'rests on; they are not borrowed from any branded pedagogical method.\n\n'
           'Pedagogically these categories cover the same ground that several '
           'published German spelling-strategy methods cover, but the labels and '
           'derivation rules here are independent.\n\n'
           'How the labels are produced:\n'
-          '  • Source: NRW Grundwortschatz xlsx (Ministerium für Schule und '
-          '    Bildung NRW), which contains the underlying linguistic feature '
-          '    taxonomy: Doppelkonsonanten, Auslautverhärtung, Umlautung, '
-          '    Diphthonge, Reduktionsendungen, etc.\n'
+          '  • Grounding: the orthographic principles of German '
+          '    (phonographisch / silbisch / morphologisch / morphematisch / '
+          '    syntaktisch), drawing on the ideas in the linguistic-science '
+          '    literature on German orthography (e.g. Eisenberg & Fuhrhop, '
+          '    Maas, Gallmann, the amtliches Regelwerk). Each of the seven '
+          '    category tokens maps to one principle.\n'
           '  • Mapping: applied algorithmically by the build pipeline (own '
           '    derivation; no third-party curated wordlist is consumed).\n'
-          '  • Output: a multi-label category list plus a primary label per '
-          '    word, both attached to the apiEnrichment field of each entry.',
+          '  • Output: a multi-label category list, a primary label, and a '
+          '    per-word explanation, all attached to the apiEnrichment field '
+          '    of each entry.',
         ),
       ]);
     });
@@ -621,7 +624,17 @@ Future<void> ensureCustomLicensesRegistered() async {
           'BW Grundwortschatz, Hessen/RLP/Niedersachsen/Bayern/SH '
           'Grundwortschätze) are §5 UrhG amtliche Werke and are freely '
           'usable; their attribution requirements are handled by the '
-          'individual license entries above.',
+          'individual license entries above.\n\n'
+          'Source / redistribution (ShareAlike): to satisfy the copyleft '
+          'redistribution obligation, the shipped vocabulary databases are '
+          'published as downloadable datasets, each tagged with its effective '
+          'license:\n'
+          '  • German DB (GPL-3.0):\n'
+          '    https://huggingface.co/datasets/cstr/grundwortschatz-voc-de\n'
+          '  • English DB (CC-BY-SA-4.0):\n'
+          '    https://huggingface.co/datasets/cstr/grundwortschatz-voc-en\n'
+          'Each dataset carries the full attribution and "changes made" notes '
+          'for its constituent sources.',
         ),
       ]);
     });

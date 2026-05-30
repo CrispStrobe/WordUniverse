@@ -3,9 +3,10 @@
 Implements the spec in `SPELLING_STRATEGY_SPEC.md`: each word is assigned one or
 more of seven categories grounded in the orthographic principles of German
 (Eisenberg/Fuhrhop, Maas, Gallmann, Schmidt/Fuhrhop, the amtliches Regelwerk,
-and Günther Thomé's Basisgrapheme-vs-Orthographeme inventory). The taxonomy is
-deliberately the function-based Thomé reading for consonant doubling: ALL
-short-vowel doublings are one category (`doppelkonsonant`), `Tasse` = `Mann`;
+and the basic-grapheme vs. orthographic-marker idea associated with Günther
+Thomé — we use these principles/ideas, not his catalogued grapheme inventory).
+The taxonomy deliberately takes a function-based reading for consonant doubling:
+ALL short-vowel doublings are one category (`doppelkonsonant`), `Tasse` = `Mann`;
 the Eisenberg/Maas silbisch-vs-morphological refinement lives in the per-word
 *explanation*, not in the category.
 

@@ -323,8 +323,9 @@ resolved 2026-05-21 (see `pipeline/voc-en/HISTORY.md → Architectural decisions
 Each non-Vorname DE word carries a spelling-strategy classification grounded in
 the **orthographic principles of German** (phonographisch / silbisch /
 morphologisch / morphematisch / syntaktisch), per Eisenberg & Fuhrhop, Maas,
-Gallmann, Schmidt/Fuhrhop, the amtliches Regelwerk, and Günther Thomé's
-Basisgrapheme-vs-Orthographeme inventory. The full, citable specification —
+Gallmann, Schmidt/Fuhrhop, the amtliches Regelwerk, and the basic-grapheme vs.
+orthographic-marker idea associated with Günther Thomé (principles/ideas only —
+not his catalogued grapheme inventory). The full, citable specification —
 category definitions, decision rules, citations, and per-word explanations — is
 `pipeline/voc-de/SPELLING_STRATEGY_SPEC.md`.
 
@@ -339,7 +340,7 @@ category definitions, decision rules, citations, and per-word explanations — i
 | token | principle | fires on |
 |---|---|---|
 | `klangtreu` | phonographisch / Basisgraphem | residual / default |
-| `doppelkonsonant` | Schärfung (Silbengelenk) | short-vowel doubling incl. ck/tz — **any** position (`Tasse` = `Mann`, Thomé) |
+| `doppelkonsonant` | Schärfung (Silbengelenk) | short-vowel doubling incl. ck/tz — **any** position (`Tasse` = `Mann`) |
 | `dehnung` *(new)* | long-vowel marking | Dehnungs-h, aa/ee/oo, `ie`, silbentrennendes-h |
 | `verwandt` | morphologisch / Stammkonstanz | Auslautverhärtung (`Hund`→`Hunde`), `-ig` |
 | `morphem` | morphematisch | prefix / suffix / separable particle |
@@ -366,11 +367,11 @@ doppelkonsonant 20%, morphem 12%, dehnung 11%, verwandt 5%, merkwort 3%.
 
 ### Two decided framework points (see SPEC for citations)
 
-1. **Doubling = Thomé function-based**: all short-vowel doublings are one
+1. **Doubling = function-based**: all short-vowel doublings are one
    category (`doppelkonsonant`), `Tasse` = `Puppe` = `Mann` = `Ball`. The
    Eisenberg/Maas silbisch-vs-morphological refinement (`Mann`→`Männer` via the
    Erweiterungsprobe) lives in the per-word explanation, not the category.
-2. **`dehnung` is a 7th category** (Thomé's long-vowel-marker Orthographeme).
+2. **`dehnung` is a 7th category** (long-vowel markers).
 
 ### Noun compounds ✅ (added 2026-05-30)
 
