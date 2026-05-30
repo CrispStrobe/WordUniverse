@@ -26,6 +26,10 @@ class DictionaryDatabaseService {
   Future<void> initialize({
     String assetPath = 'assets/grundwortschatz.db.gz',
     String databaseName = 'grundwortschatz.db',
+    String? remoteUrl,
+    int? expectedCompressedBytes,
+    int? expectedDecompressedBytes,
+    String? expectedDecompressedSha256,
     void Function(double progress, String message)? onProgress,
   }) async {
     // Prevent multiple simultaneous initializations
@@ -64,6 +68,10 @@ class DictionaryDatabaseService {
       _database = await initPlatformDatabase(
         assetPath: assetPath,
         databaseName: databaseName,
+        remoteUrl: remoteUrl,
+        expectedCompressedBytes: expectedCompressedBytes,
+        expectedDecompressedBytes: expectedDecompressedBytes,
+        expectedDecompressedSha256: expectedDecompressedSha256,
         onProgress: (platformProgress, platformMessage) {
           // Map platform progress (0.0-1.0) to our phase (0.05-0.90)
           final mappedProgress = 0.05 + (platformProgress * 0.85);

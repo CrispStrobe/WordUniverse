@@ -39,6 +39,24 @@ class SEn extends S {
   String get viewOssLicenses => 'View open-source licenses';
 
   @override
+  String get downloadDbTitle => 'First-time setup';
+
+  @override
+  String downloadDbMessage(String size) {
+    return 'The German word database (about $size) will be downloaded once and saved on your device for offline use.';
+  }
+
+  @override
+  String get downloadDbConfirm => 'Download';
+
+  @override
+  String get downloadDbCancel => 'Not now';
+
+  @override
+  String get downloadDbDeclined =>
+      'The German word database is needed to continue. Tap Retry to download it, or switch to English in Settings.';
+
+  @override
   String get appName => 'Word Universe';
 
   @override

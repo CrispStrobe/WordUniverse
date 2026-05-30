@@ -41,6 +41,7 @@ dependencies:
   package_info_plus: ^8.0.0
   csv: ^5.0.2
   http: ^1.2.1
+  crypto: ^3.0.3
   sqlite3: ^2.1.0
   sqflite_common_ffi_web: ^0.4.0
   archive: ^3.6.1
@@ -67,7 +68,11 @@ flutter:
     - assets/fonts/
     - assets/sounds/
     - assets/fonts/OFL.txt
-    - assets/grundwortschatz.db.gz
+    # NOTE: the German DB (grundwortschatz.db.gz) is GPL-3.0 (includes data
+    # derived from childLex) and is intentionally NOT bundled — it is
+    # downloaded on first launch from the Hugging Face dataset and cached
+    # (see lib/core/services/db_platform/db_remote.dart). The English DB is
+    # CC-BY-SA-4.0 and stays bundled for instant first launch.
     - assets/grundwortschatz_en.db.gz
     #- assets/grundwortschatz.db
     

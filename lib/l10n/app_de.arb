@@ -10,6 +10,16 @@
 
     "licensesTitle": "Lizenzen",
     "viewOssLicenses": "Zeige die open-source Lizenzen",
+    "downloadDbTitle": "Ersteinrichtung",
+    "downloadDbMessage": "Die deutsche Wörter-Datenbank (etwa {size}) wird einmalig heruntergeladen und für die Offline-Nutzung auf deinem Gerät gespeichert.",
+    "@downloadDbMessage": {
+        "placeholders": {
+            "size": { "type": "String" }
+        }
+    },
+    "downloadDbConfirm": "Herunterladen",
+    "downloadDbCancel": "Jetzt nicht",
+    "downloadDbDeclined": "Die deutsche Wörter-Datenbank wird zum Fortfahren benötigt. Tippe auf Wiederholen, um sie herunterzuladen, oder wechsle in den Einstellungen zu Englisch.",
     "appName": "Wort-Universum",
     "appLegalese": "© 2025–2026 CrispStrobe\n\nDeutsche Vokabular-Datenbank lizenziert unter GPL-3.0 (enthält aus childLex abgeleitete Daten); englische Vokabular-Datenbank unter CC BY-SA 4.0. Quellen: Wiktionary, ConceptNet, OEWN, OpenThesaurus, OdeNet, LiTKey, Tatoeba, Project Gutenberg, childLex u. a. Vollständige Quellenangaben in den Lizenzeinträgen unten.\n\nDatensätze: huggingface.co/datasets/cstr/grundwortschatz-voc-de  ·  cstr/grundwortschatz-voc-en\n\nApp-Code ist proprietär.",
 
