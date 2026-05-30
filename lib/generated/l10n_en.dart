@@ -43,7 +43,7 @@ class SEn extends S {
 
   @override
   String get appLegalese =>
-      '© 2025–2026 CrispStrobe\n\nVocabulary databases (DE + EN) licensed under CC BY-SA 4.0. Sources: Wiktionary, ConceptNet, OEWN, OpenThesaurus, OdeNet, LiTKey, Tatoeba, Project Gutenberg, and others. Full attribution in the license entries below.\n\nDatasets: huggingface.co/datasets/cstr/grundwortschatz-voc-de  ·  cstr/grundwortschatz-voc-en\n\nApp code is proprietary.';
+      '© 2025–2026 CrispStrobe\n\nGerman vocabulary database licensed under GPL-3.0 (it includes data derived from childLex); English vocabulary database under CC BY-SA 4.0. Sources: Wiktionary, ConceptNet, OEWN, OpenThesaurus, OdeNet, LiTKey, Tatoeba, Project Gutenberg, childLex, and others. Full attribution in the license entries below.\n\nDatasets: huggingface.co/datasets/cstr/grundwortschatz-voc-de  ·  cstr/grundwortschatz-voc-en\n\nApp code is proprietary.';
 
   @override
   String get spaceWordRescueTitle => 'Word Rescue';
