@@ -235,7 +235,7 @@ class _TranslationFlashGameState extends State<TranslationFlashGame>
         distractors.add(t);
       }
     }
-    if (distractors.isEmpty) return null;
+    if (distractors.length < _optionCount - 1) return null; // need a full set
 
     final options = [correct, ...distractors.take(_optionCount - 1)];
     options.shuffle(_rng);

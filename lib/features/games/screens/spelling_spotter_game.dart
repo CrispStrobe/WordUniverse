@@ -246,7 +246,7 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
       }
     }
 
-    if (distractors.isEmpty) return null;
+    if (distractors.length < _optionCount - 1) return null; // need a full set
 
     final options = [displayWord, ...distractors.take(_optionCount - 1)];
     options.shuffle(_rng);
