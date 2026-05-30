@@ -29,15 +29,21 @@ configs:
     path: translations.parquet
   - split: examples
     path: examples.parquet
+  - split: phrasal_verbs
+    path: phrasal_verbs.parquet
+  - split: false_friends
+    path: false_friends.parquet
 ---
 
 # WortUniversum English Vocabulary Database
 
-> **Status: draft** — prepared for an eventual upload to Hugging Face Datasets
-> as `cstr/grundwortschatz-voc-en`. The shipped app asset is
+> **Status: upload bundle ready, not yet pushed.** Target repo:
+> `cstr/grundwortschatz-voc-en`. The shipped app asset is
 > `assets/grundwortschatz_en.db.gz` in the
 > [WortUniversum / words-universe](https://github.com/CrispStrobe/words-universe)
 > repository; this dataset is its CC-BY-SA 4.0 re-distribution form.
+> Build + push the bundle (this card + parquet splits + `.db.gz`) with
+> `pipeline/build_hf_datasets.py [--upload]` (needs a HF write token).
 
 ## Dataset summary
 
