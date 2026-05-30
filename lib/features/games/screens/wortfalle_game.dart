@@ -264,7 +264,7 @@ class _WortfalleGameState extends State<WortfalleGame>
                 Text(s.wortfalleTitle,
                     style: SpaceTheme.titleStyle
                         .copyWith(color: SpaceTheme.starYellow)),
-                Text(s.gameCorrectOfTotal(_correct, _index + 1),
+                Text(s.gameCorrectOfTotal(_correct, _total),
                     style:
                         SpaceTheme.bodyStyle.copyWith(color: Colors.white60)),
               ],
