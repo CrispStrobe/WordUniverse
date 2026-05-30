@@ -434,7 +434,28 @@ are real meanings of other phrasal verbs. Shares the `phrasal_verbs` table.
 
 ---
 
+## 2026-05-30 — Store-readiness, games-review sweep, CI auto-deploy
+
+- **[x] 41. Full games-review fix sweep.** All 31 games reviewed (11 parallel
+  agents) → `GAMES_REVIEW.md`; fixed in tiers: crashes/hangs/mis-teaching
+  (word_find crash, word_type_whirl hang, grossstadt malformed forms,
+  conjugation giveaway, …), thin-pool option bug, SRI due-queue, i18n (+136 ARB
+  keys across ~14 games incl. the previously-unlocalized homophone_drill) and
+  a11y (`Semantics(button)` + 48 dp). Two agent findings verified as *non*-bugs
+  (verbtrenner mapping, falling-timer "race"). Dedup refactor deferred. All
+  analyze-clean, 465 tests pass.
+- **[x] 42. GPL German DB downloaded on first launch** (not bundled) from the
+  Hugging Face dataset, with a size-disclosing consent prompt (Apple §2.4.2);
+  declining now falls back to the bundled English DB instead of failing app load.
+- **[x] 43. Karteikasten skill badges localized** (SPELL/WORDTYPE/… → `S`).
+- **[x] 44. App Store icon fixed** — 1024×1024, alpha removed
+  (`remove_alpha_ios` + deep-space background), opaque.
+- **[x] 45. CI auto-deploy to Vercel** — push to `main` → GitHub Actions builds
+  + tests + deploys to production (`wortuniversum.vercel.app`). Set the
+  `VERCEL_TOKEN` secret, disconnected the racing native Vercel Git integration,
+  added run concurrency. Verified end-to-end. See `README.md → Deploying`.
+
 ## Execution order
 
-All items shipped: Tier 9 #25–#40 done; Tiers 1–8 done or declined.
+All items shipped: Tier 9 #25–#40 + #41–#45 done; Tiers 1–8 done or declined.
 Nothing pending (see banner at top).
