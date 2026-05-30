@@ -161,9 +161,15 @@ class _ConjugationDrillGameState extends State<ConjugationDrillGame>
       if (challenges.length >= _maxRounds) break;
       final pres = getPraesensForWord(verb)!;
       // Pick a random available pronoun for this verb.
-      final availablePronouns =
-          conjugationPronouns.where((p) => pres.containsKey(p)).toList()
-            ..shuffle(_rng);
+      // Skip pronouns whose Präsens form is identical to the infinitive shown
+      // on the verb card (wir/sie/Sie → "wir laufen"): the answer would just
+      // be the displayed word. Keep ich/du/er-sie-es where the stem changes.
+      final availablePronouns = conjugationPronouns
+          .where((p) =>
+              pres.containsKey(p) &&
+              pres[p]!.toLowerCase() != verb.word.toLowerCase())
+          .toList()
+        ..shuffle(_rng);
       if (availablePronouns.isEmpty) continue;
       final pronoun = availablePronouns.first;
       final correct = pres[pronoun]!;

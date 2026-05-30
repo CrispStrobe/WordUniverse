@@ -144,7 +144,15 @@ class _DefinitionQuizGameState extends State<DefinitionQuizGame>
         .where((w) => w.gradeLevel == gradeIndex)
         .toList()
       ..shuffle(_rng);
-    final pool = gradeWords.length >= _totalRounds ? gradeWords : allWords..shuffle(_rng);
+    // Shuffle each candidate list exactly once; copy `allWords` so the shared
+    // list isn't mutated. (The old `? : ..shuffle` cascade double-shuffled
+    // gradeWords and read as if it shuffled allWords.)
+    final List<GermanWord> pool;
+    if (gradeWords.length >= _totalRounds) {
+      pool = gradeWords;
+    } else {
+      pool = allWords.toList()..shuffle(_rng);
+    }
 
     final challenges = <_DefChallenge>[];
     for (final word in pool) {
@@ -168,10 +176,20 @@ class _DefinitionQuizGameState extends State<DefinitionQuizGame>
     final defs = word.apiEnrichment?.definitions ?? [];
     if (defs.isEmpty) return null;
 
-    // Pick a definition that's reasonably short for display
-    final def = defs.firstWhere(
-      (d) => d.length <= 120,
-      orElse: () => defs.first,
+    // Pick a definition that's reasonably short for display and — crucially —
+    // does not contain the headword (many dictionary glosses start with it,
+    // which would give the answer away). Redact any residual occurrence.
+    final wl = word.word.toLowerCase();
+    String def = defs.firstWhere(
+      (d) => d.length <= 120 && !d.toLowerCase().contains(wl),
+      orElse: () => defs.firstWhere(
+        (d) => d.length <= 120,
+        orElse: () => defs.first,
+      ),
+    );
+    def = def.replaceAll(
+      RegExp(RegExp.escape(word.word), caseSensitive: false),
+      '___',
     );
 
     final correctOption = _displayOption(word);

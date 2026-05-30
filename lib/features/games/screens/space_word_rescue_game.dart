@@ -250,6 +250,13 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
       }
     }
 
+    // No words available at all → end the round gracefully instead of
+    // crashing on `words.first`.
+    if (words.isEmpty) {
+      if (mounted) _showGameOver();
+      return;
+    }
+
     _currentWord = words.first;
     _displayedWord = _currentWord!.displayName;
     _visibleLetters = List.filled(_displayedWord.length, true);

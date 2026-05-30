@@ -223,24 +223,10 @@ class _GrossstadtGameState extends State<GrossstadtGame>
 
   /// Get clean adjective base form by stripping common endings
   String _getAdjectiveBase(String adjective) {
-    String base = adjective.toLowerCase();
-    
-    // Remove common inflectional endings
-    if (base.endsWith('es')) {
-      base = base.substring(0, base.length - 2);
-    } else if (base.endsWith('em') || base.endsWith('en') || base.endsWith('er')) {
-      base = base.substring(0, base.length - 2);
-    } else if (base.endsWith('e')) {
-      base = base.substring(0, base.length - 1);
-    }
-    
-    // Handle special cases where -el/-er are part of the stem
-    if (base.length < 3) {
-      // Too short, probably removed too much
-      return adjective.toLowerCase();
-    }
-    
-    return base;
+    // The lemma stored for an adjective IS already the dictionary base form
+    // (gut, dunkel, sauer), so stripping "inflectional" endings mangled real
+    // stems (sauer→sau, dunkel→dunk). Just normalise case.
+    return adjective.toLowerCase();
   }
 
   List<GermanWord> _getWordsForGame(GermanWordType type, int count) {
@@ -350,16 +336,22 @@ class _GrossstadtGameState extends State<GrossstadtGame>
     return null;
   }
 
-  /// Helper to create correct nominalized adjectives
-  String _nominalizeAdjective(String adjective) {
-    String base = _getAdjectiveBase(adjective);
-    
-    // Add endings for "etwas [Gutes]"
-    if (base.endsWith('el') || base.endsWith('er')) {
-      return '${base}es'; // teuer -> teures, dunkel -> dunkeles
-    } else {
-      return '${base}es'; // gut -> gutes
+  /// Nominalised neuter form for "etwas/nichts ___" (Großschreibung), but only
+  /// for simple consonant-final base adjectives where adding "-es" is correct
+  /// (gut→Gutes, klein→Kleines, rot→Rotes). Returns null for -e/-el/-er/-en
+  /// adjectives whose nominalisation needs elision/stem rules we don't model
+  /// reliably (dunkel→Dunkles, teuer→Teures) — we skip rather than present a
+  /// malformed word as the correct answer.
+  String? _nominalizeAdjective(String adjective) {
+    final base = adjective.toLowerCase();
+    if (base.length < 3) return null;
+    if (base.endsWith('e') ||
+        base.endsWith('el') ||
+        base.endsWith('er') ||
+        base.endsWith('en')) {
+      return null;
     }
+    return '${base}es';
   }
 
   String _getPossessiveArticle(String baseArticle, String nounArticle) {
@@ -446,22 +438,24 @@ class _GrossstadtGameState extends State<GrossstadtGame>
     final adjBase = _getAdjectiveBase(word.lemma);
     _log('  Adjective: "${word.word}" (lemma: "${word.lemma}", base: "$adjBase")');
 
-    // 1. Nominalization (Groß) -> "ETWAS GUTES"
-    final indefinites = ['ETWAS', 'NICHTS', 'VIEL', 'WENIG'];
-    final indefinite = indefinites[Random().nextInt(indefinites.length)];
+    // 1. Nominalization (Groß) -> "ETWAS GUTES" — only when we can form the
+    //    nominalised word correctly; otherwise skip this variant.
     final nominalizedForm = _nominalizeAdjective(word.lemma);
-
-    items.add(CapitalizationItem(
-      prefix: '$indefinite ',
-      target: nominalizedForm,
-      shouldBeCapitalized: true,
-      rule: 'nominalized_adjective',
-      explanation: 'Nach "$indefinite" → Großschreibung',
-      difficulty: 3,
-      wordId: word.id,
-      lemma: adjBase, // Use clean base for SRI
-    ));
-    _log('    ✓ Created: "$indefinite $nominalizedForm" (capitalized)');
+    if (nominalizedForm != null) {
+      final indefinites = ['ETWAS', 'NICHTS', 'VIEL', 'WENIG'];
+      final indefinite = indefinites[Random().nextInt(indefinites.length)];
+      items.add(CapitalizationItem(
+        prefix: '$indefinite ',
+        target: nominalizedForm,
+        shouldBeCapitalized: true,
+        rule: 'nominalized_adjective',
+        explanation: 'Nach "$indefinite" → Großschreibung',
+        difficulty: 3,
+        wordId: word.id,
+        lemma: adjBase, // Use clean base for SRI
+      ));
+      _log('    ✓ Created: "$indefinite $nominalizedForm" (capitalized)');
+    }
 
     // 2. Predicative (Klein) -> "IST GUT"
     final copulas = ['IST', 'WAR', 'SIND'];
