@@ -13,7 +13,7 @@ The DB build is done; what remains is optional/forward-looking.
 | §5 | Open decisions | ✅ resolved (ConceptNet sibling-vs-replace + 5.7 still apply *when* §3 runs) |
 | §6 | Spelling-strategy classifier (orthographic principles) | ✅ **v3 shipped 2026-05-29** — re-grounded on the linguistic science (Eisenberg/Maas/Thomé) per a cited deep-research pass; 7 categories incl. new `dehnung`, per-word explanations; new literature-sourced gold (`spelling_strategy_gold.csv`, 100% exact). DB re-tagged + asset re-shipped; app badge updated. See §6 + `SPELLING_STRATEGY_SPEC.md` |
 | §7 | Additional free-licensed data sources | ✅ Priority-1 + EN→DE translations + False Friends (#48) + Wortfalle (#49, 64 pairs); all other sources surveyed & rejected/deferred (NC/academic/low-value — see Remaining work) |
-| §8 | Copyleft App/Play Store compliance (DE GPL-3.0 / EN CC-BY-SA-4.0) | ⬚ **pre-launch checklist** — gate before first store submission |
+| §8 | Copyleft App/Play Store compliance (DE GPL-3.0 / EN CC-BY-SA-4.0) | ◑ HF datasets **published** 2026-05-30 (`cstr/grundwortschatz-voc-de` GPL-3.0, `cstr/grundwortschatz-voc-en` CC-BY-SA-4.0); remaining pre-store: link both URLs from the in-app license screen + EULA check |
 
 ### Remaining work (2026-05-29) — shipped DBs + app are done
 
@@ -535,17 +535,15 @@ Wikipedia/Britannica mobile apps, with GPL on the DE data blob.
 - [x] `DATA_LICENSE.md` at repo root — dual-license stance, DE GPL-3.0 / EN CC-BY-SA-4.0.
 - [x] Repo README note linking to `DATA_LICENSE.md`.
 - [x] In-app License screen carries every source incl. childLex GPL-3.0 + the GPL-3.0 DB posture.
-- [~] Upload the DBs as HF datasets with matching license tags:
-      **`cstr/grundwortschatz-voc-de` (GPL-3.0)** and
-      **`cstr/grundwortschatz-voc-en` (CC-BY-SA-4.0)**, each with full
-      attribution + "Changes made" in the dataset README.
-      **Bundle prepped 2026-05-30** — dataset cards (`*/HF_DATASET_README.md`)
-      carry the YAML front matter (license, parquet splits) and the build/upload
-      script is `pipeline/build_hf_datasets.py`: it exports the parquet splits
-      (words/translations/examples [+ phrasal_verbs/false_friends for EN]),
-      stages the card as `README.md` and the `.db.gz`, and pushes with `--upload`.
-      *(remaining: you run it with a HF write token — `~/miniconda3/bin/python
-      pipeline/build_hf_datasets.py --upload`)*
+- [x] Upload the DBs as HF datasets with matching license tags — **DONE 2026-05-30**:
+      [`cstr/grundwortschatz-voc-de`](https://huggingface.co/datasets/cstr/grundwortschatz-voc-de)
+      (**GPL-3.0**) and
+      [`cstr/grundwortschatz-voc-en`](https://huggingface.co/datasets/cstr/grundwortschatz-voc-en)
+      (**CC-BY-SA-4.0**), each with the dataset card (attribution + "Changes
+      made"), viewable parquet splits, and the `.db.gz`. Rebuild/re-push via
+      `pipeline/build_hf_datasets.py --upload`.
+      **Remaining for store submission**: link both dataset URLs from the in-app
+      license screen.
 - [ ] Verify the eventual App Store EULA does NOT restrict extracting the DB blobs.
 
 ### 8.4 What we are NOT required to publish

@@ -37,13 +37,12 @@ configs:
 
 # WortUniversum English Vocabulary Database
 
-> **Status: upload bundle ready, not yet pushed.** Target repo:
-> `cstr/grundwortschatz-voc-en`. The shipped app asset is
-> `assets/grundwortschatz_en.db.gz` in the
-> [WortUniversum / words-universe](https://github.com/CrispStrobe/words-universe)
-> repository; this dataset is its CC-BY-SA 4.0 re-distribution form.
-> Build + push the bundle (this card + parquet splits + `.db.gz`) with
-> `pipeline/build_hf_datasets.py [--upload]` (needs a HF write token).
+> **Status: published** at
+> [`cstr/grundwortschatz-voc-en`](https://huggingface.co/datasets/cstr/grundwortschatz-voc-en)
+> (CC-BY-SA 4.0). The shipped app asset is `assets/grundwortschatz_en.db.gz` in
+> the [WortUniversum / words-universe](https://github.com/CrispStrobe/words-universe)
+> repository; this dataset is its CC-BY-SA 4.0 re-distribution form. Rebuild +
+> re-push with `pipeline/build_hf_datasets.py --upload`.
 
 ## Dataset summary
 
