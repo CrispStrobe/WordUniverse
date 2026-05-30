@@ -60,6 +60,10 @@ class _DefinitionQuizGameState extends State<DefinitionQuizGame>
   int _correct = 0;
   int? _selectedOption;
   _FeedbackState _feedbackState = _FeedbackState.none;
+  // Bumped each time we answer; the delayed auto-advance captures the value at
+  // schedule time and bails out if a tap-to-advance already moved us on, so a
+  // stale timer can't skip the next round.
+  int _advanceToken = 0;
 
   late AnimationController _pulseController;
   late AnimationController _shakeController;
@@ -308,10 +312,19 @@ class _DefinitionQuizGameState extends State<DefinitionQuizGame>
       );
     }
 
+    final token = ++_advanceToken;
     Future.delayed(const Duration(milliseconds: 2200), () {
-      if (!mounted) return;
+      if (!mounted || token != _advanceToken) return;
       _advance();
     });
+  }
+
+  // Tap anywhere during the feedback window to advance immediately; invalidates
+  // the pending auto-advance timer so it won't fire again on the next round.
+  void _handleAdvanceTap() {
+    if (_feedbackState == _FeedbackState.none) return;
+    _advanceToken++;
+    _advance();
   }
 
   void _advance() {
@@ -417,34 +430,42 @@ class _DefinitionQuizGameState extends State<DefinitionQuizGame>
       children: [
         _buildHeader(),
         Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-            child: Column(
-              children: [
-                const SizedBox(height: 8),
-                Text(
-                  _s.definitionQuizPrompt,
-                  style: SpaceTheme.headlineStyle
-                      .copyWith(color: Colors.white, fontSize: 17),
-                  textAlign: TextAlign.center,
-                ),
-                if (challenge.word.cefrLevel != null) ...[
-                  const SizedBox(height: 6),
-                  CefrChip(challenge.word.cefrLevel!),
+          // After answering, a tap anywhere in the body advances immediately
+          // (auto-advance stays a fallback). Translucent so taps on empty space
+          // register; option taps are consumed by their own GestureDetector.
+          child: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: _handleAdvanceTap,
+            child: SingleChildScrollView(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              child: Column(
+                children: [
+                  const SizedBox(height: 8),
+                  Text(
+                    _s.definitionQuizPrompt,
+                    style: SpaceTheme.headlineStyle
+                        .copyWith(color: Colors.white, fontSize: 17),
+                    textAlign: TextAlign.center,
+                  ),
+                  if (challenge.word.cefrLevel != null) ...[
+                    const SizedBox(height: 6),
+                    CefrChip(challenge.word.cefrLevel!),
+                  ],
+                  const SizedBox(height: 16),
+                  _buildDefinitionCard(challenge),
+                  const SizedBox(height: 20),
+                  _buildOptions(challenge),
+                  if (_feedbackState == _FeedbackState.incorrect) ...[
+                    const SizedBox(height: 10),
+                    _buildCorrectHint(challenge),
+                  ],
+                  if (_feedbackState == _FeedbackState.correct) ...[
+                    const SizedBox(height: 10),
+                    EtymologyBanner(word: challenge.word),
+                  ],
                 ],
-                const SizedBox(height: 16),
-                _buildDefinitionCard(challenge),
-                const SizedBox(height: 20),
-                _buildOptions(challenge),
-                if (_feedbackState == _FeedbackState.incorrect) ...[
-                  const SizedBox(height: 10),
-                  _buildCorrectHint(challenge),
-                ],
-                if (_feedbackState == _FeedbackState.correct) ...[
-                  const SizedBox(height: 10),
-                  EtymologyBanner(word: challenge.word),
-                ],
-              ],
+              ),
             ),
           ),
         ),
@@ -580,35 +601,42 @@ class _DefinitionQuizGameState extends State<DefinitionQuizGame>
       child: Semantics(
         button: true,
         label: option,
+        // After answering, options are inert: announce their resolved state
+        // (selected = this is the correct option) and mark them disabled.
+        enabled: hasAnswered ? false : null,
+        selected: hasAnswered ? isCorrect : null,
         child: GestureDetector(
           onTap: () => _handleTap(index),
-          child: Container(
-            width: double.infinity,
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            decoration: BoxDecoration(
-              color: bgColor,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: borderColor, width: 1.5),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    option,
-                    style: TextStyle(
-                      color: textColor,
-                      fontSize: 17,
-                      fontWeight: FontWeight.w600,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 48),
+            child: Container(
+              width: double.infinity,
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              decoration: BoxDecoration(
+                color: bgColor,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: borderColor, width: 1.5),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      option,
+                      style: TextStyle(
+                        color: textColor,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                    textAlign: TextAlign.center,
                   ),
-                ),
-                if (trailingIcon != null)
-                  Icon(trailingIcon,
-                      color: isCorrect ? Colors.green : Colors.redAccent,
-                      size: 20),
-              ],
+                  if (trailingIcon != null)
+                    Icon(trailingIcon,
+                        color: isCorrect ? Colors.green : Colors.redAccent,
+                        size: 20),
+                ],
+              ),
             ),
           ),
         ),

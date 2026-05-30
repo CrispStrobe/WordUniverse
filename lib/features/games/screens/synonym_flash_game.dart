@@ -155,13 +155,12 @@ class _SynonymFlashGameState extends State<SynonymFlashGame>
     final pool = gradePool.length >= 10 ? gradePool : allWords;
     pool.shuffle(_rng);
 
-    final wordTexts = allWords.map((w) => w.word).toList()..shuffle(_rng);
     final wordSet = allWords.map((w) => w.word.toLowerCase()).toSet();
 
     final challenges = <_SynonymChallenge>[];
     for (final word in pool) {
       if (challenges.length >= _maxRounds) break;
-      final c = _buildChallenge(word, wordTexts, wordSet);
+      final c = _buildChallenge(word, allWords, wordSet);
       if (c != null) challenges.add(c);
     }
 
@@ -181,51 +180,76 @@ class _SynonymFlashGameState extends State<SynonymFlashGame>
   }
 
   // A synonym is "clean" if it is a single word, at least 2 chars, with only
-  // letters/hyphens/apostrophes — no digits, no all-caps abbreviations, no diacritics.
+  // letters/hyphens/apostrophes — no digits, no all-caps abbreviations.
+  // Uses a Unicode letter class so German synonyms with ä/ö/ü/ß are kept.
   static bool _isCleanSynonym(String s) {
     if (s.length < 2 || s.contains(' ')) return false;
     if (RegExp(r'\d').hasMatch(s)) return false;
     if (s == s.toUpperCase() && s.length > 1) return false;
-    return RegExp(r"^[a-zA-Z\-']+$").hasMatch(s);
+    return RegExp(r"^[\p{L}\-' ]+$", unicode: true).hasMatch(s);
   }
 
   _SynonymChallenge? _buildChallenge(
-      GermanWord word, List<String> allTexts, Set<String> wordSet) {
+      GermanWord word, List<GermanWord> allWords, Set<String> wordSet) {
     final synonyms = word.apiEnrichment!.synonyms;
     if (synonyms.isEmpty) return null;
 
-    // Prefer an in-vocabulary clean synonym (so learners recognise the answer);
-    // fall back to any clean synonym if none appear in the word list.
-    String? correct;
-    String? fallback;
+    // Collect every clean synonym, noting which appear in the vocabulary so we
+    // can prefer those (learners recognise them) without losing the others.
+    final inVocab = <String>[];
+    final outOfVocab = <String>[];
     for (final syn in synonyms) {
       final clean = syn.replaceAll(RegExp(r'\s*\(.*?\)\s*$'), '').trim();
-      if (_isCleanSynonym(clean)) {
-        if (wordSet.contains(clean.toLowerCase())) {
-          correct = clean;
-          break;
-        }
-        fallback ??= clean;
+      if (!_isCleanSynonym(clean)) continue;
+      if (wordSet.contains(clean.toLowerCase())) {
+        inVocab.add(clean);
+      } else {
+        outOfVocab.add(clean);
       }
     }
-    correct ??= fallback;
-    if (correct == null) return null;
-    final correctWord = correct; // non-nullable alias for use in closures
+    // Randomize which valid synonym is the answer (rather than always the
+    // first), preferring in-vocabulary ones when any exist.
+    final candidates = inVocab.isNotEmpty ? inVocab : outOfVocab;
+    if (candidates.isEmpty) return null;
+    final correctWord = candidates[_rng.nextInt(candidates.length)];
 
+    // Any of the word's listed synonyms counts as correct, so exclude them all
+    // (plus the prompt word itself) from the distractor pool.
     final synSet =
         synonyms.map((s) => s.toLowerCase()).toSet()..add(word.word.toLowerCase());
+
+    // Restrict distractors to the same word type as the prompt for plausibility;
+    // fall back to any word type if too few same-type candidates exist.
+    bool eligible(GermanWord w) =>
+        !synSet.contains(w.word.toLowerCase()) &&
+        w.word.toLowerCase() != correctWord.toLowerCase();
+
+    final sameType = allWords
+        .where((w) => w.wordType == word.wordType && eligible(w))
+        .map((w) => w.word)
+        .toList()
+      ..shuffle(_rng);
+    final anyType = allWords
+        .where(eligible)
+        .map((w) => w.word)
+        .toList()
+      ..shuffle(_rng);
+
+    final needed = _optionCount - 1;
+    // Dedupe distractors against each other (case-insensitively) and against
+    // the correct answer using a seen-set guard.
     final distractors = <String>[];
-    for (final t in allTexts) {
-      if (distractors.length >= _optionCount - 1) break;
-      if (!synSet.contains(t.toLowerCase()) &&
-          t.toLowerCase() != correctWord.toLowerCase()) {
-        distractors.add(t);
+    final seen = <String>{correctWord.toLowerCase()};
+    for (final source in [sameType, anyType]) {
+      for (final t in source) {
+        if (distractors.length >= needed) break;
+        if (seen.add(t.toLowerCase())) distractors.add(t);
       }
+      if (distractors.length >= needed) break;
     }
     if (distractors.isEmpty) return null;
 
-    final options = [correctWord, ...distractors.take(_optionCount - 1)];
-    options.shuffle(_rng);
+    final options = [correctWord, ...distractors.take(needed)]..shuffle(_rng);
     final correctIndex = options.indexWhere(
         (o) => o.toLowerCase() == correctWord.toLowerCase());
     if (correctIndex < 0) return null;
@@ -319,6 +343,7 @@ class _SynonymFlashGameState extends State<SynonymFlashGame>
       wasSuccessful: _total > 0 && (_correct / _total) >= 0.7,
     ));
 
+    if (!mounted) return;
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -601,23 +626,30 @@ class _SynonymFlashGameState extends State<SynonymFlashGame>
             : 1.0,
         child: child,
       ),
-      child: GestureDetector(
-        onTap: hasAnswered ? null : () => _handleTap(index),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: border, width: 1.5),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            challenge.options[index],
-            style: TextStyle(
-                color: text, fontSize: 15, fontWeight: FontWeight.w500),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+      child: Semantics(
+        button: true,
+        label: challenge.options[index],
+        child: GestureDetector(
+          onTap: hasAnswered ? null : () => _handleTap(index),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 48),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              decoration: BoxDecoration(
+                color: bg,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: border, width: 1.5),
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                challenge.options[index],
+                style: TextStyle(
+                    color: text, fontSize: 15, fontWeight: FontWeight.w500),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
           ),
         ),
       ),

@@ -101,7 +101,7 @@ class _WordClassFlashGameState extends State<WordClassFlashGame>
     _gameProvider = context.read<GameProvider>();
 
     if (!_vocabService.isInitialized) await _vocabService.initialize();
-    _audioService.setTtsLanguage(_vocabService.learningLanguage);
+    // No TTS/audio is played in this game, so no TTS language setup is needed.
     _buildChallenges();
     if (!_onboardingScheduled) {
       _onboardingScheduled = true;
@@ -129,7 +129,7 @@ class _WordClassFlashGameState extends State<WordClassFlashGame>
   }
 
   void _buildChallenges() {
-    final allWords = _vocabService
+    final candidates = _vocabService
         .getAllWords(_gameProvider)
         .where((w) =>
             !w.isProperNoun &&
@@ -137,6 +137,25 @@ class _WordClassFlashGameState extends State<WordClassFlashGame>
             !w.word.contains(' ') &&
             _types.contains(w.wordType))
         .toList();
+
+    // Pedagogy: the DB has no explicit ambiguity flag, but the same surface
+    // form can map to more than one word class (e.g. "laut" =
+    // Adjektiv/Adverb/Substantiv). Such rounds would have more than one
+    // defensible answer, so skip any surface form that appears with conflicting
+    // wordTypes and keep only those that are unambiguous within the pool.
+    final typesPerSurface = <String, Set<GermanWordType>>{};
+    for (final w in candidates) {
+      typesPerSurface
+          .putIfAbsent(w.word.toLowerCase(), () => <GermanWordType>{})
+          .add(w.wordType);
+    }
+    final unambiguous = candidates
+        .where((w) => typesPerSurface[w.word.toLowerCase()]!.length == 1)
+        .toList();
+
+    // Fall back to the full candidate set if filtering left too few words to
+    // play a meaningful round.
+    final allWords = unambiguous.length >= 10 ? unambiguous : candidates;
 
     if (allWords.isEmpty) {
       setState(() => _isLoading = false);
@@ -548,6 +567,8 @@ class _WordClassFlashGameState extends State<WordClassFlashGame>
       }
     }
 
+    final label = _typeLabel(t);
+
     return AnimatedBuilder(
       animation: _pulseCtrl,
       builder: (_, child) => Transform.scale(
@@ -556,21 +577,31 @@ class _WordClassFlashGameState extends State<WordClassFlashGame>
             : 1.0,
         child: child,
       ),
-      child: GestureDetector(
-        onTap: hasAnswered ? null : () => _handleTap(t),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: border, width: 1.5),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            _typeLabel(t),
-            style: TextStyle(
-                color: text, fontSize: 15, fontWeight: FontWeight.w500),
-            textAlign: TextAlign.center,
+      child: Semantics(
+        button: true,
+        label: label,
+        child: GestureDetector(
+          onTap: hasAnswered ? null : () => _handleTap(t),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            constraints: const BoxConstraints(minHeight: 48, minWidth: 48),
+            decoration: BoxDecoration(
+              color: bg,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: border, width: 1.5),
+            ),
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                label,
+                style: TextStyle(
+                    color: text, fontSize: 15, fontWeight: FontWeight.w500),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+              ),
+            ),
           ),
         ),
       ),
