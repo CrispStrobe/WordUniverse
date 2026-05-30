@@ -167,16 +167,16 @@ class _ExpressionFlashGameState extends State<ExpressionFlashGame>
       OnboardingOverlay.maybeShow(
         context,
         gameKey: 'expression_flash',
-        title: 'Phrasen-Blitz',
+        title: _s.expressionFlashTitle,
         steps: [
-          const OnboardingStep(
+          OnboardingStep(
             icon: Icons.format_quote,
-            body: 'Eine Redewendung erscheint mit einer Lücke — tippe das fehlende Wort.',
+            body: _s.expressionFlashOnboardingTap,
           ),
           if (_gameProvider.puzzleTimerEnabled)
             OnboardingStep(
               icon: Icons.timer,
-              body: 'Du hast 30 Sekunden. Kenne deine Redewendungen!',
+              body: _s.expressionFlashOnboardingTimer,
             ),
         ],
       );
@@ -242,12 +242,28 @@ class _ExpressionFlashGameState extends State<ExpressionFlashGame>
     List<String> allWordStrings,
   ) {
     final expressions = word.apiEnrichment?.expressions ?? [];
+
+    // Prefer expressions where the matched (blanked) form equals the lemma —
+    // those let the player pick exactly the word being practised. Fall back to
+    // inflected matches, where we present the matched form itself as the answer.
+    final ordered = <MapEntry<String, _ClozeResult>>[];
+    final inflected = <MapEntry<String, _ClozeResult>>[];
     for (final expr in expressions) {
       final text = expr.expression;
       if (text == null || text.length < 8 || text.length > 80) continue;
-
       final cloze = _tryBlank(text, word.word);
       if (cloze == null) continue;
+      final entry = MapEntry(text, cloze);
+      if (cloze.matchedForm.toLowerCase() == word.word.toLowerCase()) {
+        ordered.add(entry);
+      } else {
+        inflected.add(entry);
+      }
+    }
+
+    for (final entry in [...ordered, ...inflected]) {
+      final text = entry.key;
+      final cloze = entry.value;
 
       // Require at least 2 other words still visible around the blank
       final visible = (cloze.before + cloze.after)
@@ -256,23 +272,30 @@ class _ExpressionFlashGameState extends State<ExpressionFlashGame>
           .length;
       if (visible < 2) continue;
 
-      // Distractors: prefer same word type, fall back to any word
+      // The correct answer is the exact form that was blanked out, so it
+      // matches the gap (lemma when uninflected, inflected form otherwise).
+      final answer = cloze.matchedForm;
+      final visibleText = (cloze.before + cloze.after).toLowerCase();
+
+      // Distractors: prefer same word type, fall back to any word.
+      // Exclude the answer and anything already visible in the expression.
       final sameType = byType[word.wordType] ?? [];
       final distractors = <String>[];
       for (final d in [...sameType, ...allWordStrings]) {
         if (distractors.length >= _optionCount - 1) break;
-        if (d.toLowerCase() != word.word.toLowerCase() &&
-            !distractors.any((x) => x.toLowerCase() == d.toLowerCase())) {
-          distractors.add(d);
-        }
+        final ld = d.toLowerCase();
+        if (ld == answer.toLowerCase()) continue;
+        if (visibleText.contains(ld)) continue;
+        if (distractors.any((x) => x.toLowerCase() == ld)) continue;
+        distractors.add(d);
       }
-      if (distractors.length < _optionCount - 1) return null; // need a full set
+      if (distractors.length < _optionCount - 1) continue; // need a full set
 
-      final options = [word.word, ...distractors.take(_optionCount - 1)];
+      final options = [answer, ...distractors.take(_optionCount - 1)];
       options.shuffle(_rng);
       final correctIndex =
-          options.indexWhere((o) => o.toLowerCase() == word.word.toLowerCase());
-      if (correctIndex < 0) return null;
+          options.indexWhere((o) => o.toLowerCase() == answer.toLowerCase());
+      if (correctIndex < 0) continue;
 
       return _ExprChallenge(
         word: word,
@@ -435,12 +458,12 @@ class _ExpressionFlashGameState extends State<ExpressionFlashGame>
   }
 
   Widget _buildEmptyState() {
-    return const Center(
+    return Center(
       child: Padding(
-        padding: EdgeInsets.all(24),
+        padding: const EdgeInsets.all(24),
         child: Text(
-          'Keine Redewendungen für diese Stufe verfügbar.',
-          style: TextStyle(color: Colors.white70, fontSize: 16),
+          _s.expressionFlashEmpty,
+          style: const TextStyle(color: Colors.white70, fontSize: 16),
           textAlign: TextAlign.center,
         ),
       ),
@@ -486,12 +509,12 @@ class _ExpressionFlashGameState extends State<ExpressionFlashGame>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Phrasen-Blitz',
+                  _s.expressionFlashTitle,
                   style: SpaceTheme.titleStyle
                       .copyWith(color: SpaceTheme.starYellow),
                 ),
                 Text(
-                  '$_correct richtig',
+                  _s.expressionFlashCorrectCount(_correct),
                   style: SpaceTheme.bodyStyle.copyWith(color: Colors.white60),
                 ),
               ],
@@ -586,7 +609,7 @@ class _ExpressionFlashGameState extends State<ExpressionFlashGame>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Redewendung',
+              _s.expressionFlashLabel,
               style: SpaceTheme.bodyStyle.copyWith(
                   color: Colors.white54, fontSize: 11, letterSpacing: 1.2),
             ),
@@ -642,21 +665,24 @@ class _ExpressionFlashGameState extends State<ExpressionFlashGame>
           TextSpan(text: challenge.before),
           WidgetSpan(
             alignment: PlaceholderAlignment.middle,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-              decoration: BoxDecoration(
-                color: blankColor.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: blankColor, width: 1.5),
-              ),
-              child: Text(
-                blankLabel,
-                style: TextStyle(
-                  color: blankColor,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1,
+            child: Semantics(
+              label: _s.expressionFlashBlankHint,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                decoration: BoxDecoration(
+                  color: blankColor.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: blankColor, width: 1.5),
+                ),
+                child: Text(
+                  blankLabel,
+                  style: TextStyle(
+                    color: blankColor,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1,
+                  ),
                 ),
               ),
             ),
@@ -709,23 +735,29 @@ class _ExpressionFlashGameState extends State<ExpressionFlashGame>
             hasAnswered && isCorrect ? 1.0 + (_pulseCtrl.value * 0.04) : 1.0,
         child: child,
       ),
-      child: GestureDetector(
-        onTap: hasAnswered ? null : () => _handleTap(index),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: border, width: 1.5),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            challenge.options[index],
-            style: TextStyle(
-                color: text, fontSize: 15, fontWeight: FontWeight.w500),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+      child: Semantics(
+        button: true,
+        enabled: !hasAnswered,
+        label: challenge.options[index],
+        child: GestureDetector(
+          onTap: hasAnswered ? null : () => _handleTap(index),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            constraints: const BoxConstraints(minHeight: 48),
+            decoration: BoxDecoration(
+              color: bg,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: border, width: 1.5),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              challenge.options[index],
+              style: TextStyle(
+                  color: text, fontSize: 15, fontWeight: FontWeight.w500),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ),
       ),

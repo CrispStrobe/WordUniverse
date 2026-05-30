@@ -78,6 +78,11 @@ class _ProverbClozeGameState extends State<ProverbClozeGame>
   static const int _optionCount = 4;
   static const Duration _advanceDelay = Duration(milliseconds: 1300);
 
+  // Parchment / proverb-scroll palette.
+  static const Color _goldAccent = Color(0xFFDAA520);
+  static const Color _scrollGold = Color(0xFFc6a700);
+  static const Color _scrollPlum = Color(0xFF5f0f40);
+
   bool _isLoading = true;
   bool _onboardingScheduled = false;
   List<_ProverbChallenge> _challenges = [];
@@ -127,7 +132,8 @@ class _ProverbClozeGameState extends State<ProverbClozeGame>
 
   static int _visibleWordCount(_ClozeResult cloze) =>
       (cloze.before + cloze.after)
-          .split(' ')
+          .trim()
+          .split(RegExp(r'\s+'))
           .where((w) => w.trim().isNotEmpty)
           .length;
 
@@ -171,16 +177,16 @@ class _ProverbClozeGameState extends State<ProverbClozeGame>
       OnboardingOverlay.maybeShow(
         context,
         gameKey: 'proverb_cloze',
-        title: 'Sprichwort-Blitz',
+        title: _s.proverbClozeTitle,
         steps: [
-          const OnboardingStep(
+          OnboardingStep(
             icon: Icons.auto_stories,
-            body: 'Ein Sprichwort erscheint mit einer Lücke — tippe das richtige Wort.',
+            body: _s.proverbClozeOnboardingBody,
           ),
           if (_gameProvider.puzzleTimerEnabled)
             OnboardingStep(
               icon: Icons.timer,
-              body: '30 Sekunden, so viele Sprichwörter wie möglich!',
+              body: _s.proverbClozeOnboardingTimer(_sessionSeconds),
             ),
         ],
       );
@@ -245,43 +251,65 @@ class _ProverbClozeGameState extends State<ProverbClozeGame>
     List<String> allWordStrings,
   ) {
     final proverbs = word.apiEnrichment?.proverbs ?? [];
+
+    // Collect all usable (text, cloze) candidates.
+    final candidates = <(String, _ClozeResult)>[];
     for (final p in proverbs) {
       final text = p.proverb;
       if (text == null || text.length < 8 || text.length > 120) continue;
 
       final cloze = _tryBlank(text, word.word);
       if (cloze == null) continue;
-
       if (_visibleWordCount(cloze) < 2) continue;
 
-      final sameType = byType[word.wordType] ?? [];
-      final distractors = <String>[];
-      for (final d in [...sameType, ...allWordStrings]) {
-        if (distractors.length >= _optionCount - 1) break;
-        if (d.toLowerCase() != word.word.toLowerCase() &&
-            !distractors.any((x) => x.toLowerCase() == d.toLowerCase())) {
-          distractors.add(d);
-        }
-      }
-      if (distractors.isEmpty) return null;
-
-      final options = [word.word, ...distractors.take(_optionCount - 1)];
-      options.shuffle(_rng);
-      final correctIndex =
-          options.indexWhere((o) => o.toLowerCase() == word.word.toLowerCase());
-      if (correctIndex < 0) return null;
-
-      return _ProverbChallenge(
-        word: word,
-        proverb: text,
-        before: cloze.before,
-        after: cloze.after,
-        matchedForm: cloze.matchedForm,
-        options: options,
-        correctIndex: correctIndex,
-      );
+      candidates.add((text, cloze));
     }
-    return null;
+    if (candidates.isEmpty) return null;
+
+    // C4: the blank is filled by the matched form in the sentence, which can be
+    // inflected or archaic, while the options would otherwise be bare lemmas.
+    // Prefer proverbs where the matched form equals the lemma so the correct
+    // option reads naturally; otherwise we still surface the matched form (not
+    // the lemma) as the correct option so it actually fits the gap.
+    candidates.sort((a, b) {
+      final aExact =
+          a.$2.matchedForm.toLowerCase() == word.word.toLowerCase() ? 0 : 1;
+      final bExact =
+          b.$2.matchedForm.toLowerCase() == word.word.toLowerCase() ? 0 : 1;
+      return aExact.compareTo(bExact);
+    });
+
+    final (text, cloze) = candidates.first;
+    // Use the form that actually appears in the proverb as the correct answer.
+    final correctForm = cloze.matchedForm;
+
+    final sameType = byType[word.wordType] ?? [];
+    final distractors = <String>[];
+    for (final d in [...sameType, ...allWordStrings]) {
+      if (distractors.length >= _optionCount - 1) break;
+      if (d.toLowerCase() != correctForm.toLowerCase() &&
+          d.toLowerCase() != word.word.toLowerCase() &&
+          !distractors.any((x) => x.toLowerCase() == d.toLowerCase())) {
+        distractors.add(d);
+      }
+    }
+    if (distractors.isEmpty) return null;
+
+    final options = [correctForm, ...distractors.take(_optionCount - 1)];
+    options.shuffle(_rng);
+    final correctIndex =
+        options.indexWhere((o) => o.toLowerCase() == correctForm.toLowerCase());
+    if (correctIndex < 0) return null;
+
+    return _ProverbChallenge(
+      word: word,
+      proverb: text,
+      before: cloze.before,
+      after: cloze.after,
+      matchedForm: cloze.matchedForm,
+      options: options,
+      correctIndex: correctIndex,
+    );
   }
 
   // ─── timer ─────────────────────────────────────────────────────────────────
@@ -289,6 +317,28 @@ class _ProverbClozeGameState extends State<ProverbClozeGame>
   void _startTimer() {
     if (!_gameProvider.puzzleTimerEnabled) return;
     _timerCtrl.forward(from: 0);
+    _runCountdown();
+  }
+
+  // Pause the countdown (ticker + progress bar) during the feedback delay so the
+  // player isn't penalised for the answer-reveal pause; also keeps it from
+  // running once the game is over.
+  void _pauseTimer() {
+    _sessionTimer?.cancel();
+    _sessionTimer = null;
+    _timerCtrl.stop();
+  }
+
+  void _resumeTimer() {
+    if (!_gameProvider.puzzleTimerEnabled || _gameOver) return;
+    if (_secondsLeft <= 0) return;
+    // Resume the progress bar from where it left off.
+    _timerCtrl.forward(
+        from: 1.0 - (_secondsLeft / _sessionSeconds).clamp(0.0, 1.0));
+    _runCountdown();
+  }
+
+  void _runCountdown() {
     _sessionTimer?.cancel();
     _sessionTimer = Timer.periodic(const Duration(seconds: 1), (t) {
       if (!mounted) {
@@ -314,6 +364,9 @@ class _ProverbClozeGameState extends State<ProverbClozeGame>
 
     final challenge = _challenges[_index];
     final isCorrect = index == challenge.correctIndex;
+
+    // Freeze the session timer during the answer-reveal delay.
+    _pauseTimer();
 
     setState(() {
       _selectedOption = index;
@@ -345,7 +398,6 @@ class _ProverbClozeGameState extends State<ProverbClozeGame>
     Future.delayed(_advanceDelay, () {
       if (!mounted || _gameOver) return;
       if (_index + 1 >= _challenges.length) {
-        _sessionTimer?.cancel();
         _showGameOver();
         return;
       }
@@ -354,13 +406,15 @@ class _ProverbClozeGameState extends State<ProverbClozeGame>
         _selectedOption = null;
         _feedback = _Feedback.none;
       });
+      // Resume the timer once the next proverb is shown.
+      _resumeTimer();
     });
   }
 
   void _showGameOver() {
     if (_gameOver) return;
     _gameOver = true;
-    _sessionTimer?.cancel();
+    _pauseTimer();
 
     _gameProvider.reportOutcome(GameOutcome(
       gameType: 'proverb_cloze',
@@ -432,12 +486,12 @@ class _ProverbClozeGameState extends State<ProverbClozeGame>
   }
 
   Widget _buildEmptyState() {
-    return const Center(
+    return Center(
       child: Padding(
-        padding: EdgeInsets.all(24),
+        padding: const EdgeInsets.all(24),
         child: Text(
-          'Keine Sprichwort-Daten für diese Stufe verfügbar.',
-          style: TextStyle(color: Colors.white70, fontSize: 16),
+          _s.proverbClozeEmpty,
+          style: const TextStyle(color: Colors.white70, fontSize: 16),
           textAlign: TextAlign.center,
         ),
       ),
@@ -483,12 +537,12 @@ class _ProverbClozeGameState extends State<ProverbClozeGame>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Sprichwort-Blitz',
+                  _s.proverbClozeTitle,
                   style: SpaceTheme.titleStyle
                       .copyWith(color: SpaceTheme.starYellow),
                 ),
                 Text(
-                  '$_correct richtig',
+                  _s.proverbClozeCorrectCount(_correct),
                   style: SpaceTheme.bodyStyle.copyWith(color: Colors.white60),
                 ),
               ],
@@ -550,7 +604,7 @@ class _ProverbClozeGameState extends State<ProverbClozeGame>
         ? SpaceTheme.alienGreen
         : _feedback == _Feedback.incorrect
             ? Colors.redAccent
-            : const Color(0xFFDAA520).withValues(alpha: 0.5);
+            : _goldAccent.withValues(alpha: 0.5);
 
     return AnimatedBuilder(
       animation: _shakeCtrl,
@@ -569,8 +623,8 @@ class _ProverbClozeGameState extends State<ProverbClozeGame>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              const Color(0xFFc6a700).withValues(alpha: 0.15),
-              const Color(0xFF5f0f40).withValues(alpha: 0.85),
+              _scrollGold.withValues(alpha: 0.15),
+              _scrollPlum.withValues(alpha: 0.85),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -584,7 +638,7 @@ class _ProverbClozeGameState extends State<ProverbClozeGame>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Sprichwort',
+              _s.proverbClozeLabel,
               style: SpaceTheme.bodyStyle.copyWith(
                   color: Colors.white54, fontSize: 11, letterSpacing: 1.2),
             ),
@@ -622,7 +676,7 @@ class _ProverbClozeGameState extends State<ProverbClozeGame>
         ? SpaceTheme.alienGreen
         : _feedback == _Feedback.incorrect
             ? Colors.redAccent
-            : const Color(0xFFDAA520);
+            : _goldAccent;
 
     return RichText(
       text: TextSpan(
@@ -703,23 +757,30 @@ class _ProverbClozeGameState extends State<ProverbClozeGame>
             hasAnswered && isCorrect ? 1.0 + (_pulseCtrl.value * 0.04) : 1.0,
         child: child,
       ),
-      child: GestureDetector(
-        onTap: hasAnswered ? null : () => _handleTap(index),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: border, width: 1.5),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            challenge.options[index],
-            style: TextStyle(
-                color: text, fontSize: 15, fontWeight: FontWeight.w500),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+      child: Semantics(
+        button: true,
+        enabled: !hasAnswered,
+        selected: isSelected,
+        label: challenge.options[index],
+        child: GestureDetector(
+          onTap: hasAnswered ? null : () => _handleTap(index),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            constraints: const BoxConstraints(minHeight: 48, minWidth: 48),
+            decoration: BoxDecoration(
+              color: bg,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: border, width: 1.5),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              challenge.options[index],
+              style: TextStyle(
+                  color: text, fontSize: 15, fontWeight: FontWeight.w500),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ),
       ),

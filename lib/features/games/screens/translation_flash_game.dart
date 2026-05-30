@@ -76,6 +76,7 @@ class _TranslationFlashGameState extends State<TranslationFlashGame>
 
   int _secondsLeft = _sessionSeconds;
   Timer? _sessionTimer;
+  Timer? _advanceTimer;
   bool _gameOver = false;
 
   late AnimationController _pulseCtrl;
@@ -99,6 +100,7 @@ class _TranslationFlashGameState extends State<TranslationFlashGame>
   @override
   void dispose() {
     _sessionTimer?.cancel();
+    _advanceTimer?.cancel();
     _pulseCtrl.dispose();
     _shakeCtrl.dispose();
     _timerCtrl.dispose();
@@ -121,16 +123,16 @@ class _TranslationFlashGameState extends State<TranslationFlashGame>
       OnboardingOverlay.maybeShow(
         context,
         gameKey: 'translation_flash',
-        title: 'Übersetzungs-Blitz',
+        title: _s.translationFlashTitle,
         steps: [
-          const OnboardingStep(
+          OnboardingStep(
             icon: Icons.translate,
-            body: 'Ein deutsches Wort erscheint — tippe schnell auf die richtige englische Übersetzung.',
+            body: _s.translationFlashOnboardingTap,
           ),
           if (_gameProvider.puzzleTimerEnabled)
             OnboardingStep(
               icon: Icons.timer,
-              body: 'Du hast 30 Sekunden. Je mehr richtige Antworten, desto besser dein Score.',
+              body: _s.translationFlashOnboardingTimer(_sessionSeconds),
             ),
         ],
       );
@@ -309,7 +311,8 @@ class _TranslationFlashGameState extends State<TranslationFlashGame>
       );
     }
 
-    Future.delayed(_advanceDelay, () {
+    _advanceTimer?.cancel();
+    _advanceTimer = Timer(_advanceDelay, () {
       if (!mounted || _gameOver) return;
       if (_index + 1 >= _challenges.length) {
         _sessionTimer?.cancel();
@@ -399,12 +402,12 @@ class _TranslationFlashGameState extends State<TranslationFlashGame>
   }
 
   Widget _buildEmptyState() {
-    return const Center(
+    return Center(
       child: Padding(
-        padding: EdgeInsets.all(24),
+        padding: const EdgeInsets.all(24),
         child: Text(
-          'Keine Übersetzungsdaten für diese Stufe verfügbar.',
-          style: TextStyle(color: Colors.white70, fontSize: 16),
+          _s.translationFlashNoData,
+          style: const TextStyle(color: Colors.white70, fontSize: 16),
           textAlign: TextAlign.center,
         ),
       ),
@@ -450,12 +453,12 @@ class _TranslationFlashGameState extends State<TranslationFlashGame>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Übersetzungs-Blitz',
+                  _s.translationFlashTitle,
                   style: SpaceTheme.titleStyle
                       .copyWith(color: SpaceTheme.starYellow),
                 ),
                 Text(
-                  '$_correct richtig',
+                  _s.translationFlashCorrectCount(_correct),
                   style: SpaceTheme.bodyStyle.copyWith(color: Colors.white60),
                 ),
               ],
@@ -548,9 +551,9 @@ class _TranslationFlashGameState extends State<TranslationFlashGame>
         ),
         child: Column(
           children: [
-            const Text(
-              'Auf Englisch …',
-              style: TextStyle(color: Colors.white60, fontSize: 13),
+            Text(
+              _s.translationFlashPrompt,
+              style: const TextStyle(color: Colors.white60, fontSize: 13),
             ),
             const SizedBox(height: 10),
             Text(
@@ -615,23 +618,31 @@ class _TranslationFlashGameState extends State<TranslationFlashGame>
             : 1.0,
         child: child,
       ),
-      child: GestureDetector(
-        onTap: hasAnswered ? null : () => _handleTap(index),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: border, width: 1.5),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            challenge.options[index],
-            style: TextStyle(
-                color: text, fontSize: 15, fontWeight: FontWeight.w500),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+      child: Semantics(
+        button: true,
+        enabled: !hasAnswered,
+        label: challenge.options[index],
+        child: GestureDetector(
+          onTap: hasAnswered ? null : () => _handleTap(index),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 48),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              decoration: BoxDecoration(
+                color: bg,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: border, width: 1.5),
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                challenge.options[index],
+                style: TextStyle(
+                    color: text, fontSize: 15, fontWeight: FontWeight.w500),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
           ),
         ),
       ),

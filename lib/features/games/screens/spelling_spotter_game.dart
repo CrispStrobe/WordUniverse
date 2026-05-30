@@ -177,7 +177,13 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
     // as a distractor in the same session).
     final validWords = allWords.map((w) => _norm(w.word).toLowerCase()).toSet();
 
-    final selected = pool.take(_totalRounds).toList();
+    // Variety: taking the strict top-N every time always yields the same
+    // hardest 10 words, so replays feel identical. Instead, draw from a wider
+    // difficulty tier (the hardest ~3× rounds) and shuffle within it, so the
+    // session still skews hard but varies between plays.
+    final tierSize = min(pool.length, _totalRounds * 3);
+    final tier = pool.take(tierSize).toList()..shuffle(_rng);
+    final selected = tier.take(_totalRounds).toList();
     final challenges = <_SpellingChallenge>[];
     for (final word in selected) {
       final challenge = _buildChallenge(word, allErrors, validWords);
@@ -296,7 +302,7 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
       _selectedOption = optionIndex;
       _feedbackState =
           isCorrect ? _FeedbackState.correct : _FeedbackState.incorrect;
-      if (isCorrect) _showContext = false;
+      _showContext = false;
     });
 
     if (isCorrect) {
@@ -321,9 +327,13 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
       );
     }
 
+    // Reveal the explanation panel (example sentence + strategy badge / common
+    // mistakes) after a short beat. Show it on every answer, correct or wrong,
+    // even when no example sentence is available, so the strategy hint always
+    // surfaces.
     Future.delayed(const Duration(milliseconds: 1200), () {
       if (!mounted) return;
-      setState(() => _showContext = challenge.contextSentence != null);
+      setState(() => _showContext = true);
     });
 
     Future.delayed(const Duration(milliseconds: 2500), () {
@@ -440,7 +450,11 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
                 const SizedBox(height: 16),
                 if (_showContext && challenge.contextSentence != null)
                   _buildContext(challenge),
-                if (_showContext && _feedbackState == _FeedbackState.correct) ...[
+                // Show the spelling-strategy explanation after BOTH correct and
+                // wrong answers — the pedagogical hint matters most right after
+                // a mistake.
+                if (_showContext &&
+                    _feedbackState != _FeedbackState.none) ...[
                   const SizedBox(height: 8),
                   SpellingStrategyBadge(word: challenge.word),
                   if (!_isDE) ...[
@@ -579,6 +593,7 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
     Widget tile = AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       width: double.infinity,
+      constraints: const BoxConstraints(minHeight: 48),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
         color: bgColor,
@@ -606,12 +621,18 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
       ),
     );
 
-    if (!hasAnswered) {
-      tile = GestureDetector(
-        onTap: () => _handleTap(index),
-        child: tile,
-      );
-    }
+    // a11y: expose each option as a button (≥48dp tap target enforced above).
+    tile = Semantics(
+      button: true,
+      enabled: !hasAnswered,
+      label: option,
+      child: hasAnswered
+          ? tile
+          : GestureDetector(
+              onTap: () => _handleTap(index),
+              child: tile,
+            ),
+    );
 
     if (hasAnswered && isCorrect && _feedbackState == _FeedbackState.correct) {
       tile = ScaleTransition(scale: _pulseAnimation, child: tile);
@@ -651,9 +672,11 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
         children: [
           const Icon(Icons.error_outline, size: 12, color: Colors.white38),
           const SizedBox(width: 6),
-          Text(
-            'Common mistakes: ${topErrors.join(" • ")}',
-            style: const TextStyle(color: Colors.white54, fontSize: 11),
+          Flexible(
+            child: Text(
+              _s.spellingSpotterCommonMistakes(topErrors.join(' • ')),
+              style: const TextStyle(color: Colors.white54, fontSize: 11),
+            ),
           ),
         ],
       ),

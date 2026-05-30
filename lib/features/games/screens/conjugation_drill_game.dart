@@ -327,11 +327,12 @@ class _ConjugationDrillGameState extends State<ConjugationDrillGame>
   }
 
   Widget _buildEmptyState() {
-    return const Center(
+    final s = S.of(context)!;
+    return Center(
       child: Padding(
-        padding: EdgeInsets.all(24),
+        padding: const EdgeInsets.all(24),
         child: Text(
-          'Keine Konjugationsdaten für diese Stufe verfügbar.',
+          s.conjugationDrillNoData,
           textAlign: TextAlign.center,
         ),
       ),
@@ -362,6 +363,7 @@ class _ConjugationDrillGameState extends State<ConjugationDrillGame>
   }
 
   Widget _buildHeader() {
+    final s = S.of(context)!;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
@@ -375,12 +377,12 @@ class _ConjugationDrillGameState extends State<ConjugationDrillGame>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Konjugations-Drill',
+                  s.conjugationDrillTitle,
                   style: SpaceTheme.titleStyle
                       .copyWith(color: SpaceTheme.starYellow),
                 ),
                 Text(
-                  '$_correct von ${_index + 1} richtig',
+                  s.gameCorrectOfTotal(_correct, _total),
                   style:
                       SpaceTheme.bodyStyle.copyWith(color: Colors.white60),
                 ),
@@ -418,6 +420,7 @@ class _ConjugationDrillGameState extends State<ConjugationDrillGame>
   }
 
   Widget _buildVerbCard(_ConjugationChallenge challenge) {
+    final s = S.of(context)!;
     return AnimatedBuilder(
       animation: _shakeCtrl,
       builder: (_, child) => Transform.translate(
@@ -455,7 +458,7 @@ class _ConjugationDrillGameState extends State<ConjugationDrillGame>
         child: Column(
           children: [
             Text(
-              'Wie lautet die Präsensform?',
+              s.conjugationDrillPrompt,
               style: SpaceTheme.bodyStyle.copyWith(
                 color: Colors.white60,
                 fontSize: 13,
@@ -543,21 +546,29 @@ class _ConjugationDrillGameState extends State<ConjugationDrillGame>
             hasAnswered && isCorrect ? 1.0 + (_pulseCtrl.value * 0.04) : 1.0,
         child: child,
       ),
-      child: GestureDetector(
-        onTap: hasAnswered ? null : () => _handleTap(index),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: border, width: 1.5),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            challenge.options[index],
-            style: TextStyle(
-                color: text, fontSize: 17, fontWeight: FontWeight.w600),
-            textAlign: TextAlign.center,
+      child: Semantics(
+        button: true,
+        enabled: !hasAnswered,
+        label: challenge.options[index],
+        child: GestureDetector(
+          onTap: hasAnswered ? null : () => _handleTap(index),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 48, minWidth: 48),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              decoration: BoxDecoration(
+                color: bg,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: border, width: 1.5),
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                challenge.options[index],
+                style: TextStyle(
+                    color: text, fontSize: 17, fontWeight: FontWeight.w600),
+                textAlign: TextAlign.center,
+              ),
+            ),
           ),
         ),
       ),

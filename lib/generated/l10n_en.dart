@@ -2510,4 +2510,151 @@ class SEn extends S {
   String wordSortExplainAdjQuality(String word) {
     return '✓ Adjective: $word → describes a quality';
   }
+
+  @override
+  String wordTypeWhirlSemanticsLevel(int level) {
+    return 'Level $level';
+  }
+
+  @override
+  String wordTypeWhirlSemanticsRound(int round, int total) {
+    return 'Round $round of $total';
+  }
+
+  @override
+  String wordTypeWhirlSemanticsStreak(int streak) {
+    return 'Streak: $streak';
+  }
+
+  @override
+  String wordTypeWhirlSemanticsTime(int seconds) {
+    return 'Time: $seconds seconds';
+  }
+
+  @override
+  String wordTypeWhirlSemanticsGems(int gems) {
+    return 'Gems: $gems';
+  }
+
+  @override
+  String wordTypeWhirlSemanticsWord(String word) {
+    return 'Word $word';
+  }
+
+  @override
+  String wordTypeWhirlSemanticsTapHint(String wordType) {
+    return 'Tap if it is a $wordType';
+  }
+
+  @override
+  String get wordFindPluralLabel => 'Plural';
+
+  @override
+  String get wordFindVerbFormInfinitive => 'Infinitive';
+
+  @override
+  String get wordFindVerbFormFinite => 'finite';
+
+  @override
+  String get wordFindVerbFormParticiple => 'Participle';
+
+  @override
+  String get translationFlashNoData =>
+      'No translation data available for this level.';
+
+  @override
+  String get translationFlashPrompt => 'In English …';
+
+  @override
+  String translationFlashCorrectCount(int count) {
+    return '$count correct';
+  }
+
+  @override
+  String get translationFlashOnboardingTap =>
+      'A German word appears — tap the correct English translation quickly.';
+
+  @override
+  String translationFlashOnboardingTimer(int seconds) {
+    return 'You have $seconds seconds. The more correct answers, the better your score.';
+  }
+
+  @override
+  String get expressionFlashOnboardingTap =>
+      'An idiom appears with a gap — tap the missing word.';
+
+  @override
+  String get expressionFlashOnboardingTimer =>
+      'You have 30 seconds. Know your idioms!';
+
+  @override
+  String get expressionFlashEmpty => 'No idioms available for this level.';
+
+  @override
+  String expressionFlashCorrectCount(int n) {
+    return '$n correct';
+  }
+
+  @override
+  String get expressionFlashLabel => 'Idiom';
+
+  @override
+  String get expressionFlashBlankHint => 'Gap — find the missing word';
+
+  @override
+  String get proverbClozeOnboardingBody =>
+      'A proverb appears with a gap — tap the correct word.';
+
+  @override
+  String proverbClozeOnboardingTimer(int seconds) {
+    return '$seconds seconds — as many proverbs as you can!';
+  }
+
+  @override
+  String get proverbClozeEmpty => 'No proverb data available for this level.';
+
+  @override
+  String proverbClozeCorrectCount(int count) {
+    return '$count correct';
+  }
+
+  @override
+  String get proverbClozeLabel => 'Proverb';
+
+  @override
+  String get conjugationDrillPrompt => 'What is the present-tense form?';
+
+  @override
+  String get conjugationDrillNoData =>
+      'No conjugation data available for this level.';
+
+  @override
+  String grossschreibSemLevel(int level) {
+    return 'Level $level';
+  }
+
+  @override
+  String grossschreibSemScore(int score) {
+    return 'Points: $score';
+  }
+
+  @override
+  String grossschreibSemProgress(int done, int total) {
+    return 'Progress: $done of $total';
+  }
+
+  @override
+  String grossschreibSemCombo(int combo) {
+    return 'Combo times $combo';
+  }
+
+  @override
+  String grossschreibSemWord(String word) {
+    return 'Word: $word. Tap to change the spelling.';
+  }
+
+  @override
+  String spellingSpotterCommonMistakes(String errors) {
+    return 'Common mistakes: $errors';
+  }
 }
