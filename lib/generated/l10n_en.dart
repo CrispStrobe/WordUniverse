@@ -2657,4 +2657,37 @@ class SEn extends S {
   String spellingSpotterCommonMistakes(String errors) {
     return 'Common mistakes: $errors';
   }
+
+  @override
+  String get skillLabelSpelling => 'Spelling';
+
+  @override
+  String get skillLabelArticle => 'Article';
+
+  @override
+  String get skillLabelPlural => 'Plural';
+
+  @override
+  String get skillLabelWordType => 'Word type';
+
+  @override
+  String get skillLabelSentence => 'Sentence';
+
+  @override
+  String get skillLabelPunctuation => 'Punctuation';
+
+  @override
+  String get skillLabelCapitalization => 'Capitalization';
+
+  @override
+  String get skillLabelConjugation => 'Conjugation';
+
+  @override
+  String get skillLabelCase => 'Case';
+
+  @override
+  String get skillLabelVocabulary => 'Vocabulary';
+
+  @override
+  String get skillLabelReading => 'Reading';
 }

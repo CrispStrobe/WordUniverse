@@ -4570,6 +4570,72 @@ abstract class S {
   /// In en, this message translates to:
   /// **'Common mistakes: {errors}'**
   String spellingSpotterCommonMistakes(String errors);
+
+  /// No description provided for @skillLabelSpelling.
+  ///
+  /// In en, this message translates to:
+  /// **'Spelling'**
+  String get skillLabelSpelling;
+
+  /// No description provided for @skillLabelArticle.
+  ///
+  /// In en, this message translates to:
+  /// **'Article'**
+  String get skillLabelArticle;
+
+  /// No description provided for @skillLabelPlural.
+  ///
+  /// In en, this message translates to:
+  /// **'Plural'**
+  String get skillLabelPlural;
+
+  /// No description provided for @skillLabelWordType.
+  ///
+  /// In en, this message translates to:
+  /// **'Word type'**
+  String get skillLabelWordType;
+
+  /// No description provided for @skillLabelSentence.
+  ///
+  /// In en, this message translates to:
+  /// **'Sentence'**
+  String get skillLabelSentence;
+
+  /// No description provided for @skillLabelPunctuation.
+  ///
+  /// In en, this message translates to:
+  /// **'Punctuation'**
+  String get skillLabelPunctuation;
+
+  /// No description provided for @skillLabelCapitalization.
+  ///
+  /// In en, this message translates to:
+  /// **'Capitalization'**
+  String get skillLabelCapitalization;
+
+  /// No description provided for @skillLabelConjugation.
+  ///
+  /// In en, this message translates to:
+  /// **'Conjugation'**
+  String get skillLabelConjugation;
+
+  /// No description provided for @skillLabelCase.
+  ///
+  /// In en, this message translates to:
+  /// **'Case'**
+  String get skillLabelCase;
+
+  /// No description provided for @skillLabelVocabulary.
+  ///
+  /// In en, this message translates to:
+  /// **'Vocabulary'**
+  String get skillLabelVocabulary;
+
+  /// No description provided for @skillLabelReading.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading'**
+  String get skillLabelReading;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

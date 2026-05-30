@@ -210,6 +210,15 @@ class VocabularyService with ChangeNotifier {
     return _dbSources.containsKey(language) ? language : 'de';
   }
 
+  /// Persist the chosen learning language WITHOUT re-initializing. Used when the
+  /// splash falls back to English after the user declines the one-time German
+  /// download, so the choice sticks and we don't re-prompt next launch.
+  Future<void> rememberLearningLanguage(String language) async {
+    if (!_dbSources.containsKey(language)) return;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_learningLanguageKey, language);
+  }
+
   Future<void> setLearningLanguage(String language) async {
     if (!_dbSources.containsKey(language)) {
       throw ArgumentError.value(

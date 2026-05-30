@@ -469,15 +469,23 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
         // DB (GPL-3.0, intentionally not bundled — see db_remote.dart) is
         // fetched here; ask the user first, once, when it isn't yet cached.
         final dl = await vocab.remoteDownloadInfo();
+        String? forceLanguage;
         if (dl.consentRequired && mounted) {
           final approved = await _confirmDatabaseDownload(s, dl.compressedBytes);
           if (approved != true) {
-            // Surface the existing retry dialog with a clear message.
-            throw StateError(s.downloadDbDeclined);
+            // Decline → don't fail app load. Fall back to the bundled English
+            // DB (no download) and remember the choice so we don't re-prompt.
+            // German can be enabled later in Settings (which re-triggers the
+            // download).
+            forceLanguage = 'en';
+            await vocab.rememberLearningLanguage('en');
           }
         }
         if (mounted) {
           await vocab.initialize(
+            // null → the saved/default language (German, now approved → downloads);
+            // 'en' → the bundled English DB after a declined German download.
+            learningLanguage: forceLanguage,
             onProgress: (vocabProgress, vocabMessage) {
               // Map vocabulary progress (0.0-1.0) to overall progress (0.0-0.6)
               final overallProgress = vocabProgress * 0.6;

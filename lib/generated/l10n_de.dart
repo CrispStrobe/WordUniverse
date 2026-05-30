@@ -2687,4 +2687,37 @@ class SDe extends S {
   String spellingSpotterCommonMistakes(String errors) {
     return 'Häufige Fehler: $errors';
   }
+
+  @override
+  String get skillLabelSpelling => 'Rechtschreibung';
+
+  @override
+  String get skillLabelArticle => 'Artikel';
+
+  @override
+  String get skillLabelPlural => 'Plural';
+
+  @override
+  String get skillLabelWordType => 'Wortart';
+
+  @override
+  String get skillLabelSentence => 'Satzbau';
+
+  @override
+  String get skillLabelPunctuation => 'Zeichensetzung';
+
+  @override
+  String get skillLabelCapitalization => 'Großschreibung';
+
+  @override
+  String get skillLabelConjugation => 'Konjugation';
+
+  @override
+  String get skillLabelCase => 'Fall';
+
+  @override
+  String get skillLabelVocabulary => 'Wortschatz';
+
+  @override
+  String get skillLabelReading => 'Lesen';
 }

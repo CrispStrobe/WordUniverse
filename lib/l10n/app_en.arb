@@ -1939,5 +1939,16 @@
                 "type": "String"
             }
         }
-    }
+    },
+    "skillLabelSpelling": "Spelling",
+    "skillLabelArticle": "Article",
+    "skillLabelPlural": "Plural",
+    "skillLabelWordType": "Word type",
+    "skillLabelSentence": "Sentence",
+    "skillLabelPunctuation": "Punctuation",
+    "skillLabelCapitalization": "Capitalization",
+    "skillLabelConjugation": "Conjugation",
+    "skillLabelCase": "Case",
+    "skillLabelVocabulary": "Vocabulary",
+    "skillLabelReading": "Reading"
 }
