@@ -545,7 +545,18 @@ Wikipedia/Britannica mobile apps, with GPL on the DE data blob.
       `pipeline/build_hf_datasets.py --upload`.
       **Remaining for store submission**: link both dataset URLs from the in-app
       license screen.
-- [ ] Verify the eventual App Store EULA does NOT restrict extracting the DB blobs.
+- [x] **App Store marketing icon** — 1024×1024, square, alpha removed
+      (`remove_alpha_ios` + deep-space `background_color_ios`), opaque
+      (`hasAlpha: no`). **DONE 2026-05-30**. App Store Connect rejects icons with
+      transparency; the source had an alpha channel before this.
+- [x] **GPL German DB not bundled in the store binary** — downloaded on first
+      launch from the HF dataset with a size-disclosing consent prompt (Apple
+      §2.4.2/§4.2.3); declining falls back to the bundled CC-BY-SA English DB.
+      This is the clean fix for the GPL-3.0-vs-Apple (FairPlay DRM) conflict —
+      Apple never distributes the GPL blob. **DONE 2026-05-30**.
+- [ ] Verify the eventual App Store EULA does NOT restrict extracting the DB blobs
+      (the in-app `DATA_LICENSE.md` carve-out already exempts both blobs; the
+      open item is the *store's* standard EULA — see §8.2 analysis).
 
 ### 8.4 What we are NOT required to publish
 

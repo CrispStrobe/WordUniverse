@@ -52,6 +52,11 @@
   refactor touching ~20 files at once, with regression risk that outweighs the
   maintainability gain at this point. Best done as its own focused effort with
   the games stable. Documented as optional.
+- **2026-05-30 — post-sweep follow-ups (separate from the game findings):**
+  declined-German-download now falls back to the bundled English DB instead of
+  failing app load; Karteikasten skill badges localized; App Store icon
+  alpha-flattened; CI auto-deploy to Vercel wired (see root `PLAN.md` #41–#45
+  and `README.md → Deploying`).
 
 ---
 
