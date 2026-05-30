@@ -54,3 +54,6 @@ pipeline/**/*.db
 pipeline/**/vornamen/
 pipeline/**/sources/vornamen/
 scripts/
+
+# HF dataset upload bundles (regenerate via pipeline/build_hf_datasets.py)
+pipeline/hf_export/

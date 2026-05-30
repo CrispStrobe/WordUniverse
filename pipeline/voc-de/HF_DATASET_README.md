@@ -39,12 +39,13 @@ configs:
 
 # WortUniversum German Vocabulary Database
 
-> Status: **draft** — this README is prepared for an eventual upload to
-> Hugging Face Datasets as `cstr/grundwortschatz-voc-de` (or similar).
-> Not yet uploaded. The shipped SQLite asset lives at
+> Status: **upload bundle ready, not yet pushed.** Target repo:
+> `cstr/grundwortschatz-voc-de`. The shipped SQLite asset lives at
 > `assets/grundwortschatz.db.gz` in the
 > [WortUniversum / words-universe](https://github.com/CrispStrobe/words-universe)
 > repository; this dataset is its CC-BY-SA→GPL-3.0 re-distribution form.
+> Build the bundle (this card as `README.md` + parquet splits + `.db.gz`) and
+> push it with `pipeline/build_hf_datasets.py [--upload]` (needs a HF write token).
 
 ## Dataset summary
 
@@ -156,28 +157,37 @@ translations. Backed by `words` table content (`content=words`).
   "openThesaurus": [{"synonyms": [...], "associations": [...], "categories": [...]}, …],
   "wiktionary_translations": [{"lang": "Englisch", "word": "mother", …}, …],
 
-  "spellingStrategy":          ["doppelkonsonant", "grossschreibung", "klangtreu", "verwandt"],
-  "spellingStrategyPrimary":   "grossschreibung",
-  "spellingPatterns":          ["basisgraphem", "grossschreibung", "morphem", "orthographem"],
-  "spellingPatternsPrimary":   "grossschreibung",
-  "spellingStrategySource":    "nrw_derived",
+  "spellingStrategy":          ["doppelkonsonant", "grossschreibung"],
+  "spellingStrategyPrimary":   "doppelkonsonant",
+  "spellingExplanation":       "Nach einem kurzen Selbstlaut steht der doppelte Mitlaut zwischen den Silben: „Mut-ter". Du hörst ihn nur einmal.",
+  "spellingStrategySource":    "principle_based_v3",
   "nrwLinguisticFeatures":     ["Artikel.die", "morphematisches Prinzip.Umlautung.ü", …],
   "commonLearnerErrors":       [{"error": "Mütterr", "source": "wiki_haeufige_falschschreibungen"}]
 }
 ```
 
-Spelling-pattern taxonomies:
+Spelling-strategy taxonomy (science-grounded — see
+`pipeline/voc-de/SPELLING_STRATEGY_SPEC.md`):
 
-- **`spellingStrategy`** — 6 fine-grained labels: `klangtreu` (regular phoneme-grapheme),
-  `doppelkonsonant`, `verwandt` (morphological derivation), `merkwort` (irregular),
-  `morphem` (compound/prefix), `grossschreibung`.
-- **`spellingPatterns`** — 5 broad labels (one-way collapse of the 6-cat scheme):
-  `basisgraphem`, `orthographem`, `morphem`, `merkwort`, `grossschreibung`.
+- **`spellingStrategy`** / **`spellingStrategyPrimary`** — one or more of **7**
+  neutral linguistic categories, each mapping to an orthographic principle of
+  German (Eisenberg/Fuhrhop, Maas, Gallmann, Schmidt/Fuhrhop, the amtliches
+  Regelwerk, and Günther Thomé's Basisgrapheme-vs-Orthographeme inventory):
+  `klangtreu` (phonographisch / Basisgraphem), `doppelkonsonant` (Schärfung —
+  all short-vowel doublings, `Tasse`=`Mann`), `dehnung` (long-vowel marking:
+  Dehnungs-h, aa/ee/oo, ie, silbentrennendes-h), `verwandt` (Stammkonstanz:
+  Auslautverhärtung + Umlaut), `morphem` (prefix/suffix/separable particle/noun
+  compound), `merkwort` (etymological exception: v→[f], ch→[k]),
+  `grossschreibung` (nouns).
+- **`spellingExplanation`** — a per-word German explanation of the strategy
+  (e.g. „Verlängere: Mann → Männer"; „zusammengesetzt: Haus + Tür"), with a
+  category template fallback.
 
-Both taxonomies are derived algorithmically from the NRW Grundwortschatz
-xlsx feature taxonomy (`spellingStrategySource: "nrw_derived"`, 463
-words) or from a surface-heuristic fallback (`spellingStrategySource:
-"fallback_heuristic"`, 9987 words).
+Derived algorithmically from each word's own enrichment (hyphenation,
+inflections, IPA) by `spelling_strategy_classifier.py`
+(`spellingStrategySource: "principle_based_v3"`). The `nrwLinguisticFeatures`
+field is kept as provenance. (The earlier worksheet-fitted taxonomy and its
+`spellingPatterns` dual view were removed.)
 
 #### `metadata_json`
 

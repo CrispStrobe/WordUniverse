@@ -535,10 +535,17 @@ Wikipedia/Britannica mobile apps, with GPL on the DE data blob.
 - [x] `DATA_LICENSE.md` at repo root — dual-license stance, DE GPL-3.0 / EN CC-BY-SA-4.0.
 - [x] Repo README note linking to `DATA_LICENSE.md`.
 - [x] In-app License screen carries every source incl. childLex GPL-3.0 + the GPL-3.0 DB posture.
-- [ ] Upload the DBs as HF datasets with matching license tags:
+- [~] Upload the DBs as HF datasets with matching license tags:
       **`cstr/grundwortschatz-voc-de` (GPL-3.0)** and
       **`cstr/grundwortschatz-voc-en` (CC-BY-SA-4.0)**, each with full
-      attribution + "Changes made" in the dataset README. *(user action — HF account)*
+      attribution + "Changes made" in the dataset README.
+      **Bundle prepped 2026-05-30** — dataset cards (`*/HF_DATASET_README.md`)
+      carry the YAML front matter (license, parquet splits) and the build/upload
+      script is `pipeline/build_hf_datasets.py`: it exports the parquet splits
+      (words/translations/examples [+ phrasal_verbs/false_friends for EN]),
+      stages the card as `README.md` and the `.db.gz`, and pushes with `--upload`.
+      *(remaining: you run it with a HF write token — `~/miniconda3/bin/python
+      pipeline/build_hf_datasets.py --upload`)*
 - [ ] Verify the eventual App Store EULA does NOT restrict extracting the DB blobs.
 
 ### 8.4 What we are NOT required to publish
