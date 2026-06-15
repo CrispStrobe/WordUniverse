@@ -8,7 +8,7 @@ import '../models/vocabulary_models.dart';
 // --- CONDITIONAL IMPORT SWITCHER ---
 import 'db_platform/db_platform_interface.dart'
     if (dart.library.io) 'db_platform/db_platform_mobile.dart'
-    if (dart.library.html) 'db_platform/db_platform_web.dart';
+    if (dart.library.js_interop) 'db_platform/db_platform_web.dart';
 
 class DictionaryDatabaseService {
   static final DictionaryDatabaseService _instance =

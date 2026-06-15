@@ -37,7 +37,7 @@ dependencies:
   package_info_plus: ^8.0.0
   http: ^1.2.1
   crypto: ^3.0.3
-  sqflite_common_ffi_web: ^0.4.3
+  sqflite_common_ffi_web: ^1.0.0
   archive: ^4.0.0
 
   # Development
