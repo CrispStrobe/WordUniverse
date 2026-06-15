@@ -129,7 +129,7 @@ build_flutter() {
     fi
     
     # Build the app
-    if flutter build web --release; then
+    if flutter build web --wasm; then
         print_success "Flutter build completed successfully"
     else
         print_error "Flutter build failed"
