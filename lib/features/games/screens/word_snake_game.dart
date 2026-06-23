@@ -663,6 +663,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
             child: Text(s.backToMenu),
           ),
           ElevatedButton(
+            autofocus: true,
             onPressed: () {
               Navigator.of(context).pop();
               _loadLevel();

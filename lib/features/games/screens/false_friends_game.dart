@@ -204,6 +204,7 @@ class _FalseFriendsGameState extends State<FalseFriendsGame>
             child: Text(s.gameBack),
           ),
           ElevatedButton(
+            autofocus: true,
             onPressed: () {
               Navigator.of(ctx).pop();
               _buildChallenges();

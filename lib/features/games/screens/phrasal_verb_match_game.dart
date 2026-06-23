@@ -210,6 +210,7 @@ class _PhrasalVerbMatchGameState extends State<PhrasalVerbMatchGame>
             child: Text(s.gameBack),
           ),
           ElevatedButton(
+            autofocus: true,
             onPressed: () {
               Navigator.of(ctx).pop();
               _buildChallenges();

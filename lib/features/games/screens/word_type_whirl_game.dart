@@ -821,6 +821,7 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
         ),
         actions: [
           TextButton(
+            autofocus: true,
             onPressed: () {
               Navigator.of(context).pop();
               Navigator.of(context).pop();

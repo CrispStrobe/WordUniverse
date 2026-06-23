@@ -65,6 +65,7 @@ class _DebugPanelState extends State<DebugPanel> {
               _buildGameCheckboxList(),
               const SizedBox(height: 24),
               ElevatedButton.icon(
+                autofocus: true,
                 icon: const Icon(Icons.check),
                 onPressed: () {
                   final gp = context.read<GameProvider>();

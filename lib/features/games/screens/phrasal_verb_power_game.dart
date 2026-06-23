@@ -222,6 +222,7 @@ class _PhrasalVerbPowerGameState extends State<PhrasalVerbPowerGame>
             child: Text(s.gameBack),
           ),
           ElevatedButton(
+            autofocus: true,
             onPressed: () {
               Navigator.of(ctx).pop();
               _buildChallenges();

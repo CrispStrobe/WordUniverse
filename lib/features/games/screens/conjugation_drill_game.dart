@@ -296,6 +296,7 @@ class _ConjugationDrillGameState extends State<ConjugationDrillGame>
             child: Text(s.backToMenu),
           ),
           ElevatedButton(
+            autofocus: true,
             onPressed: () {
               Navigator.of(ctx).pop();
               _buildChallenges();

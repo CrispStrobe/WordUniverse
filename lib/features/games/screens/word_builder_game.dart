@@ -576,6 +576,7 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
         ),
         actions: [
           TextButton(
+            autofocus: true,
             onPressed: () {
               Navigator.of(context).pop();
               _loadLevel();

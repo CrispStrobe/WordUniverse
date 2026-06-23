@@ -49,6 +49,7 @@ class PurchaseDialog extends StatelessWidget {
         child: Text(s.restorePurchases, style: const TextStyle(color: SpaceTheme.moonSilver)),
       ),
       ElevatedButton(
+        autofocus: true,
         onPressed: service.buyProduct,
         style: SpaceTheme.primaryButtonStyle.copyWith(
           backgroundColor: WidgetStateProperty.all(SpaceTheme.alienGreen),

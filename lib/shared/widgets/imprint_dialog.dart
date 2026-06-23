@@ -92,6 +92,7 @@ class ImprintDialog extends StatelessWidget {
                 const SizedBox(height: 16),
                 Center(
                   child: ElevatedButton(
+                    autofocus: true,
                     onPressed: () => Navigator.of(context).pop(),
                     style: SpaceTheme.primaryButtonStyle,
                     child: Text(s.close),

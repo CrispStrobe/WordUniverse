@@ -74,7 +74,8 @@ class _ParentalGateDialogState extends State<ParentalGateDialog> {
             child: Text(s.cancel) // Use existing 'cancel' key
         ),
         ElevatedButton(
-            onPressed: _checkAnswer, 
+            autofocus: true,
+            onPressed: _checkAnswer,
             child: Text(s.confirm) // Localized
         ),
       ],

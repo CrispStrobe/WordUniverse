@@ -571,6 +571,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
             ),
             actions: [
               TextButton(
+                autofocus: true,
                 onPressed: () {
                   Navigator.of(context).pop();
                   // Retry initialization
@@ -622,6 +623,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
             child: Text(s.downloadDbCancel, style: SpaceTheme.bodyStyle),
           ),
           TextButton(
+            autofocus: true,
             onPressed: () => Navigator.of(ctx).pop(true),
             child: Text(
               s.downloadDbConfirm,

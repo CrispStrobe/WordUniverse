@@ -731,6 +731,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
             child: Text(_s.backToMenu),
           ),
           ElevatedButton(
+            autofocus: true,
             onPressed: () {
               Navigator.of(context).pop();
               _loadLevel();

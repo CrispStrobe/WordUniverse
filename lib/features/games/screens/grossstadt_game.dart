@@ -684,6 +684,7 @@ class _GrossstadtGameState extends State<GrossstadtGame>
         ),
         actions: [
           TextButton(
+            autofocus: true,
             onPressed: () {
               Navigator.pop(context);
               _loadLevel();

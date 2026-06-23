@@ -416,6 +416,7 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
         ),
         actions: [
           TextButton(
+            autofocus: true,
             onPressed: () {
               Navigator.pop(context);
               _loadLevel();
