@@ -645,6 +645,7 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
         ),
         actions: [
           TextButton(
+            autofocus: true,
             onPressed: () {
               Navigator.pop(context);
               _loadLevel();

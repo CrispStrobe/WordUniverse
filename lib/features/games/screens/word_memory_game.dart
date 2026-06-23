@@ -368,6 +368,7 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
         ),
         actions: [
           TextButton(
+            autofocus: true,
             onPressed: () {
               Navigator.of(context).pop();
               _loadLevel();

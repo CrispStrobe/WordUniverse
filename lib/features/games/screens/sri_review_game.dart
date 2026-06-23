@@ -409,6 +409,7 @@ class _SriReviewGameState extends State<SriReviewGame>
             child: Text(_s.backToMenu),
           ),
           ElevatedButton(
+            autofocus: true,
             onPressed: () {
               Navigator.of(ctx).pop();
               _buildChallenges();

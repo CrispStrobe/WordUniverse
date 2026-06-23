@@ -38,6 +38,7 @@ class _ManageSetsDialogState extends State<ManageSetsDialog> {
             onPressed: () => Navigator.of(context).pop(false),
           ),
           ElevatedButton(
+            autofocus: true,
             style: ElevatedButton.styleFrom(backgroundColor: SpaceTheme.rocketRed),
             child: Text(s.customSetDelete, style: TextStyle(color: Colors.white)),
             onPressed: () => Navigator.of(context).pop(true),
@@ -149,6 +150,7 @@ class _ManageSetsDialogState extends State<ManageSetsDialog> {
               onPressed: () => Navigator.of(context).pop(),
             ),
             ElevatedButton.icon(
+              autofocus: true,
               icon: Icon(Icons.add_circle),
               label: Text(s.customSetCreateTitle),
               style: ElevatedButton.styleFrom(backgroundColor: SpaceTheme.alienGreen),

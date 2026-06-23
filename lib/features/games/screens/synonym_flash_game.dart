@@ -376,6 +376,7 @@ class _SynonymFlashGameState extends State<SynonymFlashGame>
             child: Text(_s.backToMenu),
           ),
           ElevatedButton(
+            autofocus: true,
             onPressed: () {
               Navigator.of(ctx).pop();
               _buildChallenges();

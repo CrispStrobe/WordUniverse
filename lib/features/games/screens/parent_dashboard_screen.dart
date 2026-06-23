@@ -273,6 +273,7 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
                 child: Text(s.cancel),
               ),
               TextButton(
+                autofocus: true,
                 onPressed: () {
                   if (pinController.text.length != 4) {
                     setSt(() => err = s.parentPinRequireFour);

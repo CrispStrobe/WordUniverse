@@ -405,6 +405,7 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
             child: Text(_s.backToMenu),
           ),
           ElevatedButton(
+            autofocus: true,
             onPressed: () {
               Navigator.of(ctx).pop();
               _buildChallenges();

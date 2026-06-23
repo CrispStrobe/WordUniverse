@@ -343,6 +343,7 @@ class _SyllableCountGameState extends State<SyllableCountGame>
             child: Text(_s.backToMenu),
           ),
           ElevatedButton(
+            autofocus: true,
             onPressed: () {
               Navigator.of(ctx).pop();
               _buildChallenges();

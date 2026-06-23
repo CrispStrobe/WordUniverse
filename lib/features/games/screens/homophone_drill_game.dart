@@ -248,6 +248,7 @@ class _HomophoneDrillGameState extends State<HomophoneDrillGame>
             child: Text(s.gameBack),
           ),
           ElevatedButton(
+            autofocus: true,
             onPressed: () {
               Navigator.of(ctx).pop();
               _buildChallenges();

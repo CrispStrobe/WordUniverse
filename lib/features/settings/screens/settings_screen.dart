@@ -1741,6 +1741,7 @@ class _SettingsScreenState extends State<SettingsScreen>
             ),
           ),
           ElevatedButton(
+            autofocus: true,
             onPressed: () {
               if (kDebugMode) debugPrint("[SETTINGS] 🔄 User chose to restart now");
               Navigator.of(context).pop();
@@ -1902,6 +1903,7 @@ class _SettingsScreenState extends State<SettingsScreen>
             ),
           ),
           ElevatedButton(
+            autofocus: true,
             onPressed: () {
               if (kDebugMode) debugPrint("[SETTINGS] 🗑️ Resetting all game progress");
               context.read<GameProvider>().resetGame();

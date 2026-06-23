@@ -455,6 +455,7 @@ class _ProverbClozeGameState extends State<ProverbClozeGame>
             child: Text(_s.backToMenu),
           ),
           ElevatedButton(
+            autofocus: true,
             onPressed: () {
               Navigator.of(ctx).pop();
               _buildChallenges();

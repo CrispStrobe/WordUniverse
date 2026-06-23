@@ -590,6 +590,7 @@ class _WordFindGameState extends State<WordFindGame> {
             child: Text(s.backToMenu),
           ),
           ElevatedButton(
+            autofocus: true,
             onPressed: () {
               Navigator.of(context).pop();
               _loadLevel();

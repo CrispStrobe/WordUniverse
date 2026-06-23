@@ -526,6 +526,7 @@ class _VerbtrennerGameState extends State<VerbtrennerGame>
         content: Text('${s.gameScore}: $_score', style: SpaceTheme.bodyStyle),
         actions: [
           TextButton(
+            autofocus: true,
             onPressed: () {
               Navigator.pop(context);
               _loadLevel();

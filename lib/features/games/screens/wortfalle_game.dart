@@ -187,6 +187,7 @@ class _WortfalleGameState extends State<WortfalleGame>
             child: Text(s.gameBack),
           ),
           ElevatedButton(
+            autofocus: true,
             onPressed: () {
               Navigator.of(ctx).pop();
               _build();

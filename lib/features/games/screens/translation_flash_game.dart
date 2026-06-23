@@ -371,6 +371,7 @@ class _TranslationFlashGameState extends State<TranslationFlashGame>
             child: Text(_s.backToMenu),
           ),
           ElevatedButton(
+            autofocus: true,
             onPressed: () {
               Navigator.of(ctx).pop();
               _buildChallenges();
