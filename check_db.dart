@@ -37,7 +37,7 @@ void main() {
     print("❌ CRITICAL ERROR: $e");
     print(stack);
   } finally {
-    db.dispose();
+    db.close();
     print("\n----------------------------------------------------------------");
     print("✅  Tests Completed.");
     print("----------------------------------------------------------------");
