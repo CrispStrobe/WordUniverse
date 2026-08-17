@@ -153,9 +153,14 @@ jobs:
           codesign --verify --deep --strict --verbose=2 /tmp/ipa_check/Payload/Runner.app 2>&1 | tail -2
 
       - name: Upload IPA artifact
+        # Never let this sink the release. The artifact is a convenience copy;
+        # the App Store upload below is the point of the job, and it runs after.
+        # On 2026-08-17 a signed IPA was built correctly and the run still failed
+        # here with "Artifact storage quota has been hit", so Apple never saw it.
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
-          name: numbernebula-ipa
+          name: worduniverse-ipa
           path: build/ios/ipa/*.ipa
           if-no-files-found: error
 
