@@ -115,6 +115,228 @@ abstract class S {
   /// **'Start Word Adventure'**
   String get startAdventure;
 
+  /// No description provided for @onboardingWelcomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up your learning'**
+  String get onboardingWelcomeTitle;
+
+  /// No description provided for @onboardingWelcomeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose what you want to practise. You can change everything later in Settings.'**
+  String get onboardingWelcomeBody;
+
+  /// No description provided for @onboardingLearningLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'What do you want to learn?'**
+  String get onboardingLearningLanguage;
+
+  /// No description provided for @onboardingGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'What should practice focus on?'**
+  String get onboardingGoal;
+
+  /// No description provided for @onboardingStartBand.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a starting vocabulary band'**
+  String get onboardingStartBand;
+
+  /// No description provided for @onboardingDailyTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily practice time'**
+  String get onboardingDailyTime;
+
+  /// No description provided for @onboardingContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Prepare my learning plan'**
+  String get onboardingContinue;
+
+  /// No description provided for @goalBalanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Balanced'**
+  String get goalBalanced;
+
+  /// No description provided for @goalVocabulary.
+  ///
+  /// In en, this message translates to:
+  /// **'Vocabulary'**
+  String get goalVocabulary;
+
+  /// No description provided for @goalSpelling.
+  ///
+  /// In en, this message translates to:
+  /// **'Spelling'**
+  String get goalSpelling;
+
+  /// No description provided for @goalGrammar.
+  ///
+  /// In en, this message translates to:
+  /// **'Grammar'**
+  String get goalGrammar;
+
+  /// No description provided for @goalDafDaz.
+  ///
+  /// In en, this message translates to:
+  /// **'German as a foreign language'**
+  String get goalDafDaz;
+
+  /// No description provided for @dailySessionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Today’s learning plan'**
+  String get dailySessionTitle;
+
+  /// No description provided for @dailySessionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A focused session of about {minutes} minutes'**
+  String dailySessionSubtitle(int minutes);
+
+  /// No description provided for @dailyReviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review due words'**
+  String get dailyReviewTitle;
+
+  /// No description provided for @dailyReviewSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} words are ready for review'**
+  String dailyReviewSubtitle(int count);
+
+  /// No description provided for @dailyWarmupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Context warm-up'**
+  String get dailyWarmupTitle;
+
+  /// No description provided for @dailyWarmupSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Start with a short sentence exercise'**
+  String get dailyWarmupSubtitle;
+
+  /// No description provided for @dailyGoalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Practise your main goal'**
+  String get dailyGoalTitle;
+
+  /// No description provided for @dailyGoalSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'An exercise selected from your learning goal'**
+  String get dailyGoalSubtitle;
+
+  /// No description provided for @dailyContextTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Use words in context'**
+  String get dailyContextTitle;
+
+  /// No description provided for @dailyContextSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish with a sentence-completion challenge'**
+  String get dailyContextSubtitle;
+
+  /// No description provided for @dailyCompleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan complete'**
+  String get dailyCompleteTitle;
+
+  /// No description provided for @dailyCompleteSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'You answered {attempts} tracked items and mastered {mastered} new items during this plan.'**
+  String dailyCompleteSummary(int attempts, int mastered);
+
+  /// No description provided for @dailyPractiseMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Practise more'**
+  String get dailyPractiseMore;
+
+  /// No description provided for @browseAllGames.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse all games'**
+  String get browseAllGames;
+
+  /// No description provided for @focusMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Focus mode'**
+  String get focusMode;
+
+  /// No description provided for @focusModeDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Reduce decorative elements and keep learning actions prominent'**
+  String get focusModeDesc;
+
+  /// No description provided for @catalogRecommended.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended'**
+  String get catalogRecommended;
+
+  /// No description provided for @catalogFast.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick practice'**
+  String get catalogFast;
+
+  /// No description provided for @catalogFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Favourites'**
+  String get catalogFavorites;
+
+  /// No description provided for @catalogRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent'**
+  String get catalogRecent;
+
+  /// No description provided for @catalogAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All games'**
+  String get catalogAll;
+
+  /// No description provided for @catalogSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search games'**
+  String get catalogSearch;
+
+  /// No description provided for @catalogAddFavorite.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to favourites'**
+  String get catalogAddFavorite;
+
+  /// No description provided for @catalogRemoveFavorite.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from favourites'**
+  String get catalogRemoveFavorite;
+
+  /// No description provided for @catalogNoGames.
+  ///
+  /// In en, this message translates to:
+  /// **'No games match this view yet.'**
+  String get catalogNoGames;
+
   /// No description provided for @chooseGrade.
   ///
   /// In en, this message translates to:
@@ -810,25 +1032,25 @@ abstract class S {
   /// No description provided for @difficultyDescGrade3.
   ///
   /// In en, this message translates to:
-  /// **'Simple words (Grades 1-2)'**
+  /// **'Everyday words and spelling basics'**
   String get difficultyDescGrade3;
 
   /// No description provided for @difficultyDescGrade4.
   ///
   /// In en, this message translates to:
-  /// **'Common words (Grades 3-4)'**
+  /// **'Broader vocabulary and basic grammar'**
   String get difficultyDescGrade4;
 
   /// No description provided for @difficultyDescGrade5.
   ///
   /// In en, this message translates to:
-  /// **'Advanced words (Grades 5-6)'**
+  /// **'Advanced words, cases, and tenses'**
   String get difficultyDescGrade5;
 
   /// No description provided for @difficultyDescGrade6.
   ///
   /// In en, this message translates to:
-  /// **'Expert vocabulary (Grades 6+)'**
+  /// **'Challenging vocabulary and complex grammar'**
   String get difficultyDescGrade6;
 
   /// No description provided for @totalScore.
@@ -876,19 +1098,19 @@ abstract class S {
   /// No description provided for @targetAge.
   ///
   /// In en, this message translates to:
-  /// **'Target Age'**
+  /// **'Who It’s For'**
   String get targetAge;
 
   /// No description provided for @targetAgeRange.
   ///
   /// In en, this message translates to:
-  /// **'6-12 years (Grades 1-6)'**
+  /// **'German and English learners of different ages'**
   String get targetAgeRange;
 
   /// No description provided for @aboutApp.
   ///
   /// In en, this message translates to:
-  /// **'Word Universe helps primary school students learn spelling and vocabulary through engaging space-themed games.'**
+  /// **'Word Universe helps learners practise vocabulary, spelling, and grammar through engaging space-themed games.'**
   String get aboutApp;
 
   /// No description provided for @debugPanelTitle.
@@ -912,7 +1134,7 @@ abstract class S {
   /// No description provided for @parentalGateTitle.
   ///
   /// In en, this message translates to:
-  /// **'Parental Gate'**
+  /// **'Quick Check'**
   String get parentalGateTitle;
 
   /// No description provided for @parentalGateChallenge.
@@ -1608,7 +1830,7 @@ abstract class S {
   /// No description provided for @customSetTargetGrade.
   ///
   /// In en, this message translates to:
-  /// **'Target Grade'**
+  /// **'Target Level'**
   String get customSetTargetGrade;
 
   /// No description provided for @customSetAvailableWords.
@@ -2791,13 +3013,13 @@ abstract class S {
   /// No description provided for @parentDashboardTitle.
   ///
   /// In en, this message translates to:
-  /// **'Parent Overview'**
+  /// **'Learning insights'**
   String get parentDashboardTitle;
 
   /// No description provided for @parentDashboardSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Progress, PIN-protected'**
+  /// **'Detailed progress, optionally PIN-protected'**
   String get parentDashboardSubtitle;
 
   /// No description provided for @privacyTitle.
@@ -2869,7 +3091,7 @@ abstract class S {
   /// No description provided for @parentPinTitle.
   ///
   /// In en, this message translates to:
-  /// **'Parent PIN'**
+  /// **'Insights PIN'**
   String get parentPinTitle;
 
   /// No description provided for @parentPinHelp.
@@ -2893,7 +3115,7 @@ abstract class S {
   /// No description provided for @parentChangePin.
   ///
   /// In en, this message translates to:
-  /// **'Change parent PIN'**
+  /// **'Change insights PIN'**
   String get parentChangePin;
 
   /// No description provided for @parentChangePinDialogTitle.
@@ -3091,7 +3313,7 @@ abstract class S {
   /// No description provided for @wordSortOnboardingBuildingBlocks.
   ///
   /// In en, this message translates to:
-  /// **'Nouns, verbs and adjectives are the building blocks. Higher grades add adverbs and pronouns.'**
+  /// **'Nouns, verbs and adjectives are the building blocks. Higher levels add adverbs and pronouns.'**
   String get wordSortOnboardingBuildingBlocks;
 
   /// No description provided for @wordSortOnboardingHints.
@@ -3247,7 +3469,7 @@ abstract class S {
   /// No description provided for @gradeLabel.
   ///
   /// In en, this message translates to:
-  /// **'Grade {grade}'**
+  /// **'Vocabulary level {grade}'**
   String gradeLabel(int grade);
 
   /// No description provided for @sectionDefinitions.
@@ -3427,7 +3649,7 @@ abstract class S {
   /// No description provided for @definitionQuizOnboardingBody3.
   ///
   /// In en, this message translates to:
-  /// **'For grade 5+ a language note appears after a correct answer.'**
+  /// **'From vocabulary level 5, a language note appears after a correct answer.'**
   String get definitionQuizOnboardingBody3;
 
   /// No description provided for @sentenceCompletionPrompt.
@@ -3511,61 +3733,61 @@ abstract class S {
   /// No description provided for @achievementGrade2Title.
   ///
   /// In en, this message translates to:
-  /// **'Grade 2 Graduate'**
+  /// **'Level 2 Explorer'**
   String get achievementGrade2Title;
 
   /// No description provided for @achievementGrade2Desc.
   ///
   /// In en, this message translates to:
-  /// **'Advanced to Grade 2.'**
+  /// **'Reached vocabulary level 2.'**
   String get achievementGrade2Desc;
 
   /// No description provided for @achievementGrade3Title.
   ///
   /// In en, this message translates to:
-  /// **'Grade 3 Graduate'**
+  /// **'Level 3 Explorer'**
   String get achievementGrade3Title;
 
   /// No description provided for @achievementGrade3Desc.
   ///
   /// In en, this message translates to:
-  /// **'Advanced to Grade 3.'**
+  /// **'Reached vocabulary level 3.'**
   String get achievementGrade3Desc;
 
   /// No description provided for @achievementGrade4Title.
   ///
   /// In en, this message translates to:
-  /// **'Grade 4 Graduate'**
+  /// **'Level 4 Explorer'**
   String get achievementGrade4Title;
 
   /// No description provided for @achievementGrade4Desc.
   ///
   /// In en, this message translates to:
-  /// **'Advanced to Grade 4.'**
+  /// **'Reached vocabulary level 4.'**
   String get achievementGrade4Desc;
 
   /// No description provided for @achievementGrade5Title.
   ///
   /// In en, this message translates to:
-  /// **'Grade 5 Graduate'**
+  /// **'Level 5 Explorer'**
   String get achievementGrade5Title;
 
   /// No description provided for @achievementGrade5Desc.
   ///
   /// In en, this message translates to:
-  /// **'Advanced to Grade 5.'**
+  /// **'Reached vocabulary level 5.'**
   String get achievementGrade5Desc;
 
   /// No description provided for @achievementGrade6Title.
   ///
   /// In en, this message translates to:
-  /// **'Grade 6 Graduate'**
+  /// **'Level 6 Explorer'**
   String get achievementGrade6Title;
 
   /// No description provided for @achievementGrade6Desc.
   ///
   /// In en, this message translates to:
-  /// **'Advanced to Grade 6.'**
+  /// **'Reached vocabulary level 6.'**
   String get achievementGrade6Desc;
 
   /// No description provided for @semanticsBack.
@@ -3907,7 +4129,7 @@ abstract class S {
   /// No description provided for @wordSnakeNoPuzzles.
   ///
   /// In en, this message translates to:
-  /// **'No puzzle could be made right now. Please try another grade or come back later.'**
+  /// **'No puzzle could be made right now. Please try another level or come back later.'**
   String get wordSnakeNoPuzzles;
 
   /// No description provided for @wordSnakeBasicVocabulary.
@@ -4171,7 +4393,7 @@ abstract class S {
   /// No description provided for @wordSortEmptyMessage.
   ///
   /// In en, this message translates to:
-  /// **'There are no words to sort for this grade yet. Try another grade or come back later.'**
+  /// **'There are no words to sort for this level yet. Try another level or come back later.'**
   String get wordSortEmptyMessage;
 
   /// No description provided for @wordSortGenderMasculine.

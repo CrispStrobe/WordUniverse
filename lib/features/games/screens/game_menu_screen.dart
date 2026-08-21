@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/services/debug_provider.dart';
+import '../../../core/services/learner_profile_service.dart';
 import '../../../core/services/vocabulary_service.dart';
 import '../../../core/theme/space_theme.dart';
 import '../../../core/models/skill_category.dart';
@@ -57,15 +58,30 @@ class GameMenuScreen extends StatefulWidget {
   State<GameMenuScreen> createState() => _GameMenuScreenState();
 }
 
+enum _GameFilter {
+  recommended,
+  vocabulary,
+  spelling,
+  grammar,
+  fast,
+  favorites,
+  recent,
+  all
+}
+
+enum _GameCategory { vocabulary, spelling, grammar, fast }
+
 class _GameMenuScreenState extends State<GameMenuScreen>
     with TickerProviderStateMixin {
   late AnimationController _slideController;
   late AnimationController _floatController;
   late List<Animation<Offset>> _cardAnimations;
   late Animation<double> _floatAnimation;
+  final TextEditingController _searchController = TextEditingController();
+  _GameFilter _filter = _GameFilter.recommended;
 
   // for new games, we must manually update game count
-  static const int _gameCount = 28;
+  static const int _gameCount = 32;
 
   @override
   void initState() {
@@ -93,6 +109,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
 
   @override
   void dispose() {
+    _searchController.dispose();
     _slideController.dispose();
     _floatController.dispose();
     super.dispose();
@@ -145,6 +162,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             children: [
               _buildHeader(),
               _buildDifficultyPicker(),
+              _buildDiscoveryControls(),
               Expanded(
                 child: LayoutBuilder(
                   builder: (context, constraints) {
@@ -199,8 +217,14 @@ class _GameMenuScreenState extends State<GameMenuScreen>
                 ),
                 Consumer<GameProvider>(
                   builder: (context, gameProvider, child) {
+                    final difficulty = switch (gameProvider.difficultyMode) {
+                      DifficultyMode.easy => S.of(context)!.difficultyEasy,
+                      DifficultyMode.normal => S.of(context)!.difficultyNormal,
+                      DifficultyMode.challenge =>
+                        S.of(context)!.difficultyChallenge,
+                    };
                     return Text(
-                      '${S.of(context)!.gradeN(gameProvider.grade)} • ${S.of(context)!.level} ${gameProvider.level}',
+                      '${S.of(context)!.gradeN(gameProvider.grade)} • $difficulty',
                       style: SpaceTheme.bodyStyle
                           .copyWith(color: SpaceTheme.starYellow, fontSize: 14),
                       maxLines: 1,
@@ -316,6 +340,13 @@ class _GameMenuScreenState extends State<GameMenuScreen>
     }
 
     final games = _buildGames();
+
+    if (games.isEmpty) {
+      return Center(
+        child: Text(S.of(context)!.catalogNoGames,
+            style: SpaceTheme.bodyStyle, textAlign: TextAlign.center),
+      );
+    }
 
     return GridView.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -683,10 +714,182 @@ class _GameMenuScreenState extends State<GameMenuScreen>
       ),
     ];
 
+    final profile = context.watch<LearnerProfileService>();
+    final query = _searchController.text.trim().toLowerCase();
     return games
         .where((game) =>
             game.supportedLearningLanguages.contains(learningLanguage))
-        .toList(growable: false);
+        .where((game) =>
+            query.isEmpty ||
+            game.title.toLowerCase().contains(query) ||
+            game.description.toLowerCase().contains(query))
+        .where((game) {
+      final id = _gameId(game, s);
+      final category = _category(game, s);
+      return switch (_filter) {
+        _GameFilter.all => true,
+        _GameFilter.recommended => _isRecommended(game, s, profile.goal),
+        _GameFilter.vocabulary => category == _GameCategory.vocabulary,
+        _GameFilter.spelling => category == _GameCategory.spelling,
+        _GameFilter.grammar => category == _GameCategory.grammar,
+        _GameFilter.fast => category == _GameCategory.fast,
+        _GameFilter.favorites => profile.favoriteGameIds.contains(id),
+        _GameFilter.recent => profile.recentGameIds.contains(id),
+      };
+    }).toList(growable: false);
+  }
+
+  Widget _buildDiscoveryControls() {
+    final s = S.of(context)!;
+    final filters = <(_GameFilter, String)>[
+      (_GameFilter.recommended, s.catalogRecommended),
+      (_GameFilter.vocabulary, s.categoryVocabulary),
+      (_GameFilter.spelling, s.categorySpelling),
+      (_GameFilter.grammar, s.categoryGrammar),
+      (_GameFilter.fast, s.catalogFast),
+      (_GameFilter.favorites, s.catalogFavorites),
+      (_GameFilter.recent, s.catalogRecent),
+      (_GameFilter.all, s.catalogAll),
+    ];
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+      child: Column(children: [
+        SizedBox(
+          height: 42,
+          child: TextField(
+            controller: _searchController,
+            onChanged: (_) => setState(() {}),
+            style: const TextStyle(color: Colors.white),
+            decoration: InputDecoration(
+              hintText: s.catalogSearch,
+              prefixIcon: const Icon(Icons.search),
+              suffixIcon: _searchController.text.isEmpty
+                  ? null
+                  : IconButton(
+                      onPressed: () {
+                        _searchController.clear();
+                        setState(() {});
+                      },
+                      icon: const Icon(Icons.clear),
+                    ),
+              filled: true,
+              fillColor: SpaceTheme.deepSpace.withValues(alpha: 0.8),
+              contentPadding: EdgeInsets.zero,
+            ),
+          ),
+        ),
+        const SizedBox(height: 6),
+        SizedBox(
+          height: 38,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: filters.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 6),
+            itemBuilder: (_, index) {
+              final item = filters[index];
+              return FilterChip(
+                label: Text(item.$2),
+                selected: _filter == item.$1,
+                onSelected: (_) => setState(() => _filter = item.$1),
+              );
+            },
+          ),
+        ),
+      ]),
+    );
+  }
+
+  String _gameId(GameInfo game, S s) {
+    final entries = <String, String>{
+      s.spaceWordRescueTitle: 'space_word_rescue',
+      s.wordFindTitle: 'word_find',
+      s.wordSortTitle: 'word_sort',
+      s.wordSnakeTitle: 'word_snake',
+      s.wordMemoryTitle: 'word_memory',
+      s.wordBuilderTitle: 'word_builder',
+      s.wordWhirlTitle: 'word_whirl',
+      s.spellingSpotterTitle: 'spelling_spotter',
+      s.sentenceCompletionTitle: 'sentence_completion',
+      s.definitionQuizTitle: 'definition_quiz',
+      s.sriReviewTitle: 'sri_review',
+      s.antonymFlashTitle: 'antonym_flash',
+      s.synonymFlashTitle: 'synonym_flash',
+      s.conjugationDrillTitle: 'conjugation_drill',
+      s.translationFlashTitle: 'translation_flash',
+      s.syllableCountTitle: 'syllable_count',
+      s.clozeFlashTitle: 'cloze_flash',
+      s.expressionFlashTitle: 'expression_flash',
+      s.homophoneDrillTitle: 'homophone_drill',
+      s.confusableDrillTitle: 'confusable_drill',
+      s.phrasalVerbPowerTitle: 'phrasal_verb_power',
+      s.phrasalVerbMatchTitle: 'phrasal_verb_match',
+      s.falseFriendsTitle: 'false_friends',
+      s.wortfalleTitle: 'wortfalle',
+      s.wortbaumeisterCardTitle: 'wortbaumeister',
+      s.grossstadtCardTitle: 'grossstadt',
+      s.grossschreibTitle: 'grossschreib',
+      s.verbtrennerCardTitle: 'verbtrenner',
+      s.hypernymFlashTitle: 'hypernym_flash',
+      s.wordClassFlashTitle: 'word_class_flash',
+      s.proverbClozeTitle: 'proverb_cloze',
+      s.reverseTranslationTitle: 'reverse_translation',
+    };
+    return entries[game.title] ?? game.title;
+  }
+
+  _GameCategory _category(GameInfo game, S s) {
+    if ({
+      s.spaceWordRescueTitle,
+      s.spellingSpotterTitle,
+      s.syllableCountTitle,
+      s.homophoneDrillTitle,
+      s.confusableDrillTitle,
+      s.wortfalleTitle,
+      s.grossstadtCardTitle,
+      s.grossschreibTitle
+    }.contains(game.title)) {
+      return _GameCategory.spelling;
+    }
+    if ({
+      s.wordSortTitle,
+      s.wordWhirlTitle,
+      s.conjugationDrillTitle,
+      s.phrasalVerbPowerTitle,
+      s.verbtrennerCardTitle,
+      s.wordClassFlashTitle,
+      s.wortbaumeisterCardTitle
+    }.contains(game.title)) {
+      return _GameCategory.grammar;
+    }
+    if ({
+      s.antonymFlashTitle,
+      s.synonymFlashTitle,
+      s.translationFlashTitle,
+      s.hypernymFlashTitle,
+      s.reverseTranslationTitle
+    }.contains(game.title)) {
+      return _GameCategory.fast;
+    }
+    return _GameCategory.vocabulary;
+  }
+
+  bool _isRecommended(GameInfo game, S s, LearnerGoal goal) {
+    if (game.title == s.sriReviewTitle) return true;
+    final category = _category(game, s);
+    return switch (goal) {
+      LearnerGoal.spelling => category == _GameCategory.spelling,
+      LearnerGoal.grammar => category == _GameCategory.grammar,
+      LearnerGoal.vocabulary ||
+      LearnerGoal.dafDaz =>
+        category == _GameCategory.vocabulary,
+      LearnerGoal.balanced => {
+          s.spaceWordRescueTitle,
+          s.sentenceCompletionTitle,
+          s.definitionQuizTitle,
+          s.wordSortTitle,
+          s.sriReviewTitle
+        }.contains(game.title),
+    };
   }
 
   Widget _buildGameCard(int index, GameInfo game) {
@@ -695,6 +898,16 @@ class _GameMenuScreenState extends State<GameMenuScreen>
     final bool isUnlocked = gameProvider.isFullVersionUnlocked ||
         debugProvider.isPaidUnlockedForced;
     final bool isLocked = game.isPremium && !isUnlocked;
+    final profile = context.watch<LearnerProfileService>();
+    final s = S.of(context)!;
+    final id = _gameId(game, s);
+    final category = _category(game, s);
+    final categoryLabel = switch (category) {
+      _GameCategory.vocabulary => s.categoryVocabulary,
+      _GameCategory.spelling => s.categorySpelling,
+      _GameCategory.grammar => s.categoryGrammar,
+      _GameCategory.fast => s.catalogFast,
+    };
 
     if (index >= _cardAnimations.length) return const SizedBox.shrink();
 
@@ -704,14 +917,27 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         animation: _floatAnimation,
         builder: (context, child) {
           return Transform.translate(
-            offset: Offset(0, _floatAnimation.value * (index % 3 + 1) * 0.3),
+            offset: profile.focusMode
+                ? Offset.zero
+                : Offset(
+                    0,
+                    _floatAnimation.value * (index % 3 + 1) * 0.3,
+                  ),
             child: Stack(
               alignment: Alignment.center,
               children: [
                 GameCard(
                   game: game,
-                  onTap:
-                      isLocked ? () => _showPurchaseFlow(context) : game.onTap,
+                  categoryLabel: categoryLabel,
+                  minutes: category == _GameCategory.fast ? 3 : 6,
+                  isFavorite: profile.favoriteGameIds.contains(id),
+                  onFavorite: () => profile.toggleFavorite(id),
+                  onTap: isLocked
+                      ? () => _showPurchaseFlow(context)
+                      : () {
+                          profile.recordRecentGame(id);
+                          game.onTap();
+                        },
                 ),
                 if (isLocked)
                   Container(
@@ -820,7 +1046,19 @@ class GameInfo {
 class GameCard extends StatefulWidget {
   final GameInfo game;
   final VoidCallback onTap;
-  const GameCard({super.key, required this.game, required this.onTap});
+  final String categoryLabel;
+  final int minutes;
+  final bool isFavorite;
+  final VoidCallback onFavorite;
+  const GameCard({
+    super.key,
+    required this.game,
+    required this.onTap,
+    required this.categoryLabel,
+    required this.minutes,
+    required this.isFavorite,
+    required this.onFavorite,
+  });
 
   @override
   State<GameCard> createState() => _GameCardState();
@@ -906,14 +1144,32 @@ class _GameCardState extends State<GameCard>
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          // ICON
-                          Container(
-                            padding: EdgeInsets.all(isTiny ? 6 : 8),
-                            decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.2),
-                                shape: BoxShape.circle),
-                            child: Icon(widget.game.icon,
-                                size: iconSize, color: Colors.white),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(isTiny ? 6 : 8),
+                                decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.2),
+                                    shape: BoxShape.circle),
+                                child: Icon(widget.game.icon,
+                                    size: iconSize, color: Colors.white),
+                              ),
+                              IconButton(
+                                visualDensity: VisualDensity.compact,
+                                tooltip: widget.isFavorite
+                                    ? S.of(context)!.catalogRemoveFavorite
+                                    : S.of(context)!.catalogAddFavorite,
+                                onPressed: widget.onFavorite,
+                                icon: Icon(
+                                  widget.isFavorite
+                                      ? Icons.star
+                                      : Icons.star_border,
+                                  color: SpaceTheme.starYellow,
+                                  size: iconSize,
+                                ),
+                              ),
+                            ],
                           ),
 
                           // TITLE
@@ -935,6 +1191,13 @@ class _GameCardState extends State<GameCard>
                               textAlign: TextAlign.center,
                               maxLines: isSmall ? 1 : 2,
                               overflow: TextOverflow.ellipsis,
+                            ),
+
+                          if (!isTiny)
+                            Text(
+                              '${widget.categoryLabel} • ~${widget.minutes} min',
+                              style: const TextStyle(
+                                  color: Colors.white60, fontSize: 9),
                             ),
 
                           // BUTTON

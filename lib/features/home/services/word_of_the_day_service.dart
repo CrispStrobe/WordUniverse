@@ -12,19 +12,42 @@ int dayOfYear(DateTime d) {
 
 /// Picks a deterministic word for [date] from [words].
 ///
-/// Pool: grade 1-3, no proper nouns, no multi-word entries, must have
-/// at least one definition in apiEnrichment.
+/// By default, uses levels 1–3. When [targetBand] is supplied, the word is
+/// selected from that learning band. Proper nouns and multi-word entries are
+/// excluded, malformed headwords and known misspellings are rejected, and a
+/// definition must be available.
 /// Returns null when the pool is empty.
-GermanWord? pickWordOfTheDay(List<GermanWord> words, DateTime date) {
+GermanWord? pickWordOfTheDay(List<GermanWord> words, DateTime date,
+    {int? targetBand}) {
   if (words.isEmpty) return null;
+
+  final knownMisspellings = <String>{
+    for (final word in words) ...[
+      ...?word.commonMistakes?.map(_normalizeHeadword),
+      ...?word.apiEnrichment?.commonLearnerErrors.map(_normalizeHeadword),
+    ],
+  }..removeWhere((word) => word.isEmpty);
+
   final pool = words
       .where((w) =>
           !w.isProperNoun &&
-          w.gradeLevel <= 3 &&
-          !w.word.contains(' ') &&
+          (targetBand == null
+              ? w.gradeLevel <= 3
+              : w.gradeLevel == targetBand) &&
+          _hasCleanHeadword(w.word) &&
+          !knownMisspellings.contains(_normalizeHeadword(w.word)) &&
+          !w.sources.contains('COMMON_MISSPELLED') &&
           (w.apiEnrichment?.definitions.isNotEmpty ?? false))
       .toList();
   if (pool.isEmpty) return null;
   final seed = dayOfYear(date) + date.year * 366;
   return pool[seed.abs() % pool.length];
 }
+
+final RegExp _cleanHeadword = RegExp(
+  r"^[A-Za-zÀ-ÖØ-öø-ÿẞ]+(?:[-'’][A-Za-zÀ-ÖØ-öø-ÿẞ]+)*$",
+);
+
+bool _hasCleanHeadword(String word) => _cleanHeadword.hasMatch(word.trim());
+
+String _normalizeHeadword(String word) => word.trim().toLowerCase();

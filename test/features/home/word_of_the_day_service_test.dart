@@ -45,6 +45,8 @@ GermanWord _word(
   String word, {
   int grade = 1,
   bool isProperNoun = false,
+  List<String> sources = const [],
+  List<String>? commonMistakes,
   GermanWordType wordType = GermanWordType.substantiv,
   ApiEnrichment? api,
 }) =>
@@ -54,7 +56,7 @@ GermanWord _word(
       wordType: wordType,
       gradeLevel: grade,
       lemma: word,
-      sources: const [],
+      sources: sources,
       isGrundwortschatzBW: false,
       nurImPlural: false,
       graphematicVariants: const [],
@@ -62,6 +64,7 @@ GermanWord _word(
       exampleSentences: const [],
       spellingDifficulty: SpellingDifficulty.easy,
       isProperNoun: isProperNoun,
+      commonMistakes: commonMistakes,
       apiEnrichment: api,
       examples: const [],
       hyphenation: const [],
@@ -124,17 +127,23 @@ void main() {
     });
 
     test('excludes grade 4 words', () {
-      final words = [_word('Lärm', grade: 4, api: _enrichment(definitions: ['noise']))];
+      final words = [
+        _word('Lärm', grade: 4, api: _enrichment(definitions: ['noise']))
+      ];
       expect(pickWordOfTheDay(words, date), isNull);
     });
 
     test('excludes grade 5 words', () {
-      final words = [_word('Philosophie', grade: 5, api: _enrichment(definitions: ['…']))];
+      final words = [
+        _word('Philosophie', grade: 5, api: _enrichment(definitions: ['…']))
+      ];
       expect(pickWordOfTheDay(words, date), isNull);
     });
 
     test('excludes grade 6 words', () {
-      final words = [_word('Allegorie', grade: 6, api: _enrichment(definitions: ['…']))];
+      final words = [
+        _word('Allegorie', grade: 6, api: _enrichment(definitions: ['…']))
+      ];
       expect(pickWordOfTheDay(words, date), isNull);
     });
 
@@ -146,16 +155,63 @@ void main() {
       }
     });
 
+    test('targets the selected learning band when requested', () {
+      final words = [
+        _eligible('leicht', grade: 1),
+        _eligible('anspruchsvoll', grade: 4),
+      ];
+
+      expect(
+        pickWordOfTheDay(words, date, targetBand: 4)?.word,
+        'anspruchsvoll',
+      );
+    });
+
     test('excludes proper nouns', () {
-      final proper = _word('Berlin', grade: 1,
-          isProperNoun: true, api: _enrichment(definitions: ['city']));
+      final proper = _word('Berlin',
+          grade: 1,
+          isProperNoun: true,
+          api: _enrichment(definitions: ['city']));
       expect(pickWordOfTheDay([proper], date), isNull);
     });
 
     test('excludes multi-word entries (contains space)', () {
-      final multiWord = _word('zwei Wörter', grade: 1,
-          api: _enrichment(definitions: ['two words']));
+      final multiWord = _word('zwei Wörter',
+          grade: 1, api: _enrichment(definitions: ['two words']));
       expect(pickWordOfTheDay([multiWord], date), isNull);
+    });
+
+    test('excludes malformed source artifacts such as "a. didnt"', () {
+      expect(pickWordOfTheDay([_eligible('a. didnt')], date), isNull);
+    });
+
+    test('excludes a headword listed as a known misspelling', () {
+      final misspelling = _eligible('didnt');
+      final canonical = _word(
+        "didn't",
+        api: _enrichment(
+          definitions: ['did not'],
+          entryNotes: const [],
+        ),
+        commonMistakes: const ['didnt'],
+      );
+
+      expect(pickWordOfTheDay([misspelling, canonical], date)?.word, "didn't");
+    });
+
+    test('accepts clean apostrophes and hyphens', () {
+      for (final word in ["didn't", 'E-Mail']) {
+        expect(pickWordOfTheDay([_eligible(word)], date)?.word, word);
+      }
+    });
+
+    test('excludes entries explicitly sourced as common misspellings', () {
+      final misspelling = _word(
+        'accomodate',
+        sources: const ['COMMON_MISSPELLED'],
+        api: _enrichment(definitions: ['incorrect form']),
+      );
+      expect(pickWordOfTheDay([misspelling], date), isNull);
     });
 
     test('excludes words with no definitions in apiEnrichment', () {
@@ -169,8 +225,12 @@ void main() {
 
   group('pickWordOfTheDay determinism', () {
     final words = [
-      _eligible('Haus'), _eligible('Baum'), _eligible('Hund'),
-      _eligible('Katze'), _eligible('Wasser'), _eligible('Feuer'),
+      _eligible('Haus'),
+      _eligible('Baum'),
+      _eligible('Hund'),
+      _eligible('Katze'),
+      _eligible('Wasser'),
+      _eligible('Feuer'),
     ];
 
     test('same date always returns same word', () {
@@ -201,7 +261,8 @@ void main() {
       }
     });
 
-    test('different years produce different seeds for the same day-of-year', () {
+    test('different years produce different seeds for the same day-of-year',
+        () {
       final d2023 = DateTime(2023, 7, 4);
       final d2024 = DateTime(2024, 7, 4);
       final s2023 = dayOfYear(d2023) + 2023 * 366;

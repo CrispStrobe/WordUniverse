@@ -13,6 +13,7 @@ import '../../../core/theme/app_fonts.dart';
 // Import VocabularyService to get sources
 import '../../../core/services/vocabulary_service.dart';
 import '../../../core/services/sri_service.dart';
+import '../../../core/services/learner_profile_service.dart';
 
 import '../../../shared/widgets/imprint_dialog.dart';
 import 'diagnostics_screen.dart';
@@ -80,7 +81,8 @@ class _SettingsScreenState extends State<SettingsScreen>
       ));
     });
 
-    if (kDebugMode) debugPrint("[SETTINGS] 🔧 initState() completed - 7 animations ready");
+    if (kDebugMode)
+      debugPrint("[SETTINGS] 🔧 initState() completed - 7 animations ready");
     _slideController.forward();
     ensureCustomLicensesRegistered();
   }
@@ -262,11 +264,13 @@ class _SettingsScreenState extends State<SettingsScreen>
           _availableSources = sortedSources.toSet();
           _sourcesLoaded = true;
         });
-        if (kDebugMode) debugPrint(
-            "[SETTINGS] 📚 Loaded ${_availableSources.length} vocab sources");
+        if (kDebugMode)
+          debugPrint(
+              "[SETTINGS] 📚 Loaded ${_availableSources.length} vocab sources");
       }
     } catch (e) {
-      if (kDebugMode) debugPrint("[SETTINGS] ❌ Error loading vocab sources: $e");
+      if (kDebugMode)
+        debugPrint("[SETTINGS] ❌ Error loading vocab sources: $e");
     }
   }
 
@@ -401,24 +405,13 @@ class _SettingsScreenState extends State<SettingsScreen>
                     subtitle: S.of(context)!.soundEffects,
                     value: gameProvider.soundEnabled,
                     onChanged: (value) {
-                      if (kDebugMode) debugPrint(
-                          "[SETTINGS] 🔊 Sound setting changed to: $value");
+                      if (kDebugMode)
+                        debugPrint(
+                            "[SETTINGS] 🔊 Sound setting changed to: $value");
                       gameProvider.setSoundEnabled(value);
                       _saveSetting('sound_enabled', value);
                     },
                     icon: Icons.music_note,
-                  ),
-                  _buildSwitchTile(
-                    title: S.of(context)!.music,
-                    subtitle: S.of(context)!.backgroundMusicDesc,
-                    value: gameProvider.musicEnabled,
-                    onChanged: (value) {
-                      if (kDebugMode) debugPrint(
-                          "[SETTINGS] 🎵 Music setting changed to: $value");
-                      gameProvider.setMusicEnabled(value);
-                      _saveSetting('music_enabled', value);
-                    },
-                    icon: Icons.library_music,
                   ),
                 ],
               );
@@ -436,32 +429,28 @@ class _SettingsScreenState extends State<SettingsScreen>
         title: S.of(context)!.gameplay,
         icon: Icons.games,
         children: [
-          Consumer2<GameProvider, DebugProvider>(
-            builder: (context, gameProvider, debugProvider, child) {
+          Consumer3<GameProvider, DebugProvider, LearnerProfileService>(
+            builder: (context, gameProvider, debugProvider, profile, child) {
               final isUnlocked = gameProvider.isFullVersionUnlocked ||
                   debugProvider.isPaidUnlockedForced;
 
               return Column(
                 children: [
                   _buildSwitchTile(
-                    title: S.of(context)!.adaptiveDifficulty,
-                    subtitle: S.of(context)!.adjustProblems,
-                    value: gameProvider.useAdaptiveDifficulty,
-                    onChanged: (value) {
-                      if (kDebugMode) debugPrint(
-                          "[SETTINGS] 🧠 Adaptive difficulty changed to: $value");
-                      gameProvider.setUseAdaptiveDifficulty(value);
-                      _saveSetting('use_adaptive_difficulty', value);
-                    },
-                    icon: Icons.auto_awesome,
+                    title: S.of(context)!.focusMode,
+                    subtitle: S.of(context)!.focusModeDesc,
+                    value: profile.focusMode,
+                    onChanged: profile.setFocusMode,
+                    icon: Icons.center_focus_strong,
                   ),
                   _buildSwitchTile(
                     title: S.of(context)!.puzzleTimer,
                     subtitle: S.of(context)!.puzzleTimerDesc,
                     value: gameProvider.puzzleTimerEnabled,
                     onChanged: (value) {
-                      if (kDebugMode) debugPrint(
-                          "[SETTINGS] ⏱️ Puzzle timer setting changed to: $value");
+                      if (kDebugMode)
+                        debugPrint(
+                            "[SETTINGS] ⏱️ Puzzle timer setting changed to: $value");
                       gameProvider.setPuzzleTimer(value);
                       _saveSetting('puzzle_timer_enabled', value);
                     },
@@ -472,8 +461,9 @@ class _SettingsScreenState extends State<SettingsScreen>
                     subtitle: S.of(context)!.showHintsDesc,
                     value: gameProvider.hintsEnabled,
                     onChanged: (value) {
-                      if (kDebugMode) debugPrint(
-                          "[SETTINGS] 💡 Hints setting changed to: $value");
+                      if (kDebugMode)
+                        debugPrint(
+                            "[SETTINGS] 💡 Hints setting changed to: $value");
                       gameProvider.setHintsEnabled(value);
                     },
                     icon: Icons.lightbulb,
@@ -483,8 +473,9 @@ class _SettingsScreenState extends State<SettingsScreen>
                     subtitle: S.of(context)!.hapticFeedbackDesc,
                     value: gameProvider.hapticEnabled,
                     onChanged: (value) {
-                      if (kDebugMode) debugPrint(
-                          "[SETTINGS] 📳 Haptic feedback setting changed to: $value");
+                      if (kDebugMode)
+                        debugPrint(
+                            "[SETTINGS] 📳 Haptic feedback setting changed to: $value");
                       gameProvider.setHapticEnabled(value);
                     },
                     icon: Icons.vibration,
@@ -539,13 +530,16 @@ class _SettingsScreenState extends State<SettingsScreen>
                 subtitle: S.of(context)!.taskCustomizationEnableDesc,
                 value: gameProvider.tasksCustomizationEnabled,
                 onChanged: (value) {
-                  if (kDebugMode) debugPrint(
-                      "[SETTINGS] 🛠️ Task Customization changed to: $value");
+                  if (kDebugMode)
+                    debugPrint(
+                        "[SETTINGS] 🛠️ Task Customization changed to: $value");
                   gameProvider.setTasksCustomizationEnabled(value);
 
                   if (value == false) {
                     gameProvider.clearActiveVocabularySets();
-                    if (kDebugMode) debugPrint("[SETTINGS] 🧹 Cleared active vocabulary sets.");
+                    if (kDebugMode)
+                      debugPrint(
+                          "[SETTINGS] 🧹 Cleared active vocabulary sets.");
                   }
                 },
                 icon: Icons.edit_note,
@@ -1179,21 +1173,15 @@ class _SettingsScreenState extends State<SettingsScreen>
         title: S.of(context)!.difficulty,
         icon: Icons.tune,
         children: [
-          Consumer<GameProvider>(
-            builder: (context, gameProvider, child) {
+          Consumer2<GameProvider, LearnerProfileService>(
+            builder: (context, gameProvider, profile, child) {
               return Column(
                 children: [
                   _buildStatRow(
                     label: S.of(context)!.currentGrade,
                     value: S.of(context)!.gradeN(gameProvider.grade),
-                    icon: Icons.school,
+                    icon: Icons.menu_book_outlined,
                     onTap: () => _showGradeSelector(gameProvider),
-                  ),
-                  const SizedBox(height: 12),
-                  _buildStatRow(
-                    label: S.of(context)!.currentLevelDesc,
-                    value: gameProvider.level.toString(),
-                    icon: Icons.trending_up,
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -1204,6 +1192,38 @@ class _SettingsScreenState extends State<SettingsScreen>
                       fontStyle: FontStyle.italic,
                     ),
                     textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<LearnerGoal>(
+                    initialValue: profile.goal,
+                    dropdownColor: SpaceTheme.deepSpace,
+                    decoration: InputDecoration(
+                        labelText: S.of(context)!.onboardingGoal),
+                    items: LearnerGoal.values
+                        .map((goal) => DropdownMenuItem(
+                              value: goal,
+                              child: Text(_goalLabel(goal)),
+                            ))
+                        .toList(),
+                    onChanged: (goal) {
+                      if (goal != null) profile.setGoal(goal);
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<int>(
+                    initialValue: profile.sessionMinutes,
+                    dropdownColor: SpaceTheme.deepSpace,
+                    decoration: InputDecoration(
+                        labelText: S.of(context)!.onboardingDailyTime),
+                    items: const [5, 10, 15]
+                        .map((minutes) => DropdownMenuItem(
+                              value: minutes,
+                              child: Text('$minutes min'),
+                            ))
+                        .toList(),
+                    onChanged: (minutes) {
+                      if (minutes != null) profile.setSessionMinutes(minutes);
+                    },
                   ),
                 ],
               );
@@ -1560,7 +1580,8 @@ class _SettingsScreenState extends State<SettingsScreen>
       if (kDebugMode) debugPrint("[SETTINGS] ✅ Successfully saved $key");
 
       final savedValue = _getSettingValue(prefs, key, value.runtimeType);
-      if (kDebugMode) debugPrint("[SETTINGS] 🔍 Verification - $key now reads: $savedValue");
+      if (kDebugMode)
+        debugPrint("[SETTINGS] 🔍 Verification - $key now reads: $savedValue");
     } catch (e, stackTrace) {
       if (kDebugMode) debugPrint("[SETTINGS] ❌ Failed to save $key: $e");
       if (kDebugMode) debugPrint("[SETTINGS] 📚 Stack trace: $stackTrace");
@@ -1586,12 +1607,14 @@ class _SettingsScreenState extends State<SettingsScreen>
 
   void _changeLanguage(String localeCode) async {
     if (localeCode == currentLocale) {
-      if (kDebugMode) debugPrint("[SETTINGS] 🌍 Language unchanged: $localeCode");
+      if (kDebugMode)
+        debugPrint("[SETTINGS] 🌍 Language unchanged: $localeCode");
       return;
     }
 
-    if (kDebugMode) debugPrint(
-        "[SETTINGS] 🌍 Changing language from $currentLocale to $localeCode");
+    if (kDebugMode)
+      debugPrint(
+          "[SETTINGS] 🌍 Changing language from $currentLocale to $localeCode");
 
     setState(() {
       _isLoading = true;
@@ -1627,14 +1650,16 @@ class _SettingsScreenState extends State<SettingsScreen>
 
   void _changeLearningLanguage(String languageCode) async {
     if (languageCode == currentLearningLanguage) {
-      if (kDebugMode) debugPrint("[SETTINGS] 📚 Learning language unchanged: $languageCode");
+      if (kDebugMode)
+        debugPrint("[SETTINGS] 📚 Learning language unchanged: $languageCode");
       return;
     }
 
-    if (kDebugMode) debugPrint(
-      "[SETTINGS] 📚 Changing learning language from "
-      "$currentLearningLanguage to $languageCode",
-    );
+    if (kDebugMode)
+      debugPrint(
+        "[SETTINGS] 📚 Changing learning language from "
+        "$currentLearningLanguage to $languageCode",
+      );
 
     setState(() {
       _isLoading = true;
@@ -1661,7 +1686,8 @@ class _SettingsScreenState extends State<SettingsScreen>
         );
       }
     } catch (e, stackTrace) {
-      if (kDebugMode) debugPrint("[SETTINGS] ❌ Failed to change learning language: $e");
+      if (kDebugMode)
+        debugPrint("[SETTINGS] ❌ Failed to change learning language: $e");
       if (kDebugMode) debugPrint("[SETTINGS] 📚 Stack trace: $stackTrace");
 
       if (mounted) {
@@ -1686,7 +1712,8 @@ class _SettingsScreenState extends State<SettingsScreen>
   }
 
   Future<void> _saveLanguagePreference(String localeCode) async {
-    if (kDebugMode) debugPrint("[SETTINGS] 🌍 Saving language preference: $localeCode");
+    if (kDebugMode)
+      debugPrint("[SETTINGS] 🌍 Saving language preference: $localeCode");
 
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -1694,8 +1721,9 @@ class _SettingsScreenState extends State<SettingsScreen>
 
       final savedLocale = prefs.getString('language');
       if (kDebugMode) debugPrint("[SETTINGS] ✅ Language saved successfully");
-      if (kDebugMode) debugPrint(
-          "[SETTINGS] 🔍 Verification - language now reads: $savedLocale");
+      if (kDebugMode)
+        debugPrint(
+            "[SETTINGS] 🔍 Verification - language now reads: $savedLocale");
 
       final allKeys = prefs.getKeys();
       if (kDebugMode) debugPrint("[SETTINGS] 🗂️ All current preferences:");
@@ -1704,14 +1732,17 @@ class _SettingsScreenState extends State<SettingsScreen>
         if (kDebugMode) debugPrint("[SETTINGS]   $key: $value");
       }
     } catch (e, stackTrace) {
-      if (kDebugMode) debugPrint("[SETTINGS] ❌ Failed to save language preference: $e");
+      if (kDebugMode)
+        debugPrint("[SETTINGS] ❌ Failed to save language preference: $e");
       if (kDebugMode) debugPrint("[SETTINGS] 📚 Stack trace: $stackTrace");
       rethrow;
     }
   }
 
   void _showLanguageChangeDialog(String localeCode) {
-    if (kDebugMode) debugPrint("[SETTINGS] 🔄 Showing language change dialog for: $localeCode");
+    if (kDebugMode)
+      debugPrint(
+          "[SETTINGS] 🔄 Showing language change dialog for: $localeCode");
 
     showDialog(
       context: context,
@@ -1732,7 +1763,8 @@ class _SettingsScreenState extends State<SettingsScreen>
         actions: [
           TextButton(
             onPressed: () {
-              if (kDebugMode) debugPrint("[SETTINGS] 🔄 User chose to restart later");
+              if (kDebugMode)
+                debugPrint("[SETTINGS] 🔄 User chose to restart later");
               Navigator.of(context).pop();
             },
             child: Text(
@@ -1743,7 +1775,8 @@ class _SettingsScreenState extends State<SettingsScreen>
           ElevatedButton(
             autofocus: true,
             onPressed: () {
-              if (kDebugMode) debugPrint("[SETTINGS] 🔄 User chose to restart now");
+              if (kDebugMode)
+                debugPrint("[SETTINGS] 🔄 User chose to restart now");
               Navigator.of(context).pop();
               _triggerAppRestart();
             },
@@ -1775,7 +1808,8 @@ class _SettingsScreenState extends State<SettingsScreen>
             final isSelected = gameProvider.grade == grade;
             return GestureDetector(
               onTap: () {
-                if (kDebugMode) debugPrint("[SETTINGS] 🎓 Grade changed to: $grade");
+                if (kDebugMode)
+                  debugPrint("[SETTINGS] 🎓 Grade changed to: $grade");
                 gameProvider.setGrade(grade);
                 Navigator.of(context).pop();
               },
@@ -1796,7 +1830,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                 child: Row(
                   children: [
                     Icon(
-                      Icons.school,
+                      Icons.menu_book_outlined,
                       color:
                           isSelected ? SpaceTheme.starYellow : Colors.white70,
                     ),
@@ -1852,8 +1886,25 @@ class _SettingsScreenState extends State<SettingsScreen>
     }
   }
 
+  String _goalLabel(LearnerGoal goal) {
+    final s = S.of(context)!;
+    switch (goal) {
+      case LearnerGoal.balanced:
+        return s.goalBalanced;
+      case LearnerGoal.vocabulary:
+        return s.goalVocabulary;
+      case LearnerGoal.spelling:
+        return s.goalSpelling;
+      case LearnerGoal.grammar:
+        return s.goalGrammar;
+      case LearnerGoal.dafDaz:
+        return s.goalDafDaz;
+    }
+  }
+
   void _triggerAppRestart() {
-    if (kDebugMode) debugPrint("[SETTINGS] 🔄 Triggering app restart notification");
+    if (kDebugMode)
+      debugPrint("[SETTINGS] 🔄 Triggering app restart notification");
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -1905,7 +1956,8 @@ class _SettingsScreenState extends State<SettingsScreen>
           ElevatedButton(
             autofocus: true,
             onPressed: () {
-              if (kDebugMode) debugPrint("[SETTINGS] 🗑️ Resetting all game progress");
+              if (kDebugMode)
+                debugPrint("[SETTINGS] 🗑️ Resetting all game progress");
               context.read<GameProvider>().resetGame();
               context.read<SriService>().clearAllData();
               Navigator.of(context).pop();
