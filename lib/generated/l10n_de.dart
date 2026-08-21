@@ -964,6 +964,47 @@ class SDe extends S {
   String get save => 'Speichern';
 
   @override
+  String get customSetNameRequired => 'Gib einen Namen für dieses Set ein.';
+
+  @override
+  String get customSetSaveFailed =>
+      'Das Set konnte nicht gespeichert werden. Bitte versuche es erneut.';
+
+  @override
+  String get languageChangeFailed =>
+      'Die App-Sprache konnte nicht geändert werden. Bitte versuche es erneut.';
+
+  @override
+  String learningLanguageChanged(String language) {
+    return 'Lernsprache zu $language gewechselt';
+  }
+
+  @override
+  String get learningLanguageChangeFailed =>
+      'Die Lernsprache konnte nicht geändert werden. Bitte versuche es erneut.';
+
+  @override
+  String get unexpectedErrorTitle => 'Etwas ist schiefgegangen';
+
+  @override
+  String get unexpectedErrorMessage =>
+      'Bitte versuche es erneut. Falls das Problem bleibt, kannst du das Absturzprotokoll unter Einstellungen › Diagnose kopieren.';
+
+  @override
+  String get genericErrorTitle => 'Fehler';
+
+  @override
+  String get genericErrorMessage =>
+      'Etwas ist schiefgegangen. Bitte versuche es erneut.';
+
+  @override
+  String get routeNotFoundTitle => 'Seite nicht gefunden';
+
+  @override
+  String get routeNotFoundMessage =>
+      'Die angeforderte Seite wurde nicht gefunden.';
+
+  @override
   String get customSetNameLabel => 'Name des Sets';
 
   @override
@@ -1661,6 +1702,24 @@ class SDe extends S {
       'Absturzprotokoll anzeigen (bleibt auf dem Gerät)';
 
   @override
+  String get diagnosticsNoCrashes => 'Keine Abstürze aufgezeichnet. 🎉';
+
+  @override
+  String diagnosticsReportsOnDevice(int count) {
+    return 'Absturzberichte auf diesem Gerät: $count. Die Daten bleiben hier, solange du sie nicht teilst.';
+  }
+
+  @override
+  String get diagnosticsCopied =>
+      'Absturzprotokoll in die Zwischenablage kopiert';
+
+  @override
+  String get diagnosticsCopyLog => 'Protokoll kopieren';
+
+  @override
+  String get diagnosticsClearLog => 'Protokoll löschen';
+
+  @override
   String get parentDashboardTitle => 'Lernanalyse';
 
   @override
@@ -2084,36 +2143,6 @@ class SDe extends S {
   @override
   String get sriReviewOnboardingBody3 =>
       'Mit jeder richtigen Antwort steigt der Easiness Factor des Wortes.';
-
-  @override
-  String get achievementGrade2Title => 'Stufen-Entdecker 2';
-
-  @override
-  String get achievementGrade2Desc => 'Wortschatzstufe 2 erreicht.';
-
-  @override
-  String get achievementGrade3Title => 'Stufen-Entdecker 3';
-
-  @override
-  String get achievementGrade3Desc => 'Wortschatzstufe 3 erreicht.';
-
-  @override
-  String get achievementGrade4Title => 'Stufen-Entdecker 4';
-
-  @override
-  String get achievementGrade4Desc => 'Wortschatzstufe 4 erreicht.';
-
-  @override
-  String get achievementGrade5Title => 'Stufen-Entdecker 5';
-
-  @override
-  String get achievementGrade5Desc => 'Wortschatzstufe 5 erreicht.';
-
-  @override
-  String get achievementGrade6Title => 'Stufen-Entdecker 6';
-
-  @override
-  String get achievementGrade6Desc => 'Wortschatzstufe 6 erreicht.';
 
   @override
   String get semanticsBack => 'Zurück';

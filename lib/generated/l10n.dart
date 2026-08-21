@@ -1809,6 +1809,72 @@ abstract class S {
   /// **'Save'**
   String get save;
 
+  /// No description provided for @customSetNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name for this set.'**
+  String get customSetNameRequired;
+
+  /// No description provided for @customSetSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The set could not be saved. Please try again.'**
+  String get customSetSaveFailed;
+
+  /// No description provided for @languageChangeFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The app language could not be changed. Please try again.'**
+  String get languageChangeFailed;
+
+  /// No description provided for @learningLanguageChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Learning language switched to {language}'**
+  String learningLanguageChanged(String language);
+
+  /// No description provided for @learningLanguageChangeFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The learning language could not be changed. Please try again.'**
+  String get learningLanguageChangeFailed;
+
+  /// No description provided for @unexpectedErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong'**
+  String get unexpectedErrorTitle;
+
+  /// No description provided for @unexpectedErrorMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Please try again. If the problem continues, you can copy the crash log from Diagnostics in Settings.'**
+  String get unexpectedErrorMessage;
+
+  /// No description provided for @genericErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get genericErrorTitle;
+
+  /// No description provided for @genericErrorMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again.'**
+  String get genericErrorMessage;
+
+  /// No description provided for @routeNotFoundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Page not found'**
+  String get routeNotFoundTitle;
+
+  /// No description provided for @routeNotFoundMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The requested page could not be found.'**
+  String get routeNotFoundMessage;
+
   /// No description provided for @customSetNameLabel.
   ///
   /// In en, this message translates to:
@@ -3016,6 +3082,36 @@ abstract class S {
   /// **'View crash log (stays on device)'**
   String get diagnosticsSubtitle;
 
+  /// No description provided for @diagnosticsNoCrashes.
+  ///
+  /// In en, this message translates to:
+  /// **'No crashes recorded. 🎉'**
+  String get diagnosticsNoCrashes;
+
+  /// No description provided for @diagnosticsReportsOnDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Crash reports on this device: {count}. Data stays here unless you share it.'**
+  String diagnosticsReportsOnDevice(int count);
+
+  /// No description provided for @diagnosticsCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Crash log copied to clipboard'**
+  String get diagnosticsCopied;
+
+  /// No description provided for @diagnosticsCopyLog.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy log'**
+  String get diagnosticsCopyLog;
+
+  /// No description provided for @diagnosticsClearLog.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear log'**
+  String get diagnosticsClearLog;
+
   /// No description provided for @parentDashboardTitle.
   ///
   /// In en, this message translates to:
@@ -3735,66 +3831,6 @@ abstract class S {
   /// In en, this message translates to:
   /// **'Every correct answer raises the easiness factor of that word.'**
   String get sriReviewOnboardingBody3;
-
-  /// No description provided for @achievementGrade2Title.
-  ///
-  /// In en, this message translates to:
-  /// **'Level 2 Explorer'**
-  String get achievementGrade2Title;
-
-  /// No description provided for @achievementGrade2Desc.
-  ///
-  /// In en, this message translates to:
-  /// **'Reached vocabulary level 2.'**
-  String get achievementGrade2Desc;
-
-  /// No description provided for @achievementGrade3Title.
-  ///
-  /// In en, this message translates to:
-  /// **'Level 3 Explorer'**
-  String get achievementGrade3Title;
-
-  /// No description provided for @achievementGrade3Desc.
-  ///
-  /// In en, this message translates to:
-  /// **'Reached vocabulary level 3.'**
-  String get achievementGrade3Desc;
-
-  /// No description provided for @achievementGrade4Title.
-  ///
-  /// In en, this message translates to:
-  /// **'Level 4 Explorer'**
-  String get achievementGrade4Title;
-
-  /// No description provided for @achievementGrade4Desc.
-  ///
-  /// In en, this message translates to:
-  /// **'Reached vocabulary level 4.'**
-  String get achievementGrade4Desc;
-
-  /// No description provided for @achievementGrade5Title.
-  ///
-  /// In en, this message translates to:
-  /// **'Level 5 Explorer'**
-  String get achievementGrade5Title;
-
-  /// No description provided for @achievementGrade5Desc.
-  ///
-  /// In en, this message translates to:
-  /// **'Reached vocabulary level 5.'**
-  String get achievementGrade5Desc;
-
-  /// No description provided for @achievementGrade6Title.
-  ///
-  /// In en, this message translates to:
-  /// **'Level 6 Explorer'**
-  String get achievementGrade6Title;
-
-  /// No description provided for @achievementGrade6Desc.
-  ///
-  /// In en, this message translates to:
-  /// **'Reached vocabulary level 6.'**
-  String get achievementGrade6Desc;
 
   /// No description provided for @semanticsBack.
   ///

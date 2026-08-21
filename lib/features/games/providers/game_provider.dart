@@ -802,7 +802,12 @@ class GameProvider extends ChangeNotifier {
     return _sessionsPlayed;
   }
 
-  int get totalAchievements => _achievements.length;
+  // Legacy releases created band-progression achievements even though bands
+  // are learner-selected difficulty ranges. Keep those records readable in
+  // old saves, but do not count them as current achievements.
+  int get totalAchievements => _achievements
+      .where((achievement) => !achievement.id.startsWith('grade_'))
+      .length;
 
   double get averageLevel {
     if (_gameProgress.isEmpty) return 0.0;
@@ -825,11 +830,8 @@ class GameProvider extends ChangeNotifier {
       _level = 1;
       _gameProgress.clear();
 
-      if (!hasAchievement('grade_$_grade')) {
-        _achievements.add(Achievement(id: 'grade_$_grade'));
-      }
-
       notifyListeners();
+      _saveProgress();
     }
   }
 }

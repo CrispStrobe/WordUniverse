@@ -259,10 +259,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             debugPrint("[APP] Caught Flutter Error: ${errorDetails.exception}");
           debugPrintStack(stackTrace: errorDetails.stack);
 
+          final s = S.of(context)!;
           return SpaceErrorScreen(
-            title: 'Oops! Something went wrong',
-            message:
-                'Our space engineers are working on it!\n${errorDetails.exception}',
+            title: s.unexpectedErrorTitle,
+            message: s.unexpectedErrorMessage,
             onRetry: () {
               final currentContext = navigatorKey.currentContext;
               if (currentContext != null) {
@@ -392,21 +392,35 @@ class AppRoutes {
         return _createRoute(SpaceLoadingScreen(message: message));
 
       case error:
-        final title = args?['title'] as String? ?? 'Error';
-        final message = args?['message'] as String? ?? 'Something went wrong';
-        return _createRoute(SpaceErrorScreen(title: title, message: message));
+        final title = args?['title'] as String?;
+        final message = args?['message'] as String?;
+        return _createRoute(Builder(
+          builder: (context) {
+            final s = S.of(context)!;
+            return SpaceErrorScreen(
+              title: title ?? s.genericErrorTitle,
+              message: message ?? s.genericErrorMessage,
+            );
+          },
+        ));
 
       default:
         return _createRoute(
-          SpaceErrorScreen(
-            title: 'Route Not Found',
-            message: 'The requested page could not be found.',
-            onBack: () {
-              if (navigatorKey.currentState?.canPop() ?? false) {
-                navigatorKey.currentState?.pop();
-              } else {
-                navigatorKey.currentState?.pushReplacementNamed(AppRoutes.home);
-              }
+          Builder(
+            builder: (context) {
+              final s = S.of(context)!;
+              return SpaceErrorScreen(
+                title: s.routeNotFoundTitle,
+                message: s.routeNotFoundMessage,
+                onBack: () {
+                  if (navigatorKey.currentState?.canPop() ?? false) {
+                    navigatorKey.currentState?.pop();
+                  } else {
+                    navigatorKey.currentState
+                        ?.pushReplacementNamed(AppRoutes.home);
+                  }
+                },
+              );
             },
           ),
         );
