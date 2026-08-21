@@ -3,6 +3,7 @@
 // Pure helpers for WordOfTheDayCard, extracted for unit testing.
 
 import '../../../core/models/vocabulary_models.dart';
+import '../../../core/models/vocabulary_quality.dart';
 
 /// Returns the 0-based day index within the year (Jan 1 = 0).
 int dayOfYear(DateTime d) {
@@ -34,10 +35,8 @@ GermanWord? pickWordOfTheDay(List<GermanWord> words, DateTime date,
           (targetBand == null
               ? w.gradeLevel <= 3
               : w.gradeLevel == targetBand) &&
-          _hasCleanHeadword(w.word) &&
+          isPresentableVocabularyEntry(w) &&
           !knownMisspellings.contains(_normalizeHeadword(w.word)) &&
-          !w.sources.contains('COMMON_MISSPELLED') &&
-          !_definitionMarksInvalidSpelling(w) &&
           (w.apiEnrichment?.definitions.isNotEmpty ?? false))
       .toList();
   if (pool.isEmpty) return null;
@@ -45,29 +44,4 @@ GermanWord? pickWordOfTheDay(List<GermanWord> words, DateTime date,
   return pool[seed.abs() % pool.length];
 }
 
-final RegExp _cleanHeadword = RegExp(
-  r"^[A-Za-zÀ-ÖØ-öø-ÿẞ]+(?:[-'’][A-Za-zÀ-ÖØ-öø-ÿẞ]+)*$",
-);
-
-bool _hasCleanHeadword(String word) => _cleanHeadword.hasMatch(word.trim());
-
 String _normalizeHeadword(String word) => word.trim().toLowerCase();
-
-bool _definitionMarksInvalidSpelling(GermanWord word) {
-  final enrichment = word.apiEnrichment;
-  if (enrichment == null) return false;
-  final description = [
-    ...enrichment.definitions,
-    ...enrichment.entryNotes,
-  ].join(' ').toLowerCase();
-  return _invalidSpellingMarkers.any(description.contains);
-}
-
-const _invalidSpellingMarkers = <String>[
-  'misspelling of',
-  'misspelt form of',
-  'misspelled form of',
-  'incorrect spelling of',
-  'nonstandard spelling of',
-  'falschschreibung von',
-];
