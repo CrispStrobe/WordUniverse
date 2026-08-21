@@ -68,12 +68,13 @@ class _DailySessionScreenState extends State<DailySessionScreen> {
     final sri = context.watch<SriService>();
     final completed = profile.dailyCompletedSteps;
     final allDone = completed.length >= 3;
+    final compact = MediaQuery.sizeOf(context).height < 500;
 
     return Scaffold(
       body: SpaceBackground(
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.all(compact ? 12 : 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -89,7 +90,7 @@ class _DailySessionScreenState extends State<DailySessionScreen> {
                         children: [
                           Text(s.dailySessionTitle,
                               style: SpaceTheme.headlineStyle
-                                  .copyWith(fontSize: 28)),
+                                  .copyWith(fontSize: compact ? 24 : 28)),
                           Text(s.dailySessionSubtitle(profile.sessionMinutes),
                               style: SpaceTheme.bodyStyle),
                         ]),
@@ -98,7 +99,7 @@ class _DailySessionScreenState extends State<DailySessionScreen> {
                       style: SpaceTheme.titleStyle
                           .copyWith(color: SpaceTheme.starYellow)),
                 ]),
-                const SizedBox(height: 18),
+                SizedBox(height: compact ? 8 : 18),
                 if (allDone)
                   Expanded(
                     child: _Summary(
@@ -122,6 +123,7 @@ class _DailySessionScreenState extends State<DailySessionScreen> {
                               : s.dailyWarmupSubtitle,
                           icon: Icons.refresh,
                           done: completed.contains(1),
+                          compact: compact,
                           onTap: () => _play(
                               1,
                               sri.getAvailableReviewCount() > 0
@@ -134,6 +136,7 @@ class _DailySessionScreenState extends State<DailySessionScreen> {
                           subtitle: s.dailyGoalSubtitle,
                           icon: Icons.track_changes,
                           done: completed.contains(2),
+                          compact: compact,
                           onTap: () => _play(2, _goalGame(profile.goal)),
                         ),
                         _StepCard(
@@ -142,6 +145,7 @@ class _DailySessionScreenState extends State<DailySessionScreen> {
                           subtitle: s.dailyContextSubtitle,
                           icon: Icons.auto_stories,
                           done: completed.contains(3),
+                          compact: compact,
                           onTap: () =>
                               _play(3, ClozeFlashGame(gradeLevel: _band)),
                         ),
@@ -164,6 +168,7 @@ class _StepCard extends StatelessWidget {
     required this.subtitle,
     required this.icon,
     required this.done,
+    required this.compact,
     required this.onTap,
   });
   final int index;
@@ -171,14 +176,21 @@ class _StepCard extends StatelessWidget {
   final String subtitle;
   final IconData icon;
   final bool done;
+  final bool compact;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) => Card(
+        margin: EdgeInsets.symmetric(vertical: compact ? 3 : 4),
         color: SpaceTheme.deepSpace.withValues(alpha: 0.88),
         child: ListTile(
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+          dense: compact,
+          visualDensity:
+              compact ? VisualDensity.compact : VisualDensity.standard,
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: 18,
+            vertical: compact ? 0 : 10,
+          ),
           leading: CircleAvatar(
             backgroundColor:
                 done ? SpaceTheme.alienGreen : SpaceTheme.starYellow,
@@ -186,8 +198,17 @@ class _StepCard extends StatelessWidget {
                 ? const Icon(Icons.check, color: Colors.white)
                 : Text('$index', style: const TextStyle(color: Colors.black)),
           ),
-          title: Text(title, style: SpaceTheme.titleStyle),
-          subtitle: Text(subtitle, style: SpaceTheme.bodyStyle),
+          title: Text(
+            title,
+            style:
+                SpaceTheme.titleStyle.copyWith(fontSize: compact ? 18 : null),
+          ),
+          subtitle: Text(
+            subtitle,
+            style: SpaceTheme.bodyStyle.copyWith(fontSize: compact ? 13 : null),
+            maxLines: compact ? 1 : 2,
+            overflow: TextOverflow.ellipsis,
+          ),
           trailing: Icon(done ? Icons.replay : icon, color: Colors.white70),
           onTap: onTap,
         ),
