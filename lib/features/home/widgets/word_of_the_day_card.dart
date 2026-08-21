@@ -279,7 +279,7 @@ class _WordDetailSheet extends StatelessWidget {
   final bool isDE;
   const _WordDetailSheet({required this.word, required this.isDE});
 
-  GradeLevel get _gradeLevel => gradeLevelFromBand(word.gradeLevel);
+  GradeLevel get _gradeLevel => gradeLevelFromStoredLevel(word.gradeLevel);
 
   @override
   Widget build(BuildContext context) {
