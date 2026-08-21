@@ -44,6 +44,8 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 .vercel
+.appstoreconnect/
+*.p8
 
 # Local work-in-progress prompts for follow-up agents
 /handover-prompts/
