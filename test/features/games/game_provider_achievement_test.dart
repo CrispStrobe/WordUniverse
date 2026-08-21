@@ -67,4 +67,75 @@ void main() {
 
     expect(provider.score, 30);
   });
+
+  test('vocabulary mastery advances the matching game beyond level two',
+      () async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+    final provider = GameProvider(
+      progressService: ProgressService(),
+      sriService: SriService(),
+      cognitiveProfileService: CognitiveProfileService(),
+      prefs: prefs,
+    );
+
+    for (var i = 0; i < 8; i++) {
+      provider.reportOutcome(GameOutcome.win(
+        gameType: 'synonym_flash',
+        difficulty: 2,
+        score: 0,
+      ));
+    }
+
+    expect(provider.getGameProgress('synonym_flash'), 3);
+    expect(provider.hasAchievement('synonym_scholar'), isTrue);
+  });
+
+  test('grammar games record the mastery used by their level gate', () async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+    final provider = GameProvider(
+      progressService: ProgressService(),
+      sriService: SriService(),
+      cognitiveProfileService: CognitiveProfileService(),
+      prefs: prefs,
+    );
+
+    for (var i = 0; i < 8; i++) {
+      provider.reportOutcome(GameOutcome.win(
+        gameType: 'conjugation_drill',
+        difficulty: 2,
+        score: 0,
+      ));
+    }
+
+    expect(provider.getGameProgress('conjugation_drill'), 3);
+    expect(provider.hasAchievement('conjugation_king'), isTrue);
+  });
+
+  test('four completed game types unlock the all-rounder goal', () async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+    final provider = GameProvider(
+      progressService: ProgressService(),
+      sriService: SriService(),
+      cognitiveProfileService: CognitiveProfileService(),
+      prefs: prefs,
+    );
+
+    for (final gameType in [
+      'synonym_flash',
+      'antonym_flash',
+      'cloze_flash',
+      'translation_flash',
+    ]) {
+      provider.reportOutcome(GameOutcome.loss(
+        gameType: gameType,
+        difficulty: 1,
+      ));
+    }
+
+    expect(provider.gameProgress.keys, hasLength(4));
+    expect(provider.hasAchievement('all_rounder'), isTrue);
+  });
 }
