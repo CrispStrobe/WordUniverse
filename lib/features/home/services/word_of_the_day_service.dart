@@ -37,6 +37,7 @@ GermanWord? pickWordOfTheDay(List<GermanWord> words, DateTime date,
           _hasCleanHeadword(w.word) &&
           !knownMisspellings.contains(_normalizeHeadword(w.word)) &&
           !w.sources.contains('COMMON_MISSPELLED') &&
+          !_definitionMarksInvalidSpelling(w) &&
           (w.apiEnrichment?.definitions.isNotEmpty ?? false))
       .toList();
   if (pool.isEmpty) return null;
@@ -51,3 +52,22 @@ final RegExp _cleanHeadword = RegExp(
 bool _hasCleanHeadword(String word) => _cleanHeadword.hasMatch(word.trim());
 
 String _normalizeHeadword(String word) => word.trim().toLowerCase();
+
+bool _definitionMarksInvalidSpelling(GermanWord word) {
+  final enrichment = word.apiEnrichment;
+  if (enrichment == null) return false;
+  final description = [
+    ...enrichment.definitions,
+    ...enrichment.entryNotes,
+  ].join(' ').toLowerCase();
+  return _invalidSpellingMarkers.any(description.contains);
+}
+
+const _invalidSpellingMarkers = <String>[
+  'misspelling of',
+  'misspelt form of',
+  'misspelled form of',
+  'incorrect spelling of',
+  'nonstandard spelling of',
+  'falschschreibung von',
+];

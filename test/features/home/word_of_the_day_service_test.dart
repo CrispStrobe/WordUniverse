@@ -185,6 +185,16 @@ void main() {
       expect(pickWordOfTheDay([_eligible('a. didnt')], date), isNull);
     });
 
+    test('excludes a database headword defined as a misspelling', () {
+      final shippedDidnt = _word(
+        'didnt',
+        grade: 2,
+        api: _enrichment(definitions: ["Misspelling of didn't."]),
+      );
+
+      expect(pickWordOfTheDay([shippedDidnt], date), isNull);
+    });
+
     test('excludes a headword listed as a known misspelling', () {
       final misspelling = _eligible('didnt');
       final canonical = _word(
