@@ -409,7 +409,6 @@ class _SettingsScreenState extends State<SettingsScreen>
                         debugPrint(
                             "[SETTINGS] 🔊 Sound setting changed to: $value");
                       gameProvider.setSoundEnabled(value);
-                      _saveSetting('sound_enabled', value);
                     },
                     icon: Icons.music_note,
                   ),
@@ -452,7 +451,6 @@ class _SettingsScreenState extends State<SettingsScreen>
                         debugPrint(
                             "[SETTINGS] ⏱️ Puzzle timer setting changed to: $value");
                       gameProvider.setPuzzleTimer(value);
-                      _saveSetting('puzzle_timer_enabled', value);
                     },
                     icon: Icons.timer,
                   ),
@@ -1557,52 +1555,6 @@ class _SettingsScreenState extends State<SettingsScreen>
         ],
       ),
     );
-  }
-
-  Future<void> _saveSetting(String key, dynamic value) async {
-    if (kDebugMode) debugPrint("[SETTINGS] 💾 Saving setting: $key = $value");
-
-    try {
-      final prefs = await SharedPreferences.getInstance();
-
-      if (value is bool) {
-        await prefs.setBool(key, value);
-      } else if (value is String) {
-        await prefs.setString(key, value);
-      } else if (value is int) {
-        await prefs.setInt(key, value);
-      } else if (value is double) {
-        await prefs.setDouble(key, value);
-      } else if (value is List<String>) {
-        await prefs.setStringList(key, value);
-      }
-
-      if (kDebugMode) debugPrint("[SETTINGS] ✅ Successfully saved $key");
-
-      final savedValue = _getSettingValue(prefs, key, value.runtimeType);
-      if (kDebugMode)
-        debugPrint("[SETTINGS] 🔍 Verification - $key now reads: $savedValue");
-    } catch (e, stackTrace) {
-      if (kDebugMode) debugPrint("[SETTINGS] ❌ Failed to save $key: $e");
-      if (kDebugMode) debugPrint("[SETTINGS] 📚 Stack trace: $stackTrace");
-    }
-  }
-
-  dynamic _getSettingValue(SharedPreferences prefs, String key, Type type) {
-    switch (type) {
-      case bool:
-        return prefs.getBool(key);
-      case String:
-        return prefs.getString(key);
-      case int:
-        return prefs.getInt(key);
-      case double:
-        return prefs.getDouble(key);
-      case const (List<String>):
-        return prefs.getStringList(key);
-      default:
-        return prefs.get(key);
-    }
   }
 
   void _changeLanguage(String localeCode) async {
