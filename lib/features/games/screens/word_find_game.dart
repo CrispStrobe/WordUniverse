@@ -310,7 +310,6 @@ class _WordFindGameState extends State<WordFindGame> {
         // --- SUCCESS! ---
         _audioService.playSound('success');
         _gameProvider.hapticLight();
-        _gameProvider.addScore(10);
         setState(() {
           _score += 10;
           _foundWords.add(placedWord.word);

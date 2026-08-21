@@ -733,18 +733,6 @@ class SEn extends S {
   String get achievementThousandClubDesc => 'Score 1000 points';
 
   @override
-  String get achievementLevelExplorerTitle => 'Level Explorer';
-
-  @override
-  String get achievementLevelExplorerDesc => 'Reach level 5';
-
-  @override
-  String get achievementSpaceCommanderTitle => 'Space Commander';
-
-  @override
-  String get achievementSpaceCommanderDesc => 'Reach level 10';
-
-  @override
   String get achievementAllRounderTitle => 'All-Rounder';
 
   @override
@@ -1554,121 +1542,125 @@ class SEn extends S {
   String get achievementAntonymAceTitle => 'Antonym Ace';
 
   @override
-  String get achievementAntonymAceDesc => 'Complete Antonym Flash 3 times.';
+  String get achievementAntonymAceDesc =>
+      'Reach game level 3 in Antonym Flash.';
 
   @override
   String get achievementSynonymScholarTitle => 'Synonym Scholar';
 
   @override
-  String get achievementSynonymScholarDesc => 'Complete Synonym Flash 3 times.';
+  String get achievementSynonymScholarDesc =>
+      'Reach game level 3 in Synonym Flash.';
 
   @override
   String get achievementClozeMasterTitle => 'Cloze Master';
 
   @override
-  String get achievementClozeMasterDesc => 'Complete Cloze Flash 3 times.';
+  String get achievementClozeMasterDesc => 'Reach game level 3 in Cloze Flash.';
 
   @override
   String get achievementTranslationTitanTitle => 'Translation Titan';
 
   @override
   String get achievementTranslationTitanDesc =>
-      'Complete Translation Flash 3 times.';
+      'Reach game level 3 in Translation Flash.';
 
   @override
   String get achievementReverseLinguistTitle => 'Reverse Linguist';
 
   @override
   String get achievementReverseLinguistDesc =>
-      'Complete Reverse Translation 3 times.';
+      'Reach game level 3 in Reverse Translation.';
 
   @override
   String get achievementSyllableCounterTitle => 'Syllable Counter';
 
   @override
   String get achievementSyllableCounterDesc =>
-      'Complete Syllable Count 3 times.';
+      'Reach game level 3 in Syllable Count.';
 
   @override
   String get achievementExpressionExpertTitle => 'Expression Expert';
 
   @override
   String get achievementExpressionExpertDesc =>
-      'Complete Expression Flash 3 times.';
+      'Reach game level 3 in Expression Flash.';
 
   @override
   String get achievementHypernymHunterTitle => 'Hypernym Hunter';
 
   @override
   String get achievementHypernymHunterDesc =>
-      'Complete Hypernym Flash 3 times.';
+      'Reach game level 3 in Hypernym Flash.';
 
   @override
   String get achievementWordClassWhizTitle => 'Word Class Whiz';
 
   @override
   String get achievementWordClassWhizDesc =>
-      'Complete Word Class Flash 3 times.';
+      'Reach game level 3 in Word Class Flash.';
 
   @override
   String get achievementProverbSageTitle => 'Proverb Sage';
 
   @override
-  String get achievementProverbSageDesc => 'Complete Proverb Cloze 3 times.';
+  String get achievementProverbSageDesc =>
+      'Reach game level 3 in Proverb Cloze.';
 
   @override
   String get achievementConjugationKingTitle => 'Conjugation King';
 
   @override
   String get achievementConjugationKingDesc =>
-      'Complete Conjugation Drill 3 times.';
+      'Reach game level 3 in Conjugation Drill.';
 
   @override
   String get achievementVerbSplitterTitle => 'Verb Splitter';
 
   @override
-  String get achievementVerbSplitterDesc => 'Complete Verbtrenner 3 times.';
+  String get achievementVerbSplitterDesc =>
+      'Reach game level 3 in Verbtrenner.';
 
   @override
   String get achievementDefinitionWizardTitle => 'Definition Wizard';
 
   @override
   String get achievementDefinitionWizardDesc =>
-      'Complete Definition Quiz 3 times.';
+      'Reach game level 3 in Definition Quiz.';
 
   @override
   String get achievementSentenceSmithTitle => 'Sentence Smith';
 
   @override
   String get achievementSentenceSmithDesc =>
-      'Complete Sentence Completion 3 times.';
+      'Reach game level 3 in Sentence Completion.';
 
   @override
   String get achievementSpellingSleutTitle => 'Spelling Sleuth';
 
   @override
   String get achievementSpellingSleutDesc =>
-      'Complete Spelling Spotter 3 times.';
+      'Reach game level 3 in Spelling Spotter.';
 
   @override
   String get achievementHomophoneHeroTitle => 'Homophone Hero';
 
   @override
   String get achievementHomophoneHeroDesc =>
-      'Complete Homophone Drill 3 times.';
+      'Reach game level 3 in Homophone Drill.';
 
   @override
   String get achievementConfusableProTitle => 'Confusable Pro';
 
   @override
   String get achievementConfusableProDesc =>
-      'Complete Confusable Drill 3 times.';
+      'Reach game level 3 in Confusable Drill.';
 
   @override
   String get achievementReviewRegularTitle => 'Review Regular';
 
   @override
-  String get achievementReviewRegularDesc => 'Complete SRI Review 5 times.';
+  String get achievementReviewRegularDesc => 'Reach game level 5 in Review.';
 
   @override
   String get diagnosticsTitle => 'Diagnostics';

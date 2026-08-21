@@ -1395,30 +1395,6 @@ abstract class S {
   /// **'Score 1000 points'**
   String get achievementThousandClubDesc;
 
-  /// No description provided for @achievementLevelExplorerTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Level Explorer'**
-  String get achievementLevelExplorerTitle;
-
-  /// No description provided for @achievementLevelExplorerDesc.
-  ///
-  /// In en, this message translates to:
-  /// **'Reach level 5'**
-  String get achievementLevelExplorerDesc;
-
-  /// No description provided for @achievementSpaceCommanderTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Space Commander'**
-  String get achievementSpaceCommanderTitle;
-
-  /// No description provided for @achievementSpaceCommanderDesc.
-  ///
-  /// In en, this message translates to:
-  /// **'Reach level 10'**
-  String get achievementSpaceCommanderDesc;
-
   /// No description provided for @achievementAllRounderTitle.
   ///
   /// In en, this message translates to:
@@ -2863,7 +2839,7 @@ abstract class S {
   /// No description provided for @achievementAntonymAceDesc.
   ///
   /// In en, this message translates to:
-  /// **'Complete Antonym Flash 3 times.'**
+  /// **'Reach game level 3 in Antonym Flash.'**
   String get achievementAntonymAceDesc;
 
   /// No description provided for @achievementSynonymScholarTitle.
@@ -2875,7 +2851,7 @@ abstract class S {
   /// No description provided for @achievementSynonymScholarDesc.
   ///
   /// In en, this message translates to:
-  /// **'Complete Synonym Flash 3 times.'**
+  /// **'Reach game level 3 in Synonym Flash.'**
   String get achievementSynonymScholarDesc;
 
   /// No description provided for @achievementClozeMasterTitle.
@@ -2887,7 +2863,7 @@ abstract class S {
   /// No description provided for @achievementClozeMasterDesc.
   ///
   /// In en, this message translates to:
-  /// **'Complete Cloze Flash 3 times.'**
+  /// **'Reach game level 3 in Cloze Flash.'**
   String get achievementClozeMasterDesc;
 
   /// No description provided for @achievementTranslationTitanTitle.
@@ -2899,7 +2875,7 @@ abstract class S {
   /// No description provided for @achievementTranslationTitanDesc.
   ///
   /// In en, this message translates to:
-  /// **'Complete Translation Flash 3 times.'**
+  /// **'Reach game level 3 in Translation Flash.'**
   String get achievementTranslationTitanDesc;
 
   /// No description provided for @achievementReverseLinguistTitle.
@@ -2911,7 +2887,7 @@ abstract class S {
   /// No description provided for @achievementReverseLinguistDesc.
   ///
   /// In en, this message translates to:
-  /// **'Complete Reverse Translation 3 times.'**
+  /// **'Reach game level 3 in Reverse Translation.'**
   String get achievementReverseLinguistDesc;
 
   /// No description provided for @achievementSyllableCounterTitle.
@@ -2923,7 +2899,7 @@ abstract class S {
   /// No description provided for @achievementSyllableCounterDesc.
   ///
   /// In en, this message translates to:
-  /// **'Complete Syllable Count 3 times.'**
+  /// **'Reach game level 3 in Syllable Count.'**
   String get achievementSyllableCounterDesc;
 
   /// No description provided for @achievementExpressionExpertTitle.
@@ -2935,7 +2911,7 @@ abstract class S {
   /// No description provided for @achievementExpressionExpertDesc.
   ///
   /// In en, this message translates to:
-  /// **'Complete Expression Flash 3 times.'**
+  /// **'Reach game level 3 in Expression Flash.'**
   String get achievementExpressionExpertDesc;
 
   /// No description provided for @achievementHypernymHunterTitle.
@@ -2947,7 +2923,7 @@ abstract class S {
   /// No description provided for @achievementHypernymHunterDesc.
   ///
   /// In en, this message translates to:
-  /// **'Complete Hypernym Flash 3 times.'**
+  /// **'Reach game level 3 in Hypernym Flash.'**
   String get achievementHypernymHunterDesc;
 
   /// No description provided for @achievementWordClassWhizTitle.
@@ -2959,7 +2935,7 @@ abstract class S {
   /// No description provided for @achievementWordClassWhizDesc.
   ///
   /// In en, this message translates to:
-  /// **'Complete Word Class Flash 3 times.'**
+  /// **'Reach game level 3 in Word Class Flash.'**
   String get achievementWordClassWhizDesc;
 
   /// No description provided for @achievementProverbSageTitle.
@@ -2971,7 +2947,7 @@ abstract class S {
   /// No description provided for @achievementProverbSageDesc.
   ///
   /// In en, this message translates to:
-  /// **'Complete Proverb Cloze 3 times.'**
+  /// **'Reach game level 3 in Proverb Cloze.'**
   String get achievementProverbSageDesc;
 
   /// No description provided for @achievementConjugationKingTitle.
@@ -2983,7 +2959,7 @@ abstract class S {
   /// No description provided for @achievementConjugationKingDesc.
   ///
   /// In en, this message translates to:
-  /// **'Complete Conjugation Drill 3 times.'**
+  /// **'Reach game level 3 in Conjugation Drill.'**
   String get achievementConjugationKingDesc;
 
   /// No description provided for @achievementVerbSplitterTitle.
@@ -2995,7 +2971,7 @@ abstract class S {
   /// No description provided for @achievementVerbSplitterDesc.
   ///
   /// In en, this message translates to:
-  /// **'Complete Verbtrenner 3 times.'**
+  /// **'Reach game level 3 in Verbtrenner.'**
   String get achievementVerbSplitterDesc;
 
   /// No description provided for @achievementDefinitionWizardTitle.
@@ -3007,7 +2983,7 @@ abstract class S {
   /// No description provided for @achievementDefinitionWizardDesc.
   ///
   /// In en, this message translates to:
-  /// **'Complete Definition Quiz 3 times.'**
+  /// **'Reach game level 3 in Definition Quiz.'**
   String get achievementDefinitionWizardDesc;
 
   /// No description provided for @achievementSentenceSmithTitle.
@@ -3019,7 +2995,7 @@ abstract class S {
   /// No description provided for @achievementSentenceSmithDesc.
   ///
   /// In en, this message translates to:
-  /// **'Complete Sentence Completion 3 times.'**
+  /// **'Reach game level 3 in Sentence Completion.'**
   String get achievementSentenceSmithDesc;
 
   /// No description provided for @achievementSpellingSleutTitle.
@@ -3031,7 +3007,7 @@ abstract class S {
   /// No description provided for @achievementSpellingSleutDesc.
   ///
   /// In en, this message translates to:
-  /// **'Complete Spelling Spotter 3 times.'**
+  /// **'Reach game level 3 in Spelling Spotter.'**
   String get achievementSpellingSleutDesc;
 
   /// No description provided for @achievementHomophoneHeroTitle.
@@ -3043,7 +3019,7 @@ abstract class S {
   /// No description provided for @achievementHomophoneHeroDesc.
   ///
   /// In en, this message translates to:
-  /// **'Complete Homophone Drill 3 times.'**
+  /// **'Reach game level 3 in Homophone Drill.'**
   String get achievementHomophoneHeroDesc;
 
   /// No description provided for @achievementConfusableProTitle.
@@ -3055,7 +3031,7 @@ abstract class S {
   /// No description provided for @achievementConfusableProDesc.
   ///
   /// In en, this message translates to:
-  /// **'Complete Confusable Drill 3 times.'**
+  /// **'Reach game level 3 in Confusable Drill.'**
   String get achievementConfusableProDesc;
 
   /// No description provided for @achievementReviewRegularTitle.
@@ -3067,7 +3043,7 @@ abstract class S {
   /// No description provided for @achievementReviewRegularDesc.
   ///
   /// In en, this message translates to:
-  /// **'Complete SRI Review 5 times.'**
+  /// **'Reach game level 5 in Review.'**
   String get achievementReviewRegularDesc;
 
   /// No description provided for @diagnosticsTitle.
