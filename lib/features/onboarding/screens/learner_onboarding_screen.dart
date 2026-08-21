@@ -90,17 +90,41 @@ class _LearnerOnboardingScreenState extends State<LearnerOnboardingScreen> {
                           ])),
                       _section(
                           s.onboardingStartBand,
-                          Wrap(
-                              spacing: 8,
-                              children: List.generate(4, (i) {
-                                final value = i + 1;
-                                return ChoiceChip(
-                                  label: Text(s.gradeN(value)),
-                                  selected: _band == value,
-                                  onSelected: (_) =>
-                                      setState(() => _band = value),
-                                );
-                              }))),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Wrap(
+                                  spacing: 8,
+                                  runSpacing: 8,
+                                  children: List.generate(4, (i) {
+                                    final value = i + 1;
+                                    return ChoiceChip(
+                                      label: Text(s.gradeN(value)),
+                                      selected: _band == value,
+                                      onSelected: (_) =>
+                                          setState(() => _band = value),
+                                    );
+                                  })),
+                              const SizedBox(height: 8),
+                              AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 180),
+                                child: Text(
+                                  _bandDescription(s),
+                                  key: ValueKey(_band),
+                                  style: SpaceTheme.bodyStyle
+                                      .copyWith(color: Colors.white70),
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                s.onboardingBandNote,
+                                style: SpaceTheme.bodyStyle.copyWith(
+                                  color: Colors.white54,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          )),
                       _section(
                           s.onboardingDailyTime,
                           SegmentedButton<int>(
@@ -152,4 +176,11 @@ class _LearnerOnboardingScreenState extends State<LearnerOnboardingScreen> {
         selected: _goal == value,
         onSelected: (_) => setState(() => _goal = value),
       );
+
+  String _bandDescription(S s) => switch (_band) {
+        1 => s.grade3Desc,
+        2 => s.grade4Desc,
+        3 => s.grade5Desc,
+        _ => s.grade6Desc,
+      };
 }

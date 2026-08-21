@@ -145,6 +145,12 @@ abstract class S {
   /// **'Choose a starting vocabulary band'**
   String get onboardingStartBand;
 
+  /// No description provided for @onboardingBandNote.
+  ///
+  /// In en, this message translates to:
+  /// **'These are broad difficulty bands, not school years, ages, or CEFR levels.'**
+  String get onboardingBandNote;
+
   /// No description provided for @onboardingDailyTime.
   ///
   /// In en, this message translates to:
@@ -888,7 +894,7 @@ abstract class S {
   /// No description provided for @progress.
   ///
   /// In en, this message translates to:
-  /// **'Career Progress'**
+  /// **'Learning Progress'**
   String get progress;
 
   /// No description provided for @achievements.

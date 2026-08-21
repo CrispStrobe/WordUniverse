@@ -34,6 +34,10 @@ class SEn extends S {
   String get onboardingStartBand => 'Choose a starting vocabulary band';
 
   @override
+  String get onboardingBandNote =>
+      'These are broad difficulty bands, not school years, ages, or CEFR levels.';
+
+  @override
   String get onboardingDailyTime => 'Daily practice time';
 
   @override
@@ -462,7 +466,7 @@ class SEn extends S {
   String get language => 'Language';
 
   @override
-  String get progress => 'Career Progress';
+  String get progress => 'Learning Progress';
 
   @override
   String get achievements => 'Achievements';

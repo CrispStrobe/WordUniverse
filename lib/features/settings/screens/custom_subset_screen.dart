@@ -13,7 +13,6 @@ import '../../../generated/l10n.dart';
 import '../../games/providers/game_provider.dart';
 import '../../games/widgets/space_background.dart';
 
-
 class CustomSubsetScreen extends StatefulWidget {
   /// Pass an existing set to edit it, or null to create a new one.
   final VocabularySet? set;
@@ -27,7 +26,7 @@ class CustomSubsetScreen extends StatefulWidget {
 class _CustomSubsetScreenState extends State<CustomSubsetScreen> {
   // ... (all state properties are unchanged)
   final _formKey = GlobalKey<FormState>();
-  
+
   // Form Controllers
   late final TextEditingController _nameController;
   late final TextEditingController _descriptionController;
@@ -52,7 +51,6 @@ class _CustomSubsetScreenState extends State<CustomSubsetScreen> {
   bool _isLoading = true;
   bool get _isEditing => widget.set != null;
 
-
   @override
   void initState() {
     super.initState();
@@ -62,14 +60,18 @@ class _CustomSubsetScreenState extends State<CustomSubsetScreen> {
 
     // 1. Initialize Form Fields
     _nameController = TextEditingController(text: widget.set?.name);
-    _descriptionController = TextEditingController(text: widget.set?.description);
-    _targetGrade = widget.set?.targetGrade ?? GradeLevel.values[gameProvider.grade.clamp(0, 5)];
+    _descriptionController =
+        TextEditingController(text: widget.set?.description);
+    final initialBand = widget.set == null
+        ? gameProvider.grade
+        : bandFromGradeLevel(widget.set!.targetGrade);
+    _targetGrade = gradeLevelFromBand(initialBand.clamp(1, 4));
 
     // 2. Load Vocabulary
     // This NEW method is required in VocabularyService
     _allWords = vocabService.getFullVocabularyList();
     _allSources = vocabService.getAllAvailableSources();
-    
+
     if (widget.set != null) {
       _selectedWordIds = widget.set!.wordIds.toSet();
     }
@@ -105,24 +107,27 @@ class _CustomSubsetScreenState extends State<CustomSubsetScreen> {
     for (final word in _allWords) {
       if (_selectedWordIds.contains(word.id)) {
         // Word is in the RIGHT column (Selected)
-        if (selectedQuery.isEmpty || word.word.toLowerCase().contains(selectedQuery)) {
+        if (selectedQuery.isEmpty ||
+            word.word.toLowerCase().contains(selectedQuery)) {
           newSelected.add(word);
         }
       } else {
         // Word is in the LEFT column (Available)
-        
+
         // Check search query
-        if (availableQuery.isNotEmpty && !word.word.toLowerCase().contains(availableQuery)) {
+        if (availableQuery.isNotEmpty &&
+            !word.word.toLowerCase().contains(availableQuery)) {
           continue;
         }
 
         // Check source filters
         if (_selectedSources.isNotEmpty) {
-          if (word.sources.isEmpty || !word.sources.any((s) => _selectedSources.contains(s))) {
+          if (word.sources.isEmpty ||
+              !word.sources.any((s) => _selectedSources.contains(s))) {
             continue;
           }
         }
-        
+
         newAvailable.add(word);
       }
     }
@@ -163,7 +168,6 @@ class _CustomSubsetScreenState extends State<CustomSubsetScreen> {
     _runFilter();
   }
 
-
   Future<void> _onSave() async {
     // ... (this method is unchanged)
     if (!_formKey.currentState!.validate()) {
@@ -195,11 +199,10 @@ class _CustomSubsetScreenState extends State<CustomSubsetScreen> {
           targetGrade: _targetGrade,
         );
       }
-      
+
       if (mounted) {
         Navigator.of(context).pop();
       }
-
     } catch (e) {
       if (kDebugMode) debugPrint("Error saving custom set: $e");
       if (mounted) {
@@ -231,7 +234,8 @@ class _CustomSubsetScreenState extends State<CustomSubsetScreen> {
                     : Column(
                         children: [
                           _buildForm(s),
-                          const Divider(color: SpaceTheme.nebulaPurple, height: 1),
+                          const Divider(
+                              color: SpaceTheme.nebulaPurple, height: 1),
                           Expanded(
                             child: Row(
                               children: [
@@ -243,9 +247,11 @@ class _CustomSubsetScreenState extends State<CustomSubsetScreen> {
                                   s,
                                   onBulkAdd: _addAllFiltered,
                                 ),
-                                const VerticalDivider(color: SpaceTheme.nebulaPurple, width: 1),
+                                const VerticalDivider(
+                                    color: SpaceTheme.nebulaPurple, width: 1),
                                 _buildWordColumn(
-                                  s.customSetSelectedWords(_selectedWordIds.length),
+                                  s.customSetSelectedWords(
+                                      _selectedWordIds.length),
                                   _selectedSearchController,
                                   _selectedWordsFiltered,
                                   true,
@@ -312,7 +318,8 @@ class _CustomSubsetScreenState extends State<CustomSubsetScreen> {
           children: [
             TextFormField(
               controller: _nameController,
-              decoration: _inputDecoration(s.customSetNameLabel, s.customSetNameHint),
+              decoration:
+                  _inputDecoration(s.customSetNameLabel, s.customSetNameHint),
               style: SpaceTheme.bodyStyle,
               validator: (value) =>
                   (value == null || value.isEmpty) ? "Name is required" : null,
@@ -320,19 +327,22 @@ class _CustomSubsetScreenState extends State<CustomSubsetScreen> {
             const SizedBox(height: 12),
             TextFormField(
               controller: _descriptionController,
-              decoration: _inputDecoration(s.customSetDescriptionLabel, s.customSetDescriptionHint),
+              decoration: _inputDecoration(
+                  s.customSetDescriptionLabel, s.customSetDescriptionHint),
               style: SpaceTheme.bodyStyle,
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<GradeLevel>(
               initialValue: _targetGrade,
               items: [
-                DropdownMenuItem(value: GradeLevel.grade1, child: Text(s.gradeN(1))),
-                DropdownMenuItem(value: GradeLevel.grade2, child: Text(s.gradeN(2))),
-                DropdownMenuItem(value: GradeLevel.grade3, child: Text(s.gradeN(3))),
-                DropdownMenuItem(value: GradeLevel.grade4, child: Text(s.gradeN(4))),
-                DropdownMenuItem(value: GradeLevel.grade5, child: Text(s.gradeN(5))),
-                DropdownMenuItem(value: GradeLevel.grade6, child: Text(s.gradeN(6))),
+                DropdownMenuItem(
+                    value: GradeLevel.grade1, child: Text(s.gradeN(1))),
+                DropdownMenuItem(
+                    value: GradeLevel.grade2, child: Text(s.gradeN(2))),
+                DropdownMenuItem(
+                    value: GradeLevel.grade3, child: Text(s.gradeN(3))),
+                DropdownMenuItem(
+                    value: GradeLevel.grade4, child: Text(s.gradeN(4))),
               ],
               onChanged: (value) {
                 if (value != null) {
@@ -357,9 +367,15 @@ class _CustomSubsetScreenState extends State<CustomSubsetScreen> {
       hintStyle: SpaceTheme.bodyStyle.copyWith(color: Colors.white38),
       filled: true,
       fillColor: SpaceTheme.deepSpace.withValues(alpha: 0.5),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.white24)),
-      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.white24)),
-      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: SpaceTheme.alienGreen)),
+      border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.white24)),
+      enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.white24)),
+      focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: SpaceTheme.alienGreen)),
     );
   }
 
@@ -380,7 +396,8 @@ class _CustomSubsetScreenState extends State<CustomSubsetScreen> {
             padding: const EdgeInsets.all(16.0),
             child: Text(
               title,
-              style: SpaceTheme.titleStyle.copyWith(color: SpaceTheme.starYellow),
+              style:
+                  SpaceTheme.titleStyle.copyWith(color: SpaceTheme.starYellow),
             ),
           ),
 
@@ -403,11 +420,15 @@ class _CustomSubsetScreenState extends State<CustomSubsetScreen> {
           // 4. Bulk Action Buttons
           if (onBulkAdd != null || onBulkRemove != null)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: TextButton(
                 child: Text(
                   isSelectedList ? s.customSetRemoveAll : s.customSetAddAll,
-                  style: TextStyle(color: isSelectedList ? SpaceTheme.rocketRed : SpaceTheme.alienGreen),
+                  style: TextStyle(
+                      color: isSelectedList
+                          ? SpaceTheme.rocketRed
+                          : SpaceTheme.alienGreen),
                 ),
                 onPressed: () {
                   if (isSelectedList) {
@@ -427,7 +448,7 @@ class _CustomSubsetScreenState extends State<CustomSubsetScreen> {
       ),
     );
   }
-  
+
   Widget _buildSourceFilterChipList() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -451,9 +472,13 @@ class _CustomSubsetScreenState extends State<CustomSubsetScreen> {
             },
             backgroundColor: SpaceTheme.deepSpace.withValues(alpha: 0.8),
             selectedColor: SpaceTheme.alienGreen.withValues(alpha: 0.3),
-            labelStyle: TextStyle(color: isSelected ? SpaceTheme.alienGreen : Colors.white),
+            labelStyle: TextStyle(
+                color: isSelected ? SpaceTheme.alienGreen : Colors.white),
             checkmarkColor: SpaceTheme.alienGreen,
-            shape: StadiumBorder(side: BorderSide(color: isSelected ? SpaceTheme.alienGreen : Colors.white24)),
+            shape: StadiumBorder(
+                side: BorderSide(
+                    color:
+                        isSelected ? SpaceTheme.alienGreen : Colors.white24)),
           );
         }).toList(),
       ),
@@ -479,11 +504,15 @@ class _CustomSubsetScreenState extends State<CustomSubsetScreen> {
           title: Text(word.displayName, style: SpaceTheme.bodyStyle),
           subtitle: Text(
             word.wordType.toString().split('.').last,
-            style: SpaceTheme.bodyStyle.copyWith(color: Colors.white54, fontSize: 12),
+            style: SpaceTheme.bodyStyle
+                .copyWith(color: Colors.white54, fontSize: 12),
           ),
           trailing: Icon(
-            isSelectedList ? Icons.remove_circle_outline : Icons.add_circle_outline,
-            color: isSelectedList ? SpaceTheme.rocketRed : SpaceTheme.alienGreen,
+            isSelectedList
+                ? Icons.remove_circle_outline
+                : Icons.add_circle_outline,
+            color:
+                isSelectedList ? SpaceTheme.rocketRed : SpaceTheme.alienGreen,
           ),
           onTap: () => _onWordTapped(word, isSelectedList),
         );

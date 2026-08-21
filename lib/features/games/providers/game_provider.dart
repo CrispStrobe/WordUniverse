@@ -13,8 +13,8 @@ import '../models/game_outcome.dart';
 import '../tuning.dart';
 
 /// User-facing difficulty mode picked from the menu. Shifts the grade
-/// passed into a game so kids can sample easier or harder content
-/// without changing their official grade selection.
+/// passed into a game so learners can sample easier or harder content without
+/// changing their selected vocabulary band.
 enum DifficultyMode {
   easy, // grade - 1 (clamped to 1)
   normal, // grade
@@ -206,7 +206,7 @@ class GameProvider extends ChangeNotifier {
 
     _score = _prefs.getInt('score') ?? 0;
     _level = _prefs.getInt('level') ?? 1;
-    _grade = _prefs.getInt('grade') ?? 1;
+    _grade = (_prefs.getInt('grade') ?? 1).clamp(1, 4);
     _sessionsPlayed = _prefs.getInt('sessionsPlayed') ?? 0;
     _lives = _prefs.getInt('lives') ?? 3;
     _soundEnabled = _prefs.getBool('soundEnabled') ?? true;
@@ -546,7 +546,7 @@ class GameProvider extends ChangeNotifier {
   }
 
   void setDifficulty(int newGrade, int newLevel) {
-    _grade = newGrade;
+    _grade = newGrade.clamp(1, 4);
     _level = newLevel;
     notifyListeners();
     _saveProgress();
@@ -562,7 +562,7 @@ class GameProvider extends ChangeNotifier {
 
   // Grade/Skill Level management
   void setGrade(int grade) {
-    _grade = grade.clamp(1, 6);
+    _grade = grade.clamp(1, 4);
     _level = 1;
     notifyListeners();
     _saveProgress();
@@ -820,7 +820,7 @@ class GameProvider extends ChangeNotifier {
   }
 
   void progressToNextGrade() {
-    if (canProgressToNextGrade() && _grade < 6) {
+    if (canProgressToNextGrade() && _grade < 4) {
       _grade++;
       _level = 1;
       _gameProgress.clear();

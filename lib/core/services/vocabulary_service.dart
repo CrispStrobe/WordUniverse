@@ -196,8 +196,7 @@ class VocabularyService with ChangeNotifier {
       return const RemoteDownloadInfo(consentRequired: false);
     }
     final prefs = await SharedPreferences.getInstance();
-    final alreadyDownloaded =
-        prefs.getBool(_downloadedFlagKey(lang)) ?? false;
+    final alreadyDownloaded = prefs.getBool(_downloadedFlagKey(lang)) ?? false;
     return RemoteDownloadInfo(
       consentRequired: !alreadyDownloaded,
       compressedBytes: source!.expectedCompressedBytes,
@@ -366,19 +365,7 @@ class VocabularyService with ChangeNotifier {
     var filtered = _vocabulary.values.toList();
 
     if (grade != null) {
-      int targetGradeLevel;
-      switch (grade) {
-        case GradeLevel.grade1:
-        case GradeLevel.grade2:
-          targetGradeLevel = 1;
-          break;
-        case GradeLevel.grade3:
-        case GradeLevel.grade4:
-          targetGradeLevel = 2;
-          break;
-        default:
-          targetGradeLevel = 3;
-      }
+      final targetGradeLevel = bandFromGradeLevel(grade);
       filtered =
           filtered.where((w) => w.gradeLevel == targetGradeLevel).toList();
     }
@@ -563,7 +550,7 @@ class VocabularyService with ChangeNotifier {
 
     // 3. Fallback to random within grade
     if (similar.length < count) {
-      final gradeEnum = GradeLevel.values[baseWord.gradeLevel.clamp(0, 5)];
+      final gradeEnum = gradeLevelFromStoredLevel(baseWord.gradeLevel);
       final random = getRandomWords(
         count: count - similar.length,
         settingsProvider: settingsProvider,
