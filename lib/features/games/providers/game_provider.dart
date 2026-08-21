@@ -378,13 +378,6 @@ class GameProvider extends ChangeNotifier {
       debugPrint('[GAME_PROVIDER] 🎯 Recording ${outcome.gameType} result: '
           '${outcome.wasSuccessful ? "WIN" : "LOSS"} at difficulty ${outcome.difficulty}');
 
-    _sessionsPlayed++;
-    if (outcome.wasSuccessful) _addScore(outcome.score);
-
-    _currentLevelWins[outcome.gameType] =
-        (_currentLevelWins[outcome.gameType] ?? 0) +
-            (outcome.wasSuccessful ? 1 : 0);
-
     final skill = gameSkillMap[outcome.gameType];
     if (skill == null) {
       if (kDebugMode)
@@ -392,8 +385,15 @@ class GameProvider extends ChangeNotifier {
       return false;
     }
 
-    if (skill.category != LanguageCategory.rechtschreibung &&
-        skill.category != LanguageCategory.grammatik) {
+    _sessionsPlayed++;
+    _gameProgress.putIfAbsent(outcome.gameType, () => 1);
+    if (outcome.wasSuccessful) _addScore(outcome.score);
+
+    _currentLevelWins[outcome.gameType] =
+        (_currentLevelWins[outcome.gameType] ?? 0) +
+            (outcome.wasSuccessful ? 1 : 0);
+
+    if (skill.category != LanguageCategory.rechtschreibung) {
       _cognitiveProfileService.recordAttempt(
           skill, outcome.difficulty, outcome.wasSuccessful);
     }
@@ -401,11 +401,15 @@ class GameProvider extends ChangeNotifier {
     bool didAdvance = false;
     if (outcome.wasSuccessful &&
         canAdvanceToNextLevel(
-            outcome.gameType, _gameProgress[outcome.gameType] ?? 1)) {
+          outcome.gameType,
+          _gameProgress[outcome.gameType]!,
+          outcome.difficulty,
+        )) {
       advanceLevel(outcome.gameType);
       didAdvance = true;
     }
 
+    _checkAchievements();
     if (!didAdvance) {
       notifyListeners();
     }
@@ -430,7 +434,8 @@ class GameProvider extends ChangeNotifier {
     ));
   }
 
-  bool canAdvanceToNextLevel(String gameType, int currentLevel) {
+  bool canAdvanceToNextLevel(
+      String gameType, int currentLevel, int vocabularyDifficulty) {
     if ((_currentLevelWins[gameType] ?? 0) < kWinsRequiredForLevelUp) {
       if (kDebugMode)
         debugPrint('[GAME_PROVIDER] ❌ $gameType: '
@@ -442,9 +447,9 @@ class GameProvider extends ChangeNotifier {
     if (skill == null) return false;
 
     if (skill.category == LanguageCategory.rechtschreibung) {
-      return _checkSpellingMastery(currentLevel);
+      return _checkSpellingMastery();
     } else {
-      return _cognitiveProfileService.hasMastery(skill, currentLevel);
+      return _cognitiveProfileService.hasMastery(skill, vocabularyDifficulty);
     }
   }
 
@@ -456,7 +461,7 @@ class GameProvider extends ChangeNotifier {
     _currentLevelWins[gameType] = 0;
   }
 
-  bool _checkSpellingMastery(int difficulty) {
+  bool _checkSpellingMastery() {
     final breakdown = _sriService.getDetailedBreakdown();
     final gradeStats = breakdown[LanguageSkillType.spelling];
     if (gradeStats == null) return false;
