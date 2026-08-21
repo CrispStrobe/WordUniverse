@@ -18,6 +18,127 @@ class SEn extends S {
   String get startAdventure => 'Start Word Adventure';
 
   @override
+  String get onboardingWelcomeTitle => 'Set up your learning';
+
+  @override
+  String get onboardingWelcomeBody =>
+      'Choose what you want to practise. You can change everything later in Settings.';
+
+  @override
+  String get onboardingLearningLanguage => 'What do you want to learn?';
+
+  @override
+  String get onboardingGoal => 'What should practice focus on?';
+
+  @override
+  String get onboardingStartBand => 'Choose a starting vocabulary band';
+
+  @override
+  String get onboardingDailyTime => 'Daily practice time';
+
+  @override
+  String get onboardingContinue => 'Prepare my learning plan';
+
+  @override
+  String get goalBalanced => 'Balanced';
+
+  @override
+  String get goalVocabulary => 'Vocabulary';
+
+  @override
+  String get goalSpelling => 'Spelling';
+
+  @override
+  String get goalGrammar => 'Grammar';
+
+  @override
+  String get goalDafDaz => 'German as a foreign language';
+
+  @override
+  String get dailySessionTitle => 'Today’s learning plan';
+
+  @override
+  String dailySessionSubtitle(int minutes) {
+    return 'A focused session of about $minutes minutes';
+  }
+
+  @override
+  String get dailyReviewTitle => 'Review due words';
+
+  @override
+  String dailyReviewSubtitle(int count) {
+    return '$count words are ready for review';
+  }
+
+  @override
+  String get dailyWarmupTitle => 'Context warm-up';
+
+  @override
+  String get dailyWarmupSubtitle => 'Start with a short sentence exercise';
+
+  @override
+  String get dailyGoalTitle => 'Practise your main goal';
+
+  @override
+  String get dailyGoalSubtitle =>
+      'An exercise selected from your learning goal';
+
+  @override
+  String get dailyContextTitle => 'Use words in context';
+
+  @override
+  String get dailyContextSubtitle =>
+      'Finish with a sentence-completion challenge';
+
+  @override
+  String get dailyCompleteTitle => 'Plan complete';
+
+  @override
+  String dailyCompleteSummary(int attempts, int mastered) {
+    return 'You answered $attempts tracked items and mastered $mastered new items during this plan.';
+  }
+
+  @override
+  String get dailyPractiseMore => 'Practise more';
+
+  @override
+  String get browseAllGames => 'Browse all games';
+
+  @override
+  String get focusMode => 'Focus mode';
+
+  @override
+  String get focusModeDesc =>
+      'Reduce decorative elements and keep learning actions prominent';
+
+  @override
+  String get catalogRecommended => 'Recommended';
+
+  @override
+  String get catalogFast => 'Quick practice';
+
+  @override
+  String get catalogFavorites => 'Favourites';
+
+  @override
+  String get catalogRecent => 'Recent';
+
+  @override
+  String get catalogAll => 'All games';
+
+  @override
+  String get catalogSearch => 'Search games';
+
+  @override
+  String get catalogAddFavorite => 'Add to favourites';
+
+  @override
+  String get catalogRemoveFavorite => 'Remove from favourites';
+
+  @override
+  String get catalogNoGames => 'No games match this view yet.';
+
+  @override
   String get chooseGrade => 'Choose Your Level';
 
   @override
@@ -418,16 +539,17 @@ class SEn extends S {
   String get currentLevelDesc => 'Current Level';
 
   @override
-  String get difficultyDescGrade3 => 'Simple words (Grades 1-2)';
+  String get difficultyDescGrade3 => 'Everyday words and spelling basics';
 
   @override
-  String get difficultyDescGrade4 => 'Common words (Grades 3-4)';
+  String get difficultyDescGrade4 => 'Broader vocabulary and basic grammar';
 
   @override
-  String get difficultyDescGrade5 => 'Advanced words (Grades 5-6)';
+  String get difficultyDescGrade5 => 'Advanced words, cases, and tenses';
 
   @override
-  String get difficultyDescGrade6 => 'Expert vocabulary (Grades 6+)';
+  String get difficultyDescGrade6 =>
+      'Challenging vocabulary and complex grammar';
 
   @override
   String get totalScore => 'Total Score';
@@ -451,14 +573,14 @@ class SEn extends S {
   String get developerName => 'Word Universe Team';
 
   @override
-  String get targetAge => 'Target Age';
+  String get targetAge => 'Who It’s For';
 
   @override
-  String get targetAgeRange => '6-12 years (Grades 1-6)';
+  String get targetAgeRange => 'German and English learners of different ages';
 
   @override
   String get aboutApp =>
-      'Word Universe helps primary school students learn spelling and vocabulary through engaging space-themed games.';
+      'Word Universe helps learners practise vocabulary, spelling, and grammar through engaging space-themed games.';
 
   @override
   String get debugPanelTitle => 'Debug Panel';
@@ -470,7 +592,7 @@ class SEn extends S {
   String get debugApplyAndClose => 'Apply & Close';
 
   @override
-  String get parentalGateTitle => 'Parental Gate';
+  String get parentalGateTitle => 'Quick Check';
 
   @override
   String get parentalGateChallenge => 'To continue, please solve this problem:';
@@ -840,7 +962,7 @@ class SEn extends S {
   String get customSetDescriptionHint => 'A short description of this set...';
 
   @override
-  String get customSetTargetGrade => 'Target Grade';
+  String get customSetTargetGrade => 'Target Level';
 
   @override
   String get customSetAvailableWords => 'Available Words';
@@ -1512,10 +1634,11 @@ class SEn extends S {
   String get diagnosticsSubtitle => 'View crash log (stays on device)';
 
   @override
-  String get parentDashboardTitle => 'Parent Overview';
+  String get parentDashboardTitle => 'Learning insights';
 
   @override
-  String get parentDashboardSubtitle => 'Progress, PIN-protected';
+  String get parentDashboardSubtitle =>
+      'Detailed progress, optionally PIN-protected';
 
   @override
   String get privacyTitle => 'Privacy';
@@ -1553,7 +1676,7 @@ class SEn extends S {
   }
 
   @override
-  String get parentPinTitle => 'Parent PIN';
+  String get parentPinTitle => 'Insights PIN';
 
   @override
   String parentPinHelp(String pin) {
@@ -1567,7 +1690,7 @@ class SEn extends S {
   String get parentPinUnlock => 'Unlock';
 
   @override
-  String get parentChangePin => 'Change parent PIN';
+  String get parentChangePin => 'Change insights PIN';
 
   @override
   String get parentChangePinDialogTitle => 'Change PIN';
@@ -1683,7 +1806,7 @@ class SEn extends S {
 
   @override
   String get wordSortOnboardingBuildingBlocks =>
-      'Nouns, verbs and adjectives are the building blocks. Higher grades add adverbs and pronouns.';
+      'Nouns, verbs and adjectives are the building blocks. Higher levels add adverbs and pronouns.';
 
   @override
   String get wordSortOnboardingHints =>
@@ -1769,7 +1892,7 @@ class SEn extends S {
 
   @override
   String gradeLabel(int grade) {
-    return 'Grade $grade';
+    return 'Vocabulary level $grade';
   }
 
   @override
@@ -1878,7 +2001,7 @@ class SEn extends S {
 
   @override
   String get definitionQuizOnboardingBody3 =>
-      'For grade 5+ a language note appears after a correct answer.';
+      'From vocabulary level 5, a language note appears after a correct answer.';
 
   @override
   String get sentenceCompletionPrompt => 'Which word completes the sentence?';
@@ -1930,34 +2053,34 @@ class SEn extends S {
       'Every correct answer raises the easiness factor of that word.';
 
   @override
-  String get achievementGrade2Title => 'Grade 2 Graduate';
+  String get achievementGrade2Title => 'Level 2 Explorer';
 
   @override
-  String get achievementGrade2Desc => 'Advanced to Grade 2.';
+  String get achievementGrade2Desc => 'Reached vocabulary level 2.';
 
   @override
-  String get achievementGrade3Title => 'Grade 3 Graduate';
+  String get achievementGrade3Title => 'Level 3 Explorer';
 
   @override
-  String get achievementGrade3Desc => 'Advanced to Grade 3.';
+  String get achievementGrade3Desc => 'Reached vocabulary level 3.';
 
   @override
-  String get achievementGrade4Title => 'Grade 4 Graduate';
+  String get achievementGrade4Title => 'Level 4 Explorer';
 
   @override
-  String get achievementGrade4Desc => 'Advanced to Grade 4.';
+  String get achievementGrade4Desc => 'Reached vocabulary level 4.';
 
   @override
-  String get achievementGrade5Title => 'Grade 5 Graduate';
+  String get achievementGrade5Title => 'Level 5 Explorer';
 
   @override
-  String get achievementGrade5Desc => 'Advanced to Grade 5.';
+  String get achievementGrade5Desc => 'Reached vocabulary level 5.';
 
   @override
-  String get achievementGrade6Title => 'Grade 6 Graduate';
+  String get achievementGrade6Title => 'Level 6 Explorer';
 
   @override
-  String get achievementGrade6Desc => 'Advanced to Grade 6.';
+  String get achievementGrade6Desc => 'Reached vocabulary level 6.';
 
   @override
   String get semanticsBack => 'Go back';
@@ -2190,7 +2313,7 @@ class SEn extends S {
 
   @override
   String get wordSnakeNoPuzzles =>
-      'No puzzle could be made right now. Please try another grade or come back later.';
+      'No puzzle could be made right now. Please try another level or come back later.';
 
   @override
   String get wordSnakeBasicVocabulary => '⭐ Core vocabulary';
@@ -2365,7 +2488,7 @@ class SEn extends S {
 
   @override
   String get wordSortEmptyMessage =>
-      'There are no words to sort for this grade yet. Try another grade or come back later.';
+      'There are no words to sort for this level yet. Try another level or come back later.';
 
   @override
   String get wordSortGenderMasculine => 'masculine (der)';

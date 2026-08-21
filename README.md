@@ -1,21 +1,25 @@
 # 🚀 Word Universe (Wort-Universum)
 
-A space-themed Flutter application designed to help primary school students (Grades 1-6) learn German vocabulary, spelling, and grammar in an engaging way.
+A space-themed Flutter application for practising German and English vocabulary, spelling, and grammar through games.
 
 ## ✨ About The Project
 
-Word Universe turns vocabulary and grammar practice into a space adventure. Built with Flutter, this app is designed for young learners, particularly those in German primary school. It moves beyond simple flashcards by incorporating mini-games, progress tracking, and an adaptive learning system to make learning effective and fun.
+Word Universe turns vocabulary and grammar practice into a space adventure. It is designed for learners with different ages and backgrounds, including students, independent adult learners, and adults learning German as a foreign or second language (DaF/DaZ). It moves beyond simple flashcards by combining mini-games, progress tracking, and an adaptive learning system.
 
-The core of the app is a **Spaced Repetition (SRI) service** that tracks a student's performance on a per-word, per-skill basis. This allows the games to intelligently present words that the user struggles with more frequently, ensuring a truly personalized learning path.
+The selectable vocabulary levels are broad difficulty bands. They help sequence content, but they do not correspond strictly to school years, age groups, or CEFR levels.
+
+The core of the app is a **Spaced Repetition (SRI) service** that tracks performance on a per-word, per-skill basis. This allows the games to present difficult words more frequently and adapt practice to the learner. A short onboarding flow captures the learning language, goal, starting band, and preferred daily practice time; the home screen then offers a three-step daily learning plan.
 
 ## 🎮 Features
 
   * **Multi-Language Support:** Fully localized for both English (`en`) and German (`de`) users.
   * **Adaptive Learning:** A custom **Spaced Repetition (SRI) Service** (`SriService`) tracks user performance on spelling and grammar, prioritizing new and difficult words.
   * **Persistent Progress:** All user progress (score, level, achievements, SRI data) is saved locally using `shared_preferences`.
+  * **Guided Daily Practice:** Goal-based sessions combine review, a focused exercise, and words in context.
+  * **Game Discovery:** Search, skill filters, recommendations, favourites, and recent games make the larger catalogue easier to navigate.
+  * **Focus Mode:** Reduces decorative motion and keeps learning actions prominent.
   * **Rich Vocabulary:** Loads a comprehensive vocabulary list (`grundwortschatz.json`) into a `VocabularyService`, complete with word types, articles, and common misspellings.
-  * **Monetization Ready:** Includes a `PurchaseService` using `in_app_purchase` to handle unlocking a full version.
-  * **Parental Gate:** Protects in-app purchases with a simple math question to ensure parent approval.
+  * **Monetization Deferred:** Purchase infrastructure remains in the codebase, but IAP is disabled while the core learning experience is refined.
   * **Developer Debug Panel:** A hidden debug menu (activated by tapping the app title 7 times) allows for forcing IAP unlocks and testing.
 
 ### Mini-Games Included:
@@ -30,7 +34,7 @@ The core of the app is a **Spaced Repetition (SRI) service** that tracks a stude
       * **Skill:** Grammar (Wortarten)
       * **Gameplay:** The user is presented with a word (e.g., "Stock") and must drag-and-drop it into the correct category bin (Nomen, Verben, or Adjektive).
 
-*(…plus 40+ more mini-games. The menu filters by the chosen learning language.)*
+*(…plus more than 30 mini-games in total. The menu filters by the chosen learning language.)*
 
 ### English-only games (learning language = English):
 

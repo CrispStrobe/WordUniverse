@@ -18,6 +18,126 @@ class SDe extends S {
   String get startAdventure => 'Starte Wort-Abenteuer';
 
   @override
+  String get onboardingWelcomeTitle => 'Richte dein Lernen ein';
+
+  @override
+  String get onboardingWelcomeBody =>
+      'Wähle aus, was du üben möchtest. Alles lässt sich später in den Einstellungen ändern.';
+
+  @override
+  String get onboardingLearningLanguage => 'Was möchtest du lernen?';
+
+  @override
+  String get onboardingGoal =>
+      'Worauf soll dein Training den Schwerpunkt legen?';
+
+  @override
+  String get onboardingStartBand => 'Wähle eine Wortschatzstufe zum Einstieg';
+
+  @override
+  String get onboardingDailyTime => 'Tägliche Übungszeit';
+
+  @override
+  String get onboardingContinue => 'Meinen Lernplan vorbereiten';
+
+  @override
+  String get goalBalanced => 'Ausgewogen';
+
+  @override
+  String get goalVocabulary => 'Wortschatz';
+
+  @override
+  String get goalSpelling => 'Rechtschreibung';
+
+  @override
+  String get goalGrammar => 'Grammatik';
+
+  @override
+  String get goalDafDaz => 'Deutsch als Fremd- oder Zweitsprache';
+
+  @override
+  String get dailySessionTitle => 'Dein heutiger Lernplan';
+
+  @override
+  String dailySessionSubtitle(int minutes) {
+    return 'Eine konzentrierte Einheit von etwa $minutes Minuten';
+  }
+
+  @override
+  String get dailyReviewTitle => 'Fällige Wörter wiederholen';
+
+  @override
+  String dailyReviewSubtitle(int count) {
+    return '$count Wörter sind zur Wiederholung bereit';
+  }
+
+  @override
+  String get dailyWarmupTitle => 'Aufwärmen im Kontext';
+
+  @override
+  String get dailyWarmupSubtitle => 'Starte mit einer kurzen Satzübung';
+
+  @override
+  String get dailyGoalTitle => 'Deinen Schwerpunkt üben';
+
+  @override
+  String get dailyGoalSubtitle => 'Eine Übung passend zu deinem Lernziel';
+
+  @override
+  String get dailyContextTitle => 'Wörter im Kontext verwenden';
+
+  @override
+  String get dailyContextSubtitle => 'Schließe mit einer Lückentext-Aufgabe ab';
+
+  @override
+  String get dailyCompleteTitle => 'Lernplan abgeschlossen';
+
+  @override
+  String dailyCompleteSummary(int attempts, int mastered) {
+    return 'Du hast $attempts erfasste Aufgaben beantwortet und dabei $mastered neue Inhalte gemeistert.';
+  }
+
+  @override
+  String get dailyPractiseMore => 'Weiterüben';
+
+  @override
+  String get browseAllGames => 'Alle Spiele entdecken';
+
+  @override
+  String get focusMode => 'Fokusmodus';
+
+  @override
+  String get focusModeDesc =>
+      'Weniger Dekoration, damit die Lernaktionen im Mittelpunkt stehen';
+
+  @override
+  String get catalogRecommended => 'Empfohlen';
+
+  @override
+  String get catalogFast => 'Kurzübungen';
+
+  @override
+  String get catalogFavorites => 'Favoriten';
+
+  @override
+  String get catalogRecent => 'Zuletzt gespielt';
+
+  @override
+  String get catalogAll => 'Alle Spiele';
+
+  @override
+  String get catalogSearch => 'Spiele suchen';
+
+  @override
+  String get catalogAddFavorite => 'Zu Favoriten hinzufügen';
+
+  @override
+  String get catalogRemoveFavorite => 'Aus Favoriten entfernen';
+
+  @override
+  String get catalogNoGames => 'Noch keine passenden Spiele in dieser Ansicht.';
+
+  @override
   String get chooseGrade => 'Wähle deine Stufe';
 
   @override
@@ -419,16 +539,20 @@ class SDe extends S {
   String get currentLevelDesc => 'Aktuelles Level';
 
   @override
-  String get difficultyDescGrade3 => 'Einfache Wörter (Klasse 1-2)';
+  String get difficultyDescGrade3 =>
+      'Alltagswörter und Grundlagen der Rechtschreibung';
 
   @override
-  String get difficultyDescGrade4 => 'Häufige Wörter (Klasse 3-4)';
+  String get difficultyDescGrade4 =>
+      'Breiterer Wortschatz und grundlegende Grammatik';
 
   @override
-  String get difficultyDescGrade5 => 'Fortgeschrittene Wörter (Klasse 5-6)';
+  String get difficultyDescGrade5 =>
+      'Fortgeschrittene Wörter, Fälle und Zeitformen';
 
   @override
-  String get difficultyDescGrade6 => 'Experten-Wortschatz (Klasse 6+)';
+  String get difficultyDescGrade6 =>
+      'Anspruchsvoller Wortschatz und komplexe Grammatik';
 
   @override
   String get totalScore => 'Gesamtpunktzahl';
@@ -452,14 +576,15 @@ class SDe extends S {
   String get developerName => 'CrispStrobe';
 
   @override
-  String get targetAge => 'Zielalter';
+  String get targetAge => 'Für wen';
 
   @override
-  String get targetAgeRange => '6-12 Jahre (Klasse 1-6)';
+  String get targetAgeRange =>
+      'Deutsch- und Englischlernende verschiedener Altersgruppen';
 
   @override
   String get aboutApp =>
-      'Wort-Universum hilft Schülern, Rechtschreibung und Wortschatz durch fesselnde Spiele zu lernen.';
+      'Wort-Universum hilft beim Üben von Wortschatz, Rechtschreibung und Grammatik – mit abwechslungsreichen Spielen im Weltraum-Design.';
 
   @override
   String get debugPanelTitle => 'Debug-Panel';
@@ -471,7 +596,7 @@ class SDe extends S {
   String get debugApplyAndClose => 'Anwenden & Schließen';
 
   @override
-  String get parentalGateTitle => 'Kindersicherung';
+  String get parentalGateTitle => 'Kurze Sicherheitsabfrage';
 
   @override
   String get parentalGateChallenge =>
@@ -848,7 +973,7 @@ class SDe extends S {
       'Eine kurze Beschreibung dieses Sets...';
 
   @override
-  String get customSetTargetGrade => 'Ziel-Klassenstufe';
+  String get customSetTargetGrade => 'Ziel-Stufe';
 
   @override
   String get customSetAvailableWords => 'Verfügbare Wörter';
@@ -1532,10 +1657,11 @@ class SDe extends S {
       'Absturzprotokoll anzeigen (bleibt auf dem Gerät)';
 
   @override
-  String get parentDashboardTitle => 'Eltern-Übersicht';
+  String get parentDashboardTitle => 'Lernanalyse';
 
   @override
-  String get parentDashboardSubtitle => 'Fortschritt, mit PIN geschützt';
+  String get parentDashboardSubtitle =>
+      'Detaillierter Fortschritt, optional mit PIN geschützt';
 
   @override
   String get privacyTitle => 'Datenschutz';
@@ -1575,7 +1701,7 @@ class SDe extends S {
   }
 
   @override
-  String get parentPinTitle => 'Eltern-PIN';
+  String get parentPinTitle => 'Analyse-PIN';
 
   @override
   String parentPinHelp(String pin) {
@@ -1589,7 +1715,7 @@ class SDe extends S {
   String get parentPinUnlock => 'Entsperren';
 
   @override
-  String get parentChangePin => 'Eltern-PIN ändern';
+  String get parentChangePin => 'Analyse-PIN ändern';
 
   @override
   String get parentChangePinDialogTitle => 'PIN ändern';
@@ -1705,7 +1831,7 @@ class SDe extends S {
 
   @override
   String get wordSortOnboardingBuildingBlocks =>
-      'Nomen, Verben und Adjektive sind die Grundbausteine. Höhere Klassen bringen Adverbien und Pronomen dazu.';
+      'Nomen, Verben und Adjektive sind die Grundbausteine. In höheren Stufen kommen Adverbien und Pronomen dazu.';
 
   @override
   String get wordSortOnboardingHints =>
@@ -1791,7 +1917,7 @@ class SDe extends S {
 
   @override
   String gradeLabel(int grade) {
-    return 'Klasse $grade';
+    return 'Wortschatzstufe $grade';
   }
 
   @override
@@ -1903,7 +2029,7 @@ class SDe extends S {
 
   @override
   String get definitionQuizOnboardingBody3 =>
-      'Für Klasse 5+ erscheint nach richtiger Antwort ein Sprach-Tipp zum Wort.';
+      'Ab Wortschatzstufe 5 erscheint nach einer richtigen Antwort ein Sprach-Tipp zum Wort.';
 
   @override
   String get sentenceCompletionPrompt => 'Welches Wort passt in die Lücke?';
@@ -1956,34 +2082,34 @@ class SDe extends S {
       'Mit jeder richtigen Antwort steigt der Easiness Factor des Wortes.';
 
   @override
-  String get achievementGrade2Title => 'Klasse-2-Aufsteiger';
+  String get achievementGrade2Title => 'Stufen-Entdecker 2';
 
   @override
-  String get achievementGrade2Desc => 'Auf Klasse 2 aufgestiegen.';
+  String get achievementGrade2Desc => 'Wortschatzstufe 2 erreicht.';
 
   @override
-  String get achievementGrade3Title => 'Klasse-3-Aufsteiger';
+  String get achievementGrade3Title => 'Stufen-Entdecker 3';
 
   @override
-  String get achievementGrade3Desc => 'Auf Klasse 3 aufgestiegen.';
+  String get achievementGrade3Desc => 'Wortschatzstufe 3 erreicht.';
 
   @override
-  String get achievementGrade4Title => 'Klasse-4-Aufsteiger';
+  String get achievementGrade4Title => 'Stufen-Entdecker 4';
 
   @override
-  String get achievementGrade4Desc => 'Auf Klasse 4 aufgestiegen.';
+  String get achievementGrade4Desc => 'Wortschatzstufe 4 erreicht.';
 
   @override
-  String get achievementGrade5Title => 'Klasse-5-Aufsteiger';
+  String get achievementGrade5Title => 'Stufen-Entdecker 5';
 
   @override
-  String get achievementGrade5Desc => 'Auf Klasse 5 aufgestiegen.';
+  String get achievementGrade5Desc => 'Wortschatzstufe 5 erreicht.';
 
   @override
-  String get achievementGrade6Title => 'Klasse-6-Aufsteiger';
+  String get achievementGrade6Title => 'Stufen-Entdecker 6';
 
   @override
-  String get achievementGrade6Desc => 'Auf Klasse 6 aufgestiegen.';
+  String get achievementGrade6Desc => 'Wortschatzstufe 6 erreicht.';
 
   @override
   String get semanticsBack => 'Zurück';
@@ -2218,7 +2344,7 @@ class SDe extends S {
 
   @override
   String get wordSnakeNoPuzzles =>
-      'Gerade konnte kein Rätsel erstellt werden. Probier eine andere Klassenstufe oder komm später wieder.';
+      'Gerade konnte kein Rätsel erstellt werden. Probier eine andere Stufe oder komm später wieder.';
 
   @override
   String get wordSnakeBasicVocabulary => '⭐ Grundwortschatz';
@@ -2393,7 +2519,7 @@ class SDe extends S {
 
   @override
   String get wordSortEmptyMessage =>
-      'Für diese Klassenstufe gibt es noch keine Wörter zum Sortieren. Probiere eine andere Stufe oder komm später wieder.';
+      'Für diese Stufe gibt es noch keine Wörter zum Sortieren. Probiere eine andere Stufe oder komm später wieder.';
 
   @override
   String get wordSortGenderMasculine => 'maskulin (der)';

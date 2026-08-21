@@ -60,11 +60,10 @@ class PrivacyPolicyDialog extends StatelessWidget {
                       _PolicySection(
                         title: 'In Kürze',
                         body:
-                            'Diese App speichert den Lernfortschritt deines '
-                            'Kindes ausschließlich auf diesem Gerät. Es '
-                            'werden keine Daten an Server gesendet. Es gibt '
-                            'kein Tracking, keine Werbung, keinen Account, '
-                            'keine personenbezogenen Daten — niemals.',
+                            'Diese App speichert deinen Lernfortschritt '
+                            'ausschließlich auf diesem Gerät und sendet ihn '
+                            'nicht an uns oder Dritte. Es gibt kein Tracking, '
+                            'keine Werbung und keinen Account.',
                       ),
                       _PolicySection(
                         title: 'Was wird wo gespeichert',
@@ -80,25 +79,30 @@ class PrivacyPolicyDialog extends StatelessWidget {
                             'pro Skill-Bereich)\n'
                             '• Streak (laufende und längste Serie an '
                             'aufeinanderfolgenden Spieltagen)\n'
-                            '• Einstellungen (Klassenstufe, Sprache, Ton '
+                            '• Einstellungen (Lernstufe, Sprache, Ton '
                             'an/aus, Schriftart, eigene Vokabel-Sets)\n'
                             '• Eltern-PIN (4-stellig, für die '
                             'Eltern-Übersicht)\n'
                             '• Eine rollierende Crash-Logdatei mit max. '
                             '50 Einträgen, nur bei tatsächlichen Abstürzen\n\n'
-                            'Keiner dieser Werte identifiziert dein Kind. '
+                            'Keiner dieser Werte identifiziert dich. '
                             'Kein Name, keine E-Mail, kein Geburtsdatum, '
-                            'keine Geräte-ID, keine IP-Adresse wird '
-                            'gespeichert oder übertragen.',
+                            'keine Geräte-ID und keine IP-Adresse werden '
+                            'von der App dauerhaft gespeichert.',
                       ),
                       _PolicySection(
                         title: 'Netzwerk',
                         body:
-                            'Die App ruft von sich aus keine externen '
-                            'Server auf. Die Wortschatzdatenbank wird beim '
-                            'Installieren mitgeliefert und beim ersten '
-                            'Start einmalig lokal entpackt — sie wird '
-                            'nicht aus dem Netz nachgeladen.\n\n'
+                            'Die englische Wortschatzdatenbank wird mit der '
+                            'App installiert. Die deutsche Datenbank wird '
+                            'bei der ersten Verwendung von Hugging Face '
+                            'heruntergeladen und danach lokal gespeichert. '
+                            'Dabei fallen die für eine Internetverbindung '
+                            'üblichen technischen Verbindungsdaten beim '
+                            'Download-Anbieter an.\n\n'
+                            'In-App-Käufe und deren Wiederherstellung werden '
+                            'über den App Store des Geräts abgewickelt. Die '
+                            'App erhält dabei keine Zahlungsdaten.\n\n'
                             'Externe Links (z.B. zur Webseite des '
                             'Herausgebers im Impressum) öffnen sich im '
                             'System-Browser. Innerhalb der App passiert '
@@ -116,16 +120,14 @@ class PrivacyPolicyDialog extends StatelessWidget {
                             'rauskopierst und z.B. in eine E-Mail einfügst.',
                       ),
                       _PolicySection(
-                        title: 'Kinder (DSGVO Art. 8 / COPPA)',
+                        title: 'Nutzung durch Minderjährige',
                         body:
-                            'Diese App ist für Grundschulkinder gedacht. '
-                            'Sie ist bewusst so konzipiert, dass die '
-                            'Einwilligungsvorschriften der DSGVO-K '
-                            '(Artikel 8 in Deutschland) und COPPA (USA) '
-                            'gar nicht erst greifen müssen: Es werden '
-                            'keinerlei personenbezogene Daten erhoben oder '
-                            'verarbeitet. Wir sammeln nichts — es gibt '
-                            'nichts, dem zugestimmt werden müsste.',
+                            'Die App kann von Lernenden verschiedener '
+                            'Altersgruppen genutzt werden, darunter auch '
+                            'Minderjährige. Die App legt kein Nutzerkonto an '
+                            'und erhebt selbst keine personenbezogenen '
+                            'Daten. Lernfortschritt und Einstellungen '
+                            'bleiben lokal auf dem Gerät.',
                       ),
                       _PolicySection(
                         title: 'Deine Rechte',

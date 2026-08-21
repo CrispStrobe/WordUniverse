@@ -33,7 +33,8 @@ class WordOfTheDayCard extends StatelessWidget {
 
     final gameProvider = context.read<GameProvider>();
     final words = vocabService.getAllWords(gameProvider);
-    final word = pickWordOfTheDay(words, DateTime.now());
+    final word = pickWordOfTheDay(words, DateTime.now(),
+        targetBand: gameProvider.grade.clamp(1, 4));
     if (word == null) return const SizedBox.shrink();
 
     return _WordOfTheDayContent(word: word, isVerySmall: isVerySmall);
@@ -43,8 +44,7 @@ class WordOfTheDayCard extends StatelessWidget {
 class _WordOfTheDayContent extends StatelessWidget {
   final GermanWord word;
   final bool isVerySmall;
-  const _WordOfTheDayContent(
-      {required this.word, required this.isVerySmall});
+  const _WordOfTheDayContent({required this.word, required this.isVerySmall});
 
   String? get _definition {
     final defs = word.apiEnrichment?.definitions;
@@ -56,8 +56,7 @@ class _WordOfTheDayContent extends StatelessWidget {
 
   String? get _exampleSentence {
     final grade = word.gradeLevel;
-    final gradeExamples =
-        word.apiEnrichment?.gradeExamples?['$grade'] ?? [];
+    final gradeExamples = word.apiEnrichment?.gradeExamples?['$grade'] ?? [];
     if (gradeExamples.isNotEmpty) return gradeExamples.first;
     final ex = word.examples;
     if (ex.isNotEmpty) {
@@ -92,156 +91,156 @@ class _WordOfTheDayContent extends StatelessWidget {
     return GestureDetector(
       onTap: () => _showDetail(context, isDE),
       child: Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(
-        horizontal: isVerySmall ? 14 : 18,
-        vertical: isVerySmall ? 12 : 16,
-      ),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            const Color(0xFF1A237E).withValues(alpha: 0.7),
-            SpaceTheme.deepSpace.withValues(alpha: 0.85),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(
+          horizontal: isVerySmall ? 14 : 18,
+          vertical: isVerySmall ? 12 : 16,
         ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: SpaceTheme.starYellow.withValues(alpha: 0.35),
-          width: 1,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              const Color(0xFF1A237E).withValues(alpha: 0.7),
+              SpaceTheme.deepSpace.withValues(alpha: 0.85),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: SpaceTheme.starYellow.withValues(alpha: 0.35),
+            width: 1,
+          ),
         ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header row
-          Row(
-            children: [
-              Icon(Icons.wb_sunny_outlined,
-                  color: SpaceTheme.starYellow,
-                  size: isVerySmall ? 14 : 16),
-              const SizedBox(width: 6),
-              Text(
-                s.wordOfTheDay,
-                style: TextStyle(
-                  color: SpaceTheme.starYellow,
-                  fontSize: isVerySmall ? 11 : 12,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.5,
-                ),
-              ),
-              const Spacer(),
-              if (word.cefrLevel != null)
-                CefrChip(word.cefrLevel!, small: true),
-            ],
-          ),
-          SizedBox(height: isVerySmall ? 6 : 8),
-
-          // Word + speaker
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Text(
-                  word.article != null
-                      ? '${word.article} ${word.word}'
-                      : word.word,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: isVerySmall ? 22 : 26,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              IconButton(
-                onPressed: () => audioService.speak(
-                  word.word,
-                  lang: isDE ? 'de-DE' : 'en-US',
-                ),
-                icon: const Icon(Icons.volume_up_rounded,
-                    color: Colors.white60, size: 20),
-                visualDensity: VisualDensity.compact,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(
-                    minWidth: 32, minHeight: 32),
-                tooltip: s.pronounce,
-              ),
-            ],
-          ),
-
-          // Definition
-          if (definition != null) ...[
-            SizedBox(height: isVerySmall ? 4 : 6),
-            Text(
-              definition,
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: isVerySmall ? 12 : 13,
-                height: 1.35,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-
-          // Example sentence
-          if (example != null) ...[
-            SizedBox(height: isVerySmall ? 4 : 6),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header row
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('»  ',
-                    style: TextStyle(
-                        color: SpaceTheme.planetOrange.withValues(alpha: 0.8),
-                        fontSize: isVerySmall ? 11 : 12,
-                        fontWeight: FontWeight.bold)),
+                Icon(Icons.wb_sunny_outlined,
+                    color: SpaceTheme.starYellow, size: isVerySmall ? 14 : 16),
+                const SizedBox(width: 6),
+                Text(
+                  s.wordOfTheDay,
+                  style: TextStyle(
+                    color: SpaceTheme.starYellow,
+                    fontSize: isVerySmall ? 11 : 12,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const Spacer(),
+                if (word.cefrLevel != null)
+                  CefrChip(word.cefrLevel!, small: true),
+              ],
+            ),
+            SizedBox(height: isVerySmall ? 6 : 8),
+
+            // Word + speaker
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
                 Expanded(
                   child: Text(
-                    example,
+                    word.article != null
+                        ? '${word.article} ${word.word}'
+                        : word.word,
                     style: TextStyle(
-                      color: Colors.white54,
-                      fontSize: isVerySmall ? 11 : 12,
-                      fontStyle: FontStyle.italic,
+                      color: Colors.white,
+                      fontSize: isVerySmall ? 22 : 26,
+                      fontWeight: FontWeight.bold,
                     ),
-                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => audioService.speak(
+                    word.word,
+                    lang: isDE ? 'de-DE' : 'en-US',
+                  ),
+                  icon: const Icon(Icons.volume_up_rounded,
+                      color: Colors.white60, size: 20),
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
+                  constraints:
+                      const BoxConstraints(minWidth: 32, minHeight: 32),
+                  tooltip: s.pronounce,
+                ),
+              ],
+            ),
+
+            // Definition
+            if (definition != null) ...[
+              SizedBox(height: isVerySmall ? 4 : 6),
+              Text(
+                definition,
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: isVerySmall ? 12 : 13,
+                  height: 1.35,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+
+            // Example sentence
+            if (example != null) ...[
+              SizedBox(height: isVerySmall ? 4 : 6),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('»  ',
+                      style: TextStyle(
+                          color: SpaceTheme.planetOrange.withValues(alpha: 0.8),
+                          fontSize: isVerySmall ? 11 : 12,
+                          fontWeight: FontWeight.bold)),
+                  Expanded(
+                    child: Text(
+                      example,
+                      style: TextStyle(
+                        color: Colors.white54,
+                        fontSize: isVerySmall ? 11 : 12,
+                        fontStyle: FontStyle.italic,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+
+            // Synonyms
+            if (synonyms.isNotEmpty) ...[
+              SizedBox(height: isVerySmall ? 6 : 8),
+              Wrap(
+                spacing: 6,
+                runSpacing: 4,
+                children: synonyms
+                    .map(
+                        (s) => _SynonymChip(label: s, isVerySmall: isVerySmall))
+                    .toList(),
+              ),
+            ],
+
+            // Tap hint
+            SizedBox(height: isVerySmall ? 6 : 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Text(
+                  s.tapToPractise,
+                  style: TextStyle(
+                    color: SpaceTheme.starYellow.withValues(alpha: 0.6),
+                    fontSize: isVerySmall ? 10 : 11,
                   ),
                 ),
               ],
             ),
           ],
-
-          // Synonyms
-          if (synonyms.isNotEmpty) ...[
-            SizedBox(height: isVerySmall ? 6 : 8),
-            Wrap(
-              spacing: 6,
-              runSpacing: 4,
-              children: synonyms
-                  .map((s) => _SynonymChip(label: s, isVerySmall: isVerySmall))
-                  .toList(),
-            ),
-          ],
-
-          // Tap hint
-          SizedBox(height: isVerySmall ? 6 : 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Text(
-                s.tapToPractise,
-                style: TextStyle(
-                  color: SpaceTheme.starYellow.withValues(alpha: 0.6),
-                  fontSize: isVerySmall ? 10 : 11,
-                ),
-              ),
-            ],
-          ),
-        ],
+        ),
       ),
-    ),
     );
   }
 }
@@ -259,8 +258,8 @@ class _SynonymChip extends StatelessWidget {
       decoration: BoxDecoration(
         color: SpaceTheme.nebulaPurple.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-            color: SpaceTheme.nebulaPurple.withValues(alpha: 0.5)),
+        border:
+            Border.all(color: SpaceTheme.nebulaPurple.withValues(alpha: 0.5)),
       ),
       child: Text(
         label,
@@ -306,8 +305,8 @@ class _WordDetailSheet extends StatelessWidget {
         decoration: BoxDecoration(
           color: const Color(0xFF0D1B2A),
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          border: Border.all(
-              color: SpaceTheme.starYellow.withValues(alpha: 0.2)),
+          border:
+              Border.all(color: SpaceTheme.starYellow.withValues(alpha: 0.2)),
         ),
         child: ListView(
           controller: scrollController,
@@ -378,7 +377,8 @@ class _WordDetailSheet extends StatelessWidget {
                       Expanded(
                         child: Text(d,
                             style: const TextStyle(
-                                color: Colors.white70, fontSize: 13,
+                                color: Colors.white70,
+                                fontSize: 13,
                                 height: 1.4)),
                       ),
                     ],

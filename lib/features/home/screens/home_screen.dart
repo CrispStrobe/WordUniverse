@@ -7,6 +7,7 @@ import 'dart:async';
 import '../../../core/services/debug_provider.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/streak_service.dart';
+import '../../../core/services/learner_profile_service.dart';
 import '../../../shared/widgets/purchase_dialog.dart';
 import '../../../shared/widgets/parental_gate.dart';
 import '../../games/screens/karteikasten_screen.dart';
@@ -21,6 +22,7 @@ import '../../games/screens/game_menu_screen.dart';
 import '../../settings/screens/settings_screen.dart';
 import '../../../shared/widgets/imprint_dialog.dart';
 import '../widgets/word_of_the_day_card.dart';
+import 'daily_session_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -29,8 +31,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen>
-    with TickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late AnimationController _slideController;
   late Animation<double> _fadeAnimation;
@@ -108,6 +109,12 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
+  void _navigateToDailySession() {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => const DailySessionScreen(),
+    ));
+  }
+
   void _navigateToSettings() {
     Navigator.of(context).push(
       PageRouteBuilder(
@@ -134,7 +141,7 @@ class _HomeScreenState extends State<HomeScreen>
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     final isLandscape = screenSize.width > screenSize.height;
-    
+
     // Better responsive breakpoints
     final isVerySmall = screenSize.height < 600 || screenSize.width < 360;
     final horizontalPadding = isVerySmall ? 12.0 : 20.0;
@@ -209,7 +216,6 @@ class _HomeScreenState extends State<HomeScreen>
             ),
           ),
         ),
-
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -231,9 +237,7 @@ class _HomeScreenState extends State<HomeScreen>
               ),
               tooltip: S.of(context)!.imprintTitle,
             ),
-
             const SizedBox(width: 4),
-
             Consumer<StreakService>(
               builder: (context, streak, _) {
                 if (!streak.isLoaded || streak.currentStreak == 0) {
@@ -267,8 +271,8 @@ class _HomeScreenState extends State<HomeScreen>
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 6),
                               decoration: BoxDecoration(
-                                color: SpaceTheme.deepSpace
-                                    .withValues(alpha: 0.8),
+                                color:
+                                    SpaceTheme.deepSpace.withValues(alpha: 0.8),
                                 borderRadius: BorderRadius.circular(20),
                                 border: Border.all(
                                     color: SpaceTheme.rocketRed
@@ -340,14 +344,10 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                 );
                 if (!isUnlocked) return btn;
-                return due > 0
-                    ? Badge.count(count: due, child: btn)
-                    : btn;
+                return due > 0 ? Badge.count(count: due, child: btn) : btn;
               },
             ),
-
             const SizedBox(width: 4),
-
             IconButton(
               onPressed: () {
                 Navigator.of(context).push(MaterialPageRoute(
@@ -365,9 +365,7 @@ class _HomeScreenState extends State<HomeScreen>
                 padding: EdgeInsets.all(isVerySmall ? 8 : 12),
               ),
             ),
-
             const SizedBox(width: 4),
-
             IconButton(
               onPressed: () {
                 Navigator.of(context).push(MaterialPageRoute(
@@ -385,9 +383,7 @@ class _HomeScreenState extends State<HomeScreen>
                 padding: EdgeInsets.all(isVerySmall ? 8 : 12),
               ),
             ),
-
             const SizedBox(width: 4),
-
             IconButton(
               onPressed: _navigateToSettings,
               icon: Icon(
@@ -410,7 +406,7 @@ class _HomeScreenState extends State<HomeScreen>
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     final isSmallScreen = screenWidth < 800 || screenHeight < 500;
-    
+
     return Row(
       children: [
         // LEFT SIDE
@@ -460,13 +456,15 @@ class _HomeScreenState extends State<HomeScreen>
                     child: _buildStartButton(isSmallScreen, isVerySmall),
                   ),
                 ),
+                const SizedBox(height: 8),
+                _buildBrowseButton(),
               ],
             ),
           ),
         ),
-        
+
         SizedBox(width: isSmallScreen ? 8 : 16),
-        
+
         // RIGHT SIDE
         Expanded(
           flex: isSmallScreen ? 4 : 5,
@@ -513,6 +511,7 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Widget _buildPortraitLayout(bool isVerySmall) {
+    final focusMode = context.watch<LearnerProfileService>().focusMode;
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -545,14 +544,16 @@ class _HomeScreenState extends State<HomeScreen>
             ),
           ),
           SizedBox(height: isVerySmall ? 8 : 12),
-          SlideTransition(
-            position: _slideAnimation,
-            child: FadeTransition(
-              opacity: _fadeAnimation,
-              child: CompactAchievementsPreview(isVerySmall: isVerySmall),
+          if (!focusMode) ...[
+            SlideTransition(
+              position: _slideAnimation,
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: CompactAchievementsPreview(isVerySmall: isVerySmall),
+              ),
             ),
-          ),
-          SizedBox(height: isVerySmall ? 8 : 12),
+            SizedBox(height: isVerySmall ? 8 : 12),
+          ],
           SlideTransition(
             position: _slideAnimation,
             child: FadeTransition(
@@ -578,6 +579,8 @@ class _HomeScreenState extends State<HomeScreen>
               child: _buildStartButton(false, isVerySmall),
             ),
           ),
+          const SizedBox(height: 8),
+          _buildBrowseButton(),
 
           SizedBox(height: isVerySmall ? 8 : 12), // Bottom padding
         ],
@@ -588,7 +591,7 @@ class _HomeScreenState extends State<HomeScreen>
   Widget _buildStartButton(bool isSmallScreen, bool isVerySmall) {
     return Container(
       constraints: BoxConstraints(
-        maxWidth: isVerySmall ? 200 : (isSmallScreen ? 220 : 300),
+        maxWidth: isVerySmall ? 240 : (isSmallScreen ? 280 : 380),
         minHeight: isVerySmall ? 44 : (isSmallScreen ? 48 : 60),
       ),
       decoration: BoxDecoration(
@@ -610,7 +613,7 @@ class _HomeScreenState extends State<HomeScreen>
           borderRadius: BorderRadius.circular(
             isVerySmall ? 12 : (isSmallScreen ? 16 : 30),
           ),
-          onTap: _navigateToGameMenu,
+          onTap: _navigateToDailySession,
           child: Padding(
             padding: EdgeInsets.symmetric(
               horizontal: isVerySmall ? 16.0 : (isSmallScreen ? 20.0 : 24.0),
@@ -627,14 +630,35 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
                 SizedBox(width: isVerySmall ? 6 : (isSmallScreen ? 8 : 12)),
                 Flexible(
-                  child: Text(
-                    S.of(context)!.startAdventure,
-                    textAlign: TextAlign.center,
-                    style: SpaceTheme.buttonStyle.copyWith(
-                      fontSize: isVerySmall ? 14 : (isSmallScreen ? 15 : 18),
+                  child: Consumer<LearnerProfileService>(
+                    builder: (context, profile, child) => Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          S.of(context)!.dailySessionTitle,
+                          textAlign: TextAlign.center,
+                          style: SpaceTheme.buttonStyle.copyWith(
+                            fontSize:
+                                isVerySmall ? 14 : (isSmallScreen ? 15 : 18),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (!isVerySmall)
+                          Text(
+                            S.of(context)!.dailySessionSubtitle(
+                                  profile.sessionMinutes,
+                                ),
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 11,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                      ],
                     ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
@@ -645,12 +669,17 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
+  Widget _buildBrowseButton() => TextButton.icon(
+        onPressed: _navigateToGameMenu,
+        icon: const Icon(Icons.grid_view),
+        label: Text(S.of(context)!.browseAllGames),
+      );
 }
 
 // Updated AnimatedLogo with size parameter
 class AnimatedLogo extends StatefulWidget {
   final double size;
-  
+
   const AnimatedLogo({super.key, this.size = 150});
 
   @override
@@ -659,19 +688,18 @@ class AnimatedLogo extends StatefulWidget {
 
 class _AnimatedLogoState extends State<AnimatedLogo>
     with SingleTickerProviderStateMixin {
-  
   late AnimationController _controller;
   late Animation<double> _animation;
-  
+
   @override
   void initState() {
     super.initState();
-    
+
     _controller = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
     )..repeat(reverse: true);
-    
+
     _animation = Tween<double>(
       begin: 0.9,
       end: 1.1,
@@ -680,7 +708,7 @@ class _AnimatedLogoState extends State<AnimatedLogo>
       curve: Curves.easeInOut,
     ));
   }
-  
+
   @override
   void dispose() {
     _controller.dispose();
@@ -689,11 +717,12 @@ class _AnimatedLogoState extends State<AnimatedLogo>
 
   @override
   Widget build(BuildContext context) {
+    final focusMode = context.watch<LearnerProfileService>().focusMode;
     return AnimatedBuilder(
       animation: _animation,
       builder: (context, child) {
         return Transform.scale(
-          scale: _animation.value,
+          scale: focusMode ? 1.0 : _animation.value,
           child: Container(
             width: widget.size,
             height: widget.size,
@@ -729,7 +758,7 @@ class _AnimatedLogoState extends State<AnimatedLogo>
 class CompactStatsCard extends StatelessWidget {
   final bool isSmallScreen;
   final bool isVerySmall;
-  
+
   const CompactStatsCard({
     super.key,
     this.isSmallScreen = false,
@@ -751,7 +780,8 @@ class CompactStatsCard extends StatelessWidget {
                 Color(0xFF1E2235),
               ],
             ),
-            borderRadius: BorderRadius.circular(isVerySmall ? 10 : (isSmallScreen ? 12 : 16)),
+            borderRadius: BorderRadius.circular(
+                isVerySmall ? 10 : (isSmallScreen ? 12 : 16)),
             boxShadow: const [
               BoxShadow(
                 color: Colors.black26,
@@ -785,9 +815,7 @@ class CompactStatsCard extends StatelessWidget {
                   ),
                 ],
               ),
-              
               SizedBox(height: isVerySmall ? 8 : (isSmallScreen ? 10 : 12)),
-              
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
@@ -802,9 +830,9 @@ class CompactStatsCard extends StatelessWidget {
                   ),
                   _buildCompactStatItem(
                     context: context,
-                    icon: Icons.trending_up,
-                    label: S.of(context)!.level,
-                    value: gameProvider.level.toString(),
+                    icon: Icons.games,
+                    label: S.of(context)!.gamesPlayed,
+                    value: gameProvider.totalGamesPlayed.toString(),
                     color: const Color(0xFF06FFA5),
                     isSmallScreen: isSmallScreen,
                     isVerySmall: isVerySmall,
@@ -826,7 +854,7 @@ class CompactStatsCard extends StatelessWidget {
       },
     );
   }
-  
+
   Widget _buildCompactStatItem({
     required BuildContext context,
     required IconData icon,
@@ -852,9 +880,7 @@ class CompactStatsCard extends StatelessWidget {
             size: isVerySmall ? 14 : (isSmallScreen ? 16 : 20),
           ),
         ),
-        
         const SizedBox(height: 4),
-        
         Text(
           value,
           style: TextStyle(
@@ -863,8 +889,7 @@ class CompactStatsCard extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-
-        if (!isSmallScreen && !isVerySmall) 
+        if (!isSmallScreen && !isVerySmall)
           Text(
             label,
             style: const TextStyle(
@@ -882,7 +907,7 @@ class CompactStatsCard extends StatelessWidget {
 class CompactAchievementsPreview extends StatelessWidget {
   final bool isSmallScreen;
   final bool isVerySmall;
-  
+
   const CompactAchievementsPreview({
     super.key,
     this.isSmallScreen = false,
@@ -893,13 +918,25 @@ class CompactAchievementsPreview extends StatelessWidget {
     final s = S.of(context)!;
     switch (id) {
       case 'first_century':
-        return AchievementUIData(title: s.achievementFirstCenturyTitle, description: s.achievementFirstCenturyDesc, icon: '💯');
+        return AchievementUIData(
+            title: s.achievementFirstCenturyTitle,
+            description: s.achievementFirstCenturyDesc,
+            icon: '💯');
       case 'score_master':
-        return AchievementUIData(title: s.achievementScoreMasterTitle, description: s.achievementScoreMasterDesc, icon: '⭐');
+        return AchievementUIData(
+            title: s.achievementScoreMasterTitle,
+            description: s.achievementScoreMasterDesc,
+            icon: '⭐');
       case 'word_rescuer':
-        return AchievementUIData(title: s.achievementWordRescuerTitle, description: s.achievementWordRescuerDesc, icon: '🚀');
+        return AchievementUIData(
+            title: s.achievementWordRescuerTitle,
+            description: s.achievementWordRescuerDesc,
+            icon: '🚀');
       default:
-        return AchievementUIData(title: s.achievementAllRounderTitle, description: s.achievementAllRounderDesc, icon: '🎯');
+        return AchievementUIData(
+            title: s.achievementAllRounderTitle,
+            description: s.achievementAllRounderDesc,
+            icon: '🎯');
     }
   }
 
@@ -907,7 +944,8 @@ class CompactAchievementsPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<GameProvider>(
       builder: (context, gameProvider, child) {
-        final achievements = gameProvider.achievements.reversed.take(2).toList(); 
+        final achievements =
+            gameProvider.achievements.reversed.take(2).toList();
 
         return Container(
           padding: EdgeInsets.all(isVerySmall ? 8 : (isSmallScreen ? 10 : 12)),
@@ -920,7 +958,8 @@ class CompactAchievementsPreview extends StatelessWidget {
                 Color(0xFF1E2235),
               ],
             ),
-            borderRadius: BorderRadius.circular(isVerySmall ? 10 : (isSmallScreen ? 12 : 16)),
+            borderRadius: BorderRadius.circular(
+                isVerySmall ? 10 : (isSmallScreen ? 12 : 16)),
             boxShadow: const [
               BoxShadow(
                 color: Colors.black26,
@@ -966,7 +1005,8 @@ class CompactAchievementsPreview extends StatelessWidget {
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: achievements.map((achievement) {
-                    final uiData = _getAchievementUIData(context, achievement.id);
+                    final uiData =
+                        _getAchievementUIData(context, achievement.id);
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 2),
                       child: Row(
@@ -976,7 +1016,8 @@ class CompactAchievementsPreview extends StatelessWidget {
                           Text(
                             uiData.icon,
                             style: TextStyle(
-                              fontSize: isVerySmall ? 10 : (isSmallScreen ? 12 : 14),
+                              fontSize:
+                                  isVerySmall ? 10 : (isSmallScreen ? 12 : 14),
                             ),
                           ),
                           const SizedBox(width: 4),
@@ -985,7 +1026,8 @@ class CompactAchievementsPreview extends StatelessWidget {
                               uiData.title,
                               style: SpaceTheme.bodyStyle.copyWith(
                                 fontWeight: FontWeight.bold,
-                                fontSize: isVerySmall ? 9 : (isSmallScreen ? 10 : 11),
+                                fontSize:
+                                    isVerySmall ? 9 : (isSmallScreen ? 10 : 11),
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -1020,7 +1062,7 @@ class AchievementUIData {
 // COMPACT Grade Selector with better responsive sizing
 class CompactGradeSelector extends StatelessWidget {
   final bool isVerySmall;
-  
+
   const CompactGradeSelector({super.key, this.isVerySmall = false});
 
   @override
@@ -1055,7 +1097,7 @@ class CompactGradeSelector extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    Icons.school,
+                    Icons.menu_book_outlined,
                     color: const Color(0xFFFFD700),
                     size: isVerySmall ? 16 : 20,
                   ),
@@ -1073,14 +1115,12 @@ class CompactGradeSelector extends StatelessWidget {
                   ),
                 ],
               ),
-              
               SizedBox(height: isVerySmall ? 8 : 12),
-              
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [1, 2, 3, 4].map((level) {
                   final isSelected = gameProvider.grade == level;
-                  
+
                   return GestureDetector(
                     onTap: () => gameProvider.setGrade(level),
                     child: AnimatedContainer(
@@ -1101,7 +1141,8 @@ class CompactGradeSelector extends StatelessWidget {
                                   Color(0xFF16213E),
                                 ],
                               ),
-                        borderRadius: BorderRadius.circular(isVerySmall ? 8 : 10),
+                        borderRadius:
+                            BorderRadius.circular(isVerySmall ? 8 : 10),
                         border: Border.all(
                           color: isSelected
                               ? const Color(0xFFFFD700)
@@ -1111,7 +1152,8 @@ class CompactGradeSelector extends StatelessWidget {
                         boxShadow: isSelected
                             ? [
                                 BoxShadow(
-                                  color: const Color(0xFFFFD700).withValues(alpha: 0.5),
+                                  color: const Color(0xFFFFD700)
+                                      .withValues(alpha: 0.5),
                                   blurRadius: 8,
                                   spreadRadius: 1,
                                 ),
