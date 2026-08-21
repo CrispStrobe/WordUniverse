@@ -566,7 +566,6 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
         _wordsRescued++;
       });
       
-      _gameProvider.addScore(scoreGained);
       _audioService.playSound('success');
       _gameProvider.hapticLight();
       _audioService.speak(_currentWord!.displayName);

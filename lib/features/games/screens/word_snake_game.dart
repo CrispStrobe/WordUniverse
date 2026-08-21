@@ -407,8 +407,6 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
     if (isCorrect) {
       _audioService.playSound('success');
       _gameProvider.hapticLight();
-      _gameProvider.addScore(20);
-
       final eduInfo = _getEducationalInfo(s, _currentWord!);
       final int generation = _puzzleGeneration;
 

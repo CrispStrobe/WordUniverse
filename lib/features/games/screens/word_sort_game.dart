@@ -310,8 +310,6 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
   void _handleCorrectAnswer() {
     _audioService.playSound('success');
     _gameProvider.hapticLight();
-    _gameProvider.addScore(10);
-    
     setState(() {
       _score += 10;
       _wordsCorrect++;

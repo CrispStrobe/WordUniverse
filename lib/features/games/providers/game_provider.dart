@@ -34,20 +34,58 @@ extension DifficultyModeShift on DifficultyMode {
   }
 }
 
+/// The achievements currently presented by the product, in display order.
+///
+/// Saved records outside this catalogue remain readable for backwards
+/// compatibility but do not contribute to current completion totals.
+const List<String> currentAchievementIds = [
+  'first_century',
+  'score_master',
+  'thousand_club',
+  'triangle_wizard',
+  'bubble_popper',
+  'puzzle_solver',
+  'number_walls_pro',
+  'codebreaker_pro',
+  'master_builder',
+  'city_planner',
+  'connection_expert',
+  'antonym_ace',
+  'synonym_scholar',
+  'cloze_master',
+  'translation_titan',
+  'reverse_linguist',
+  'syllable_counter',
+  'expression_expert',
+  'hypernym_hunter',
+  'word_class_whiz',
+  'proverb_sage',
+  'conjugation_king',
+  'verb_splitter',
+  'definition_wizard',
+  'sentence_smith',
+  'spelling_sleuth',
+  'homophone_hero',
+  'confusable_pro',
+  'review_regular',
+  'arithmetic_ace',
+  'all_rounder',
+];
+
 // Achievement class
 class Achievement {
   final String id;
-  final DateTime? unlockedAt;
+  final DateTime unlockedAt;
 
   Achievement({
     required this.id,
-    this.unlockedAt,
-  });
+    DateTime? unlockedAt,
+  }) : unlockedAt = unlockedAt ?? DateTime.now();
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'unlockedAt': unlockedAt?.toIso8601String(),
+      'unlockedAt': unlockedAt.toIso8601String(),
     };
   }
 
@@ -341,7 +379,7 @@ class GameProvider extends ChangeNotifier {
           '${outcome.wasSuccessful ? "WIN" : "LOSS"} at difficulty ${outcome.difficulty}');
 
     _sessionsPlayed++;
-    if (outcome.wasSuccessful) addScore(outcome.score);
+    if (outcome.wasSuccessful) _addScore(outcome.score);
 
     _currentLevelWins[outcome.gameType] =
         (_currentLevelWins[outcome.gameType] ?? 0) +
@@ -493,7 +531,7 @@ class GameProvider extends ChangeNotifier {
   }
 
   // Score management
-  void addScore(int points) {
+  void _addScore(int points) {
     _score += points;
     _checkAchievements();
     notifyListeners();
@@ -642,13 +680,6 @@ class GameProvider extends ChangeNotifier {
     if (_score >= 1000 && !hasAchievement('thousand_club')) {
       newAchievements.add(Achievement(id: 'thousand_club'));
     }
-    if (_level >= 5 && !hasAchievement('level_explorer')) {
-      newAchievements.add(Achievement(id: 'level_explorer'));
-    }
-    if (_level >= 10 && !hasAchievement('space_commander')) {
-      newAchievements.add(Achievement(id: 'space_commander'));
-    }
-
     if ((_gameProgress['word_snake_game'] ?? 0) >= 3 &&
         !hasAchievement('triangle_wizard')) {
       newAchievements.add(Achievement(id: 'triangle_wizard'));
@@ -802,11 +833,12 @@ class GameProvider extends ChangeNotifier {
     return _sessionsPlayed;
   }
 
-  // Legacy releases created band-progression achievements even though bands
-  // are learner-selected difficulty ranges. Keep those records readable in
-  // old saves, but do not count them as current achievements.
+  // Keep legacy records readable, but only count goals still presented by the
+  // current product.
   int get totalAchievements => _achievements
-      .where((achievement) => !achievement.id.startsWith('grade_'))
+      .map((achievement) => achievement.id)
+      .where(currentAchievementIds.contains)
+      .toSet()
       .length;
 
   double get averageLevel {

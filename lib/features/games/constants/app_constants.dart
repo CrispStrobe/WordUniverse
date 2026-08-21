@@ -38,8 +38,6 @@ class AppConstants {
   static const String firstCenturyAchievement = 'first_century';
   static const String scoreMasterAchievement = 'score_master';
   static const String thousandClubAchievement = 'thousand_club';
-  static const String levelExplorerAchievement = 'level_explorer';
-  static const String spaceCommanderAchievement = 'space_commander';
   static const String triangleWizardAchievement = 'triangle_wizard';
   static const String bubblePopperAchievement = 'bubble_popper';
   static const String puzzleSolverAchievement = 'puzzle_solver';

@@ -18,54 +18,11 @@ class _AchievementInfo {
   const _AchievementInfo(this.title, this.description, this.icon);
 }
 
-// Ordered IDs (drives both display order and total-count math).
-const List<String> _kAchievementIds = [
-  // Score-based
-  'first_century',
-  'score_master',
-  'thousand_club',
-  // Level-based
-  'level_explorer',
-  'space_commander',
-  // Per-game (3 sessions)
-  'triangle_wizard',
-  'bubble_popper',
-  'puzzle_solver',
-  'number_walls_pro',
-  'codebreaker_pro',
-  'master_builder',
-  'city_planner',
-  'connection_expert',
-  'antonym_ace',
-  'synonym_scholar',
-  'cloze_master',
-  'translation_titan',
-  'reverse_linguist',
-  'syllable_counter',
-  'expression_expert',
-  'hypernym_hunter',
-  'word_class_whiz',
-  'proverb_sage',
-  'conjugation_king',
-  'verb_splitter',
-  'definition_wizard',
-  'sentence_smith',
-  'spelling_sleuth',
-  'homophone_hero',
-  'confusable_pro',
-  'review_regular',
-  // Cross-game milestones
-  'arithmetic_ace',
-  'all_rounder',
-];
-
 // Icon-only catalog (icons aren't localized).
 const Map<String, String> _kAchievementIcons = {
   'first_century': '💯',
   'score_master': '⭐',
   'thousand_club': '🚀',
-  'level_explorer': '🌟',
-  'space_commander': '👨‍🚀',
   'triangle_wizard': '🐍',
   'bubble_popper': '🏆',
   'puzzle_solver': '🔍',
@@ -107,12 +64,6 @@ _AchievementInfo _infoFor(S s, String id) {
     case 'thousand_club':
       return _AchievementInfo(
           s.achievementThousandClubTitle, s.achievementThousandClubDesc, '🚀');
-    case 'level_explorer':
-      return _AchievementInfo(s.achievementLevelExplorerTitle,
-          s.achievementLevelExplorerDesc, '🌟');
-    case 'space_commander':
-      return _AchievementInfo(s.achievementSpaceCommanderTitle,
-          s.achievementSpaceCommanderDesc, '👨‍🚀');
     case 'triangle_wizard':
       return _AchievementInfo(s.achievementTriangleWizardTitle,
           s.achievementTriangleWizardDesc, '🐍');
@@ -212,7 +163,7 @@ class AchievementsScreen extends StatelessWidget {
     final unlockedById = {
       for (final a in gp.achievements) a.id: a,
     };
-    final allIds = _kAchievementIds;
+    final allIds = currentAchievementIds;
     final unlockedCount = allIds.where(unlockedById.containsKey).length;
     final totalCount = allIds.length;
 
