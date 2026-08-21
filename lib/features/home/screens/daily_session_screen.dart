@@ -36,7 +36,7 @@ class _DailySessionScreenState extends State<DailySessionScreen> {
 
   GradeLevel get _band {
     final band = context.read<GameProvider>().grade.clamp(1, 4);
-    return GradeLevel.values[band - 1];
+    return gradeLevelFromBand(band);
   }
 
   Future<void> _play(int step, Widget screen) async {

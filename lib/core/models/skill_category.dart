@@ -24,42 +24,51 @@ enum GermanWordType {
 }
 
 // Represents the difficulty of a word's spelling
-enum SpellingDifficulty { 
-  easy, 
-  medium, 
-  hard, 
-  expert 
-}
+enum SpellingDifficulty { easy, medium, hard, expert }
 
 // Represents the specific language skill being practiced
 enum LanguageSkillType {
-  spelling,          // Spelling individual words
-  articleSelection,  // Der/die/das selection
-  pluralForm,       // Singular to plural conversion
-  wordType,         // Identifying noun/verb/adjective etc.
-  sentenceStructure,// Understanding sentence construction
-  punctuation,      // Comma placement, etc.
-  capitalization,   // German capitalization rules
-  verbConjugation,  // Verb forms
-  caseUsage,        // Nominativ/Akkusativ/Dativ/Genitiv
-  vocabulary,       // Word meaning: synonyms, antonyms, definitions, translations, hypernyms
-  reading,          // Reading in context: cloze, expressions, proverbs
+  spelling, // Spelling individual words
+  articleSelection, // Der/die/das selection
+  pluralForm, // Singular to plural conversion
+  wordType, // Identifying noun/verb/adjective etc.
+  sentenceStructure, // Understanding sentence construction
+  punctuation, // Comma placement, etc.
+  capitalization, // German capitalization rules
+  verbConjugation, // Verb forms
+  caseUsage, // Nominativ/Akkusativ/Dativ/Genitiv
+  vocabulary, // Word meaning: synonyms, antonyms, definitions, translations, hypernyms
+  reading, // Reading in context: cloze, expressions, proverbs
 }
-
 
 // --- ENUMS FROM YOUR PROVIDED FILE ---
 
-// Grade levels for German primary school (Grundschule)
+// Internal vocabulary difficulty bands. Historical enum names are retained for
+// stored-data compatibility; they do not imply school years, ages, or CEFR.
 enum GradeLevel {
-  grade1, // Klasse 1 (Age 6-7)
-  grade2, // Klasse 2 (Age 7-8)
-  grade3, // Klasse 3 (Age 8-9)
-  grade4, // Klasse 4 (Age 9-10)
-  grade5, // Klasse 5 (Age 10-11)
-  grade6, // Klasse 6 (Age 11-12)
+  grade1,
+  grade2,
+  grade3,
+  grade4,
+  grade5,
+  grade6,
 }
 
-// Language skill categories aligned with German curriculum
+/// Converts a learner-facing band to the compatible internal enum.
+///
+/// The product exposes four broad bands. Levels five and six remain available
+/// internally for challenge mode and stored-data compatibility.
+GradeLevel gradeLevelFromBand(int band) =>
+    GradeLevel.values[band.clamp(1, 4) - 1];
+
+/// Converts a stored 1-based vocabulary level to the compatible enum.
+GradeLevel gradeLevelFromStoredLevel(int level) =>
+    GradeLevel.values[level.clamp(1, GradeLevel.values.length) - 1];
+
+/// Converts the internal enum back to its 1-based vocabulary band.
+int bandFromGradeLevel(GradeLevel level) => level.index + 1;
+
+// Language skill categories used to organize practice.
 enum LanguageCategory {
   rechtschreibung, // Spelling & Orthography
   grammatik, // Grammar
@@ -190,7 +199,7 @@ class SkillCategories {
       keywords: ['der', 'die', 'das', 'artikel'],
       difficultyLevel: 2,
     ),
-    
+
     // --- THIS IS THE FIX for the crash ---
     SkillCategory(
       id: 'word_types', // This ID matches 'word_types' in game_provider.dart

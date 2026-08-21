@@ -35,6 +35,10 @@ class SDe extends S {
   String get onboardingStartBand => 'Wähle eine Wortschatzstufe zum Einstieg';
 
   @override
+  String get onboardingBandNote =>
+      'Die Stufen sind grobe Schwierigkeitsbereiche – keine Schuljahre, Alters- oder GER-Stufen.';
+
+  @override
   String get onboardingDailyTime => 'Tägliche Übungszeit';
 
   @override
@@ -461,7 +465,7 @@ class SDe extends S {
   String get language => 'Sprache';
 
   @override
-  String get progress => 'Karrierefortschritt';
+  String get progress => 'Lernfortschritt';
 
   @override
   String get achievements => 'Erfolge';
