@@ -176,8 +176,8 @@ class _CustomSubsetScreenState extends State<CustomSubsetScreen> {
 
     final vocabService = context.read<VocabularyService>();
 
-    final name = _nameController.text;
-    final description = _descriptionController.text;
+    final name = _nameController.text.trim();
+    final description = _descriptionController.text.trim();
     final wordIds = _selectedWordIds.toList();
 
     try {
@@ -208,7 +208,7 @@ class _CustomSubsetScreenState extends State<CustomSubsetScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Error saving: $e"),
+            content: Text(S.of(context)!.customSetSaveFailed),
             backgroundColor: SpaceTheme.rocketRed,
           ),
         );
@@ -321,8 +321,9 @@ class _CustomSubsetScreenState extends State<CustomSubsetScreen> {
               decoration:
                   _inputDecoration(s.customSetNameLabel, s.customSetNameHint),
               style: SpaceTheme.bodyStyle,
-              validator: (value) =>
-                  (value == null || value.isEmpty) ? "Name is required" : null,
+              validator: (value) => (value == null || value.trim().isEmpty)
+                  ? s.customSetNameRequired
+                  : null,
             ),
             const SizedBox(height: 12),
             TextFormField(

@@ -17,6 +17,7 @@ import 'package:flutter/services.dart';
 
 import '../../../core/services/crash_logger.dart';
 import '../../../core/theme/space_theme.dart';
+import '../../../generated/l10n.dart';
 
 class DiagnosticsScreen extends StatefulWidget {
   const DiagnosticsScreen({super.key});
@@ -44,8 +45,9 @@ class _DiagnosticsScreenState extends State<DiagnosticsScreen> {
     final text = entries.map((e) => jsonEncode(e.toJson())).join('\n');
     await Clipboard.setData(ClipboardData(text: text));
     if (!mounted) return;
+    final s = S.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Crash log copied to clipboard')),
+      SnackBar(content: Text(s.diagnosticsCopied)),
     );
   }
 
@@ -56,10 +58,11 @@ class _DiagnosticsScreenState extends State<DiagnosticsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Scaffold(
       backgroundColor: SpaceTheme.deepSpace,
       appBar: AppBar(
-        title: const Text('Diagnostics'),
+        title: Text(s.diagnosticsTitle),
         backgroundColor: SpaceTheme.deepSpace,
       ),
       body: FutureBuilder<List<CrashEntry>>(
@@ -78,21 +81,19 @@ class _DiagnosticsScreenState extends State<DiagnosticsScreen> {
                     Expanded(
                       child: Text(
                         entries.isEmpty
-                            ? 'No crashes recorded. 🎉'
-                            : '${entries.length} crash report'
-                                '${entries.length == 1 ? '' : 's'} on device. '
-                                'Data stays here unless you share it.',
+                            ? s.diagnosticsNoCrashes
+                            : s.diagnosticsReportsOnDevice(entries.length),
                         style: SpaceTheme.bodyStyle,
                       ),
                     ),
                     if (entries.isNotEmpty) ...[
                       IconButton(
-                        tooltip: 'Copy log',
+                        tooltip: s.diagnosticsCopyLog,
                         onPressed: () => _copyToClipboard(entries),
                         icon: const Icon(Icons.copy),
                       ),
                       IconButton(
-                        tooltip: 'Clear log',
+                        tooltip: s.diagnosticsClearLog,
                         onPressed: _clear,
                         icon: const Icon(Icons.delete_outline),
                       ),

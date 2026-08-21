@@ -1634,7 +1634,7 @@ class _SettingsScreenState extends State<SettingsScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to change language: $e'),
+            content: Text(S.of(context)!.languageChangeFailed),
             backgroundColor: SpaceTheme.rocketRed,
           ),
         );
@@ -1676,11 +1676,11 @@ class _SettingsScreenState extends State<SettingsScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              languageCode == 'en'
-                  ? 'Learning language switched to English'
-                  : 'Learning language switched to German',
-            ),
+            content: Text(S.of(context)!.learningLanguageChanged(
+                  languageCode == 'en'
+                      ? S.of(context)!.languageEnglish
+                      : S.of(context)!.languageGerman,
+                )),
             backgroundColor: SpaceTheme.alienGreen,
           ),
         );
@@ -1697,7 +1697,7 @@ class _SettingsScreenState extends State<SettingsScreen>
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to change learning language: $e'),
+            content: Text(S.of(context)!.learningLanguageChangeFailed),
             backgroundColor: SpaceTheme.rocketRed,
           ),
         );

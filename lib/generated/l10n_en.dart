@@ -954,6 +954,45 @@ class SEn extends S {
   String get save => 'Save';
 
   @override
+  String get customSetNameRequired => 'Enter a name for this set.';
+
+  @override
+  String get customSetSaveFailed =>
+      'The set could not be saved. Please try again.';
+
+  @override
+  String get languageChangeFailed =>
+      'The app language could not be changed. Please try again.';
+
+  @override
+  String learningLanguageChanged(String language) {
+    return 'Learning language switched to $language';
+  }
+
+  @override
+  String get learningLanguageChangeFailed =>
+      'The learning language could not be changed. Please try again.';
+
+  @override
+  String get unexpectedErrorTitle => 'Something went wrong';
+
+  @override
+  String get unexpectedErrorMessage =>
+      'Please try again. If the problem continues, you can copy the crash log from Diagnostics in Settings.';
+
+  @override
+  String get genericErrorTitle => 'Error';
+
+  @override
+  String get genericErrorMessage => 'Something went wrong. Please try again.';
+
+  @override
+  String get routeNotFoundTitle => 'Page not found';
+
+  @override
+  String get routeNotFoundMessage => 'The requested page could not be found.';
+
+  @override
   String get customSetNameLabel => 'Set Name';
 
   @override
@@ -1638,6 +1677,23 @@ class SEn extends S {
   String get diagnosticsSubtitle => 'View crash log (stays on device)';
 
   @override
+  String get diagnosticsNoCrashes => 'No crashes recorded. 🎉';
+
+  @override
+  String diagnosticsReportsOnDevice(int count) {
+    return 'Crash reports on this device: $count. Data stays here unless you share it.';
+  }
+
+  @override
+  String get diagnosticsCopied => 'Crash log copied to clipboard';
+
+  @override
+  String get diagnosticsCopyLog => 'Copy log';
+
+  @override
+  String get diagnosticsClearLog => 'Clear log';
+
+  @override
   String get parentDashboardTitle => 'Learning insights';
 
   @override
@@ -2055,36 +2111,6 @@ class SEn extends S {
   @override
   String get sriReviewOnboardingBody3 =>
       'Every correct answer raises the easiness factor of that word.';
-
-  @override
-  String get achievementGrade2Title => 'Level 2 Explorer';
-
-  @override
-  String get achievementGrade2Desc => 'Reached vocabulary level 2.';
-
-  @override
-  String get achievementGrade3Title => 'Level 3 Explorer';
-
-  @override
-  String get achievementGrade3Desc => 'Reached vocabulary level 3.';
-
-  @override
-  String get achievementGrade4Title => 'Level 4 Explorer';
-
-  @override
-  String get achievementGrade4Desc => 'Reached vocabulary level 4.';
-
-  @override
-  String get achievementGrade5Title => 'Level 5 Explorer';
-
-  @override
-  String get achievementGrade5Desc => 'Reached vocabulary level 5.';
-
-  @override
-  String get achievementGrade6Title => 'Level 6 Explorer';
-
-  @override
-  String get achievementGrade6Desc => 'Reached vocabulary level 6.';
 
   @override
   String get semanticsBack => 'Go back';

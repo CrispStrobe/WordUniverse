@@ -27,12 +27,6 @@ const List<String> _kAchievementIds = [
   // Level-based
   'level_explorer',
   'space_commander',
-  // Grade progression
-  'grade_2',
-  'grade_3',
-  'grade_4',
-  'grade_5',
-  'grade_6',
   // Per-game (3 sessions)
   'triangle_wizard',
   'bubble_popper',
@@ -72,11 +66,6 @@ const Map<String, String> _kAchievementIcons = {
   'thousand_club': '🚀',
   'level_explorer': '🌟',
   'space_commander': '👨‍🚀',
-  'grade_2': '🎓',
-  'grade_3': '🎓',
-  'grade_4': '🎓',
-  'grade_5': '🎓',
-  'grade_6': '🎓',
   'triangle_wizard': '🐍',
   'bubble_popper': '🏆',
   'puzzle_solver': '🔍',
@@ -128,11 +117,11 @@ _AchievementInfo _infoFor(S s, String id) {
       return _AchievementInfo(s.achievementTriangleWizardTitle,
           s.achievementTriangleWizardDesc, '🐍');
     case 'bubble_popper':
-      return _AchievementInfo(s.achievementBubblePopperTitle,
-          s.achievementBubblePopperDesc, '🏆');
+      return _AchievementInfo(
+          s.achievementBubblePopperTitle, s.achievementBubblePopperDesc, '🏆');
     case 'puzzle_solver':
-      return _AchievementInfo(s.achievementPuzzleSolverTitle,
-          s.achievementPuzzleSolverDesc, '🔍');
+      return _AchievementInfo(
+          s.achievementPuzzleSolverTitle, s.achievementPuzzleSolverDesc, '🔍');
     case 'number_walls_pro':
       return _AchievementInfo(s.achievementNumberWallsProTitle,
           s.achievementNumberWallsProDesc, '🧱');
@@ -143,8 +132,8 @@ _AchievementInfo _infoFor(S s, String id) {
       return _AchievementInfo(s.achievementMasterBuilderTitle,
           s.achievementMasterBuilderDesc, '🏗️');
     case 'city_planner':
-      return _AchievementInfo(s.achievementCityPlannerTitle,
-          s.achievementCityPlannerDesc, '🏙️');
+      return _AchievementInfo(
+          s.achievementCityPlannerTitle, s.achievementCityPlannerDesc, '🏙️');
     case 'connection_expert':
       return _AchievementInfo(s.achievementConnectionExpertTitle,
           s.achievementConnectionExpertDesc, '🌌');
@@ -154,52 +143,60 @@ _AchievementInfo _infoFor(S s, String id) {
     case 'all_rounder':
       return _AchievementInfo(
           s.achievementVielseitigTitle, s.achievementVielseitigDesc, '🎮');
-    case 'grade_2':
-      return _AchievementInfo(s.achievementGrade2Title, s.achievementGrade2Desc, '🎓');
-    case 'grade_3':
-      return _AchievementInfo(s.achievementGrade3Title, s.achievementGrade3Desc, '🎓');
-    case 'grade_4':
-      return _AchievementInfo(s.achievementGrade4Title, s.achievementGrade4Desc, '🎓');
-    case 'grade_5':
-      return _AchievementInfo(s.achievementGrade5Title, s.achievementGrade5Desc, '🎓');
-    case 'grade_6':
-      return _AchievementInfo(s.achievementGrade6Title, s.achievementGrade6Desc, '🎓');
     case 'antonym_ace':
-      return _AchievementInfo(s.achievementAntonymAceTitle, s.achievementAntonymAceDesc, '⚡');
+      return _AchievementInfo(
+          s.achievementAntonymAceTitle, s.achievementAntonymAceDesc, '⚡');
     case 'synonym_scholar':
-      return _AchievementInfo(s.achievementSynonymScholarTitle, s.achievementSynonymScholarDesc, '📚');
+      return _AchievementInfo(s.achievementSynonymScholarTitle,
+          s.achievementSynonymScholarDesc, '📚');
     case 'cloze_master':
-      return _AchievementInfo(s.achievementClozeMasterTitle, s.achievementClozeMasterDesc, '✏️');
+      return _AchievementInfo(
+          s.achievementClozeMasterTitle, s.achievementClozeMasterDesc, '✏️');
     case 'translation_titan':
-      return _AchievementInfo(s.achievementTranslationTitanTitle, s.achievementTranslationTitanDesc, '🌍');
+      return _AchievementInfo(s.achievementTranslationTitanTitle,
+          s.achievementTranslationTitanDesc, '🌍');
     case 'reverse_linguist':
-      return _AchievementInfo(s.achievementReverseLinguistTitle, s.achievementReverseLinguistDesc, '🔄');
+      return _AchievementInfo(s.achievementReverseLinguistTitle,
+          s.achievementReverseLinguistDesc, '🔄');
     case 'syllable_counter':
-      return _AchievementInfo(s.achievementSyllableCounterTitle, s.achievementSyllableCounterDesc, '🎵');
+      return _AchievementInfo(s.achievementSyllableCounterTitle,
+          s.achievementSyllableCounterDesc, '🎵');
     case 'expression_expert':
-      return _AchievementInfo(s.achievementExpressionExpertTitle, s.achievementExpressionExpertDesc, '💬');
+      return _AchievementInfo(s.achievementExpressionExpertTitle,
+          s.achievementExpressionExpertDesc, '💬');
     case 'hypernym_hunter':
-      return _AchievementInfo(s.achievementHypernymHunterTitle, s.achievementHypernymHunterDesc, '🌳');
+      return _AchievementInfo(s.achievementHypernymHunterTitle,
+          s.achievementHypernymHunterDesc, '🌳');
     case 'word_class_whiz':
-      return _AchievementInfo(s.achievementWordClassWhizTitle, s.achievementWordClassWhizDesc, '🏷️');
+      return _AchievementInfo(s.achievementWordClassWhizTitle,
+          s.achievementWordClassWhizDesc, '🏷️');
     case 'proverb_sage':
-      return _AchievementInfo(s.achievementProverbSageTitle, s.achievementProverbSageDesc, '📜');
+      return _AchievementInfo(
+          s.achievementProverbSageTitle, s.achievementProverbSageDesc, '📜');
     case 'conjugation_king':
-      return _AchievementInfo(s.achievementConjugationKingTitle, s.achievementConjugationKingDesc, '👑');
+      return _AchievementInfo(s.achievementConjugationKingTitle,
+          s.achievementConjugationKingDesc, '👑');
     case 'verb_splitter':
-      return _AchievementInfo(s.achievementVerbSplitterTitle, s.achievementVerbSplitterDesc, '✂️');
+      return _AchievementInfo(
+          s.achievementVerbSplitterTitle, s.achievementVerbSplitterDesc, '✂️');
     case 'definition_wizard':
-      return _AchievementInfo(s.achievementDefinitionWizardTitle, s.achievementDefinitionWizardDesc, '🔮');
+      return _AchievementInfo(s.achievementDefinitionWizardTitle,
+          s.achievementDefinitionWizardDesc, '🔮');
     case 'sentence_smith':
-      return _AchievementInfo(s.achievementSentenceSmithTitle, s.achievementSentenceSmithDesc, '⚒️');
+      return _AchievementInfo(s.achievementSentenceSmithTitle,
+          s.achievementSentenceSmithDesc, '⚒️');
     case 'spelling_sleuth':
-      return _AchievementInfo(s.achievementSpellingSleutTitle, s.achievementSpellingSleutDesc, '🔎');
+      return _AchievementInfo(s.achievementSpellingSleutTitle,
+          s.achievementSpellingSleutDesc, '🔎');
     case 'homophone_hero':
-      return _AchievementInfo(s.achievementHomophoneHeroTitle, s.achievementHomophoneHeroDesc, '👂');
+      return _AchievementInfo(s.achievementHomophoneHeroTitle,
+          s.achievementHomophoneHeroDesc, '👂');
     case 'confusable_pro':
-      return _AchievementInfo(s.achievementConfusableProTitle, s.achievementConfusableProDesc, '🎯');
+      return _AchievementInfo(s.achievementConfusableProTitle,
+          s.achievementConfusableProDesc, '🎯');
     case 'review_regular':
-      return _AchievementInfo(s.achievementReviewRegularTitle, s.achievementReviewRegularDesc, '🔁');
+      return _AchievementInfo(s.achievementReviewRegularTitle,
+          s.achievementReviewRegularDesc, '🔁');
     default:
       return _AchievementInfo(id, '', _kAchievementIcons[id] ?? '🏅');
   }
@@ -216,8 +213,7 @@ class AchievementsScreen extends StatelessWidget {
       for (final a in gp.achievements) a.id: a,
     };
     final allIds = _kAchievementIds;
-    final unlockedCount =
-        allIds.where(unlockedById.containsKey).length;
+    final unlockedCount = allIds.where(unlockedById.containsKey).length;
     final totalCount = allIds.length;
 
     return Scaffold(
@@ -230,8 +226,7 @@ class AchievementsScreen extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.all(16),
-            child: _ProgressBanner(
-                unlocked: unlockedCount, total: totalCount),
+            child: _ProgressBanner(unlocked: unlockedCount, total: totalCount),
           ),
           Expanded(
             child: ListView.separated(
@@ -348,8 +343,7 @@ class _AchievementTile extends StatelessWidget {
             const Icon(Icons.check_circle,
                 color: SpaceTheme.alienGreen, size: 24)
           else
-            const Icon(Icons.lock_outline,
-                color: Colors.white24, size: 22),
+            const Icon(Icons.lock_outline, color: Colors.white24, size: 22),
         ],
       ),
     );

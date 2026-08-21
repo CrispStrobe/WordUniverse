@@ -121,17 +121,16 @@ class _ReverseTranslationFlashGameState
       OnboardingOverlay.maybeShow(
         context,
         gameKey: 'reverse_translation_flash',
-        title: 'Rück-Übersetzung',
+        title: _s.reverseTranslationTitle,
         steps: [
-          const OnboardingStep(
+          OnboardingStep(
             icon: Icons.translate,
-            body:
-                'Ein englisches Wort erscheint — tippe das passende deutsche Wort.',
+            body: _s.reverseTranslationDescription,
           ),
           if (_gameProvider.puzzleTimerEnabled)
             OnboardingStep(
               icon: Icons.timer,
-              body: '30 Sekunden, so viele richtige wie möglich!',
+              body: _s.synonymFlashOnboardingTimer,
             ),
         ],
       );
@@ -225,8 +224,8 @@ class _ReverseTranslationFlashGameState
 
     final options = [word.word, ...distractors.take(_optionCount - 1)];
     options.shuffle(_rng);
-    final correctIndex = options
-        .indexWhere((o) => o.toLowerCase() == word.word.toLowerCase());
+    final correctIndex =
+        options.indexWhere((o) => o.toLowerCase() == word.word.toLowerCase());
     if (correctIndex < 0) return null;
 
     return _ReverseChallenge(
@@ -426,6 +425,7 @@ class _ReverseTranslationFlashGameState
       child: Row(
         children: [
           IconButton(
+            tooltip: _s.semanticsBack,
             icon: const Icon(Icons.arrow_back, color: Colors.white70),
             onPressed: () {
               _sessionTimer?.cancel();
@@ -437,12 +437,12 @@ class _ReverseTranslationFlashGameState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Rück-Übersetzung',
+                  _s.reverseTranslationTitle,
                   style: SpaceTheme.titleStyle
                       .copyWith(color: SpaceTheme.starYellow),
                 ),
                 Text(
-                  '$_correct richtig',
+                  '$_correct ${_s.correct}',
                   style: SpaceTheme.bodyStyle.copyWith(color: Colors.white60),
                 ),
               ],
@@ -597,9 +597,7 @@ class _ReverseTranslationFlashGameState
     return AnimatedBuilder(
       animation: _pulseCtrl,
       builder: (_, child) => Transform.scale(
-        scale: hasAnswered && isCorrect
-            ? 1.0 + (_pulseCtrl.value * 0.04)
-            : 1.0,
+        scale: hasAnswered && isCorrect ? 1.0 + (_pulseCtrl.value * 0.04) : 1.0,
         child: child,
       ),
       child: GestureDetector(
