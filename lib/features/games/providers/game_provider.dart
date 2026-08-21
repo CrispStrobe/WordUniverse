@@ -249,6 +249,7 @@ class GameProvider extends ChangeNotifier {
     _lives = _prefs.getInt('lives') ?? 3;
     _soundEnabled = _prefs.getBool('soundEnabled') ?? true;
     _musicEnabled = _prefs.getBool('musicEnabled') ?? true;
+    _puzzleTimerEnabled = _prefs.getBool('puzzle_timer_enabled') ?? true;
     _hintsEnabled = _prefs.getBool('hintsEnabled') ?? true;
     _hapticEnabled = _prefs.getBool('hapticEnabled') ?? true;
     _gameProgress = Map<String, int>.from(
@@ -350,6 +351,7 @@ class GameProvider extends ChangeNotifier {
     await _prefs.setInt('lives', _lives);
     await _prefs.setBool('soundEnabled', _soundEnabled);
     await _prefs.setBool('musicEnabled', _musicEnabled);
+    await _prefs.setBool('puzzle_timer_enabled', _puzzleTimerEnabled);
     await _prefs.setBool('hintsEnabled', _hintsEnabled);
     await _prefs.setBool('hapticEnabled', _hapticEnabled);
     await _prefs.setString('gameProgress', jsonEncode(_gameProgress));
@@ -488,11 +490,13 @@ class GameProvider extends ChangeNotifier {
   void setUseCustomSettings(bool value) {
     _useCustomProblemSettings = value;
     notifyListeners();
+    _saveProgress();
   }
 
   void setCustomOperations(Set<String> operations) {
     _customOperations = operations;
     notifyListeners();
+    _saveProgress();
   }
 
   void setCustomRange({required int min, required int max}) {
@@ -500,6 +504,7 @@ class GameProvider extends ChangeNotifier {
       _customRangeMin = min;
       _customRangeMax = max;
       notifyListeners();
+      _saveProgress();
     }
   }
 
@@ -545,6 +550,7 @@ class GameProvider extends ChangeNotifier {
   void setPuzzleTimer(bool enabled) {
     _puzzleTimerEnabled = enabled;
     notifyListeners();
+    _saveProgress();
   }
 
   void setHintsEnabled(bool enabled) {
@@ -586,6 +592,7 @@ class GameProvider extends ChangeNotifier {
   void setLevel(int level) {
     _level = level;
     notifyListeners();
+    _saveProgress();
   }
 
   void setDifficulty(int newGrade, int newLevel) {
@@ -615,6 +622,7 @@ class GameProvider extends ChangeNotifier {
   void setUseAdaptiveDifficulty(bool value) {
     _useAdaptiveDifficulty = value;
     notifyListeners();
+    _saveProgress();
   }
 
   // Lives management
