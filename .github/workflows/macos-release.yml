@@ -111,13 +111,25 @@ jobs:
           PATH="/usr/bin:$PATH" flutter build macos --release --config-only
           PATH="/usr/bin:$PATH" env -u GEM_HOME -u GEM_PATH -u RUBYOPT \
             pod install --project-directory=macos || echo "No podfile, skipping pod install"
+          
+          export ASC_TEAM_ID="${{ secrets.ASC_TEAM_ID }}"
+          ruby -e "
+            require 'xcodeproj'
+            project = Xcodeproj::Project.open('macos/Runner.xcodeproj')
+            project.targets.each do |target|
+              next unless target.name == 'Runner'
+              target.build_configurations.each do |config|
+                config.build_settings['CODE_SIGN_STYLE'] = 'Manual'
+                config.build_settings['CODE_SIGN_IDENTITY'] = 'Apple Distribution'
+                config.build_settings['PROVISIONING_PROFILE_SPECIFIER'] = ENV['PROFILE_NAME']
+                config.build_settings['DEVELOPMENT_TEAM'] = ENV['ASC_TEAM_ID']
+              end
+            end
+            project.save
+          "
           PATH="/usr/bin:$PATH" xcodebuild -workspace macos/Runner.xcworkspace -scheme Runner \
             -configuration Release -destination 'generic/platform=macOS' \
             -archivePath build/macos/archive/Runner.xcarchive \
-            CODE_SIGN_STYLE=Manual \
-            CODE_SIGN_IDENTITY="Apple Distribution" \
-            PROVISIONING_PROFILE_SPECIFIER="${{ env.PROFILE_NAME }}" \
-            DEVELOPMENT_TEAM="${{ secrets.ASC_TEAM_ID }}" \
             clean archive
           
           # Check for app-sandbox
