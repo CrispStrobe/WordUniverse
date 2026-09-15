@@ -319,6 +319,46 @@
     "appLanguageDesc": "Choose your preferred language",
     "learningLanguage": "Learning language",
     "learningLanguageDesc": "Choose which vocabulary database games use",
+    "packRequiredTitle": "{language} pack required",
+    "@packRequiredTitle": {"placeholders": {"language": {"type": "String"}}},
+    "packRequiredMessage": "Games need the {language} word database (about {size}). It is downloaded once and then works offline.",
+    "@packRequiredMessage": {"placeholders": {"language": {"type": "String"}, "size": {"type": "String"}}},
+    "packDownloadingTitle": "Downloading {language}",
+    "@packDownloadingTitle": {"placeholders": {"language": {"type": "String"}}},
+    "packDownloadPreparing": "Preparing download…",
+    "packKeepAppOpen": "Please keep the app open until the download finishes.",
+    "packMetaSizeLicense": "{size} download · data licensed under {license}",
+    "@packMetaSizeLicense": {"placeholders": {"size": {"type": "String"}, "license": {"type": "String"}}},
+    "packOfflineAfterDownload": "Works offline once downloaded",
+    "packFailedTitle": "Download failed",
+    "packFailedNetworkHint": "Check your internet connection and try again.",
+    "packFailedDataHint": "The downloaded file did not pass its integrity check. Trying again usually fixes it.",
+    "packFallbackHint": "You can continue in {language} and download this pack later in Settings.",
+    "@packFallbackHint": {"placeholders": {"language": {"type": "String"}}},
+    "packUseFallback": "Continue in {language}",
+    "@packUseFallback": {"placeholders": {"language": {"type": "String"}}},
+    "packRetry": "Retry",
+    "languagePacksTitle": "Language packs",
+    "languagePacksDesc": "Vocabulary databases stored on this device",
+    "packStatusInstalled": "Downloaded",
+    "packStatusBundled": "Included in the app",
+    "packStatusNotInstalled": "Not downloaded",
+    "packStatusInstalling": "Downloading…",
+    "packStatusFailed": "Download failed",
+    "packInUse": "In use",
+    "packDownloadAction": "Download",
+    "packUseAction": "Use",
+    "packRemoveAction": "Remove",
+    "packRemoveConfirmTitle": "Remove {language} pack?",
+    "@packRemoveConfirmTitle": {"placeholders": {"language": {"type": "String"}}},
+    "packRemoveConfirmMessage": "The {language} word database ({size}) will be deleted from this device. You can download it again at any time.",
+    "@packRemoveConfirmMessage": {"placeholders": {"language": {"type": "String"}, "size": {"type": "String"}}},
+    "packRemoved": "{language} pack removed",
+    "@packRemoved": {"placeholders": {"language": {"type": "String"}}},
+    "packMissingBanner": "The {language} word database is not downloaded yet. Tap to download it.",
+    "@packMissingBanner": {"placeholders": {"language": {"type": "String"}}},
+    "packReadyToast": "{language} is ready",
+    "@packReadyToast": {"placeholders": {"language": {"type": "String"}}},
     "languageEnglish": "English",
     "languageGerman": "Deutsch",
     "difficulty": "Difficulty",
@@ -362,6 +402,14 @@
         "placeholders": {
             "gradeNumber": {
                 "type": "int"
+            }
+        }
+    },
+    "packRemoveFailed": "Could not remove the {language} pack.",
+    "@packRemoveFailed": {
+        "placeholders": {
+            "language": {
+                "type": "String"
             }
         }
     },

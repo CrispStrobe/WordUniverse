@@ -528,6 +528,118 @@ class SEn extends S {
       'Choose which vocabulary database games use';
 
   @override
+  String packRequiredTitle(String language) {
+    return '$language pack required';
+  }
+
+  @override
+  String packRequiredMessage(String language, String size) {
+    return 'Games need the $language word database (about $size). It is downloaded once and then works offline.';
+  }
+
+  @override
+  String packDownloadingTitle(String language) {
+    return 'Downloading $language';
+  }
+
+  @override
+  String get packDownloadPreparing => 'Preparing download…';
+
+  @override
+  String get packKeepAppOpen =>
+      'Please keep the app open until the download finishes.';
+
+  @override
+  String packMetaSizeLicense(String size, String license) {
+    return '$size download · data licensed under $license';
+  }
+
+  @override
+  String get packOfflineAfterDownload => 'Works offline once downloaded';
+
+  @override
+  String get packFailedTitle => 'Download failed';
+
+  @override
+  String get packFailedNetworkHint =>
+      'Check your internet connection and try again.';
+
+  @override
+  String get packFailedDataHint =>
+      'The downloaded file did not pass its integrity check. Trying again usually fixes it.';
+
+  @override
+  String packFallbackHint(String language) {
+    return 'You can continue in $language and download this pack later in Settings.';
+  }
+
+  @override
+  String packUseFallback(String language) {
+    return 'Continue in $language';
+  }
+
+  @override
+  String get packRetry => 'Retry';
+
+  @override
+  String get languagePacksTitle => 'Language packs';
+
+  @override
+  String get languagePacksDesc => 'Vocabulary databases stored on this device';
+
+  @override
+  String get packStatusInstalled => 'Downloaded';
+
+  @override
+  String get packStatusBundled => 'Included in the app';
+
+  @override
+  String get packStatusNotInstalled => 'Not downloaded';
+
+  @override
+  String get packStatusInstalling => 'Downloading…';
+
+  @override
+  String get packStatusFailed => 'Download failed';
+
+  @override
+  String get packInUse => 'In use';
+
+  @override
+  String get packDownloadAction => 'Download';
+
+  @override
+  String get packUseAction => 'Use';
+
+  @override
+  String get packRemoveAction => 'Remove';
+
+  @override
+  String packRemoveConfirmTitle(String language) {
+    return 'Remove $language pack?';
+  }
+
+  @override
+  String packRemoveConfirmMessage(String language, String size) {
+    return 'The $language word database ($size) will be deleted from this device. You can download it again at any time.';
+  }
+
+  @override
+  String packRemoved(String language) {
+    return '$language pack removed';
+  }
+
+  @override
+  String packMissingBanner(String language) {
+    return 'The $language word database is not downloaded yet. Tap to download it.';
+  }
+
+  @override
+  String packReadyToast(String language) {
+    return '$language is ready';
+  }
+
+  @override
   String get languageEnglish => 'English';
 
   @override
@@ -650,6 +762,11 @@ class SEn extends S {
   @override
   String gradeN(int gradeNumber) {
     return 'Level $gradeNumber';
+  }
+
+  @override
+  String packRemoveFailed(String language) {
+    return 'Could not remove the $language pack.';
   }
 
   @override

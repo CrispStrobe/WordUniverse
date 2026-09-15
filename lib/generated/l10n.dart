@@ -1005,6 +1005,180 @@ abstract class S {
   /// **'Choose which vocabulary database games use'**
   String get learningLanguageDesc;
 
+  /// No description provided for @packRequiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{language} pack required'**
+  String packRequiredTitle(String language);
+
+  /// No description provided for @packRequiredMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Games need the {language} word database (about {size}). It is downloaded once and then works offline.'**
+  String packRequiredMessage(String language, String size);
+
+  /// No description provided for @packDownloadingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading {language}'**
+  String packDownloadingTitle(String language);
+
+  /// No description provided for @packDownloadPreparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing download…'**
+  String get packDownloadPreparing;
+
+  /// No description provided for @packKeepAppOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Please keep the app open until the download finishes.'**
+  String get packKeepAppOpen;
+
+  /// No description provided for @packMetaSizeLicense.
+  ///
+  /// In en, this message translates to:
+  /// **'{size} download · data licensed under {license}'**
+  String packMetaSizeLicense(String size, String license);
+
+  /// No description provided for @packOfflineAfterDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Works offline once downloaded'**
+  String get packOfflineAfterDownload;
+
+  /// No description provided for @packFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Download failed'**
+  String get packFailedTitle;
+
+  /// No description provided for @packFailedNetworkHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your internet connection and try again.'**
+  String get packFailedNetworkHint;
+
+  /// No description provided for @packFailedDataHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The downloaded file did not pass its integrity check. Trying again usually fixes it.'**
+  String get packFailedDataHint;
+
+  /// No description provided for @packFallbackHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You can continue in {language} and download this pack later in Settings.'**
+  String packFallbackHint(String language);
+
+  /// No description provided for @packUseFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue in {language}'**
+  String packUseFallback(String language);
+
+  /// No description provided for @packRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get packRetry;
+
+  /// No description provided for @languagePacksTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Language packs'**
+  String get languagePacksTitle;
+
+  /// No description provided for @languagePacksDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Vocabulary databases stored on this device'**
+  String get languagePacksDesc;
+
+  /// No description provided for @packStatusInstalled.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloaded'**
+  String get packStatusInstalled;
+
+  /// No description provided for @packStatusBundled.
+  ///
+  /// In en, this message translates to:
+  /// **'Included in the app'**
+  String get packStatusBundled;
+
+  /// No description provided for @packStatusNotInstalled.
+  ///
+  /// In en, this message translates to:
+  /// **'Not downloaded'**
+  String get packStatusNotInstalled;
+
+  /// No description provided for @packStatusInstalling.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading…'**
+  String get packStatusInstalling;
+
+  /// No description provided for @packStatusFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Download failed'**
+  String get packStatusFailed;
+
+  /// No description provided for @packInUse.
+  ///
+  /// In en, this message translates to:
+  /// **'In use'**
+  String get packInUse;
+
+  /// No description provided for @packDownloadAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Download'**
+  String get packDownloadAction;
+
+  /// No description provided for @packUseAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Use'**
+  String get packUseAction;
+
+  /// No description provided for @packRemoveAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get packRemoveAction;
+
+  /// No description provided for @packRemoveConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {language} pack?'**
+  String packRemoveConfirmTitle(String language);
+
+  /// No description provided for @packRemoveConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The {language} word database ({size}) will be deleted from this device. You can download it again at any time.'**
+  String packRemoveConfirmMessage(String language, String size);
+
+  /// No description provided for @packRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'{language} pack removed'**
+  String packRemoved(String language);
+
+  /// No description provided for @packMissingBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'The {language} word database is not downloaded yet. Tap to download it.'**
+  String packMissingBanner(String language);
+
+  /// No description provided for @packReadyToast.
+  ///
+  /// In en, this message translates to:
+  /// **'{language} is ready'**
+  String packReadyToast(String language);
+
   /// No description provided for @languageEnglish.
   ///
   /// In en, this message translates to:
@@ -1238,6 +1412,12 @@ abstract class S {
   /// In en, this message translates to:
   /// **'Level {gradeNumber}'**
   String gradeN(int gradeNumber);
+
+  /// No description provided for @packRemoveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not remove the {language} pack.'**
+  String packRemoveFailed(String language);
 
   /// No description provided for @cancel.
   ///

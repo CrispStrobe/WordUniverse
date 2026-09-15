@@ -14,6 +14,7 @@ import '../../games/screens/karteikasten_screen.dart';
 import '../../games/screens/cognitive_profile_screen.dart';
 import '../../achievements/screens/achievements_screen.dart';
 import '../../../core/theme/space_theme.dart';
+import '../../../shared/widgets/language_pack_dialog.dart';
 import '../../../generated/l10n.dart';
 import '../../games/providers/game_provider.dart';
 import '../../games/widgets/space_background.dart';
@@ -310,8 +311,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     debugProvider.isPaidUnlockedForced;
                 final due = sri.getAvailableReviewCount();
                 final btn = IconButton(
-                  onPressed: () {
+                  onPressed: () async {
                     if (isUnlocked) {
+                      // Review sessions draw on the vocabulary too, so they
+                      // need the language pack just like the games do.
+                      if (!await ensureLanguagePackReady(context)) return;
+                      if (!context.mounted) return;
                       Navigator.of(context).push(MaterialPageRoute(
                         builder: (_) => const KarteikastenScreen(),
                       ));

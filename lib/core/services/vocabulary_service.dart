@@ -10,47 +10,27 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/games/models/false_friend.dart';
 import '../../features/games/models/phrasal_verb.dart';
 import '../../features/games/providers/game_provider.dart';
+import '../models/language_pack.dart';
 import '../models/skill_category.dart';
 import '../models/vocabulary_models.dart';
 import 'sri_service.dart';
 import 'dictionary_database_service.dart';
 
-/// Where a language's compressed vocabulary DB comes from. The English DB is
-/// CC-BY-SA-4.0 and stays bundled as an asset for instant first launch. The
-/// German DB is GPL-3.0 (it includes data derived from childLex) and is
-/// intentionally NOT bundled in any store binary — it is downloaded once on
-/// first launch from the GPL-compliant Hugging Face dataset and cached. See
-/// db_remote.dart for the licensing rationale (the VLC-on-App-Store / FairPlay
-/// DRM conflict) and the integrity policy.
-class _DbSource {
-  final String databaseName;
-  final String? assetPath; // bundled (EN); null when remote-only
-  final String? remoteUrl; // HF resolve URL (DE); null when asset-only
-  final int? expectedCompressedBytes;
-  final int? expectedDecompressedBytes;
-  final String? expectedDecompressedSha256;
-  const _DbSource({
-    required this.databaseName,
-    this.assetPath,
-    this.remoteUrl,
-    this.expectedCompressedBytes,
-    this.expectedDecompressedBytes,
-    this.expectedDecompressedSha256,
-  });
-}
-
-/// Result of [VocabularyService.remoteDownloadInfo]: whether the next
-/// initialize() for a language would trigger a first-time remote download the
-/// user should consent to, and how big it is (compressed bytes) for disclosure.
-/// Apple App Store Review Guidelines §2.4.2/§4.2.3 require disclosing the size
-/// and prompting before downloading resources on first launch.
-class RemoteDownloadInfo {
-  final bool consentRequired;
+/// Thrown by [VocabularyService.initialize] when the requested learning
+/// language needs a downloadable language pack that is not installed on this
+/// device, and the caller did not opt into downloading it.
+///
+/// This is the guard that keeps a missing pack from turning into a crash
+/// somewhere deep inside a minigame: instead of quietly initializing with an
+/// empty vocabulary, initialization refuses up front and the UI offers the
+/// download (see `LanguagePackService` and `ensureLanguagePackReady`).
+class LanguagePackNotInstalledException implements Exception {
+  final String languageCode;
   final int? compressedBytes;
-  const RemoteDownloadInfo({
-    required this.consentRequired,
-    this.compressedBytes,
-  });
+  LanguagePackNotInstalledException(this.languageCode, {this.compressedBytes});
+  @override
+  String toString() =>
+      'Language pack "$languageCode" is not installed on this device.';
 }
 
 class VocabularyService with ChangeNotifier {
@@ -67,30 +47,16 @@ class VocabularyService with ChangeNotifier {
   static const _setsStorageKey = 'vocabulary_sets';
   static const _customWordsKey = 'custom_words';
   static const _learningLanguageKey = 'learning_language';
-  // Integrity pins for the downloaded German DB. If the German DB is ever
-  // rebuilt and re-uploaded to Hugging Face, update expectedCompressedBytes
-  // (compressed size) and expectedDecompressedSha256 (sha256 of the .db). The
-  // sha256 is a soft check (logged, not fatal — see db_remote.dart), so a
-  // forgotten bump degrades gracefully rather than bricking first launch.
-  static const _dbSources = <String, _DbSource>{
-    'de': _DbSource(
-      databaseName: 'grundwortschatz.db',
-      remoteUrl:
-          'https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/main/grundwortschatz.db.gz',
-      expectedCompressedBytes: 26619920,
-      expectedDecompressedBytes: 156913664,
-      expectedDecompressedSha256:
-          'c66e3b49192694c00d7c2a171562ac8fe4f54c05d986adb0ebf276f141aa00df',
-    ),
-    'en': _DbSource(
-      databaseName: 'grundwortschatz_en.db',
-      assetPath: 'assets/grundwortschatz_en.db.gz',
-    ),
-  };
+  /// Packs come from the registry in models/language_pack.dart — that is the
+  /// only place a language is declared.
+  static Map<String, LanguagePack> get _packs => kLanguagePacks;
+
+  /// Language codes the app can teach, in display order.
+  List<LanguagePack> get availablePacks => orderedLanguagePacks;
 
   bool _isInitialized = false;
   bool get isInitialized => _isInitialized;
-  String _learningLanguage = 'de';
+  String _learningLanguage = kDefaultLanguageCode;
   String get learningLanguage => _learningLanguage;
 
   /// Set when initialize() fails. Surfaced to the splash screen so the
@@ -102,13 +68,22 @@ class VocabularyService with ChangeNotifier {
     if (kDebugMode) debugPrint('[VOCABULARY_SERVICE] 📚 $message');
   }
 
-  /// Initializes the service by loading data from SQLite and SharedPrefs
+  /// Initializes the service by loading data from SQLite and SharedPrefs.
+  ///
+  /// [allowDownload] must be true for a language whose pack is downloadable
+  /// and not yet installed — otherwise a
+  /// [LanguagePackNotInstalledException] is thrown *before* anything is torn
+  /// down, so the currently loaded vocabulary keeps working and the caller can
+  /// offer the download instead. This is deliberately opt-in: no code path may
+  /// start a ~25 MB fetch (or leave the app word-less) by accident.
   Future<void> initialize({
     String? learningLanguage,
+    bool allowDownload = false,
     void Function(double progress, String message)? onProgress,
   }) async {
     final requestedLanguage = learningLanguage ?? await _loadLearningLanguage();
-    if (!_dbSources.containsKey(requestedLanguage)) {
+    final pack = _packs[requestedLanguage];
+    if (pack == null) {
       throw ArgumentError.value(
         requestedLanguage,
         'learningLanguage',
@@ -117,6 +92,16 @@ class VocabularyService with ChangeNotifier {
     }
 
     if (_isInitialized && _learningLanguage == requestedLanguage) return;
+
+    // GATE: refuse before touching existing state when the pack is missing.
+    if (!allowDownload && !await isPackInstalled(requestedLanguage)) {
+      _log('⛔ Pack "$requestedLanguage" not installed — refusing to init');
+      throw LanguagePackNotInstalledException(
+        requestedLanguage,
+        compressedBytes: pack.expectedCompressedBytes,
+      );
+    }
+
     if (_isInitialized && _learningLanguage != requestedLanguage) {
       await _dbService.close();
       _vocabulary.clear();
@@ -130,14 +115,13 @@ class VocabularyService with ChangeNotifier {
     try {
       // 1. Initialize DB with progress tracking
       onProgress?.call(0.0, 'Preparing vocabulary database...');
-      final source = _dbSources[_learningLanguage]!;
       await _dbService.initialize(
-        assetPath: source.assetPath ?? '',
-        databaseName: source.databaseName,
-        remoteUrl: source.remoteUrl,
-        expectedCompressedBytes: source.expectedCompressedBytes,
-        expectedDecompressedBytes: source.expectedDecompressedBytes,
-        expectedDecompressedSha256: source.expectedDecompressedSha256,
+        assetPath: pack.assetPath ?? '',
+        databaseName: pack.databaseName,
+        remoteUrl: pack.remoteUrl,
+        expectedCompressedBytes: pack.expectedCompressedBytes,
+        expectedDecompressedBytes: pack.expectedDecompressedBytes,
+        expectedDecompressedSha256: pack.expectedDecompressedSha256,
         onProgress: (dbProgress, dbMessage) {
           // Map DB progress (0.0-1.0) to vocabulary service progress (0.0-0.6)
           onProgress?.call(dbProgress * 0.6, dbMessage);
@@ -165,9 +149,10 @@ class VocabularyService with ChangeNotifier {
       onProgress?.call(1.0, 'Ready!');
       _isInitialized = true;
       _initError = null;
-      // Remember that a remotely-downloaded DB is now cached, so we don't
-      // re-prompt for consent on subsequent launches.
-      if (source.remoteUrl != null) {
+      // Remember that a downloaded pack is now cached, so we don't re-prompt
+      // for consent on subsequent launches. The flag is only a fast path —
+      // [isPackInstalled] verifies against real storage.
+      if (pack.requiresDownload) {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool(_downloadedFlagKey(_learningLanguage), true);
       }
@@ -185,41 +170,72 @@ class VocabularyService with ChangeNotifier {
   static String _downloadedFlagKey(String language) =>
       'db_downloaded_$language';
 
-  /// Whether starting [language] (or the saved language) would trigger a
-  /// first-time remote DB download, plus its size for disclosure. Returns
-  /// `consentRequired: false` for bundled languages (e.g. English) and for a
-  /// remote language whose DB is already cached on this device.
-  Future<RemoteDownloadInfo> remoteDownloadInfo({String? language}) async {
-    final lang = language ?? await _loadLearningLanguage();
-    final source = _dbSources[lang];
-    if (source?.remoteUrl == null) {
-      return const RemoteDownloadInfo(consentRequired: false);
+  /// Whether [language]'s pack is usable offline right now. Bundled packs are
+  /// always installed; a downloadable pack counts as installed only when its
+  /// database actually exists and opens (a cleared app container or wiped
+  /// browser storage therefore reads as not installed).
+  Future<bool> isPackInstalled(String language) async {
+    final pack = _packs[language];
+    if (pack == null) return false;
+    if (!pack.requiresDownload) return true;
+    // The active pack is by definition present — and re-opening the live DB
+    // just to check would be wasteful.
+    if (_isInitialized && _learningLanguage == language) return true;
+    return _dbService.isDatabaseInstalled(pack.databaseName);
+  }
+
+  /// Deletes a downloaded pack's cached database and clears its flag. Refuses
+  /// for bundled packs (nothing to delete) and for the active pack (the app
+  /// would be left without vocabulary).
+  Future<void> removePack(String language) async {
+    final pack = _packs[language];
+    if (pack == null || !pack.requiresDownload) return;
+    if (_isInitialized && _learningLanguage == language) {
+      throw StateError(
+        'Cannot remove the language pack that is currently in use. '
+        'Switch to another language first.',
+      );
     }
+    await _dbService.deleteDatabaseFile(pack.databaseName);
     final prefs = await SharedPreferences.getInstance();
-    final alreadyDownloaded = prefs.getBool(_downloadedFlagKey(lang)) ?? false;
-    return RemoteDownloadInfo(
-      consentRequired: !alreadyDownloaded,
-      compressedBytes: source!.expectedCompressedBytes,
-    );
+    await prefs.remove(_downloadedFlagKey(language));
+    _log('🗑️ Removed language pack "$language"');
+    notifyListeners();
   }
 
   Future<String> _loadLearningLanguage() async {
     final prefs = await SharedPreferences.getInstance();
-    final language = prefs.getString(_learningLanguageKey) ?? 'de';
-    return _dbSources.containsKey(language) ? language : 'de';
+    final language =
+        prefs.getString(_learningLanguageKey) ?? kDefaultLanguageCode;
+    return _packs.containsKey(language) ? language : kDefaultLanguageCode;
   }
 
-  /// Persist the chosen learning language WITHOUT re-initializing. Used when the
-  /// splash falls back to English after the user declines the one-time German
-  /// download, so the choice sticks and we don't re-prompt next launch.
+  /// The learning language persisted on this device, regardless of what is
+  /// currently loaded. Used by the splash and Settings to decide whether a
+  /// pack still has to be installed.
+  Future<String> savedLearningLanguage() => _loadLearningLanguage();
+
+  /// Persist the chosen learning language WITHOUT re-initializing. Used when
+  /// the splash falls back to English after the user declines the one-time
+  /// German download, so the choice sticks and we don't re-prompt next launch.
   Future<void> rememberLearningLanguage(String language) async {
-    if (!_dbSources.containsKey(language)) return;
+    if (!_packs.containsKey(language)) return;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_learningLanguageKey, language);
   }
 
-  Future<void> setLearningLanguage(String language) async {
-    if (!_dbSources.containsKey(language)) {
+  /// Switches the learning language, loading its database.
+  ///
+  /// The preference is written only *after* the switch succeeds, and a failure
+  /// restores the previously active language. Without that, a failed download
+  /// used to leave the app with the new language persisted and no vocabulary
+  /// loaded — which is exactly what crashed the minigames later on.
+  Future<void> setLearningLanguage(
+    String language, {
+    bool allowDownload = false,
+    void Function(double progress, String message)? onProgress,
+  }) async {
+    if (!_packs.containsKey(language)) {
       throw ArgumentError.value(
         language,
         'language',
@@ -228,9 +244,29 @@ class VocabularyService with ChangeNotifier {
     }
     if (language == _learningLanguage && _isInitialized) return;
 
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_learningLanguageKey, language);
-    await initialize(learningLanguage: language);
+    final previousLanguage = _learningLanguage;
+    final hadVocabulary = _isInitialized;
+    try {
+      await initialize(
+        learningLanguage: language,
+        allowDownload: allowDownload,
+        onProgress: onProgress,
+      );
+      await rememberLearningLanguage(language);
+    } catch (e) {
+      // Roll back to something playable. The gate in initialize() means a
+      // missing pack never got this far destructively, but a mid-download
+      // failure can have closed the old DB.
+      if (hadVocabulary && !_isInitialized && previousLanguage != language) {
+        _log('↩️ Restoring previous language "$previousLanguage" after failure');
+        try {
+          await initialize(learningLanguage: previousLanguage);
+        } catch (restoreError) {
+          _log('⚠️ Could not restore "$previousLanguage": $restoreError');
+        }
+      }
+      rethrow;
+    }
   }
 
   /// Loads all words from SQLite into memory for game logic performance.

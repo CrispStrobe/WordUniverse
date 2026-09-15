@@ -25,8 +25,11 @@ class DictionaryDatabaseService {
   /// Initialize the database with optional progress tracking
   /// [onProgress] reports (progress: 0.0-1.0, message: String)
   Future<void> initialize({
-    String assetPath = 'assets/grundwortschatz.db.gz',
-    String databaseName = 'grundwortschatz.db',
+    // No defaults on purpose: which database to open follows from the active
+    // language pack (see core/models/language_pack.dart). A default would
+    // quietly point at the German asset, which is NOT bundled.
+    required String assetPath,
+    required String databaseName,
     String? remoteUrl,
     int? expectedCompressedBytes,
     int? expectedDecompressedBytes,
@@ -120,16 +123,43 @@ class DictionaryDatabaseService {
     }
   }
 
+  /// Whether [databaseName] is already cached on this device. Used by
+  /// `LanguagePackService` to tell an installed language pack from one that
+  /// still needs downloading, without trusting a preference flag.
+  Future<bool> isDatabaseInstalled(String databaseName) =>
+      isPlatformDatabaseInstalled(databaseName);
+
+  /// Deletes the cached copy of [databaseName]. Closes the active connection
+  /// first when it is the database being removed, otherwise the delete fails
+  /// (or leaves a half-open handle) on some platforms.
+  Future<void> deleteDatabaseFile(String databaseName) async {
+    if (_databaseName == databaseName) {
+      await close();
+    }
+    await deletePlatformDatabase(databaseName);
+  }
+
   // --- QUERIES ---
+
+  /// Whether a database is open and ready to be queried. Queries return
+  /// empty results rather than initializing on the fly: only the language-pack
+  /// layer knows *which* database belongs to the active language, and guessing
+  /// here used to reach for the unbundled German asset.
+  bool get isReady => _database != null;
+
+  void _warnNotReady(String what) {
+    if (kDebugMode) {
+      debugPrint("[DB_SERVICE] ⚠️ $what requested before the database was "
+          "initialized — returning empty. Initialize the active language pack "
+          "first (LanguagePackService).");
+    }
+  }
 
   /// Get all words from the database
   Future<List<GermanWord>> getAllWords() async {
     if (_database == null) {
-      if (kDebugMode)
-        debugPrint(
-            "[DB_SERVICE] Database not initialized, initializing now...");
-      await initialize();
-      if (_database == null) return [];
+      _warnNotReady('All words');
+      return [];
     }
 
     try {
@@ -147,8 +177,8 @@ class DictionaryDatabaseService {
   /// Full-Text Search using FTS5 index
   Future<List<GermanWord>> searchWordsFTS(String query) async {
     if (_database == null) {
-      await initialize();
-      if (_database == null) return [];
+      _warnNotReady('FTS search');
+      return [];
     }
 
     if (query.trim().isEmpty) return [];
@@ -181,8 +211,8 @@ class DictionaryDatabaseService {
   /// Get a single word by ID
   Future<GermanWord?> getWordById(String id) async {
     if (_database == null) {
-      await initialize();
-      if (_database == null) return null;
+      _warnNotReady('Word by id');
+      return null;
     }
 
     try {
@@ -206,8 +236,8 @@ class DictionaryDatabaseService {
   /// Get words by grade level
   Future<List<GermanWord>> getWordsByGrade(int gradeLevel) async {
     if (_database == null) {
-      await initialize();
-      if (_database == null) return [];
+      _warnNotReady('Query');
+      return [];
     }
 
     try {
@@ -233,8 +263,8 @@ class DictionaryDatabaseService {
   /// `phrasal_verbs` table; empty if the table is absent (e.g. DE database).
   Future<List<Map<String, dynamic>>> getPhrasalVerbs() async {
     if (_database == null) {
-      await initialize();
-      if (_database == null) return [];
+      _warnNotReady('Query');
+      return [];
     }
 
     try {
@@ -265,8 +295,8 @@ class DictionaryDatabaseService {
   /// (e.g. DE database).
   Future<List<Map<String, dynamic>>> getFalseFriends() async {
     if (_database == null) {
-      await initialize();
-      if (_database == null) return [];
+      _warnNotReady('Query');
+      return [];
     }
 
     try {
@@ -287,8 +317,8 @@ class DictionaryDatabaseService {
   /// Get database statistics
   Future<Map<String, dynamic>> getStatistics() async {
     if (_database == null) {
-      await initialize();
-      if (_database == null) return {};
+      _warnNotReady('Statistics');
+      return {};
     }
 
     try {

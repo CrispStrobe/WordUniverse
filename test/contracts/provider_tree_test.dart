@@ -14,6 +14,7 @@ const Set<String> registeredProviders = {
   'SriService',
   'CognitiveProfileService',
   'VocabularyService',
+  'LanguagePackService',
   'PurchaseService',
   'DebugProvider',
   'ProgressService',

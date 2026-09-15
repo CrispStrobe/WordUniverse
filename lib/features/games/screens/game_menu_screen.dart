@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/services/debug_provider.dart';
 import '../../../core/services/learner_profile_service.dart';
+import '../../../core/services/language_pack_service.dart';
 import '../../../core/services/vocabulary_service.dart';
 import '../../../core/theme/space_theme.dart';
 import '../../../core/models/skill_category.dart';
@@ -50,6 +51,7 @@ import '../../achievements/screens/achievements_screen.dart';
 import '../../../shared/widgets/purchase_dialog.dart';
 import '../../../shared/widgets/parental_gate.dart';
 import '../../../shared/widgets/imprint_dialog.dart';
+import '../../../shared/widgets/language_pack_dialog.dart';
 
 class GameMenuScreen extends StatefulWidget {
   const GameMenuScreen({super.key});
@@ -132,7 +134,13 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         .push(MaterialPageRoute(builder: (_) => const AchievementsScreen()));
   }
 
-  void _navigateToGame(Widget gameScreen) {
+  /// Every game launch goes through here, and every game needs a loaded
+  /// vocabulary. If the active language pack isn't installed (e.g. the German
+  /// DB was never downloaded), offer the download instead of pushing a game
+  /// that would run on an empty word list and crash.
+  Future<void> _navigateToGame(Widget gameScreen) async {
+    if (!await ensureLanguagePackReady(context)) return;
+    if (!mounted) return;
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => gameScreen));
   }
 
@@ -161,6 +169,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
           child: Column(
             children: [
               _buildHeader(),
+              _buildMissingPackBanner(),
               _buildDifficultyPicker(),
               _buildDiscoveryControls(),
               Expanded(
@@ -178,6 +187,47 @@ class _GameMenuScreenState extends State<GameMenuScreen>
           ),
         ),
       ),
+    );
+  }
+
+  /// Visible warning when the active language pack isn't loaded, so the
+  /// reason games can't start is obvious before tapping one.
+  Widget _buildMissingPackBanner() {
+    return Consumer<LanguagePackService>(
+      builder: (context, packs, _) {
+        if (packs.isActivePackReady) return const SizedBox.shrink();
+        final pack = packs.stateFor(packs.activeLanguage).pack;
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Material(
+            color: SpaceTheme.planetOrange.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(12),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: () => ensureLanguagePackReady(context),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                child: Row(
+                  children: [
+                    const Icon(Icons.cloud_download_outlined,
+                        color: SpaceTheme.planetOrange, size: 20),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        S.of(context)!.packMissingBanner(pack.nativeName),
+                        style: SpaceTheme.bodyStyle.copyWith(fontSize: 12),
+                      ),
+                    ),
+                    const Icon(Icons.chevron_right,
+                        color: SpaceTheme.moonSilver, size: 20),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 

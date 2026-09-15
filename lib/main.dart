@@ -16,7 +16,9 @@ import 'core/services/purchase_service.dart';
 
 import 'core/services/sri_service.dart';
 import 'core/services/cognitive_profile_service.dart';
-import 'core/services/vocabulary_service.dart';
+import 'core/services/vocabulary_service.dart'; 
+import 'core/services/language_pack_service.dart';
+import 'core/models/language_pack.dart';
 import 'core/models/skill_category.dart'; // Import for GradeLevel
 
 import 'core/theme/space_theme.dart';
@@ -47,6 +49,7 @@ import 'features/games/screens/verbtrenner_game.dart';
 
 // --- UTILS & GENERATED ---
 import 'shared/utils/app_utilities.dart';
+import 'shared/widgets/language_pack_dialog.dart';
 import 'generated/l10n.dart';
 
 // --- GLOBAL INSTANCES & NAVIGATOR KEY ---
@@ -57,6 +60,10 @@ final CognitiveProfileService cognitiveProfileService =
     CognitiveProfileService();
 final SriService sriService = SriService();
 final VocabularyService vocabularyService = VocabularyService();
+/// Owns language-pack install state (download / progress / removal) on top of
+/// [vocabularyService]. See core/services/language_pack_service.dart.
+final LanguagePackService languagePackService =
+    LanguagePackService(vocabularyService);
 final PurchaseService purchaseService = PurchaseService();
 final DebugProvider debugProvider = DebugProvider();
 final AudioService audioService = AudioService();
@@ -108,6 +115,7 @@ void main() async {
         ChangeNotifierProvider.value(value: sriService),
         ChangeNotifierProvider.value(value: cognitiveProfileService),
         ChangeNotifierProvider.value(value: vocabularyService),
+        ChangeNotifierProvider.value(value: languagePackService),
         ChangeNotifierProvider.value(value: purchaseService),
         ChangeNotifierProvider.value(value: debugProvider),
         ChangeNotifierProvider.value(value: streakService),
@@ -505,35 +513,38 @@ class _SplashScreenState extends State<SplashScreen>
       await _updateProgress(0.0, s.preparingSpaceStation, s.preparingMission);
 
       if (mounted) {
+        // The saved learning language may need a language pack that isn't on
+        // this device (the German DB is GPL-3.0 and therefore downloaded, not
+        // bundled — see db_platform/db_remote.dart). Resolve that here, with
+        // consent and progress, and never leave the app word-less: declining
+        // or a failed download falls back to the bundled pack. A pack that is
+        // still missing afterwards is caught again at game launch by
+        // ensureLanguagePackReady(), so games can't start on empty vocabulary.
         final vocab = context.read<VocabularyService>();
-        // Apple App Store Review Guidelines §2.4.2 / §4.2.3: disclose the size
-        // and prompt before downloading resources on first launch. The German
-        // DB (GPL-3.0, intentionally not bundled — see db_remote.dart) is
-        // fetched here; ask the user first, once, when it isn't yet cached.
-        final dl = await vocab.remoteDownloadInfo();
-        String? forceLanguage;
-        if (dl.consentRequired && mounted) {
-          final approved =
-              await _confirmDatabaseDownload(s, dl.compressedBytes);
-          if (approved != true) {
-            // Decline → don't fail app load. Fall back to the bundled English
-            // DB (no download) and remember the choice so we don't re-prompt.
-            // German can be enabled later in Settings (which re-triggers the
-            // download).
-            forceLanguage = 'en';
-            await vocab.rememberLearningLanguage('en');
+        final packs = context.read<LanguagePackService>();
+        await packs.refresh();
+        final saved = await packs.savedLanguageStatus();
+
+        if (!saved.installed && mounted) {
+          // Apple App Store Review Guidelines §2.4.2 / §4.2.3: disclose the
+          // size and prompt before downloading resources. The dialog handles
+          // disclosure, progress, retry and the fallback offer.
+          final ready = await showLanguagePackDialog(
+            context,
+            languageCode: saved.code,
+          );
+          if (ready != true && mounted) {
+            // "Not now" (or a download the user gave up on) → run on the
+            // bundled pack and remember it, so we don't re-prompt every
+            // launch. The other language can be downloaded in Settings.
+            await packs.activateFallback();
           }
-        }
-        if (mounted) {
+        } else if (mounted) {
           await vocab.initialize(
-            // null → the saved/default language (German, now approved → downloads);
-            // 'en' → the bundled English DB after a declined German download.
-            learningLanguage: forceLanguage,
             onProgress: (vocabProgress, vocabMessage) {
               // Map vocabulary progress (0.0-1.0) to overall progress (0.0-0.6)
-              final overallProgress = vocabProgress * 0.6;
               _updateProgress(
-                overallProgress,
+                vocabProgress * 0.6,
                 s.preparingSpaceStation,
                 vocabMessage,
               );
@@ -613,6 +624,29 @@ class _SplashScreenState extends State<SplashScreen>
               ),
             ),
             actions: [
+              // Escape hatch: a pack that refuses to load must not trap the
+              // user on the splash screen. The bundled fallback pack needs no
+              // network, so this always gets them into the app.
+              TextButton(
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  final ok = await languagePackService.activateFallback();
+                  if (!mounted) return;
+                  if (ok) {
+                    Navigator.pushReplacementNamed(context, AppRoutes.home);
+                  } else {
+                    _initializeApp(s, gameProvider);
+                  }
+                },
+                child: Text(
+                  s.packUseFallback(
+                    kLanguagePacks[kFallbackLanguageCode]!.nativeName,
+                  ),
+                  style: SpaceTheme.bodyStyle.copyWith(
+                    color: SpaceTheme.moonSilver,
+                  ),
+                ),
+              ),
               TextButton(
                 autofocus: true,
                 onPressed: () {
@@ -641,46 +675,7 @@ class _SplashScreenState extends State<SplashScreen>
     }
   }
 
-  /// First-launch consent dialog for the German DB download. Returns true if
-  /// the user approved. Discloses the download size (Apple §2.4.2/§4.2.3).
-  Future<bool?> _confirmDatabaseDownload(S s, int? compressedBytes) {
-    final sizeLabel = compressedBytes != null
-        ? '${(compressedBytes / (1024 * 1024)).round()} MB'
-        : '~25 MB';
-    return showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: SpaceTheme.deepSpace,
-        title: Text(
-          s.downloadDbTitle,
-          style: SpaceTheme.headlineStyle.copyWith(fontSize: 18),
-        ),
-        content: Text(
-          s.downloadDbMessage(sizeLabel),
-          style: SpaceTheme.bodyStyle,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(s.downloadDbCancel, style: SpaceTheme.bodyStyle),
-          ),
-          TextButton(
-            autofocus: true,
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(
-              s.downloadDbConfirm,
-              style:
-                  SpaceTheme.buttonStyle.copyWith(color: SpaceTheme.starYellow),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _updateProgress(double progress, String message,
-      [String detail = '']) async {
+  Future<void> _updateProgress(double progress, String message, [String detail = '']) async {
     if (mounted) {
       setState(() {
         _progress = progress;

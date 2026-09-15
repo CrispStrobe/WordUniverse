@@ -12,10 +12,13 @@ import '../../../core/theme/app_fonts.dart';
 
 // Import VocabularyService to get sources
 import '../../../core/services/vocabulary_service.dart';
+import '../../../core/services/language_pack_service.dart';
+import '../../../core/models/language_pack.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/learner_profile_service.dart';
 
 import '../../../shared/widgets/imprint_dialog.dart';
+import '../../../shared/widgets/language_pack_dialog.dart';
 import 'diagnostics_screen.dart';
 import '../../games/screens/parent_dashboard_screen.dart';
 import '../../../shared/widgets/privacy_policy_dialog.dart';
@@ -45,7 +48,7 @@ class _SettingsScreenState extends State<SettingsScreen>
   late AnimationController _slideController;
   late List<Animation<Offset>> _settingAnimations;
   String currentLocale = 'en'; // Safe default
-  String currentLearningLanguage = 'de';
+  String currentLearningLanguage = kDefaultLanguageCode;
   bool _isLoading = false;
   bool _hasLoadedLocale = false;
 
@@ -94,6 +97,9 @@ class _SettingsScreenState extends State<SettingsScreen>
 
     if (!_hasLoadedLocale) {
       _loadCurrentLocaleAndSettings();
+      // Re-check what's actually on disk so the pack rows are truthful even
+      // after the user cleared app storage between sessions.
+      context.read<LanguagePackService>().refresh();
       _hasLoadedLocale = true;
     }
   }
@@ -926,6 +932,8 @@ class _SettingsScreenState extends State<SettingsScreen>
           _buildLanguageSelector(),
           const SizedBox(height: 16),
           _buildLearningLanguageSelector(),
+          const SizedBox(height: 16),
+          _buildLanguagePackSection(),
         ],
       ),
     );
@@ -1093,10 +1101,309 @@ class _SettingsScreenState extends State<SettingsScreen>
             ],
           ),
           const SizedBox(height: 16),
-          _buildLearningLanguageOption('Deutsch', 'de'),
-          const SizedBox(height: 12),
-          _buildLearningLanguageOption('English', 'en'),
+          // Built from the pack registry, so adding a language needs no edit
+          // here — see core/models/language_pack.dart.
+          ..._buildLearningLanguageOptions(),
         ],
+      ),
+    );
+  }
+
+  List<Widget> _buildLearningLanguageOptions() {
+    final packs = orderedLanguagePacks;
+    final widgets = <Widget>[];
+    for (var i = 0; i < packs.length; i++) {
+      if (i > 0) widgets.add(const SizedBox(height: 12));
+      widgets.add(
+        _buildLearningLanguageOption(packs[i].nativeName, packs[i].code),
+      );
+    }
+    return widgets;
+  }
+
+  /// Per-pack status, size, license and actions. This is where a user who
+  /// skipped the first-launch download (or removed a pack) gets it back, with
+  /// a live progress bar while it downloads.
+  Widget _buildLanguagePackSection() {
+    final s = S.of(context)!;
+    return Consumer<LanguagePackService>(
+      builder: (context, service, _) {
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: SpaceTheme.deepSpace.withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: SpaceTheme.alienGreen.withValues(alpha: 0.3),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.dataset_outlined,
+                      color: SpaceTheme.alienGreen, size: 24),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          s.languagePacksTitle,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                          ),
+                        ),
+                        Text(
+                          s.languagePacksDesc,
+                          style: const TextStyle(
+                            color: Colors.white60,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              for (final state in service.packs)
+                _buildPackRow(s, service, state),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildPackRow(
+    S s,
+    LanguagePackService service,
+    LanguagePackState state,
+  ) {
+    final pack = state.pack;
+    final isActive = service.activeLanguage == pack.code;
+    final (String label, Color color) = switch (state.status) {
+      LanguagePackStatus.installed => pack.requiresDownload
+          ? (s.packStatusInstalled, SpaceTheme.alienGreen)
+          : (s.packStatusBundled, SpaceTheme.alienGreen),
+      LanguagePackStatus.installing =>
+        (s.packStatusInstalling, SpaceTheme.starYellow),
+      LanguagePackStatus.failed =>
+        (s.packStatusFailed, SpaceTheme.planetOrange),
+      LanguagePackStatus.notInstalled =>
+        (s.packStatusNotInstalled, SpaceTheme.moonSilver),
+    };
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          pack.nativeName,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                        if (isActive) ...[
+                          const SizedBox(width: 8),
+                          _PackChip(
+                            text: s.packInUse,
+                            color: SpaceTheme.starYellow,
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      pack.requiresDownload
+                          ? '$label · ${s.packMetaSizeLicense(pack.downloadSizeLabel, pack.licenseLabel)}'
+                          : '$label · ${pack.licenseLabel}',
+                      style: TextStyle(color: color, fontSize: 11),
+                    ),
+                  ],
+                ),
+              ),
+              _buildPackAction(s, service, state, isActive),
+            ],
+          ),
+          if (state.isInstalling) ...[
+            const SizedBox(height: 8),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: LinearProgressIndicator(
+                value: state.progress > 0 ? state.progress : null,
+                minHeight: 6,
+                backgroundColor: Colors.white24,
+                valueColor:
+                    const AlwaysStoppedAnimation<Color>(SpaceTheme.starYellow),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              state.message.isEmpty
+                  ? s.packDownloadPreparing
+                  : '${state.message}  ·  ${(state.progress * 100).round()}%',
+              style: const TextStyle(color: Colors.white60, fontSize: 11),
+            ),
+          ],
+          if (state.status == LanguagePackStatus.failed &&
+              state.error != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              state.error!,
+              style: const TextStyle(
+                  color: SpaceTheme.planetOrange, fontSize: 11),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPackAction(
+    S s,
+    LanguagePackService service,
+    LanguagePackState state,
+    bool isActive,
+  ) {
+    if (state.isInstalling) {
+      return const SizedBox(
+        width: 18,
+        height: 18,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          valueColor: AlwaysStoppedAnimation<Color>(SpaceTheme.starYellow),
+        ),
+      );
+    }
+
+    final busy = _isLoading || service.isAnyInstalling;
+
+    if (!state.isInstalled) {
+      return TextButton(
+        onPressed: busy ? null : () => _installPack(state.pack.code),
+        child: Text(
+          state.status == LanguagePackStatus.failed
+              ? s.packRetry
+              : s.packDownloadAction,
+          style: const TextStyle(color: SpaceTheme.starYellow, fontSize: 13),
+        ),
+      );
+    }
+
+    if (isActive) {
+      // Nothing to do: it's installed and in use. Removing it would leave the
+      // games without words.
+      return const Icon(Icons.check_circle,
+          color: SpaceTheme.alienGreen, size: 20);
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        TextButton(
+          onPressed: busy ? null : () => _changeLearningLanguage(state.pack.code),
+          child: Text(
+            s.packUseAction,
+            style: const TextStyle(color: SpaceTheme.alienGreen, fontSize: 13),
+          ),
+        ),
+        if (state.pack.requiresDownload)
+          IconButton(
+            tooltip: s.packRemoveAction,
+            onPressed: busy ? null : () => _confirmRemovePack(state.pack),
+            icon: const Icon(Icons.delete_outline,
+                color: SpaceTheme.moonSilver, size: 20),
+          ),
+      ],
+    );
+  }
+
+  /// Downloads a pack from Settings, with the same consent + progress dialog
+  /// the splash uses.
+  Future<void> _installPack(String code) async {
+    final ok = await showLanguagePackDialog(context, languageCode: code);
+    if (!mounted) return;
+    if (ok == true) {
+      setState(() {
+        currentLearningLanguage =
+            context.read<VocabularyService>().learningLanguage;
+        _sourcesLoaded = false;
+        _availableSources = {};
+      });
+      await _loadVocabularySources();
+      if (!mounted) return;
+      final pack = languagePackFor(code);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            S.of(context)!.packReadyToast(pack?.nativeName ?? code),
+          ),
+          backgroundColor: SpaceTheme.alienGreen,
+        ),
+      );
+    }
+  }
+
+  Future<void> _confirmRemovePack(LanguagePack pack) async {
+    final s = S.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: SpaceTheme.deepSpace,
+        title: Text(
+          s.packRemoveConfirmTitle(pack.nativeName),
+          style: SpaceTheme.headlineStyle.copyWith(fontSize: 18),
+        ),
+        content: Text(
+          s.packRemoveConfirmMessage(pack.nativeName, pack.downloadSizeLabel),
+          style: SpaceTheme.bodyStyle,
+        ),
+        actions: [
+          TextButton(
+            autofocus: true,
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(s.cancel, style: SpaceTheme.bodyStyle),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(
+              s.packRemoveAction,
+              style: SpaceTheme.buttonStyle
+                  .copyWith(color: SpaceTheme.planetOrange),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    final removed = await context.read<LanguagePackService>().remove(pack.code);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          removed
+              ? s.packRemoved(pack.nativeName)
+              : s.packRemoveFailed(pack.nativeName),
+        ),
+        backgroundColor:
+            removed ? SpaceTheme.alienGreen : SpaceTheme.rocketRed,
       ),
     );
   }
@@ -1600,50 +1907,76 @@ class _SettingsScreenState extends State<SettingsScreen>
     }
   }
 
-  void _changeLearningLanguage(String languageCode) async {
-    if (languageCode == currentLearningLanguage) {
-      if (kDebugMode)
+  /// Switches the learning language. If the target pack isn't on the device,
+  /// this offers the download (with progress) instead of silently trying to
+  /// fetch ~25 MB — and a failure leaves the previous language active rather
+  /// than a half-initialized one, which is what used to crash the minigames.
+  Future<void> _changeLearningLanguage(String languageCode) async {
+    if (languageCode == currentLearningLanguage &&
+        context.read<VocabularyService>().isInitialized) {
+      if (kDebugMode) {
         debugPrint("[SETTINGS] 📚 Learning language unchanged: $languageCode");
+      }
       return;
     }
 
-    if (kDebugMode)
+    if (kDebugMode) {
       debugPrint(
         "[SETTINGS] 📚 Changing learning language from "
         "$currentLearningLanguage to $languageCode",
       );
+    }
+
+    final service = context.read<LanguagePackService>();
+    if (!service.isInstalled(languageCode)) {
+      // Not downloaded yet → consent + progress dialog, which also activates
+      // the pack on success.
+      await _installPack(languageCode);
+      return;
+    }
 
     setState(() {
       _isLoading = true;
-      currentLearningLanguage = languageCode;
       _sourcesLoaded = false;
       _availableSources = {};
     });
 
     try {
-      final vocabService = context.read<VocabularyService>();
-      await vocabService.setLearningLanguage(languageCode);
-      await _loadVocabularySources();
+      final activated = await service.activate(languageCode);
+      if (!mounted) return;
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(S.of(context)!.learningLanguageChanged(
-                  languageCode == 'en'
-                      ? S.of(context)!.languageEnglish
-                      : S.of(context)!.languageGerman,
-                )),
-            backgroundColor: SpaceTheme.alienGreen,
-          ),
-        );
+      if (!activated) {
+        // The pack vanished between the status check and the switch (cleared
+        // storage, corrupted file): offer the download instead of failing.
+        await _installPack(languageCode);
+        return;
       }
+
+      setState(() {
+        currentLearningLanguage =
+            context.read<VocabularyService>().learningLanguage;
+      });
+      await _loadVocabularySources();
+      if (!mounted) return;
+
+      final pack = languagePackFor(languageCode);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            S.of(context)!.packReadyToast(pack?.nativeName ?? languageCode),
+          ),
+          backgroundColor: SpaceTheme.alienGreen,
+        ),
+      );
     } catch (e, stackTrace) {
-      if (kDebugMode)
+      if (kDebugMode) {
         debugPrint("[SETTINGS] ❌ Failed to change learning language: $e");
-      if (kDebugMode) debugPrint("[SETTINGS] 📚 Stack trace: $stackTrace");
+        debugPrint("[SETTINGS] 📚 Stack trace: $stackTrace");
+      }
 
       if (mounted) {
         setState(() {
+          // Reflect what is actually loaded, not what was tapped.
           currentLearningLanguage =
               context.read<VocabularyService>().learningLanguage;
         });
@@ -1926,6 +2259,30 @@ class _SettingsScreenState extends State<SettingsScreen>
             child: Text(S.of(context)!.reset),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Small status pill used by the language-pack rows.
+class _PackChip extends StatelessWidget {
+  const _PackChip({required this.text, required this.color});
+
+  final String text;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.18),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: color.withValues(alpha: 0.5)),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w600),
       ),
     );
   }
