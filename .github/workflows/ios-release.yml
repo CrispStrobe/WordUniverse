@@ -9,7 +9,7 @@ name: iOS Release (App Store)
 #
 # Requires these repo secrets (all already set via `gh secret set`):
 #   ASC_API_KEY_P8_BASE64  base64 of AuthKey_<KEYID>.p8
-#   ASC_KEY_ID             App Store Connect API key id            (9RMU3C7422)
+#   ASC_KEY_ID             App Store Connect API key id
 #   ASC_ISSUER_ID          App Store Connect issuer id
 #   ASC_APP_ID             numeric app id                          (6790143931)
 #   ASC_TEAM_ID            Apple Developer team id                 (N9XSJ4M3GT)
