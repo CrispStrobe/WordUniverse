@@ -169,3 +169,53 @@ Future<Database> initPlatformDatabase({
     rethrow;
   }
 }
+
+/// See db_platform_interface.dart. Mobile/desktop: the pack is installed when
+/// the SQLite file exists and opens with a non-empty `words` table. A file
+/// that exists but fails to open (truncated download, corrupted container) is
+/// reported as *not* installed so the caller re-downloads instead of crashing
+/// later inside a game.
+Future<bool> isPlatformDatabaseInstalled(String databaseName) async {
+  try {
+    final Directory documentsDirectory =
+        await getApplicationDocumentsDirectory();
+    final String path = join(documentsDirectory.path, databaseName);
+    if (!await File(path).exists()) return false;
+
+    final db = await openDatabase(path, readOnly: true);
+    try {
+      final count = Sqflite.firstIntValue(
+        await db.rawQuery('SELECT COUNT(*) FROM words LIMIT 1'),
+      );
+      return count != null && count > 0;
+    } finally {
+      await db.close();
+    }
+  } catch (e) {
+    if (kDebugMode) {
+      debugPrint("[DB_MOBILE] Install check failed for $databaseName: $e");
+    }
+    return false;
+  }
+}
+
+/// See db_platform_interface.dart.
+Future<void> deletePlatformDatabase(String databaseName) async {
+  try {
+    final Directory documentsDirectory =
+        await getApplicationDocumentsDirectory();
+    final String path = join(documentsDirectory.path, databaseName);
+    // Drop sqflite's journal/WAL siblings too, or a stale -wal can resurrect
+    // a partially valid DB on the next open.
+    for (final suffix in const ['', '-journal', '-wal', '-shm']) {
+      final file = File('$path$suffix');
+      if (await file.exists()) await file.delete();
+    }
+    if (kDebugMode) debugPrint("[DB_MOBILE] 🗑️ Deleted database $databaseName");
+  } catch (e) {
+    if (kDebugMode) {
+      debugPrint("[DB_MOBILE] ⚠️ Could not delete $databaseName: $e");
+    }
+    rethrow;
+  }
+}

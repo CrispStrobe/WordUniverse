@@ -15,6 +15,7 @@ import '../../../core/models/skill_category.dart';
 import '../../../core/models/vocabulary_models.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/vocabulary_service.dart';
+import '../../../shared/widgets/language_pack_dialog.dart';
 import '../../../core/theme/space_theme.dart';
 import '../../../generated/l10n.dart';
 import '../../games/providers/game_provider.dart';
@@ -454,9 +455,15 @@ class _WordDetailSheet extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  Navigator.of(context).push(
+                onPressed: () async {
+                  // Same gate as the game menu: no vocabulary, no game. Gate
+                  // first, then close this sheet — the gate needs a live
+                  // context to show its own dialog.
+                  final navigator = Navigator.of(context);
+                  if (!await ensureLanguagePackReady(context)) return;
+                  if (!context.mounted) return;
+                  navigator.pop();
+                  navigator.push(
                     MaterialPageRoute(
                       builder: (_) => DefinitionQuizGame(
                         gradeLevel: _gradeLevel,

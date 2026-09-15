@@ -528,6 +528,119 @@ class SDe extends S {
       'Wähle, welche Wortschatz-Datenbank die Spiele verwenden';
 
   @override
+  String packRequiredTitle(String language) {
+    return '$language-Paket erforderlich';
+  }
+
+  @override
+  String packRequiredMessage(String language, String size) {
+    return 'Die Spiele brauchen die $language-Wortdatenbank (etwa $size). Sie wird einmal geladen und funktioniert danach offline.';
+  }
+
+  @override
+  String packDownloadingTitle(String language) {
+    return '$language wird geladen';
+  }
+
+  @override
+  String get packDownloadPreparing => 'Download wird vorbereitet…';
+
+  @override
+  String get packKeepAppOpen =>
+      'Bitte lass die App offen, bis der Download fertig ist.';
+
+  @override
+  String packMetaSizeLicense(String size, String license) {
+    return '$size Download · Daten unter $license';
+  }
+
+  @override
+  String get packOfflineAfterDownload =>
+      'Funktioniert nach dem Download offline';
+
+  @override
+  String get packFailedTitle => 'Download fehlgeschlagen';
+
+  @override
+  String get packFailedNetworkHint =>
+      'Prüfe deine Internetverbindung und versuche es erneut.';
+
+  @override
+  String get packFailedDataHint =>
+      'Die geladene Datei hat die Integritätsprüfung nicht bestanden. Ein neuer Versuch hilft meist.';
+
+  @override
+  String packFallbackHint(String language) {
+    return 'Du kannst mit $language weitermachen und dieses Paket später in den Einstellungen laden.';
+  }
+
+  @override
+  String packUseFallback(String language) {
+    return 'Mit $language weitermachen';
+  }
+
+  @override
+  String get packRetry => 'Erneut versuchen';
+
+  @override
+  String get languagePacksTitle => 'Sprachpakete';
+
+  @override
+  String get languagePacksDesc => 'Wortschatz-Datenbanken auf diesem Gerät';
+
+  @override
+  String get packStatusInstalled => 'Geladen';
+
+  @override
+  String get packStatusBundled => 'In der App enthalten';
+
+  @override
+  String get packStatusNotInstalled => 'Nicht geladen';
+
+  @override
+  String get packStatusInstalling => 'Wird geladen…';
+
+  @override
+  String get packStatusFailed => 'Download fehlgeschlagen';
+
+  @override
+  String get packInUse => 'Aktiv';
+
+  @override
+  String get packDownloadAction => 'Laden';
+
+  @override
+  String get packUseAction => 'Verwenden';
+
+  @override
+  String get packRemoveAction => 'Entfernen';
+
+  @override
+  String packRemoveConfirmTitle(String language) {
+    return '$language-Paket entfernen?';
+  }
+
+  @override
+  String packRemoveConfirmMessage(String language, String size) {
+    return 'Die $language-Wortdatenbank ($size) wird von diesem Gerät gelöscht. Du kannst sie jederzeit erneut laden.';
+  }
+
+  @override
+  String packRemoved(String language) {
+    return '$language-Paket entfernt';
+  }
+
+  @override
+  String packMissingBanner(String language) {
+    return 'Die $language-Wortdatenbank ist noch nicht geladen. Zum Laden tippen.';
+  }
+
+  @override
+  String packReadyToast(String language) {
+    return '$language ist bereit';
+  }
+
+  @override
   String get languageEnglish => 'English';
 
   @override
@@ -655,6 +768,11 @@ class SDe extends S {
   @override
   String gradeN(int gradeNumber) {
     return 'Stufe $gradeNumber';
+  }
+
+  @override
+  String packRemoveFailed(String language) {
+    return 'Das $language-Paket konnte nicht entfernt werden.';
   }
 
   @override

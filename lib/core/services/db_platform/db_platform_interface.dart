@@ -26,3 +26,24 @@ Future<Database> initPlatformDatabase({
     'Ensure conditional imports are configured correctly.',
   );
 }
+
+/// Whether [databaseName] is already present and usable on this device, i.e.
+/// whether a downloaded language pack still needs fetching. Authoritative:
+/// it inspects real storage rather than a preference flag, so a cleared app
+/// container or wiped browser storage is detected.
+Future<bool> isPlatformDatabaseInstalled(String databaseName) {
+  throw UnsupportedError(
+    'Cannot query database: Unknown platform. '
+    'Ensure conditional imports are configured correctly.',
+  );
+}
+
+/// Deletes the cached copy of [databaseName], freeing its storage. Used when
+/// the user removes a downloaded language pack. A no-op when nothing is
+/// cached.
+Future<void> deletePlatformDatabase(String databaseName) {
+  throw UnsupportedError(
+    'Cannot delete database: Unknown platform. '
+    'Ensure conditional imports are configured correctly.',
+  );
+}

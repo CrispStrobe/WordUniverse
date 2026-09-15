@@ -161,3 +161,41 @@ Future<Database> initPlatformDatabase({
     rethrow;
   }
 }
+
+/// See db_platform_interface.dart. Web: the pack is installed when the DB
+/// opens out of the browser's virtual filesystem with a non-empty `words`
+/// table. Anything else (missing, cleared site data, corrupted) counts as not
+/// installed so the caller re-downloads.
+Future<bool> isPlatformDatabaseInstalled(String databaseName) async {
+  try {
+    final factory = databaseFactoryFfiWeb;
+    final db = await factory.openDatabase(
+      databaseName,
+      options: OpenDatabaseOptions(readOnly: true),
+    );
+    try {
+      final count = Sqflite.firstIntValue(
+        await db.rawQuery('SELECT COUNT(*) FROM words LIMIT 1'),
+      );
+      return count != null && count > 0;
+    } finally {
+      await db.close();
+    }
+  } catch (e) {
+    if (kDebugMode) {
+      debugPrint("[DB_WEB] Install check failed for $databaseName: $e");
+    }
+    return false;
+  }
+}
+
+/// See db_platform_interface.dart.
+Future<void> deletePlatformDatabase(String databaseName) async {
+  try {
+    await databaseFactoryFfiWeb.deleteDatabase(databaseName);
+    if (kDebugMode) debugPrint("[DB_WEB] 🗑️ Deleted database $databaseName");
+  } catch (e) {
+    if (kDebugMode) debugPrint("[DB_WEB] ⚠️ Could not delete $databaseName: $e");
+    rethrow;
+  }
+}

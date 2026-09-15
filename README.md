@@ -127,6 +127,42 @@ lib/
 └── main.dart               # App entry point, provider setup, and routing
 ```
 
+## 🌍 Language packs
+
+Each learning language is a **pack**: a vocabulary SQLite database plus the
+metadata needed to obtain, verify, disclose and display it. Every pack is
+declared in one place — `lib/core/models/language_pack.dart` — and the rest of
+the app derives from that registry (Settings rows, the learning-language
+picker, the download prompt, the game gate). Adding a language means adding
+one `LanguagePack` entry.
+
+A pack is delivered one of two ways:
+
+| Mode | Declared by | Example |
+| --- | --- | --- |
+| **Bundled** — ships in the binary, always available offline | `assetPath` | English (CC BY-SA 4.0) |
+| **Downloaded** — fetched once on demand, then cached | `remoteUrl` + integrity pins | German (GPL-3.0, must not be bundled in a store binary) |
+
+`LanguagePackService` owns the install lifecycle and is what the UI listens
+to:
+
+- **Install status** is resolved against real storage (`isPlatformDatabaseInstalled`),
+  not a preference flag — cleared app data or wiped browser storage reads as
+  "not downloaded" instead of pretending the pack is there.
+- **Progress** (download → decompress → write → open) is reported as
+  `0.0–1.0` plus a message, shown both in the download dialog and in
+  **Settings → Language → Language packs**.
+- **Failures never strand the app**: the previously active pack is restored,
+  and the user is offered the bundled fallback pack.
+- **The learning-language preference is only persisted after a successful
+  switch**, so a failed download can't leave the app pointing at a language
+  whose database isn't there.
+
+Games are gated by `ensureLanguagePackReady()` (see
+`lib/shared/widgets/language_pack_dialog.dart`), called at every launch point.
+If the active pack isn't loaded, the user gets the download offer — with size
+and license disclosed — instead of a minigame running on an empty word list.
+
 ## License
 
 This project uses a dual-license model — see [DATA_LICENSE.md](DATA_LICENSE.md) for the full breakdown:
