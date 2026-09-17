@@ -774,6 +774,9 @@ class SDe extends S {
   String get packDownloadAction => 'Laden';
 
   @override
+  String get packGateLoadAction => 'Sprachpaket laden';
+
+  @override
   String get packUseAction => 'Verwenden';
 
   @override

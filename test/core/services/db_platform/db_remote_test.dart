@@ -45,6 +45,7 @@ http.StreamedResponse _bytesResponse(
 }
 
 void main() {
+  _intervalTests();
   const url = 'https://example.test/db.gz';
   final payload = List<int>.generate(20, (i) => i);
 
@@ -312,6 +313,99 @@ void main() {
         ),
         throwsA(isA<DbDownloadPausedException>()),
       );
+    });
+  });
+}
+
+
+void _intervalTests() {
+  group('checkpoint and progress spacing', () {
+    test('checkpoint count stays bounded as the transfer grows', () {
+      // Each checkpoint rewrites the whole prefix, so what matters is the
+      // number of rewrites, not a fixed spacing. 25 MB pack: ~16, not ~25.
+      const packBytes = 26619920;
+      expect(packBytes ~/ checkpointInterval(packBytes), lessThanOrEqualTo(16));
+      expect(200 * 1024 * 1024 ~/ checkpointInterval(200 * 1024 * 1024),
+          lessThanOrEqualTo(16));
+    });
+
+    test('small and unknown transfers keep a floor so a pause loses little', () {
+      expect(checkpointInterval(4096), 1024 * 1024);
+      expect(checkpointInterval(null), 4 * 1024 * 1024);
+      expect(checkpointInterval(0), 4 * 1024 * 1024);
+    });
+
+    test('progress emits are spaced per visible step, never per socket chunk',
+        () {
+      const packBytes = 26619920;
+      expect(packBytes ~/ progressEmitInterval(packBytes), 200);
+      // Tiny transfers (tests, retries) still report every chunk.
+      expect(progressEmitInterval(20), 1);
+      expect(progressEmitInterval(null), 64 * 1024);
+    });
+  });
+
+  group('unvalidated resume reporting', () {
+    test('a resume without a server validator is reported, so the checksum '
+        'can be enforced downstream', () async {
+      const url = 'https://example.test/no-validator.gz';
+      final payload = List<int>.generate(20, (i) => i);
+      final cache = MemoryDbPartialCache();
+      var paused = false;
+      var chunks = 0;
+
+      // Deliberately no etag/last-modified: the resume cannot use If-Range.
+      final client = _FakeHttp((req) async {
+        if (req.headers['range'] case final r?) {
+          final start = RangeHeader.parse(r)!.start;
+          return _bytesResponse(payload.sublist(start), status: 206, headers: {
+            'content-range':
+                'bytes $start-${payload.length - 1}/${payload.length}',
+          });
+        }
+        return _bytesResponse(payload);
+      });
+
+      await expectLater(
+        downloadCompressedDb(
+          url: url,
+          clientFactory: () => client,
+          partialCache: cache,
+          backoff: Duration.zero,
+          isPaused: () => paused,
+          onChunk: () {
+            if (++chunks == 2) paused = true;
+          },
+        ),
+        throwsA(isA<DbDownloadPausedException>()),
+      );
+
+      paused = false;
+      expect(
+        await downloadCompressedDb(
+          url: url,
+          clientFactory: () => client,
+          partialCache: cache,
+          backoff: Duration.zero,
+        ),
+        payload,
+      );
+      expect(DbDownloadController.sharedFor(url).resumedWithoutValidator, isTrue,
+          reason: 'If-Range could not prove the entity is unchanged');
+    });
+
+    test('a download that starts from scratch is not flagged', () async {
+      const url = 'https://example.test/fresh.gz';
+      final payload = List<int>.generate(20, (i) => i);
+      final client = _FakeHttp((_) async => _bytesResponse(payload));
+      await downloadCompressedDb(
+        url: url,
+        clientFactory: () => client,
+        partialCache: MemoryDbPartialCache(),
+        backoff: Duration.zero,
+      );
+      expect(
+          DbDownloadController.sharedFor(url).resumedWithoutValidator, isFalse);
     });
   });
 }

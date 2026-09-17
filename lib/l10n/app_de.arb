@@ -299,6 +299,7 @@
     "packStatusFailed": "Download fehlgeschlagen",
     "packInUse": "Aktiv",
     "packDownloadAction": "Laden",
+    "packGateLoadAction": "Sprachpaket laden",
     "packUseAction": "Verwenden",
     "packRemoveAction": "Entfernen",
     "packRemoveConfirmTitle": "{language}-Paket entfernen?",

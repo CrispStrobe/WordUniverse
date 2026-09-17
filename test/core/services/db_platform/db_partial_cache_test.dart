@@ -7,6 +7,8 @@ library;
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:crypto/crypto.dart';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:WortUniversum/core/services/db_platform/db_partial_cache.dart';
 import 'package:WortUniversum/core/services/db_platform/db_partial_cache_io.dart';
@@ -78,6 +80,51 @@ void main() {
       await cache.save(url, Uint8List.fromList([7]));
       await cache.clear(url);
       expect(await cache.load(url), isNull);
+    });
+  });
+
+  group('checkpoint envelope', () {
+    test('one record carries prefix and validator together', () async {
+      final cache = MemoryDbPartialCache();
+      await cache.saveCheckpoint('u', [1, 2, 3], '"tag"');
+      final record = await cache.loadRecord('u');
+      expect(record!.bytes, [1, 2, 3]);
+      expect(record.validator, '"tag"');
+    });
+
+    test('a record written without a validator reports none', () async {
+      final cache = MemoryDbPartialCache();
+      await cache.save('u', [1, 2, 3]);
+      expect((await cache.loadRecord('u'))!.validator, isNull);
+      expect(await cache.loadValidator('u', [1, 2, 3]), isNull);
+    });
+
+    test('an oversized validator is stored as none rather than truncated',
+        () async {
+      final cache = MemoryDbPartialCache();
+      await cache.saveCheckpoint('u', [1], '"${'x' * 300}"');
+      final record = await cache.loadRecord('u');
+      expect(record!.bytes, [1]);
+      expect(record.validator, isNull,
+          reason: 'a truncated validator would never match the server');
+    });
+
+    test('a v1 record from an older build is refused, not misread', () async {
+      final cache = MemoryDbPartialCache();
+      // Legacy layout: [4B length][32B sha256][payload], no magic/version.
+      final legacy = BytesBuilder()
+        ..add(Uint8List(4)..buffer.asByteData().setUint32(0, 3, Endian.little))
+        ..add(sha256.convert([1, 2, 3]).bytes)
+        ..add([1, 2, 3]);
+      await cache.writeRecord(cache.keyFor('u'), legacy.takeBytes());
+      expect(await cache.load('u'), isNull);
+    });
+
+    test('validator is dropped when the cached prefix moved on', () async {
+      final cache = MemoryDbPartialCache();
+      await cache.saveCheckpoint('u', [1, 2, 3], '"tag"');
+      expect(await cache.loadValidator('u', [1, 2]), isNull);
+      expect(await cache.loadValidator('u', [1, 2, 3]), '"tag"');
     });
   });
 

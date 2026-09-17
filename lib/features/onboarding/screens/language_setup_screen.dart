@@ -18,7 +18,20 @@ class LanguageSetupScreen extends StatefulWidget {
   static bool isComplete(SharedPreferences prefs) =>
       prefs.getBool('language_setup_complete') == true ||
       (kLanguagePacks.containsKey(prefs.getString('learning_language')) &&
-          const ['en', 'de'].contains(prefs.getString('language')));
+          interfaceCodes.contains(prefs.getString('language')));
+
+  /// Interface languages come from the generated delegate, the same list
+  /// MaterialApp is configured with, so shipping another ARB adds a row here
+  /// with no edit. Learning languages come from the pack registry; the two are
+  /// deliberately independent choices.
+  static List<String> get interfaceCodes =>
+      (S.supportedLocales.map((locale) => locale.languageCode).toSet().toList()
+        ..sort());
+
+  /// Endonym for an interface language. Reuses the pack registry when a pack
+  /// exists for the same code, since that is where endonyms already live.
+  static String interfaceName(String code) =>
+      languagePackFor(code)?.nativeName ?? code.toUpperCase();
 
   @override
   State<LanguageSetupScreen> createState() => _LanguageSetupScreenState();
@@ -36,7 +49,9 @@ class _LanguageSetupScreenState extends State<LanguageSetupScreen> {
         widget.prefs.getString('learning_language') ?? kDefaultLanguageCode;
     if (!kLanguagePacks.containsKey(learning)) learning = kDefaultLanguageCode;
     interface = widget.prefs.getString('language') ?? 'en';
-    if (!const ['en', 'de'].contains(interface)) interface = 'en';
+    if (!LanguageSetupScreen.interfaceCodes.contains(interface)) {
+      interface = 'en';
+    }
   }
 
   Future<void> save() async {
@@ -135,9 +150,14 @@ class _LanguageSetupScreenState extends State<LanguageSetupScreen> {
                         iconEnabledColor: SpaceTheme.starYellow,
                         decoration: _fieldDecoration(
                             s.setupInterfaceLabel, Icons.translate),
-                        items: const [
-                          DropdownMenuItem(value: 'de', child: Text('Deutsch')),
-                          DropdownMenuItem(value: 'en', child: Text('English'))
+                        items: [
+                          for (final code
+                              in LanguageSetupScreen.interfaceCodes)
+                            DropdownMenuItem(
+                              value: code,
+                              child: Text(
+                                  LanguageSetupScreen.interfaceName(code)),
+                            ),
                         ],
                         onChanged: saving
                             ? null

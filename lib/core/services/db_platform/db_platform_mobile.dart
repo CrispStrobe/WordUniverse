@@ -10,11 +10,6 @@ import 'db_gzip.dart';
 import 'db_remote.dart';
 import '../../models/load_status.dart';
 
-/// Top-level entry point for [compute]. Runs in a background isolate so the
-/// ~25MB gzip → ~150MB decompression doesn't block the UI thread.
-List<int> _decodeGzipBytes(Uint8List bytes) {
-  return decodeDbGzip(bytes);
-}
 
 Future<Database> initPlatformDatabase({
   required String assetPath,
@@ -106,17 +101,35 @@ Future<Database> initPlatformDatabase({
     final stopwatch = Stopwatch()..start();
     final List<int> decompressedBytes;
     try {
-      // Offload sync gzip decode to a background isolate so the splash
-      // animation keeps running smoothly during the ~150MB decompression.
+      // Offload decode AND the payload gates to a background isolate so the
+      // splash animation keeps running through the ~150MB decompression, and
+      // so nothing hashes 150MB on the UI thread for an advisory check.
       // gzip's CRC-32 trailer validates the payload here — a corrupt/truncated
       // download throws instead of yielding garbage.
-      decompressedBytes = await compute(_decodeGzipBytes, compressedBytes);
+      decompressedBytes = await compute(
+        decodeAndVerifyDbGzip,
+        DbGzipJob(
+          compressed: compressedBytes,
+          expectedDecompressedBytes: expectedDecompressedBytes,
+          expectedDecompressedSha256: expectedDecompressedSha256,
+          requireSha256: remoteUrl != null &&
+              remoteUrl.isNotEmpty &&
+              DbDownloadController.sharedFor(remoteUrl)
+                  .resumedWithoutValidator,
+        ),
+      );
 
       final decompressedSizeMB =
           (decompressedBytes.length / (1024 * 1024)).toStringAsFixed(1);
       if (kDebugMode) debugPrint(
           "[DB_MOBILE] Decompressed to $decompressedSizeMB MB in ${stopwatch.elapsedMilliseconds}ms");
       onProgress?.call(0.80, LoadStatus(LoadStage.decompressed, bytes: decompressedBytes.length));
+    } on DbPayloadException catch (e) {
+      // A payload gate (size or an enforced checksum) already says exactly
+      // what was wrong; don't flatten it into "decompression failed".
+      if (kDebugMode) debugPrint("[DB_MOBILE] ❌ Payload gate: ${e.message}");
+      onProgress?.call(0.0, const LoadStatus(LoadStage.decompressionFailed));
+      throw DbDownloadException(e.message);
     } catch (e) {
       if (kDebugMode) debugPrint("[DB_MOBILE] ❌ Decompression error: $e");
       onProgress?.call(0.0, const LoadStatus(LoadStage.decompressionFailed));
@@ -129,13 +142,6 @@ Future<Database> initPlatformDatabase({
       }
       rethrow;
     }
-
-    // Integrity gate over the decompressed bytes (hard size; soft sha256).
-    verifyDecompressedDb(
-      decompressedBytes,
-      expectedDecompressedBytes: expectedDecompressedBytes,
-      expectedDecompressedSha256: expectedDecompressedSha256,
-    );
 
     // PHASE 6: Write to disk (0.80 - 0.90)
     onProgress?.call(0.85, const LoadStatus(LoadStage.writingStorage));
