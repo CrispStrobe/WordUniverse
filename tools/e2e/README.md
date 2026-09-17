@@ -61,6 +61,12 @@ cannot replace prior artifacts. Production content may differ from checkout SHA;
 this is a live deployment/endpoint check, not proof that the checkout was deployed.
 No agent cron is installed. Forced runner loss can prevent artifact upload.
 
+CI: .github/workflows/web-e2e.yml runs this suite on pull requests that touch
+lib/, web/ or tools/e2e/, and on demand. Prefer that over a local run — the web
+build plus a Chromium download is heavy, and a contended machine makes both the
+timings and any pause/resume race unreliable. Evidence is uploaded as an
+artifact.
+
 Scenarios:
   A: Distinct picker legends and immediate German interface switch.
   B: Full onboarding, German preference retained after declining initial pack,

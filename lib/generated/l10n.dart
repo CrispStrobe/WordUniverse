@@ -1425,6 +1425,24 @@ abstract class S {
   /// **'Load language pack'**
   String get packGateLoadAction;
 
+  /// No description provided for @packMetaSizes.
+  ///
+  /// In en, this message translates to:
+  /// **'{download} download · {installed} on this device · data under {license}'**
+  String packMetaSizes(String download, String installed, String license);
+
+  /// No description provided for @packNoSpaceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'There is not enough free space. {language} needs about {size} on this device once installed.'**
+  String packNoSpaceHint(String language, String size);
+
+  /// No description provided for @packResumeProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {total} downloaded — it will continue from here'**
+  String packResumeProgress(String done, String total);
+
   /// No description provided for @packUseAction.
   ///
   /// In en, this message translates to:

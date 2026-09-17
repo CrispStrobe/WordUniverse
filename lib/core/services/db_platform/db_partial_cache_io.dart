@@ -37,6 +37,35 @@ class FileDbPartialCache extends DbPartialCache {
     await temporary.rename(file.path);
   }
 
+  /// Reads the fixed header and the file size rather than the whole prefix:
+  /// a resume caption must not cost a 12 MB read.
+  @override
+  Future<int?> cachedLength(String url) async {
+    try {
+      final file = await _file(keyFor(url));
+      if (!await file.exists()) return null;
+      final total = await file.length();
+      final handle = await file.open();
+      try {
+        final header = await handle.read(40);
+        if (header.length < 40) return null;
+        final view = ByteData.sublistView(header);
+        if (view.getUint8(0) != 0x44 ||
+            view.getUint8(1) != 0x50 ||
+            view.getUint8(2) != 2) {
+          return null;
+        }
+        final payloadLength = view.getUint32(4, Endian.little);
+        if (total != 40 + view.getUint8(3) + payloadLength) return null;
+        return payloadLength;
+      } finally {
+        await handle.close();
+      }
+    } catch (_) {
+      return null;
+    }
+  }
+
   @override
   Future<void> deleteRecord(String key) async {
     final file = await _file(key);

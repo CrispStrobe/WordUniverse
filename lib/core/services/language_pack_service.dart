@@ -22,12 +22,28 @@ import 'package:flutter/foundation.dart';
 import '../models/language_pack.dart';
 import '../models/load_status.dart';
 import 'vocabulary_service.dart';
+import 'db_platform/db_partial_cache.dart';
 import 'db_platform/db_remote.dart';
+import 'db_platform/db_storage.dart';
 
 class LanguagePackService with ChangeNotifier {
-  LanguagePackService(this._vocabulary);
+  /// [partialCache] and [freeSpaceProbe] exist so tests can drive the
+  /// resume-and-space behaviour without touching real storage.
+  LanguagePackService(
+    this._vocabulary, {
+    DbPartialCache? partialCache,
+    Future<int?> Function()? freeSpaceProbe,
+  })  : _partialCacheOverride = partialCache,
+        _freeSpaceProbe = freeSpaceProbe ?? availableStorageBytes;
 
   final VocabularyService _vocabulary;
+  final DbPartialCache? _partialCacheOverride;
+  final Future<int?> Function() _freeSpaceProbe;
+
+  /// Resolved lazily: touching the platform default from a constructor would
+  /// reach for app-support paths in unit tests.
+  DbPartialCache get _partialCache =>
+      _partialCacheOverride ?? defaultDbPartialCache;
   String? _selectedLanguage;
   String get selectedLanguage => _selectedLanguage ?? activeLanguage;
 
@@ -98,13 +114,23 @@ class LanguagePackService with ChangeNotifier {
   /// Re-reads real storage for every downloadable pack. Cheap for bundled
   /// packs, one DB open per downloadable pack otherwise. Call it when Settings
   /// opens or after an install/removal.
-  Future<void> refresh() async {
+  ///
+  /// [probePartialDownloads] additionally reads the checkpoint store to learn
+  /// how far a stopped download got. That is storage I/O, so it stays opt-in:
+  /// it belongs to Settings drawing a label, not to the install path, which
+  /// awaits refresh() and must not grow a disk round trip per install.
+  Future<void> refresh({bool probePartialDownloads = false}) async {
     for (final pack in kLanguagePacks.values) {
       final current = _states[pack.code]!;
       // Don't stomp on an install in flight.
       if (current.isInstalling || current.status == LanguagePackStatus.paused) continue;
 
       final installed = await _vocabulary.isPackInstalled(pack.code);
+      // A pack that is only part-way downloaded should say so rather than look
+      // untouched; the header read behind this is cheap, but it is still I/O.
+      final cached = installed || !probePartialDownloads
+          ? null
+          : await _cachedBytes(pack);
       _states[pack.code] = current.copyWith(
         status: installed
             ? LanguagePackStatus.installed
@@ -113,6 +139,8 @@ class LanguagePackService with ChangeNotifier {
                 ? LanguagePackStatus.failed
                 : LanguagePackStatus.notInstalled),
         progress: installed ? 1.0 : 0.0,
+        cachedBytes: cached,
+        clearCachedBytes: installed || (probePartialDownloads && cached == null),
         clearError: installed,
       );
     }
@@ -146,6 +174,28 @@ class LanguagePackService with ChangeNotifier {
     await selectLanguage(code);
     if (state.isInstalled && activeLanguage == code && isActivePackReady) {
       return true;
+    }
+
+    // Refuse before downloading anything when the device already cannot hold
+    // the installed database. Only browsers report a quota; native returns
+    // null and is caught at write time instead.
+    final required = pack.requiredFreeBytes;
+    if (pack.requiresDownload && required != null) {
+      final free = await _freeSpaceProbe();
+      if (free != null && free < required) {
+        _log('⛔ "$code" needs $required bytes, $free available');
+        _update(
+          code,
+          _states[code]!.copyWith(
+            status: LanguagePackStatus.failed,
+            progress: 0.0,
+            error: 'Not enough free space to install ${pack.nativeName}.',
+            errorIsNetwork: false,
+            errorIsSpace: true,
+          ),
+        );
+        return false;
+      }
     }
 
     _update(
@@ -208,6 +258,7 @@ class LanguagePackService with ChangeNotifier {
           message: const LoadStatus(LoadStage.ready),
           error: _describeError(e),
           errorIsNetwork: isNetwork,
+          errorIsSpace: e is DbInsufficientSpaceException,
         ),
       );
       return false;
@@ -282,6 +333,33 @@ class LanguagePackService with ChangeNotifier {
     _selectedLanguage = code;
     final installed = await _vocabulary.isPackInstalled(code);
     return (code: code, installed: installed);
+  }
+
+  /// Looks up how far [code]'s stopped download got and publishes it, so a
+  /// consent dialog can say "12.4 of 25 MB downloaded". Safe to call from a
+  /// widget's initState: it never throws and does nothing for a pack that is
+  /// installed or already downloading.
+  Future<void> probePartialDownload(String code) async {
+    final pack = kLanguagePacks[code];
+    if (pack == null || !pack.requiresDownload) return;
+    final current = _states[code]!;
+    if (current.isInstalled || current.isInstalling) return;
+    final cached = await _cachedBytes(pack);
+    if (cached == null || !_states.containsKey(code)) return;
+    _update(code, _states[code]!.copyWith(cachedBytes: cached));
+  }
+
+  /// Bytes already on disk for a partly downloaded pack. Never throws: this
+  /// only decorates a label, and storage can be unavailable.
+  Future<int?> _cachedBytes(LanguagePack pack) async {
+    final url = pack.remoteUrl;
+    if (url == null) return null;
+    try {
+      final length = await _partialCache.cachedLength(url);
+      return (length ?? 0) > 0 ? length : null;
+    } catch (_) {
+      return null;
+    }
   }
 
   String _describeError(Object error) {

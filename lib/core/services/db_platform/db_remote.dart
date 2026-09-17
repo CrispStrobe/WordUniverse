@@ -22,6 +22,15 @@ class DbDownloadException implements Exception {
   String toString() => message;
 }
 
+/// The install cannot fit. Carries the numbers so the UI can say how much is
+/// needed rather than "download failed".
+class DbInsufficientSpaceException extends DbDownloadException {
+  DbInsufficientSpaceException({required this.requiredBytes, this.availableBytes})
+      : super('Not enough free space to install the language pack.');
+  final int requiredBytes;
+  final int? availableBytes;
+}
+
 /// Pause is not a failure. Await the original install settling, call resume(),
 /// then re-enter the normal installation flow to continue from cached bytes.
 class DbDownloadPausedException extends DbDownloadException {
