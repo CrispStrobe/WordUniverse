@@ -1,6 +1,12 @@
 {
     "appTitle": "Word Universe",
     "gameLevelLabel": "Level",
+    "wordFindGridLabel": "Word grid",
+    "wordFindGridHint": "Drag across letters to select words",
+    "wordFindWordFound": "{word}, found",
+    "@wordFindWordFound": {"placeholders": {"word": {"type": "String"}}},
+    "wordFindWordPending": "{word}, still to find",
+    "@wordFindWordPending": {"placeholders": {"word": {"type": "String"}}},
     "rescueHintCommonMistake": "Common mistake! Remember: {word}",
     "@rescueHintCommonMistake": {"placeholders": {"word": {"type": "String"}}},
     "rescueHintNot": "Not: {forms}",

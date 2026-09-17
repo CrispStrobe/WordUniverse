@@ -109,6 +109,30 @@ abstract class S {
   /// **'Level'**
   String get gameLevelLabel;
 
+  /// No description provided for @wordFindGridLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Word grid'**
+  String get wordFindGridLabel;
+
+  /// No description provided for @wordFindGridHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag across letters to select words'**
+  String get wordFindGridHint;
+
+  /// No description provided for @wordFindWordFound.
+  ///
+  /// In en, this message translates to:
+  /// **'{word}, found'**
+  String wordFindWordFound(String word);
+
+  /// No description provided for @wordFindWordPending.
+  ///
+  /// In en, this message translates to:
+  /// **'{word}, still to find'**
+  String wordFindWordPending(String word);
+
   /// No description provided for @rescueHintCommonMistake.
   ///
   /// In en, this message translates to:

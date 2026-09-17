@@ -15,6 +15,23 @@ class SDe extends S {
   String get gameLevelLabel => 'Stufe';
 
   @override
+  String get wordFindGridLabel => 'Wortgitter';
+
+  @override
+  String get wordFindGridHint =>
+      'Ziehe über Buchstaben, um Wörter zu markieren';
+
+  @override
+  String wordFindWordFound(String word) {
+    return '$word, gefunden';
+  }
+
+  @override
+  String wordFindWordPending(String word) {
+    return '$word, noch zu finden';
+  }
+
+  @override
   String rescueHintCommonMistake(String word) {
     return 'Häufiger Fehler! Merke dir: $word';
   }

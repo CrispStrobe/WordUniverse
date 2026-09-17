@@ -697,9 +697,10 @@ class _WordFindGameState extends State<WordFindGame> {
 
   // Extract grid building into separate method
   Widget _buildGridWidget(String selectedFontFamily) {
+    final s = S.of(context)!;
     return Semantics(
-      label: 'Wortgitter',
-      hint: 'Ziehe über Buchstaben, um Wörter zu markieren',
+      label: s.wordFindGridLabel,
+      hint: s.wordFindGridHint,
       child: GestureDetector(
         key: _gridKey,
         onPanStart: _onPanStart,
@@ -818,8 +819,8 @@ class _WordFindGameState extends State<WordFindGame> {
                   padding: const EdgeInsets.symmetric(vertical: 4.0),
                   child: Semantics(
                     label: isFound
-                        ? '${word.word}, gefunden'
-                        : '${word.word}, noch zu finden',
+                        ? s.wordFindWordFound(word.word)
+                        : s.wordFindWordPending(word.word),
                     child: RichText(
                     text: TextSpan(
                       children: [

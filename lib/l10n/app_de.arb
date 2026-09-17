@@ -1,6 +1,12 @@
 {
     "appTitle": "Wort-Universum",
     "gameLevelLabel": "Stufe",
+    "wordFindGridLabel": "Wortgitter",
+    "wordFindGridHint": "Ziehe über Buchstaben, um Wörter zu markieren",
+    "wordFindWordFound": "{word}, gefunden",
+    "@wordFindWordFound": {"placeholders": {"word": {"type": "String"}}},
+    "wordFindWordPending": "{word}, noch zu finden",
+    "@wordFindWordPending": {"placeholders": {"word": {"type": "String"}}},
     "rescueHintCommonMistake": "Häufiger Fehler! Merke dir: {word}",
     "@rescueHintCommonMistake": {"placeholders": {"word": {"type": "String"}}},
     "rescueHintNot": "Nicht: {forms}",
