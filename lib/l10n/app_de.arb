@@ -2053,5 +2053,24 @@
     "privacyRightsTitle": "Deine Rechte",
     "privacyRightsBody": "Du kannst alle lokal gespeicherten Daten jederzeit über Einstellungen → \"Alle Daten löschen\" entfernen. Damit werden alle oben genannten Werte gelöscht. Beim Deinstallieren der App entfernen iOS und Android die gesamten Sandbox-Daten automatisch.",
     "privacyChangesTitle": "Änderungen",
-    "privacyChangesBody": "Sollten wir je beginnen, Daten zu sammeln (z.B. für ein Cloud-Backup), wird diese Erklärung aktualisiert, die Änderungen werden beim nächsten App-Start hervorgehoben, und jede neue Erhebung erfolgt nur mit deiner aktiven Zustimmung (Opt-in)."
+    "privacyChangesBody": "Sollten wir je beginnen, Daten zu sammeln (z.B. für ein Cloud-Backup), wird diese Erklärung aktualisiert, die Änderungen werden beim nächsten App-Start hervorgehoben, und jede neue Erhebung erfolgt nur mit deiner aktiven Zustimmung (Opt-in).",
+    "whirlCorrectFeedback": "✓ Richtig! {word}",
+    "@whirlCorrectFeedback": {
+        "placeholders": {
+            "word": {
+                "type": "String"
+            }
+        }
+    },
+    "whirlWrongFeedback": "✗ Falsch! {word} gehört nicht zu: {category}",
+    "@whirlWrongFeedback": {
+        "placeholders": {
+            "word": {
+                "type": "String"
+            },
+            "category": {
+                "type": "String"
+            }
+        }
+    }
 }

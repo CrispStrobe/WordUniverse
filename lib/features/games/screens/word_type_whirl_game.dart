@@ -679,16 +679,11 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
     final displayWord = _getDisplayWord(word);
     final typeLabel = _wordTypes[_currentTargetType]?.label ?? '';
 
-    String base;
-    if (_vocabularyService.learningLanguage == 'de') {
-      base = isCorrect
-          ? "✓ Richtig! $displayWord"
-          : "✗ Falsch! $displayWord ist kein $typeLabel";
-    } else {
-      base = isCorrect
-          ? "✓ Correct! $displayWord"
-          : "✗ Wrong! $displayWord is not a $typeLabel";
-    }
+    final s = S.of(context)!;
+    // Feedback follows the interface locale; words/definitions remain content.
+    final base = isCorrect
+        ? s.whirlCorrectFeedback(displayWord)
+        : s.whirlWrongFeedback(displayWord, typeLabel);
 
     final def = word.apiEnrichment?.definitions.firstOrNull;
     if (def != null && def.isNotEmpty) {

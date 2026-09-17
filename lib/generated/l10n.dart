@@ -5782,6 +5782,18 @@ abstract class S {
   /// In en, this message translates to:
   /// **'If we ever start collecting data (e.g. for a cloud backup), this policy will be updated, the changes will be highlighted the next time the app starts, and any new collection will only take place with your active consent (Opt-in).'**
   String get privacyChangesBody;
+
+  /// No description provided for @whirlCorrectFeedback.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ Correct! {word}'**
+  String whirlCorrectFeedback(String word);
+
+  /// No description provided for @whirlWrongFeedback.
+  ///
+  /// In en, this message translates to:
+  /// **'✗ Wrong! {word} does not belong to: {category}'**
+  String whirlWrongFeedback(String word, String category);
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {
