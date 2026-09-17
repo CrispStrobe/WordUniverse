@@ -3369,4 +3369,14 @@ class SEn extends S {
   @override
   String get privacyChangesBody =>
       'If we ever start collecting data (e.g. for a cloud backup), this policy will be updated, the changes will be highlighted the next time the app starts, and any new collection will only take place with your active consent (Opt-in).';
+
+  @override
+  String whirlCorrectFeedback(String word) {
+    return '✓ Correct! $word';
+  }
+
+  @override
+  String whirlWrongFeedback(String word, String category) {
+    return '✗ Wrong! $word does not belong to: $category';
+  }
 }

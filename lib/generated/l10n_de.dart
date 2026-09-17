@@ -3410,4 +3410,14 @@ class SDe extends S {
   @override
   String get privacyChangesBody =>
       'Sollten wir je beginnen, Daten zu sammeln (z.B. für ein Cloud-Backup), wird diese Erklärung aktualisiert, die Änderungen werden beim nächsten App-Start hervorgehoben, und jede neue Erhebung erfolgt nur mit deiner aktiven Zustimmung (Opt-in).';
+
+  @override
+  String whirlCorrectFeedback(String word) {
+    return '✓ Richtig! $word';
+  }
+
+  @override
+  String whirlWrongFeedback(String word, String category) {
+    return '✗ Falsch! $word gehört nicht zu: $category';
+  }
 }
