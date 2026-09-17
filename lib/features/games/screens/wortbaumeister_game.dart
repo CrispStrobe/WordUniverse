@@ -488,7 +488,7 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
           ),
           const SizedBox(width: 12),
           Semantics(
-            label: 'Stufe $_level',
+            label: s.semanticsLevel(_level),
             container: true,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -512,18 +512,18 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
           ),
           const SizedBox(width: 8),
           Semantics(
-            label: 'Punkte: $_score',
+            label: s.semanticsScore(_score),
             child: _buildCompactStat(Icons.stars, '$_score', SpaceTheme.starYellow),
           ),
           const SizedBox(width: 8),
           Semantics(
-            label: 'Fortschritt: $_itemsCompleted von $_totalItems',
+            label: s.semanticsProgress(_itemsCompleted, _totalItems),
             child: _buildCompactStat(Icons.check_circle_outline, '$_itemsCompleted/$_totalItems', SpaceTheme.cosmicPink),
           ),
           const Spacer(),
           if (_combo > 1)
             Semantics(
-              label: 'Kombo mal $_combo',
+              label: s.semanticsCombo(_combo),
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
