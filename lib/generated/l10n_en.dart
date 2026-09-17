@@ -3252,6 +3252,21 @@ class SEn extends S {
   String get skillLabelReading => 'Reading';
 
   @override
+  String get boxNameNew => 'New';
+
+  @override
+  String get boxNameFirstReview => 'First Review';
+
+  @override
+  String get boxNamePractice => 'Practice';
+
+  @override
+  String get boxNameConfident => 'Confident';
+
+  @override
+  String get boxNameMastered => 'Mastered';
+
+  @override
   String get privacyBriefTitle => 'In brief';
 
   @override

@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/services/sri_service.dart';
-import '../../../core/services/vocabulary_service.dart';
+
 import '../../../core/theme/space_theme.dart';
 import '../../../generated/l10n.dart';
 import '../providers/game_provider.dart';
@@ -25,18 +25,18 @@ class KarteikastenScreen extends StatefulWidget {
 class _KarteikastenScreenState extends State<KarteikastenScreen> {
   int _selectedBox = 1;
 
-  static const List<({String de, String en, Color color})> _boxes = [
-    (de: 'Neu', en: 'New', color: Color(0xFFE57373)),
-    (de: 'Erste Festigung', en: 'First Review', color: Color(0xFFFFB74D)),
-    (de: 'Übung', en: 'Practice', color: Color(0xFFFFD54F)),
-    (de: 'Sicher', en: 'Confident', color: Color(0xFF81C784)),
-    (de: 'Gemeistert', en: 'Mastered', color: Color(0xFF64B5F6)),
-  ];
+  List<({String name, Color color})> _boxes(S s) => [
+        (name: s.boxNameNew, color: const Color(0xFFE57373)),
+        (name: s.boxNameFirstReview, color: const Color(0xFFFFB74D)),
+        (name: s.boxNamePractice, color: const Color(0xFFFFD54F)),
+        (name: s.boxNameConfident, color: const Color(0xFF81C784)),
+        (name: s.boxNameMastered, color: const Color(0xFF64B5F6)),
+      ];
 
   @override
   Widget build(BuildContext context) {
     final s = S.of(context)!;
-    final isDE = context.read<VocabularyService>().learningLanguage == 'de';
+
     final sri = context.watch<SriService>();
     final counts = sri.getBoxCounts();
     final itemsInSelected = sri.getItemsInBox(_selectedBox)
@@ -53,7 +53,7 @@ class _KarteikastenScreenState extends State<KarteikastenScreen> {
         child: Column(
           children: [
             const SizedBox(height: 12),
-            _buildBoxRow(counts, s, isDE),
+            _buildBoxRow(counts, s),
             const Divider(color: Colors.white24, height: 24),
             Expanded(
               child: itemsInSelected.isEmpty
@@ -66,7 +66,7 @@ class _KarteikastenScreenState extends State<KarteikastenScreen> {
     );
   }
 
-  Widget _buildBoxRow(Map<int, int> counts, S s, bool isDE) {
+  Widget _buildBoxRow(Map<int, int> counts, S s) {
     return SizedBox(
       height: 130,
       child: ListView.builder(
@@ -75,7 +75,7 @@ class _KarteikastenScreenState extends State<KarteikastenScreen> {
         itemCount: 5,
         itemBuilder: (context, i) {
           final boxNum = i + 1;
-          final spec = _boxes[i];
+          final spec = _boxes(s)[i];
           final count = counts[boxNum] ?? 0;
           final selected = boxNum == _selectedBox;
           return Padding(
@@ -84,15 +84,13 @@ class _KarteikastenScreenState extends State<KarteikastenScreen> {
               onWillAcceptWithDetails: (_) => true,
               onAcceptWithDetails: (d) async {
                 context.read<GameProvider>().hapticMedium();
-                await context
-                    .read<SriService>()
-                    .moveItemToBox(d.data, boxNum);
+                await context.read<SriService>().moveItemToBox(d.data, boxNum);
                 if (!context.mounted) return;
                 ScaffoldMessenger.of(context).hideCurrentSnackBar();
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     duration: const Duration(seconds: 2),
-                    content: Text(s.karteikastenCardMoved(boxNum, isDE ? spec.de : spec.en)),
+                    content: Text(s.karteikastenCardMoved(boxNum, spec.name)),
                     backgroundColor: spec.color.withValues(alpha: 0.85),
                   ),
                 );
@@ -148,7 +146,7 @@ class _KarteikastenScreenState extends State<KarteikastenScreen> {
                           ),
                         ),
                         Text(
-                          isDE ? spec.de : spec.en,
+                          spec.name,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 11,
@@ -171,9 +169,7 @@ class _KarteikastenScreenState extends State<KarteikastenScreen> {
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Text(
-          _selectedBox == 5
-              ? s.boxEmptyMastered
-              : s.boxEmptyDefault,
+          _selectedBox == 5 ? s.boxEmptyMastered : s.boxEmptyDefault,
           textAlign: TextAlign.center,
           style: SpaceTheme.bodyStyle.copyWith(color: Colors.white60),
         ),
@@ -191,8 +187,7 @@ class _KarteikastenScreenState extends State<KarteikastenScreen> {
         return _DraggableItemCard(
           itemId: item.itemId,
           label: _formatItemLabel(S.of(context)!, item),
-          subtitle:
-              'EF ${item.easinessFactor.toStringAsFixed(2)} · '
+          subtitle: 'EF ${item.easinessFactor.toStringAsFixed(2)} · '
               '${item.successCount}✓ ${item.failureCount}✗',
           currentBox: _selectedBox,
           onMove: (target) => sri.moveItemToBox(item.itemId, target),
@@ -306,30 +301,31 @@ class _DraggableItemCard extends StatelessWidget {
           itemBuilder: (context) {
             final s = S.of(context)!;
             return [
-            for (var b = 1; b <= 5; b++)
-              PopupMenuItem<int>(
-                value: b,
-                enabled: b != currentBox,
-                child: Row(
-                  children: [
-                    Text(
-                      s.boxLabel(b),
-                      style: TextStyle(
-                        fontWeight: b == currentBox
-                            ? FontWeight.bold
-                            : FontWeight.normal,
+              for (var b = 1; b <= 5; b++)
+                PopupMenuItem<int>(
+                  value: b,
+                  enabled: b != currentBox,
+                  child: Row(
+                    children: [
+                      Text(
+                        s.boxLabel(b),
+                        style: TextStyle(
+                          fontWeight: b == currentBox
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                        ),
                       ),
-                    ),
-                    if (b == currentBox)
-                      Padding(
-                        padding: const EdgeInsets.only(left: 6),
-                        child: Text(s.boxLabelCurrent,
-                            style: const TextStyle(fontSize: 11, color: Colors.grey)),
-                      ),
-                  ],
+                      if (b == currentBox)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 6),
+                          child: Text(s.boxLabelCurrent,
+                              style: const TextStyle(
+                                  fontSize: 11, color: Colors.grey)),
+                        ),
+                    ],
+                  ),
                 ),
-              ),
-          ];
+            ];
           },
         ),
       ),
