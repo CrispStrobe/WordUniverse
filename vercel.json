@@ -2,14 +2,13 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "installCommand": "echo 'no node install needed'",
-  "buildCommand": "git clone https://github.com/flutter/flutter.git --depth 1 --branch 3.44.2 && ./flutter/bin/flutter pub get && ./flutter/bin/flutter build web --wasm",
+  "buildCommand": "git clone https://github.com/flutter/flutter.git --depth 1 --branch 3.44.2 && ./flutter/bin/flutter pub get && ./flutter/bin/flutter build web --release",
   "outputDirectory": "build/web",
   "headers": [
     {
-      "source": "/(.*)",
+      "source": "/(.*\\.(?:js|wasm))",
       "headers": [
-        { "key": "Cross-Origin-Opener-Policy", "value": "same-origin" },
-        { "key": "Cross-Origin-Embedder-Policy", "value": "credentialless" }
+        { "key": "Cache-Control", "value": "public, max-age=600" }
       ]
     }
   ],

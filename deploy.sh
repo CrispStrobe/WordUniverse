@@ -129,7 +129,7 @@ build_flutter() {
     fi
     
     # Build the app
-    if flutter build web --wasm; then
+    if flutter build web --release; then
         print_success "Flutter build completed successfully"
     else
         print_error "Flutter build failed"
@@ -159,16 +159,8 @@ deploy_vercel() {
         print_success "Vercel configuration copied"
     fi
 
-    # Write a minimal vercel.json into build/web that disables the server-side
-    # build step (build/web is already the built output; no server build needed).
-    cat > build/web/vercel.json <<'VEOF'
-{
-  "framework": null,
-  "buildCommand": "",
-  "outputDirectory": ".",
-  "ignoreCommand": "exit 0"
-}
-VEOF
+    # Preserve the canonical response policy while disabling the server build.
+    node tools/prepare-vercel.mjs build/web/vercel.json
     print_status "Wrote vercel.json into build/web (disables server-side build)"
     
     # Navigate to build directory

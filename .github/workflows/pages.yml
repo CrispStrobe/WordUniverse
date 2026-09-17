@@ -2,10 +2,9 @@ name: GitHub Pages
 
 # Publishes the Flutter web build to https://crispstrobe.github.io/WordUniverse/
 #
-# Deliberately NOT the Vercel build. vercel.json builds with --wasm and sets
-# Cross-Origin-Opener-Policy / Cross-Origin-Embedder-Policy so skwasm can be
-# cross-origin isolated. GitHub Pages cannot send either header, so the wasm
-# build degrades there; this uses the default renderer, which needs no headers.
+# Both hosts use the pinned SDK and default CanvasKit renderer (no --wasm).
+# Pages cannot configure isolation/cache headers; Vercel matches its JS/WASM
+# cache lifetime. See docs/deployment-parity.md for evidence and limitations.
 #
 # The other Pages-specific detail is --base-href: a project site is served from
 # /<repo>/, not /, so asset URLs have to be prefixed or every request 404s.
