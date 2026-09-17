@@ -3267,6 +3267,12 @@ class SEn extends S {
   String get boxNameMastered => 'Mastered';
 
   @override
+  String get manageSetsEmpty => 'No custom sets created yet.';
+
+  @override
+  String get manageSetsNoDescription => 'No description';
+
+  @override
   String get privacyBriefTitle => 'In brief';
 
   @override

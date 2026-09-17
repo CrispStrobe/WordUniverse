@@ -2019,6 +2019,8 @@
     "boxNamePractice": "Übung",
     "boxNameConfident": "Sicher",
     "boxNameMastered": "Gemeistert",
+    "manageSetsEmpty": "Noch keine eigenen Sets erstellt.",
+    "manageSetsNoDescription": "Keine Beschreibung",
     "privacyBriefTitle": "In Kürze",
     "privacyBriefBody": "Diese App speichert deinen Lernfortschritt ausschließlich auf diesem Gerät und sendet ihn nicht an uns oder Dritte. Es gibt kein Tracking, keine Werbung und keinen Account.",
     "privacyStorageTitle": "Was wird wo gespeichert",

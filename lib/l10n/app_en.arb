@@ -2142,6 +2142,8 @@
     "boxNamePractice": "Practice",
     "boxNameConfident": "Confident",
     "boxNameMastered": "Mastered",
+    "manageSetsEmpty": "No custom sets created yet.",
+    "manageSetsNoDescription": "No description",
     "privacyBriefTitle": "In brief",
     "privacyBriefBody": "This app stores your learning progress exclusively on this device and does not send it to us or third parties. There is no tracking, no advertising and no account.",
     "privacyStorageTitle": "What is stored and where",
