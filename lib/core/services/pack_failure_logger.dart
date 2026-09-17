@@ -44,7 +44,9 @@ class PackFailureEntry {
 /// failures, not crashes. No global handlers, raw exceptions, stack traces or
 /// network uploads. Preferences also work in browsers where dart:io does not.
 class PackFailureLogger {
-  PackFailureLogger();
+  PackFailureLogger({Future<SharedPreferences> Function()? preferences})
+      : _preferences = preferences ?? SharedPreferences.getInstance;
+  final Future<SharedPreferences> Function() _preferences;
   static final instance = PackFailureLogger();
   static const storageKey = 'pack_failures_v1';
   static const maxEntries = 20;
@@ -61,7 +63,7 @@ class PackFailureLogger {
     if (_loaded) return;
     _loaded = true;
     try {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await _preferences();
       for (final text in prefs.getStringList(storageKey) ?? <String>[]) {
         try {
           _entries.add(PackFailureEntry.fromJson(jsonDecode(text) as Map<String, dynamic>));
@@ -108,7 +110,7 @@ class PackFailureLogger {
   Future<void> _persist() async {
     if (!_loaded) return;
     try {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await _preferences();
       await prefs.setStringList(storageKey, _entries.map((e) => jsonEncode(e.toJson())).toList());
     } catch (_) {
       // Best-effort: the in-memory list keeps the failure visible this session.
