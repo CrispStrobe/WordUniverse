@@ -134,7 +134,16 @@ Future<Database> initPlatformDatabase({
     // CRITICAL: Web FFI requires Uint8List, not List<int>
     final Uint8List uint8Bytes = Uint8List.fromList(decompressedBytes);
 
-    await factory.writeDatabaseBytes(webDbName, uint8Bytes);
+    try {
+      await factory.writeDatabaseBytes(webDbName, uint8Bytes);
+    } catch (e) {
+      // Browsers surface a full/blocked store as a quota error; say so plainly
+      // instead of "download failed".
+      if (e.toString().toLowerCase().contains('quota')) {
+        throw DbInsufficientSpaceException(requiredBytes: uint8Bytes.length);
+      }
+      rethrow;
+    }
     if (kDebugMode) debugPrint("[DB_WEB] Database written to IndexedDB");
     onProgress?.call(0.90, const LoadStatus(LoadStage.savedBrowser));
 

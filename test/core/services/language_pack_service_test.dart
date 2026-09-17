@@ -11,10 +11,12 @@
 // service actually depends on is small — six methods and two getters.
 
 import 'dart:async';
+import 'dart:typed_data';
 import 'package:WortUniversum/core/models/load_status.dart';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:WortUniversum/core/models/language_pack.dart';
+import 'package:WortUniversum/core/services/db_platform/db_partial_cache.dart';
 import 'package:WortUniversum/core/services/db_platform/db_remote.dart';
 import 'package:WortUniversum/core/services/language_pack_service.dart';
 import 'package:WortUniversum/core/services/vocabulary_service.dart';
@@ -432,4 +434,122 @@ void main() {
           LanguagePackStatus.installed);
     });
   });
+
+  group('storage space', () {
+    test('an install that cannot fit is refused before anything downloads',
+        () async {
+      final vocab = _FakeVocabulary(installed: {kFallbackLanguageCode});
+      final pack = kLanguagePacks['de']!;
+      final service = LanguagePackService(
+        vocab,
+        // A browser reporting less room than the installed database needs.
+        freeSpaceProbe: () async => pack.requiredFreeBytes! - 1,
+      );
+
+      expect(await service.install('de'), isFalse);
+      expect(vocab.calls, isEmpty,
+          reason: 'no transfer may start when the result cannot be stored');
+      final state = service.stateFor('de');
+      expect(state.status, LanguagePackStatus.failed);
+      expect(state.errorIsSpace, isTrue);
+      expect(state.errorIsNetwork, isFalse,
+          reason: 'retrying a full device changes nothing; do not offer it as '
+              'a network hiccup');
+    });
+
+    test('a probe that cannot tell does not block the install', () async {
+      final vocab = _FakeVocabulary(installed: {'de', kFallbackLanguageCode});
+      final service =
+          LanguagePackService(vocab, freeSpaceProbe: () async => null);
+      expect(await service.install('de'), isTrue);
+      expect(service.stateFor('de').errorIsSpace, isFalse);
+    });
+
+    test('space is only a question for packs that download', () async {
+      final vocab = _FakeVocabulary(installed: {kFallbackLanguageCode});
+      final service = LanguagePackService(vocab, freeSpaceProbe: () async => 0);
+      expect(await service.install(kFallbackLanguageCode), isTrue,
+          reason: 'the bundled pack is already on the device');
+    });
+  });
+
+  group('resumable packs', () {
+    test('refresh reports checkpointed bytes so the row can offer Resume',
+        () async {
+      final vocab = _FakeVocabulary(installed: {kFallbackLanguageCode});
+      final cache = MemoryDbPartialCache();
+      await cache.saveCheckpoint(
+          kLanguagePacks['de']!.remoteUrl!, List<int>.filled(4096, 7), '"tag"');
+      final service = LanguagePackService(vocab, partialCache: cache);
+
+      await service.refresh(probePartialDownloads: true);
+      final state = service.stateFor('de');
+      expect(state.cachedBytes, 4096);
+      expect(state.isResumable, isTrue);
+      expect(service.stateFor(kFallbackLanguageCode).isResumable, isFalse,
+          reason: 'an installed bundled pack has nothing to resume');
+    });
+
+    test('an installed pack reports nothing to resume', () async {
+      final vocab = _FakeVocabulary(installed: {'de', kFallbackLanguageCode});
+      final cache = MemoryDbPartialCache();
+      await cache.saveCheckpoint(
+          kLanguagePacks['de']!.remoteUrl!, List<int>.filled(64, 1), null);
+      final service = LanguagePackService(vocab, partialCache: cache);
+
+      await service.refresh(probePartialDownloads: true);
+      expect(service.stateFor('de').cachedBytes, isNull);
+      expect(service.stateFor('de').isResumable, isFalse);
+    });
+
+    test('the install path does not touch the checkpoint store', () async {
+      // install() awaits refresh(); a disk round trip there would add latency
+      // to every install and, in widget tests, outlive pumpAndSettle.
+      // 'de' stays uninstalled so the probe has something to look for.
+      final vocab = _FakeVocabulary(installed: {kFallbackLanguageCode});
+      final cache = _CountingCache();
+      final service = LanguagePackService(vocab, partialCache: cache);
+      expect(await service.install('de'), isTrue);
+      expect(cache.reads, 0,
+          reason: 'install() awaits refresh(), which must stay I/O-free; the '
+              'probe is what Settings asks for separately');
+    });
+
+    test('a storage failure only costs the label, not the install', () async {
+      final vocab = _FakeVocabulary(installed: {kFallbackLanguageCode});
+      final service =
+          LanguagePackService(vocab, partialCache: _ThrowingCache());
+      await service.refresh(probePartialDownloads: true);
+      expect(service.stateFor('de').cachedBytes, isNull);
+      expect(service.stateFor('de').status, LanguagePackStatus.notInstalled);
+    });
+  });
+}
+
+/// Storage that is present but unusable (revoked permissions, private mode).
+class _ThrowingCache extends DbPartialCache {
+  @override
+  Future<Uint8List?> readRecord(String key) async =>
+      throw StateError('storage unavailable');
+  @override
+  Future<void> writeRecord(String key, List<int> raw) async =>
+      throw StateError('storage unavailable');
+  @override
+  Future<void> deleteRecord(String key) async =>
+      throw StateError('storage unavailable');
+}
+
+/// Counts reads so a test can assert which paths touch storage.
+class _CountingCache extends DbPartialCache {
+  int reads = 0;
+  @override
+  Future<Uint8List?> readRecord(String key) async {
+    reads++;
+    return null;
+  }
+
+  @override
+  Future<void> writeRecord(String key, List<int> raw) async {}
+  @override
+  Future<void> deleteRecord(String key) async {}
 }

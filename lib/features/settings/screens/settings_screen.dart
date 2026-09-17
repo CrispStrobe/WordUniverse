@@ -101,7 +101,7 @@ class _SettingsScreenState extends State<SettingsScreen>
       _loadCurrentLocaleAndSettings();
       // Re-check what's actually on disk so the pack rows are truthful even
       // after the user cleared app storage between sessions.
-      context.read<LanguagePackService>().refresh();
+      context.read<LanguagePackService>().refresh(probePartialDownloads: true);
       _hasLoadedLocale = true;
     }
   }
@@ -1234,11 +1234,27 @@ class _SettingsScreenState extends State<SettingsScreen>
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      pack.requiresDownload
-                          ? '$label · ${s.packMetaSizeLicense(pack.downloadSizeLabel, pack.licenseLabel)}'
-                          : '$label · ${pack.licenseLabel}',
+                      !pack.requiresDownload
+                          ? '$label · ${pack.licenseLabel}'
+                          : pack.installedSizeLabel == null
+                              ? '$label · ${s.packMetaSizeLicense(pack.downloadSizeLabel, pack.licenseLabel)}'
+                              : '$label · ${s.packMetaSizes(pack.downloadSizeLabel, pack.installedSizeLabel!, pack.licenseLabel)}',
                       style: TextStyle(color: color, fontSize: 11),
                     ),
+                    // A pack that is part-way downloaded looked untouched
+                    // before, even though tapping Resume continues from disk.
+                    if (state.isResumable)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(
+                          s.packResumeProgress(
+                            '${(state.cachedBytes! / (1024 * 1024)).toStringAsFixed(1)} MB',
+                            pack.downloadSizeLabel,
+                          ),
+                          style: const TextStyle(
+                              color: SpaceTheme.moonSilver, fontSize: 11),
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -1296,7 +1312,7 @@ class _SettingsScreenState extends State<SettingsScreen>
       return TextButton(
         onPressed: busy ? null : () => _installPack(state.pack.code),
         child: Text(
-          state.status == LanguagePackStatus.paused
+          state.status == LanguagePackStatus.paused || state.isResumable
               ? s.downloadResume
               : state.status == LanguagePackStatus.failed
               ? s.packRetry
@@ -1374,7 +1390,8 @@ class _SettingsScreenState extends State<SettingsScreen>
           style: SpaceTheme.headlineStyle.copyWith(fontSize: 18),
         ),
         content: Text(
-          s.packRemoveConfirmMessage(pack.nativeName, pack.downloadSizeLabel),
+          s.packRemoveConfirmMessage(pack.nativeName,
+              pack.installedSizeLabel ?? pack.downloadSizeLabel),
           style: SpaceTheme.bodyStyle,
         ),
         actions: [

@@ -46,6 +46,13 @@ class LanguagePack {
   /// Integrity pins — see db_remote.dart. Compressed size is also the figure
   /// disclosed to the user before downloading.
   final int? expectedCompressedBytes;
+
+  /// Digest of the published (still gzipped) artifact. The app does not hash
+  /// 25 MB at install time — the size pin plus gzip's CRC already gate the
+  /// transfer — but CI compares this against the host's published digest, so a
+  /// rebuilt pack cannot silently drift from the pins. See
+  /// test/live/language_pack_pins_live_test.dart.
+  final String? expectedCompressedSha256;
   final int? expectedDecompressedBytes;
   final String? expectedDecompressedSha256;
 
@@ -63,6 +70,7 @@ class LanguagePack {
     this.assetPath,
     this.remoteUrl,
     this.expectedCompressedBytes,
+    this.expectedCompressedSha256,
     this.expectedDecompressedBytes,
     this.expectedDecompressedSha256,
     this.datasetUrl,
@@ -77,11 +85,21 @@ class LanguagePack {
 
   /// Download size for disclosure, e.g. "25 MB". Falls back to an estimate
   /// when no pin is set.
-  String get downloadSizeLabel {
-    final bytes = expectedCompressedBytes;
-    if (bytes == null) return '~25 MB';
-    return '${(bytes / (1024 * 1024)).round()} MB';
-  }
+  String get downloadSizeLabel => _megabytes(expectedCompressedBytes) ?? '~25 MB';
+
+  /// What the pack occupies once installed, which is what actually has to fit
+  /// on the device: the database is stored decompressed. Disclosing only the
+  /// download size understates the requirement by roughly six times.
+  String? get installedSizeLabel => _megabytes(expectedDecompressedBytes);
+
+  /// Free space an install needs: the decompressed database plus the
+  /// compressed copy held while it is being written.
+  int? get requiredFreeBytes => expectedDecompressedBytes == null
+      ? null
+      : expectedDecompressedBytes! + (expectedCompressedBytes ?? 0);
+
+  static String? _megabytes(int? bytes) =>
+      bytes == null ? null : '${(bytes / (1024 * 1024)).round()} MB';
 }
 
 /// Install state of a pack on this device.
@@ -121,6 +139,16 @@ class LanguagePackState {
   /// to a corrupted or replaced file.
   final bool errorIsNetwork;
 
+  /// The install did not fit. Rendered as a localized "needs N MB free"
+  /// message instead of the raw error, because retrying changes nothing until
+  /// the user frees space.
+  final bool errorIsSpace;
+
+  /// Bytes already downloaded and checkpointed for this pack, so a partly
+  /// fetched pack can offer "Resume — 12 of 25 MB" instead of looking
+  /// untouched. Null until [LanguagePackService.refresh] has looked.
+  final int? cachedBytes;
+
   const LanguagePackState({
     required this.pack,
     required this.status,
@@ -128,7 +156,13 @@ class LanguagePackState {
     this.message = const LoadStatus(LoadStage.preparing),
     this.error,
     this.errorIsNetwork = false,
+    this.errorIsSpace = false,
+    this.cachedBytes,
   });
+
+  /// A download that stopped part-way and can continue from disk.
+  bool get isResumable =>
+      !isInstalled && !isInstalling && (cachedBytes ?? 0) > 0;
 
   bool get isInstalled => status == LanguagePackStatus.installed;
   bool get isInstalling => status == LanguagePackStatus.installing;
@@ -139,6 +173,9 @@ class LanguagePackState {
     LoadStatus? message,
     String? error,
     bool? errorIsNetwork,
+    bool? errorIsSpace,
+    int? cachedBytes,
+    bool clearCachedBytes = false,
     bool clearError = false,
   }) {
     return LanguagePackState(
@@ -148,6 +185,8 @@ class LanguagePackState {
       message: message ?? this.message,
       error: clearError ? null : (error ?? this.error),
       errorIsNetwork: clearError ? false : (errorIsNetwork ?? this.errorIsNetwork),
+      errorIsSpace: clearError ? false : (errorIsSpace ?? this.errorIsSpace),
+      cachedBytes: clearCachedBytes ? null : (cachedBytes ?? this.cachedBytes),
     );
   }
 }
@@ -167,6 +206,8 @@ const Map<String, LanguagePack> kLanguagePacks = {
     // (logged, not fatal — see db_remote.dart), so a forgotten bump degrades
     // gracefully instead of bricking the download.
     expectedCompressedBytes: 26619920,
+    expectedCompressedSha256:
+        'bb69f27418bbd65673474e2a2934ecba33395fcf838465169a42e8bfec8de86b',
     expectedDecompressedBytes: 156913664,
     expectedDecompressedSha256:
         'c66e3b49192694c00d7c2a171562ac8fe4f54c05d986adb0ebf276f141aa00df',
