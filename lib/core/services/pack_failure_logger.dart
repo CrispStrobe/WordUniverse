@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -51,17 +52,19 @@ class PackFailureLogger {
   static const storageKey = 'pack_failures_v1';
   static const maxEntries = 20;
   final _entries = <PackFailureEntry>[];
-  bool _loaded = false;
+  Future<void>? _initialization;
 
   /// Used only by tests to drop the in-memory cache between cases.
   void resetForTests() {
     _entries.clear();
-    _loaded = false;
+    _initialization = null;
   }
 
   Future<void> _load() async {
-    if (_loaded) return;
-    _loaded = true;
+    final existing = _initialization;
+    if (existing != null) return existing;
+    final completer = Completer<void>();
+    _initialization = completer.future;
     try {
       final prefs = await _preferences();
       for (final text in prefs.getStringList(storageKey) ?? <String>[]) {
@@ -74,6 +77,7 @@ class PackFailureLogger {
     } catch (_) {
       // Diagnostics must never break the install path they observe.
     }
+    completer.complete();
   }
 
   Future<void> record({required String pack, required PackOperation operation,
@@ -108,7 +112,6 @@ class PackFailureLogger {
   }
 
   Future<void> _persist() async {
-    if (!_loaded) return;
     try {
       final prefs = await _preferences();
       await prefs.setStringList(storageKey, _entries.map((e) => jsonEncode(e.toJson())).toList());
