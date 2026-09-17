@@ -123,18 +123,18 @@ String generateEducationalHint(
     }
 
   } else if (isCommonMistake) {
-    hints.add('Häufiger Fehler! Merke dir: ${word.word}');
+    hints.add(s.rescueHintCommonMistake(word.word));
     // Show actual misspellings so learner knows what to avoid
     final mistakes = word.commonMistakes ?? api?.commonLearnerErrors ?? [];
     if (mistakes.isNotEmpty) {
       final shown = mistakes.take(2).join(', ');
-      hints.add('Nicht: $shown');
+      hints.add(s.rescueHintNot(shown));
     } else if (word.graphematicVariants.isNotEmpty) {
-      hints.add('Richtige Schreibweise: ${word.word}');
+      hints.add(s.rescueHintCorrectSpelling(word.word));
     }
 
   } else if (isIncorrect) {
-    hints.add('Lerne: ${word.displayName}');
+    hints.add(s.rescueHintLearn(word.displayName));
     final typeMap = {
       GermanWordType.substantiv: 'Nomen',
       GermanWordType.verb: 'Verb',

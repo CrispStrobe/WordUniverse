@@ -109,6 +109,30 @@ abstract class S {
   /// **'Level'**
   String get gameLevelLabel;
 
+  /// No description provided for @rescueHintCommonMistake.
+  ///
+  /// In en, this message translates to:
+  /// **'Common mistake! Remember: {word}'**
+  String rescueHintCommonMistake(String word);
+
+  /// No description provided for @rescueHintNot.
+  ///
+  /// In en, this message translates to:
+  /// **'Not: {forms}'**
+  String rescueHintNot(String forms);
+
+  /// No description provided for @rescueHintCorrectSpelling.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct spelling: {word}'**
+  String rescueHintCorrectSpelling(String word);
+
+  /// No description provided for @rescueHintLearn.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn: {word}'**
+  String rescueHintLearn(String word);
+
   /// No description provided for @semanticsLevel.
   ///
   /// In en, this message translates to:

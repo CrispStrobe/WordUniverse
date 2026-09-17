@@ -15,6 +15,26 @@ class SEn extends S {
   String get gameLevelLabel => 'Level';
 
   @override
+  String rescueHintCommonMistake(String word) {
+    return 'Common mistake! Remember: $word';
+  }
+
+  @override
+  String rescueHintNot(String forms) {
+    return 'Not: $forms';
+  }
+
+  @override
+  String rescueHintCorrectSpelling(String word) {
+    return 'Correct spelling: $word';
+  }
+
+  @override
+  String rescueHintLearn(String word) {
+    return 'Learn: $word';
+  }
+
+  @override
   String semanticsLevel(int level) {
     return 'Level $level';
   }
