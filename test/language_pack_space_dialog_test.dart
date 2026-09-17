@@ -1,3 +1,4 @@
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -21,6 +22,7 @@ class _Vocabulary extends VocabularyService {
 }
 
 void main() {
+  setUp(() => SharedPreferences.setMockInitialValues({}));
   for (final locale in ['en', 'de']) {
     for (final failed in [false, true]) {
       testWidgets('$locale displays required install space (failed=$failed)',

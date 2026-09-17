@@ -12,6 +12,115 @@ class SEn extends S {
   String get appTitle => 'Word Universe';
 
   @override
+  String get homeReview => 'Review';
+
+  @override
+  String get homeLearningProfile => 'Learning profile';
+
+  @override
+  String get statsSpelling => 'Spelling';
+
+  @override
+  String get statsArticles => 'Articles (der/die/das)';
+
+  @override
+  String get statsPlural => 'Plurals';
+
+  @override
+  String get statsWordTypes => 'Parts of speech';
+
+  @override
+  String get statsSentenceStructure => 'Sentence structure';
+
+  @override
+  String get statsPunctuation => 'Punctuation';
+
+  @override
+  String get statsCapitalization => 'Capitalization';
+
+  @override
+  String get statsVerbs => 'Verbs (tenses)';
+
+  @override
+  String get statsCases => 'Grammatical cases';
+
+  @override
+  String get statsVocabulary => 'Vocabulary';
+
+  @override
+  String get statsReading => 'Reading in context';
+
+  @override
+  String get strategyPhonetic => 'Phonetic spelling';
+
+  @override
+  String get strategyStem => 'Word stem principle';
+
+  @override
+  String get strategyRelated => 'Related words';
+
+  @override
+  String get strategyDouble => 'Double consonant';
+
+  @override
+  String get strategyLengthening => 'Vowel lengthening';
+
+  @override
+  String get strategyMemory => 'Memory word';
+
+  @override
+  String get diagnosticsPackFailures => 'Pack failures';
+
+  @override
+  String get diagnosticsNoPackFailures => 'No local failures recorded.';
+
+  @override
+  String get diagnosticsLocalOnly =>
+      'Stored only on this device. Nothing is uploaded automatically.';
+
+  @override
+  String get diagnosticsPack => 'Pack';
+
+  @override
+  String get diagnosticsStage => 'Stage';
+
+  @override
+  String get diagnosticsCause => 'Cause';
+
+  @override
+  String get diagnosticsRequiredBytes => 'Required bytes';
+
+  @override
+  String get diagnosticsAvailableBytes => 'Available bytes';
+
+  @override
+  String get diagnosticsInstall => 'Installation';
+
+  @override
+  String get diagnosticsActivate => 'Activation';
+
+  @override
+  String get diagnosticsCauseSpace => 'Insufficient space';
+
+  @override
+  String get diagnosticsCauseStorage => 'Storage failure';
+
+  @override
+  String get diagnosticsCauseSchema => 'Incompatible database schema';
+
+  @override
+  String get diagnosticsCausePayload => 'Invalid pack data';
+
+  @override
+  String get diagnosticsCauseNetwork => 'Network failure';
+
+  @override
+  String get diagnosticsCauseDownload => 'Download failure';
+
+  @override
+  String get diagnosticsCauseUnknown => 'Unknown failure';
+
+  @override
   String get loadPreparing => 'Preparing vocabulary database …';
 
   @override

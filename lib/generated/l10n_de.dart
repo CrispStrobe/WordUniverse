@@ -12,6 +12,115 @@ class SDe extends S {
   String get appTitle => 'Wort-Universum';
 
   @override
+  String get homeReview => 'Wiederholen';
+
+  @override
+  String get homeLearningProfile => 'Lernprofil';
+
+  @override
+  String get statsSpelling => 'Rechtschreibung';
+
+  @override
+  String get statsArticles => 'Artikel (der/die/das)';
+
+  @override
+  String get statsPlural => 'Mehrzahl';
+
+  @override
+  String get statsWordTypes => 'Wortarten';
+
+  @override
+  String get statsSentenceStructure => 'Satzbau';
+
+  @override
+  String get statsPunctuation => 'Zeichensetzung';
+
+  @override
+  String get statsCapitalization => 'Großschreibung';
+
+  @override
+  String get statsVerbs => 'Verben (Zeitformen)';
+
+  @override
+  String get statsCases => 'Fälle (Kasus)';
+
+  @override
+  String get statsVocabulary => 'Wortschatz';
+
+  @override
+  String get statsReading => 'Lesen im Kontext';
+
+  @override
+  String get strategyPhonetic => 'Klangtreu';
+
+  @override
+  String get strategyStem => 'Stammprinzip';
+
+  @override
+  String get strategyRelated => 'Verwandtschaft';
+
+  @override
+  String get strategyDouble => 'Doppelkonsonant';
+
+  @override
+  String get strategyLengthening => 'Dehnung';
+
+  @override
+  String get strategyMemory => 'Merkwort';
+
+  @override
+  String get diagnosticsPackFailures => 'Paket-Fehler';
+
+  @override
+  String get diagnosticsNoPackFailures => 'Keine lokalen Fehler aufgezeichnet.';
+
+  @override
+  String get diagnosticsLocalOnly =>
+      'Nur auf diesem Gerät gespeichert. Nichts wird automatisch hochgeladen.';
+
+  @override
+  String get diagnosticsPack => 'Paket';
+
+  @override
+  String get diagnosticsStage => 'Phase';
+
+  @override
+  String get diagnosticsCause => 'Ursache';
+
+  @override
+  String get diagnosticsRequiredBytes => 'Benötigte Bytes';
+
+  @override
+  String get diagnosticsAvailableBytes => 'Verfügbare Bytes';
+
+  @override
+  String get diagnosticsInstall => 'Installation';
+
+  @override
+  String get diagnosticsActivate => 'Aktivierung';
+
+  @override
+  String get diagnosticsCauseSpace => 'Nicht genügend Speicherplatz';
+
+  @override
+  String get diagnosticsCauseStorage => 'Speicherfehler';
+
+  @override
+  String get diagnosticsCauseSchema => 'Inkompatibles Datenbankschema';
+
+  @override
+  String get diagnosticsCausePayload => 'Ungültige Paketdaten';
+
+  @override
+  String get diagnosticsCauseNetwork => 'Netzwerkfehler';
+
+  @override
+  String get diagnosticsCauseDownload => 'Downloadfehler';
+
+  @override
+  String get diagnosticsCauseUnknown => 'Unbekannter Fehler';
+
+  @override
   String get loadPreparing => 'Wortschatzdatenbank wird vorbereitet …';
 
   @override

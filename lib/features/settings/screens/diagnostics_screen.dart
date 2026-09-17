@@ -18,6 +18,7 @@ import 'package:flutter/services.dart';
 import '../../../core/services/crash_logger.dart';
 import '../../../core/theme/space_theme.dart';
 import '../../../generated/l10n.dart';
+import '../widgets/pack_failure_diagnostics.dart';
 
 class DiagnosticsScreen extends StatefulWidget {
   const DiagnosticsScreen({super.key});
@@ -102,6 +103,7 @@ class _DiagnosticsScreenState extends State<DiagnosticsScreen> {
                 ),
               ),
               const Divider(height: 0),
+              const Flexible(child: SingleChildScrollView(child: PackFailureDiagnostics())),
               Expanded(
                 child: ListView.separated(
                   itemCount: entries.length,
