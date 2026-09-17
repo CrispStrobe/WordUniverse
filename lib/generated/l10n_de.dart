@@ -15,6 +15,26 @@ class SDe extends S {
   String get gameLevelLabel => 'Stufe';
 
   @override
+  String rescueHintCommonMistake(String word) {
+    return 'Häufiger Fehler! Merke dir: $word';
+  }
+
+  @override
+  String rescueHintNot(String forms) {
+    return 'Nicht: $forms';
+  }
+
+  @override
+  String rescueHintCorrectSpelling(String word) {
+    return 'Richtige Schreibweise: $word';
+  }
+
+  @override
+  String rescueHintLearn(String word) {
+    return 'Lerne: $word';
+  }
+
+  @override
   String semanticsLevel(int level) {
     return 'Stufe $level';
   }
