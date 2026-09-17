@@ -32,7 +32,7 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
-      # HEAD-only: sizes, digests and Range support for every downloadable pack.
+      # HEAD plus GET: metadata and actual compressed SHA256 for each pack.
       - name: Check registry pins against published packs
         env:
           WU_LIVE: '1'

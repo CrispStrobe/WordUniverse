@@ -3,30 +3,39 @@
 // expectedCompressedBytes is a HARD gate in the transport, so rebuilding a pack
 // and uploading it without bumping the registry breaks EVERY NEW INSTALL while
 // every existing install keeps working — a failure that is invisible in normal
-// testing. This test is the cheap guard: one HEAD per downloadable pack.
+// testing. This guard uses HEAD plus a GET to verify the compressed bytes.
 //
 // Skipped unless WU_LIVE=1, so the offline suite stays offline. CI runs it on a
 // schedule (see .github/workflows/pack-pins.yml).
 
-@Tags(['live'])
 library;
 
 import 'dart:io';
 
+import 'package:crypto/crypto.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:WortUniversum/core/models/language_pack.dart';
 
-/// Hugging Face exposes the artifact's own digest as x-linked-etag and the CDN
-/// entity tag as etag; either may be quoted.
-String? _digestHeader(Map<String, String> headers) {
-  for (final name in const ['x-linked-etag', 'etag']) {
-    final value = headers[name]?.replaceAll('"', '').replaceAll('W/', '');
-    if (value != null && RegExp(r'^[0-9a-f]{64}$').hasMatch(value)) {
-      return value.toLowerCase();
+/// Hugging Face serves datasets through a CDN whose `etag` is a mutable entity
+/// tag that changed once without the underlying bytes changing; the artifact's
+/// own digest is exposed as x-linked-etag and may be missing. A CDN etag can
+/// therefore NOT prove the pinned digest is wrong; only the actual bytes can.
+Future<String> _downloadedSha256(Uri url) async {
+  final client = http.Client();
+  try {
+    final request = http.Request('GET', url)
+      ..followRedirects = true
+      ..maxRedirects = 5;
+    final response = await client.send(request).timeout(const Duration(seconds: 30));
+    if (response.statusCode != 200) {
+      fail('expected 200 for the published pack, got ${response.statusCode}');
     }
+    final digest = await sha256.bind(response.stream).first.timeout(const Duration(minutes: 2));
+    return digest.toString();
+  } finally {
+    client.close();
   }
-  return null;
 }
 
 void main() {
@@ -56,13 +65,14 @@ void main() {
                 'lib/core/models/language_pack.dart.');
       }, skip: skip);
 
-      test('published digest still matches expectedCompressedSha256', () {
+      test('published digest still matches expectedCompressedSha256', () async {
         final pinned = pack.expectedCompressedSha256;
         if (pinned == null) return; // Optional pin: size gate still applies.
-        final published = _digestHeader(head.headers);
-        // Only assert when the host actually exposes a sha256-shaped tag.
-        if (published == null) return;
-        expect(published, pinned.toLowerCase(),
+        // The CDN etag is mutable and once changed while the pinned bytes were
+        // still correct, so a header mismatch alone cannot fail this guard:
+        // the actual bytes decide, and a mismatch here means a rebuilt pack.
+        final digest = await _downloadedSha256(Uri.parse(pack.remoteUrl!));
+        expect(digest.toLowerCase(), pinned.toLowerCase(),
             reason: 'the published bytes changed; bump the registry pins');
       }, skip: skip);
 
