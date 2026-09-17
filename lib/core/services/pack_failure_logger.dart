@@ -53,11 +53,21 @@ class PackFailureLogger {
   static const maxEntries = 20;
   final _entries = <PackFailureEntry>[];
   Future<void>? _initialization;
+  Future<void>? _pending;
 
-  /// Used only by tests to drop the in-memory cache between cases.
+  /// Used only by tests, after outstanding calls finish, to drop the cache.
   void resetForTests() {
     _entries.clear();
     _initialization = null;
+    _pending = null;
+  }
+
+  // Queue reads as well as mutations, including persistence, so each call sees
+  // the result of preceding calls and delayed writes cannot undo a clear.
+  Future<T> _enqueue<T>(Future<T> Function() action) {
+    final result = _pending?.then((_) => action()) ?? Future<T>.sync(action);
+    _pending = result.then<void>((_) {}, onError: (Object _, StackTrace __) {});
+    return result;
   }
 
   Future<void> _load() async {
@@ -70,6 +80,7 @@ class PackFailureLogger {
       for (final text in prefs.getStringList(storageKey) ?? <String>[]) {
         try {
           _entries.add(PackFailureEntry.fromJson(jsonDecode(text) as Map<String, dynamic>));
+          if (_entries.length > maxEntries) _entries.removeAt(0);
         } catch (_) {
           // One unreadable record must not hide the rest.
         }
@@ -82,7 +93,7 @@ class PackFailureLogger {
 
   Future<void> record({required String pack, required PackOperation operation,
     required LoadStage stage, required Object error, int? requiredBytes,
-    int? availableBytes}) async {
+    int? availableBytes}) => _enqueue(() async {
     await _load();
     final space = error is DbInsufficientSpaceException ? error : null;
     final cause = switch (error) {
@@ -103,13 +114,13 @@ class PackFailureLogger {
       _entries.removeAt(0);
     }
     await _persist();
-  }
+  });
 
-  Future<void> clear() async {
+  Future<void> clear() => _enqueue(() async {
     await _load();
     _entries.clear();
     await _persist();
-  }
+  });
 
   Future<void> _persist() async {
     try {
@@ -120,8 +131,8 @@ class PackFailureLogger {
     }
   }
 
-  Future<List<PackFailureEntry>> readAll() async {
+  Future<List<PackFailureEntry>> readAll() => _enqueue(() async {
     await _load();
-    return List.unmodifiable(_entries);
-  }
+    return List<PackFailureEntry>.unmodifiable(_entries);
+  });
 }
