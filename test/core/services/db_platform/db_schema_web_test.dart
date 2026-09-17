@@ -6,20 +6,26 @@ import 'package:sqflite/sqflite.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:archive/archive.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
-// Test runner serves repository web binaries under /web/.
-import 'package:sqflite_common_ffi_web/src/database_factory.dart';
 import 'package:WortUniversum/core/models/load_status.dart';
 import 'package:WortUniversum/core/services/db_platform/db_platform_web.dart';
 import 'package:WortUniversum/core/services/db_platform/db_schema.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  // Flutter serves test/ at the URL root. These fixtures link to the app's
+  // binaries so we exercise its real worker-backed SQLite/IndexedDB setup.
   final factory = createDatabaseFactoryFfiWeb(
-    noWebWorker: true,
-    options: SqfliteFfiWebOptions(sqlite3WasmUri: Uri.parse('/web/sqlite3.wasm')),
+    options: SqfliteFfiWebOptions(
+      sqlite3WasmUri: Uri.parse('/fixtures/sqlite_web/sqlite3.wasm'),
+      sharedWorkerUri: Uri.parse('/fixtures/sqlite_web/sqflite_sw.js'),
+    ),
   );
-  setUpAll(() { webDatabaseFactoryOverride = factory; });
-  tearDownAll(() { webDatabaseFactoryOverride = null; });
+  setUpAll(() {
+    webDatabaseFactoryOverride = factory;
+  });
+  tearDownAll(() {
+    webDatabaseFactoryOverride = null;
+  });
   late String name;
   setUp(() {
     name = 'schema_${DateTime.now().microsecondsSinceEpoch}.db';

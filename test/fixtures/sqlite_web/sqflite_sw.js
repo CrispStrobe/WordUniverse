@@ -1,0 +1,1 @@
+../../../web/sqflite_sw.js
