@@ -180,7 +180,8 @@ class LanguagePackService with ChangeNotifier {
     // the installed database. Only browsers report a quota; native returns
     // null and is caught at write time instead.
     final required = pack.requiredFreeBytes;
-    if (pack.requiresDownload && required != null) {
+    if (pack.requiresDownload && required != null &&
+        !await _vocabulary.isPackInstalled(code)) {
       final free = await _freeSpaceProbe();
       if (free != null && free < required) {
         _log('⛔ "$code" needs $required bytes, $free available');

@@ -136,6 +136,20 @@ void main() {
   });
 
   group('install', () {
+    for (final refreshed in [false, true]) {
+      test('installed inactive pack needs no space (refreshed=$refreshed)', () async {
+        final vocab = _FakeVocabulary(installed: {'en', 'de'}, active: 'en');
+        var probes = 0;
+        final service = LanguagePackService(vocab, freeSpaceProbe: () async {
+          probes++;
+          return 0;
+        });
+        if (refreshed) await service.refresh();
+        expect(await service.install('de'), isTrue);
+        expect(service.activeLanguage, 'de');
+        expect(probes, 0);
+      });
+    }
     test('an unknown pack is refused rather than downloaded', () async {
       final vocab = _FakeVocabulary();
       final service = LanguagePackService(vocab);

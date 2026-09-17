@@ -248,12 +248,12 @@ class _LanguagePackDialogState extends State<LanguagePackDialog> {
           icon: Icons.sd_storage_outlined,
           // The database is stored decompressed, so the download figure alone
           // understates what has to fit on the device by roughly six times.
-          text: _pack.installedSizeLabel == null
+          text: _pack.requiredFreeSizeLabel == null
               ? s.packMetaSizeLicense(
                   _pack.downloadSizeLabel, _pack.licenseLabel)
-              : s.packMetaSizes(
+              : s.packInstallSpace(
                   _pack.downloadSizeLabel,
-                  _pack.installedSizeLabel!,
+                  _pack.requiredFreeSizeLabel!,
                   _pack.licenseLabel,
                 ),
         ),
@@ -330,7 +330,7 @@ class _LanguagePackDialogState extends State<LanguagePackDialog> {
         Text(
           _errorIsSpace
               ? s.packNoSpaceHint(_pack.nativeName,
-                  _pack.installedSizeLabel ?? _pack.downloadSizeLabel)
+                  _pack.requiredFreeSizeLabel ?? _pack.downloadSizeLabel)
               : _errorIsNetwork
                   ? s.packFailedNetworkHint
                   : s.packFailedDataHint,

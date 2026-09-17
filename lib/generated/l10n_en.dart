@@ -779,8 +779,13 @@ class SEn extends S {
   }
 
   @override
+  String packInstallSpace(String download, String required, String license) {
+    return '$download download · about $required free space needed to install · data under $license';
+  }
+
+  @override
   String packNoSpaceHint(String language, String size) {
-    return 'There is not enough free space. $language needs about $size on this device once installed.';
+    return 'There is not enough free space. $language needs about $size of free space during installation (download and database together).';
   }
 
   @override

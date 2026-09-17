@@ -14,22 +14,8 @@ import '../../models/load_status.dart';
 export 'db_partial_cache.dart' show DbPartial, DbPartialCache;
 export 'db_gzip.dart' show DbPayloadException, verifyDecompressedDb;
 
-class DbDownloadException implements Exception {
-  final String message;
-  final bool isNetwork;
-  DbDownloadException(this.message, {this.isNetwork = false});
-  @override
-  String toString() => message;
-}
-
-/// The install cannot fit. Carries the numbers so the UI can say how much is
-/// needed rather than "download failed".
-class DbInsufficientSpaceException extends DbDownloadException {
-  DbInsufficientSpaceException({required this.requiredBytes, this.availableBytes})
-      : super('Not enough free space to install the language pack.');
-  final int requiredBytes;
-  final int? availableBytes;
-}
+export 'db_download_exception.dart';
+import 'db_download_exception.dart';
 
 /// Pause is not a failure. Await the original install settling, call resume(),
 /// then re-enter the normal installation flow to continue from cached bytes.
@@ -245,6 +231,7 @@ Future<Uint8List> _downloadLoop(
             LoadStatus(LoadStage.downloadComplete, bytes: bytes.length));
         return bytes;
       } catch (error) {
+        if (error is DbStorageException) rethrow;
         if (paused() || error is DbDownloadPausedException) {
           throw DbDownloadPausedException();
         }
@@ -462,11 +449,17 @@ Future<Uint8List> _attempt(
     } catch (error) {
       // Never retain known-invalid data. Network loss and user pause retain
       // the last contiguous prefix. Writes finish before _running is released.
+      if (error is DbStorageException) rethrow;
       if (error is! DbDownloadException || error.isNetwork) {
+        // A failed recovery checkpoint is actionable storage failure, not a
+        // reason to repeat the network request (even when pause was requested).
         if (count > 0)
           await cache.saveCheckpoint(c.url, buffer.toBytes(), validator);
       } else {
-        await cache.clearCheckpoint(c.url);
+        // Best-effort cleanup must not replace the original integrity failure.
+        try {
+          await cache.clearCheckpoint(c.url);
+        } catch (_) {}
       }
       rethrow;
     } finally {
