@@ -52,6 +52,8 @@ import 'features/games/screens/verbtrenner_game.dart';
 import 'shared/utils/app_utilities.dart';
 import 'shared/widgets/language_pack_dialog.dart';
 import 'generated/l10n.dart';
+import 'core/models/load_status.dart';
+import 'shared/utils/load_status_localization.dart';
 
 // --- GLOBAL INSTANCES & NAVIGATOR KEY ---
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -509,8 +511,8 @@ class _SplashScreenState extends State<SplashScreen>
   late Animation<double> _textOpacity;
   late Animation<double> _progressAnimation;
 
-  String _loadingMessage = 'Initializing...';
-  String _detailMessage = ''; // NEW: More detailed sub-message
+  LoadStatus _loadingMessage = const LoadStatus(LoadStage.preparingStation);
+  LoadStatus? _detailMessage;
   double _progress = 0.0;
 
   @override
@@ -552,7 +554,7 @@ class _SplashScreenState extends State<SplashScreen>
       _logoController.forward();
 
       // PHASE 1: Vocabulary Service (0.0 - 0.6) - THIS IS THE LONG PART
-      await _updateProgress(0.0, s.preparingSpaceStation, s.preparingMission);
+      await _updateProgress(0.0, const LoadStatus(LoadStage.preparingStation), const LoadStatus(LoadStage.preparingMission));
 
       if (mounted) {
         // The saved learning language may need a language pack that isn't on
@@ -583,7 +585,7 @@ class _SplashScreenState extends State<SplashScreen>
               // Map vocabulary progress (0.0-1.0) to overall progress (0.0-0.6)
               _updateProgress(
                 vocabProgress * 0.6,
-                s.preparingSpaceStation,
+                const LoadStatus(LoadStage.preparingStation),
                 vocabMessage,
               );
             },
@@ -594,25 +596,25 @@ class _SplashScreenState extends State<SplashScreen>
       // PHASE 2: Progress Service (0.6 - 0.7)
       _textController.forward();
       await _updateProgress(
-          0.65, s.loadingProgress, 'Loading your progress...');
+          0.65, const LoadStatus(LoadStage.loadingProgress));
       if (mounted) {
         await context.read<ProgressService>().loadProgress(gameProvider);
       }
 
       // PHASE 3: SRI Data (0.7 - 0.85)
-      await _updateProgress(0.75, s.calibratingNav, 'Loading learning data...');
+      await _updateProgress(0.75, const LoadStatus(LoadStage.calibrating), const LoadStatus(LoadStage.loadingLearning));
       if (mounted) {
         await context.read<SriService>().loadSriData();
       }
 
       // PHASE 4: Cognitive Profile (0.85 - 0.95)
-      await _updateProgress(0.9, s.calibratingNav, 'Loading your profile...');
+      await _updateProgress(0.9, const LoadStatus(LoadStage.calibrating), const LoadStatus(LoadStage.loadingProfile));
       if (mounted) {
         await context.read<CognitiveProfileService>().loadProfile();
       }
 
       // PHASE 5: Complete (0.95 - 1.0)
-      await _updateProgress(1.0, s.readyForLaunch, '');
+      await _updateProgress(1.0, const LoadStatus(LoadStage.readyForLaunch));
       await Future.delayed(const Duration(milliseconds: 500));
 
       if (mounted) {
@@ -635,7 +637,7 @@ class _SplashScreenState extends State<SplashScreen>
                 SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Initialization Failed',
+                    S.of(context)!.startupFailedTitle,
                     style: SpaceTheme.headlineStyle.copyWith(fontSize: 18),
                   ),
                 ),
@@ -647,12 +649,12 @@ class _SplashScreenState extends State<SplashScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Failed to initialize the app:',
+                    S.of(context)!.startupFailed,
                     style: SpaceTheme.bodyStyle,
                   ),
                   SizedBox(height: 8),
                   Text(
-                    e.toString(),
+                    S.of(context)!.loadFailed,
                     style: SpaceTheme.bodyStyle.copyWith(
                       color: SpaceTheme.starYellow.withValues(alpha: 0.8),
                       fontSize: 12,
@@ -693,14 +695,14 @@ class _SplashScreenState extends State<SplashScreen>
                   if (mounted) {
                     setState(() {
                       _progress = 0.0;
-                      _loadingMessage = 'Initializing...';
-                      _detailMessage = '';
+                      _loadingMessage = const LoadStatus(LoadStage.preparingStation);
+                      _detailMessage = null;
                     });
                     _initializeApp(s, gameProvider);
                   }
                 },
                 child: Text(
-                  'Retry',
+                  S.of(context)!.packRetry,
                   style: SpaceTheme.buttonStyle.copyWith(
                     color: SpaceTheme.starYellow,
                   ),
@@ -713,7 +715,7 @@ class _SplashScreenState extends State<SplashScreen>
     }
   }
 
-  Future<void> _updateProgress(double progress, String message, [String detail = '']) async {
+  Future<void> _updateProgress(double progress, LoadStatus message, [LoadStatus? detail]) async {
     if (mounted) {
       setState(() {
         _progress = progress;
@@ -847,7 +849,7 @@ class _SplashScreenState extends State<SplashScreen>
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 20),
                                 child: Text(
-                                  _loadingMessage,
+                                  _loadingMessage.localized(S.of(context)!),
                                   style: SpaceTheme.bodyStyle.copyWith(
                                     fontSize: isSmallScreen ? 14 : 16,
                                     fontWeight: FontWeight.bold,
@@ -857,13 +859,13 @@ class _SplashScreenState extends State<SplashScreen>
                               ),
 
                               // NEW: Detail Message (shows the granular progress)
-                              if (_detailMessage.isNotEmpty) ...[
+                              if (_detailMessage != null) ...[
                                 SizedBox(height: isSmallScreen ? 8 : 12),
                                 Padding(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 20),
                                   child: Text(
-                                    _detailMessage,
+                                    _detailMessage!.localized(S.of(context)!),
                                     style: SpaceTheme.bodyStyle.copyWith(
                                       fontSize: isSmallScreen ? 11 : 13,
                                       color: SpaceTheme.starYellow

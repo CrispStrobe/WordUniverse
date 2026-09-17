@@ -20,6 +20,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../models/language_pack.dart';
+import '../models/load_status.dart';
 import 'vocabulary_service.dart';
 import 'db_platform/db_remote.dart';
 
@@ -152,9 +153,7 @@ class LanguagePackService with ChangeNotifier {
       state.copyWith(
         status: LanguagePackStatus.installing,
         progress: 0.0,
-        message: pack.requiresDownload
-            ? 'Preparing download…'
-            : 'Preparing ${pack.nativeName}…',
+        message: const LoadStatus(LoadStage.preparing),
         clearError: true,
       ),
     );
@@ -182,7 +181,7 @@ class LanguagePackService with ChangeNotifier {
         _states[code]!.copyWith(
           status: LanguagePackStatus.installed,
           progress: 1.0,
-          message: '',
+          message: const LoadStatus(LoadStage.ready),
           clearError: true,
         ),
       );
@@ -195,7 +194,7 @@ class LanguagePackService with ChangeNotifier {
       if (e is DbDownloadPausedException) {
         _update(code, _states[code]!.copyWith(
           status: LanguagePackStatus.paused,
-          message: 'Download paused', clearError: true,
+          message: const LoadStatus(LoadStage.paused), clearError: true,
         ));
         return false;
       }
@@ -206,7 +205,7 @@ class LanguagePackService with ChangeNotifier {
         _states[code]!.copyWith(
           status: LanguagePackStatus.failed,
           progress: 0.0,
-          message: '',
+          message: const LoadStatus(LoadStage.ready),
           error: _describeError(e),
           errorIsNetwork: isNetwork,
         ),
@@ -253,7 +252,7 @@ class LanguagePackService with ChangeNotifier {
         _states[code]!.copyWith(
           status: LanguagePackStatus.notInstalled,
           progress: 0.0,
-          message: '',
+          message: const LoadStatus(LoadStage.ready),
           clearError: true,
         ),
       );
