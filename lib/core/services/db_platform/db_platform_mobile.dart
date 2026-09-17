@@ -7,9 +7,9 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'db_gzip.dart';
+import 'db_schema.dart';
 import 'db_remote.dart';
 import '../../models/load_status.dart';
-
 
 Future<Database> initPlatformDatabase({
   required String assetPath,
@@ -23,7 +23,8 @@ Future<Database> initPlatformDatabase({
   try {
     // PHASE 1: Determine database path (0.0 - 0.05)
     onProgress?.call(0.0, const LoadStatus(LoadStage.locatingStorage));
-    if (kDebugMode) debugPrint("[DB_MOBILE] 📱 Initializing mobile/desktop database...");
+    if (kDebugMode)
+      debugPrint("[DB_MOBILE] 📱 Initializing mobile/desktop database...");
 
     final Directory documentsDirectory =
         await getApplicationDocumentsDirectory();
@@ -36,38 +37,26 @@ Future<Database> initPlatformDatabase({
       if (kDebugMode) debugPrint("[DB_MOBILE] Database file exists at: $path");
 
       try {
-        // Quick validation - try to open and query
-        final db = await openDatabase(path, readOnly: true);
-        final count = Sqflite.firstIntValue(
-          await db.rawQuery('SELECT COUNT(*) FROM words LIMIT 1'),
-        );
-
-        if (count != null && count > 0) {
-          if (kDebugMode) debugPrint(
-              "[DB_MOBILE] ✅ Using existing valid database with $count words");
-          onProgress?.call(1.0, const LoadStatus(LoadStage.databaseReady));
-          return db;
-        }
-
-        // If we got here, database exists but is empty/invalid
-        await db.close();
-        if (kDebugMode) debugPrint(
-            "[DB_MOBILE] ⚠️ Existing database is invalid, will re-extract");
-        await dbFile.delete();
+        final db = await openValidatedDictionary(databaseFactory, path);
+        onProgress?.call(1.0, const LoadStatus(LoadStage.databaseReady));
+        return db;
       } catch (e) {
-        if (kDebugMode) debugPrint("[DB_MOBILE] ⚠️ Existing database is corrupted: $e");
+        if (kDebugMode)
+          debugPrint("[DB_MOBILE] ⚠️ Existing database is corrupted: $e");
         // Try to delete corrupted database
         try {
           await dbFile.delete();
         } catch (deleteError) {
-          if (kDebugMode) debugPrint(
-              "[DB_MOBILE] Could not delete corrupted database: $deleteError");
+          if (kDebugMode)
+            debugPrint(
+                "[DB_MOBILE] Could not delete corrupted database: $deleteError");
         }
       }
     }
 
     // PHASE 3: Extract database from assets (0.10 - 1.0)
-    if (kDebugMode) debugPrint("[DB_MOBILE] Extracting database from assets...");
+    if (kDebugMode)
+      debugPrint("[DB_MOBILE] Extracting database from assets...");
 
     // Ensure directory exists
     onProgress?.call(0.10, const LoadStatus(LoadStage.preparingStorage));
@@ -76,7 +65,8 @@ Future<Database> initPlatformDatabase({
     // PHASE 4: Obtain compressed bytes — download (GPL DE DB) or asset (0.10 - 0.55)
     final Uint8List compressedBytes;
     if (remoteUrl != null && remoteUrl.isNotEmpty) {
-      if (kDebugMode) debugPrint("[DB_MOBILE] Downloading database from: $remoteUrl");
+      if (kDebugMode)
+        debugPrint("[DB_MOBILE] Downloading database from: $remoteUrl");
       compressedBytes = await downloadCompressedDb(
         url: remoteUrl,
         expectedCompressedBytes: expectedCompressedBytes,
@@ -91,11 +81,14 @@ Future<Database> initPlatformDatabase({
     final compressedSizeMB =
         (compressedBytes.length / (1024 * 1024)).toStringAsFixed(1);
 
-    if (kDebugMode) debugPrint("[DB_MOBILE] Have $compressedSizeMB MB compressed data");
-    onProgress?.call(0.55, LoadStatus(LoadStage.loadedCompressed, bytes: compressedBytes.length));
+    if (kDebugMode)
+      debugPrint("[DB_MOBILE] Have $compressedSizeMB MB compressed data");
+    onProgress?.call(0.55,
+        LoadStatus(LoadStage.loadedCompressed, bytes: compressedBytes.length));
 
     // PHASE 5: Decompress (0.55 - 0.80) - THIS IS THE LONG PART
-    if (kDebugMode) debugPrint("[DB_MOBILE] Starting decompression on background isolate...");
+    if (kDebugMode)
+      debugPrint("[DB_MOBILE] Starting decompression on background isolate...");
     onProgress?.call(0.60, const LoadStatus(LoadStage.decompressing));
 
     final stopwatch = Stopwatch()..start();
@@ -114,16 +107,17 @@ Future<Database> initPlatformDatabase({
           expectedDecompressedSha256: expectedDecompressedSha256,
           requireSha256: remoteUrl != null &&
               remoteUrl.isNotEmpty &&
-              DbDownloadController.sharedFor(remoteUrl)
-                  .resumedWithoutValidator,
+              DbDownloadController.sharedFor(remoteUrl).resumedWithoutValidator,
         ),
       );
 
       final decompressedSizeMB =
           (decompressedBytes.length / (1024 * 1024)).toStringAsFixed(1);
-      if (kDebugMode) debugPrint(
-          "[DB_MOBILE] Decompressed to $decompressedSizeMB MB in ${stopwatch.elapsedMilliseconds}ms");
-      onProgress?.call(0.80, LoadStatus(LoadStage.decompressed, bytes: decompressedBytes.length));
+      if (kDebugMode)
+        debugPrint(
+            "[DB_MOBILE] Decompressed to $decompressedSizeMB MB in ${stopwatch.elapsedMilliseconds}ms");
+      onProgress?.call(0.80,
+          LoadStatus(LoadStage.decompressed, bytes: decompressedBytes.length));
     } on DbPayloadException catch (e) {
       // A payload gate (size or an enforced checksum) already says exactly
       // what was wrong; don't flatten it into "decompression failed".
@@ -147,8 +141,13 @@ Future<Database> initPlatformDatabase({
     onProgress?.call(0.85, const LoadStatus(LoadStage.writingStorage));
     if (kDebugMode) debugPrint("[DB_MOBILE] Writing database to: $path");
 
+    final staging = File('$path.installing');
     try {
-      await dbFile.writeAsBytes(decompressedBytes, flush: true);
+      await staging.writeAsBytes(decompressedBytes, flush: true);
+      final candidate =
+          await openValidatedDictionary(databaseFactory, staging.path);
+      await candidate.close();
+      await staging.rename(path);
     } on FileSystemException catch (e) {
       // ENOSPC (28 on Android/iOS/Linux). Native has no reliable pre-check, so
       // this is where a full device becomes a message the user can act on.
@@ -162,6 +161,8 @@ Future<Database> initPlatformDatabase({
             requiredBytes: decompressedBytes.length);
       }
       rethrow;
+    } finally {
+      if (await staging.exists()) await staging.delete();
     }
     if (kDebugMode) debugPrint("[DB_MOBILE] Database written successfully");
     onProgress?.call(0.90, const LoadStatus(LoadStage.savedDisk));
@@ -170,22 +171,25 @@ Future<Database> initPlatformDatabase({
     onProgress?.call(0.95, const LoadStatus(LoadStage.openingDatabase));
     if (kDebugMode) debugPrint("[DB_MOBILE] Opening database...");
 
-    final db = await openDatabase(path, readOnly: true);
-
-    // Verify word count
+    final db = await openValidatedDictionary(databaseFactory, path);
     final count = Sqflite.firstIntValue(
       await db.rawQuery('SELECT COUNT(*) FROM words'),
     );
 
-    if (kDebugMode) debugPrint("[DB_MOBILE] ✅ Database opened successfully with $count words");
-    if (kDebugMode) debugPrint(
-        "[DB_MOBILE] Total initialization time: ${stopwatch.elapsedMilliseconds}ms");
+    if (kDebugMode)
+      debugPrint(
+          "[DB_MOBILE] ✅ Database opened successfully with $count words");
+    if (kDebugMode)
+      debugPrint(
+          "[DB_MOBILE] Total initialization time: ${stopwatch.elapsedMilliseconds}ms");
 
-    onProgress?.call(1.0, LoadStatus(LoadStage.databaseReadyWords, count: count ?? 0));
+    onProgress?.call(
+        1.0, LoadStatus(LoadStage.databaseReadyWords, count: count ?? 0));
 
     return db;
   } catch (e, stackTrace) {
-    if (kDebugMode) debugPrint("[DB_MOBILE] ❌ Critical error during initialization: $e");
+    if (kDebugMode)
+      debugPrint("[DB_MOBILE] ❌ Critical error during initialization: $e");
     if (kDebugMode) debugPrint("[DB_MOBILE] Stack trace: $stackTrace");
     onProgress?.call(0.0, const LoadStatus(LoadStage.failed));
     rethrow;
@@ -204,15 +208,9 @@ Future<bool> isPlatformDatabaseInstalled(String databaseName) async {
     final String path = join(documentsDirectory.path, databaseName);
     if (!await File(path).exists()) return false;
 
-    final db = await openDatabase(path, readOnly: true);
-    try {
-      final count = Sqflite.firstIntValue(
-        await db.rawQuery('SELECT COUNT(*) FROM words LIMIT 1'),
-      );
-      return count != null && count > 0;
-    } finally {
-      await db.close();
-    }
+    final db = await openValidatedDictionary(databaseFactory, path);
+    await db.close();
+    return true;
   } catch (e) {
     if (kDebugMode) {
       debugPrint("[DB_MOBILE] Install check failed for $databaseName: $e");
@@ -233,7 +231,8 @@ Future<void> deletePlatformDatabase(String databaseName) async {
       final file = File('$path$suffix');
       if (await file.exists()) await file.delete();
     }
-    if (kDebugMode) debugPrint("[DB_MOBILE] 🗑️ Deleted database $databaseName");
+    if (kDebugMode)
+      debugPrint("[DB_MOBILE] 🗑️ Deleted database $databaseName");
   } catch (e) {
     if (kDebugMode) {
       debugPrint("[DB_MOBILE] ⚠️ Could not delete $databaseName: $e");

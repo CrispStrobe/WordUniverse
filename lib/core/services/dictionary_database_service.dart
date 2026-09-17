@@ -6,6 +6,7 @@ import 'package:sqflite/sqflite.dart';
 import '../models/vocabulary_models.dart';
 import '../models/vocabulary_quality.dart';
 import '../models/load_status.dart';
+import 'db_platform/db_schema.dart';
 
 // --- CONDITIONAL IMPORT SWITCHER ---
 import 'db_platform/db_platform_interface.dart'
@@ -93,13 +94,7 @@ class DictionaryDatabaseService {
       // PHASE 3: Verify database integrity (0.90 - 0.95)
       onProgress?.call(0.90, const LoadStatus(LoadStage.verifying));
 
-      final count = Sqflite.firstIntValue(
-        await _database!.rawQuery('SELECT COUNT(*) FROM words'),
-      );
-
-      if (count == null || count == 0) {
-        throw Exception('Database is empty or invalid');
-      }
+      final count = await validateDictionarySchema(_database!);
 
       if (kDebugMode)
         debugPrint("[DB_SERVICE] ✅ Database verified with $count words");
@@ -115,6 +110,7 @@ class DictionaryDatabaseService {
         debugPrint("[DB_SERVICE] ❌ Critical error initializing database: $e");
       if (kDebugMode) debugPrint("[DB_SERVICE] Stack trace: $stackTrace");
       onProgress?.call(0.0, const LoadStatus(LoadStage.failed));
+      await _database?.close();
       _database = null; // Ensure we can retry
       _assetPath = null;
       _databaseName = null;
