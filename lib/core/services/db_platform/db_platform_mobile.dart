@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'db_gzip.dart';
 import 'db_schema.dart';
+import 'db_revision.dart';
 import 'db_remote.dart';
 import '../../models/load_status.dart';
 
@@ -105,9 +106,9 @@ Future<Database> initPlatformDatabase({
           compressed: compressedBytes,
           expectedDecompressedBytes: expectedDecompressedBytes,
           expectedDecompressedSha256: expectedDecompressedSha256,
-          requireSha256: remoteUrl != null &&
-              remoteUrl.isNotEmpty &&
-              DbDownloadController.sharedFor(remoteUrl).resumedWithoutValidator,
+          requireSha256: expectedDecompressedSha256 != null ||
+              (remoteUrl != null && remoteUrl.isNotEmpty &&
+                  DbDownloadController.sharedFor(remoteUrl).resumedWithoutValidator),
         ),
       );
 
@@ -201,12 +202,25 @@ Future<Database> initPlatformDatabase({
 /// that exists but fails to open (truncated download, corrupted container) is
 /// reported as *not* installed so the caller re-downloads instead of crashing
 /// later inside a game.
-Future<bool> isPlatformDatabaseInstalled(String databaseName) async {
+Future<bool> isPlatformDatabaseInstalled(String databaseName, {
+  List<String> legacyDatabaseNames = const [],
+  String? expectedDecompressedSha256,
+}) async {
   try {
     final Directory documentsDirectory =
         await getApplicationDocumentsDirectory();
     final String path = join(documentsDirectory.path, databaseName);
-    if (!await File(path).exists()) return false;
+    if (!await File(path).exists()) {
+      if (expectedDecompressedSha256 == null) return false;
+      return adoptLegacyDatabase(
+        factory: databaseFactory, destination: path,
+        candidates: [for (final name in legacyDatabaseNames) join(documentsDirectory.path, name)],
+        digest: expectedDecompressedSha256,
+        read: (name) => File(name).readAsBytes(),
+        write: (name, bytes) async { await File(name).writeAsBytes(bytes, flush: true); },
+        promote: (staging, target, _) async { await File(staging).rename(target); },
+      );
+    }
 
     final db = await openValidatedDictionary(databaseFactory, path);
     await db.close();

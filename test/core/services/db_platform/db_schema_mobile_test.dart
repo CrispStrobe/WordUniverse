@@ -2,6 +2,9 @@
 library;
 
 import 'dart:io';
+import 'package:crypto/crypto.dart';
+import 'package:WortUniversum/core/services/db_platform/db_remote.dart';
+import 'package:WortUniversum/core/models/language_pack.dart';
 import 'package:archive/archive.dart';
 import 'package:WortUniversum/core/models/load_status.dart';
 import 'package:WortUniversum/core/services/db_platform/db_schema.dart';
@@ -94,6 +97,17 @@ void main() {
     await db.close();
   });
 
+  test('artifact change must not treat unchanged schema-compatible cache as current', () async {
+    await fixture();
+    const old = LanguagePack(code: 'x', nativeName: 'X', databaseName: 'pack.db',
+        licenseLabel: 'test', expectedDecompressedSha256: 'old');
+    const next = LanguagePack(code: 'x', nativeName: 'X', databaseName: 'pack.db',
+        licenseLabel: 'test', expectedDecompressedSha256: 'next');
+    await File('${directory.path}/pack.db').rename('${directory.path}/${old.databaseName}');
+    expect(await isPlatformDatabaseInstalled(old.databaseName), isTrue);
+    expect(await isPlatformDatabaseInstalled(next.databaseName), isFalse);
+  });
+
   Future<void> serveFixtureAsset() async {
     final bytes = await File('${directory.path}/pack.db').readAsBytes();
     final gzip = Uint8List.fromList(GZipEncoder().encode(bytes));
@@ -102,7 +116,41 @@ void main() {
             'flutter/assets', (_) async => ByteData.sublistView(gzip));
   }
 
+  test('exact legacy artifact is adopted once offline and retained', () async {
+    await fixture();
+    final old = File('${directory.path}/pack.db');
+    final digest = sha256.convert(await old.readAsBytes()).toString();
+    expect(await isPlatformDatabaseInstalled('current.db',
+        legacyDatabaseNames: ['pack.db'], expectedDecompressedSha256: digest), isTrue);
+    expect(await old.exists(), isTrue);
+    await old.delete();
+    expect(await isPlatformDatabaseInstalled('current.db'), isTrue);
+    final db = await initPlatformDatabase(assetPath: 'offline-unused', databaseName: 'current.db');
+    await db.close();
+  });
+
+  test('changed legacy revision retained through failed and valid replacement', () async {
+    await fixture();
+    final old = File('${directory.path}/pack.db');
+    final bytes = await old.readAsBytes();
+    expect(await isPlatformDatabaseInstalled('next.db',
+        legacyDatabaseNames: ['pack.db'], expectedDecompressedSha256: 'different'), isFalse);
+    await serveFixtureAsset();
+    // Same-length, schema-compatible payload is not the registered revision.
+    await expectLater(initPlatformDatabase(assetPath: 'fixture.gz', databaseName: 'next.db',
+        expectedDecompressedSha256: 'different'), throwsA(isA<DbDownloadException>()));
+    expect(await old.readAsBytes(), bytes);
+    expect(await isPlatformDatabaseInstalled('pack.db'), isTrue);
+    final db = await initPlatformDatabase(assetPath: 'fixture.gz', databaseName: 'next.db',
+        expectedDecompressedSha256: sha256.convert(bytes).toString());
+    await db.close();
+    expect(await old.readAsBytes(), bytes);
+    expect(await isPlatformDatabaseInstalled('next.db'), isTrue);
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMessageHandler('flutter/assets', null);
+  });
+
   for (final cached in [false, true]) {
+    // Existing schema-validation cases below also cover staging rejection.
     test(
         'init rejects incompatible ${cached ? 'cache and replacement' : 'payload'} without ready or promotion',
         () async {

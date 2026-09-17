@@ -84,6 +84,7 @@ class _LanguagePackDialogState extends State<LanguagePackDialog> {
 
   bool _errorIsNetwork = false;
   bool _errorIsSpace = false;
+  bool _hasPreviousPack = false;
 
   LanguagePack get _pack =>
       languagePackFor(widget.languageCode) ??
@@ -94,6 +95,9 @@ class _LanguagePackDialogState extends State<LanguagePackDialog> {
     super.initState();
     final state = context.read<LanguagePackService>().stateFor(widget.languageCode);
     _phase = state.status == LanguagePackStatus.paused ? _Phase.paused : _Phase.confirm;
+    context.read<LanguagePackService>().hasPreviousPack(widget.languageCode).then((previous) {
+      if (mounted && previous) setState(() => _hasPreviousPack = true);
+    });
     if (widget.skipConsent || !_pack.requiresDownload) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _start());
     }
@@ -231,6 +235,10 @@ class _LanguagePackDialogState extends State<LanguagePackDialog> {
           s.packRequiredMessage(_pack.nativeName, _pack.downloadSizeLabel),
           style: SpaceTheme.bodyStyle,
         ),
+        if (_hasPreviousPack) ...[
+          const SizedBox(height: 8),
+          Text(s.packUpdateNotice, style: SpaceTheme.bodyStyle),
+        ],
         Consumer<LanguagePackService>(builder: (context, service, _) {
           final cached = service.stateFor(_pack.code).cachedBytes;
           if (cached == null || cached <= 0) return const SizedBox.shrink();

@@ -34,8 +34,18 @@ class LanguagePack {
   /// localized: a language picker reads best in its own language.
   final String nativeName;
 
-  /// Filename of the decompressed SQLite DB in app storage / IndexedDB.
-  final String databaseName;
+  final String _databaseName;
+
+  /// Content-qualified identity, independent of SQLite schema compatibility.
+  /// Changing the packaged digest automatically selects a fresh storage slot.
+  String get databaseName => expectedDecompressedSha256 == null
+      ? _databaseName
+      : '${_databaseName.substring(0, _databaseName.length - 3)}-$expectedDecompressedSha256.db';
+
+  /// Historical slots are retained, never silently treated as this revision.
+  /// Keep earlier qualified names here when publishing a replacement.
+  final List<String> previousDatabaseNames;
+  List<String> get legacyDatabaseNames => [_databaseName, ...previousDatabaseNames];
 
   /// Bundled gzipped asset, when the DB ships with the app.
   final String? assetPath;
@@ -65,7 +75,8 @@ class LanguagePack {
   const LanguagePack({
     required this.code,
     required this.nativeName,
-    required this.databaseName,
+    required String databaseName,
+    this.previousDatabaseNames = const [],
     required this.licenseLabel,
     this.assetPath,
     this.remoteUrl,
@@ -74,7 +85,7 @@ class LanguagePack {
     this.expectedDecompressedBytes,
     this.expectedDecompressedSha256,
     this.datasetUrl,
-  });
+  }) : _databaseName = databaseName;
 
   /// True when the pack has to be fetched over the network before it can be
   /// used. Bundled packs are usable immediately.
@@ -215,11 +226,9 @@ const Map<String, LanguagePack> kLanguagePacks = {
     // GPL-3.0 data (childLex-derived) → intentionally NOT bundled in store
     // binaries; downloaded once from the Hugging Face dataset instead.
     remoteUrl:
-        'https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/main/grundwortschatz.db.gz',
-    // If the DE DB is rebuilt and re-uploaded, bump expectedCompressedBytes
-    // and expectedDecompressedSha256 together. The sha256 is a soft check
-    // (logged, not fatal — see db_remote.dart), so a forgotten bump degrades
-    // gracefully instead of bricking the download.
+        'https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/ecaaec77601a316aeccfe7dcb352137c84601017/grundwortschatz.db.gz',
+    // Update the immutable URL and all pins together; retain this qualified
+    // databaseName in previousDatabaseNames when publishing a new artifact.
     expectedCompressedBytes: 26619920,
     expectedCompressedSha256:
         'bb69f27418bbd65673474e2a2934ecba33395fcf838465169a42e8bfec8de86b',
@@ -234,6 +243,8 @@ const Map<String, LanguagePack> kLanguagePacks = {
     nativeName: 'English',
     databaseName: 'grundwortschatz_en.db',
     assetPath: 'assets/grundwortschatz_en.db.gz',
+    expectedDecompressedSha256:
+        '367021742f6c3ae6a3c347a9ef25f162683fb40c8e983f290c6e9667b6216893',
     licenseLabel: 'CC BY-SA 4.0',
     datasetUrl: 'https://huggingface.co/datasets/cstr/grundwortschatz-voc-en',
   ),
