@@ -1431,10 +1431,16 @@ abstract class S {
   /// **'{download} download · {installed} on this device · data under {license}'**
   String packMetaSizes(String download, String installed, String license);
 
+  /// No description provided for @packInstallSpace.
+  ///
+  /// In en, this message translates to:
+  /// **'{download} download · about {required} free space needed to install · data under {license}'**
+  String packInstallSpace(String download, String required, String license);
+
   /// No description provided for @packNoSpaceHint.
   ///
   /// In en, this message translates to:
-  /// **'There is not enough free space. {language} needs about {size} on this device once installed.'**
+  /// **'There is not enough free space. {language} needs about {size} of free space during installation (download and database together).'**
   String packNoSpaceHint(String language, String size);
 
   /// No description provided for @packResumeProgress.

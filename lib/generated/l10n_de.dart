@@ -782,8 +782,13 @@ class SDe extends S {
   }
 
   @override
+  String packInstallSpace(String download, String required, String license) {
+    return '$download Download · etwa $required freier Speicher für die Installation nötig · Daten unter $license';
+  }
+
+  @override
   String packNoSpaceHint(String language, String size) {
-    return 'Es ist nicht genug Speicher frei. $language braucht nach der Installation etwa $size auf diesem Gerät.';
+    return 'Es ist nicht genug Speicher frei. $language braucht während der Installation etwa $size freien Speicher (Download und Datenbank zusammen).';
   }
 
   @override

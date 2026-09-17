@@ -2,12 +2,26 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:path_provider/path_provider.dart';
 import 'db_partial_cache.dart';
+import 'db_download_exception.dart';
+
+DbStorageException _storageError(Object error) {
+  final code = error is FileSystemException ? error.osError?.errorCode : null;
+  // POSIX ENOSPC and Windows ERROR_DISK_FULL.
+  return code == 28 || code == 112
+      ? DbInsufficientSpaceException(errorName: 'ENOSPC', cause: error)
+      : DbStorageException('Download checkpoint storage failed.',
+          errorName: code?.toString(), cause: error);
+}
 
 DbPartialCache createDbPartialCache() => FileDbPartialCache();
 
 class FileDbPartialCache extends DbPartialCache {
-  FileDbPartialCache({this.baseDirectory});
+  FileDbPartialCache(
+      {this.baseDirectory, this.temporaryFileFactory = File.new});
   final Directory? baseDirectory;
+
+  /// Test seam for write/rename failures without filling the host disk.
+  final File Function(String path) temporaryFileFactory;
 
   Future<File> _file(String key) async {
     final base = baseDirectory ??
@@ -31,10 +45,18 @@ class FileDbPartialCache extends DbPartialCache {
   /// previous record intact rather than a half-written one.
   @override
   Future<void> writeRecord(String key, List<int> raw) async {
-    final file = await _file(key);
-    final temporary = File('${file.path}.tmp');
-    await temporary.writeAsBytes(raw, flush: true);
-    await temporary.rename(file.path);
+    File? temporary;
+    try {
+      final file = await _file(key);
+      temporary = temporaryFileFactory('${file.path}.tmp');
+      await temporary.writeAsBytes(raw, flush: true);
+      await temporary.rename(file.path);
+    } catch (error, stack) {
+      try {
+        await temporary?.delete();
+      } catch (_) {}
+      Error.throwWithStackTrace(_storageError(error), stack);
+    }
   }
 
   /// Reads the fixed header and the file size rather than the whole prefix:
@@ -68,7 +90,11 @@ class FileDbPartialCache extends DbPartialCache {
 
   @override
   Future<void> deleteRecord(String key) async {
-    final file = await _file(key);
-    if (await file.exists()) await file.delete();
+    try {
+      final file = await _file(key);
+      if (await file.exists()) await file.delete();
+    } catch (error, stack) {
+      Error.throwWithStackTrace(_storageError(error), stack);
+    }
   }
 }

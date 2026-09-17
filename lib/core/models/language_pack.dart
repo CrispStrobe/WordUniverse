@@ -92,6 +92,9 @@ class LanguagePack {
   /// download size understates the requirement by roughly six times.
   String? get installedSizeLabel => _megabytes(expectedDecompressedBytes);
 
+  /// Peak installation budget, not the final on-disk footprint.
+  String? get requiredFreeSizeLabel => _megabytes(requiredFreeBytes);
+
   /// Free space an install needs: the decompressed database plus the
   /// compressed copy held while it is being written.
   int? get requiredFreeBytes => expectedDecompressedBytes == null

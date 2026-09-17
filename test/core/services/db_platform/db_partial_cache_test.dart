@@ -8,10 +8,25 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
+import 'package:WortUniversum/core/services/db_platform/db_remote.dart';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:WortUniversum/core/services/db_platform/db_partial_cache.dart';
 import 'package:WortUniversum/core/services/db_platform/db_partial_cache_io.dart';
+
+class _FailingFile implements File {
+  _FailingFile(this.error);
+  final FileSystemException error;
+  @override
+  Future<File> writeAsBytes(List<int> bytes,
+          {FileMode mode = FileMode.write, bool flush = false}) async =>
+      throw error;
+  @override
+  Future<File> delete({bool recursive = false}) async =>
+      throw StateError('cleanup failed');
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
 
 void main() {
   late Directory tmp;
@@ -25,6 +40,23 @@ void main() {
   });
 
   group('FileDbPartialCache (native)', () {
+    for (final code in [28, 112, 13]) {
+      test('write errno $code is typed and cleanup preserves original cause',
+          () async {
+        final error =
+            FileSystemException('write failed', '', OSError('failure', code));
+        final cache = FileDbPartialCache(
+            baseDirectory: tmp,
+            temporaryFileFactory: (_) => _FailingFile(error));
+        await expectLater(
+            cache.save('u', [1]),
+            throwsA(isA<DbStorageException>()
+                .having((e) => e.cause, 'cause', same(error))
+                .having((e) => e.isNetwork, 'network', false)
+                .having((e) => e is DbInsufficientSpaceException, 'space',
+                    code != 13)));
+      });
+    }
     late FileDbPartialCache cache;
 
     setUp(() => cache = FileDbPartialCache(baseDirectory: tmp));
