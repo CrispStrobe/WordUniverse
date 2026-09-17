@@ -43,6 +43,7 @@ class _FakeVocabulary extends VocabularyService {
   /// Set to hold setLearningLanguage open until completed, so a second
   /// install can be attempted while the first is still in flight.
   Completer<void>? block;
+  Completer<bool>? nextProbe;
 
   /// Progress values to emit before completing, for the download UI.
   List<(double, LoadStatus)> emitProgress = const [];
@@ -56,8 +57,11 @@ class _FakeVocabulary extends VocabularyService {
   bool get isInitialized => ready;
 
   @override
-  Future<bool> isPackInstalled(String language) async =>
-      installed.contains(language);
+  Future<bool> isPackInstalled(String language) async {
+    final probe = nextProbe;
+    nextProbe = null;
+    return probe == null ? installed.contains(language) : await probe.future;
+  }
 
   @override
   Future<String> savedLearningLanguage() async => saved;
@@ -232,7 +236,7 @@ void main() {
     test('a second install is refused while the first is still running',
         () async {
       final vocab = _FakeVocabulary()..block = Completer<void>();
-      final service = LanguagePackService(vocab);
+      final service = LanguagePackService(vocab, freeSpaceProbe: () async => null);
 
       final first = service.install(kDefaultLanguageCode);
       await Future<void>.delayed(Duration.zero);
@@ -400,6 +404,21 @@ void main() {
   });
 
   group('refresh', () {
+    test('late probe cannot overwrite an install started during its await', () async {
+      final probe = Completer<bool>();
+      final vocab = _FakeVocabulary()..nextProbe = probe..block = Completer<void>();
+      final service = LanguagePackService(vocab, freeSpaceProbe: () async => null);
+      final refreshing = service.refresh();
+      await Future<void>.delayed(Duration.zero);
+      final installing = service.install('de');
+      await Future<void>.delayed(Duration.zero);
+      expect(service.stateFor('de').isInstalling, isTrue);
+      probe.complete(false);
+      await refreshing;
+      expect(service.stateFor('de').isInstalling, isTrue);
+      vocab.block!.complete();
+      expect(await installing, isTrue);
+    });
     test('re-reads storage and marks statusesLoaded', () async {
       final vocab = _FakeVocabulary(
         installed: {kFallbackLanguageCode, kDefaultLanguageCode},
@@ -415,7 +434,7 @@ void main() {
 
     test('does not stomp an install that is still in flight', () async {
       final vocab = _FakeVocabulary()..block = Completer<void>();
-      final service = LanguagePackService(vocab);
+      final service = LanguagePackService(vocab, freeSpaceProbe: () async => null);
 
       final installing = service.install(kDefaultLanguageCode);
       await Future<void>.delayed(Duration.zero);

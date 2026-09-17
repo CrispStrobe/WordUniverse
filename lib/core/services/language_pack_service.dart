@@ -134,6 +134,8 @@ class LanguagePackService with ChangeNotifier {
       final cached = installed || !probePartialDownloads
           ? null
           : await _cachedBytes(pack);
+      // An install/pause/removal may have started while storage was awaited.
+      if (!identical(_states[pack.code], current)) continue;
       _states[pack.code] = current.copyWith(
         status: installed
             ? LanguagePackStatus.installed

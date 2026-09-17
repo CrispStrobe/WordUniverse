@@ -18,6 +18,7 @@ DatabaseFactory get _factory => webDatabaseFactoryOverride ?? databaseFactoryFfi
 Future<Database> initPlatformDatabase({
   required String assetPath,
   required String databaseName,
+  List<String> legacyDatabaseNames = const [],
   String? remoteUrl,
   int? expectedCompressedBytes,
   int? expectedDecompressedBytes,
@@ -31,6 +32,16 @@ Future<Database> initPlatformDatabase({
 
     final factory = _factory;
     final String webDbName = databaseName;
+
+    // Never migrate from a readiness probe: this may require two full DB writes.
+    if (!await factory.databaseExists(webDbName) && expectedDecompressedSha256 != null) {
+      await adoptLegacyDatabase(
+        factory: factory, destination: webDbName,
+        candidates: legacyDatabaseNames, digest: expectedDecompressedSha256,
+        read: factory.readDatabaseBytes, write: factory.writeDatabaseBytes,
+        promote: (_, target, bytes) => factory.writeDatabaseBytes(target, bytes),
+      );
+    }
 
     // PHASE 2: Check if database already exists in IndexedDB (0.10 - 0.15)
     onProgress?.call(0.10, const LoadStatus(LoadStage.checkingDatabase));
@@ -192,13 +203,7 @@ Future<bool> isPlatformDatabaseInstalled(String databaseName, {
   try {
     final factory = _factory;
     if (!await factory.databaseExists(databaseName)) {
-      if (expectedDecompressedSha256 == null) return false;
-      return adoptLegacyDatabase(
-        factory: factory, destination: databaseName,
-        candidates: legacyDatabaseNames, digest: expectedDecompressedSha256,
-        read: factory.readDatabaseBytes, write: factory.writeDatabaseBytes,
-        promote: (_, target, bytes) => factory.writeDatabaseBytes(target, bytes),
-      );
+      return false;
     }
     final db = await openValidatedDictionary(factory, databaseName);
     await db.close();

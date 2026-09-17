@@ -18,7 +18,7 @@ Future<bool> adoptLegacyDatabase({
   required Future<void> Function(String, String, Uint8List) promote,
 }) async {
   for (final source in candidates.where((name) => name != destination)) {
-    final staging = '$destination.installing';
+    final staging = '$destination.adopting';
     try {
       if (!await factory.databaseExists(source)) continue;
       final bytes = await read(source);

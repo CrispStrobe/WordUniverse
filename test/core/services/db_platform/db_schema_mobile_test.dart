@@ -9,6 +9,7 @@ import 'package:archive/archive.dart';
 import 'package:WortUniversum/core/models/load_status.dart';
 import 'package:WortUniversum/core/services/db_platform/db_schema.dart';
 import 'package:WortUniversum/core/services/dictionary_database_service.dart';
+import 'package:WortUniversum/core/services/vocabulary_service.dart';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -120,13 +121,48 @@ void main() {
     await fixture();
     final old = File('${directory.path}/pack.db');
     final digest = sha256.convert(await old.readAsBytes()).toString();
+    final staging = File('${directory.path}/current.db.installing');
+    await staging.writeAsBytes([1, 2, 3]);
     expect(await isPlatformDatabaseInstalled('current.db',
-        legacyDatabaseNames: ['pack.db'], expectedDecompressedSha256: digest), isTrue);
+        legacyDatabaseNames: ['pack.db'], expectedDecompressedSha256: digest), isFalse);
+    expect(await staging.readAsBytes(), [1, 2, 3]);
+    expect(await File('${directory.path}/current.db').exists(), isFalse);
+    final adopted = await initPlatformDatabase(assetPath: 'offline-unused', databaseName: 'current.db',
+        legacyDatabaseNames: ['pack.db'], expectedDecompressedSha256: digest);
+    await adopted.close();
     expect(await old.exists(), isTrue);
     await old.delete();
     expect(await isPlatformDatabaseInstalled('current.db'), isTrue);
     final db = await initPlatformDatabase(assetPath: 'offline-unused', databaseName: 'current.db');
     await db.close();
+  });
+
+  test('SQLite writes change legacy hash but not qualified readiness', () async {
+    await fixture();
+    final old = File('${directory.path}/pack.db');
+    final digest = sha256.convert(await old.readAsBytes()).toString();
+    final db = await openDatabase(old.path);
+    await db.execute('CREATE INDEX local_index ON words(word)');
+    await db.close();
+    final modified = await old.readAsBytes();
+    expect(sha256.convert(modified).toString(), isNot(digest));
+    expect(await isPlatformDatabaseInstalled('current.db',
+        legacyDatabaseNames: ['pack.db'], expectedDecompressedSha256: digest), isFalse);
+    expect(await old.readAsBytes(), modified);
+    await old.copy('${directory.path}/current.db');
+    expect(await isPlatformDatabaseInstalled('current.db',
+        expectedDecompressedSha256: digest), isTrue);
+  });
+
+  test('previous pack notice discovers legacy storage without adopting it', () async {
+    await fixture();
+    final pack = kLanguagePacks['de']!;
+    await File('${directory.path}/pack.db').rename('${directory.path}/${pack.legacyDatabaseNames.first}');
+    final vocabulary = VocabularyService();
+    expect(await vocabulary.hasPreviousPack('de'), isTrue);
+    expect(await vocabulary.isPackInstalled('de'), isFalse);
+    expect(await File('${directory.path}/${pack.databaseName}').exists(), isFalse);
+    vocabulary.dispose();
   });
 
   test('changed legacy revision retained through failed and valid replacement', () async {
