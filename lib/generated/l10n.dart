@@ -5591,6 +5591,36 @@ abstract class S {
   /// **'Reading'**
   String get skillLabelReading;
 
+  /// No description provided for @boxNameNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get boxNameNew;
+
+  /// No description provided for @boxNameFirstReview.
+  ///
+  /// In en, this message translates to:
+  /// **'First Review'**
+  String get boxNameFirstReview;
+
+  /// No description provided for @boxNamePractice.
+  ///
+  /// In en, this message translates to:
+  /// **'Practice'**
+  String get boxNamePractice;
+
+  /// No description provided for @boxNameConfident.
+  ///
+  /// In en, this message translates to:
+  /// **'Confident'**
+  String get boxNameConfident;
+
+  /// No description provided for @boxNameMastered.
+  ///
+  /// In en, this message translates to:
+  /// **'Mastered'**
+  String get boxNameMastered;
+
   /// No description provided for @privacyBriefTitle.
   ///
   /// In en, this message translates to:

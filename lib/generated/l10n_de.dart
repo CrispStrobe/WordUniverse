@@ -3292,6 +3292,21 @@ class SDe extends S {
   String get skillLabelReading => 'Lesen';
 
   @override
+  String get boxNameNew => 'Neu';
+
+  @override
+  String get boxNameFirstReview => 'Erste Festigung';
+
+  @override
+  String get boxNamePractice => 'Übung';
+
+  @override
+  String get boxNameConfident => 'Sicher';
+
+  @override
+  String get boxNameMastered => 'Gemeistert';
+
+  @override
   String get privacyBriefTitle => 'In Kürze';
 
   @override
