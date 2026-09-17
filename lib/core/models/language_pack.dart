@@ -21,6 +21,7 @@
 // asset acts as an offline fallback for non-store builds.
 
 import 'package:flutter/foundation.dart' show immutable;
+import 'load_status.dart';
 
 /// Where a language's vocabulary DB comes from, plus the metadata needed to
 /// disclose the download (size, license) and to verify what arrives.
@@ -110,8 +111,8 @@ class LanguagePackState {
   /// 0.0–1.0 while [status] is [LanguagePackStatus.installing].
   final double progress;
 
-  /// Human-readable step ("Downloading… 12.4 / 25.4 MB").
-  final String message;
+  /// Locale-independent step, translated by the listening widget.
+  final LoadStatus message;
 
   /// Failure reason when [status] is [LanguagePackStatus.failed].
   final String? error;
@@ -124,7 +125,7 @@ class LanguagePackState {
     required this.pack,
     required this.status,
     this.progress = 0.0,
-    this.message = '',
+    this.message = const LoadStatus(LoadStage.preparing),
     this.error,
     this.errorIsNetwork = false,
   });
@@ -135,7 +136,7 @@ class LanguagePackState {
   LanguagePackState copyWith({
     LanguagePackStatus? status,
     double? progress,
-    String? message,
+    LoadStatus? message,
     String? error,
     bool? errorIsNetwork,
     bool clearError = false,

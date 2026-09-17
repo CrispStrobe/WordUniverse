@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/models/language_pack.dart';
 import '../../../core/theme/space_theme.dart';
+import '../../../generated/l10n.dart';
 
 /// Language choices are independent of learner onboarding and DB availability.
 class LanguageSetupScreen extends StatefulWidget {
@@ -27,7 +28,7 @@ class _LanguageSetupScreenState extends State<LanguageSetupScreen> {
   late String learning;
   late String interface;
   bool saving = false;
-  String? error;
+  bool saveFailed = false;
   @override
   void initState() {
     super.initState();
@@ -41,7 +42,7 @@ class _LanguageSetupScreenState extends State<LanguageSetupScreen> {
   Future<void> save() async {
     setState(() {
       saving = true;
-      error = null;
+      saveFailed = false;
     });
     try {
       if (!await widget.prefs.setString('learning_language', learning) ||
@@ -51,18 +52,21 @@ class _LanguageSetupScreenState extends State<LanguageSetupScreen> {
       }
       widget.onLocaleChanged(Locale(interface));
       if (mounted) widget.onComplete();
-    } catch (e) {
-      if (mounted)
+    } catch (_) {
+      if (mounted) {
         setState(() {
           saving = false;
-          error = e.toString();
+          saveFailed = true;
         });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final de = interface == 'de';
+    // Follow the selection immediately, even before the parent locale rebuild.
+    // Keep errors as state, not translated strings, so they follow it too.
+    final s = lookupS(Locale(interface));
     return Scaffold(
       backgroundColor: SpaceTheme.spaceBlue,
       body: DecoratedBox(
@@ -89,20 +93,13 @@ class _LanguageSetupScreenState extends State<LanguageSetupScreen> {
                       const Icon(Icons.auto_stories,
                           color: SpaceTheme.starYellow, size: 36),
                       const SizedBox(height: 12),
-                      Text(
-                          de
-                              ? 'Willkommen im WortUniversum'
-                              : 'Welcome to Word Universe',
+                      Text(s.setupWelcome,
                           style:
                               SpaceTheme.headlineStyle.copyWith(fontSize: 28)),
                       const SizedBox(height: 24),
                       _legend(
-                        de
-                            ? 'Welche Sprache möchtest du lernen?'
-                            : 'What language do you want to learn?',
-                        de
-                            ? 'Sprache für Wörter, Übungen und Spiele.'
-                            : 'Language for words, exercises and games.',
+                        s.setupLearningQuestion,
+                        s.setupLearningDescription,
                       ),
                       DropdownButtonFormField<String>(
                         key: const Key('learning-language'),
@@ -113,8 +110,7 @@ class _LanguageSetupScreenState extends State<LanguageSetupScreen> {
                         dropdownColor: SpaceTheme.nebulaPurple,
                         iconEnabledColor: SpaceTheme.starYellow,
                         decoration: _fieldDecoration(
-                            de ? 'Lernsprache' : 'Learning language',
-                            Icons.school_outlined),
+                            s.setupLearningLabel, Icons.school_outlined),
                         items: [
                           for (final p in orderedLanguagePacks)
                             DropdownMenuItem(
@@ -126,12 +122,8 @@ class _LanguageSetupScreenState extends State<LanguageSetupScreen> {
                       ),
                       const SizedBox(height: 24),
                       _legend(
-                        de
-                            ? 'Welche Sprache soll die App verwenden?'
-                            : 'What language should the app use?',
-                        de
-                            ? 'Sprache für Menüs, Schaltflächen und Anleitungen.'
-                            : 'Language for menus, buttons and instructions.',
+                        s.setupInterfaceQuestion,
+                        s.setupInterfaceDescription,
                       ),
                       DropdownButtonFormField<String>(
                         key: const Key('interface-language'),
@@ -142,10 +134,7 @@ class _LanguageSetupScreenState extends State<LanguageSetupScreen> {
                         dropdownColor: SpaceTheme.nebulaPurple,
                         iconEnabledColor: SpaceTheme.starYellow,
                         decoration: _fieldDecoration(
-                            de
-                                ? 'Sprache der Oberfläche'
-                                : 'Interface language',
-                            Icons.translate),
+                            s.setupInterfaceLabel, Icons.translate),
                         items: const [
                           DropdownMenuItem(value: 'de', child: Text('Deutsch')),
                           DropdownMenuItem(value: 'en', child: Text('English'))
@@ -157,10 +146,10 @@ class _LanguageSetupScreenState extends State<LanguageSetupScreen> {
                                 widget.onLocaleChanged(Locale(value!));
                               },
                       ),
-                      if (error != null)
+                      if (saveFailed)
                         Padding(
                             padding: const EdgeInsets.only(top: 16),
-                            child: Text(error!,
+                            child: Text(s.setupSaveFailed,
                                 style: SpaceTheme.bodyStyle
                                     .copyWith(color: SpaceTheme.planetOrange))),
                       const SizedBox(height: 24),
@@ -171,7 +160,7 @@ class _LanguageSetupScreenState extends State<LanguageSetupScreen> {
                           style: SpaceTheme.primaryButtonStyle,
                           onPressed: saving ? null : save,
                           icon: const Icon(Icons.arrow_forward),
-                          label: Text(de ? 'Weiter' : 'Continue'),
+                          label: Text(s.setupContinue),
                         ),
                       ),
                     ],

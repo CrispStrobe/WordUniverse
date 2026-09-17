@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import '../models/vocabulary_models.dart';
 import '../models/vocabulary_quality.dart';
+import '../models/load_status.dart';
 
 // --- CONDITIONAL IMPORT SWITCHER ---
 import 'db_platform/db_platform_interface.dart'
@@ -34,12 +35,12 @@ class DictionaryDatabaseService {
     int? expectedCompressedBytes,
     int? expectedDecompressedBytes,
     String? expectedDecompressedSha256,
-    void Function(double progress, String message)? onProgress,
+    LoadProgress? onProgress,
   }) async {
     // Prevent multiple simultaneous initializations
     if (_database != null) {
       if (_assetPath == assetPath && _databaseName == databaseName) {
-        onProgress?.call(1.0, 'Database already initialized');
+        onProgress?.call(1.0, const LoadStatus(LoadStage.databaseReady));
         return;
       }
       await close();
@@ -56,7 +57,7 @@ class DictionaryDatabaseService {
         attempts++;
       }
       if (_database != null) {
-        onProgress?.call(1.0, 'Database initialized by another call');
+        onProgress?.call(1.0, const LoadStatus(LoadStage.databaseReady));
         return;
       }
     }
@@ -65,7 +66,7 @@ class DictionaryDatabaseService {
 
     try {
       // PHASE 1: Start initialization (0.0 - 0.05)
-      onProgress?.call(0.0, 'Starting database initialization...');
+      onProgress?.call(0.0, const LoadStatus(LoadStage.preparing));
       if (kDebugMode)
         debugPrint("[DB_SERVICE] 📚 Initializing database service...");
 
@@ -90,7 +91,7 @@ class DictionaryDatabaseService {
       }
 
       // PHASE 3: Verify database integrity (0.90 - 0.95)
-      onProgress?.call(0.90, 'Verifying database integrity...');
+      onProgress?.call(0.90, const LoadStatus(LoadStage.verifying));
 
       final count = Sqflite.firstIntValue(
         await _database!.rawQuery('SELECT COUNT(*) FROM words'),
@@ -102,10 +103,10 @@ class DictionaryDatabaseService {
 
       if (kDebugMode)
         debugPrint("[DB_SERVICE] ✅ Database verified with $count words");
-      onProgress?.call(0.95, 'Database verified: $count words');
+      onProgress?.call(0.95, LoadStatus(LoadStage.verifiedWords, count: count));
 
       // PHASE 4: Complete (0.95 - 1.0)
-      onProgress?.call(1.0, 'Database initialization complete!');
+      onProgress?.call(1.0, const LoadStatus(LoadStage.databaseReady));
       if (kDebugMode) debugPrint("[DB_SERVICE] ✅ Database service ready");
       _assetPath = assetPath;
       _databaseName = databaseName;
@@ -113,7 +114,7 @@ class DictionaryDatabaseService {
       if (kDebugMode)
         debugPrint("[DB_SERVICE] ❌ Critical error initializing database: $e");
       if (kDebugMode) debugPrint("[DB_SERVICE] Stack trace: $stackTrace");
-      onProgress?.call(0.0, 'Database initialization failed: $e');
+      onProgress?.call(0.0, const LoadStatus(LoadStage.failed));
       _database = null; // Ensure we can retry
       _assetPath = null;
       _databaseName = null;

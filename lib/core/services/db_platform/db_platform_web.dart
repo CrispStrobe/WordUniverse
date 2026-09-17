@@ -6,6 +6,7 @@ import 'package:sqflite/sqflite.dart';
 import 'db_gzip.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'db_remote.dart';
+import '../../models/load_status.dart';
 
 /// Top-level entry point passed to [compute]. On mobile/desktop this runs in
 /// a background isolate; on web `compute` falls back to the main thread but
@@ -21,18 +22,18 @@ Future<Database> initPlatformDatabase({
   int? expectedCompressedBytes,
   int? expectedDecompressedBytes,
   String? expectedDecompressedSha256,
-  void Function(double progress, String message)? onProgress,
+  LoadProgress? onProgress,
 }) async {
   try {
     // PHASE 1: Initialize Web FFI (0.0 - 0.10)
-    onProgress?.call(0.0, 'Initializing web database engine...');
+    onProgress?.call(0.0, const LoadStatus(LoadStage.webEngine));
     if (kDebugMode) debugPrint("[DB_WEB] 🌐 Initializing web FFI database...");
 
     var factory = databaseFactoryFfiWeb;
     final String webDbName = databaseName;
 
     // PHASE 2: Check if database already exists in IndexedDB (0.10 - 0.15)
-    onProgress?.call(0.10, 'Checking for existing database...');
+    onProgress?.call(0.10, const LoadStatus(LoadStage.checkingDatabase));
 
     try {
       // Try to open existing database
@@ -48,7 +49,7 @@ Future<Database> initPlatformDatabase({
 
       if (count != null && count > 0) {
         if (kDebugMode) debugPrint("[DB_WEB] ✅ Using existing database with $count words");
-        onProgress?.call(1.0, 'Database ready!');
+        onProgress?.call(1.0, const LoadStatus(LoadStage.databaseReady));
         return existingDb;
       }
 
@@ -72,7 +73,7 @@ Future<Database> initPlatformDatabase({
         onProgress: (p, m) => onProgress?.call(0.15 + p * 0.40, m),
       );
     } else {
-      onProgress?.call(0.15, 'Loading compressed database...');
+      onProgress?.call(0.15, const LoadStatus(LoadStage.loadingCompressed));
       if (kDebugMode) debugPrint("[DB_WEB] Loading compressed asset...");
       final ByteData data = await rootBundle.load(assetPath);
       compressedBytes = data.buffer.asUint8List();
@@ -81,11 +82,11 @@ Future<Database> initPlatformDatabase({
         (compressedBytes.length / (1024 * 1024)).toStringAsFixed(1);
 
     if (kDebugMode) debugPrint("[DB_WEB] Have $compressedSizeMB MB compressed data");
-    onProgress?.call(0.55, 'Loaded $compressedSizeMB MB compressed');
+    onProgress?.call(0.55, LoadStatus(LoadStage.loadedCompressed, bytes: compressedBytes.length));
 
     // PHASE 4: Decompress (0.55 - 0.75) - THE LONG PART
     if (kDebugMode) debugPrint("[DB_WEB] Starting decompression...");
-    onProgress?.call(0.60, 'Decompressing database...');
+    onProgress?.call(0.60, const LoadStatus(LoadStage.decompressing));
 
     final stopwatch = Stopwatch()..start();
     final List<int> decompressedBytes;
@@ -101,10 +102,10 @@ Future<Database> initPlatformDatabase({
           (decompressedBytes.length / (1024 * 1024)).toStringAsFixed(1);
       if (kDebugMode) debugPrint(
           "[DB_WEB] Decompressed to $decompressedSizeMB MB in ${stopwatch.elapsedMilliseconds}ms");
-      onProgress?.call(0.75, 'Decompressed to $decompressedSizeMB MB');
+      onProgress?.call(0.75, LoadStatus(LoadStage.decompressed, bytes: decompressedBytes.length));
     } catch (e) {
       if (kDebugMode) debugPrint("[DB_WEB] ❌ Decompression error: $e");
-      onProgress?.call(0.0, 'Decompression failed');
+      onProgress?.call(0.0, const LoadStatus(LoadStage.decompressionFailed));
       if (remoteUrl != null && remoteUrl.isNotEmpty) {
         throw DbDownloadException(
           'The downloaded database was corrupted (decompression failed). '
@@ -122,7 +123,7 @@ Future<Database> initPlatformDatabase({
     );
 
     // PHASE 5: Convert to Uint8List and write to IndexedDB (0.75 - 0.90)
-    onProgress?.call(0.80, 'Writing to browser storage...');
+    onProgress?.call(0.80, const LoadStatus(LoadStage.writingBrowserStorage));
     if (kDebugMode) debugPrint("[DB_WEB] Converting to Uint8List and writing to virtual FS...");
 
     // CRITICAL: Web FFI requires Uint8List, not List<int>
@@ -130,10 +131,10 @@ Future<Database> initPlatformDatabase({
 
     await factory.writeDatabaseBytes(webDbName, uint8Bytes);
     if (kDebugMode) debugPrint("[DB_WEB] Database written to IndexedDB");
-    onProgress?.call(0.90, 'Database saved to browser');
+    onProgress?.call(0.90, const LoadStatus(LoadStage.savedBrowser));
 
     // PHASE 6: Open and verify (0.90 - 1.0)
-    onProgress?.call(0.95, 'Opening database...');
+    onProgress?.call(0.95, const LoadStatus(LoadStage.openingDatabase));
     if (kDebugMode) debugPrint("[DB_WEB] Opening database...");
 
     final db = await factory.openDatabase(
@@ -150,13 +151,13 @@ Future<Database> initPlatformDatabase({
     if (kDebugMode) debugPrint(
         "[DB_WEB] Total initialization time: ${stopwatch.elapsedMilliseconds}ms");
 
-    onProgress?.call(1.0, 'Database ready with $count words!');
+    onProgress?.call(1.0, LoadStatus(LoadStage.databaseReadyWords, count: count ?? 0));
 
     return db;
   } catch (e, stackTrace) {
     if (kDebugMode) debugPrint("[DB_WEB] ❌ Critical error during initialization: $e");
     if (kDebugMode) debugPrint("[DB_WEB] Stack trace: $stackTrace");
-    onProgress?.call(0.0, 'Database initialization failed');
+    onProgress?.call(0.0, const LoadStatus(LoadStage.failed));
     rethrow;
   }
 }

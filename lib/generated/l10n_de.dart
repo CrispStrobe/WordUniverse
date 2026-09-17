@@ -12,6 +12,170 @@ class SDe extends S {
   String get appTitle => 'Wort-Universum';
 
   @override
+  String get loadPreparing => 'Wortschatzdatenbank wird vorbereitet …';
+
+  @override
+  String get loadWebEngine => 'Web-Datenbank wird initialisiert …';
+
+  @override
+  String get loadLocatingStorage => 'Speicherort der Datenbank wird gesucht …';
+
+  @override
+  String get loadCheckingDatabase => 'Vorhandene Datenbank wird geprüft …';
+
+  @override
+  String get loadPreparingStorage => 'Speicher wird vorbereitet …';
+
+  @override
+  String get loadLoadingCompressed => 'Komprimierte Datenbank wird geladen …';
+
+  @override
+  String loadLoadedCompressed(Object size) {
+    return '$size MB komprimierte Daten geladen';
+  }
+
+  @override
+  String get loadDecompressing => 'Datenbank wird entpackt …';
+
+  @override
+  String loadDecompressed(Object size) {
+    return 'Auf $size MB entpackt';
+  }
+
+  @override
+  String get loadWritingBrowserStorage =>
+      'Wird im Browserspeicher gespeichert …';
+
+  @override
+  String get loadWritingStorage => 'Datenbank wird auf dem Gerät gespeichert …';
+
+  @override
+  String get loadSavedBrowser => 'Datenbank im Browser gespeichert';
+
+  @override
+  String get loadSavedDisk => 'Datenbank auf dem Gerät gespeichert';
+
+  @override
+  String get loadOpeningDatabase => 'Datenbank wird geöffnet …';
+
+  @override
+  String get loadDatabaseReady => 'Datenbank bereit!';
+
+  @override
+  String loadDatabaseReadyWords(Object count) {
+    return 'Datenbank mit $count Wörtern bereit!';
+  }
+
+  @override
+  String get loadVerifying => 'Integrität der Datenbank wird geprüft …';
+
+  @override
+  String loadVerifiedWords(Object count) {
+    return 'Datenbank geprüft: $count Wörter';
+  }
+
+  @override
+  String get loadLoadingWords => 'Wörter werden geladen …';
+
+  @override
+  String get loadLoadingCustomizations => 'Deine Anpassungen werden geladen …';
+
+  @override
+  String get loadReady => 'Bereit!';
+
+  @override
+  String get loadDownloading => 'Datenbank wird heruntergeladen …';
+
+  @override
+  String loadDownloadBytes(Object size) {
+    return 'Wird heruntergeladen … $size MB';
+  }
+
+  @override
+  String loadDownloadTotal(Object size, Object total) {
+    return 'Wird heruntergeladen … $size / $total MB';
+  }
+
+  @override
+  String loadDownloadComplete(Object size) {
+    return 'Download abgeschlossen ($size MB)';
+  }
+
+  @override
+  String loadRetrying(Object attempt, Object total) {
+    return 'Download wird erneut versucht (Versuch $attempt von $total) …';
+  }
+
+  @override
+  String get loadPaused => 'Download pausiert';
+
+  @override
+  String get loadResumeReady => 'Bereit zum Fortsetzen';
+
+  @override
+  String get loadFailed =>
+      'Die Sprachdaten konnten nicht geladen werden. Bitte versuche es erneut.';
+
+  @override
+  String get loadDecompressionFailed =>
+      'Die Datenbank konnte nicht entpackt werden. Bitte versuche es erneut.';
+
+  @override
+  String get loadLoadingProgress => 'Dein Fortschritt wird geladen …';
+
+  @override
+  String get loadLoadingLearning => 'Lerndaten werden geladen …';
+
+  @override
+  String get loadLoadingProfile => 'Dein Profil wird geladen …';
+
+  @override
+  String get downloadPause => 'Pausieren';
+
+  @override
+  String get downloadResume => 'Fortsetzen';
+
+  @override
+  String get downloadPaused => 'Pausiert';
+
+  @override
+  String get setupWelcome => 'Willkommen im WortUniversum';
+
+  @override
+  String get setupLearningQuestion => 'Welche Sprache möchtest du lernen?';
+
+  @override
+  String get setupLearningDescription =>
+      'Sprache für Wörter, Übungen und Spiele.';
+
+  @override
+  String get setupLearningLabel => 'Lernsprache';
+
+  @override
+  String get setupInterfaceQuestion => 'Welche Sprache soll die App verwenden?';
+
+  @override
+  String get setupInterfaceDescription =>
+      'Sprache für Menüs, Schaltflächen und Anleitungen.';
+
+  @override
+  String get setupInterfaceLabel => 'Sprache der Oberfläche';
+
+  @override
+  String get setupContinue => 'Weiter';
+
+  @override
+  String get setupSaveFailed =>
+      'Deine Sprachauswahl konnte nicht gespeichert werden. Bitte versuche es erneut.';
+
+  @override
+  String get startupFailedTitle => 'Initialisierung fehlgeschlagen';
+
+  @override
+  String get startupFailed =>
+      'Die App konnte nicht gestartet werden. Bitte versuche es erneut.';
+
+  @override
   String get welcome => 'Entdecke das Wort-Universum!';
 
   @override

@@ -26,6 +26,7 @@ import '../../../shared/widgets/privacy_policy_dialog.dart';
 import '../../../shared/widgets/parental_gate.dart';
 
 import '../../../generated/l10n.dart';
+import '../../../shared/utils/load_status_localization.dart';
 
 // We import this for the Grade definitions
 import '../../games/providers/game_provider.dart';
@@ -1194,7 +1195,7 @@ class _SettingsScreenState extends State<SettingsScreen>
       LanguagePackStatus.installing =>
         (s.packStatusInstalling, SpaceTheme.starYellow),
       LanguagePackStatus.paused =>
-        (Localizations.localeOf(context).languageCode == 'de' ? 'Pausiert' : 'Paused', SpaceTheme.starYellow),
+        (s.downloadPaused, SpaceTheme.starYellow),
       LanguagePackStatus.failed =>
         (s.packStatusFailed, SpaceTheme.planetOrange),
       LanguagePackStatus.notInstalled =>
@@ -1258,9 +1259,7 @@ class _SettingsScreenState extends State<SettingsScreen>
             ),
             const SizedBox(height: 4),
             Text(
-              state.message.isEmpty
-                  ? s.packDownloadPreparing
-                  : '${state.message}  ·  ${(state.progress * 100).round()}%',
+              '${state.message.localized(s)}  ·  ${(state.progress * 100).round()}%',
               style: const TextStyle(color: Colors.white60, fontSize: 11),
             ),
           ],
@@ -1287,7 +1286,7 @@ class _SettingsScreenState extends State<SettingsScreen>
     if (state.isInstalling) {
       return TextButton(
         onPressed: () => service.pause(state.pack.code),
-        child: Text(Localizations.localeOf(context).languageCode == 'de' ? 'Pausieren' : 'Pause'),
+        child: Text(s.downloadPause),
       );
     }
 
@@ -1298,7 +1297,7 @@ class _SettingsScreenState extends State<SettingsScreen>
         onPressed: busy ? null : () => _installPack(state.pack.code),
         child: Text(
           state.status == LanguagePackStatus.paused
-              ? (Localizations.localeOf(context).languageCode == 'de' ? 'Fortsetzen' : 'Resume')
+              ? s.downloadResume
               : state.status == LanguagePackStatus.failed
               ? s.packRetry
               : s.packDownloadAction,
