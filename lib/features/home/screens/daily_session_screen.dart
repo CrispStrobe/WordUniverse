@@ -6,6 +6,7 @@ import '../../../core/services/learner_profile_service.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/theme/space_theme.dart';
 import '../../../generated/l10n.dart';
+import '../../../shared/widgets/language_pack_dialog.dart';
 import '../../games/providers/game_provider.dart';
 import '../../games/screens/cloze_flash_game.dart';
 import '../../games/screens/definition_quiz_game.dart';
@@ -39,10 +40,11 @@ class _DailySessionScreenState extends State<DailySessionScreen> {
     return gradeLevelFromBand(band);
   }
 
-  Future<void> _play(int step, Widget screen) async {
+  Future<void> _play(int step, WidgetBuilder builder) async {
+    if (!await ensureLanguagePackReady(context) || !mounted) return;
     final game = context.read<GameProvider>();
     final before = game.totalGamesPlayed;
-    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
+    await Navigator.of(context).push(MaterialPageRoute(builder: builder));
     if (!mounted || game.totalGamesPlayed == before) return;
     await context.read<LearnerProfileService>().completeDailyStep(step);
   }
@@ -126,7 +128,7 @@ class _DailySessionScreenState extends State<DailySessionScreen> {
                           compact: compact,
                           onTap: () => _play(
                               1,
-                              sri.getAvailableReviewCount() > 0
+                              (_) => sri.getAvailableReviewCount() > 0
                                   ? const SriReviewGame()
                                   : SentenceCompletionGame(gradeLevel: _band)),
                         ),
@@ -137,7 +139,7 @@ class _DailySessionScreenState extends State<DailySessionScreen> {
                           icon: Icons.track_changes,
                           done: completed.contains(2),
                           compact: compact,
-                          onTap: () => _play(2, _goalGame(profile.goal)),
+                          onTap: () => _play(2, (_) => _goalGame(profile.goal)),
                         ),
                         _StepCard(
                           index: 3,
@@ -147,7 +149,7 @@ class _DailySessionScreenState extends State<DailySessionScreen> {
                           done: completed.contains(3),
                           compact: compact,
                           onTap: () =>
-                              _play(3, ClozeFlashGame(gradeLevel: _band)),
+                              _play(3, (_) => ClozeFlashGame(gradeLevel: _band)),
                         ),
                       ],
                     ),

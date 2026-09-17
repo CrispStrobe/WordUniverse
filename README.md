@@ -179,3 +179,17 @@ Push to `main` → GitHub Actions builds the Flutter web app, runs analyze + tes
 and deploys to Vercel production (aliased to `wortuniversum.vercel.app`). The
 `VERCEL_TOKEN` repo secret authenticates the deploy; Vercel's native Git
 integration is intentionally disconnected so Actions is the sole deployer.
+
+## Language setup & packs
+
+- On first start a language setup screen (`/language-setup`) collects the learning language and the interface language independently; choices persist only when Continue succeeds (`language_setup_complete`), and the interface locale switches immediately, with no restart. Existing installs with a saved `learning_language` + `language` are migrated automatically and skip the picker.
+- German's GPL-licensed vocabulary DB is offered as a Hugging Face download on first start. Skipping keeps German selected — the app runs without it, and every game launch re-offers the download.
+- Games never construct until the selected language's vocabulary is actually loaded: `LanguagePackGate` / `ensureLanguagePackReady` verify real storage, never a boolean pref. Named game routes, the game menu, daily-session steps, review, card games, and word-of-the-day are all gated.
+- Language-pack downloads can be paused and resumed (Range resume) from the shared dialog and Settings; paused is a distinct state from failed and survives Settings refreshes.
+
+### Tests
+
+- `test/language_setup_flow_test.dart` — picker semantics (independent choices, persist only on Continue).
+- `test/selected_language_service_test.dart` — selected vs. loaded language, install failure keeps the desired choice, pause ≠ failure.
+- `test/language_pack_gate_widget_test.dart` — skip preserves German, re-offer on next launch, game never constructed before readiness; dialog progress/pause/resume.
+- `test/contracts/language_launch_wiring_test.dart` — wiring contracts (no auto-fallback on skip, lazy guarded game routes, settings pause/resume + live locale).

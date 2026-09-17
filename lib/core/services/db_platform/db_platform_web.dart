@@ -3,7 +3,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:archive/archive.dart';
+import 'db_gzip.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'db_remote.dart';
 
@@ -11,7 +11,7 @@ import 'db_remote.dart';
 /// a background isolate; on web `compute` falls back to the main thread but
 /// at least defers the call to a microtask so prior progress UI can flush.
 List<int> _decodeGzipBytes(Uint8List bytes) {
-  return GZipDecoder().decodeBytes(bytes);
+  return decodeDbGzip(bytes);
 }
 
 Future<Database> initPlatformDatabase({
@@ -64,9 +64,8 @@ Future<Database> initPlatformDatabase({
     final Uint8List compressedBytes;
     if (remoteUrl != null && remoteUrl.isNotEmpty) {
       if (kDebugMode) debugPrint("[DB_WEB] Downloading database from: $remoteUrl");
-      // package:http on web buffers the body (no incremental stream), so
-      // progress jumps once the fetch completes — acceptable for a one-time
-      // first-launch download that's then cached in IndexedDB.
+      // http 1.6 streams browser fetch responses; the shared transport also
+      // aborts fetch on pause and checkpoints compressed bytes in IndexedDB.
       compressedBytes = await downloadCompressedDb(
         url: remoteUrl,
         expectedCompressedBytes: expectedCompressedBytes,

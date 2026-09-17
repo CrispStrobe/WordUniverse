@@ -1,5 +1,6 @@
 // lib/features/settings/screens/settings_screen.dart
 import 'package:flutter/material.dart';
+import '../../../main.dart' show MyApp;
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -1185,13 +1186,15 @@ class _SettingsScreenState extends State<SettingsScreen>
     LanguagePackState state,
   ) {
     final pack = state.pack;
-    final isActive = service.activeLanguage == pack.code;
+    final isActive = service.selectedLanguage == pack.code && service.isActivePackReady;
     final (String label, Color color) = switch (state.status) {
       LanguagePackStatus.installed => pack.requiresDownload
           ? (s.packStatusInstalled, SpaceTheme.alienGreen)
           : (s.packStatusBundled, SpaceTheme.alienGreen),
       LanguagePackStatus.installing =>
         (s.packStatusInstalling, SpaceTheme.starYellow),
+      LanguagePackStatus.paused =>
+        (Localizations.localeOf(context).languageCode == 'de' ? 'Pausiert' : 'Paused', SpaceTheme.starYellow),
       LanguagePackStatus.failed =>
         (s.packStatusFailed, SpaceTheme.planetOrange),
       LanguagePackStatus.notInstalled =>
@@ -1282,13 +1285,9 @@ class _SettingsScreenState extends State<SettingsScreen>
     bool isActive,
   ) {
     if (state.isInstalling) {
-      return const SizedBox(
-        width: 18,
-        height: 18,
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-          valueColor: AlwaysStoppedAnimation<Color>(SpaceTheme.starYellow),
-        ),
+      return TextButton(
+        onPressed: () => service.pause(state.pack.code),
+        child: Text(Localizations.localeOf(context).languageCode == 'de' ? 'Pausieren' : 'Pause'),
       );
     }
 
@@ -1298,7 +1297,9 @@ class _SettingsScreenState extends State<SettingsScreen>
       return TextButton(
         onPressed: busy ? null : () => _installPack(state.pack.code),
         child: Text(
-          state.status == LanguagePackStatus.failed
+          state.status == LanguagePackStatus.paused
+              ? (Localizations.localeOf(context).languageCode == 'de' ? 'Fortsetzen' : 'Resume')
+              : state.status == LanguagePackStatus.failed
               ? s.packRetry
               : s.packDownloadAction,
           style: const TextStyle(color: SpaceTheme.starYellow, fontSize: 13),
@@ -1337,6 +1338,9 @@ class _SettingsScreenState extends State<SettingsScreen>
   /// Downloads a pack from Settings, with the same consent + progress dialog
   /// the splash uses.
   Future<void> _installPack(String code) async {
+    await context.read<LanguagePackService>().selectLanguage(code);
+    if (!mounted) return;
+    setState(() => currentLearningLanguage = code);
     final ok = await showLanguagePackDialog(context, languageCode: code);
     if (!mounted) return;
     if (ok == true) {
@@ -1884,7 +1888,7 @@ class _SettingsScreenState extends State<SettingsScreen>
       await _saveLanguagePreference(localeCode);
 
       if (mounted) {
-        _showLanguageChangeDialog(localeCode);
+        MyApp.setLocale(context, Locale(localeCode));
       }
     } catch (e, stackTrace) {
       if (kDebugMode) debugPrint("[SETTINGS] ❌ Failed to change language: $e");
@@ -1913,7 +1917,7 @@ class _SettingsScreenState extends State<SettingsScreen>
   /// than a half-initialized one, which is what used to crash the minigames.
   Future<void> _changeLearningLanguage(String languageCode) async {
     if (languageCode == currentLearningLanguage &&
-        context.read<VocabularyService>().isInitialized) {
+        context.read<LanguagePackService>().isActivePackReady) {
       if (kDebugMode) {
         debugPrint("[SETTINGS] 📚 Learning language unchanged: $languageCode");
       }
@@ -1928,6 +1932,9 @@ class _SettingsScreenState extends State<SettingsScreen>
     }
 
     final service = context.read<LanguagePackService>();
+    await service.selectLanguage(languageCode);
+    if (!mounted) return;
+    setState(() => currentLearningLanguage = languageCode);
     if (!service.isInstalled(languageCode)) {
       // Not downloaded yet → consent + progress dialog, which also activates
       // the pack on success.
@@ -1976,9 +1983,9 @@ class _SettingsScreenState extends State<SettingsScreen>
 
       if (mounted) {
         setState(() {
-          // Reflect what is actually loaded, not what was tapped.
+          // Keep the desired selection even if the installer rolled back.
           currentLearningLanguage =
-              context.read<VocabularyService>().learningLanguage;
+              context.read<LanguagePackService>().selectedLanguage;
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -2022,57 +2029,6 @@ class _SettingsScreenState extends State<SettingsScreen>
       if (kDebugMode) debugPrint("[SETTINGS] 📚 Stack trace: $stackTrace");
       rethrow;
     }
-  }
-
-  void _showLanguageChangeDialog(String localeCode) {
-    if (kDebugMode)
-      debugPrint(
-          "[SETTINGS] 🔄 Showing language change dialog for: $localeCode");
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        backgroundColor: SpaceTheme.deepSpace,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        title: Text(
-          S.of(context)!.languageChanged,
-          style: TextStyle(color: Colors.white),
-        ),
-        content: Text(
-          S.of(context)!.languageChangedDesc,
-          style: TextStyle(color: Colors.white70),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              if (kDebugMode)
-                debugPrint("[SETTINGS] 🔄 User chose to restart later");
-              Navigator.of(context).pop();
-            },
-            child: Text(
-              S.of(context)!.later,
-              style: TextStyle(color: SpaceTheme.moonSilver),
-            ),
-          ),
-          ElevatedButton(
-            autofocus: true,
-            onPressed: () {
-              if (kDebugMode)
-                debugPrint("[SETTINGS] 🔄 User chose to restart now");
-              Navigator.of(context).pop();
-              _triggerAppRestart();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: SpaceTheme.alienGreen,
-            ),
-            child: Text(S.of(context)!.restartNow),
-          ),
-        ],
-      ),
-    );
   }
 
   void _showGradeSelector(GameProvider gameProvider) {
@@ -2185,19 +2141,6 @@ class _SettingsScreenState extends State<SettingsScreen>
       case LearnerGoal.dafDaz:
         return s.goalDafDaz;
     }
-  }
-
-  void _triggerAppRestart() {
-    if (kDebugMode)
-      debugPrint("[SETTINGS] 🔄 Triggering app restart notification");
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(S.of(context)!.restartToApplyChanges),
-        backgroundColor: SpaceTheme.alienGreen,
-        duration: Duration(seconds: 4),
-      ),
-    );
   }
 
   /// Parental-gated full reset. Math challenge first, then existing

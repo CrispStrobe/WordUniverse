@@ -91,6 +91,9 @@ enum LanguagePackStatus {
   /// Downloading / decompressing / writing right now.
   installing,
 
+  /// Transfer checkpoint saved; re-enter installation to resume.
+  paused,
+
   /// Present and usable offline.
   installed,
 

@@ -6,13 +6,13 @@ import 'package:flutter/services.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:archive/archive_io.dart';
+import 'db_gzip.dart';
 import 'db_remote.dart';
 
 /// Top-level entry point for [compute]. Runs in a background isolate so the
 /// ~25MB gzip → ~150MB decompression doesn't block the UI thread.
 List<int> _decodeGzipBytes(Uint8List bytes) {
-  return GZipDecoder().decodeBytes(bytes);
+  return decodeDbGzip(bytes);
 }
 
 Future<Database> initPlatformDatabase({
