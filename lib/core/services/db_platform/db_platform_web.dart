@@ -4,10 +4,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:sqflite/sqflite.dart';
 import 'db_gzip.dart';
+import 'db_schema.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'db_remote.dart';
 import '../../models/load_status.dart';
 
+@visibleForTesting
+DatabaseFactory? webDatabaseFactoryOverride;
+
+DatabaseFactory get _factory => webDatabaseFactoryOverride ?? databaseFactoryFfiWeb;
 
 Future<Database> initPlatformDatabase({
   required String assetPath,
@@ -23,42 +28,28 @@ Future<Database> initPlatformDatabase({
     onProgress?.call(0.0, const LoadStatus(LoadStage.webEngine));
     if (kDebugMode) debugPrint("[DB_WEB] 🌐 Initializing web FFI database...");
 
-    var factory = databaseFactoryFfiWeb;
+    final factory = _factory;
     final String webDbName = databaseName;
 
     // PHASE 2: Check if database already exists in IndexedDB (0.10 - 0.15)
     onProgress?.call(0.10, const LoadStatus(LoadStage.checkingDatabase));
 
     try {
-      // Try to open existing database
-      final existingDb = await factory.openDatabase(
-        webDbName,
-        options: OpenDatabaseOptions(readOnly: true),
-      );
-
-      // Verify it's valid
-      final count = Sqflite.firstIntValue(
-        await existingDb.rawQuery('SELECT COUNT(*) FROM words LIMIT 1'),
-      );
-
-      if (count != null && count > 0) {
-        if (kDebugMode) debugPrint("[DB_WEB] ✅ Using existing database with $count words");
-        onProgress?.call(1.0, const LoadStatus(LoadStage.databaseReady));
-        return existingDb;
-      }
-
-      await existingDb.close();
-      if (kDebugMode) debugPrint("[DB_WEB] Existing database is invalid, will re-extract");
-      await factory.deleteDatabase(webDbName);
+      final existingDb = await openValidatedDictionary(factory, webDbName);
+      onProgress?.call(1.0, const LoadStatus(LoadStage.databaseReady));
+      return existingDb;
     } catch (e) {
-      if (kDebugMode) debugPrint("[DB_WEB] No existing database or corrupted: $e");
+      if (kDebugMode)
+        debugPrint("[DB_WEB] No existing database or corrupted: $e");
       // Continue with extraction
+      await factory.deleteDatabase(webDbName);
     }
 
     // PHASE 3: Obtain compressed bytes — download (GPL DE DB) or asset (0.15 - 0.55)
     final Uint8List compressedBytes;
     if (remoteUrl != null && remoteUrl.isNotEmpty) {
-      if (kDebugMode) debugPrint("[DB_WEB] Downloading database from: $remoteUrl");
+      if (kDebugMode)
+        debugPrint("[DB_WEB] Downloading database from: $remoteUrl");
       // http 1.6 streams browser fetch responses; the shared transport also
       // aborts fetch on pause and checkpoints compressed bytes in IndexedDB.
       compressedBytes = await downloadCompressedDb(
@@ -75,8 +66,10 @@ Future<Database> initPlatformDatabase({
     final compressedSizeMB =
         (compressedBytes.length / (1024 * 1024)).toStringAsFixed(1);
 
-    if (kDebugMode) debugPrint("[DB_WEB] Have $compressedSizeMB MB compressed data");
-    onProgress?.call(0.55, LoadStatus(LoadStage.loadedCompressed, bytes: compressedBytes.length));
+    if (kDebugMode)
+      debugPrint("[DB_WEB] Have $compressedSizeMB MB compressed data");
+    onProgress?.call(0.55,
+        LoadStatus(LoadStage.loadedCompressed, bytes: compressedBytes.length));
 
     // PHASE 4: Decompress (0.55 - 0.75) - THE LONG PART
     if (kDebugMode) debugPrint("[DB_WEB] Starting decompression...");
@@ -99,16 +92,17 @@ Future<Database> initPlatformDatabase({
           expectedDecompressedSha256: expectedDecompressedSha256,
           requireSha256: remoteUrl != null &&
               remoteUrl.isNotEmpty &&
-              DbDownloadController.sharedFor(remoteUrl)
-                  .resumedWithoutValidator,
+              DbDownloadController.sharedFor(remoteUrl).resumedWithoutValidator,
         ),
       );
 
       final decompressedSizeMB =
           (decompressedBytes.length / (1024 * 1024)).toStringAsFixed(1);
-      if (kDebugMode) debugPrint(
-          "[DB_WEB] Decompressed to $decompressedSizeMB MB in ${stopwatch.elapsedMilliseconds}ms");
-      onProgress?.call(0.75, LoadStatus(LoadStage.decompressed, bytes: decompressedBytes.length));
+      if (kDebugMode)
+        debugPrint(
+            "[DB_WEB] Decompressed to $decompressedSizeMB MB in ${stopwatch.elapsedMilliseconds}ms");
+      onProgress?.call(0.75,
+          LoadStatus(LoadStage.decompressed, bytes: decompressedBytes.length));
     } on DbPayloadException catch (e) {
       // A payload gate (size or an enforced checksum) already says exactly
       // what was wrong; don't flatten it into "decompression failed".
@@ -129,12 +123,19 @@ Future<Database> initPlatformDatabase({
 
     // PHASE 5: Convert to Uint8List and write to IndexedDB (0.75 - 0.90)
     onProgress?.call(0.80, const LoadStatus(LoadStage.writingBrowserStorage));
-    if (kDebugMode) debugPrint("[DB_WEB] Converting to Uint8List and writing to virtual FS...");
+    if (kDebugMode)
+      debugPrint(
+          "[DB_WEB] Converting to Uint8List and writing to virtual FS...");
 
     // CRITICAL: Web FFI requires Uint8List, not List<int>
     final Uint8List uint8Bytes = Uint8List.fromList(decompressedBytes);
 
+    final staging = '$webDbName.installing';
     try {
+      await factory.writeDatabaseBytes(staging, uint8Bytes);
+      final candidate = await openValidatedDictionary(factory, staging);
+      await candidate.close();
+      // No rename API on web: check staged bytes before copying to final name.
       await factory.writeDatabaseBytes(webDbName, uint8Bytes);
     } catch (e) {
       // Browsers surface a full/blocked store as a quota error; say so plainly
@@ -143,6 +144,8 @@ Future<Database> initPlatformDatabase({
         throw DbInsufficientSpaceException(requiredBytes: uint8Bytes.length);
       }
       rethrow;
+    } finally {
+      await factory.deleteDatabase(staging);
     }
     if (kDebugMode) debugPrint("[DB_WEB] Database written to IndexedDB");
     onProgress?.call(0.90, const LoadStatus(LoadStage.savedBrowser));
@@ -151,25 +154,26 @@ Future<Database> initPlatformDatabase({
     onProgress?.call(0.95, const LoadStatus(LoadStage.openingDatabase));
     if (kDebugMode) debugPrint("[DB_WEB] Opening database...");
 
-    final db = await factory.openDatabase(
-      webDbName,
-      options: OpenDatabaseOptions(readOnly: true),
-    );
+    final db = await openValidatedDictionary(factory, webDbName);
 
     // Verify word count
     final count = Sqflite.firstIntValue(
       await db.rawQuery('SELECT COUNT(*) FROM words'),
     );
 
-    if (kDebugMode) debugPrint("[DB_WEB] ✅ Database opened successfully with $count words");
-    if (kDebugMode) debugPrint(
-        "[DB_WEB] Total initialization time: ${stopwatch.elapsedMilliseconds}ms");
+    if (kDebugMode)
+      debugPrint("[DB_WEB] ✅ Database opened successfully with $count words");
+    if (kDebugMode)
+      debugPrint(
+          "[DB_WEB] Total initialization time: ${stopwatch.elapsedMilliseconds}ms");
 
-    onProgress?.call(1.0, LoadStatus(LoadStage.databaseReadyWords, count: count ?? 0));
+    onProgress?.call(
+        1.0, LoadStatus(LoadStage.databaseReadyWords, count: count ?? 0));
 
     return db;
   } catch (e, stackTrace) {
-    if (kDebugMode) debugPrint("[DB_WEB] ❌ Critical error during initialization: $e");
+    if (kDebugMode)
+      debugPrint("[DB_WEB] ❌ Critical error during initialization: $e");
     if (kDebugMode) debugPrint("[DB_WEB] Stack trace: $stackTrace");
     onProgress?.call(0.0, const LoadStatus(LoadStage.failed));
     rethrow;
@@ -182,19 +186,10 @@ Future<Database> initPlatformDatabase({
 /// installed so the caller re-downloads.
 Future<bool> isPlatformDatabaseInstalled(String databaseName) async {
   try {
-    final factory = databaseFactoryFfiWeb;
-    final db = await factory.openDatabase(
-      databaseName,
-      options: OpenDatabaseOptions(readOnly: true),
-    );
-    try {
-      final count = Sqflite.firstIntValue(
-        await db.rawQuery('SELECT COUNT(*) FROM words LIMIT 1'),
-      );
-      return count != null && count > 0;
-    } finally {
-      await db.close();
-    }
+    final factory = _factory;
+    final db = await openValidatedDictionary(factory, databaseName);
+    await db.close();
+    return true;
   } catch (e) {
     if (kDebugMode) {
       debugPrint("[DB_WEB] Install check failed for $databaseName: $e");
@@ -206,10 +201,11 @@ Future<bool> isPlatformDatabaseInstalled(String databaseName) async {
 /// See db_platform_interface.dart.
 Future<void> deletePlatformDatabase(String databaseName) async {
   try {
-    await databaseFactoryFfiWeb.deleteDatabase(databaseName);
+    await _factory.deleteDatabase(databaseName);
     if (kDebugMode) debugPrint("[DB_WEB] 🗑️ Deleted database $databaseName");
   } catch (e) {
-    if (kDebugMode) debugPrint("[DB_WEB] ⚠️ Could not delete $databaseName: $e");
+    if (kDebugMode)
+      debugPrint("[DB_WEB] ⚠️ Could not delete $databaseName: $e");
     rethrow;
   }
 }
