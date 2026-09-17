@@ -12,6 +12,19 @@ class SDe extends S {
   String get appTitle => 'Wort-Universum';
 
   @override
+  String get gameLevelLabel => 'Stufe';
+
+  @override
+  String semanticsLevel(int level) {
+    return 'Stufe $level';
+  }
+
+  @override
+  String semanticsTimeRemaining(String time) {
+    return 'Verbleibende Zeit: $time';
+  }
+
+  @override
   String get packUpdateNotice =>
       'Diese App benötigt ein aktualisiertes Sprachpaket. Deine bisherige Datenbank bleibt erhalten, während der Ersatz heruntergeladen und geprüft wird. Dafür wird zusätzlicher Speicher benötigt. Der Download startet erst nach deiner Bestätigung.';
 

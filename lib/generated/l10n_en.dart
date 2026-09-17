@@ -12,6 +12,19 @@ class SEn extends S {
   String get appTitle => 'Word Universe';
 
   @override
+  String get gameLevelLabel => 'Level';
+
+  @override
+  String semanticsLevel(int level) {
+    return 'Level $level';
+  }
+
+  @override
+  String semanticsTimeRemaining(String time) {
+    return 'Time remaining: $time';
+  }
+
+  @override
   String get packUpdateNotice =>
       'This app needs an updated language pack. Your previous database is retained while the replacement is downloaded and checked. Extra storage is needed; nothing downloads until you confirm.';
 

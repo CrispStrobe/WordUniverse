@@ -91,11 +91,11 @@ class GameUI extends StatelessWidget {
       children: [
         // Level
         Semantics(
-          label: 'Stufe $level',
+          label: S.of(context)!.semanticsLevel(level),
           container: true,
           child: _buildStatItem(
             icon: Icons.emoji_events,
-            label: isCompact ? '' : 'Level', // Hide label if compact
+            label: isCompact ? '' : S.of(context)!.gameLevelLabel,
             value: level.toString(),
             color: SpaceTheme.starYellow,
             isCompact: isCompact,
@@ -108,11 +108,11 @@ class GameUI extends StatelessWidget {
         Consumer<GameProvider>(
           builder: (context, gameProvider, child) {
             return Semantics(
-              label: 'Punkte: ${gameProvider.score}',
+              label: S.of(context)!.semanticsScore(gameProvider.score),
               liveRegion: true,
               child: _buildStatItem(
                 icon: Icons.star,
-                label: isCompact ? '' : 'Score', // Hide label if compact
+                label: isCompact ? '' : S.of(context)!.gameScore,
                 value: gameProvider.score.toString(),
                 color: SpaceTheme.alienGreen,
                 isCompact: isCompact,
@@ -127,10 +127,10 @@ class GameUI extends StatelessWidget {
         if (timeLeft != null) ...[
           SizedBox(width: isCompact ? 8 : 12),
           Semantics(
-            label: 'Verbleibende Zeit: ${_formatTime(timeLeft!)}',
+            label: S.of(context)!.semanticsTimeRemaining(_formatTime(timeLeft!)),
             child: _buildStatItem(
               icon: Icons.timer,
-              label: isCompact ? '' : 'Time', // Hide label if compact
+              label: isCompact ? '' : S.of(context)!.wordBuilderTime,
               value: _formatTime(timeLeft!),
               color: timeLeft! > 10 ? SpaceTheme.cosmicPink : SpaceTheme.rocketRed,
               isCompact: isCompact,
