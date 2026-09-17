@@ -1,5 +1,6 @@
 {
     "appTitle": "Word Universe",
+    "packUpdateNotice": "This app needs an updated language pack. Your previous database is retained while the replacement is downloaded and checked. Extra storage is needed; nothing downloads until you confirm.",
     "homeReview": "Review",
     "homeLearningProfile": "Learning profile",
     "statsSpelling": "Spelling",

@@ -12,6 +12,10 @@ class SDe extends S {
   String get appTitle => 'Wort-Universum';
 
   @override
+  String get packUpdateNotice =>
+      'Diese App benötigt ein aktualisiertes Sprachpaket. Deine bisherige Datenbank bleibt erhalten, während der Ersatz heruntergeladen und geprüft wird. Dafür wird zusätzlicher Speicher benötigt. Der Download startet erst nach deiner Bestätigung.';
+
+  @override
   String get homeReview => 'Wiederholen';
 
   @override

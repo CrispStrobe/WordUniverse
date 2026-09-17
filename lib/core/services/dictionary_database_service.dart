@@ -123,8 +123,12 @@ class DictionaryDatabaseService {
   /// Whether [databaseName] is already cached on this device. Used by
   /// `LanguagePackService` to tell an installed language pack from one that
   /// still needs downloading, without trusting a preference flag.
-  Future<bool> isDatabaseInstalled(String databaseName) =>
-      isPlatformDatabaseInstalled(databaseName);
+  Future<bool> isDatabaseInstalled(String databaseName, {
+    List<String> legacyDatabaseNames = const [],
+    String? expectedDecompressedSha256,
+  }) => isPlatformDatabaseInstalled(databaseName,
+      legacyDatabaseNames: legacyDatabaseNames,
+      expectedDecompressedSha256: expectedDecompressedSha256);
 
   /// Deletes the cached copy of [databaseName]. Closes the active connection
   /// first when it is the database being removed, otherwise the delete fails

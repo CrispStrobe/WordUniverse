@@ -1,5 +1,8 @@
 @TestOn('browser')
 library;
+import 'package:crypto/crypto.dart';
+import 'package:WortUniversum/core/models/language_pack.dart';
+import 'package:WortUniversum/core/services/db_platform/db_remote.dart';
 
 import 'package:flutter/services.dart';
 import 'package:sqflite/sqflite.dart';
@@ -60,7 +63,42 @@ void main() {
       }
     });
   }
+  test('web revision change gates stale cache; exact legacy adopts offline', () async {
+    final old = LanguagePack(code: 'x', nativeName: 'X', databaseName: name,
+        licenseLabel: 'test', expectedDecompressedSha256: 'old');
+    final next = LanguagePack(code: 'x', nativeName: 'X', databaseName: name,
+        licenseLabel: 'test', expectedDecompressedSha256: 'next');
+    final db = await factory.openDatabase(old.databaseName);
+    await db.execute('CREATE TABLE words (id INTEGER, original_id TEXT, word TEXT, word_type TEXT, grade_level INTEGER)');
+    await db.execute('INSERT INTO words (id) VALUES (1)');
+    await db.close();
+    final bytes = await factory.readDatabaseBytes(old.databaseName);
+    try {
+      expect(await isPlatformDatabaseInstalled(old.databaseName), isTrue);
+      expect(await isPlatformDatabaseInstalled(next.databaseName,
+          legacyDatabaseNames: [old.databaseName], expectedDecompressedSha256: 'next'), isFalse);
+      final gzip = Uint8List.fromList(GZipEncoder().encode(bytes));
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMessageHandler(
+          'flutter/assets', (_) async => ByteData.sublistView(gzip));
+      await expectLater(initPlatformDatabase(assetPath: 'fixture.gz', databaseName: next.databaseName,
+          expectedDecompressedSha256: 'next'), throwsA(isA<DbDownloadException>()));
+      expect(await factory.readDatabaseBytes(old.databaseName), bytes);
+      expect(await isPlatformDatabaseInstalled(next.databaseName), isFalse);
+      expect(await isPlatformDatabaseInstalled(next.databaseName,
+          legacyDatabaseNames: [old.databaseName], expectedDecompressedSha256: sha256.convert(bytes).toString()), isTrue);
+      expect(await factory.readDatabaseBytes(old.databaseName), bytes);
+      await factory.deleteDatabase(old.databaseName);
+      final opened = await initPlatformDatabase(assetPath: 'offline-unused', databaseName: next.databaseName);
+      await opened.close();
+      expect(await isPlatformDatabaseInstalled(next.databaseName), isTrue);
+    } finally {
+      await factory.deleteDatabase(old.databaseName);
+      await factory.deleteDatabase(next.databaseName);
+    }
+  });
+
   test('web incompatible payload never promoted or ready', () async {
+    // Schema validation is independent of artifact revision identity.
     final db = await factory.openDatabase(name);
     await db.execute('CREATE TABLE words (id INTEGER)');
     await db.execute('INSERT INTO words VALUES (1)');

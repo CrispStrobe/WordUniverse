@@ -100,6 +100,8 @@ class LanguagePackService with ChangeNotifier {
 
   bool isInstalled(String code) => stateFor(code).isInstalled;
 
+  Future<bool> hasPreviousPack(String code) => _vocabulary.hasPreviousPack(code);
+
   bool get isAnyInstalling =>
       _states.values.any((state) => state.isInstalling);
 

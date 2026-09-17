@@ -103,6 +103,12 @@ abstract class S {
   /// **'Word Universe'**
   String get appTitle;
 
+  /// No description provided for @packUpdateNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'This app needs an updated language pack. Your previous database is retained while the replacement is downloaded and checked. Extra storage is needed; nothing downloads until you confirm.'**
+  String get packUpdateNotice;
+
   /// No description provided for @homeReview.
   ///
   /// In en, this message translates to:

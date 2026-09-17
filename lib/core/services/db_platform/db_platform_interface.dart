@@ -32,7 +32,10 @@ Future<Database> initPlatformDatabase({
 /// whether a downloaded language pack still needs fetching. Authoritative:
 /// it inspects real storage rather than a preference flag, so a cleared app
 /// container or wiped browser storage is detected.
-Future<bool> isPlatformDatabaseInstalled(String databaseName) {
+Future<bool> isPlatformDatabaseInstalled(String databaseName, {
+  List<String> legacyDatabaseNames = const [],
+  String? expectedDecompressedSha256,
+}) {
   throw UnsupportedError(
     'Cannot query database: Unknown platform. '
     'Ensure conditional imports are configured correctly.',

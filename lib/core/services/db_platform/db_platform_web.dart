@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:sqflite/sqflite.dart';
 import 'db_gzip.dart';
 import 'db_schema.dart';
+import 'db_revision.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'db_remote.dart';
 import '../../models/load_status.dart';
@@ -90,9 +91,9 @@ Future<Database> initPlatformDatabase({
           compressed: compressedBytes,
           expectedDecompressedBytes: expectedDecompressedBytes,
           expectedDecompressedSha256: expectedDecompressedSha256,
-          requireSha256: remoteUrl != null &&
-              remoteUrl.isNotEmpty &&
-              DbDownloadController.sharedFor(remoteUrl).resumedWithoutValidator,
+          requireSha256: expectedDecompressedSha256 != null ||
+              (remoteUrl != null && remoteUrl.isNotEmpty &&
+                  DbDownloadController.sharedFor(remoteUrl).resumedWithoutValidator),
         ),
       );
 
@@ -184,9 +185,21 @@ Future<Database> initPlatformDatabase({
 /// opens out of the browser's virtual filesystem with a non-empty `words`
 /// table. Anything else (missing, cleared site data, corrupted) counts as not
 /// installed so the caller re-downloads.
-Future<bool> isPlatformDatabaseInstalled(String databaseName) async {
+Future<bool> isPlatformDatabaseInstalled(String databaseName, {
+  List<String> legacyDatabaseNames = const [],
+  String? expectedDecompressedSha256,
+}) async {
   try {
     final factory = _factory;
+    if (!await factory.databaseExists(databaseName)) {
+      if (expectedDecompressedSha256 == null) return false;
+      return adoptLegacyDatabase(
+        factory: factory, destination: databaseName,
+        candidates: legacyDatabaseNames, digest: expectedDecompressedSha256,
+        read: factory.readDatabaseBytes, write: factory.writeDatabaseBytes,
+        promote: (_, target, bytes) => factory.writeDatabaseBytes(target, bytes),
+      );
+    }
     final db = await openValidatedDictionary(factory, databaseName);
     await db.close();
     return true;

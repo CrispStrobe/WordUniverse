@@ -182,7 +182,19 @@ class VocabularyService with ChangeNotifier {
     // The active pack is by definition present — and re-opening the live DB
     // just to check would be wasteful.
     if (_isInitialized && _learningLanguage == language) return true;
-    return _dbService.isDatabaseInstalled(pack.databaseName);
+    return _dbService.isDatabaseInstalled(pack.databaseName,
+        legacyDatabaseNames: pack.legacyDatabaseNames,
+        expectedDecompressedSha256: pack.expectedDecompressedSha256);
+  }
+
+  /// Informational only: an older schema-compatible slot is not current.
+  Future<bool> hasPreviousPack(String language) async {
+    final pack = _packs[language];
+    if (pack == null) return false;
+    for (final name in pack.legacyDatabaseNames) {
+      if (name != pack.databaseName && await _dbService.isDatabaseInstalled(name)) return true;
+    }
+    return false;
   }
 
   /// Deletes a downloaded pack's cached database and clears its flag. Refuses
@@ -198,6 +210,11 @@ class VocabularyService with ChangeNotifier {
       );
     }
     await _dbService.deleteDatabaseFile(pack.databaseName);
+    // Explicit user removal includes tracked legacy copies, otherwise the
+    // next probe could immediately adopt an identical old copy again.
+    for (final name in pack.legacyDatabaseNames) {
+      if (name != pack.databaseName) await _dbService.deleteDatabaseFile(name);
+    }
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_downloadedFlagKey(language));
     _log('🗑️ Removed language pack "$language"');
