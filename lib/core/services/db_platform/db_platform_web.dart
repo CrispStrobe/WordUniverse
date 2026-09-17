@@ -8,12 +8,6 @@ import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'db_remote.dart';
 import '../../models/load_status.dart';
 
-/// Top-level entry point passed to [compute]. On mobile/desktop this runs in
-/// a background isolate; on web `compute` falls back to the main thread but
-/// at least defers the call to a microtask so prior progress UI can flush.
-List<int> _decodeGzipBytes(Uint8List bytes) {
-  return decodeDbGzip(bytes);
-}
 
 Future<Database> initPlatformDatabase({
   required String assetPath,
@@ -95,14 +89,32 @@ Future<Database> initPlatformDatabase({
       // compute() routes through an isolate on mobile/desktop and through a
       // microtask on web; either way the prior progress update has a chance
       // to paint before this long sync call. gzip's CRC-32 validates the
-      // payload — a corrupt download throws here.
-      decompressedBytes = await compute(_decodeGzipBytes, compressedBytes);
+      // payload — a corrupt download throws here. The payload gates ride along
+      // so the SHA pass is never a separate UI-thread stall.
+      decompressedBytes = await compute(
+        decodeAndVerifyDbGzip,
+        DbGzipJob(
+          compressed: compressedBytes,
+          expectedDecompressedBytes: expectedDecompressedBytes,
+          expectedDecompressedSha256: expectedDecompressedSha256,
+          requireSha256: remoteUrl != null &&
+              remoteUrl.isNotEmpty &&
+              DbDownloadController.sharedFor(remoteUrl)
+                  .resumedWithoutValidator,
+        ),
+      );
 
       final decompressedSizeMB =
           (decompressedBytes.length / (1024 * 1024)).toStringAsFixed(1);
       if (kDebugMode) debugPrint(
           "[DB_WEB] Decompressed to $decompressedSizeMB MB in ${stopwatch.elapsedMilliseconds}ms");
       onProgress?.call(0.75, LoadStatus(LoadStage.decompressed, bytes: decompressedBytes.length));
+    } on DbPayloadException catch (e) {
+      // A payload gate (size or an enforced checksum) already says exactly
+      // what was wrong; don't flatten it into "decompression failed".
+      if (kDebugMode) debugPrint("[DB_WEB] ❌ Payload gate: ${e.message}");
+      onProgress?.call(0.0, const LoadStatus(LoadStage.decompressionFailed));
+      throw DbDownloadException(e.message);
     } catch (e) {
       if (kDebugMode) debugPrint("[DB_WEB] ❌ Decompression error: $e");
       onProgress?.call(0.0, const LoadStatus(LoadStage.decompressionFailed));
@@ -114,13 +126,6 @@ Future<Database> initPlatformDatabase({
       }
       rethrow;
     }
-
-    // Integrity gate over the decompressed bytes (hard size; soft sha256).
-    verifyDecompressedDb(
-      decompressedBytes,
-      expectedDecompressedBytes: expectedDecompressedBytes,
-      expectedDecompressedSha256: expectedDecompressedSha256,
-    );
 
     // PHASE 5: Convert to Uint8List and write to IndexedDB (0.75 - 0.90)
     onProgress?.call(0.80, const LoadStatus(LoadStage.writingBrowserStorage));

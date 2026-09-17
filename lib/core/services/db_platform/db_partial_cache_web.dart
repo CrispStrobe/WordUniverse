@@ -80,21 +80,19 @@ class IndexedDbPartialCache extends DbPartialCache {
   }
 
   @override
-  Future<Uint8List?> load(String url) async {
-    final value = await _run('readonly', (store) => store.read(keyFor(url)));
-    return value == null
-        ? null
-        : decodeDbPartial((value as JSUint8Array).toDart);
+  Future<Uint8List?> readRecord(String key) async {
+    final value = await _run('readonly', (store) => store.read(key));
+    return value == null ? null : (value as JSUint8Array).toDart;
   }
 
   @override
-  Future<void> save(String url, List<int> bytes) async {
-    await _run('readwrite',
-        (store) => store.put(encodeDbPartial(bytes).toJS, keyFor(url)));
+  Future<void> writeRecord(String key, List<int> raw) async {
+    final bytes = raw is Uint8List ? raw : Uint8List.fromList(raw);
+    await _run('readwrite', (store) => store.put(bytes.toJS, key));
   }
 
   @override
-  Future<void> clear(String url) async {
-    await _run('readwrite', (store) => store.delete(keyFor(url)));
+  Future<void> deleteRecord(String key) async {
+    await _run('readwrite', (store) => store.delete(key));
   }
 }

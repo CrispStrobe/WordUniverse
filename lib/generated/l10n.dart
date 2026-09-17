@@ -1419,6 +1419,12 @@ abstract class S {
   /// **'Download'**
   String get packDownloadAction;
 
+  /// No description provided for @packGateLoadAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Load language pack'**
+  String get packGateLoadAction;
+
   /// No description provided for @packUseAction.
   ///
   /// In en, this message translates to:

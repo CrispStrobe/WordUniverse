@@ -394,6 +394,7 @@
     "packStatusFailed": "Download failed",
     "packInUse": "In use",
     "packDownloadAction": "Download",
+    "packGateLoadAction": "Load language pack",
     "packUseAction": "Use",
     "packRemoveAction": "Remove",
     "packRemoveConfirmTitle": "Remove {language} pack?",

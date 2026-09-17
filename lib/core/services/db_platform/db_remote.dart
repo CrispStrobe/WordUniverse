@@ -5,14 +5,14 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'db_partial_cache.dart';
 import '../../models/load_status.dart';
 
-export 'db_partial_cache.dart' show DbPartialCache;
+export 'db_partial_cache.dart' show DbPartial, DbPartialCache;
+export 'db_gzip.dart' show DbPayloadException, verifyDecompressedDb;
 
 class DbDownloadException implements Exception {
   final String message;
@@ -68,6 +68,12 @@ class DbDownloadController extends ChangeNotifier {
   bool get isPaused => snapshot.status == DbDownloadStatus.paused;
   bool get isDownloading => snapshot.status == DbDownloadStatus.downloading;
   bool _pauseRequested = false;
+
+  /// True when the bytes just returned include a cached prefix that carried no
+  /// HTTP validator, so `If-Range` could not prove the server still serves the
+  /// same revision. Callers then enforce the SHA-256 pin instead of logging it.
+  bool get resumedWithoutValidator => _resumedWithoutValidator;
+  bool _resumedWithoutValidator = false;
   Future<Uint8List>? _running;
   int? _expected;
   void Function()? _abort;
@@ -283,20 +289,23 @@ Future<Uint8List> _attempt(
 ) async {
   // A small bounded number of protocol resets is separate from retry backoff.
   for (var resets = 0; resets < 2; resets++) {
-    final cached = await cache.load(c.url);
+    // One record, one decode: prefix and validator arrive together.
+    final cached = await cache.loadRecord(c.url);
     if (paused()) throw DbDownloadPausedException();
-    var prefix = cached ?? Uint8List(0);
+    var prefix = cached?.bytes ?? Uint8List(0);
+    var validator = prefix.isEmpty ? null : cached?.validator;
     if (expected != null && prefix.length >= expected) {
       // A complete cache without a validated completion marker is not trusted.
       await cache.clearCheckpoint(c.url);
       prefix = Uint8List(0);
+      validator = null;
     }
-    var validator =
-        prefix.isEmpty ? null : await cache.loadValidator(c.url, prefix);
+    c._resumedWithoutValidator = prefix.isNotEmpty && validator == null;
     var offset = prefix.length;
     final buffer = BytesBuilder(copy: false)..add(prefix);
     var count = offset;
     var checkpoint = count;
+    var emitted = count;
     var total = expected;
     final client = clientFactory();
     final abort = Completer<void>();
@@ -370,7 +379,8 @@ Future<Uint8List> _attempt(
           // Range ignored (also the correct If-Range response for a changed
           // entity): consume this full body, never append it to old bytes.
           buffer.clear();
-          offset = count = checkpoint = 0;
+          offset = count = checkpoint = emitted = 0;
+          c._resumedWithoutValidator = false;
           await cache.clearCheckpoint(c.url);
         }
         validator = responseValidator;
@@ -398,15 +408,25 @@ Future<Uint8List> _attempt(
         buffer.add(chunk);
         count += chunk.length;
         onChunk?.call();
-        c._emit(
-            DbDownloadStatus.downloading,
-            count,
-            total,
-            LoadStatus(total == null ? LoadStage.downloadBytes : LoadStage.downloadTotal,
-              bytes: count, total: total ?? 0));
-        if (count - checkpoint >= 1024 * 1024) {
+        // Each checkpoint rewrites the whole prefix, so the interval scales
+        // with the transfer instead of firing every megabyte: a 25 MB pack
+        // costs ~6 rewrites rather than ~25, which on flash and IndexedDB is
+        // the difference between ~85 MB and ~325 MB written for 25 MB fetched.
+        if (count - checkpoint >= checkpointInterval(total ?? expected)) {
           await cache.saveCheckpoint(c.url, buffer.toBytes(), validator);
           checkpoint = count;
+        }
+        // Progress notifications are per visible step, not per socket chunk:
+        // a chunk is a few kilobytes, and every emit allocates and walks all
+        // listeners. Still fine-grained for tiny transfers (tests, retries).
+        if (count - emitted >= progressEmitInterval(total) || count == total) {
+          emitted = count;
+          c._emit(
+              DbDownloadStatus.downloading,
+              count,
+              total,
+              LoadStatus(total == null ? LoadStage.downloadBytes : LoadStage.downloadTotal,
+                bytes: count, total: total ?? 0));
         }
         if (paused()) throw DbDownloadPausedException();
       }
@@ -466,25 +486,22 @@ Future<Uint8List> _attempt(
       : (start, end, total);
 }
 
-/// Decompressed size is a hard gate. SHA-256 retains the existing soft policy
-/// so an intentional upstream update with a stale pin does not brick the app.
-void verifyDecompressedDb(
-  List<int> bytes, {
-  int? expectedDecompressedBytes,
-  String? expectedDecompressedSha256,
-}) {
-  if (expectedDecompressedBytes != null &&
-      bytes.length != expectedDecompressedBytes) {
-    throw DbDownloadException(
-        'The database failed validation after decompression '
-        '(${bytes.length} bytes, expected $expectedDecompressedBytes).');
-  }
-  if (expectedDecompressedSha256 != null) {
-    final actual = sha256.convert(bytes).toString();
-    if (actual.toLowerCase() != expectedDecompressedSha256.toLowerCase() &&
-        kDebugMode) {
-      debugPrint('[DB_REMOTE] decompressed sha256 mismatch — expected '
-          '$expectedDecompressedSha256, got $actual. Proceeding (structural checks passed).');
-    }
-  }
+/// Checkpoints cost O(prefix); keep their number bounded instead of their
+/// spacing fixed. Small/indeterminate transfers keep a 1 MB floor so a paused
+/// download never loses much work.
+@visibleForTesting
+int checkpointInterval(int? total) {
+  const floor = 1024 * 1024;
+  if (total == null || total <= 0) return 4 * 1024 * 1024;
+  final scaled = total ~/ 16;
+  return scaled < floor ? floor : scaled;
+}
+
+/// Roughly 200 progress updates per transfer, and every chunk when the total
+/// is tiny or unknown.
+@visibleForTesting
+int progressEmitInterval(int? total) {
+  if (total == null || total <= 0) return 64 * 1024;
+  final step = total ~/ 200;
+  return step < 1 ? 1 : step;
 }

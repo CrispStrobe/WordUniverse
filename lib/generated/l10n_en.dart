@@ -771,6 +771,9 @@ class SEn extends S {
   String get packDownloadAction => 'Download';
 
   @override
+  String get packGateLoadAction => 'Load language pack';
+
+  @override
   String get packUseAction => 'Use';
 
   @override
