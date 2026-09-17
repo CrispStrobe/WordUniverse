@@ -15,6 +15,22 @@ class SEn extends S {
   String get gameLevelLabel => 'Level';
 
   @override
+  String get wordFindGridLabel => 'Word grid';
+
+  @override
+  String get wordFindGridHint => 'Drag across letters to select words';
+
+  @override
+  String wordFindWordFound(String word) {
+    return '$word, found';
+  }
+
+  @override
+  String wordFindWordPending(String word) {
+    return '$word, still to find';
+  }
+
+  @override
   String rescueHintCommonMistake(String word) {
     return 'Common mistake! Remember: $word';
   }
