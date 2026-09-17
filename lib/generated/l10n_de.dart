@@ -3307,6 +3307,12 @@ class SDe extends S {
   String get boxNameMastered => 'Gemeistert';
 
   @override
+  String get manageSetsEmpty => 'Noch keine eigenen Sets erstellt.';
+
+  @override
+  String get manageSetsNoDescription => 'Keine Beschreibung';
+
+  @override
   String get privacyBriefTitle => 'In Kürze';
 
   @override

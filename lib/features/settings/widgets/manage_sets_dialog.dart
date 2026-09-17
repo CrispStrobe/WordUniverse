@@ -27,20 +27,24 @@ class _ManageSetsDialogState extends State<ManageSetsDialog> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: SpaceTheme.deepSpace,
-        title: Text(s.customSetDeleteConfirmTitle, style: SpaceTheme.titleStyle),
+        title:
+            Text(s.customSetDeleteConfirmTitle, style: SpaceTheme.titleStyle),
         content: Text(
           s.customSetDeleteConfirmContent(set.name),
           style: SpaceTheme.bodyStyle,
         ),
         actions: [
           TextButton(
-            child: Text(S.of(context)!.cancel, style: TextStyle(color: SpaceTheme.moonSilver)),
+            child: Text(S.of(context)!.cancel,
+                style: TextStyle(color: SpaceTheme.moonSilver)),
             onPressed: () => Navigator.of(context).pop(false),
           ),
           ElevatedButton(
             autofocus: true,
-            style: ElevatedButton.styleFrom(backgroundColor: SpaceTheme.rocketRed),
-            child: Text(s.customSetDelete, style: TextStyle(color: Colors.white)),
+            style:
+                ElevatedButton.styleFrom(backgroundColor: SpaceTheme.rocketRed),
+            child:
+                Text(s.customSetDelete, style: TextStyle(color: Colors.white)),
             onPressed: () => Navigator.of(context).pop(true),
           ),
         ],
@@ -55,22 +59,26 @@ class _ManageSetsDialogState extends State<ManageSetsDialog> {
   }
 
   void _editSet(VocabularySet set) {
-    Navigator.of(context).push(
+    Navigator.of(context)
+        .push(
       MaterialPageRoute(
         builder: (context) => CustomSubsetScreen(set: set),
       ),
-    ).then((_) {
+    )
+        .then((_) {
       // When the edit screen closes, refresh the list
       setState(() {});
     });
   }
 
   void _createNewSet() {
-    Navigator.of(context).push(
+    Navigator.of(context)
+        .push(
       MaterialPageRoute(
         builder: (context) => const CustomSubsetScreen(), // No set passed
       ),
-    ).then((_) {
+    )
+        .then((_) {
       // When the create screen closes, refresh the list
       setState(() {});
     });
@@ -94,7 +102,8 @@ class _ManageSetsDialogState extends State<ManageSetsDialog> {
             children: [
               Icon(Icons.folder_special, color: SpaceTheme.starYellow),
               SizedBox(width: 12),
-              Expanded(child: Text(s.taskManageSets, style: SpaceTheme.titleStyle)),
+              Expanded(
+                  child: Text(s.taskManageSets, style: SpaceTheme.titleStyle)),
             ],
           ),
           content: Container(
@@ -103,8 +112,9 @@ class _ManageSetsDialogState extends State<ManageSetsDialog> {
             child: customSets.isEmpty
                 ? Center(
                     child: Text(
-                      "No custom sets created yet.",
-                      style: SpaceTheme.bodyStyle.copyWith(color: Colors.white54),
+                      s.manageSetsEmpty,
+                      style:
+                          SpaceTheme.bodyStyle.copyWith(color: Colors.white54),
                     ),
                   )
                 : ListView.builder(
@@ -121,8 +131,11 @@ class _ManageSetsDialogState extends State<ManageSetsDialog> {
                         child: ListTile(
                           title: Text(set.name, style: SpaceTheme.bodyStyle),
                           subtitle: Text(
-                            set.description.isEmpty ? "No description" : set.description,
-                            style: SpaceTheme.bodyStyle.copyWith(fontSize: 12, color: Colors.white60),
+                            set.description.isEmpty
+                                ? s.manageSetsNoDescription
+                                : set.description,
+                            style: SpaceTheme.bodyStyle
+                                .copyWith(fontSize: 12, color: Colors.white60),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -130,11 +143,13 @@ class _ManageSetsDialogState extends State<ManageSetsDialog> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               IconButton(
-                                icon: Icon(Icons.edit, color: SpaceTheme.alienGreen),
+                                icon: Icon(Icons.edit,
+                                    color: SpaceTheme.alienGreen),
                                 onPressed: () => _editSet(set),
                               ),
                               IconButton(
-                                icon: Icon(Icons.delete, color: SpaceTheme.rocketRed),
+                                icon: Icon(Icons.delete,
+                                    color: SpaceTheme.rocketRed),
                                 onPressed: () => _deleteSet(set),
                               ),
                             ],
@@ -146,14 +161,16 @@ class _ManageSetsDialogState extends State<ManageSetsDialog> {
           ),
           actions: [
             TextButton(
-              child: Text(S.of(context)!.cancel, style: TextStyle(color: SpaceTheme.moonSilver)),
+              child: Text(S.of(context)!.cancel,
+                  style: TextStyle(color: SpaceTheme.moonSilver)),
               onPressed: () => Navigator.of(context).pop(),
             ),
             ElevatedButton.icon(
               autofocus: true,
               icon: Icon(Icons.add_circle),
               label: Text(s.customSetCreateTitle),
-              style: ElevatedButton.styleFrom(backgroundColor: SpaceTheme.alienGreen),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: SpaceTheme.alienGreen),
               onPressed: _createNewSet,
             ),
           ],

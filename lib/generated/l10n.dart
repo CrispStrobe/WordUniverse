@@ -5621,6 +5621,18 @@ abstract class S {
   /// **'Mastered'**
   String get boxNameMastered;
 
+  /// No description provided for @manageSetsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No custom sets created yet.'**
+  String get manageSetsEmpty;
+
+  /// No description provided for @manageSetsNoDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'No description'**
+  String get manageSetsNoDescription;
+
   /// No description provided for @privacyBriefTitle.
   ///
   /// In en, this message translates to:
