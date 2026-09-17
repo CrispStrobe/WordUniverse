@@ -1,0 +1,15 @@
+{
+  "name": "worduniverse-live-smoke",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "setup": "PLAYWRIGHT_BROWSERS_PATH=0 playwright install chromium",
+    "setup:ci": "PLAYWRIGHT_BROWSERS_PATH=0 playwright install --with-deps chromium",
+    "test": "node --test run.test.mjs",
+    "smoke": "bash run.sh"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
+  }
+}

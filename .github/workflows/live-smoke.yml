@@ -1,0 +1,68 @@
+name: Production live smoke A-F
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Once nightly, off the hour. Real pack downloads: no per-push load.
+    - cron: '37 3 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-live-smoke
+  cancel-in-progress: false
+
+jobs:
+  smoke:
+    name: A-F / ${{ matrix.host }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        include:
+          - host: pages
+            url: https://crispstrobe.github.io/WordUniverse/
+          - host: vercel
+            url: https://wortuniversum.vercel.app/
+    defaults:
+      run:
+        working-directory: tools/e2e
+        shell: bash
+    env:
+      BASE_URL: ${{ matrix.url }}
+      EVIDENCE_DIR: ${{ github.workspace }}/tools/e2e/evidence
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: tools/e2e/package-lock.json
+      - name: Locked dependencies and scoped Chromium
+        timeout-minutes: 8
+        run: |
+          set -euo pipefail
+          mkdir -p "$EVIDENCE_DIR"
+          npm ci 2>&1 | tee "$EVIDENCE_DIR/npm-ci.log"
+          npm run setup:ci 2>&1 | tee "$EVIDENCE_DIR/browser-setup.log"
+      - name: Wrapper regression tests
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          npm test 2>&1 | tee "$EVIDENCE_DIR/unit-tests.log"
+      - name: Live A-F (one attempt; failures are not retried)
+        timeout-minutes: 32
+        run: npm run smoke
+      - name: Preserve evidence even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-smoke-${{ matrix.host }}-${{ github.run_id }}-attempt-${{ github.run_attempt }}
+          path: tools/e2e/evidence/
+          if-no-files-found: warn
+          retention-days: 14

@@ -17,7 +17,12 @@ env:
 
 jobs:
   build-upload:
-    runs-on: macos-14
+    # macos-15 ships Xcode 16.4 by default (macOS 15.5 SDK). The old macos-14
+    # image (Xcode 15.4, SDK 14.5) fails to compile in_app_purchase_storekit,
+    # which uses the StoreKit2 win-back API (winBackOffers /
+    # eligibleWinBackOfferIDs) introduced in the macOS 15 SDK. macos-14 is also
+    # deprecated by GitHub (unsupported after 2026-11-02).
+    runs-on: macos-15
     timeout-minutes: 60
     defaults:
       run:
@@ -26,6 +31,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Select Xcode 16.4
+        run: |
+          sudo xcode-select --switch /Applications/Xcode_16.4.app/Contents/Developer
+          xcodebuild -version
+          xcrun --sdk macosx --show-sdk-version
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
