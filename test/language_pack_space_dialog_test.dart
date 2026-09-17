@@ -5,6 +5,7 @@ import 'package:WortUniversum/core/models/language_pack.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:WortUniversum/core/services/language_pack_service.dart';
+import 'package:WortUniversum/core/services/pack_failure_logger.dart';
 import 'package:WortUniversum/core/services/vocabulary_service.dart';
 import 'package:WortUniversum/core/models/load_status.dart';
 import 'package:WortUniversum/core/services/db_platform/db_remote.dart';
@@ -24,7 +25,12 @@ class _Vocabulary extends VocabularyService {
 }
 
 void main() {
-  setUp(() => SharedPreferences.setMockInitialValues({}));
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+    // Cached logger futures belong to the previous widget test's fake-async
+    // zone. Reset them with preferences so the next install can finish logging.
+    PackFailureLogger.instance.resetForTests();
+  });
   for (final locale in ['en', 'de']) {
     for (final failed in [false, true]) {
       testWidgets('$locale displays required install space (failed=$failed)',
