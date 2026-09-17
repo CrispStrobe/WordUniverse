@@ -103,6 +103,24 @@ abstract class S {
   /// **'Word Universe'**
   String get appTitle;
 
+  /// No description provided for @gameLevelLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Level'**
+  String get gameLevelLabel;
+
+  /// No description provided for @semanticsLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Level {level}'**
+  String semanticsLevel(int level);
+
+  /// No description provided for @semanticsTimeRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'Time remaining: {time}'**
+  String semanticsTimeRemaining(String time);
+
   /// No description provided for @packUpdateNotice.
   ///
   /// In en, this message translates to:

@@ -1,5 +1,10 @@
 {
     "appTitle": "Word Universe",
+    "gameLevelLabel": "Level",
+    "semanticsLevel": "Level {level}",
+    "@semanticsLevel": {"placeholders": {"level": {"type": "int"}}},
+    "semanticsTimeRemaining": "Time remaining: {time}",
+    "@semanticsTimeRemaining": {"placeholders": {"time": {"type": "String"}}},
     "packUpdateNotice": "This app needs an updated language pack. Your previous database is retained while the replacement is downloaded and checked. Extra storage is needed; nothing downloads until you confirm.",
     "homeReview": "Review",
     "homeLearningProfile": "Learning profile",

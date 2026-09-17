@@ -1,5 +1,10 @@
 {
     "appTitle": "Wort-Universum",
+    "gameLevelLabel": "Stufe",
+    "semanticsLevel": "Stufe {level}",
+    "@semanticsLevel": {"placeholders": {"level": {"type": "int"}}},
+    "semanticsTimeRemaining": "Verbleibende Zeit: {time}",
+    "@semanticsTimeRemaining": {"placeholders": {"time": {"type": "String"}}},
     "packUpdateNotice": "Diese App benötigt ein aktualisiertes Sprachpaket. Deine bisherige Datenbank bleibt erhalten, während der Ersatz heruntergeladen und geprüft wird. Dafür wird zusätzlicher Speicher benötigt. Der Download startet erst nach deiner Bestätigung.",
     "homeReview": "Wiederholen",
     "homeLearningProfile": "Lernprofil",
