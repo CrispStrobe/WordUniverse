@@ -1650,13 +1650,13 @@ abstract class S {
   /// No description provided for @packInstallSpace.
   ///
   /// In en, this message translates to:
-  /// **'{download} download · about {required} free space needed to install · data under {license}'**
+  /// **'{download} download · allow about {required} free storage for installation, including temporary copies and a download reserve · data under {license}'**
   String packInstallSpace(String download, String required, String license);
 
   /// No description provided for @packNoSpaceHint.
   ///
   /// In en, this message translates to:
-  /// **'There is not enough free space. {language} needs about {size} of free space during installation (download and database together).'**
+  /// **'There is not enough free storage. To install {language}, allow about {size} of free storage, including temporary copies and a download reserve. The installed pack uses less space.'**
   String packNoSpaceHint(String language, String size);
 
   /// No description provided for @packResumeProgress.

@@ -6,9 +6,21 @@
 // and the fallback pack must never need the network.
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/foundation.dart';
 import 'package:WortUniversum/core/models/language_pack.dart';
 
 void main() {
+  test('installation budget covers platform promotion plus download reserve', () {
+    final pack = kLanguagePacks['de']!;
+    final databaseCopies = kIsWeb ? 2 : 1;
+    expect(pack.requiredFreeBytes,
+        databaseCopies * pack.expectedDecompressedBytes! +
+            pack.expectedCompressedBytes!);
+    expect(pack.requiredFreeSizeLabel, kIsWeb ? '325 MiB' : '175 MiB');
+    expect(kLanguagePacks['en']!.requiredFreeBytes, isNull);
+    expect(kLanguagePacks['en']!.requiredFreeSizeLabel, isNull);
+  });
+
   test('every pack is obtainable (bundled asset or remote URL)', () {
     for (final pack in kLanguagePacks.values) {
       expect(pack.isBundled || pack.requiresDownload, isTrue,

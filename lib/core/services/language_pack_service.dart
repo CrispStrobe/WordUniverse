@@ -178,7 +178,8 @@ class LanguagePackService with ChangeNotifier {
     }
 
     // Refuse before downloading anything when the device already cannot hold
-    // the installed database. Only browsers report a quota; native returns
+    // the peak installation budget (including staging), not just the final DB.
+    // Only browsers report a quota; native returns
     // null and is caught at write time instead.
     final required = pack.requiredFreeBytes;
     if (pack.requiresDownload && required != null &&

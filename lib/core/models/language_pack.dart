@@ -20,7 +20,7 @@
 // A pack may set both [assetPath] and [remoteUrl]; the remote path wins, the
 // asset acts as an offline fallback for non-store builds.
 
-import 'package:flutter/foundation.dart' show immutable;
+import 'package:flutter/foundation.dart' show immutable, kIsWeb;
 import 'load_status.dart';
 
 /// Where a language's vocabulary DB comes from, plus the metadata needed to
@@ -92,14 +92,26 @@ class LanguagePack {
   /// download size understates the requirement by roughly six times.
   String? get installedSizeLabel => _megabytes(expectedDecompressedBytes);
 
-  /// Peak installation budget, not the final on-disk footprint.
-  String? get requiredFreeSizeLabel => _megabytes(requiredFreeBytes);
+  /// Conservative peak storage budget, not the final footprint or RAM usage.
+  /// Use binary units here because the budget is divided by 1024 squared.
+  String? get requiredFreeSizeLabel => requiredFreeBytes == null
+      ? null
+      : '${(requiredFreeBytes! / (1024 * 1024)).round()} MiB';
 
-  /// Free space an install needs: the decompressed database plus the
-  /// compressed copy held while it is being written.
+  /// Web promotion copies staging to the final name before deleting staging:
+  /// two decompressed databases coexist in browser storage. Native writes one
+  /// staging file and renames it, so needs only one on-disk database; decode
+  /// buffers are RAM, not an additional free-disk-space requirement.
+  ///
+  /// Reserve one compressed download in addition on both platforms. The shared
+  /// downloader clears its checkpoint before returning, so this is conservative
+  /// headroom, NOT a third file known to coexist during promotion. It also
+  /// covers checkpoint replacement for the registered pack (much smaller than
+  /// its decompressed DB). Filesystem/IndexedDB overhead is platform-dependent.
   int? get requiredFreeBytes => expectedDecompressedBytes == null
       ? null
-      : expectedDecompressedBytes! + (expectedCompressedBytes ?? 0);
+      : (kIsWeb ? 2 : 1) * expectedDecompressedBytes! +
+          (expectedCompressedBytes ?? 0);
 
   static String? _megabytes(int? bytes) =>
       bytes == null ? null : '${(bytes / (1024 * 1024)).round()} MB';

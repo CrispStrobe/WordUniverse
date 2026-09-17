@@ -15,6 +15,7 @@ import 'dart:typed_data';
 import 'package:WortUniversum/core/models/load_status.dart';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:WortUniversum/core/models/language_pack.dart';
 import 'package:WortUniversum/core/services/db_platform/db_partial_cache.dart';
 import 'package:WortUniversum/core/services/db_platform/db_remote.dart';
@@ -450,6 +451,20 @@ void main() {
   });
 
   group('storage space', () {
+    for (final shortfall in [1, 0]) {
+      test('platform promotion budget boundary (shortfall=$shortfall)', () async {
+        final vocab = _FakeVocabulary(installed: {kFallbackLanguageCode});
+        final pack = kLanguagePacks['de']!;
+        final budget = (kIsWeb ? 2 : 1) * pack.expectedDecompressedBytes! +
+            pack.expectedCompressedBytes!;
+        final service = LanguagePackService(vocab,
+            freeSpaceProbe: () async => budget - shortfall);
+        expect(await service.install('de'), shortfall == 0);
+        expect(vocab.calls.isEmpty, shortfall != 0);
+        expect(service.stateFor('de').errorIsSpace, shortfall != 0);
+      });
+    }
+
     test('an install that cannot fit is refused before anything downloads',
         () async {
       final vocab = _FakeVocabulary(installed: {kFallbackLanguageCode});

@@ -72,11 +72,19 @@ IMPLEMENTED:
   loaders surface its message verbatim.
 
 - Space: LanguagePackService refuses an install when a platform-reported quota
-  is smaller than pack.requiredFreeBytes (decompressed + compressed copy);
+  is smaller than pack.requiredFreeBytes: web budgets two decompressed copies
+  (staging + final); native budgets one (staging is renamed, not copied).
+  Both add one compressed-download-sized reserve. The downloader awaits
+  checkpoint deletion before returning, so that reserve is conservative
+  headroom, not a checkpoint known to coexist with promotion. Decode buffers
+  are RAM and do not count as extra disk storage. For the pinned German pack,
+  promotion payloads peak at 299.3 MiB web / 149.6 MiB native; the disclosed
+  budgets are about 325 MiB web / 175 MiB native (340447248 / 183533584 bytes).
+  Filesystem/IndexedDB overhead varies; these are not exact quota guarantees.
   availableStorageBytes() is navigator.storage.estimate() on web and null on
   native, where ENOSPC (errno 28) and browser quota errors are translated into
   DbInsufficientSpaceException instead. LanguagePackState.errorIsSpace drives a
-  localized "needs about N MB" message rather than an unhelpful Retry hint.
+  localized installation-budget message rather than an unhelpful Retry hint.
 - Resume visibility: DbPartialCache.cachedLength(url) reads the envelope header
   only (native reads 40 bytes, not the prefix), so refresh() can label a row
   "12.4 of 25 MB downloaded" and offer Resume without hashing anything.
