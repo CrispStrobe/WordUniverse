@@ -1,26 +1,18 @@
-// lib/shared/widgets/privacy_policy_dialog.dart
-//
-// Datenschutzerklärung — kurz, ehrlich, auf Deutsch. Die App speichert
-// alle Daten nur lokal auf dem Gerät. Kein Telemetrie-Versand, keine
-// Analytics, kein Tracking. Crash-Logs bleiben lokal und werden nur
-// dann geteilt, wenn die Nutzerin sie ausdrücklich kopiert.
-//
-// Strings inline auf Deutsch: voc ist German-first (siehe i18n
-// policy in PLAN.md).
-
+// Local-only privacy policy, presented in the interface language.
 import 'package:flutter/material.dart';
 
 import '../../core/theme/space_theme.dart';
+import '../../generated/l10n.dart';
 
 class PrivacyPolicyDialog extends StatelessWidget {
   const PrivacyPolicyDialog({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Dialog(
       backgroundColor: SpaceTheme.deepSpace,
-      shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: ConstrainedBox(
         constraints: BoxConstraints(
           maxWidth: 600,
@@ -38,118 +30,43 @@ class PrivacyPolicyDialog extends StatelessWidget {
                       color: SpaceTheme.starYellow, size: 28),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: Text(
-                      'Datenschutz',
-                      style: SpaceTheme.headlineStyle.copyWith(fontSize: 22),
-                    ),
+                    child: Text(s.privacyTitle,
+                        style: SpaceTheme.headlineStyle.copyWith(fontSize: 22)),
                   ),
                   IconButton(
+                    tooltip: s.close,
                     onPressed: () => Navigator.of(context).pop(),
-                    icon:
-                        const Icon(Icons.close, color: Colors.white70),
+                    icon: const Icon(Icons.close, color: Colors.white70),
                   ),
                 ],
               ),
               const Divider(color: Colors.white24),
-              const Expanded(
+              Expanded(
                 child: SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       _PolicySection(
-                        title: 'In Kürze',
-                        body:
-                            'Diese App speichert deinen Lernfortschritt '
-                            'ausschließlich auf diesem Gerät und sendet ihn '
-                            'nicht an uns oder Dritte. Es gibt kein Tracking, '
-                            'keine Werbung und keinen Account.',
-                      ),
+                          title: s.privacyBriefTitle, body: s.privacyBriefBody),
                       _PolicySection(
-                        title: 'Was wird wo gespeichert',
-                        body:
-                            'Nur lokal auf diesem Gerät, in den Standard-'
-                            'SharedPreferences von Flutter und einer '
-                            'Logdatei im sandboxed App-Verzeichnis:\n\n'
-                            '• Spielfortschritt (Punktzahl, aktuelles '
-                            'Level pro Spiel, freigeschaltete Erfolge)\n'
-                            '• Lernkurven-Status (welche Wörter / Items '
-                            'wie oft und wie sicher beantwortet wurden)\n'
-                            '• Kognitives Profil (Versuche und Treffer '
-                            'pro Skill-Bereich)\n'
-                            '• Streak (laufende und längste Serie an '
-                            'aufeinanderfolgenden Spieltagen)\n'
-                            '• Einstellungen (Lernstufe, Sprache, Ton '
-                            'an/aus, Schriftart, eigene Vokabel-Sets)\n'
-                            '• Eltern-PIN (4-stellig, für die '
-                            'Eltern-Übersicht)\n'
-                            '• Eine rollierende Crash-Logdatei mit max. '
-                            '50 Einträgen, nur bei tatsächlichen Abstürzen\n\n'
-                            'Keiner dieser Werte identifiziert dich. '
-                            'Kein Name, keine E-Mail, kein Geburtsdatum, '
-                            'keine Geräte-ID und keine IP-Adresse werden '
-                            'von der App dauerhaft gespeichert.',
-                      ),
+                          title: s.privacyStorageTitle,
+                          body: s.privacyStorageBody),
                       _PolicySection(
-                        title: 'Netzwerk',
-                        body:
-                            'Die englische Wortschatzdatenbank wird mit der '
-                            'App installiert. Die deutsche Datenbank wird '
-                            'bei der ersten Verwendung von Hugging Face '
-                            'heruntergeladen und danach lokal gespeichert. '
-                            'Dabei fallen die für eine Internetverbindung '
-                            'üblichen technischen Verbindungsdaten beim '
-                            'Download-Anbieter an.\n\n'
-                            'In-App-Käufe und deren Wiederherstellung werden '
-                            'über den App Store des Geräts abgewickelt. Die '
-                            'App erhält dabei keine Zahlungsdaten.\n\n'
-                            'Externe Links (z.B. zur Webseite des '
-                            'Herausgebers im Impressum) öffnen sich im '
-                            'System-Browser. Innerhalb der App passiert '
-                            'kein Datenversand.',
-                      ),
+                          title: s.privacyNetworkTitle,
+                          body: s.privacyNetworkBody),
                       _PolicySection(
-                        title: 'Crash-Berichte',
-                        body:
-                            'Wenn die App abstürzt, wird ein kurzer '
-                            'technischer Eintrag (Fehlermeldung, Stacktrace) '
-                            'in eine lokale Datei geschrieben. Du kannst '
-                            'sie unter Einstellungen → Diagnose ansehen. '
-                            'Sie verlässt das Gerät nur, wenn du den Log '
-                            'aktiv über "In Zwischenablage kopieren" '
-                            'rauskopierst und z.B. in eine E-Mail einfügst.',
-                      ),
+                          title: s.privacyCrashTitle, body: s.privacyCrashBody),
                       _PolicySection(
-                        title: 'Nutzung durch Minderjährige',
-                        body:
-                            'Die App kann von Lernenden verschiedener '
-                            'Altersgruppen genutzt werden, darunter auch '
-                            'Minderjährige. Die App legt kein Nutzerkonto an '
-                            'und erhebt selbst keine personenbezogenen '
-                            'Daten. Lernfortschritt und Einstellungen '
-                            'bleiben lokal auf dem Gerät.',
-                      ),
+                          title: s.privacyMinorsTitle,
+                          body: s.privacyMinorsBody),
                       _PolicySection(
-                        title: 'Deine Rechte',
-                        body:
-                            'Du kannst alle lokal gespeicherten Daten '
-                            'jederzeit über Einstellungen → "Alle Daten '
-                            'löschen" entfernen. Damit werden alle oben '
-                            'genannten Werte gelöscht. Beim Deinstallieren '
-                            'der App entfernen iOS und Android die '
-                            'gesamten Sandbox-Daten automatisch.',
-                      ),
+                          title: s.privacyRightsTitle,
+                          body: s.privacyRightsBody),
                       _PolicySection(
-                        title: 'Änderungen',
-                        body:
-                            'Sollten wir je beginnen, Daten zu sammeln '
-                            '(z.B. für ein Cloud-Backup), wird diese '
-                            'Erklärung aktualisiert, die Änderungen werden '
-                            'beim nächsten App-Start hervorgehoben, und '
-                            'jede neue Erhebung erfolgt nur mit deiner '
-                            'aktiven Zustimmung (Opt-in).',
-                      ),
-                      SizedBox(height: 8),
+                          title: s.privacyChangesTitle,
+                          body: s.privacyChangesBody),
+                      const SizedBox(height: 8),
                     ],
                   ),
                 ),
@@ -174,16 +91,12 @@ class _PolicySection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: SpaceTheme.titleStyle
-                .copyWith(fontSize: 16, color: SpaceTheme.starYellow),
-          ),
+          Text(title,
+              style: SpaceTheme.titleStyle
+                  .copyWith(fontSize: 16, color: SpaceTheme.starYellow)),
           const SizedBox(height: 6),
-          Text(
-            body,
-            style: SpaceTheme.bodyStyle.copyWith(fontSize: 13, height: 1.4),
-          ),
+          Text(body,
+              style: SpaceTheme.bodyStyle.copyWith(fontSize: 13, height: 1.4)),
         ],
       ),
     );

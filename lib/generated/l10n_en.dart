@@ -3250,4 +3250,53 @@ class SEn extends S {
 
   @override
   String get skillLabelReading => 'Reading';
+
+  @override
+  String get privacyBriefTitle => 'In brief';
+
+  @override
+  String get privacyBriefBody =>
+      'This app stores your learning progress exclusively on this device and does not send it to us or third parties. There is no tracking, no advertising and no account.';
+
+  @override
+  String get privacyStorageTitle => 'What is stored and where';
+
+  @override
+  String get privacyStorageBody =>
+      'Only locally on this device, in Flutter\'s standard SharedPreferences and a log file in the sandboxed app directory:\n\n• Game progress (score, current level per game, unlocked achievements)\n• Learning curve status (which words / items were answered, how often and how confidently)\n• Cognitive profile (attempts and correct answers per skill area)\n• Streak (current and longest series of consecutive days played)\n• Settings (learning level, language, sound on/off, font, custom vocabulary sets)\n• Parental PIN (4 digits, for the parent overview)\n• A rolling crash log file with at most 50 entries, only for actual crashes\n\nNone of these values identifies you. No name, email address, date of birth, device ID or IP address is stored permanently by the app.';
+
+  @override
+  String get privacyNetworkTitle => 'Network';
+
+  @override
+  String get privacyNetworkBody =>
+      'The English vocabulary database is installed with the app. The German database is downloaded from Hugging Face on first use and then stored locally. The download provider receives the technical connection data usual for an internet connection.\n\nIn-app purchases and their restoration are handled through the device\'s app store. The app receives no payment data.\n\nExternal links (e.g. to the publisher\'s website in the legal notice) open in the system browser. No data is sent from within the app.';
+
+  @override
+  String get privacyCrashTitle => 'Crash reports';
+
+  @override
+  String get privacyCrashBody =>
+      'If the app crashes, a short technical entry (error message, stack trace) is written to a local file. You can view it under Settings → Diagnostics. It only leaves the device if you actively copy the log using \"Copy to clipboard\" and paste it into an email, for example.';
+
+  @override
+  String get privacyMinorsTitle => 'Use by minors';
+
+  @override
+  String get privacyMinorsBody =>
+      'The app can be used by learners of different ages, including minors. The app creates no user account and does not itself collect personal data. Learning progress and settings remain locally on the device.';
+
+  @override
+  String get privacyRightsTitle => 'Your rights';
+
+  @override
+  String get privacyRightsBody =>
+      'You can remove all locally stored data at any time via Settings → \"Delete all data\". This deletes all the values listed above. When you uninstall the app, iOS and Android automatically remove all sandbox data.';
+
+  @override
+  String get privacyChangesTitle => 'Changes';
+
+  @override
+  String get privacyChangesBody =>
+      'If we ever start collecting data (e.g. for a cloud backup), this policy will be updated, the changes will be highlighted the next time the app starts, and any new collection will only take place with your active consent (Opt-in).';
 }

@@ -3290,4 +3290,53 @@ class SDe extends S {
 
   @override
   String get skillLabelReading => 'Lesen';
+
+  @override
+  String get privacyBriefTitle => 'In Kürze';
+
+  @override
+  String get privacyBriefBody =>
+      'Diese App speichert deinen Lernfortschritt ausschließlich auf diesem Gerät und sendet ihn nicht an uns oder Dritte. Es gibt kein Tracking, keine Werbung und keinen Account.';
+
+  @override
+  String get privacyStorageTitle => 'Was wird wo gespeichert';
+
+  @override
+  String get privacyStorageBody =>
+      'Nur lokal auf diesem Gerät, in den Standard-SharedPreferences von Flutter und einer Logdatei im sandboxed App-Verzeichnis:\n\n• Spielfortschritt (Punktzahl, aktuelles Level pro Spiel, freigeschaltete Erfolge)\n• Lernkurven-Status (welche Wörter / Items wie oft und wie sicher beantwortet wurden)\n• Kognitives Profil (Versuche und Treffer pro Skill-Bereich)\n• Streak (laufende und längste Serie an aufeinanderfolgenden Spieltagen)\n• Einstellungen (Lernstufe, Sprache, Ton an/aus, Schriftart, eigene Vokabel-Sets)\n• Eltern-PIN (4-stellig, für die Eltern-Übersicht)\n• Eine rollierende Crash-Logdatei mit max. 50 Einträgen, nur bei tatsächlichen Abstürzen\n\nKeiner dieser Werte identifiziert dich. Kein Name, keine E-Mail, kein Geburtsdatum, keine Geräte-ID und keine IP-Adresse werden von der App dauerhaft gespeichert.';
+
+  @override
+  String get privacyNetworkTitle => 'Netzwerk';
+
+  @override
+  String get privacyNetworkBody =>
+      'Die englische Wortschatzdatenbank wird mit der App installiert. Die deutsche Datenbank wird bei der ersten Verwendung von Hugging Face heruntergeladen und danach lokal gespeichert. Dabei fallen die für eine Internetverbindung üblichen technischen Verbindungsdaten beim Download-Anbieter an.\n\nIn-App-Käufe und deren Wiederherstellung werden über den App Store des Geräts abgewickelt. Die App erhält dabei keine Zahlungsdaten.\n\nExterne Links (z.B. zur Webseite des Herausgebers im Impressum) öffnen sich im System-Browser. Innerhalb der App passiert kein Datenversand.';
+
+  @override
+  String get privacyCrashTitle => 'Crash-Berichte';
+
+  @override
+  String get privacyCrashBody =>
+      'Wenn die App abstürzt, wird ein kurzer technischer Eintrag (Fehlermeldung, Stacktrace) in eine lokale Datei geschrieben. Du kannst sie unter Einstellungen → Diagnose ansehen. Sie verlässt das Gerät nur, wenn du den Log aktiv über \"In Zwischenablage kopieren\" rauskopierst und z.B. in eine E-Mail einfügst.';
+
+  @override
+  String get privacyMinorsTitle => 'Nutzung durch Minderjährige';
+
+  @override
+  String get privacyMinorsBody =>
+      'Die App kann von Lernenden verschiedener Altersgruppen genutzt werden, darunter auch Minderjährige. Die App legt kein Nutzerkonto an und erhebt selbst keine personenbezogenen Daten. Lernfortschritt und Einstellungen bleiben lokal auf dem Gerät.';
+
+  @override
+  String get privacyRightsTitle => 'Deine Rechte';
+
+  @override
+  String get privacyRightsBody =>
+      'Du kannst alle lokal gespeicherten Daten jederzeit über Einstellungen → \"Alle Daten löschen\" entfernen. Damit werden alle oben genannten Werte gelöscht. Beim Deinstallieren der App entfernen iOS und Android die gesamten Sandbox-Daten automatisch.';
+
+  @override
+  String get privacyChangesTitle => 'Änderungen';
+
+  @override
+  String get privacyChangesBody =>
+      'Sollten wir je beginnen, Daten zu sammeln (z.B. für ein Cloud-Backup), wird diese Erklärung aktualisiert, die Änderungen werden beim nächsten App-Start hervorgehoben, und jede neue Erhebung erfolgt nur mit deiner aktiven Zustimmung (Opt-in).';
 }
