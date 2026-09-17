@@ -45,6 +45,9 @@ jobs:
           channel: 'stable'
           cache: true
 
+      - name: Use CocoaPods exclusively
+        run: flutter config --no-enable-swift-package-manager
+
       - name: Install dependencies
         run: flutter pub get
 
