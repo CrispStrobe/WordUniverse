@@ -83,6 +83,7 @@ class _LanguagePackDialogState extends State<LanguagePackDialog> {
   late _Phase _phase;
 
   bool _errorIsNetwork = false;
+  bool _errorIsSpace = false;
 
   LanguagePack get _pack =>
       languagePackFor(widget.languageCode) ??
@@ -116,6 +117,7 @@ class _LanguagePackDialogState extends State<LanguagePackDialog> {
     setState(() {
       _phase = state.status == LanguagePackStatus.paused ? _Phase.paused : _Phase.failed;
       _errorIsNetwork = state.errorIsNetwork;
+      _errorIsSpace = state.errorIsSpace;
     });
   }
 
@@ -229,13 +231,31 @@ class _LanguagePackDialogState extends State<LanguagePackDialog> {
           s.packRequiredMessage(_pack.nativeName, _pack.downloadSizeLabel),
           style: SpaceTheme.bodyStyle,
         ),
+        Consumer<LanguagePackService>(builder: (context, service, _) {
+          final cached = service.stateFor(_pack.code).cachedBytes;
+          if (cached == null || cached <= 0) return const SizedBox.shrink();
+          return Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: _MetaLine(
+              icon: Icons.download_done_outlined,
+              text: s.packResumeProgress(
+                  _megabytes(cached), _pack.downloadSizeLabel),
+            ),
+          );
+        }),
         const SizedBox(height: 12),
         _MetaLine(
           icon: Icons.sd_storage_outlined,
-          text: s.packMetaSizeLicense(
-            _pack.downloadSizeLabel,
-            _pack.licenseLabel,
-          ),
+          // The database is stored decompressed, so the download figure alone
+          // understates what has to fit on the device by roughly six times.
+          text: _pack.installedSizeLabel == null
+              ? s.packMetaSizeLicense(
+                  _pack.downloadSizeLabel, _pack.licenseLabel)
+              : s.packMetaSizes(
+                  _pack.downloadSizeLabel,
+                  _pack.installedSizeLabel!,
+                  _pack.licenseLabel,
+                ),
         ),
         const SizedBox(height: 4),
         _MetaLine(
@@ -308,7 +328,12 @@ class _LanguagePackDialogState extends State<LanguagePackDialog> {
         ),
         const SizedBox(height: 12),
         Text(
-          _errorIsNetwork ? s.packFailedNetworkHint : s.packFailedDataHint,
+          _errorIsSpace
+              ? s.packNoSpaceHint(_pack.nativeName,
+                  _pack.installedSizeLabel ?? _pack.downloadSizeLabel)
+              : _errorIsNetwork
+                  ? s.packFailedNetworkHint
+                  : s.packFailedDataHint,
           style: SpaceTheme.bodyStyle.copyWith(fontSize: 12),
         ),
         if (showFallback) ...[
@@ -325,6 +350,8 @@ class _LanguagePackDialogState extends State<LanguagePackDialog> {
     );
   }
 }
+
+String _megabytes(int bytes) => '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
 
 class _MetaLine extends StatelessWidget {
   const _MetaLine({required this.icon, required this.text});

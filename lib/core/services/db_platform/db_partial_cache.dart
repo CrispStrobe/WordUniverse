@@ -69,6 +69,15 @@ abstract class DbPartialCache {
   }
 
   Future<void> clearCheckpoint(String url) => clear(url);
+
+  /// How many bytes are checkpointed for [url], without verifying them — the
+  /// header is enough to label "Resume — 12 of 25 MB", and hashing a 12 MB
+  /// prefix to draw a caption would be absurd. Null when nothing is cached or
+  /// the record is not a well-formed envelope.
+  Future<int?> cachedLength(String url) async {
+    final raw = await readRecord(keyFor(url));
+    return raw == null ? null : peekDbPartialLength(raw);
+  }
 }
 
 /// Test/in-memory fallback. Instances do not share entries.
@@ -134,6 +143,23 @@ Uint8List encodeDbPartial(List<int> bytes, {String? validator}) {
         ..add(validatorBytes)
         ..add(bytes))
       .takeBytes();
+}
+
+/// Payload length from the header alone: no digest pass. Returns null unless
+/// the envelope is self-consistent (magic, version, declared lengths).
+int? peekDbPartialLength(Uint8List bytes) {
+  if (bytes.length < _headerBytes) return null;
+  final header = ByteData.sublistView(bytes, 0, _headerBytes);
+  if (header.getUint8(0) != _magic0 ||
+      header.getUint8(1) != _magic1 ||
+      header.getUint8(2) != _version) {
+    return null;
+  }
+  final payloadLength = header.getUint32(4, Endian.little);
+  if (bytes.length != _headerBytes + header.getUint8(3) + payloadLength) {
+    return null;
+  }
+  return payloadLength;
 }
 
 DbPartial? decodeDbPartial(Uint8List bytes) {

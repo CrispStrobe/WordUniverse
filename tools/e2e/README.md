@@ -23,6 +23,12 @@ assertions, timeouts, or any pageerror make the process exit nonzero. Scenarios
 continue after failures to collect evidence; do not interpret a completed run as
 passing without checking its exit status and results.json.
 
+CI: .github/workflows/web-e2e.yml runs this suite on pull requests that touch
+lib/, web/ or tools/e2e/, and on demand. Prefer that over a local run — the web
+build plus a Chromium download is heavy, and a contended machine makes both the
+timings and any pause/resume race unreliable. Evidence is uploaded as an
+artifact.
+
 Scenarios:
   A: Distinct picker legends and immediate German interface switch.
   B: Full onboarding, German preference retained after declining initial pack,

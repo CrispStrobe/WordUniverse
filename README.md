@@ -143,6 +143,25 @@ A pack is delivered one of two ways:
 | **Bundled** — ships in the binary, always available offline | `assetPath` | English (CC BY-SA 4.0) |
 | **Downloaded** — fetched once on demand, then cached | `remoteUrl` + integrity pins | German (GPL-3.0, must not be bundled in a store binary) |
 
+Sizes, space and resumption:
+
+- **Both sizes are disclosed.** A pack is stored *decompressed*, so the German
+  pack is a ~25 MB download that occupies ~150 MB once installed. The consent
+  dialog and Settings state both figures, and Remove names what it frees.
+- **A download that cannot fit is refused before it starts** where the platform
+  reports a quota (browsers, via `navigator.storage.estimate()`). Native has no
+  portable free-space API, so there the out-of-space *write* is translated into
+  the same message instead of a generic failure — an underestimate that blocked
+  a workable install would be worse than no pre-check.
+- **A partly downloaded pack says so.** Bytes are checkpointed as the transfer
+  runs, so Settings shows "12.4 of 25 MB downloaded" and offers Resume; the
+  transfer continues from disk with an HTTP `Range` request.
+- **The registry pins are guarded in CI.** `expectedCompressedBytes` is a hard
+  gate, so rebuilding a pack without bumping the registry would break every new
+  install while existing ones kept working. `test/live/` checks the published
+  artifacts against the registry (`WU_LIVE=1`), scheduled by
+  `.github/workflows/pack-pins.yml`.
+
 `LanguagePackService` owns the install lifecycle and is what the UI listens
 to:
 
