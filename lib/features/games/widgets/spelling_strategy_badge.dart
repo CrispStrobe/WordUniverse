@@ -7,6 +7,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/models/vocabulary_models.dart';
+import '../../../generated/l10n.dart';
 
 /// Map from pipeline key → human-readable German label + one-line explanation.
 const _strategyInfo = {
@@ -70,6 +71,8 @@ class SpellingStrategyBadge extends StatelessWidget {
 
     // Prefer the per-word, science-grounded explanation shipped in the DB
     // (e.g. „Verlängere: Mann → Männer"); fall back to the category template.
+    // Explanations/examples remain German learning-language content: they teach
+    // German orthographic rules and word relationships, unlike the badge chrome.
     final tip = word.apiEnrichment?.spellingExplanation ?? info.tip;
 
     return Tooltip(
@@ -88,7 +91,7 @@ class SpellingStrategyBadge extends StatelessWidget {
             Icon(info.icon, color: info.color, size: 13),
             const SizedBox(width: 5),
             Text(
-              info.label,
+              spellingStrategyLabel(strategy, S.of(context)!)!,
               style: TextStyle(
                 color: info.color,
                 fontSize: 11,
@@ -106,5 +109,19 @@ class SpellingStrategyBadge extends StatelessWidget {
 }
 
 /// Returns the display label for a strategy key, or null if unknown.
-String? spellingStrategyLabel(String? key) =>
-    key != null ? _strategyInfo[key]?.label : null;
+// The optional locale preserves the German learning-content helper API;
+// widgets always pass their current interface locale explicitly.
+String? spellingStrategyLabel(String? key, [S? locale]) {
+  if (locale == null) return _strategyInfo[key]?.label;
+  final s = locale;
+  return switch (key) {
+  'grossschreibung' => s.statsCapitalization,
+  'klangtreu' => s.strategyPhonetic,
+  'morphem' => s.strategyStem,
+  'verwandt' => s.strategyRelated,
+  'doppelkonsonant' => s.strategyDouble,
+  'dehnung' => s.strategyLengthening,
+  'merkwort' => s.strategyMemory,
+  _ => null,
+};
+}

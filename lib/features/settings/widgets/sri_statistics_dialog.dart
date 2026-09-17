@@ -194,7 +194,7 @@ class SriStatisticsDialog extends StatelessWidget {
                       Expanded(
                         flex: 3,
                         child: Text(
-                          _getSkillLabel(skill),
+                          _getSkillLabel(skill, s),
                           style: SpaceTheme.bodyStyle.copyWith(fontSize: 12, color: Colors.white70),
                           textAlign: TextAlign.right,
                           overflow: TextOverflow.ellipsis,
@@ -249,30 +249,31 @@ class SriStatisticsDialog extends StatelessWidget {
   }
 
   /// Helper to get a display name for a LanguageSkillType
-  String _getSkillLabel(LanguageSkillType skill) {
+  String _getSkillLabel(LanguageSkillType skill, S s) {
     switch (skill) {
       case LanguageSkillType.spelling:
-        return 'Rechtschreibung';
+        return s.statsSpelling;
       case LanguageSkillType.articleSelection:
-        return 'Artikel (der/die/das)';
+        // der/die/das remain German: these are the articles being learned.
+        return s.statsArticles;
       case LanguageSkillType.pluralForm:
-        return 'Mehrzahl';
+        return s.statsPlural;
       case LanguageSkillType.wordType:
-        return 'Wortarten';
+        return s.statsWordTypes;
       case LanguageSkillType.sentenceStructure:
-        return 'Satzbau';
+        return s.statsSentenceStructure;
       case LanguageSkillType.punctuation:
-        return 'Zeichensetzung';
+        return s.statsPunctuation;
       case LanguageSkillType.capitalization:
-        return 'Großschreibung';
+        return s.statsCapitalization;
       case LanguageSkillType.verbConjugation:
-        return 'Verben (Zeitformen)';
+        return s.statsVerbs;
       case LanguageSkillType.caseUsage:
-        return 'Fälle (Kasus)';
+        return s.statsCases;
       case LanguageSkillType.vocabulary:
-        return 'Wortschatz';
+        return s.statsVocabulary;
       case LanguageSkillType.reading:
-        return 'Lesen im Kontext';
+        return s.statsReading;
     }
   }
 

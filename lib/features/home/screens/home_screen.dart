@@ -341,7 +341,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     color: isUnlocked ? Colors.white : SpaceTheme.moonSilver,
                     size: isVerySmall ? 22 : 28,
                   ),
-                  tooltip: 'Review',
+                  tooltip: S.of(context)!.homeReview,
                   style: IconButton.styleFrom(
                     backgroundColor:
                         SpaceTheme.deepSpace.withValues(alpha: 0.8),
@@ -364,7 +364,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 color: Colors.white,
                 size: isVerySmall ? 22 : 28,
               ),
-              tooltip: 'Lernprofil',
+              tooltip: S.of(context)!.homeLearningProfile,
               style: IconButton.styleFrom(
                 backgroundColor: SpaceTheme.deepSpace.withValues(alpha: 0.8),
                 padding: EdgeInsets.all(isVerySmall ? 8 : 12),
@@ -382,7 +382,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 color: Colors.white,
                 size: isVerySmall ? 22 : 28,
               ),
-              tooltip: 'Erfolge',
+              tooltip: S.of(context)!.achievements,
               style: IconButton.styleFrom(
                 backgroundColor: SpaceTheme.deepSpace.withValues(alpha: 0.8),
                 padding: EdgeInsets.all(isVerySmall ? 8 : 12),

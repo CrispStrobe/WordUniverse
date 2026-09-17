@@ -22,6 +22,7 @@ import 'package:flutter/foundation.dart';
 import '../models/language_pack.dart';
 import '../models/load_status.dart';
 import 'vocabulary_service.dart';
+import 'pack_failure_logger.dart';
 import 'db_platform/db_partial_cache.dart';
 import 'db_platform/db_remote.dart';
 import 'db_platform/db_storage.dart';
@@ -184,6 +185,11 @@ class LanguagePackService with ChangeNotifier {
         !await _vocabulary.isPackInstalled(code)) {
       final free = await _freeSpaceProbe();
       if (free != null && free < required) {
+        await PackFailureLogger.instance.record(
+          pack: code, operation: PackOperation.install,
+          stage: LoadStage.preparingStorage,
+          error: DbInsufficientSpaceException(requiredBytes: required, availableBytes: free),
+        );
         _log('⛔ "$code" needs $required bytes, $free available');
         _update(
           code,
@@ -249,6 +255,11 @@ class LanguagePackService with ChangeNotifier {
         ));
         return false;
       }
+      await PackFailureLogger.instance.record(
+        pack: code, operation: PackOperation.install,
+        stage: _states[code]!.message.stage, error: e,
+        requiredBytes: required,
+      );
       final isNetwork = e is DbDownloadException ? e.isNetwork : true;
       _log('❌ Install of "$code" failed: $e');
       _update(
@@ -279,6 +290,10 @@ class LanguagePackService with ChangeNotifier {
       await refresh();
       return true;
     } catch (e) {
+      await PackFailureLogger.instance.record(
+        pack: code, operation: PackOperation.activate,
+        stage: LoadStage.openingDatabase, error: e,
+      );
       _log('❌ Activating "$code" failed: $e');
       _update(
         code,

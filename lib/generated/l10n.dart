@@ -103,6 +103,222 @@ abstract class S {
   /// **'Word Universe'**
   String get appTitle;
 
+  /// No description provided for @homeReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get homeReview;
+
+  /// No description provided for @homeLearningProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Learning profile'**
+  String get homeLearningProfile;
+
+  /// No description provided for @statsSpelling.
+  ///
+  /// In en, this message translates to:
+  /// **'Spelling'**
+  String get statsSpelling;
+
+  /// No description provided for @statsArticles.
+  ///
+  /// In en, this message translates to:
+  /// **'Articles (der/die/das)'**
+  String get statsArticles;
+
+  /// No description provided for @statsPlural.
+  ///
+  /// In en, this message translates to:
+  /// **'Plurals'**
+  String get statsPlural;
+
+  /// No description provided for @statsWordTypes.
+  ///
+  /// In en, this message translates to:
+  /// **'Parts of speech'**
+  String get statsWordTypes;
+
+  /// No description provided for @statsSentenceStructure.
+  ///
+  /// In en, this message translates to:
+  /// **'Sentence structure'**
+  String get statsSentenceStructure;
+
+  /// No description provided for @statsPunctuation.
+  ///
+  /// In en, this message translates to:
+  /// **'Punctuation'**
+  String get statsPunctuation;
+
+  /// No description provided for @statsCapitalization.
+  ///
+  /// In en, this message translates to:
+  /// **'Capitalization'**
+  String get statsCapitalization;
+
+  /// No description provided for @statsVerbs.
+  ///
+  /// In en, this message translates to:
+  /// **'Verbs (tenses)'**
+  String get statsVerbs;
+
+  /// No description provided for @statsCases.
+  ///
+  /// In en, this message translates to:
+  /// **'Grammatical cases'**
+  String get statsCases;
+
+  /// No description provided for @statsVocabulary.
+  ///
+  /// In en, this message translates to:
+  /// **'Vocabulary'**
+  String get statsVocabulary;
+
+  /// No description provided for @statsReading.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading in context'**
+  String get statsReading;
+
+  /// No description provided for @strategyPhonetic.
+  ///
+  /// In en, this message translates to:
+  /// **'Phonetic spelling'**
+  String get strategyPhonetic;
+
+  /// No description provided for @strategyStem.
+  ///
+  /// In en, this message translates to:
+  /// **'Word stem principle'**
+  String get strategyStem;
+
+  /// No description provided for @strategyRelated.
+  ///
+  /// In en, this message translates to:
+  /// **'Related words'**
+  String get strategyRelated;
+
+  /// No description provided for @strategyDouble.
+  ///
+  /// In en, this message translates to:
+  /// **'Double consonant'**
+  String get strategyDouble;
+
+  /// No description provided for @strategyLengthening.
+  ///
+  /// In en, this message translates to:
+  /// **'Vowel lengthening'**
+  String get strategyLengthening;
+
+  /// No description provided for @strategyMemory.
+  ///
+  /// In en, this message translates to:
+  /// **'Memory word'**
+  String get strategyMemory;
+
+  /// No description provided for @diagnosticsPackFailures.
+  ///
+  /// In en, this message translates to:
+  /// **'Pack failures'**
+  String get diagnosticsPackFailures;
+
+  /// No description provided for @diagnosticsNoPackFailures.
+  ///
+  /// In en, this message translates to:
+  /// **'No local failures recorded.'**
+  String get diagnosticsNoPackFailures;
+
+  /// No description provided for @diagnosticsLocalOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Stored only on this device. Nothing is uploaded automatically.'**
+  String get diagnosticsLocalOnly;
+
+  /// No description provided for @diagnosticsPack.
+  ///
+  /// In en, this message translates to:
+  /// **'Pack'**
+  String get diagnosticsPack;
+
+  /// No description provided for @diagnosticsStage.
+  ///
+  /// In en, this message translates to:
+  /// **'Stage'**
+  String get diagnosticsStage;
+
+  /// No description provided for @diagnosticsCause.
+  ///
+  /// In en, this message translates to:
+  /// **'Cause'**
+  String get diagnosticsCause;
+
+  /// No description provided for @diagnosticsRequiredBytes.
+  ///
+  /// In en, this message translates to:
+  /// **'Required bytes'**
+  String get diagnosticsRequiredBytes;
+
+  /// No description provided for @diagnosticsAvailableBytes.
+  ///
+  /// In en, this message translates to:
+  /// **'Available bytes'**
+  String get diagnosticsAvailableBytes;
+
+  /// No description provided for @diagnosticsInstall.
+  ///
+  /// In en, this message translates to:
+  /// **'Installation'**
+  String get diagnosticsInstall;
+
+  /// No description provided for @diagnosticsActivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Activation'**
+  String get diagnosticsActivate;
+
+  /// No description provided for @diagnosticsCauseSpace.
+  ///
+  /// In en, this message translates to:
+  /// **'Insufficient space'**
+  String get diagnosticsCauseSpace;
+
+  /// No description provided for @diagnosticsCauseStorage.
+  ///
+  /// In en, this message translates to:
+  /// **'Storage failure'**
+  String get diagnosticsCauseStorage;
+
+  /// No description provided for @diagnosticsCauseSchema.
+  ///
+  /// In en, this message translates to:
+  /// **'Incompatible database schema'**
+  String get diagnosticsCauseSchema;
+
+  /// No description provided for @diagnosticsCausePayload.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid pack data'**
+  String get diagnosticsCausePayload;
+
+  /// No description provided for @diagnosticsCauseNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'Network failure'**
+  String get diagnosticsCauseNetwork;
+
+  /// No description provided for @diagnosticsCauseDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Download failure'**
+  String get diagnosticsCauseDownload;
+
+  /// No description provided for @diagnosticsCauseUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown failure'**
+  String get diagnosticsCauseUnknown;
+
   /// No description provided for @loadPreparing.
   ///
   /// In en, this message translates to:
