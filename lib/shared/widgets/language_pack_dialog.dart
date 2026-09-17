@@ -19,6 +19,7 @@ import '../../core/models/language_pack.dart';
 import '../../core/services/language_pack_service.dart';
 import '../../core/theme/space_theme.dart';
 import '../../generated/l10n.dart';
+import '../utils/load_status_localization.dart';
 
 /// Makes sure the active learning language is playable, prompting for the
 /// download if needed. Returns true when it is safe to start a game.
@@ -80,7 +81,7 @@ class LanguagePackDialog extends StatefulWidget {
 
 class _LanguagePackDialogState extends State<LanguagePackDialog> {
   late _Phase _phase;
-  String? _error;
+
   bool _errorIsNetwork = false;
 
   LanguagePack get _pack =>
@@ -101,7 +102,6 @@ class _LanguagePackDialogState extends State<LanguagePackDialog> {
     if (!mounted) return;
     setState(() {
       _phase = _Phase.installing;
-      _error = null;
     });
 
     final service = context.read<LanguagePackService>();
@@ -115,7 +115,6 @@ class _LanguagePackDialogState extends State<LanguagePackDialog> {
     final state = service.stateFor(widget.languageCode);
     setState(() {
       _phase = state.status == LanguagePackStatus.paused ? _Phase.paused : _Phase.failed;
-      _error = state.error;
       _errorIsNetwork = state.errorIsNetwork;
     });
   }
@@ -154,7 +153,7 @@ class _LanguagePackDialogState extends State<LanguagePackDialog> {
               switch (_phase) {
                 _Phase.confirm => s.packRequiredTitle(_pack.nativeName),
                 _Phase.installing => s.packDownloadingTitle(_pack.nativeName),
-                _Phase.paused => Localizations.localeOf(context).languageCode == 'de' ? 'Download pausiert' : 'Download paused',
+                _Phase.paused => s.loadPaused,
                 _Phase.failed => s.packFailedTitle,
               },
               style: SpaceTheme.headlineStyle.copyWith(fontSize: 18),
@@ -186,12 +185,12 @@ class _LanguagePackDialogState extends State<LanguagePackDialog> {
           ],
         _Phase.installing => [
           TextButton(onPressed: () => context.read<LanguagePackService>().pause(widget.languageCode),
-            child: Text(Localizations.localeOf(context).languageCode == 'de' ? 'Pausieren' : 'Pause')),
+            child: Text(s.downloadPause)),
         ],
         _Phase.paused => [
           TextButton(onPressed: () => Navigator.of(context).pop(false), child: Text(s.close)),
           TextButton(onPressed: _start,
-            child: Text(Localizations.localeOf(context).languageCode == 'de' ? 'Fortsetzen' : 'Resume')),
+            child: Text(s.downloadResume)),
         ],
         _Phase.failed => [
             TextButton(
@@ -270,7 +269,7 @@ class _LanguagePackDialogState extends State<LanguagePackDialog> {
             ),
             const SizedBox(height: 10),
             Text(
-              state.message.isEmpty ? s.packDownloadPreparing : state.message,
+              state.message.localized(s),
               style: SpaceTheme.bodyStyle.copyWith(fontSize: 13),
             ),
             const SizedBox(height: 4),
@@ -301,7 +300,7 @@ class _LanguagePackDialogState extends State<LanguagePackDialog> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          _error ?? s.packFailedTitle,
+          s.loadFailed,
           style: SpaceTheme.bodyStyle.copyWith(
             color: SpaceTheme.starYellow.withValues(alpha: 0.85),
             fontSize: 13,

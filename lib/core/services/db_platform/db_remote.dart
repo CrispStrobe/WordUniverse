@@ -10,6 +10,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'db_partial_cache.dart';
+import '../../models/load_status.dart';
 
 export 'db_partial_cache.dart' show DbPartialCache;
 
@@ -35,13 +36,13 @@ class DbDownloadSnapshot {
     this.status = DbDownloadStatus.idle,
     this.received = 0,
     this.total,
-    this.message = '',
+    this.message = const LoadStatus(LoadStage.preparing),
     this.error,
   });
   final DbDownloadStatus status;
   final int received;
   final int? total;
-  final String message;
+  final LoadStatus message;
   final Object? error;
   double? get progress =>
       total == null || total! <= 0 ? null : (received / total!).clamp(0.0, 1.0);
@@ -79,18 +80,18 @@ class DbDownloadController extends ChangeNotifier {
     }
     _pauseRequested = true;
     _abort?.call();
-    _emit(DbDownloadStatus.paused, received, total, 'Download paused');
+    _emit(DbDownloadStatus.paused, received, total, const LoadStatus(LoadStage.paused));
   }
 
   /// Arms a new installation attempt; does NOT initiate a detached download.
   void resume() {
     _pauseRequested = false;
     if (isPaused) {
-      _emit(DbDownloadStatus.idle, received, total, 'Ready to resume');
+      _emit(DbDownloadStatus.idle, received, total, const LoadStatus(LoadStage.resumeReady));
     }
   }
 
-  void _emit(DbDownloadStatus status, int bytes, int? size, String message,
+  void _emit(DbDownloadStatus status, int bytes, int? size, LoadStatus message,
       [Object? error]) {
     _snapshot = DbDownloadSnapshot(
       status: status,
@@ -109,7 +110,7 @@ Future<Uint8List> downloadCompressedDb({
   required String url,
   int? expectedCompressedBytes,
   int maxAttempts = 3,
-  void Function(double progress, String message)? onProgress,
+  LoadProgress? onProgress,
   http.Client Function()? clientFactory,
   DbPartialCache? partialCache,
   bool Function()? isPaused,
@@ -134,7 +135,7 @@ Future<Uint8List> runDownload(
   DbDownloadController controller, {
   int? expectedCompressedBytes,
   int maxAttempts = 3,
-  void Function(double progress, String message)? onProgress,
+  LoadProgress? onProgress,
   http.Client Function()? clientFactory,
   DbPartialCache? partialCache,
   bool Function()? isPaused,
@@ -214,8 +215,8 @@ Future<Uint8List> _downloadLoop(
             0,
             expectedCompressedBytes,
             attempt == 1
-                ? 'Downloading database…'
-                : 'Retrying download (attempt $attempt of $maxAttempts)…');
+                ? const LoadStatus(LoadStage.downloading)
+                : LoadStatus(LoadStage.retrying, attempt: attempt, maxAttempts: maxAttempts));
         final bytes = await _attempt(
           c,
           expectedCompressedBytes,
@@ -226,7 +227,7 @@ Future<Uint8List> _downloadLoop(
           attemptTimeout,
         );
         c._emit(DbDownloadStatus.completed, bytes.length, bytes.length,
-            'Download complete (${_mb(bytes.length)} MB)');
+            LoadStatus(LoadStage.downloadComplete, bytes: bytes.length));
         return bytes;
       } catch (error) {
         if (paused() || error is DbDownloadPausedException) {
@@ -265,7 +266,7 @@ Future<Uint8List> _downloadLoop(
             : DbDownloadStatus.failed,
         c.received,
         c.total,
-        error.toString(),
+        LoadStatus(error is DbDownloadPausedException ? LoadStage.paused : LoadStage.failed),
         error);
     rethrow;
   }
@@ -331,7 +332,7 @@ Future<Uint8List> _attempt(
 
     try {
       c._emit(
-          DbDownloadStatus.downloading, count, total, 'Downloading database…');
+          DbDownloadStatus.downloading, count, total, const LoadStatus(LoadStage.downloading));
       if (paused()) throw DbDownloadPausedException();
       final request = http.AbortableRequest('GET', Uri.parse(c.url),
           abortTrigger: abort.future);
@@ -401,9 +402,8 @@ Future<Uint8List> _attempt(
             DbDownloadStatus.downloading,
             count,
             total,
-            total == null
-                ? 'Downloading… ${_mb(count)} MB'
-                : 'Downloading… ${_mb(count)} / ${_mb(total)} MB');
+            LoadStatus(total == null ? LoadStage.downloadBytes : LoadStage.downloadTotal,
+              bytes: count, total: total ?? 0));
         if (count - checkpoint >= 1024 * 1024) {
           await cache.saveCheckpoint(c.url, buffer.toBytes(), validator);
           checkpoint = count;
@@ -488,5 +488,3 @@ void verifyDecompressedDb(
     }
   }
 }
-
-String _mb(int bytes) => (bytes / (1024 * 1024)).toStringAsFixed(1);

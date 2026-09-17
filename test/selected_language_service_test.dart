@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:WortUniversum/core/models/load_status.dart';
 import 'package:WortUniversum/core/services/language_pack_service.dart';
 import 'package:WortUniversum/core/services/vocabulary_service.dart';
 import 'package:WortUniversum/core/services/db_platform/db_remote.dart';
@@ -14,7 +15,7 @@ class SelectionVocabulary extends VocabularyService {
   @override Future<void> rememberLearningLanguage(String code) async { saved = code; }
   @override Future<bool> isPackInstalled(String code) async => code == 'en';
   @override Future<void> setLearningLanguage(String code, {bool allowDownload = false,
-    void Function(double, String)? onProgress}) async {
+    LoadProgress? onProgress}) async {
     if (failure != null) throw failure!;
     loaded = code;
     ready = true;

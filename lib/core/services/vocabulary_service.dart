@@ -11,6 +11,7 @@ import '../../features/games/models/false_friend.dart';
 import '../../features/games/models/phrasal_verb.dart';
 import '../../features/games/providers/game_provider.dart';
 import '../models/language_pack.dart';
+import '../models/load_status.dart';
 import '../models/skill_category.dart';
 import '../models/vocabulary_models.dart';
 import 'sri_service.dart';
@@ -79,7 +80,7 @@ class VocabularyService with ChangeNotifier {
   Future<void> initialize({
     String? learningLanguage,
     bool allowDownload = false,
-    void Function(double progress, String message)? onProgress,
+    LoadProgress? onProgress,
   }) async {
     final requestedLanguage = learningLanguage ?? await _loadLearningLanguage();
     final pack = _packs[requestedLanguage];
@@ -114,7 +115,7 @@ class VocabularyService with ChangeNotifier {
     _log('Initializing vocabulary service for $_learningLanguage...');
     try {
       // 1. Initialize DB with progress tracking
-      onProgress?.call(0.0, 'Preparing vocabulary database...');
+      onProgress?.call(0.0, const LoadStatus(LoadStage.preparing));
       await _dbService.initialize(
         assetPath: pack.assetPath ?? '',
         databaseName: pack.databaseName,
@@ -129,11 +130,11 @@ class VocabularyService with ChangeNotifier {
       );
 
       // 2. Load Words from SQLite
-      onProgress?.call(0.6, 'Loading words...');
+      onProgress?.call(0.6, const LoadStatus(LoadStage.loadingWords));
       await _loadVocabularyFromDB();
 
       // 3. Load User Customizations
-      onProgress?.call(0.9, 'Loading your customizations...');
+      onProgress?.call(0.9, const LoadStatus(LoadStage.loadingCustomizations));
       await _loadCustomContent();
       await _loadVocabularySets();
 
@@ -146,7 +147,7 @@ class VocabularyService with ChangeNotifier {
         );
       }
 
-      onProgress?.call(1.0, 'Ready!');
+      onProgress?.call(1.0, const LoadStatus(LoadStage.ready));
       _isInitialized = true;
       _initError = null;
       // Remember that a downloaded pack is now cached, so we don't re-prompt
@@ -233,7 +234,7 @@ class VocabularyService with ChangeNotifier {
   Future<void> setLearningLanguage(
     String language, {
     bool allowDownload = false,
-    void Function(double progress, String message)? onProgress,
+    LoadProgress? onProgress,
   }) async {
     if (!_packs.containsKey(language)) {
       throw ArgumentError.value(

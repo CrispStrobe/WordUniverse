@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'db_gzip.dart';
 import 'db_remote.dart';
+import '../../models/load_status.dart';
 
 /// Top-level entry point for [compute]. Runs in a background isolate so the
 /// ~25MB gzip → ~150MB decompression doesn't block the UI thread.
@@ -22,11 +23,11 @@ Future<Database> initPlatformDatabase({
   int? expectedCompressedBytes,
   int? expectedDecompressedBytes,
   String? expectedDecompressedSha256,
-  void Function(double progress, String message)? onProgress,
+  LoadProgress? onProgress,
 }) async {
   try {
     // PHASE 1: Determine database path (0.0 - 0.05)
-    onProgress?.call(0.0, 'Locating database storage...');
+    onProgress?.call(0.0, const LoadStatus(LoadStage.locatingStorage));
     if (kDebugMode) debugPrint("[DB_MOBILE] 📱 Initializing mobile/desktop database...");
 
     final Directory documentsDirectory =
@@ -36,7 +37,7 @@ Future<Database> initPlatformDatabase({
 
     // PHASE 2: Check if database already exists and is valid (0.05 - 0.10)
     if (await dbFile.exists()) {
-      onProgress?.call(0.05, 'Checking existing database...');
+      onProgress?.call(0.05, const LoadStatus(LoadStage.checkingDatabase));
       if (kDebugMode) debugPrint("[DB_MOBILE] Database file exists at: $path");
 
       try {
@@ -49,7 +50,7 @@ Future<Database> initPlatformDatabase({
         if (count != null && count > 0) {
           if (kDebugMode) debugPrint(
               "[DB_MOBILE] ✅ Using existing valid database with $count words");
-          onProgress?.call(1.0, 'Database ready!');
+          onProgress?.call(1.0, const LoadStatus(LoadStage.databaseReady));
           return db;
         }
 
@@ -74,7 +75,7 @@ Future<Database> initPlatformDatabase({
     if (kDebugMode) debugPrint("[DB_MOBILE] Extracting database from assets...");
 
     // Ensure directory exists
-    onProgress?.call(0.10, 'Preparing storage...');
+    onProgress?.call(0.10, const LoadStatus(LoadStage.preparingStorage));
     await Directory(dirname(path)).create(recursive: true);
 
     // PHASE 4: Obtain compressed bytes — download (GPL DE DB) or asset (0.10 - 0.55)
@@ -88,7 +89,7 @@ Future<Database> initPlatformDatabase({
         onProgress: (p, m) => onProgress?.call(0.10 + p * 0.45, m),
       );
     } else {
-      onProgress?.call(0.15, 'Loading compressed database from assets...');
+      onProgress?.call(0.15, const LoadStatus(LoadStage.loadingCompressed));
       final ByteData data = await rootBundle.load(assetPath);
       compressedBytes = data.buffer.asUint8List();
     }
@@ -96,11 +97,11 @@ Future<Database> initPlatformDatabase({
         (compressedBytes.length / (1024 * 1024)).toStringAsFixed(1);
 
     if (kDebugMode) debugPrint("[DB_MOBILE] Have $compressedSizeMB MB compressed data");
-    onProgress?.call(0.55, 'Loaded $compressedSizeMB MB compressed data');
+    onProgress?.call(0.55, LoadStatus(LoadStage.loadedCompressed, bytes: compressedBytes.length));
 
     // PHASE 5: Decompress (0.55 - 0.80) - THIS IS THE LONG PART
     if (kDebugMode) debugPrint("[DB_MOBILE] Starting decompression on background isolate...");
-    onProgress?.call(0.60, 'Decompressing database...');
+    onProgress?.call(0.60, const LoadStatus(LoadStage.decompressing));
 
     final stopwatch = Stopwatch()..start();
     final List<int> decompressedBytes;
@@ -115,10 +116,10 @@ Future<Database> initPlatformDatabase({
           (decompressedBytes.length / (1024 * 1024)).toStringAsFixed(1);
       if (kDebugMode) debugPrint(
           "[DB_MOBILE] Decompressed to $decompressedSizeMB MB in ${stopwatch.elapsedMilliseconds}ms");
-      onProgress?.call(0.80, 'Decompressed to $decompressedSizeMB MB');
+      onProgress?.call(0.80, LoadStatus(LoadStage.decompressed, bytes: decompressedBytes.length));
     } catch (e) {
       if (kDebugMode) debugPrint("[DB_MOBILE] ❌ Decompression error: $e");
-      onProgress?.call(0.0, 'Decompression failed: $e');
+      onProgress?.call(0.0, const LoadStatus(LoadStage.decompressionFailed));
       // A failed gzip decode on a downloaded file means corruption.
       if (remoteUrl != null && remoteUrl.isNotEmpty) {
         throw DbDownloadException(
@@ -137,15 +138,15 @@ Future<Database> initPlatformDatabase({
     );
 
     // PHASE 6: Write to disk (0.80 - 0.90)
-    onProgress?.call(0.85, 'Writing database to storage...');
+    onProgress?.call(0.85, const LoadStatus(LoadStage.writingStorage));
     if (kDebugMode) debugPrint("[DB_MOBILE] Writing database to: $path");
 
     await dbFile.writeAsBytes(decompressedBytes, flush: true);
     if (kDebugMode) debugPrint("[DB_MOBILE] Database written successfully");
-    onProgress?.call(0.90, 'Database saved to disk');
+    onProgress?.call(0.90, const LoadStatus(LoadStage.savedDisk));
 
     // PHASE 7: Open and verify (0.90 - 1.0)
-    onProgress?.call(0.95, 'Opening database...');
+    onProgress?.call(0.95, const LoadStatus(LoadStage.openingDatabase));
     if (kDebugMode) debugPrint("[DB_MOBILE] Opening database...");
 
     final db = await openDatabase(path, readOnly: true);
@@ -159,13 +160,13 @@ Future<Database> initPlatformDatabase({
     if (kDebugMode) debugPrint(
         "[DB_MOBILE] Total initialization time: ${stopwatch.elapsedMilliseconds}ms");
 
-    onProgress?.call(1.0, 'Database ready with $count words!');
+    onProgress?.call(1.0, LoadStatus(LoadStage.databaseReadyWords, count: count ?? 0));
 
     return db;
   } catch (e, stackTrace) {
     if (kDebugMode) debugPrint("[DB_MOBILE] ❌ Critical error during initialization: $e");
     if (kDebugMode) debugPrint("[DB_MOBILE] Stack trace: $stackTrace");
-    onProgress?.call(0.0, 'Database initialization failed');
+    onProgress?.call(0.0, const LoadStatus(LoadStage.failed));
     rethrow;
   }
 }

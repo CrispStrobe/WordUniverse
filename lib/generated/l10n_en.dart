@@ -12,6 +12,168 @@ class SEn extends S {
   String get appTitle => 'Word Universe';
 
   @override
+  String get loadPreparing => 'Preparing vocabulary database …';
+
+  @override
+  String get loadWebEngine => 'Initializing web database engine …';
+
+  @override
+  String get loadLocatingStorage => 'Locating database storage …';
+
+  @override
+  String get loadCheckingDatabase => 'Checking existing database …';
+
+  @override
+  String get loadPreparingStorage => 'Preparing storage …';
+
+  @override
+  String get loadLoadingCompressed => 'Loading compressed database …';
+
+  @override
+  String loadLoadedCompressed(Object size) {
+    return 'Loaded $size MB compressed data';
+  }
+
+  @override
+  String get loadDecompressing => 'Decompressing database …';
+
+  @override
+  String loadDecompressed(Object size) {
+    return 'Decompressed to $size MB';
+  }
+
+  @override
+  String get loadWritingBrowserStorage => 'Writing to browser storage …';
+
+  @override
+  String get loadWritingStorage => 'Writing database to storage …';
+
+  @override
+  String get loadSavedBrowser => 'Database saved to browser';
+
+  @override
+  String get loadSavedDisk => 'Database saved to disk';
+
+  @override
+  String get loadOpeningDatabase => 'Opening database …';
+
+  @override
+  String get loadDatabaseReady => 'Database ready!';
+
+  @override
+  String loadDatabaseReadyWords(Object count) {
+    return 'Database ready with $count words!';
+  }
+
+  @override
+  String get loadVerifying => 'Verifying database integrity …';
+
+  @override
+  String loadVerifiedWords(Object count) {
+    return 'Database verified: $count words';
+  }
+
+  @override
+  String get loadLoadingWords => 'Loading words …';
+
+  @override
+  String get loadLoadingCustomizations => 'Loading your customizations …';
+
+  @override
+  String get loadReady => 'Ready!';
+
+  @override
+  String get loadDownloading => 'Downloading database …';
+
+  @override
+  String loadDownloadBytes(Object size) {
+    return 'Downloading … $size MB';
+  }
+
+  @override
+  String loadDownloadTotal(Object size, Object total) {
+    return 'Downloading … $size / $total MB';
+  }
+
+  @override
+  String loadDownloadComplete(Object size) {
+    return 'Download complete ($size MB)';
+  }
+
+  @override
+  String loadRetrying(Object attempt, Object total) {
+    return 'Retrying download (attempt $attempt of $total) …';
+  }
+
+  @override
+  String get loadPaused => 'Download paused';
+
+  @override
+  String get loadResumeReady => 'Ready to resume';
+
+  @override
+  String get loadFailed =>
+      'The language data could not be loaded. Please try again.';
+
+  @override
+  String get loadDecompressionFailed =>
+      'The database could not be decompressed. Please try again.';
+
+  @override
+  String get loadLoadingProgress => 'Loading your progress …';
+
+  @override
+  String get loadLoadingLearning => 'Loading learning data …';
+
+  @override
+  String get loadLoadingProfile => 'Loading your profile …';
+
+  @override
+  String get downloadPause => 'Pause';
+
+  @override
+  String get downloadResume => 'Resume';
+
+  @override
+  String get downloadPaused => 'Paused';
+
+  @override
+  String get setupWelcome => 'Welcome to Word Universe';
+
+  @override
+  String get setupLearningQuestion => 'What language do you want to learn?';
+
+  @override
+  String get setupLearningDescription =>
+      'Language for words, exercises and games.';
+
+  @override
+  String get setupLearningLabel => 'Learning language';
+
+  @override
+  String get setupInterfaceQuestion => 'What language should the app use?';
+
+  @override
+  String get setupInterfaceDescription =>
+      'Language for menus, buttons and instructions.';
+
+  @override
+  String get setupInterfaceLabel => 'Interface language';
+
+  @override
+  String get setupContinue => 'Continue';
+
+  @override
+  String get setupSaveFailed =>
+      'Your language choices could not be saved. Please try again.';
+
+  @override
+  String get startupFailedTitle => 'Initialization failed';
+
+  @override
+  String get startupFailed => 'The app could not be started. Please try again.';
+
+  @override
   String get welcome => 'Discover the Word Universe!';
 
   @override

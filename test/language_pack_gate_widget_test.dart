@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:WortUniversum/core/models/load_status.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -12,10 +13,10 @@ class PausableVocabulary extends SelectionVocabulary {
   Completer<void>? attempt;
   int starts = 0;
   @override Future<void> setLearningLanguage(String code, {bool allowDownload = false,
-    void Function(double, String)? onProgress}) async {
+    LoadProgress? onProgress}) async {
     starts++;
     attempt = Completer<void>();
-    onProgress?.call(.25, 'Downloading 1 / 4 MB');
+    onProgress?.call(.25, const LoadStatus(LoadStage.downloadTotal, bytes: 1048576, total: 4194304));
     await attempt!.future;
     loaded = code;
   }
@@ -67,7 +68,7 @@ void main() {
     await tester.tap(find.text('Download'));
     await tester.pump();
     await tester.pump();
-    expect(find.text('Downloading 1 / 4 MB'), findsOneWidget);
+    expect(find.text('Downloading … 1.0 / 4.0 MB'), findsOneWidget);
     await tester.tap(find.text('Pause'));
     await tester.pumpAndSettle();
     expect(find.text('Resume'), findsOneWidget);

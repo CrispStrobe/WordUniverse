@@ -103,6 +103,288 @@ abstract class S {
   /// **'Word Universe'**
   String get appTitle;
 
+  /// No description provided for @loadPreparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing vocabulary database …'**
+  String get loadPreparing;
+
+  /// No description provided for @loadWebEngine.
+  ///
+  /// In en, this message translates to:
+  /// **'Initializing web database engine …'**
+  String get loadWebEngine;
+
+  /// No description provided for @loadLocatingStorage.
+  ///
+  /// In en, this message translates to:
+  /// **'Locating database storage …'**
+  String get loadLocatingStorage;
+
+  /// No description provided for @loadCheckingDatabase.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking existing database …'**
+  String get loadCheckingDatabase;
+
+  /// No description provided for @loadPreparingStorage.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing storage …'**
+  String get loadPreparingStorage;
+
+  /// No description provided for @loadLoadingCompressed.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading compressed database …'**
+  String get loadLoadingCompressed;
+
+  /// No description provided for @loadLoadedCompressed.
+  ///
+  /// In en, this message translates to:
+  /// **'Loaded {size} MB compressed data'**
+  String loadLoadedCompressed(Object size);
+
+  /// No description provided for @loadDecompressing.
+  ///
+  /// In en, this message translates to:
+  /// **'Decompressing database …'**
+  String get loadDecompressing;
+
+  /// No description provided for @loadDecompressed.
+  ///
+  /// In en, this message translates to:
+  /// **'Decompressed to {size} MB'**
+  String loadDecompressed(Object size);
+
+  /// No description provided for @loadWritingBrowserStorage.
+  ///
+  /// In en, this message translates to:
+  /// **'Writing to browser storage …'**
+  String get loadWritingBrowserStorage;
+
+  /// No description provided for @loadWritingStorage.
+  ///
+  /// In en, this message translates to:
+  /// **'Writing database to storage …'**
+  String get loadWritingStorage;
+
+  /// No description provided for @loadSavedBrowser.
+  ///
+  /// In en, this message translates to:
+  /// **'Database saved to browser'**
+  String get loadSavedBrowser;
+
+  /// No description provided for @loadSavedDisk.
+  ///
+  /// In en, this message translates to:
+  /// **'Database saved to disk'**
+  String get loadSavedDisk;
+
+  /// No description provided for @loadOpeningDatabase.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening database …'**
+  String get loadOpeningDatabase;
+
+  /// No description provided for @loadDatabaseReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Database ready!'**
+  String get loadDatabaseReady;
+
+  /// No description provided for @loadDatabaseReadyWords.
+  ///
+  /// In en, this message translates to:
+  /// **'Database ready with {count} words!'**
+  String loadDatabaseReadyWords(Object count);
+
+  /// No description provided for @loadVerifying.
+  ///
+  /// In en, this message translates to:
+  /// **'Verifying database integrity …'**
+  String get loadVerifying;
+
+  /// No description provided for @loadVerifiedWords.
+  ///
+  /// In en, this message translates to:
+  /// **'Database verified: {count} words'**
+  String loadVerifiedWords(Object count);
+
+  /// No description provided for @loadLoadingWords.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading words …'**
+  String get loadLoadingWords;
+
+  /// No description provided for @loadLoadingCustomizations.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading your customizations …'**
+  String get loadLoadingCustomizations;
+
+  /// No description provided for @loadReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready!'**
+  String get loadReady;
+
+  /// No description provided for @loadDownloading.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading database …'**
+  String get loadDownloading;
+
+  /// No description provided for @loadDownloadBytes.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading … {size} MB'**
+  String loadDownloadBytes(Object size);
+
+  /// No description provided for @loadDownloadTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading … {size} / {total} MB'**
+  String loadDownloadTotal(Object size, Object total);
+
+  /// No description provided for @loadDownloadComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Download complete ({size} MB)'**
+  String loadDownloadComplete(Object size);
+
+  /// No description provided for @loadRetrying.
+  ///
+  /// In en, this message translates to:
+  /// **'Retrying download (attempt {attempt} of {total}) …'**
+  String loadRetrying(Object attempt, Object total);
+
+  /// No description provided for @loadPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Download paused'**
+  String get loadPaused;
+
+  /// No description provided for @loadResumeReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to resume'**
+  String get loadResumeReady;
+
+  /// No description provided for @loadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The language data could not be loaded. Please try again.'**
+  String get loadFailed;
+
+  /// No description provided for @loadDecompressionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The database could not be decompressed. Please try again.'**
+  String get loadDecompressionFailed;
+
+  /// No description provided for @loadLoadingProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading your progress …'**
+  String get loadLoadingProgress;
+
+  /// No description provided for @loadLoadingLearning.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading learning data …'**
+  String get loadLoadingLearning;
+
+  /// No description provided for @loadLoadingProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading your profile …'**
+  String get loadLoadingProfile;
+
+  /// No description provided for @downloadPause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get downloadPause;
+
+  /// No description provided for @downloadResume.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get downloadResume;
+
+  /// No description provided for @downloadPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get downloadPaused;
+
+  /// No description provided for @setupWelcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to Word Universe'**
+  String get setupWelcome;
+
+  /// No description provided for @setupLearningQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'What language do you want to learn?'**
+  String get setupLearningQuestion;
+
+  /// No description provided for @setupLearningDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Language for words, exercises and games.'**
+  String get setupLearningDescription;
+
+  /// No description provided for @setupLearningLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Learning language'**
+  String get setupLearningLabel;
+
+  /// No description provided for @setupInterfaceQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'What language should the app use?'**
+  String get setupInterfaceQuestion;
+
+  /// No description provided for @setupInterfaceDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Language for menus, buttons and instructions.'**
+  String get setupInterfaceDescription;
+
+  /// No description provided for @setupInterfaceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Interface language'**
+  String get setupInterfaceLabel;
+
+  /// No description provided for @setupContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get setupContinue;
+
+  /// No description provided for @setupSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Your language choices could not be saved. Please try again.'**
+  String get setupSaveFailed;
+
+  /// No description provided for @startupFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Initialization failed'**
+  String get startupFailedTitle;
+
+  /// No description provided for @startupFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The app could not be started. Please try again.'**
+  String get startupFailed;
+
   /// No description provided for @welcome.
   ///
   /// In en, this message translates to:
