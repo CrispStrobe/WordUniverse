@@ -774,6 +774,21 @@ class SEn extends S {
   String get packGateLoadAction => 'Load language pack';
 
   @override
+  String packMetaSizes(String download, String installed, String license) {
+    return '$download download · $installed on this device · data under $license';
+  }
+
+  @override
+  String packNoSpaceHint(String language, String size) {
+    return 'There is not enough free space. $language needs about $size on this device once installed.';
+  }
+
+  @override
+  String packResumeProgress(String done, String total) {
+    return '$done of $total downloaded — it will continue from here';
+  }
+
+  @override
   String get packUseAction => 'Use';
 
   @override

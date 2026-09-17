@@ -147,7 +147,22 @@ Future<Database> initPlatformDatabase({
     onProgress?.call(0.85, const LoadStatus(LoadStage.writingStorage));
     if (kDebugMode) debugPrint("[DB_MOBILE] Writing database to: $path");
 
-    await dbFile.writeAsBytes(decompressedBytes, flush: true);
+    try {
+      await dbFile.writeAsBytes(decompressedBytes, flush: true);
+    } on FileSystemException catch (e) {
+      // ENOSPC (28 on Android/iOS/Linux). Native has no reliable pre-check, so
+      // this is where a full device becomes a message the user can act on.
+      if (e.osError?.errorCode == 28 ||
+          (e.osError?.message ?? '').toLowerCase().contains('no space')) {
+        // Don't leave a truncated database behind to be opened later.
+        try {
+          if (await dbFile.exists()) await dbFile.delete();
+        } catch (_) {}
+        throw DbInsufficientSpaceException(
+            requiredBytes: decompressedBytes.length);
+      }
+      rethrow;
+    }
     if (kDebugMode) debugPrint("[DB_MOBILE] Database written successfully");
     onProgress?.call(0.90, const LoadStatus(LoadStage.savedDisk));
 

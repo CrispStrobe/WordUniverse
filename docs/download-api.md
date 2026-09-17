@@ -71,12 +71,30 @@ IMPLEMENTED:
   stale pin cannot brick the install. Payload gates raise DbPayloadException;
   loaders surface its message verbatim.
 
+- Space: LanguagePackService refuses an install when a platform-reported quota
+  is smaller than pack.requiredFreeBytes (decompressed + compressed copy);
+  availableStorageBytes() is navigator.storage.estimate() on web and null on
+  native, where ENOSPC (errno 28) and browser quota errors are translated into
+  DbInsufficientSpaceException instead. LanguagePackState.errorIsSpace drives a
+  localized "needs about N MB" message rather than an unhelpful Retry hint.
+- Resume visibility: DbPartialCache.cachedLength(url) reads the envelope header
+  only (native reads 40 bytes, not the prefix), so refresh() can label a row
+  "12.4 of 25 MB downloaded" and offer Resume without hashing anything.
+
 VERIFICATION:
 Final combined native run: 61 tests passed (26 downloader/storage/gzip/socket
 and 35 existing LanguagePackService/registry regression tests). Chrome: 20 tests
 passed. Native/IndexedDB new-cache instance tests confirm validator persistence.
 Targeted flutter analyze clean; git diff --check clean.
 Native log: /tmp/worduniverse-download-native-tests.log.
+Live checks (opt-in, WU_LIVE=1): test/live/language_pack_pins_live_test.dart
+HEADs every published pack and compares content-length, sha256-shaped ETag and
+Accept-Ranges against the registry; test/live/db_remote_live_test.dart pauses a
+real Hugging Face download, resumes it from the on-disk checkpoint and checks
+the reassembled bytes against the pins (add WU_LIVE_DECOMPRESS=1 to also verify
+the decompressed digest). Registry pins were confirmed against the live
+artifact on 2026-09-17: 26,619,920 compressed, 156,913,664 decompressed,
+sha256 c66e3b49…00df.
 
 CAVEATS:
 - Bytes are still accumulated in memory for legacy Uint8List return; checkpoints

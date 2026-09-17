@@ -1,0 +1,66 @@
+# Headless browser verification of the language-pack flow (tools/e2e).
+#
+# Runs in CI, not on a developer box: `flutter build web` plus a Chromium
+# download is far too heavy to be a local loop, and results measured on a
+# contended machine are not trustworthy anyway.
+name: Web e2e
+
+on:
+  pull_request:
+    paths:
+      - 'lib/**'
+      - 'tools/e2e/**'
+      - 'web/**'
+      - 'pubspec.yaml'
+      - '.github/workflows/web-e2e.yml'
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+
+      - name: Build web
+        run: flutter build web --release
+
+      - name: Install Playwright Chromium
+        run: |
+          npm install --prefix /tmp/wu-playwright playwright --no-audit --no-fund
+          PLAYWRIGHT_BROWSERS_PATH=/tmp/wu-browsers \
+            /tmp/wu-playwright/node_modules/.bin/playwright install --with-deps chromium
+
+      - name: Serve the build
+        run: |
+          nohup python3 -m http.server 18100 -d build/web > /tmp/serve.log 2>&1 &
+          for _ in $(seq 1 30); do
+            curl -sfo /dev/null http://127.0.0.1:18100/ && break
+            sleep 1
+          done
+
+      # The suite downloads the real German pack from Hugging Face, so it also
+      # exercises Range resumption and the IndexedDB checkpoint store.
+      - name: Run scenarios
+        env:
+          NODE_PATH: /tmp/wu-playwright/node_modules
+          PLAYWRIGHT_BROWSERS_PATH: /tmp/wu-browsers
+          BASE_URL: http://127.0.0.1:18100
+          EVIDENCE_DIR: ${{ runner.temp }}/wu-live-evidence
+        run: tools/e2e/run.sh
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-e2e-evidence
+          path: ${{ runner.temp }}/wu-live-evidence
+          if-no-files-found: warn

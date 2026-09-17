@@ -1,0 +1,46 @@
+# Guards the language-pack registry against the published artifacts.
+#
+# expectedCompressedBytes is a hard gate in the download transport, so a pack
+# rebuilt and re-uploaded without bumping lib/core/models/language_pack.dart
+# breaks every NEW install while existing installs keep working. That is
+# invisible in the offline suite, hence a scheduled live check.
+name: Language pack pins
+
+on:
+  schedule:
+    - cron: '17 6 * * *'
+  push:
+    paths:
+      - 'lib/core/models/language_pack.dart'
+      - 'test/live/**'
+      - '.github/workflows/pack-pins.yml'
+  workflow_dispatch:
+    inputs:
+      decompress:
+        description: 'Also download and verify the decompressed digest'
+        type: boolean
+        default: false
+
+jobs:
+  pins:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      # HEAD-only: sizes, digests and Range support for every downloadable pack.
+      - name: Check registry pins against published packs
+        env:
+          WU_LIVE: '1'
+        run: flutter test test/live/language_pack_pins_live_test.dart
+      # Opt-in: the full fetch, resume and decompressed-digest verification.
+      - name: Verify a live resumable download end to end
+        if: github.event_name == 'workflow_dispatch' && inputs.decompress
+        env:
+          WU_LIVE: '1'
+          WU_LIVE_DECOMPRESS: '1'
+        run: flutter test test/live/db_remote_live_test.dart

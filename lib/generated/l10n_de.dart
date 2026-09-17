@@ -777,6 +777,21 @@ class SDe extends S {
   String get packGateLoadAction => 'Sprachpaket laden';
 
   @override
+  String packMetaSizes(String download, String installed, String license) {
+    return '$download Download · $installed auf diesem Gerät · Daten unter $license';
+  }
+
+  @override
+  String packNoSpaceHint(String language, String size) {
+    return 'Es ist nicht genug Speicher frei. $language braucht nach der Installation etwa $size auf diesem Gerät.';
+  }
+
+  @override
+  String packResumeProgress(String done, String total) {
+    return '$done von $total geladen — es geht hier weiter';
+  }
+
+  @override
   String get packUseAction => 'Verwenden';
 
   @override
