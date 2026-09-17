@@ -25,8 +25,16 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
+          flutter-version: '3.44.2'
           channel: 'stable'
           cache: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Check deployment parity
+        run: node --test tools/deployment-config.test.mjs
 
       - name: Show Flutter version
         run: flutter --version
@@ -61,7 +69,5 @@ jobs:
             exit 0
           fi
           # build/web is already the built output; tell Vercel not to build it.
-          cat > vercel.json <<'JSON'
-          { "framework": null, "buildCommand": "", "outputDirectory": ".", "ignoreCommand": "exit 0" }
-          JSON
+          node ../../tools/prepare-vercel.mjs vercel.json
           vercel --token "$VERCEL_TOKEN" --prod --yes
