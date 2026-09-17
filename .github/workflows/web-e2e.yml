@@ -15,6 +15,9 @@ on:
       - '.github/workflows/web-e2e.yml'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   e2e:
     runs-on: ubuntu-latest
@@ -23,7 +26,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: tools/e2e/package-lock.json
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
@@ -35,9 +40,9 @@ jobs:
 
       - name: Install Playwright Chromium
         run: |
-          npm install --prefix /tmp/wu-playwright playwright --no-audit --no-fund
-          PLAYWRIGHT_BROWSERS_PATH=/tmp/wu-browsers \
-            /tmp/wu-playwright/node_modules/.bin/playwright install --with-deps chromium
+          npm ci --prefix tools/e2e
+          npm run setup:ci --prefix tools/e2e
+          node --test tools/e2e/run.test.mjs tools/macos-release.test.mjs
 
       - name: Serve the build
         run: |
@@ -51,8 +56,6 @@ jobs:
       # exercises Range resumption and the IndexedDB checkpoint store.
       - name: Run scenarios
         env:
-          NODE_PATH: /tmp/wu-playwright/node_modules
-          PLAYWRIGHT_BROWSERS_PATH: /tmp/wu-browsers
           BASE_URL: http://127.0.0.1:18100
           EVIDENCE_DIR: ${{ runner.temp }}/wu-live-evidence
         run: tools/e2e/run.sh
