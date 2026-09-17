@@ -1,5 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:WortUniversum/core/models/language_pack.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:WortUniversum/core/services/language_pack_service.dart';
@@ -42,7 +44,13 @@ void main() {
             .widgetList<Text>(find.byType(Text))
             .map((t) => t.data ?? '')
             .join(' ');
-        expect(texts, contains('175 MB'));
+        final pack = kLanguagePacks['de']!;
+        // Independent of requiredFreeSizeLabel: copying on web needs two DBs;
+        // native renames staging. Both reserve compressed-download headroom.
+        final budget = (kIsWeb ? 2 : 1) * pack.expectedDecompressedBytes! +
+            pack.expectedCompressedBytes!;
+        expect(texts, contains('${(budget / (1024 * 1024)).round()} MiB'));
+        expect(texts, contains(locale == 'en' ? 'temporary' : 'temporär'));
         expect(texts, contains(locale == 'en' ? 'free' : 'frei'));
       });
     }
