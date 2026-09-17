@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import '../../../core/services/debug_provider.dart';
 import '../../../core/services/learner_profile_service.dart';
 import '../../../core/services/language_pack_service.dart';
-import '../../../core/services/vocabulary_service.dart';
+
 import '../../../core/theme/space_theme.dart';
 import '../../../core/models/skill_category.dart';
 import '../../../generated/l10n.dart';
@@ -138,10 +138,10 @@ class _GameMenuScreenState extends State<GameMenuScreen>
   /// vocabulary. If the active language pack isn't installed (e.g. the German
   /// DB was never downloaded), offer the download instead of pushing a game
   /// that would run on an empty word list and crash.
-  Future<void> _navigateToGame(Widget gameScreen) async {
+  Future<void> _navigateToGame(WidgetBuilder builder) async {
     if (!await ensureLanguagePackReady(context)) return;
     if (!mounted) return;
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => gameScreen));
+    Navigator.of(context).push(MaterialPageRoute(builder: builder));
   }
 
   void _showPurchaseFlow(BuildContext context) {
@@ -413,7 +413,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
   List<GameInfo> _buildGames() {
     final gameProvider = context.read<GameProvider>();
     final learningLanguage =
-        context.watch<VocabularyService>().learningLanguage;
+        context.watch<LanguagePackService>().selectedLanguage;
     final s = S.of(context)!;
 
     final games = [
@@ -424,7 +424,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         gradient: const LinearGradient(
             colors: [Color(0xFF4A00E0), Color(0xFF8E2DE2)]),
         supportedLearningLanguages: const ['de', 'en'],
-        onTap: () => _navigateToGame(SpaceWordRescueGame(
+        onTap: () => _navigateToGame((_) => SpaceWordRescueGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
@@ -434,7 +434,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         gradient: const LinearGradient(
             colors: [Color(0xFF00C9FF), Color(0xFF92FE9D)]),
         supportedLearningLanguages: const ['de', 'en'],
-        onTap: () => _navigateToGame(WordFindGame(
+        onTap: () => _navigateToGame((_) => WordFindGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
@@ -444,7 +444,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         gradient: const LinearGradient(
             colors: [Color(0xFFf953c6), Color(0xFFb91d73)]),
         supportedLearningLanguages: const ['de', 'en'],
-        onTap: () => _navigateToGame(WordSortGame(
+        onTap: () => _navigateToGame((_) => WordSortGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
@@ -454,7 +454,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         gradient: const LinearGradient(
             colors: [Color(0xFFFF6B6B), Color(0xFFFFE66D)]),
         supportedLearningLanguages: const ['de', 'en'],
-        onTap: () => _navigateToGame(WordSnakeGame(
+        onTap: () => _navigateToGame((_) => WordSnakeGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
@@ -464,7 +464,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         gradient: const LinearGradient(
             colors: [Color(0xFFFA8BFF), Color(0xFF2BD2FF)]),
         supportedLearningLanguages: const ['de', 'en'],
-        onTap: () => _navigateToGame(WordMemoryGame(
+        onTap: () => _navigateToGame((_) => WordMemoryGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
@@ -475,7 +475,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             colors: [Color(0xFFFFA500), Color(0xFFFF6347)]),
         supportedLearningLanguages: const ['de', 'en'],
         isPremium: true,
-        onTap: () => _navigateToGame(WordBuilderGame(
+        onTap: () => _navigateToGame((_) => WordBuilderGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
@@ -486,7 +486,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             colors: [Color(0xFF667eea), Color(0xFF764ba2)]),
         supportedLearningLanguages: const ['de', 'en'],
         isPremium: true,
-        onTap: () => _navigateToGame(WordTypeWhirlGame(
+        onTap: () => _navigateToGame((_) => WordTypeWhirlGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
@@ -497,7 +497,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             colors: [Color(0xFF00B4DB), Color(0xFF0083B0)]),
         supportedLearningLanguages: const ['de', 'en'],
         isPremium: true,
-        onTap: () => _navigateToGame(SpellingSpotterGame(
+        onTap: () => _navigateToGame((_) => SpellingSpotterGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
@@ -508,7 +508,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             colors: [Color(0xFF43C6AC), Color(0xFF191654)]),
         supportedLearningLanguages: const ['de', 'en'],
         isPremium: true,
-        onTap: () => _navigateToGame(SentenceCompletionGame(
+        onTap: () => _navigateToGame((_) => SentenceCompletionGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
@@ -519,7 +519,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             colors: [Color(0xFFDA22FF), Color(0xFF9733EE)]),
         supportedLearningLanguages: const ['de', 'en'],
         isPremium: true,
-        onTap: () => _navigateToGame(DefinitionQuizGame(
+        onTap: () => _navigateToGame((_) => DefinitionQuizGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
@@ -529,7 +529,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         gradient: const LinearGradient(
             colors: [Color(0xFF11998E), Color(0xFF38EF7D)]),
         supportedLearningLanguages: const ['de', 'en'],
-        onTap: () => _navigateToGame(const SriReviewGame()),
+        onTap: () => _navigateToGame((_) => const SriReviewGame()),
       ),
       GameInfo(
         title: s.antonymFlashTitle,
@@ -539,7 +539,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             colors: [Color(0xFFFC4A1A), Color(0xFFF7B733)]),
         supportedLearningLanguages: const ['de', 'en'],
         isPremium: true,
-        onTap: () => _navigateToGame(AntonymFlashGame(
+        onTap: () => _navigateToGame((_) => AntonymFlashGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
@@ -550,7 +550,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             colors: [Color(0xFF11998E), Color(0xFF38EF7D)]),
         supportedLearningLanguages: const ['de', 'en'],
         isPremium: true,
-        onTap: () => _navigateToGame(SynonymFlashGame(
+        onTap: () => _navigateToGame((_) => SynonymFlashGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
@@ -561,7 +561,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             colors: [Color(0xFF00B09B), Color(0xFF96C93D)]),
         supportedLearningLanguages: const ['de'],
         isPremium: true,
-        onTap: () => _navigateToGame(ConjugationDrillGame(
+        onTap: () => _navigateToGame((_) => ConjugationDrillGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
@@ -571,7 +571,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
         gradient: const LinearGradient(
             colors: [Color(0xFF1A237E), Color(0xFF3F51B5)]),
         supportedLearningLanguages: const ['de'],
-        onTap: () => _navigateToGame(TranslationFlashGame(
+        onTap: () => _navigateToGame((_) => TranslationFlashGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
@@ -582,7 +582,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             colors: [Color(0xFF009FFF), Color(0xFFec2F4B)]),
         supportedLearningLanguages: const ['de', 'en'],
         isPremium: true,
-        onTap: () => _navigateToGame(SyllableCountGame(
+        onTap: () => _navigateToGame((_) => SyllableCountGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
@@ -593,7 +593,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             colors: [Color(0xFFF7971E), Color(0xFFFFD200)]),
         supportedLearningLanguages: const ['de', 'en'],
         isPremium: true,
-        onTap: () => _navigateToGame(ClozeFlashGame(
+        onTap: () => _navigateToGame((_) => ClozeFlashGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
@@ -604,7 +604,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             colors: [Color(0xFF2193b0), Color(0xFF6dd5ed)]),
         supportedLearningLanguages: const ['de'],
         isPremium: true,
-        onTap: () => _navigateToGame(ExpressionFlashGame(
+        onTap: () => _navigateToGame((_) => ExpressionFlashGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
@@ -615,7 +615,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             colors: [Color(0xFF4776E6), Color(0xFF8E54E9)]),
         supportedLearningLanguages: const ['en'],
         isPremium: true,
-        onTap: () => _navigateToGame(HomophoneDrillGame(
+        onTap: () => _navigateToGame((_) => HomophoneDrillGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
@@ -626,7 +626,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             colors: [Color(0xFFEB3349), Color(0xFFF45C43)]),
         supportedLearningLanguages: const ['en'],
         isPremium: true,
-        onTap: () => _navigateToGame(HomophoneDrillGame(
+        onTap: () => _navigateToGame((_) => HomophoneDrillGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade),
             mode: HomophoneGameMode.confusables)),
       ),
@@ -638,7 +638,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             colors: [Color(0xFF11998e), Color(0xFF38ef7d)]),
         supportedLearningLanguages: const ['en'],
         isPremium: true,
-        onTap: () => _navigateToGame(PhrasalVerbPowerGame(
+        onTap: () => _navigateToGame((_) => PhrasalVerbPowerGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
@@ -649,7 +649,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             colors: [Color(0xFF8E2DE2), Color(0xFF4A00E0)]),
         supportedLearningLanguages: const ['en'],
         isPremium: true,
-        onTap: () => _navigateToGame(PhrasalVerbMatchGame(
+        onTap: () => _navigateToGame((_) => PhrasalVerbMatchGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
@@ -660,7 +660,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             colors: [Color(0xFFee0979), Color(0xFFff6a00)]),
         supportedLearningLanguages: const ['en'],
         isPremium: true,
-        onTap: () => _navigateToGame(FalseFriendsGame(
+        onTap: () => _navigateToGame((_) => FalseFriendsGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
@@ -671,7 +671,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             colors: [Color(0xFFc31432), Color(0xFF240b36)]),
         supportedLearningLanguages: const ['de'],
         isPremium: true,
-        onTap: () => _navigateToGame(WortfalleGame(
+        onTap: () => _navigateToGame((_) => WortfalleGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
@@ -682,7 +682,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             colors: [Color(0xFFF2994A), Color(0xFFF2C94C)]),
         supportedLearningLanguages: const ['de'],
         isPremium: true,
-        onTap: () => _navigateToGame(WortbaumeisterGame(
+        onTap: () => _navigateToGame((_) => WortbaumeisterGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
@@ -693,7 +693,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             colors: [Color(0xFF30E8BF), Color(0xFFFF8235)]),
         supportedLearningLanguages: const ['de'],
         isPremium: true,
-        onTap: () => _navigateToGame(GrossstadtGame(
+        onTap: () => _navigateToGame((_) => GrossstadtGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
@@ -704,7 +704,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             colors: [Color(0xFF11998e), Color(0xFF38ef7d)]),
         supportedLearningLanguages: const ['de'],
         isPremium: true,
-        onTap: () => _navigateToGame(GrossschreibungsGalaxieGame(
+        onTap: () => _navigateToGame((_) => GrossschreibungsGalaxieGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
@@ -715,7 +715,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             colors: [Color(0xFF6A11CB), Color(0xFF2575FC)]),
         supportedLearningLanguages: const ['de'],
         isPremium: true,
-        onTap: () => _navigateToGame(VerbtrennerGame(
+        onTap: () => _navigateToGame((_) => VerbtrennerGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
@@ -726,7 +726,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             colors: [Color(0xFF7F00FF), Color(0xFFE100FF)]),
         supportedLearningLanguages: const ['de', 'en'],
         isPremium: true,
-        onTap: () => _navigateToGame(HypernymFlashGame(
+        onTap: () => _navigateToGame((_) => HypernymFlashGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
@@ -737,7 +737,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             colors: [Color(0xFF203A43), Color(0xFF2C5364)]),
         supportedLearningLanguages: const ['de', 'en'],
         isPremium: true,
-        onTap: () => _navigateToGame(WordClassFlashGame(
+        onTap: () => _navigateToGame((_) => WordClassFlashGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
@@ -748,7 +748,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             colors: [Color(0xFFc6a700), Color(0xFF5f0f40)]),
         supportedLearningLanguages: const ['de'],
         isPremium: true,
-        onTap: () => _navigateToGame(ProverbClozeGame(
+        onTap: () => _navigateToGame((_) => ProverbClozeGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
       GameInfo(
@@ -759,7 +759,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
             colors: [Color(0xFF134E5E), Color(0xFF71B280)]),
         supportedLearningLanguages: const ['de'],
         isPremium: true,
-        onTap: () => _navigateToGame(ReverseTranslationFlashGame(
+        onTap: () => _navigateToGame((_) => ReverseTranslationFlashGame(
             gradeLevel: _getGradeLevelFromInt(gameProvider.grade))),
       ),
     ];

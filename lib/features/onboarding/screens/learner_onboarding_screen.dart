@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/services/learner_profile_service.dart';
-import '../../../core/services/vocabulary_service.dart';
+
 import '../../../core/theme/space_theme.dart';
 import '../../../features/games/providers/game_provider.dart';
 import '../../../generated/l10n.dart';
@@ -17,7 +17,6 @@ class LearnerOnboardingScreen extends StatefulWidget {
 }
 
 class _LearnerOnboardingScreenState extends State<LearnerOnboardingScreen> {
-  String _learningLanguage = 'de';
   LearnerGoal _goal = LearnerGoal.balanced;
   int _band = 1;
   int _minutes = 10;
@@ -26,9 +25,8 @@ class _LearnerOnboardingScreenState extends State<LearnerOnboardingScreen> {
   Future<void> _continue() async {
     if (_saving) return;
     setState(() => _saving = true);
-    await context
-        .read<VocabularyService>()
-        .rememberLearningLanguage(_learningLanguage);
+    // LanguageSetupScreen owns both language preferences. Learner setup must
+    // not overwrite them with a default (vocabulary is not loaded yet).
     context.read<GameProvider>().setGrade(_band);
     await context.read<LearnerProfileService>().completeOnboarding(
           goal: _goal,
@@ -66,19 +64,6 @@ class _LearnerOnboardingScreenState extends State<LearnerOnboardingScreen> {
                       Text(s.onboardingWelcomeBody,
                           style: SpaceTheme.bodyStyle),
                       const SizedBox(height: 22),
-                      _section(
-                          s.onboardingLearningLanguage,
-                          SegmentedButton<String>(
-                            segments: [
-                              ButtonSegment(
-                                  value: 'de', label: Text(s.languageGerman)),
-                              ButtonSegment(
-                                  value: 'en', label: Text(s.languageEnglish)),
-                            ],
-                            selected: {_learningLanguage},
-                            onSelectionChanged: (v) =>
-                                setState(() => _learningLanguage = v.first),
-                          )),
                       _section(
                           s.onboardingGoal,
                           Wrap(spacing: 8, runSpacing: 8, children: [

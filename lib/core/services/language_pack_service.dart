@@ -21,12 +21,30 @@ import 'package:flutter/foundation.dart';
 
 import '../models/language_pack.dart';
 import 'vocabulary_service.dart';
-import 'db_platform/db_remote.dart' show DbDownloadException;
+import 'db_platform/db_remote.dart';
 
 class LanguagePackService with ChangeNotifier {
   LanguagePackService(this._vocabulary);
 
   final VocabularyService _vocabulary;
+  String? _selectedLanguage;
+  String get selectedLanguage => _selectedLanguage ?? activeLanguage;
+
+  Future<void> selectLanguage(String code) async {
+    if (!kLanguagePacks.containsKey(code)) return;
+    if (await _vocabulary.savedLearningLanguage() != code) {
+      await _vocabulary.rememberLearningLanguage(code);
+    }
+    _selectedLanguage = code;
+    notifyListeners();
+  }
+
+  DbDownloadController? downloadFor(String code) {
+    final url = kLanguagePacks[code]?.remoteUrl;
+    return url == null ? null : DbDownloadController.sharedFor(url);
+  }
+
+  void pause(String code) => downloadFor(code)?.pause();
 
   final Map<String, LanguagePackState> _states = {
     for (final pack in kLanguagePacks.values)
@@ -59,7 +77,8 @@ class LanguagePackService with ChangeNotifier {
 
   /// True when the active pack is installed AND its vocabulary is loaded —
   /// i.e. it is safe to start a game.
-  bool get isActivePackReady => _vocabulary.isInitialized;
+  bool get isActivePackReady => !isAnyInstalling &&
+      _vocabulary.isInitialized && activeLanguage == selectedLanguage;
 
   bool isInstalled(String code) => stateFor(code).isInstalled;
 
@@ -82,7 +101,7 @@ class LanguagePackService with ChangeNotifier {
     for (final pack in kLanguagePacks.values) {
       final current = _states[pack.code]!;
       // Don't stomp on an install in flight.
-      if (current.isInstalling) continue;
+      if (current.isInstalling || current.status == LanguagePackStatus.paused) continue;
 
       final installed = await _vocabulary.isPackInstalled(pack.code);
       _states[pack.code] = current.copyWith(
@@ -119,10 +138,11 @@ class LanguagePackService with ChangeNotifier {
     }
 
     final state = _states[code]!;
-    if (state.isInstalling) {
+    if (isAnyInstalling) {
       _log('Install for "$code" already in flight');
       return false;
     }
+    await selectLanguage(code);
     if (state.isInstalled && activeLanguage == code && isActivePackReady) {
       return true;
     }
@@ -140,6 +160,7 @@ class LanguagePackService with ChangeNotifier {
     );
 
     try {
+      downloadFor(code)?.resume();
       await _vocabulary.setLearningLanguage(
         code,
         allowDownload: true,
@@ -171,6 +192,13 @@ class LanguagePackService with ChangeNotifier {
       await refresh();
       return true;
     } catch (e) {
+      if (e is DbDownloadPausedException) {
+        _update(code, _states[code]!.copyWith(
+          status: LanguagePackStatus.paused,
+          message: 'Download paused', clearError: true,
+        ));
+        return false;
+      }
       final isNetwork = e is DbDownloadException ? e.isNetwork : true;
       _log('❌ Install of "$code" failed: $e');
       _update(
@@ -192,6 +220,8 @@ class LanguagePackService with ChangeNotifier {
   /// activation failed.
   Future<bool> activate(String code) async {
     if (!kLanguagePacks.containsKey(code)) return false;
+    if (isAnyInstalling) return false;
+    await selectLanguage(code);
     if (!await _vocabulary.isPackInstalled(code)) return false;
     try {
       await _vocabulary.setLearningLanguage(code);
@@ -250,6 +280,7 @@ class LanguagePackService with ChangeNotifier {
   /// The splash uses this to decide between "just load it" and "ask first".
   Future<({String code, bool installed})> savedLanguageStatus() async {
     final code = await _vocabulary.savedLearningLanguage();
+    _selectedLanguage = code;
     final installed = await _vocabulary.isPackInstalled(code);
     return (code: code, installed: installed);
   }

@@ -40,8 +40,10 @@ void main() {
         File('lib/features/games/screens/game_menu_screen.dart')
             .readAsStringSync();
 
-    // Extract class names from `_navigateToGame(SomeGame(...)`
-    final regex = RegExp(r'_navigateToGame\(\s*(\w+Game)\s*\(');
+    // Extract class names from `_navigateToGame((_) => SomeGame(...)` (the
+    // guarded lazy-builder form) or the older direct form.
+    final regex =
+        RegExp(r'_navigateToGame\(\s*(?:\(_\)\s*=>\s*)?(\w+Game)\s*\(');
     final gameClasses = regex
         .allMatches(menuFile)
         .map((m) => m.group(1)!)

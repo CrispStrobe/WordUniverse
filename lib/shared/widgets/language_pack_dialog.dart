@@ -10,6 +10,8 @@
 // repeated failure offers the bundled fallback pack so the app stays usable.
 // Nothing downloads without an explicit tap.
 
+export 'language_pack_gate.dart';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -25,12 +27,11 @@ import '../../generated/l10n.dart';
 /// empty vocabulary, and an empty vocabulary means a crash inside the game.
 Future<bool> ensureLanguagePackReady(BuildContext context) async {
   final service = context.read<LanguagePackService>();
-  if (service.isActivePackReady) return true;
-
   final saved = await service.savedLanguageStatus();
   if (!context.mounted) return false;
+  if (service.isActivePackReady) return true;
 
-  return await showLanguagePackDialog(
+  final accepted = await showLanguagePackDialog(
         context,
         languageCode: saved.code,
         // Already downloaded but not loaded (e.g. after a failed switch):
@@ -38,6 +39,7 @@ Future<bool> ensureLanguagePackReady(BuildContext context) async {
         skipConsent: saved.installed,
       ) ??
       false;
+  return accepted && context.mounted && service.isActivePackReady;
 }
 
 /// Shows the pack installer for [languageCode]. Resolves to true when that
@@ -57,7 +59,7 @@ Future<bool?> showLanguagePackDialog(
   );
 }
 
-enum _Phase { confirm, installing, failed }
+enum _Phase { confirm, installing, paused, failed }
 
 class LanguagePackDialog extends StatefulWidget {
   const LanguagePackDialog({
@@ -88,7 +90,8 @@ class _LanguagePackDialogState extends State<LanguagePackDialog> {
   @override
   void initState() {
     super.initState();
-    _phase = _Phase.confirm;
+    final state = context.read<LanguagePackService>().stateFor(widget.languageCode);
+    _phase = state.status == LanguagePackStatus.paused ? _Phase.paused : _Phase.confirm;
     if (widget.skipConsent || !_pack.requiresDownload) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _start());
     }
@@ -111,7 +114,7 @@ class _LanguagePackDialogState extends State<LanguagePackDialog> {
     }
     final state = service.stateFor(widget.languageCode);
     setState(() {
-      _phase = _Phase.failed;
+      _phase = state.status == LanguagePackStatus.paused ? _Phase.paused : _Phase.failed;
       _error = state.error;
       _errorIsNetwork = state.errorIsNetwork;
     });
@@ -138,6 +141,7 @@ class _LanguagePackDialogState extends State<LanguagePackDialog> {
             switch (_phase) {
               _Phase.confirm => Icons.cloud_download_outlined,
               _Phase.installing => Icons.downloading,
+              _Phase.paused => Icons.pause_circle_outline,
               _Phase.failed => Icons.error_outline,
             },
             color: _phase == _Phase.failed
@@ -150,6 +154,7 @@ class _LanguagePackDialogState extends State<LanguagePackDialog> {
               switch (_phase) {
                 _Phase.confirm => s.packRequiredTitle(_pack.nativeName),
                 _Phase.installing => s.packDownloadingTitle(_pack.nativeName),
+                _Phase.paused => Localizations.localeOf(context).languageCode == 'de' ? 'Download pausiert' : 'Download paused',
                 _Phase.failed => s.packFailedTitle,
               },
               style: SpaceTheme.headlineStyle.copyWith(fontSize: 18),
@@ -160,6 +165,7 @@ class _LanguagePackDialogState extends State<LanguagePackDialog> {
       content: switch (_phase) {
         _Phase.confirm => _buildConfirm(s),
         _Phase.installing => _buildProgress(s),
+        _Phase.paused => _buildProgress(s),
         _Phase.failed => _buildError(s, showFallback, fallback),
       },
       actions: switch (_phase) {
@@ -178,9 +184,15 @@ class _LanguagePackDialogState extends State<LanguagePackDialog> {
               ),
             ),
           ],
-        // No actions while installing: the download can't be torn down
-        // half-way without leaving a partial file behind.
-        _Phase.installing => const [],
+        _Phase.installing => [
+          TextButton(onPressed: () => context.read<LanguagePackService>().pause(widget.languageCode),
+            child: Text(Localizations.localeOf(context).languageCode == 'de' ? 'Pausieren' : 'Pause')),
+        ],
+        _Phase.paused => [
+          TextButton(onPressed: () => Navigator.of(context).pop(false), child: Text(s.close)),
+          TextButton(onPressed: _start,
+            child: Text(Localizations.localeOf(context).languageCode == 'de' ? 'Fortsetzen' : 'Resume')),
+        ],
         _Phase.failed => [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),

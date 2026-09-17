@@ -33,6 +33,7 @@ import 'features/games/screens/game_menu_screen.dart';
 import 'features/settings/screens/settings_screen.dart';
 import 'features/achievements/screens/achievements_screen.dart';
 import 'features/onboarding/screens/learner_onboarding_screen.dart';
+import 'features/onboarding/screens/language_setup_screen.dart';
 import 'features/home/screens/daily_session_screen.dart';
 
 import 'features/games/screens/space_word_rescue_game.dart';
@@ -136,12 +137,22 @@ class MyApp extends StatefulWidget {
   final SharedPreferences prefs;
   const MyApp({super.key, required this.prefs});
 
+  static void setLocale(BuildContext context, Locale locale) {
+    final state = context.findAncestorStateOfType<_MyAppState>();
+    state?.updateLocale(locale);
+  }
+
   @override
   State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   Locale? _locale;
+
+  /// Immediate interface-language switch without an app restart.
+  void updateLocale(Locale locale) {
+    if (mounted) setState(() => _locale = locale);
+  }
 
   @override
   void initState() {
@@ -251,15 +262,42 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       theme: SpaceTheme.lightTheme,
       darkTheme: SpaceTheme.darkTheme,
       themeMode: ThemeMode.light,
+      // Do not let Navigator synthesize '/' below setup: that would initialize
+      // vocabulary and prompt for downloads behind the very first picker.
+      onGenerateInitialRoutes: (name) => [
+        if (name == AppRoutes.languageSetup)
+          MaterialPageRoute(builder: (context) => LanguageSetupScreen(
+            prefs: widget.prefs,
+            onLocaleChanged: (locale) => setState(() => _locale = locale),
+            onComplete: () => Navigator.of(context).pushReplacementNamed(
+              widget.prefs.getBool('learner_onboarding_complete') == true
+                ? AppRoutes.splash : AppRoutes.onboarding),
+          ))
+        else
+          AppRoutes.generateRoute(RouteSettings(name: name)),
+      ],
       initialRoute: switch (screenshotRoute) {
         'home' => AppRoutes.home,
         'games' => AppRoutes.gameMenu,
         'daily' => AppRoutes.daily,
-        _ => widget.prefs.getBool('learner_onboarding_complete') == true
+        _ => !LanguageSetupScreen.isComplete(widget.prefs)
+            ? AppRoutes.languageSetup
+            : widget.prefs.getBool('learner_onboarding_complete') == true
             ? AppRoutes.splash
             : AppRoutes.onboarding,
       },
-      onGenerateRoute: AppRoutes.generateRoute,
+      onGenerateRoute: (settings) {
+        if (settings.name == AppRoutes.languageSetup) {
+          return MaterialPageRoute(builder: (context) => LanguageSetupScreen(
+            prefs: widget.prefs,
+            onLocaleChanged: (locale) => setState(() => _locale = locale),
+            onComplete: () => Navigator.of(context).pushReplacementNamed(
+              widget.prefs.getBool('learner_onboarding_complete') == true
+                ? AppRoutes.splash : AppRoutes.onboarding),
+          ));
+        }
+        return AppRoutes.generateRoute(settings);
+      },
       builder: (context, child) {
         // Global error widget builder
         ErrorWidget.builder = (FlutterErrorDetails errorDetails) {
@@ -292,6 +330,7 @@ class AppRoutes {
   // Route names
   static const String splash = '/';
   static const String onboarding = '/onboarding';
+  static const String languageSetup = '/language-setup';
   static const String home = '/home';
   static const String gameMenu = '/games';
   static const String daily = '/daily';
@@ -336,58 +375,58 @@ class AppRoutes {
         final grade = args?['grade'] as int? ?? 1;
         final gradeLevel =
             GradeLevel.values[grade.clamp(1, 6) - 1]; // Safer way
-        return _createRoute(SpaceWordRescueGame(gradeLevel: gradeLevel));
+        return _createGameRoute((_) => SpaceWordRescueGame(gradeLevel: gradeLevel));
 
       case wordFind:
         final grade = args?['grade'] as int? ?? 1;
         final gradeLevel = GradeLevel.values[grade.clamp(1, 6) - 1];
-        return _createRoute(WordFindGame(gradeLevel: gradeLevel));
+        return _createGameRoute((_) => WordFindGame(gradeLevel: gradeLevel));
 
       case wordSort:
         final grade = args?['grade'] as int? ?? 1;
         final gradeLevel = GradeLevel.values[grade.clamp(1, 6) - 1];
-        return _createRoute(WordSortGame(gradeLevel: gradeLevel));
+        return _createGameRoute((_) => WordSortGame(gradeLevel: gradeLevel));
 
       case wordSnake:
         final grade = args?['grade'] as int? ?? 1;
         final gradeLevel = GradeLevel.values[grade.clamp(1, 6) - 1];
-        return _createRoute(WordSnakeGame(gradeLevel: gradeLevel));
+        return _createGameRoute((_) => WordSnakeGame(gradeLevel: gradeLevel));
 
       case wordMemory:
         final grade = args?['grade'] as int? ?? 1;
         final gradeLevel = GradeLevel.values[grade.clamp(1, 6) - 1];
-        return _createRoute(WordMemoryGame(gradeLevel: gradeLevel));
+        return _createGameRoute((_) => WordMemoryGame(gradeLevel: gradeLevel));
 
       case wordBuilder:
         final grade = args?['grade'] as int? ?? 1;
         final gradeLevel = GradeLevel.values[grade.clamp(1, 6) - 1];
-        return _createRoute(WordBuilderGame(gradeLevel: gradeLevel));
+        return _createGameRoute((_) => WordBuilderGame(gradeLevel: gradeLevel));
 
       case wordWhirl:
         final grade = args?['grade'] as int? ?? 1;
         final gradeLevel = GradeLevel.values[grade.clamp(1, 6) - 1];
-        return _createRoute(WordTypeWhirlGame(gradeLevel: gradeLevel));
+        return _createGameRoute((_) => WordTypeWhirlGame(gradeLevel: gradeLevel));
 
       case wortbaumeister:
         final grade = args?['grade'] as int? ?? 1;
         final gradeLevel = GradeLevel.values[grade.clamp(1, 6) - 1];
-        return _createRoute(WortbaumeisterGame(gradeLevel: gradeLevel));
+        return _createGameRoute((_) => WortbaumeisterGame(gradeLevel: gradeLevel));
 
       case grossstadt:
         final grade = args?['grade'] as int? ?? 1;
         final gradeLevel = GradeLevel.values[grade.clamp(1, 6) - 1];
-        return _createRoute(GrossstadtGame(gradeLevel: gradeLevel));
+        return _createGameRoute((_) => GrossstadtGame(gradeLevel: gradeLevel));
 
       case grossschreib:
         final grade = args?['grade'] as int? ?? 1;
         final gradeLevel = GradeLevel.values[grade.clamp(1, 6) - 1];
-        return _createRoute(
+        return _createGameRoute((_) =>
             GrossschreibungsGalaxieGame(gradeLevel: gradeLevel));
 
       case verbtrenner:
         final grade = args?['grade'] as int? ?? 1;
         final gradeLevel = GradeLevel.values[grade.clamp(1, 6) - 1];
-        return _createRoute(VerbtrennerGame(gradeLevel: gradeLevel));
+        return _createGameRoute((_) => VerbtrennerGame(gradeLevel: gradeLevel));
 
       case AppRoutes.settings:
         return _createRoute(const SettingsScreen());
@@ -434,6 +473,9 @@ class AppRoutes {
         );
     }
   }
+
+  static PageRoute _createGameRoute(WidgetBuilder builder) =>
+      _createRoute(LanguagePackGate(builder: builder));
 
   static PageRoute _createRoute(Widget page) {
     return PageRouteBuilder(
@@ -529,16 +571,12 @@ class _SplashScreenState extends State<SplashScreen>
           // Apple App Store Review Guidelines §2.4.2 / §4.2.3: disclose the
           // size and prompt before downloading resources. The dialog handles
           // disclosure, progress, retry and the fallback offer.
-          final ready = await showLanguagePackDialog(
+          await showLanguagePackDialog(
             context,
             languageCode: saved.code,
           );
-          if (ready != true && mounted) {
-            // "Not now" (or a download the user gave up on) → run on the
-            // bundled pack and remember it, so we don't re-prompt every
-            // launch. The other language can be downloaded in Settings.
-            await packs.activateFallback();
-          }
+          // Skip preserves the selected language. Browsing remains available;
+          // every game reoffers the pack before its constructor can run.
         } else if (mounted) {
           await vocab.initialize(
             onProgress: (vocabProgress, vocabMessage) {
