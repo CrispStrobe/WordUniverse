@@ -16,6 +16,7 @@ import '../../models/load_status.dart';
 Future<Database> initPlatformDatabase({
   required String assetPath,
   required String databaseName,
+  List<String> legacyDatabaseNames = const [],
   String? remoteUrl,
   int? expectedCompressedBytes,
   int? expectedDecompressedBytes,

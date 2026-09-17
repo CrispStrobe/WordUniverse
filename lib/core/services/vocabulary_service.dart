@@ -119,6 +119,7 @@ class VocabularyService with ChangeNotifier {
       await _dbService.initialize(
         assetPath: pack.assetPath ?? '',
         databaseName: pack.databaseName,
+        legacyDatabaseNames: pack.legacyDatabaseNames,
         remoteUrl: pack.remoteUrl,
         expectedCompressedBytes: pack.expectedCompressedBytes,
         expectedDecompressedBytes: pack.expectedDecompressedBytes,

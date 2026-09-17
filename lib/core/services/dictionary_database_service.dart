@@ -32,6 +32,7 @@ class DictionaryDatabaseService {
     // quietly point at the German asset, which is NOT bundled.
     required String assetPath,
     required String databaseName,
+    List<String> legacyDatabaseNames = const [],
     String? remoteUrl,
     int? expectedCompressedBytes,
     int? expectedDecompressedBytes,
@@ -76,6 +77,7 @@ class DictionaryDatabaseService {
       _database = await initPlatformDatabase(
         assetPath: assetPath,
         databaseName: databaseName,
+        legacyDatabaseNames: legacyDatabaseNames,
         remoteUrl: remoteUrl,
         expectedCompressedBytes: expectedCompressedBytes,
         expectedDecompressedBytes: expectedDecompressedBytes,

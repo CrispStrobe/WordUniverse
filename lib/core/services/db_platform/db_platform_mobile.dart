@@ -15,6 +15,7 @@ import '../../models/load_status.dart';
 Future<Database> initPlatformDatabase({
   required String assetPath,
   required String databaseName,
+  List<String> legacyDatabaseNames = const [],
   String? remoteUrl,
   int? expectedCompressedBytes,
   int? expectedDecompressedBytes,
@@ -31,6 +32,19 @@ Future<Database> initPlatformDatabase({
         await getApplicationDocumentsDirectory();
     final String path = join(documentsDirectory.path, databaseName);
     final File dbFile = File(path);
+
+    // Adoption belongs to explicit initialization, after consent/quota checks.
+    // Readiness probes must never allocate/copy a full artifact or touch staging.
+    if (!await dbFile.exists() && expectedDecompressedSha256 != null) {
+      await adoptLegacyDatabase(
+        factory: databaseFactory, destination: path,
+        candidates: [for (final name in legacyDatabaseNames) join(documentsDirectory.path, name)],
+        digest: expectedDecompressedSha256,
+        read: (name) => File(name).readAsBytes(),
+        write: (name, bytes) async { await File(name).writeAsBytes(bytes, flush: true); },
+        promote: (staging, target, _) async { await File(staging).rename(target); },
+      );
+    }
 
     // PHASE 2: Check if database already exists and is valid (0.05 - 0.10)
     if (await dbFile.exists()) {
@@ -211,15 +225,7 @@ Future<bool> isPlatformDatabaseInstalled(String databaseName, {
         await getApplicationDocumentsDirectory();
     final String path = join(documentsDirectory.path, databaseName);
     if (!await File(path).exists()) {
-      if (expectedDecompressedSha256 == null) return false;
-      return adoptLegacyDatabase(
-        factory: databaseFactory, destination: path,
-        candidates: [for (final name in legacyDatabaseNames) join(documentsDirectory.path, name)],
-        digest: expectedDecompressedSha256,
-        read: (name) => File(name).readAsBytes(),
-        write: (name, bytes) async { await File(name).writeAsBytes(bytes, flush: true); },
-        promote: (staging, target, _) async { await File(staging).rename(target); },
-      );
+      return false;
     }
 
     final db = await openValidatedDictionary(databaseFactory, path);

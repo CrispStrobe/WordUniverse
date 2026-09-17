@@ -85,7 +85,10 @@ void main() {
       expect(await factory.readDatabaseBytes(old.databaseName), bytes);
       expect(await isPlatformDatabaseInstalled(next.databaseName), isFalse);
       expect(await isPlatformDatabaseInstalled(next.databaseName,
-          legacyDatabaseNames: [old.databaseName], expectedDecompressedSha256: sha256.convert(bytes).toString()), isTrue);
+          legacyDatabaseNames: [old.databaseName], expectedDecompressedSha256: sha256.convert(bytes).toString()), isFalse);
+      final adopted = await initPlatformDatabase(assetPath: 'offline-unused', databaseName: next.databaseName,
+          legacyDatabaseNames: [old.databaseName], expectedDecompressedSha256: sha256.convert(bytes).toString());
+      await adopted.close();
       expect(await factory.readDatabaseBytes(old.databaseName), bytes);
       await factory.deleteDatabase(old.databaseName);
       final opened = await initPlatformDatabase(assetPath: 'offline-unused', databaseName: next.databaseName);
