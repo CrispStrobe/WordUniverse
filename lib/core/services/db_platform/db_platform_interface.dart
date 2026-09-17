@@ -1,6 +1,7 @@
 // lib/core/services/db_platform/db_platform_interface.dart
 
 import 'package:sqflite/sqflite.dart';
+import '../../models/load_status.dart';
 
 /// Platform-specific database initialization interface
 ///
@@ -19,7 +20,7 @@ Future<Database> initPlatformDatabase({
   int? expectedCompressedBytes,
   int? expectedDecompressedBytes,
   String? expectedDecompressedSha256,
-  void Function(double progress, String message)? onProgress,
+  LoadProgress? onProgress,
 }) {
   throw UnsupportedError(
     'Cannot init database: Unknown platform. '

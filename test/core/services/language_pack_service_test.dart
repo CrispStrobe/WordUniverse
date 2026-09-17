@@ -11,6 +11,7 @@
 // service actually depends on is small — six methods and two getters.
 
 import 'dart:async';
+import 'package:WortUniversum/core/models/load_status.dart';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:WortUniversum/core/models/language_pack.dart';
@@ -41,7 +42,7 @@ class _FakeVocabulary extends VocabularyService {
   Completer<void>? block;
 
   /// Progress values to emit before completing, for the download UI.
-  List<(double, String)> emitProgress = const [];
+  List<(double, LoadStatus)> emitProgress = const [];
 
   final List<String> calls = [];
 
@@ -74,7 +75,7 @@ class _FakeVocabulary extends VocabularyService {
   Future<void> setLearningLanguage(
     String language, {
     bool allowDownload = false,
-    void Function(double progress, String message)? onProgress,
+    LoadProgress? onProgress,
   }) async {
     calls.add('set:$language:allowDownload=$allowDownload');
     for (final (p, m) in emitProgress) {
@@ -157,7 +158,7 @@ void main() {
     test('download progress reaches the state and notifies listeners',
         () async {
       final vocab = _FakeVocabulary()
-        ..emitProgress = const [(0.25, 'Downloading…'), (0.8, 'Unpacking…')];
+        ..emitProgress = const [(0.25, LoadStatus(LoadStage.downloading)), (0.8, LoadStatus(LoadStage.decompressing))];
       final service = LanguagePackService(vocab);
 
       var notifications = 0;
@@ -173,7 +174,7 @@ void main() {
     test('progress is clamped, so a bad callback cannot break the bar',
         () async {
       final vocab = _FakeVocabulary()
-        ..emitProgress = const [(-3.0, 'nonsense'), (42.0, 'nonsense')];
+        ..emitProgress = const [(-3.0, LoadStatus(LoadStage.preparing)), (42.0, LoadStatus(LoadStage.ready))];
       final service = LanguagePackService(vocab);
 
       late double seen;
