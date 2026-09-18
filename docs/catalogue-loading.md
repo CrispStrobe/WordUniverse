@@ -53,11 +53,27 @@ which the German pack pins and enforces. Measured in Chromium:
 | gunzip | 60,556 ms (`package:archive`) | **1,717 ms** (`DecompressionStream`) |
 | sha256 | 190,095 ms (`package:crypto`) | **624 ms** (`crypto.subtle`) |
 
+The German pack is worse, because it is 149 MB and pins a digest that **is**
+enforced. Through the old path, in the same browser:
+
+| German pack, 149 MB | |
+|---|---|
+| gunzip `package:archive` | 81,661 ms |
+| sha256 `package:crypto` | 273,379 ms |
+| **total, on the main thread** | **355,040 ms — 5m 55s** |
+
+and that is before the download, the storage write and the launch.
+
 The web loader now uses the browser's own primitives, falling back to the Dart
 path when they are missing (older Safari, or a non-secure origin where
-`crypto.subtle` does not exist). Install went **88 s to 30 s**, decompression
-61.3 s to 1.3 s. Legacy adoption, which hashes a whole installed database to
-match it against the pinned digest, uses the same native digest.
+`crypto.subtle` does not exist). Legacy adoption, which hashes a whole installed
+database to match it against the pinned digest, uses the same native digest.
+
+Measured end to end in the app, driving the real UI with Playwright against a
+release build: **45.6 s from clicking Download to a playable German quiz** —
+network fetch of 25 MB, gunzip, enforced digest, IndexedDB write, feature index
+build and the game's first pool, all included. English install went 88 s to
+30 s, its decompression 61.3 s to 1.3 s.
 
 On the **VM** the same comparison says to leave the Dart path alone — it is
 compiled to machine code, and the alternatives are not worth touching a
