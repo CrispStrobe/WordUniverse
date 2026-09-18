@@ -3,6 +3,7 @@ library;
 
 import 'dart:convert';
 
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
@@ -149,6 +150,72 @@ void main() {
       final index = await WordFeatureIndex.build(db);
       expect(index.sourcesOf(1), ['BERLIN', 'HESSEN']);
       expect(index.sourcesOf(2), isEmpty);
+    });
+  });
+
+  group('the Dart fallback', () {
+    test('derives exactly what the SQL derives', () async {
+      // If the index cannot be built, the bits are derived in Dart from the
+      // decoded rows instead. Two implementations of one rule drift unless
+      // something holds them together; this is that something.
+      final words = <Map<String, Object?>>[
+        {
+          'word': 'full',
+          'enrichment': {
+            'definitions': ['a meaning'],
+            'synonyms': ['another'],
+            'antonyms': ['opposite'],
+            'hyphenation': ['full'],
+            'translations': [{'lang_code': 'en', 'word': 'full'}],
+            'examples': [{'text': 'A full sentence.'}],
+            'hypernyms': [{'hypernym_word': 'thing'}],
+            'hyponyms': [{'hyponym_word': 'part'}],
+            'expressions': [{'expression': 'in full'}],
+            'proverbs': [{'proverb': 'full is full'}],
+            'pronunciation': [{'ipa': 'fʊl'}],
+            'inflections': [{'form_text': 'fuller'}],
+            'enrichment_status': 'success',
+          },
+          'metadata': {
+            'commonLearnerErrors': ['ful'],
+            'grade_examples': {'1': ['A full cup.']},
+            'gutenberg_examples': ['Full of it.'],
+          },
+        },
+        {'word': 'bare', 'enrichment': const {}, 'metadata': const {}},
+        // Empty lists must read as absent, not present.
+        {
+          'word': 'hollow',
+          'enrichment': {'definitions': [], 'synonyms': [], 'pronunciation': []},
+          'metadata': {'commonLearnerErrors': []},
+        },
+        // The German pack's spelling of learner errors.
+        {'word': 'deutsch', 'enrichment': const {}, 'metadata': {'commonMistakes': ['deutch']}},
+        // enrichment_status present but not success.
+        {'word': 'partial', 'enrichment': {'enrichment_status': 'failed'}, 'metadata': const {}},
+      ];
+
+      final db = await packFixture(words);
+      addTearDown(db.close);
+      final index = await WordFeatureIndex.build(db);
+
+      for (var i = 0; i < words.length; i++) {
+        final word = words[i];
+        final dart = featuresFromDecodedJson(
+          enrichment: (word['enrichment'] as Map).cast<String, dynamic>(),
+          metadata: (word['metadata'] as Map).cast<String, dynamic>(),
+        );
+        // knownMisspelling is corpus-wide and deliberately not derived in
+        // Dart, so compare everything else.
+        final sql = index.featuresOf(i + 1) & ~WordFeature.knownMisspelling.mask;
+        expect(dart, sql, reason: 'SQL and Dart disagree on "${word['word']}"');
+      }
+    });
+
+    test('a failed build is not mistaken for a pack without enrichment', () {
+      expect(const WordFeatureIndex.empty().isAvailable, isTrue);
+      expect(const WordFeatureIndex.unavailable().isAvailable, isFalse,
+          reason: 'the caller has to be able to tell these apart');
     });
   });
 

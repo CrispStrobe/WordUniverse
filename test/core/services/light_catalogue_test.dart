@@ -11,6 +11,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'package:WortUniversum/core/models/word_features.dart';
+import 'package:WortUniversum/core/services/db_platform/db_feature_index.dart';
 import 'package:WortUniversum/core/services/dictionary_database_service.dart';
 
 void main() {
@@ -134,5 +135,27 @@ void main() {
 
     expect(twice.map((w) => w.word), once.map((w) => w.word));
     expect(twice.every((w) => w.isHydrated), isTrue);
+  });
+
+  test('without a usable index the catalogue still knows its features',
+      () async {
+    // If the index cannot be derived, pools must not silently come back empty:
+    // the words are decoded instead and the bits derived per word. Slow, but
+    // every game still has something to play.
+    final service = await openPack();
+    service.featureIndex = const WordFeatureIndex.unavailable();
+
+    final words = await service.getAllWords();
+
+    expect(words.map((w) => w.word), ['Hund', 'Baum'],
+        reason: 'the misspelling is still excluded, by the Dart predicate');
+    expect(words.every((w) => w.isHydrated), isTrue,
+        reason: 'the fallback decodes rather than loading light');
+    final hund = words.first;
+    expect(hund.has(WordFeature.definitions), isTrue);
+    expect(hund.has(WordFeature.synonyms), isTrue);
+    expect(hund.has(WordFeature.antonyms), isFalse);
+    expect(words[1].has(WordFeature.synonyms), isFalse);
+    expect(hund.apiEnrichment!.definitions, ['ein Haustier']);
   });
 }

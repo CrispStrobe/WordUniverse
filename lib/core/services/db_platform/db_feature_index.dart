@@ -136,13 +136,30 @@ class WordIndexEntry {
 /// Feature bits, presentability and sources for every row of a pack, by rowid.
 @immutable
 class WordFeatureIndex {
-  const WordFeatureIndex(this._entriesByRowId);
+  const WordFeatureIndex(this._entriesByRowId) : isAvailable = true;
 
   /// Empty index: every word reads as un-enriched but presentable, which is
   /// how the app behaved for packs without enrichment before the index.
-  const WordFeatureIndex.empty() : _entriesByRowId = const {};
+  const WordFeatureIndex.empty()
+      : _entriesByRowId = const {},
+        isAvailable = true;
+
+  /// The index could not be derived at all.
+  ///
+  /// Distinct from [WordFeatureIndex.empty] on purpose: an empty index is also
+  /// how a pack with no enrichment legitimately reads, so treating a failed
+  /// build as empty would leave every pool empty and every enrichment game
+  /// silently unplayable while the app looked healthy. Callers check
+  /// [isAvailable] and fall back to deriving the bits from the decoded rows.
+  const WordFeatureIndex.unavailable()
+      : _entriesByRowId = const {},
+        isAvailable = false;
 
   final Map<int, WordIndexEntry> _entriesByRowId;
+
+  /// False only when the derivation itself failed. See
+  /// [WordFeatureIndex.unavailable].
+  final bool isAvailable;
 
   int get length => _entriesByRowId.length;
   bool get isEmpty => _entriesByRowId.isEmpty;
@@ -314,8 +331,10 @@ Future<WordFeatureIndex> loadWordFeatureIndex(
           'in ${watch.elapsedMilliseconds} ms');
     }
   } catch (error) {
-    if (kDebugMode) debugPrint('[FEATURE_INDEX] ❌ build failed: $error');
-    return const WordFeatureIndex.empty();
+    // Never a silent empty index — see WordFeatureIndex.unavailable.
+    debugPrint('[FEATURE_INDEX] ❌ build failed, falling back to decoding the '
+        'pack in Dart: $error');
+    return const WordFeatureIndex.unavailable();
   }
 
   try {
@@ -324,4 +343,51 @@ Future<WordFeatureIndex> loadWordFeatureIndex(
     if (kDebugMode) debugPrint('[FEATURE_INDEX] ⚠️ cache write failed: $error');
   }
   return index;
+}
+
+/// The feature bits of one word, derived in Dart from its decoded JSON.
+///
+/// The twin of the SQL in [_featureSql], for the path taken when the index
+/// could not be built. `db_feature_index_test.dart` asserts the two agree over
+/// a fixture pack, so they cannot drift apart unnoticed.
+///
+/// [WordFeature.knownMisspelling] is not derived here: it is a corpus-wide
+/// question, and on this path the words are decoded anyway, so the word-of-the
+/// -day picker recomputes that exclusion from the real data itself.
+int featuresFromDecodedJson({
+  required Map<String, dynamic> enrichment,
+  required Map<String, dynamic> metadata,
+}) {
+  bool nonEmptyList(Map<String, dynamic> json, String key) {
+    final value = json[key];
+    return value is List && value.isNotEmpty;
+  }
+
+  var features = 0;
+  void set(WordFeature feature, bool present) {
+    if (present) features |= feature.mask;
+  }
+
+  set(WordFeature.definitions, nonEmptyList(enrichment, 'definitions'));
+  set(WordFeature.synonyms, nonEmptyList(enrichment, 'synonyms'));
+  set(WordFeature.antonyms, nonEmptyList(enrichment, 'antonyms'));
+  set(WordFeature.hyphenation, nonEmptyList(enrichment, 'hyphenation'));
+  set(WordFeature.translations, nonEmptyList(enrichment, 'translations'));
+  set(
+      WordFeature.learnerErrors,
+      nonEmptyList(metadata, 'commonLearnerErrors') ||
+          nonEmptyList(metadata, 'commonMistakes'));
+  set(WordFeature.gradeExamples, metadata['grade_examples'] != null);
+  set(WordFeature.examples, nonEmptyList(enrichment, 'examples'));
+  set(WordFeature.hypernyms, nonEmptyList(enrichment, 'hypernyms'));
+  set(WordFeature.hyponyms, nonEmptyList(enrichment, 'hyponyms'));
+  set(WordFeature.expressions, nonEmptyList(enrichment, 'expressions'));
+  set(WordFeature.proverbs, nonEmptyList(enrichment, 'proverbs'));
+  set(WordFeature.gutenbergExamples,
+      nonEmptyList(metadata, 'gutenberg_examples'));
+  set(WordFeature.enrichmentSuccess,
+      enrichment['enrichment_status'] == 'success');
+  set(WordFeature.ipa, nonEmptyList(enrichment, 'pronunciation'));
+  set(WordFeature.inflections, nonEmptyList(enrichment, 'inflections'));
+  return features;
 }

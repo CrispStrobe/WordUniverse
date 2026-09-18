@@ -36,6 +36,11 @@ class DictionaryDatabaseService {
   /// Feature bits and sources for the open pack. Empty until a pack is open.
   WordFeatureIndex get featureIndex => _featureIndex;
 
+  /// Test seam for the path taken when the index cannot be derived. That path
+  /// is meant never to run in production, which is exactly why it needs a test.
+  @visibleForTesting
+  set featureIndex(WordFeatureIndex index) => _featureIndex = index;
+
   /// Initialize the database with optional progress tracking
   /// [onProgress] reports (progress: 0.0-1.0, message: String)
   Future<void> initialize({
@@ -198,6 +203,17 @@ class DictionaryDatabaseService {
     }
 
     try {
+      // Without a usable index there is nothing to filter pools on, so the
+      // catalogue is loaded the slow way instead — decoded, with the bits
+      // derived per word and presentability applied by the Dart predicate.
+      // See WordFeatureIndex.unavailable.
+      if (!_featureIndex.isAvailable) {
+        final decoded = _mapPresentableWords(await _database!.query('words'));
+        debugPrint('[DB_SERVICE] ⚠️ no feature index — decoded '
+            '${decoded.length} words the slow way');
+        return decoded;
+      }
+
       final results =
           await _database!.rawQuery('SELECT $_lightColumns FROM words');
       final words = <GermanWord>[];
@@ -519,7 +535,14 @@ class DictionaryDatabaseService {
       final Map<String, dynamic> wordMap = {
         'id': row['original_id'] ?? row['id']?.toString() ?? 'unknown',
         'rowId': rowId,
-        'features': rowId == null ? 0 : _featureIndex.featuresOf(rowId),
+        'features': !_featureIndex.isAvailable
+            // The JSON is already decoded here, so the fallback costs nothing
+            // beyond the decode it is standing in for.
+            ? featuresFromDecodedJson(
+                enrichment: apiEnrichment, metadata: metadata)
+            : rowId == null
+                ? 0
+                : _featureIndex.featuresOf(rowId),
         'word': row['word'] ?? '',
         'lemma': row['lemma'] ?? row['word'] ?? '',
         'article': row['article'],
