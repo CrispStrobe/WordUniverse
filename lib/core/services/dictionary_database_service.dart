@@ -538,14 +538,20 @@ class DictionaryDatabaseService {
       if (kDebugMode) debugPrint("[DB_SERVICE] Stack trace: $stackTrace");
       if (kDebugMode) debugPrint("[DB_SERVICE] Problematic row: $row");
 
-      // Return a minimal fallback word to prevent crashes
+      // Return a minimal fallback word to prevent crashes. It keeps its rowid
+      // and feature bits, so a caller that asked for this row still gets an
+      // answer for it rather than silently getting nothing back.
+      final rowId = (row['id'] as num?)?.toInt();
       return GermanWord.fromJson({
-        'id': row['id']?.toString() ??
+        'id': row['original_id'] ??
+            rowId?.toString() ??
             'error_${DateTime.now().millisecondsSinceEpoch}',
+        'rowId': rowId,
+        'features': rowId == null ? 0 : _featureIndex.featuresOf(rowId),
         'word': row['word']?.toString() ?? 'ERROR',
         'lemma': row['word']?.toString() ?? 'ERROR',
-        'wordType': 'andere',
-        'gradeLevel': 1,
+        'wordType': row['word_type'] ?? 'andere',
+        'gradeLevel': row['grade_level'] ?? 1,
       });
     }
   }

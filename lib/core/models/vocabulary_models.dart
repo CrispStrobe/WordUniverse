@@ -700,8 +700,15 @@ class GermanWord {
       isGrundwortschatzBW: json['isGrundwortschatzBW'] ?? false,
       genus: json['genus'],
       nurImPlural: json['nurImPlural'] ?? false,
+      // `inflectionData` is a *pattern* map, but the packs also store a
+      // metadata key of the same name holding the flat Wiktionary form list.
+      // Casting that list threw, and the row then fell back to a stub word —
+      // for 7,025 of the English pack's 11,539 entries. The list form is
+      // already exposed as [wiktionaryInflections]; ignore it here.
       inflectionData: apiData?.inflectionsPattern ??
-          json['inflectionData'] as Map<String, dynamic>?,
+          (json['inflectionData'] is Map<String, dynamic>
+              ? json['inflectionData'] as Map<String, dynamic>
+              : null),
       ipaPhoneme: apiData?.pronunciation
               .firstWhere((p) => p.ipa != null,
                   orElse: () => ApiPronunciation())
