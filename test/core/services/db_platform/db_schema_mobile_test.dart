@@ -137,6 +137,45 @@ void main() {
     await db.close();
   });
 
+  test('adoption never buffers the whole artifact', () async {
+    // The real German artifact is ~150 MB. Buffering it (let alone copying it
+    // into an isolate to hash) on the upgrade path risks an out-of-memory kill
+    // that no catch block can turn into "adoption failed, carry on", and that
+    // repeats on every launch. Adoption must stream, so it stays flat in the
+    // artifact size: this asserts peak RSS growth stays far below the file.
+    await fixture();
+    final old = File('${directory.path}/pack.db');
+    final padded = await old.readAsBytes();
+    // Grow the legacy artifact well past any plausible buffer reuse without
+    // making the test slow: SQLite ignores trailing bytes beyond its pages,
+    // so the file stays openable while being large.
+    final sink = old.openWrite(mode: FileMode.append);
+    final filler = Uint8List(1 << 20);
+    for (var written = 0; written < 48 << 20; written += filler.length) {
+      sink.add(filler);
+    }
+    await sink.close();
+    final digest =
+        (await sha256.bind(old.openRead()).first).toString();
+    expect(await old.length(), greaterThan(48 << 20));
+    expect(padded.length, lessThan(48 << 20));
+
+    final before = ProcessInfo.currentRss;
+    final adopted = await initPlatformDatabase(
+        assetPath: 'offline-unused',
+        databaseName: 'streamed.db',
+        legacyDatabaseNames: ['pack.db'],
+        expectedDecompressedSha256: digest);
+    await adopted.close();
+    final growth = ProcessInfo.currentRss - before;
+
+    expect(await File('${directory.path}/streamed.db').exists(), isTrue,
+        reason: 'the artifact still has to be adopted');
+    expect(growth, lessThan(24 << 20),
+        reason: 'adoption grew memory by ${growth >> 20} MiB for a '
+            '${await old.length() >> 20} MiB artifact — it is buffering');
+  });
+
   test('SQLite writes change legacy hash but not qualified readiness', () async {
     await fixture();
     final old = File('${directory.path}/pack.db');

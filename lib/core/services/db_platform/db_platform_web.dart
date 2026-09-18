@@ -38,8 +38,14 @@ Future<Database> initPlatformDatabase({
       await adoptLegacyDatabase(
         factory: factory, destination: webDbName,
         candidates: legacyDatabaseNames, digest: expectedDecompressedSha256,
-        read: factory.readDatabaseBytes, write: factory.writeDatabaseBytes,
-        promote: (_, target, bytes) => factory.writeDatabaseBytes(target, bytes),
+        // No streaming in the browser: hash off the main thread, then hand
+        // the buffer to IndexedDB once per step.
+        digestOf: (name) async =>
+            compute(databaseDigest, await factory.readDatabaseBytes(name)),
+        copy: (source, staging) async => factory.writeDatabaseBytes(
+            staging, await factory.readDatabaseBytes(source)),
+        promote: (staging, target) async => factory.writeDatabaseBytes(
+            target, await factory.readDatabaseBytes(staging)),
       );
     }
 

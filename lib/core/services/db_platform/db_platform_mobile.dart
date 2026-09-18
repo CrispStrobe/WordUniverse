@@ -1,6 +1,7 @@
 // lib/core/services/db_platform/db_platform_mobile.dart
 
 import 'dart:io';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart';
@@ -40,9 +41,19 @@ Future<Database> initPlatformDatabase({
         factory: databaseFactory, destination: path,
         candidates: [for (final name in legacyDatabaseNames) join(documentsDirectory.path, name)],
         digest: expectedDecompressedSha256,
-        read: (name) => File(name).readAsBytes(),
-        write: (name, bytes) async { await File(name).writeAsBytes(bytes, flush: true); },
-        promote: (staging, target, _) async { await File(staging).rename(target); },
+        // Streamed: a ~150 MB artifact must never be buffered, let alone
+        // copied into an isolate, on a device that is merely upgrading.
+        digestOf: (name) async =>
+            (await sha256.bind(File(name).openRead()).first).toString(),
+        copy: (source, staging) async {
+          final sink = File(staging).openWrite();
+          try {
+            await File(source).openRead().pipe(sink);
+          } finally {
+            await sink.close();
+          }
+        },
+        promote: (staging, target) async { await File(staging).rename(target); },
       );
     }
 
