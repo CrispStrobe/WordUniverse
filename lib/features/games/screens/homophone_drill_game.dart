@@ -10,6 +10,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/models/vocabulary_models.dart';
 import '../../../core/models/skill_category.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
@@ -88,7 +89,7 @@ class _HomophoneDrillGameState extends State<HomophoneDrillGame>
     _gameProvider = context.read<GameProvider>();
 
     if (!_vocabService.isInitialized) await _vocabService.initialize();
-    _buildChallenges();
+    await _buildChallenges();
 
     if (!_onboardingScheduled) {
       _onboardingScheduled = true;
@@ -131,15 +132,33 @@ class _HomophoneDrillGameState extends State<HomophoneDrillGame>
     }
   }
 
-  void _buildChallenges() {
-    final allWords = _vocabService.getAllWords(_gameProvider);
+  Future<void> _buildChallenges() async {
+    // The drill only ever asks about the words named in its homophone groups,
+    // and it needs their example sentences — so look up exactly those and
+    // decode only them, instead of handing the service the whole catalogue.
+    final groups = groupsForMode(widget.mode);
+    final wanted = <String>{
+      for (final group in groups)
+        for (final word in group.words) word.toLowerCase(),
+    };
+    final entries = <GermanWord>[];
+    for (final spelling in wanted) {
+      final entry = _vocabService.findByWrittenForm(spelling);
+      // Match on the spelling, as the service's own lookup does: a lemma hit
+      // for a different headword would not answer for this group member.
+      if (entry != null && entry.word.toLowerCase() == spelling) {
+        entries.add(entry);
+      }
+    }
+    final allWords = await _vocabService.hydrate(entries);
+    if (!mounted) return;
 
     final built = buildHomophoneChallenges(
       allWords: allWords,
       gradeLevel: widget.gradeLevel.index + 1,
       maxChallenges: _maxRounds,
       rng: _rng,
-      groups: groupsForMode(widget.mode),
+      groups: groups,
     );
 
     setState(() {

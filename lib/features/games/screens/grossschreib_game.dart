@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
 import '../../../core/models/vocabulary_models.dart';
+import '../../../core/models/word_features.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart';
@@ -157,10 +158,10 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
       await _vocabularyService.initialize();
     }
 
-    _loadLevel();
+    await _loadLevel();
   }
 
-  void _loadLevel() {
+  Future<void> _loadLevel() async {
     _score = 0;
     _itemsCompleted = 0;
     _combo = 0;
@@ -169,7 +170,8 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
     _level = 1;
     _fallingSpeed = 8.0;
 
-    _generateChallengeQueue();
+    await _generateChallengeQueue();
+    if (!mounted) return;
     _showNextChallenge();
 
     setState(() => _isLoading = false);
@@ -185,7 +187,7 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
   }
 
   /// Generate capitalization challenges ONLY from words with real example sentences
-  void _generateChallengeQueue() {
+  Future<void> _generateChallengeQueue() async {
     _log('========================================');
     _log('Starting challenge generation');
     _log('========================================');
@@ -193,13 +195,16 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
     _challengeQueue.clear();
     final challenges = <SentenceChallenge>[];
 
-    // Get all words with examples
-    final allWords = _vocabularyService.getAllWords(_gameProvider)
-        .where((w) => 
-            w.gradeLevel <= widget.gradeLevel.index + 3 && 
-            w.word.isNotEmpty &&
-            w.examples.isNotEmpty) // ONLY words with examples!
-        .toList();
+    // ONLY words with examples — the feature index answers that without
+    // decoding anything, and the pool comes back with its examples ready.
+    final allWords = await _vocabularyService.takeWordsWithFeature(
+      WordFeature.examples,
+      settingsProvider: _gameProvider,
+      limit: 400,
+      where: (w) =>
+          w.gradeLevel <= widget.gradeLevel.index + 3 && w.word.isNotEmpty,
+    );
+    if (!mounted) return;
 
     if (kDebugMode) _log('Total words with examples: ${allWords.length}');
 

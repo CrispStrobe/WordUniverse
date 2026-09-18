@@ -13,6 +13,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
 import '../../../core/models/vocabulary_models.dart';
+import '../../../core/models/word_features.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart';
@@ -102,7 +103,7 @@ class _ConjugationDrillGameState extends State<ConjugationDrillGame>
     _gameProvider = context.read<GameProvider>();
 
     if (!_vocabService.isInitialized) await _vocabService.initialize();
-    _buildChallenges();
+    await _buildChallenges();
     if (!_onboardingScheduled) {
       _onboardingScheduled = true;
       final s = S.of(context)!;
@@ -128,23 +129,32 @@ class _ConjugationDrillGameState extends State<ConjugationDrillGame>
     }
   }
 
-  void _buildChallenges() {
-    final allWords = _vocabService.getAllWords(_gameProvider);
-
-    // Only DE verbs with usable Präsens data.
-    final verbs = allWords.where(isConjugatableVerb).toList();
+  Future<void> _buildChallenges() async {
+    // Präsens forms live in the inflections, so only verbs the feature index
+    // says carry inflections are decoded; whether the Präsens is actually
+    // usable is then checked on the real data.
+    final verbs = (await _vocabService.takeWordsWithFeature(
+      WordFeature.inflections,
+      settingsProvider: _gameProvider,
+      gradeLevel: widget.gradeLevel.index + 1,
+      limit: 250,
+      where: (w) =>
+          w.wordType == GermanWordType.verb &&
+          !w.isProperNoun &&
+          !w.word.contains(' '),
+      random: _rng,
+    ))
+        .where(isConjugatableVerb)
+        .toList();
+    if (!mounted) return;
 
     if (verbs.isEmpty) {
       setState(() => _isLoading = false);
       return;
     }
 
-    // Prefer grade-appropriate pool.
-    final gradePool = verbs
-        .where((w) => w.gradeLevel == widget.gradeLevel.index + 1)
-        .toList();
-    final pool = gradePool.length >= 8 ? gradePool : verbs;
-    pool.shuffle(_rng);
+    // Already grade-first and shuffled by the pool query.
+    final pool = verbs;
 
     // Pre-collect all forms per pronoun for distractor selection.
     final formsByPronoun = <String, List<String>>{};

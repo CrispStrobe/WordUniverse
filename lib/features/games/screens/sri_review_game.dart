@@ -16,6 +16,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
 import '../../../core/models/vocabulary_models.dart';
+import '../../../core/models/word_features.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart';
@@ -115,7 +116,7 @@ class _SriReviewGameState extends State<SriReviewGame>
 
     if (!_vocabService.isInitialized) await _vocabService.initialize();
     _audioService.setTtsLanguage(_vocabService.learningLanguage);
-    _buildChallenges();
+    await _buildChallenges();
     if (!_onboardingScheduled) {
       _onboardingScheduled = true;
       OnboardingOverlay.maybeShow(
@@ -155,14 +156,11 @@ class _SriReviewGameState extends State<SriReviewGame>
     return id;
   }
 
-  GermanWord? _findWord(String baseWord) {
-    final lower = baseWord.toLowerCase();
-    return _vocabService.getAllWords(_gameProvider)
-        .where((w) => w.word.toLowerCase() == lower || w.lemma.toLowerCase() == lower)
-        .firstOrNull;
-  }
+  /// Indexed lookup; this used to scan the whole catalogue per review item.
+  GermanWord? _findWord(String baseWord) =>
+      _vocabService.findByWrittenForm(baseWord);
 
-  void _buildChallenges() {
+  Future<void> _buildChallenges() async {
     // Respect spaced repetition: prefer items that are actually DUE
     // (getItemsForReview excludes mastered/not-yet-due), ranked by difficulty.
     // Only fall back to hardest-overall when nothing is due, so the game stays
@@ -181,18 +179,45 @@ class _SriReviewGameState extends State<SriReviewGame>
       return;
     }
 
-    final allWords = _vocabService.getAllWords(_gameProvider);
-    // Build the valid-words set for spelling distractor filtering.
-    final validWords = allWords.map((w) => w.word.toLowerCase()).toSet();
+    // Spelling distractors only need the spellings, so this stays the light
+    // catalogue.
+    final validWords = _vocabService
+        .getAllWords(_gameProvider)
+        .map((w) => w.word.toLowerCase())
+        .toSet();
+
+    // Definition distractors need decoded definitions — a bounded pool of
+    // words the feature index says have them.
+    final definitionPool = await _vocabService.takeWordsWithFeature(
+      WordFeature.definitions,
+      settingsProvider: _gameProvider,
+      limit: 120,
+      where: (w) => !w.isProperNoun,
+      random: _rng,
+    );
+
+    // The reviewed words themselves are shown with their definitions and
+    // learner errors, so hydrate exactly those.
+    final reviewed = <SriLanguageData, GermanWord>{};
+    final found = <SriLanguageData, GermanWord>{};
+    for (final item in sriItems) {
+      final word = _findWord(_baseWordFromId(item));
+      if (word != null) found[item] = word;
+    }
+    final hydrated = await _vocabService.hydrate(found.values);
+    var cursor = 0;
+    for (final item in found.keys) {
+      reviewed[item] = hydrated[cursor++];
+    }
+    if (!mounted) return;
 
     final challenges = <_ReviewChallenge>[];
     for (final item in sriItems) {
       if (challenges.length >= _targetRounds) break;
-      final base = _baseWordFromId(item);
-      final word = _findWord(base);
+      final word = reviewed[item];
       if (word == null) continue;
 
-      final challenge = _buildChallenge(word, item, allWords, validWords);
+      final challenge = _buildChallenge(word, item, definitionPool, validWords);
       if (challenge != null) challenges.add(challenge);
     }
 

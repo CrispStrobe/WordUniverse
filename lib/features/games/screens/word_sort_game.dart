@@ -6,7 +6,8 @@ import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
-import '../../../core/models/vocabulary_models.dart'; 
+import '../../../core/models/vocabulary_models.dart';
+import '../../../core/models/word_features.dart'; 
 
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
@@ -174,7 +175,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       await _vocabularyService.initialize();
     }
 
-    _loadLevel();
+    await _loadLevel();
   }
 
   String? _extractBaseWordFromSriId(String id) {
@@ -187,10 +188,12 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     return _targetCategories.containsKey(word.wordType) &&
         !word.word.contains(" ") &&
         word.wordType != GermanWordType.andere &&
-        word.apiEnrichment?.enrichmentStatus == 'success';
+        // Same question as `enrichmentStatus == 'success'`, answered from the
+        // feature index so the catalogue stays undecoded.
+        word.has(WordFeature.enrichmentSuccess);
   }
 
-  void _loadLevel() {
+  Future<void> _loadLevel() async {
     _score = 0;
     _wordsCorrect = 0;
     _isEmpty = false;
@@ -256,7 +259,9 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       }
     }
 
-    _wordQueue = Queue.from(wordsForGame);
+    // Smart hints read the enrichment, so decode it for the words in play.
+    _wordQueue = Queue.from(await _vocabularyService.hydrate(wordsForGame));
+    if (!mounted) return;
 
     if (_wordQueue.isEmpty) {
       if (kDebugMode) debugPrint("No words found for WordSortGame");

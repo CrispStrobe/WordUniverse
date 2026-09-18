@@ -227,7 +227,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
     }
 
     _audioService.setTtsLanguage(_vocabularyService.learningLanguage);
-    _loadNextWord();
+    await _loadNextWord();
 
     Timer(const Duration(seconds: 10), () {
       if (mounted) {
@@ -238,7 +238,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
     });
   }
 
-  void _loadNextWord() {
+  Future<void> _loadNextWord() async {
     if (_wordsRescued + _wordsLost >= _totalWords) {
       _showGameOver();
       return;
@@ -281,7 +281,10 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
       return;
     }
 
-    _currentWord = words.first;
+    // Hints read the graphematic variants and the spelling strategy, and the
+    // card shows the CEFR level — all of it enrichment, for this one word.
+    _currentWord = await _vocabularyService.hydrateOne(words.first);
+    if (!mounted) return;
     _displayedWord = _currentWord!.displayName;
     _visibleLetters = List.filled(_displayedWord.length, true);
 

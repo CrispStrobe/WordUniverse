@@ -52,7 +52,26 @@ const Map<WordFeature, String> _featureSql = {
   WordFeature.ipa: "json_array_length(enrichment_json, '\$.pronunciation') > 0",
   WordFeature.inflections:
       "json_array_length(enrichment_json, '\$.inflections') > 0",
+  // knownMisspelling is not a per-row test — see _misspellingSql.
 };
+
+/// Rowids whose spelling appears in another entry's recorded learner errors.
+///
+/// A corpus-wide join rather than a per-row predicate, so it runs as its own
+/// query; the CTE is materialised once and probed by the `IN`.
+const String _misspellingSql = '''
+  WITH errors(spelling) AS (
+    SELECT DISTINCT lower(trim(entry.value))
+      FROM words AS other,
+           json_each(other.metadata_json, '\$.commonLearnerErrors') AS entry
+    UNION
+    SELECT DISTINCT lower(trim(entry.value))
+      FROM words AS other,
+           json_each(other.metadata_json, '\$.commonMistakes') AS entry
+  )
+  SELECT id AS row_id FROM words
+   WHERE lower(trim(word)) IN (SELECT spelling FROM errors)
+''';
 
 /// The JSON half of [isPresentableVocabularyEntry], expressed in SQL.
 ///
@@ -143,9 +162,11 @@ class WordFeatureIndex {
 
   /// Derives the index from an open (read-only) pack database.
   static Future<WordFeatureIndex> build(DatabaseExecutor db) async {
-    final bits = WordFeature.values
-        .map((feature) =>
-            'CASE WHEN (${_featureSql[feature]!}) THEN ${feature.mask} ELSE 0 END')
+    // Driven by the map, not by WordFeature.values: features that are not a
+    // per-row JSON test (knownMisspelling) are computed separately.
+    final bits = _featureSql.entries
+        .map((entry) =>
+            'CASE WHEN (${entry.value}) THEN ${entry.key.mask} ELSE 0 END')
         .join(' + ');
     final rows = await db.rawQuery('''
       SELECT id AS row_id,
@@ -156,6 +177,13 @@ class WordFeatureIndex {
                AS sources
       FROM words
     ''');
+    // Folded in as a bit so the word-of-the-day pool — and anything else that
+    // must not present a misspelling — can be filtered without decoding.
+    final misspelled = <int>{};
+    for (final row in await db.rawQuery(_misspellingSql)) {
+      misspelled.add((row['row_id'] as num).toInt());
+    }
+
     final entries = <int, WordIndexEntry>{};
     for (final row in rows) {
       final rowId = (row['row_id'] as num).toInt();
@@ -163,7 +191,9 @@ class WordFeatureIndex {
       final presentable = (row['presentable'] as num?)?.toInt() ?? 1;
       final sources = (row['sources'] as String?) ?? '';
       entries[rowId] = WordIndexEntry(
-        features | (presentable != 0 ? _presentableBit : 0),
+        features |
+            (presentable != 0 ? _presentableBit : 0) |
+            (misspelled.contains(rowId) ? WordFeature.knownMisspelling.mask : 0),
         sources.isEmpty ? const [] : sources.split(_sourceSeparator),
       );
     }

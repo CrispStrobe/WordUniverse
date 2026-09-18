@@ -141,10 +141,10 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
       await _vocabularyService.initialize();
     }
 
-    _loadLevel();
+    await _loadLevel();
   }
 
-  void _loadLevel() {
+  Future<void> _loadLevel() async {
     _score = 0;
     _itemsCompleted = 0;
     _combo = 0;
@@ -153,7 +153,8 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
     _level = 1;
     _fallingSpeed = 5.0;
 
-    _generateChallengeQueue();
+    await _generateChallengeQueue();
+    if (!mounted) return;
 
     setState(() => _isLoading = false);
     _showNextChallenge();
@@ -161,7 +162,10 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
 
   // --- GENERATION LOGIC ---
 
-  void _generateChallengeQueue() {
+  /// Shortest noun worth splitting into a compound.
+  static const int _minCompoundLength = 8;
+
+  Future<void> _generateChallengeQueue() async {
     _challengeQueue.clear();
     if (kDebugMode) debugPrint('[WORTBAUMEISTER] 🏗️ Generating new queue from Database examples...');
 
@@ -171,11 +175,19 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
         .where((w) => w.wordType == GermanWordType.substantiv)
         .toList();
 
+    // Every noun is a possible compound part, so the split map stays the whole
+    // (light) noun list. Only the nouns long enough to *be* a challenge need
+    // their examples, and only those are decoded.
     final Map<String, GermanWord> nounMap = {
       for (var w in nouns) w.word.toLowerCase(): w
     };
 
-    final nounChallenges = _generateNounChallenges(nouns, nounMap)..shuffle();
+    final candidates = await _vocabularyService.hydrate(
+        nouns.where((w) => w.word.length >= _minCompoundLength).take(300));
+    if (!mounted) return;
+
+    final nounChallenges = _generateNounChallenges(candidates, nounMap)
+      ..shuffle();
 
     if (kDebugMode) debugPrint('[WORTBAUMEISTER] 📊 Generated Pool: ${nounChallenges.length} Nouns');
 
@@ -190,7 +202,7 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
 
     for (final noun in nouns) {
       if (challenges.length > 20) break;
-      if (noun.word.length < 8) continue;
+      if (noun.word.length < _minCompoundLength) continue;
 
       final split = _findValidCompoundSplit(noun.word, nounMap);
 
