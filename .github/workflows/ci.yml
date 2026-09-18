@@ -48,6 +48,15 @@ jobs:
       - name: Run tests
         run: flutter test --reporter expanded
 
+      # `flutter test` skips @TestOn('browser') suites, so the web storage and
+      # install path — sqlite3.wasm, the shared worker, IndexedDB, the browser
+      # gzip/digest primitives — had no CI coverage at all, despite being what
+      # the deployed build actually runs. They need their own invocation.
+      - name: Browser tests (web storage and install path)
+        run: |
+          which google-chrome google-chrome-stable chromium || true
+          flutter test --platform chrome test/core/services/db_platform
+
       - name: Build web
         run: flutter build web --release
 

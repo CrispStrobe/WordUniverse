@@ -7,6 +7,8 @@ import 'package:WortUniversum/core/services/db_platform/db_remote.dart';
 import 'package:flutter/services.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'web_fixture_guard.dart';
 import 'package:archive/archive.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:WortUniversum/core/models/load_status.dart';
@@ -14,6 +16,8 @@ import 'package:WortUniversum/core/services/db_platform/db_platform_web.dart';
 import 'package:WortUniversum/core/services/db_platform/db_schema.dart';
 
 void main() {
+  setUpAll(assertWebFixturesServed);
+
   TestWidgetsFlutterBinding.ensureInitialized();
   // Flutter serves test/ at the URL root. These fixtures link to the app's
   // binaries so we exercise its real worker-backed SQLite/IndexedDB setup.

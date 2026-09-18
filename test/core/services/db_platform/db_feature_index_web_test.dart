@@ -15,6 +15,8 @@ library;
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
+
+import 'web_fixture_guard.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 
@@ -23,6 +25,8 @@ import 'package:WortUniversum/core/services/db_platform/db_feature_index.dart';
 import 'package:WortUniversum/core/services/db_platform/db_partial_cache.dart';
 
 void main() {
+  setUpAll(assertWebFixturesServed);
+
   TestWidgetsFlutterBinding.ensureInitialized();
   // Flutter serves test/ at the URL root; these fixtures link to the app's own
   // binaries, so this is the runtime the deployed build uses.
