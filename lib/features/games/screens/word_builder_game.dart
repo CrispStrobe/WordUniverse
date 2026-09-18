@@ -230,16 +230,13 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
       final wordString = _extractBaseWordFromSriId(id);
       if (wordString == null) continue;
 
-      try {
-        final word = _vocabularyService.getAllWords(_gameProvider).firstWhere(
-            (w) => w.word.toLowerCase() == wordString.toLowerCase());
+      // Indexed lookup: this used to scan the whole catalogue per review item.
+      final word = _vocabularyService.findByWrittenForm(wordString);
+      if (word == null) continue; // Word from SRI not in vocab, skip
 
-        if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
-          candidateWords.add(word);
-          addedWordIds.add(word.id);
-        }
-      } catch (e) {
-        // Word from SRI not in vocab, skip
+      if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
+        candidateWords.add(word);
+        addedWordIds.add(word.id);
       }
     }
 

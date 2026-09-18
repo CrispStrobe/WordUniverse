@@ -14,6 +14,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
 import '../../../core/models/vocabulary_models.dart';
+import '../../../core/models/word_features.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart';
@@ -168,27 +169,32 @@ class _TranslationFlashGameState extends State<TranslationFlashGame>
     return null;
   }
 
-  void _buildChallenges() {
-    final allWords = _vocabService
-        .getAllWords(_gameProvider)
-        .where((w) =>
-            !w.isProperNoun &&
-            !w.word.contains('_') &&
-            !w.word.contains(' ') &&
-            _primaryEnTranslation(w) != null)
+  Future<void> _buildChallenges() async {
+    // Which words carry translations at all comes from the feature index;
+    // whether one of them is a usable English translation needs the decoded
+    // data, so it is re-checked on the hydrated pool.
+    final allWords = (await _vocabService.takeWordsWithFeature(
+      WordFeature.translations,
+      settingsProvider: _gameProvider,
+      gradeLevel: widget.gradeLevel.index + 1,
+      limit: 200,
+      where: (w) =>
+          !w.isProperNoun &&
+          !w.word.contains('_') &&
+          !w.word.contains(' '),
+      random: _rng,
+    ))
+        .where((w) => _primaryEnTranslation(w) != null)
         .toList();
+    if (!mounted) return;
 
     if (allWords.isEmpty) {
       setState(() => _isLoading = false);
       return;
     }
 
-    // Prefer grade-appropriate pool.
-    final gradePool = allWords
-        .where((w) => w.gradeLevel == widget.gradeLevel.index + 1)
-        .toList();
-    final pool = gradePool.length >= 10 ? gradePool : allWords;
-    pool.shuffle(_rng);
+    // Already grade-first and shuffled by the pool query.
+    final pool = allWords;
 
     // Build the EN translation distractor pool from the full word set.
     final enPool = allWords

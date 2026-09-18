@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
 import '../../../core/models/vocabulary_models.dart';
+import '../../../core/models/word_features.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart';
@@ -101,7 +102,7 @@ class _DefinitionQuizGameState extends State<DefinitionQuizGame>
     _audioService = context.read<AudioService>();
     _gameProvider = context.read<GameProvider>();
     if (!_vocabularyService.isInitialized) await _vocabularyService.initialize();
-    _buildChallenges();
+    await _buildChallenges();
     if (!_onboardingScheduled) {
       _onboardingScheduled = true;
       OnboardingOverlay.maybeShow(
@@ -126,42 +127,30 @@ class _DefinitionQuizGameState extends State<DefinitionQuizGame>
     }
   }
 
-  void _buildChallenges() {
-    final gradeIndex = widget.gradeLevel.index + 1;
-
+  Future<void> _buildChallenges() async {
     // Words with at least one definition; skip proper nouns (names produce
     // definitions like "a given name" which make trivial / odd challenges).
-    final allWords = _vocabularyService
-        .getAllWords(_gameProvider)
-        .where((w) =>
-            !w.isProperNoun &&
-            (w.apiEnrichment?.definitions.isNotEmpty ?? false))
-        .toList();
+    // The pool comes back grade-first and already hydrated, so the prompts are
+    // grade-appropriate and the rest are there to draw distractors from.
+    final pool = await _vocabularyService.takeWordsWithFeature(
+      WordFeature.definitions,
+      settingsProvider: _gameProvider,
+      gradeLevel: widget.gradeLevel.index + 1,
+      limit: _totalRounds * 8,
+      where: (w) => !w.isProperNoun,
+      random: _rng,
+    );
+    if (!mounted) return;
 
-    if (allWords.isEmpty) {
+    if (pool.isEmpty) {
       setState(() => _isLoading = false);
       return;
-    }
-
-    // Prefer same-grade words; SRI weights handled by shuffle + grade filter
-    final gradeWords = allWords
-        .where((w) => w.gradeLevel == gradeIndex)
-        .toList()
-      ..shuffle(_rng);
-    // Shuffle each candidate list exactly once; copy `allWords` so the shared
-    // list isn't mutated. (The old `? : ..shuffle` cascade double-shuffled
-    // gradeWords and read as if it shuffled allWords.)
-    final List<GermanWord> pool;
-    if (gradeWords.length >= _totalRounds) {
-      pool = gradeWords;
-    } else {
-      pool = allWords.toList()..shuffle(_rng);
     }
 
     final challenges = <_DefChallenge>[];
     for (final word in pool) {
       if (challenges.length >= _totalRounds) break;
-      final c = _buildChallenge(word, allWords);
+      final c = _buildChallenge(word, pool);
       if (c != null) challenges.add(c);
     }
 

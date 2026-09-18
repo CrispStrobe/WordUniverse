@@ -6,6 +6,7 @@ import 'package:sqflite/sqflite.dart';
 import '../models/vocabulary_models.dart';
 import '../models/vocabulary_quality.dart';
 import '../models/load_status.dart';
+import 'db_platform/db_feature_index.dart';
 import 'db_platform/db_schema.dart';
 
 // --- CONDITIONAL IMPORT SWITCHER ---
@@ -23,6 +24,17 @@ class DictionaryDatabaseService {
   bool _isInitializing = false;
   String? _assetPath;
   String? _databaseName;
+  WordFeatureIndex _featureIndex = const WordFeatureIndex.empty();
+
+  /// Columns that describe a word without touching the enrichment blobs.
+  /// Selecting `*` here would move ~72 MB of JSON per pack across the platform
+  /// channel and through `jsonDecode` on every launch.
+  static const String _lightColumns =
+      'id, original_id, word, lemma, article, genus, word_type, '
+      'grade_level, audio_path';
+
+  /// Feature bits and sources for the open pack. Empty until a pack is open.
+  WordFeatureIndex get featureIndex => _featureIndex;
 
   /// Initialize the database with optional progress tracking
   /// [onProgress] reports (progress: 0.0-1.0, message: String)
@@ -102,6 +114,15 @@ class DictionaryDatabaseService {
         debugPrint("[DB_SERVICE] ✅ Database verified with $count words");
       onProgress?.call(0.95, LoadStatus(LoadStage.verifiedWords, count: count));
 
+      // Derived per-word answers (which enrichment each word carries, whether
+      // it is presentable, its sources). Built once per pack revision and
+      // cached, so launches never decode the enrichment blobs.
+      _featureIndex = await loadWordFeatureIndex(
+        _database!,
+        cacheKey: databaseName,
+        revision: expectedDecompressedSha256 ?? 'words:$count',
+      );
+
       // PHASE 4: Complete (0.95 - 1.0)
       onProgress?.call(1.0, const LoadStatus(LoadStage.databaseReady));
       if (kDebugMode) debugPrint("[DB_SERVICE] ✅ Database service ready");
@@ -116,6 +137,7 @@ class DictionaryDatabaseService {
       _database = null; // Ensure we can retry
       _assetPath = null;
       _databaseName = null;
+      _featureIndex = const WordFeatureIndex.empty();
       rethrow;
     } finally {
       _isInitializing = false;
@@ -158,7 +180,12 @@ class DictionaryDatabaseService {
     }
   }
 
-  /// Get all words from the database
+  /// Every presentable word, without its enrichment.
+  ///
+  /// This is the launch query. The returned words carry their feature bits and
+  /// sources (from the feature index) but no enrichment: pools are built from
+  /// [GermanWord.has], and the words a round actually shows are passed through
+  /// [hydrate] first.
   Future<List<GermanWord>> getAllWords() async {
     if (_database == null) {
       _warnNotReady('All words');
@@ -166,16 +193,75 @@ class DictionaryDatabaseService {
     }
 
     try {
-      final List<Map<String, dynamic>> results =
-          await _database!.query('words');
-      if (kDebugMode)
-        debugPrint("[DB_SERVICE] Fetched ${results.length} words");
-      return _mapPresentableWords(results);
+      final results =
+          await _database!.rawQuery('SELECT $_lightColumns FROM words');
+      final words = <GermanWord>[];
+      for (final row in results) {
+        final word = _mapLightRow(row);
+        // The JSON half of presentability lives in the feature index; only the
+        // headword shape still needs the word itself.
+        if (!_featureIndex.isPresentable(word.rowId ?? -1)) continue;
+        if (!isPresentableVocabularyEntry(word)) continue;
+        words.add(word);
+      }
+      if (kDebugMode) {
+        debugPrint("[DB_SERVICE] Fetched ${words.length} words "
+            "(light, of ${results.length} rows)");
+      }
+      return words;
     } catch (e) {
       if (kDebugMode) debugPrint("[DB_SERVICE] Error fetching all words: $e");
       return [];
     }
   }
+
+  /// Re-reads [words] with their enrichment decoded.
+  ///
+  /// Already-hydrated words and words with no pack row are passed through, so
+  /// callers can hydrate a mixed list unconditionally. Order is preserved.
+  Future<List<GermanWord>> hydrate(Iterable<GermanWord> words) async {
+    final pending = <int, int>{}; // rowId -> first position
+    final ordered = words.toList();
+    for (var i = 0; i < ordered.length; i++) {
+      final word = ordered[i];
+      if (word.isHydrated || word.rowId == null) continue;
+      pending.putIfAbsent(word.rowId!, () => i);
+    }
+    if (pending.isEmpty || _database == null) return ordered;
+
+    try {
+      final byRowId = <int, GermanWord>{};
+      // Chunked so the statement stays well inside SQLite's variable limit.
+      const chunkSize = 400;
+      final rowIds = pending.keys.toList();
+      for (var start = 0; start < rowIds.length; start += chunkSize) {
+        final chunk = rowIds.sublist(
+            start, (start + chunkSize).clamp(0, rowIds.length));
+        final placeholders = List.filled(chunk.length, '?').join(',');
+        final rows = await _database!.rawQuery(
+          'SELECT * FROM words WHERE id IN ($placeholders)',
+          chunk,
+        );
+        for (final row in rows) {
+          final word = _mapRowToGermanWord(row);
+          if (word.rowId != null) byRowId[word.rowId!] = word;
+        }
+      }
+      for (var i = 0; i < ordered.length; i++) {
+        final hydrated = byRowId[ordered[i].rowId];
+        if (hydrated != null) ordered[i] = hydrated;
+      }
+    } catch (e) {
+      // A failed hydration leaves the light words in place: a round without
+      // definitions is better than a crash.
+      if (kDebugMode) debugPrint("[DB_SERVICE] Hydration failed: $e");
+    }
+    return ordered;
+  }
+
+  /// Convenience for the single-word case.
+  Future<GermanWord> hydrateOne(GermanWord word) async =>
+      (await hydrate([word])).first;
 
   /// Full-Text Search using FTS5 index
   Future<List<GermanWord>> searchWordsFTS(String query) async {
@@ -363,6 +449,7 @@ class DictionaryDatabaseService {
       _database = null;
       _assetPath = null;
       _databaseName = null;
+      _featureIndex = const WordFeatureIndex.empty();
       if (kDebugMode) debugPrint("[DB_SERVICE] Database connection closed");
     }
   }
@@ -376,6 +463,28 @@ class DictionaryDatabaseService {
           .map(_mapRowToGermanWord)
           .where(isPresentableVocabularyEntry)
           .toList();
+
+  /// Maps a row of [_lightColumns] to a word with no enrichment decoded.
+  ///
+  /// Sources and feature bits come from the feature index rather than the
+  /// metadata blob, so this touches no JSON at all.
+  GermanWord _mapLightRow(Map<String, dynamic> row) {
+    final rowId = (row['id'] as num?)?.toInt();
+    return GermanWord.fromJson({
+      'id': row['original_id'] ?? rowId?.toString() ?? 'unknown',
+      'rowId': rowId,
+      'features': rowId == null ? 0 : _featureIndex.featuresOf(rowId),
+      'isHydrated': false,
+      'sources': rowId == null ? const [] : _featureIndex.sourcesOf(rowId),
+      'word': row['word'] ?? '',
+      'lemma': row['lemma'] ?? row['word'] ?? '',
+      'article': row['article'],
+      'genus': row['genus'],
+      'wordType': row['word_type'] ?? 'andere',
+      'gradeLevel': row['grade_level'] ?? 1,
+      'audioPath': row['audio_path'],
+    });
+  }
 
   /// Maps a database row to a GermanWord object
   GermanWord _mapRowToGermanWord(Map<String, dynamic> row) {
@@ -427,8 +536,11 @@ class DictionaryDatabaseService {
       }
 
       // Build the word map for GermanWord.fromJson
+      final rowId = (row['id'] as num?)?.toInt();
       final Map<String, dynamic> wordMap = {
         'id': row['original_id'] ?? row['id']?.toString() ?? 'unknown',
+        'rowId': rowId,
+        'features': rowId == null ? 0 : _featureIndex.featuresOf(rowId),
         'word': row['word'] ?? '',
         'lemma': row['lemma'] ?? row['word'] ?? '',
         'article': row['article'],

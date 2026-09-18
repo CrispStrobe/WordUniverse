@@ -5,9 +5,15 @@ import 'vocabulary_models.dart';
 /// The source databases contain a small number of learner-error records whose
 /// definitions explicitly describe them as misspellings. They are useful as
 /// distractors, but must never become prompts or catalogue entries.
+///
+/// For an un-hydrated word the definition check is skipped: it was already
+/// applied — over the same markers, in SQL — when the pack's feature index was
+/// built, which is what lets the catalogue load without decoding enrichment.
+/// See db_feature_index.dart.
 bool isPresentableVocabularyEntry(GermanWord entry) {
   if (!_cleanHeadword.hasMatch(entry.word.trim())) return false;
   if (entry.sources.any(_isMisspellingSource)) return false;
+  if (!entry.isHydrated) return true;
 
   final enrichment = entry.apiEnrichment;
   if (enrichment == null) return true;

@@ -14,6 +14,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
 import '../../../core/models/vocabulary_models.dart';
+import '../../../core/models/word_features.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart';
@@ -167,26 +168,29 @@ class _SyllableCountGameState extends State<SyllableCountGame>
     }
   }
 
-  void _buildChallenges() {
-    final allWords = _vocabService
-        .getAllWords(_gameProvider)
-        .where((w) =>
-            !w.isProperNoun &&
-            !w.word.contains('_') &&
-            !w.word.contains(' ') &&
-            (w.apiEnrichment?.hyphenation.isNotEmpty ?? false))
-        .toList();
+  Future<void> _buildChallenges() async {
+    // Candidates come from the feature index, so the pack's enrichment is
+    // decoded only for the words this round can actually use.
+    final allWords = await _vocabService.takeWordsWithFeature(
+      WordFeature.hyphenation,
+      settingsProvider: _gameProvider,
+      gradeLevel: widget.gradeLevel.index + 1,
+      limit: 200,
+      where: (w) =>
+          !w.isProperNoun &&
+          !w.word.contains('_') &&
+          !w.word.contains(' '),
+      random: _rng,
+    );
+    if (!mounted) return;
 
     if (allWords.isEmpty) {
       setState(() => _isLoading = false);
       return;
     }
 
-    final gradePool = allWords
-        .where((w) => w.gradeLevel == widget.gradeLevel.index + 1)
-        .toList();
-    final pool = gradePool.length >= 10 ? gradePool : allWords;
-    pool.shuffle(_rng);
+    // Already grade-first and shuffled by the pool query.
+    final pool = allWords;
 
     final challenges = <_SyllableChallenge>[];
     for (final word in pool) {

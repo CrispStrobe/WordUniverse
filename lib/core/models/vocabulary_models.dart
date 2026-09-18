@@ -1,6 +1,9 @@
 // lib/core/models/vocabulary_models.dart
 
+import 'package:flutter/foundation.dart';
+
 import 'skill_category.dart'; // SINGLE Source of Truth for Enums
+import 'word_features.dart';
 
 // --- HELPER FOR ROBUST PARSING ---
 // Even though we fixed the DB, these prevent crashes if bad data slips in.
@@ -444,7 +447,40 @@ class GermanWord {
   final List<String>? commonMistakes;
   final String? audioPath;
 
-  final ApiEnrichment? apiEnrichment;
+  final ApiEnrichment? _apiEnrichment;
+
+  /// Everything derived from `enrichment_json` / `metadata_json`.
+  ///
+  /// A word loaded for a word *pool* is deliberately not hydrated: decoding
+  /// those blobs for a whole pack costs ~72 MB of JSON at launch. Ask
+  /// [has] which enrichment a word carries — that comes from the feature
+  /// index and is always accurate — then hydrate the few words a round shows
+  /// (`VocabularyService.hydrate`). See db_feature_index.dart.
+  ApiEnrichment? get apiEnrichment {
+    assert(
+      isHydrated || _apiEnrichment == null,
+      'unreachable: an un-hydrated word cannot carry enrichment',
+    );
+    if (kDebugMode && !isHydrated) {
+      debugPrint('[VOCAB] ⚠️ apiEnrichment read on un-hydrated "$word" — '
+          'filter with has(WordFeature...) and hydrate before display.');
+    }
+    return _apiEnrichment;
+  }
+
+  /// The word's rowid in the pack database, or null when it did not come from
+  /// one (custom words, tests). Hydration and the feature index key on it.
+  final int? rowId;
+
+  /// Feature bits from the pack's index; 0 for words outside a pack.
+  final int features;
+
+  /// Whether the enrichment-derived fields on this instance are populated.
+  /// False for pool words — see [apiEnrichment].
+  final bool isHydrated;
+
+  /// Whether the word carries [feature], answerable without its JSON.
+  bool has(WordFeature feature) => features.hasFeature(feature);
 
   // Consolidated V24 Fields
   final List<ApiExample> examples;
@@ -509,7 +545,10 @@ class GermanWord {
     required this.spellingDifficulty,
     this.commonMistakes,
     this.audioPath,
-    this.apiEnrichment,
+    ApiEnrichment? apiEnrichment,
+    this.rowId,
+    this.features = 0,
+    this.isHydrated = true,
     this.frequencyData,
     this.averageRank,
     this.litekeyErrorRate,
@@ -532,7 +571,7 @@ class GermanWord {
     required this.meronyms,
     required this.coordinateTerms,
     this.isProperNoun = false,
-  });
+  }) : _apiEnrichment = apiEnrichment;
 
   factory GermanWord.fromJson(Map<String, dynamic> json) {
     final apiData = json['apiEnrichment'] != null
@@ -687,6 +726,9 @@ class GermanWord {
           : null,
       audioPath: resolvedAudioPath,
       apiEnrichment: apiData,
+      rowId: _parseNum(json['rowId'])?.toInt(),
+      features: _parseInt(json['features'], 0),
+      isHydrated: json['isHydrated'] as bool? ?? true,
 
       examples: v24Examples,
       hyphenation:

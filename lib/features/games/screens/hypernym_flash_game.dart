@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
 import '../../../core/models/vocabulary_models.dart';
+import '../../../core/models/word_features.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart';
@@ -156,14 +157,24 @@ class _HypernymFlashGameState extends State<HypernymFlashGame>
     return null;
   }
 
-  void _buildChallenges() {
+  Future<void> _buildChallenges() async {
+    // Only words the feature index says carry hypernyms are read back with
+    // their enrichment; choosing *which* hypernym still needs the real data.
+    final candidates = await _vocabService.takeWordsWithFeature(
+      WordFeature.hypernyms,
+      settingsProvider: _gameProvider,
+      gradeLevel: widget.gradeLevel.index + 1,
+      limit: 200,
+      where: (w) =>
+          !w.isProperNoun && !w.word.contains('_') && !w.word.contains(' '),
+      random: _rng,
+    );
+    if (!mounted) return;
+
     // Compute the chosen hypernym once per word and reuse it everywhere
     // (filter, distractor pool, and challenge build) instead of recomputing.
     final picked = <GermanWord, String>{};
-    for (final w in _vocabService.getAllWords(_gameProvider)) {
-      if (w.isProperNoun || w.word.contains('_') || w.word.contains(' ')) {
-        continue;
-      }
+    for (final w in candidates) {
       final h = _pickHypernym(w);
       if (h != null) picked[w] = h;
     }
@@ -174,11 +185,8 @@ class _HypernymFlashGameState extends State<HypernymFlashGame>
       return;
     }
 
-    final gradePool = allWords
-        .where((w) => w.gradeLevel == widget.gradeLevel.index + 1)
-        .toList();
-    final pool = gradePool.length >= 10 ? gradePool : allWords;
-    pool.shuffle(_rng);
+    // Already grade-first and shuffled by the pool query.
+    final pool = allWords;
 
     final hypernymPool = picked.values.toList();
     hypernymPool.shuffle(_rng);

@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
 import '../../../core/models/vocabulary_models.dart';
+import '../../../core/models/word_features.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart';
@@ -139,22 +140,29 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
   static String _norm(String w) => normWord(w);
   static List<String> _parseErrors(List<String> raw) => parseErrors(raw);
 
-  void _buildChallenges() {
-    final allWords = _vocabularyService
-        .getAllWords(_gameProvider)
+  Future<void> _buildChallenges() async {
+    // Whether a word has recorded learner errors at all is answered by the
+    // feature index (EN commonLearnerErrors / DE commonMistakes); the exact
+    // test still runs, on the hydrated pool.
+    final allWords = (await _vocabularyService.takeWordsWithFeature(
+      WordFeature.learnerErrors,
+      settingsProvider: _gameProvider,
+      gradeLevel: widget.gradeLevel.index + 1,
+      limit: _totalRounds * 20,
+      where: (w) => !w.isProperNoun,
+      random: _rng,
+    ))
         .where(_hasErrors)
         .toList();
+    if (!mounted) return;
 
     if (allWords.isEmpty) {
       setState(() => _isLoading = false);
       return;
     }
 
-    // Prefer grade-appropriate words; fall back to all.
-    final gradeWords = allWords
-        .where((w) => w.gradeLevel == widget.gradeLevel.index + 1)
-        .toList();
-    final pool = gradeWords.length >= _totalRounds ? gradeWords : allWords;
+    // Already grade-first, from the pool query.
+    final pool = allWords.toList();
     // Sort by difficulty descending:
     //   DE — LiTKey empirical child-error rate (null → 0.5 neutral)
     //   EN — Norvig/Wikipedia misspelling variant count, normalised to 0–1

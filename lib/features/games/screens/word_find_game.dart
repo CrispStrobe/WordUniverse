@@ -71,10 +71,10 @@ class _WordFindGameState extends State<WordFindGame> {
       await _vocabularyService.initialize();
     }
 
-    _loadLevel();
+    await _loadLevel();
   }
 
-  void _loadLevel() {
+  Future<void> _loadLevel() async {
     // Clear old game state
     _grid.clear();
     _placedWords.clear();
@@ -118,17 +118,14 @@ class _WordFindGameState extends State<WordFindGame> {
       final wordString = _extractBaseWordFromSriId(id);
       if (wordString == null) continue;
 
-      try {
-        final word = _vocabularyService.getAllWords(_gameProvider).firstWhere(
-            (w) => w.word.toLowerCase() == wordString.toLowerCase());
+      // Indexed lookup: this used to scan the whole catalogue per review item.
+      final word = _vocabularyService.findByWrittenForm(wordString);
+      if (word == null) continue; // Word from SRI not in vocab, skip
 
-        if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
-          wordsForGame.add(word);
-          addedWordIds.add(word.id);
-          if (wordsForGame.length >= reviewWordCount) break;
-        }
-      } catch (e) {
-        // Word from SRI not in vocab, skip
+      if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
+        wordsForGame.add(word);
+        addedWordIds.add(word.id);
+        if (wordsForGame.length >= reviewWordCount) break;
       }
     }
 
@@ -164,7 +161,10 @@ class _WordFindGameState extends State<WordFindGame> {
     }
     // --- END ADAPTIVE SELECTION ---
 
-    _wordsToFind = wordsForGame;
+    // The words in play get their enrichment (definitions, CEFR, hints); the
+    // rest of the catalogue stays light.
+    _wordsToFind = await _vocabularyService.hydrate(wordsForGame);
+    if (!mounted) return;
 
     // Generate the grid
     final wordStrings =
