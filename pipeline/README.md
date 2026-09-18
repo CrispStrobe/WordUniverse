@@ -126,6 +126,38 @@ gzip -9 grundwortschatz.db -c > ../../assets/grundwortschatz.db.gz
 Wall time on a recent laptop: ~3–8 h depending on HF Space warmup and
 `/analyze_word` latency.
 
+## Final step: slim the pack before publishing
+
+`14_convert_db_to_sqflite*.py` writes enrichment the app has never read — a
+WordNet sense dump, ConceptNet relations, thesaurus and derived-term lists, and
+two duplicate copies of the inflection list the Dart model takes from
+`enrichment_json.inflections`. It is 38–45% of the artifact, and it costs the
+user download, decompression, the IndexedDB write on web, the cold open and
+their storage quota.
+
+Run this on the converted database before gzipping and publishing:
+
+```sh
+python3 tools/pack/slim_pack.py path/to/grundwortschatz.db --out slim.db --gzip
+```
+
+| | before | after |
+|---|---|---|
+| English | 93.9 MB (18.4 MB gz) | 58.4 MB (11.7 MB gz) |
+| German | 149.6 MB (25.4 MB gz) | 82.9 MB (14.1 MB gz) |
+
+The tool is the single source of truth for what is dead, and it says why for
+each key. It rewrites only rows that carry one, so running it twice is a no-op
+and it reproduces its own artifact — which matters, because the digest of that
+artifact is the pin in `lib/core/models/language_pack.dart`.
+
+Every key was checked against the **Dart accessor** that reads it, not the JSON
+key name. `wiktionary_translations` looks unused by a name search and is in fact
+the source of `.translations`, which two games depend on. Add to the list only
+on the same evidence, and re-run
+`WU_PACK=1 flutter test test/live/shipped_pack_pools_live_test.dart` afterwards:
+it asserts every pool a game opens with is still populated, for both packs.
+
 ## Status of this audit
 
 | Question | Answer |

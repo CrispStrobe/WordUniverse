@@ -243,8 +243,15 @@ const Map<String, LanguagePack> kLanguagePacks = {
     nativeName: 'English',
     databaseName: 'grundwortschatz_en.db',
     assetPath: 'assets/grundwortschatz_en.db.gz',
+    // Slimmed 2026-09-18: enrichment no code path reads was stripped from the
+    // artifact (tools/pack/slim_pack.py), 93.9 MB -> 58.3 MB decompressed.
+    // The digest qualifies the storage slot, so this selects a fresh one and
+    // the previous slot is listed below rather than silently reused.
     expectedDecompressedSha256:
-        '367021742f6c3ae6a3c347a9ef25f162683fb40c8e983f290c6e9667b6216893',
+        '49e65596954cb7f8a0268e214e3e26c866f593ad781c567481993f08dc8471db',
+    previousDatabaseNames: [
+      'grundwortschatz_en-367021742f6c3ae6a3c347a9ef25f162683fb40c8e983f290c6e9667b6216893.db',
+    ],
     licenseLabel: 'CC BY-SA 4.0',
     datasetUrl: 'https://huggingface.co/datasets/cstr/grundwortschatz-voc-en',
   ),
