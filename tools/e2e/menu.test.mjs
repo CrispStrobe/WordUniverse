@@ -8,12 +8,15 @@ import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { chooseFromMenu } from './menu.mjs';
 
+// Browsers live in node_modules (see the setup scripts in package.json), so
+// resolve them there unless the caller has pointed somewhere else.
+process.env.PLAYWRIGHT_BROWSERS_PATH ??= '0';
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
 
 // `dropClicks` menuitem clicks are accepted and then ignored, mirroring a click
 // landing on a semantics node the framework is in the middle of replacing.
-const fixture = ({ dropClicks = 0, reopenAfterClose = false } = {}) => `
+const fixture = ({ dropClicks = 0 } = {}) => `
 <body>
   <button id="trigger">Interface language English</button>
   <div id="menu" hidden></div>
@@ -31,7 +34,6 @@ const fixture = ({ dropClicks = 0, reopenAfterClose = false } = {}) => `
           menu.hidden = true;
           menu.innerHTML = '';
           document.getElementById('chosen').textContent = item.textContent;
-          ${reopenAfterClose ? 'setTimeout(open, 50);' : ''}
         };
       }
     };
