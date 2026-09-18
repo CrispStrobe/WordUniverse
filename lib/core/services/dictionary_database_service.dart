@@ -117,6 +117,11 @@ class DictionaryDatabaseService {
       // Derived per-word answers (which enrichment each word carries, whether
       // it is presentable, its sources). Built once per pack revision and
       // cached, so launches never decode the enrichment blobs.
+      //
+      // The build itself is seconds on a large pack — longer in a browser —
+      // and it only happens after an install, so say what is happening rather
+      // than leaving the progress label parked on the previous step.
+      onProgress?.call(0.96, const LoadStatus(LoadStage.preparing));
       _featureIndex = await loadWordFeatureIndex(
         _database!,
         cacheKey: databaseName,
