@@ -225,16 +225,23 @@ const Map<String, LanguagePack> kLanguagePacks = {
     databaseName: 'grundwortschatz.db',
     // GPL-3.0 data (childLex-derived) → intentionally NOT bundled in store
     // binaries; downloaded once from the Hugging Face dataset instead.
+    // The runtime artifact, not the full dataset: the same database with the
+    // enrichment the app never reads stripped (tools/pack/slim_pack.py),
+    // 149.6 MB -> 83.1 MB. `grundwortschatz.db.gz` beside it remains the
+    // complete lexical database and is unchanged.
     remoteUrl:
-        'https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/ecaaec77601a316aeccfe7dcb352137c84601017/grundwortschatz.db.gz',
+        'https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/68af2171ad1fd59d9b7bfa2d8b2a5b1ca9e4528e/grundwortschatz-app.db.gz',
     // Update the immutable URL and all pins together; retain this qualified
     // databaseName in previousDatabaseNames when publishing a new artifact.
-    expectedCompressedBytes: 26619920,
+    expectedCompressedBytes: 14895335,
     expectedCompressedSha256:
-        'bb69f27418bbd65673474e2a2934ecba33395fcf838465169a42e8bfec8de86b',
-    expectedDecompressedBytes: 156913664,
+        'ca38f7eececaf1cc9541d6aa461345b0d738e92921b3103ccce0e1487e7355a5',
+    expectedDecompressedBytes: 87130112,
     expectedDecompressedSha256:
-        'c66e3b49192694c00d7c2a171562ac8fe4f54c05d986adb0ebf276f141aa00df',
+        '2890e0c1b1dd25aacaee53bb133f4a4b3c4e69acb5827ce4c1af1813a2a7af44',
+    previousDatabaseNames: [
+      'grundwortschatz-c66e3b49192694c00d7c2a171562ac8fe4f54c05d986adb0ebf276f141aa00df.db',
+    ],
     licenseLabel: 'GPL-3.0-or-later',
     datasetUrl: 'https://huggingface.co/datasets/cstr/grundwortschatz-voc-de',
   ),
