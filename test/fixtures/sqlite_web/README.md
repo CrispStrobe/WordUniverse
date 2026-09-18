@@ -21,5 +21,15 @@ dart run sqflite_common_ffi_web:setup --force
 
 The verification fix used sqflite_common_ffi_web 1.1.1 and its setup-selected
 sqlite3-3.1.2/sqlite3.wasm release. The old worker rejected `setWebOptions`.
-Checkouts must preserve symlinks (particularly on Windows). Do not replace these
-with separate test-only binaries, mocks, or an in-memory database.
+Checkouts must preserve symlinks (particularly on Windows, and on network
+mounts that store a symlink as a regular file containing its target path).
+
+The symptom when they are not preserved: the server answers 200 with a ~25-byte
+body, the wasm never instantiates, and every browser test hangs until its
+30-second timeout — including tests that have nothing to do with SQLite. Check
+with `git ls-files -s` (mode 120000) against what is actually on disk. To run
+the suite on such a filesystem, copy `web/sqlite3.wasm` and `web/sqflite_sw.js`
+over the two entries, run, then `git checkout -- test/fixtures/sqlite_web/`.
+
+Do not replace these with separate test-only binaries, mocks, or an in-memory
+database.

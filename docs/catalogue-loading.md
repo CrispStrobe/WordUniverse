@@ -17,11 +17,40 @@ enrichment/metadata JSON), desktop native, via
 A phone or a browser pays more for the decode than this desktop run does, so
 the ratio there is at least as good.
 
-Re-measure with:
+## In a browser
 
-```sh
-dart run tools/bench/catalogue_load_benchmark.dart path/to/pack.db
-```
+The same pack, installed and measured in Chromium through the app's real web
+path (`test/live/web_index_benchmark_live_test.dart`):
+
+| | |
+|---|---|
+| **old launch** — `SELECT *` + `jsonDecode` | **3,430 ms** |
+|   of which the query itself | 2,565 ms |
+|   of which decoding 34,617 blobs | 865 ms |
+| **new launch** — light columns | **314 ms** |
+| index build, once per pack revision | 3,404 ms |
+| index encode (the cached record is 0.3 MB) | 246 ms |
+| index decode, every later launch | 118 ms |
+
+So a launch goes from 3,430 ms to **432 ms** (light query plus reading the
+cached index) — **8× on every launch after the first**. The first launch after
+an install pays the build instead of the decode and comes out ~500 ms slower
+than the old path, which is noise next to the install it follows.
+
+Note the shape differs from native: in the browser the *query* dominates
+(2,565 ms of 3,430 ms), because 73 MB of JSON has to cross the sqflite worker
+boundary. Not fetching it is the win either way.
+
+### The install itself is the web's real cost
+
+That same run took **88 seconds** to install the pack, 61 s of it decompressing
+93.9 MB. `db_platform_web.dart` hands the gunzip to `compute()`, which routes
+through an isolate on native but is only a microtask on the web — so it runs on
+the main thread. A browser's own `DecompressionStream('gzip')` would do this
+natively and incrementally. That is untouched here and is the largest remaining
+item on the web first-run path.
+
+Re-measure with:
 
 ## The three pieces
 
