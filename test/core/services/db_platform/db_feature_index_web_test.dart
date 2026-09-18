@@ -84,9 +84,10 @@ void main() {
     final db = await packFixture();
     addTearDown(db.close);
 
-    final result = await db.rawQuery(
-        "SELECT json_array_length('[1,2,3]') AS n, "
-        "json_extract('{\"a\":\"b\"}', '\\\$.a') AS a");
+    final result = await db.rawQuery(r"""
+      SELECT json_array_length('[1,2,3]') AS n,
+             json_extract('{"a":"b"}', '$.a') AS a
+    """);
     expect(result.first['n'], 3);
     expect(result.first['a'], 'b');
   });
@@ -106,9 +107,9 @@ void main() {
     expect(index.sourcesOf(1), ['BERLIN'],
         reason: 'group_concat over json_each has to work here too');
 
-    expect(index.featuresOf(2), 0);
-    expect(index.featuresOf(2).hasFeature(WordFeature.knownMisspelling), isTrue,
-        reason: '"Hunt" is listed as a common mistake for "Hund"');
+    expect(index.featuresOf(2), WordFeature.knownMisspelling.mask,
+        reason: '"Hunt" carries no enrichment of its own, but it is listed as '
+            'a common mistake for "Hund"');
 
     expect(index.isPresentable(3), isFalse,
         reason: 'defined as a misspelling');
