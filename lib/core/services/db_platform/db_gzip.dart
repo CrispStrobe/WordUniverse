@@ -73,21 +73,51 @@ void verifyDecompressedDb(
   String? expectedDecompressedSha256,
   bool requireSha256 = false,
 }) {
+  verifyDecompressedSize(bytes.length, expectedDecompressedBytes);
+  if (!shouldVerifySha256(
+    expectedDecompressedSha256: expectedDecompressedSha256,
+    requireSha256: requireSha256,
+  )) {
+    return;
+  }
+  verifySha256Digest(
+    actual: sha256.convert(bytes).toString(),
+    expected: expectedDecompressedSha256!,
+    requireSha256: requireSha256,
+  );
+}
+
+/// The size gate, split out so a platform that computes the digest by other
+/// means (the browser's crypto.subtle) still applies the same rules in the
+/// same order. See [verifyDecompressedDb].
+void verifyDecompressedSize(int actualBytes, int? expectedDecompressedBytes) {
   if (expectedDecompressedBytes != null &&
-      bytes.length != expectedDecompressedBytes) {
+      actualBytes != expectedDecompressedBytes) {
     throw DbPayloadException(
         'The database failed validation after decompression '
-        '(${bytes.length} bytes, expected $expectedDecompressedBytes).');
+        '($actualBytes bytes, expected $expectedDecompressedBytes).');
   }
-  if (expectedDecompressedSha256 == null) return;
-  if (!requireSha256 && !kDebugMode) return;
-  final actual = sha256.convert(bytes).toString();
-  if (actual.toLowerCase() == expectedDecompressedSha256.toLowerCase()) return;
+}
+
+/// Whether the digest can change the outcome, and is therefore worth computing.
+bool shouldVerifySha256({
+  required String? expectedDecompressedSha256,
+  required bool requireSha256,
+}) =>
+    expectedDecompressedSha256 != null && (requireSha256 || kDebugMode);
+
+/// The digest verdict: enforced when [requireSha256], advisory otherwise.
+void verifySha256Digest({
+  required String actual,
+  required String expected,
+  required bool requireSha256,
+}) {
+  if (actual.toLowerCase() == expected.toLowerCase()) return;
   if (requireSha256) {
     throw DbPayloadException(
         'The downloaded database did not match its published checksum. '
         'The partial download was discarded; please try again.');
   }
   debugPrint('[DB_GZIP] decompressed sha256 mismatch — expected '
-      '$expectedDecompressedSha256, got $actual. Proceeding (structural checks passed).');
+      '$expected, got $actual. Proceeding (structural checks passed).');
 }
