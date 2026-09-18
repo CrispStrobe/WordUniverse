@@ -7,6 +7,9 @@ import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { playQuiz } from './game-flow.mjs';
 
+// Browsers live in node_modules (see the setup scripts in package.json), so
+// resolve them there unless the caller has pointed somewhere else.
+process.env.PLAYWRIGHT_BROWSERS_PATH ??= '0';
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
 
