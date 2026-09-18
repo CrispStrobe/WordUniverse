@@ -34,6 +34,30 @@ test('Vercel JS and WASM caching matches Pages without isolation requirements', 
   }
 });
 
+test('content-stable assets are cached for a year, engine and app are not', () => {
+  const cacheFor = asset => vercel.headers
+    .filter(rule => new RegExp(`^${rule.source}$`).test(asset))
+    .flatMap(rule => rule.headers)
+    .find(h => h.key.toLowerCase() === 'cache-control')?.value;
+
+  // Addressed by filename (a changed font ships under a new name) or pinned by
+  // digest before install, so staleness cannot mismatch the running build.
+  for (const asset of [
+    '/assets/assets/fonts/SpaceGrotesk-Regular.ttf',
+    '/assets/assets/images/app_icon.png',
+    '/assets/assets/sounds/correct.mp3',
+    '/assets/assets/grundwortschatz_en.db.gz',
+  ]) {
+    assert.equal(cacheFor(asset), 'public, max-age=31536000, immutable', asset);
+  }
+
+  // The engine and the compiled app live at unversioned paths and must stay in
+  // lockstep: a stale CanvasKit against a fresh main.dart.js is a broken app.
+  for (const asset of ['/main.dart.js', '/canvaskit/canvaskit.wasm', '/sqlite3.wasm']) {
+    assert.doesNotMatch(cacheFor(asset), /immutable/, asset);
+  }
+});
+
 test('prebuilt deployments retain the canonical headers and rewrites', () => {
   const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'wu-vercel-config-'));
   try {

@@ -21,7 +21,62 @@
 
   <script src="flutter.js" defer></script>
   <script src="flutter_bootstrap.js" async></script>
+
+  <!--
+    First load fetches the engine and the app (~4 MB compressed), which is
+    seconds on a slow connection. Without this the page is blank for all of
+    it. Inline and tiny on purpose: it must render before anything else is
+    fetched, so it costs no extra request.
+  -->
+  <style>
+    body { background: #0a0a2a; }
+    #boot {
+      position: fixed; inset: 0; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 1.5rem;
+      background: #0a0a2a; color: #e8e8ff; text-align: center;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      transition: opacity .4s ease;
+    }
+    #boot.done { opacity: 0; pointer-events: none; }
+    #boot .mark { font-size: 3rem; animation: boot-float 2.4s ease-in-out infinite; }
+    #boot .name { font-size: 1.1rem; letter-spacing: .04em; opacity: .9; }
+    #boot .bar {
+      width: min(13rem, 55vw); height: 3px; border-radius: 3px;
+      background: rgba(232,232,255,.18); overflow: hidden;
+    }
+    #boot .bar i {
+      display: block; width: 40%; height: 100%; border-radius: 3px;
+      background: #7c7cff; animation: boot-slide 1.4s ease-in-out infinite;
+    }
+    @keyframes boot-float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    @keyframes boot-slide {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(350%); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #boot .mark, #boot .bar i { animation: none; }
+      #boot .bar i { width: 100%; }
+    }
+  </style>
 </head>
 <body>
+  <div id="boot" role="status" aria-live="polite">
+    <div class="mark" aria-hidden="true">🚀</div>
+    <div class="name">Word Universe</div>
+    <div class="bar" aria-hidden="true"><i></i></div>
+  </div>
+  <script>
+    // Flutter fires this on window once it has painted; fade out and drop the
+    // node so it never sits on top of the app.
+    window.addEventListener('flutter-first-frame', function () {
+      var boot = document.getElementById('boot');
+      if (!boot) return;
+      boot.classList.add('done');
+      setTimeout(function () { boot.remove(); }, 500);
+    });
+  </script>
 </body>
 </html>

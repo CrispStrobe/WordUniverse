@@ -59,8 +59,12 @@ flutter:
   
   assets:
     - assets/images/
-    - assets/fonts/
     - assets/sounds/
+    # Not the whole fonts/ directory: every face is declared under `fonts:`
+    # below and bundled from there. The directory entry additionally shipped
+    # the files nothing declares — a PDF specimen, a README, an unused
+    # variable-weight SpaceGrotesk and a duplicate DidactGothic .ttf (~0.5 MB).
+    # OFL.txt is loaded by CustomLicensesRegistry, so it stays.
     - assets/fonts/OFL.txt
     # NOTE: the German DB (grundwortschatz.db.gz) is GPL-3.0 (includes data
     # derived from childLex) and is intentionally NOT bundled — it is
