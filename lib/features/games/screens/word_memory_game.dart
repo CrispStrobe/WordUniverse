@@ -121,7 +121,7 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
       await _vocabularyService.initialize();
     }
 
-    _loadLevel();
+    await _loadLevel();
   }
 
   String? _extractBaseWordFromSriId(String id) {
@@ -134,7 +134,7 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
     return word.word.length >= 3 && word.word.length <= 8 && !word.word.contains(" ");
   }
 
-  void _loadLevel() {
+  Future<void> _loadLevel() async {
     _score = 0;
     _moves = 0;
     _pairsFound = 0;
@@ -164,16 +164,15 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
     for (final id in reviewItemIds) {
       final wordString = _extractBaseWordFromSriId(id);
       if (wordString == null) continue;
-      try {
-        final word = _vocabularyService.getAllWords(_gameProvider).firstWhere(
-            (w) => w.word.toLowerCase() == wordString.toLowerCase());
+      // Indexed lookup: this used to scan the whole catalogue per review item.
+      final word = _vocabularyService.findByWrittenForm(wordString);
+      if (word == null) continue; // Word from SRI not in vocab, skip
 
-        if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
-          wordsForGame.add(word);
-          addedWordIds.add(word.id);
-          if (wordsForGame.length >= reviewWordCount) break;
-        }
-      } catch (e) {}
+      if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
+        wordsForGame.add(word);
+        addedWordIds.add(word.id);
+        if (wordsForGame.length >= reviewWordCount) break;
+      }
     }
 
     final newWords = _vocabularyService.getNewWords(
@@ -203,12 +202,16 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
       }
     }
 
+    // Definition cards read the enrichment, so decode it for the chosen words.
+    final playable = await _vocabularyService.hydrate(wordsForGame);
+    if (!mounted) return;
+
     final List<MemoryCard> cards = [];
     final random = Random();
     final bool definitionMode = widget.gradeLevel.index >= 2;
 
-    for (int i = 0; i < wordsForGame.length && i < _totalPairs; i++) {
-      final word = wordsForGame[i];
+    for (int i = 0; i < playable.length && i < _totalPairs; i++) {
+      final word = playable[i];
       final shuffledFonts = List<String>.from(_availableFonts)..shuffle(random);
       final def = definitionMode ? word.apiEnrichment?.definitions.firstOrNull : null;
       if (def != null && def.isNotEmpty) {

@@ -105,7 +105,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
       await _vocabularyService.initialize();
     }
 
-    _loadLevel();
+    await _loadLevel();
   }
 
   String? _extractBaseWordFromSriId(String id) {
@@ -124,10 +124,10 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
         !word.word.contains(" ");
   }
 
-  void _loadLevel() {
+  Future<void> _loadLevel() async {
     _score = 0;
     _puzzlesCompleted = 0;
-    _loadNextPuzzle();
+    await _loadNextPuzzle();
   }
 
   SnakeDifficulty _getAdjustedDifficulty(String word, SnakeDifficulty baseDifficulty) {
@@ -145,7 +145,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
     return baseDifficulty;
   }
 
-  void _loadNextPuzzle() {
+  Future<void> _loadNextPuzzle() async {
     if (_puzzlesCompleted >= _totalPuzzles) {
       _showGameOver();
       return;
@@ -168,16 +168,13 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
       final wordString = _extractBaseWordFromSriId(id);
       if (wordString == null) continue;
 
-      try {
-        final word = _vocabularyService.getAllWords(_gameProvider).firstWhere(
-            (w) => w.word.toLowerCase() == wordString.toLowerCase());
+      // Indexed lookup: this used to scan the whole catalogue per review item.
+      final word = _vocabularyService.findByWrittenForm(wordString);
+      if (word == null) continue; // Word from SRI not in vocab, skip
 
-        if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
-          wordsForGame.add(word);
-          addedWordIds.add(word.id);
-        }
-      } catch (e) {
-        // Word from SRI not in vocab, skip
+      if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
+        wordsForGame.add(word);
+        addedWordIds.add(word.id);
       }
     }
 
@@ -209,12 +206,15 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
     }
 
     wordsForGame.shuffle();
+    // Example sentences come from the enrichment, so decode it for these words.
+    final playable = await _vocabularyService.hydrate(wordsForGame);
+    if (!mounted) return;
     WordSnakeGrid? puzzle;
     GermanWord? selectedWord;
 
     final baseDifficulty = _getDifficultyForGrade();
     
-    for (final word in wordsForGame) {
+    for (final word in playable) {
       final adjustedDifficulty = _getAdjustedDifficulty(word.word, baseDifficulty);
       
       puzzle = WordSnakeGenerator().generate(word.word, adjustedDifficulty);

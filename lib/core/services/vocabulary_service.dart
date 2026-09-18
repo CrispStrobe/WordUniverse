@@ -14,6 +14,7 @@ import '../models/language_pack.dart';
 import '../models/load_status.dart';
 import '../models/skill_category.dart';
 import '../models/vocabulary_models.dart';
+import '../models/word_features.dart';
 import 'sri_service.dart';
 import 'dictionary_database_service.dart';
 
@@ -40,6 +41,13 @@ class VocabularyService with ChangeNotifier {
   Map<String, VocabularySet> _vocabularySets = {};
 
   Set<String>? _allSourcesCache;
+
+  /// Lowercased spelling (and lemma) to word, built on first use.
+  ///
+  /// Review queues address words by their written form, so this used to be a
+  /// `firstWhere` over the whole catalogue per item — a linear scan of tens of
+  /// thousands of words, tens of times per round.
+  Map<String, GermanWord>? _byWrittenForm;
 
   // Database Service Instance
   final DictionaryDatabaseService _dbService = DictionaryDatabaseService();
@@ -108,6 +116,7 @@ class VocabularyService with ChangeNotifier {
       _vocabulary.clear();
       _vocabularySets.clear();
       _allSourcesCache = null;
+      _byWrittenForm = null;
       _isInitialized = false;
     }
 
@@ -288,12 +297,35 @@ class VocabularyService with ChangeNotifier {
     }
   }
 
+  /// Looks a word up by its written form or lemma, case-insensitively.
+  ///
+  /// Returns the light catalogue entry: pass it through [hydrateOne] before
+  /// showing anything that lives in the enrichment.
+  GermanWord? findByWrittenForm(String text) {
+    final key = text.trim().toLowerCase();
+    if (key.isEmpty) return null;
+    final index = _byWrittenForm ??= () {
+      final built = <String, GermanWord>{};
+      // Lemmas first, then spellings: a spelling always wins a collision with
+      // some other word's lemma, because it is what the learner saw.
+      for (final word in _vocabulary.values) {
+        built[word.lemma.toLowerCase()] = word;
+      }
+      for (final word in _vocabulary.values) {
+        built[word.word.toLowerCase()] = word;
+      }
+      return built;
+    }();
+    return index[key];
+  }
+
   /// Loads all words from SQLite into memory for game logic performance.
   /// Errors propagate to [initialize] so they can be surfaced to the user.
   Future<void> _loadVocabularyFromDB() async {
     final words = await _dbService.getAllWords();
     if (words.isNotEmpty) {
       _vocabulary = {for (var w in words) w.id: w};
+      _byWrittenForm = null;
       _log('Loaded ${_vocabulary.length} words from SQLite DB');
     } else {
       _log('⚠️ DB returned 0 words. Checking assets or DB integrity...');
@@ -303,6 +335,65 @@ class VocabularyService with ChangeNotifier {
   // ---------------------------------------------------------------------------
   // SEARCH METHODS
   // ---------------------------------------------------------------------------
+
+  // ---------------------------------------------------------------------------
+  // WORD POOLS
+  // ---------------------------------------------------------------------------
+
+  /// A ready-to-play pool of words that carry [feature], with their enrichment
+  /// decoded.
+  ///
+  /// The in-memory catalogue holds no enrichment — decoding it for a whole pack
+  /// costs ~72 MB of JSON per launch — so a game must not filter on
+  /// `apiEnrichment` to find its candidates. It asks for the feature it needs
+  /// instead: the pool is narrowed from the feature index (integers), and only
+  /// the words that survive are read back with their JSON.
+  ///
+  /// Words matching [gradeLevel] come first and the rest fill up to [limit], so
+  /// a game that walks the pool in order gets grade-appropriate prompts while
+  /// still having enough words for distractors. [where] filters on light fields
+  /// (spelling, word type, grade) before hydration; predicates that need
+  /// enrichment belong after the await, on the returned words.
+  Future<List<GermanWord>> takeWordsWithFeature(
+    WordFeature feature, {
+    required GameProvider settingsProvider,
+    int? gradeLevel,
+    int limit = 60,
+    bool Function(GermanWord word)? where,
+    Random? random,
+  }) async {
+    final candidates = <GermanWord>[];
+    for (final word in _vocabulary.values) {
+      if (!word.has(feature)) continue;
+      if (where != null && !where(word)) continue;
+      candidates.add(word);
+    }
+    final pool = _applyVocabularyFilters(candidates, settingsProvider);
+    if (pool.isEmpty) return const [];
+
+    if (gradeLevel == null) {
+      final chosen = pool.toList()..shuffle(random);
+      return hydrate(chosen.take(limit));
+    }
+
+    final graded = <GermanWord>[];
+    final rest = <GermanWord>[];
+    for (final word in pool) {
+      (word.gradeLevel == gradeLevel ? graded : rest).add(word);
+    }
+    graded.shuffle(random);
+    rest.shuffle(random);
+    return hydrate([...graded, ...rest].take(limit));
+  }
+
+  /// The same words with their enrichment decoded. Words that are already
+  /// hydrated, or that came from outside a pack, are returned unchanged.
+  Future<List<GermanWord>> hydrate(Iterable<GermanWord> words) =>
+      _dbService.hydrate(words);
+
+  /// [hydrate] for a single word — the word-of-the-day card, a detail sheet.
+  Future<GermanWord> hydrateOne(GermanWord word) =>
+      _dbService.hydrateOne(word);
 
   /// FAST ASYNC SEARCH: Uses SQLite FTS5 index.
   Future<List<GermanWord>> searchWordsAsync(String query) async {
@@ -505,15 +596,9 @@ class VocabularyService with ChangeNotifier {
 
     final words = <GermanWord>[];
     for (final id in reviewIds) {
-      final wordString = id.replaceFirst('SPELL_', '');
-      try {
-        final word = _vocabulary.values.firstWhere(
-          (w) => w.word.toLowerCase() == wordString,
-        );
-        words.add(word);
-      } catch (_) {
-        // Word ID in SRI doesn't match current vocab
-      }
+      // Word IDs that no longer match the current vocabulary are skipped.
+      final word = findByWrittenForm(id.replaceFirst('SPELL_', ''));
+      if (word != null) words.add(word);
     }
     final filteredWords = _applyVocabularyFilters(words, settingsProvider);
     return filteredWords.take(limit).toList();

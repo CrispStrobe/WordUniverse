@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
 import '../../../core/models/vocabulary_models.dart';
+import '../../../core/models/word_features.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart';
@@ -100,7 +101,7 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
     _audioService = context.read<AudioService>();
     _gameProvider = context.read<GameProvider>();
     if (!_vocabularyService.isInitialized) await _vocabularyService.initialize();
-    _buildChallenges();
+    await _buildChallenges();
     if (!_onboardingScheduled) {
       _onboardingScheduled = true;
       OnboardingOverlay.maybeShow(
@@ -134,28 +135,36 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
     GermanWordType.adjektiv,
   };
 
-  void _buildChallenges() {
+  Future<void> _buildChallenges() async {
     final gradeIndex = widget.gradeLevel.index + 1;
 
     // Content words only, with grade examples; exclude proper nouns (Vornamen,
     // Ortsnamen) which produce odd fill-in-the-blank challenges.
-    final allWords = _vocabularyService
-        .getAllWords(_gameProvider)
-        .where((w) =>
-            _contentTypes.contains(w.wordType) &&
-            !w.isProperNoun &&
-            _hasGradeExamples(w, gradeIndex) &&
-            !w.word.contains('_') &&
-            !w.word.contains(' '))
+    //
+    // Carrying grade examples at all is answered by the feature index, so only
+    // these candidates have their enrichment decoded; whether the examples
+    // cover *this* grade still needs the real data, so it is re-checked once
+    // the pool comes back hydrated.
+    final allWords = (await _vocabularyService.takeWordsWithFeature(
+      WordFeature.gradeExamples,
+      settingsProvider: _gameProvider,
+      gradeLevel: gradeIndex,
+      limit: _totalRounds * 10,
+      where: (w) =>
+          _contentTypes.contains(w.wordType) &&
+          !w.isProperNoun &&
+          !w.word.contains('_') &&
+          !w.word.contains(' '),
+      random: _rng,
+    ))
+        .where((w) => _hasGradeExamples(w, gradeIndex))
         .toList();
+    if (!mounted) return;
 
     if (allWords.isEmpty) {
       setState(() => _isLoading = false);
       return;
     }
-
-    // Random order: words are presented in shuffled sequence (no SRI weighting).
-    allWords.shuffle(_rng);
 
     final challenges = <_SentenceChallenge>[];
     for (final word in allWords) {
