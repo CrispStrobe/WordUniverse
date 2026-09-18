@@ -20,7 +20,7 @@
 // A pack may set both [assetPath] and [remoteUrl]; the remote path wins, the
 // asset acts as an offline fallback for non-store builds.
 
-import 'package:flutter/foundation.dart' show immutable, kIsWeb;
+import 'package:flutter/foundation.dart' show immutable;
 import 'load_status.dart';
 
 /// Where a language's vocabulary DB comes from, plus the metadata needed to
@@ -109,20 +109,20 @@ class LanguagePack {
       ? null
       : '${(requiredFreeBytes! / (1024 * 1024)).round()} MiB';
 
-  /// Web promotion copies staging to the final name before deleting staging:
-  /// two decompressed databases coexist in browser storage. Native writes one
-  /// staging file and renames it, so needs only one on-disk database; decode
-  /// buffers are RAM, not an additional free-disk-space requirement.
+  /// One decompressed database on either platform: web writes it to its final
+  /// name and validates it in place (pinned by "web install writes the database
+  /// once" in db_schema_web_test.dart), native writes one staging file and
+  /// renames it. Decode buffers are RAM, not an additional free-space
+  /// requirement.
   ///
   /// Reserve one compressed download in addition on both platforms. The shared
   /// downloader clears its checkpoint before returning, so this is conservative
-  /// headroom, NOT a third file known to coexist during promotion. It also
+  /// headroom, NOT a second file known to coexist with the database. It also
   /// covers checkpoint replacement for the registered pack (much smaller than
   /// its decompressed DB). Filesystem/IndexedDB overhead is platform-dependent.
   int? get requiredFreeBytes => expectedDecompressedBytes == null
       ? null
-      : (kIsWeb ? 2 : 1) * expectedDecompressedBytes! +
-          (expectedCompressedBytes ?? 0);
+      : expectedDecompressedBytes! + (expectedCompressedBytes ?? 0);
 
   static String? _megabytes(int? bytes) =>
       bytes == null ? null : '${(bytes / (1024 * 1024)).round()} MB';

@@ -145,25 +145,33 @@ Future<Database> initPlatformDatabase({
       debugPrint(
           "[DB_WEB] Converting to Uint8List and writing to virtual FS...");
 
-    // CRITICAL: Web FFI requires Uint8List, not List<int>
-    final Uint8List uint8Bytes = Uint8List.fromList(decompressedBytes);
+    // CRITICAL: Web FFI requires Uint8List, not List<int>. The decoder already
+    // returns one, so don't copy the whole database again to restate its type.
+    final Uint8List uint8Bytes = decompressedBytes is Uint8List
+        ? decompressedBytes
+        : Uint8List.fromList(decompressedBytes);
 
-    final staging = '$webDbName.installing';
+    // Phase 2 removed any database already under this name, so staging a copy
+    // guards nothing here — and with no rename on web it means shipping a whole
+    // decompressed database to the worker and into IndexedDB twice, doubling
+    // both the main-thread cost of the install and the storage it needs at its
+    // peak. Write once and validate in place, deleting the bytes if they turn
+    // out to be unusable so a failed install still leaves nothing behind.
     try {
-      await factory.writeDatabaseBytes(staging, uint8Bytes);
-      final candidate = await openValidatedDictionary(factory, staging);
-      await candidate.close();
-      // No rename API on web: check staged bytes before copying to final name.
       await factory.writeDatabaseBytes(webDbName, uint8Bytes);
+      final candidate = await openValidatedDictionary(factory, webDbName);
+      await candidate.close();
     } catch (e) {
+      // Never let cleanup replace the real failure.
+      try {
+        await factory.deleteDatabase(webDbName);
+      } catch (_) {}
       // Browsers surface a full/blocked store as a quota error; say so plainly
       // instead of "download failed".
       if (e.toString().toLowerCase().contains('quota')) {
         throw DbInsufficientSpaceException(requiredBytes: uint8Bytes.length);
       }
       rethrow;
-    } finally {
-      await factory.deleteDatabase(staging);
     }
     if (kDebugMode) debugPrint("[DB_WEB] Database written to IndexedDB");
     onProgress?.call(0.90, const LoadStatus(LoadStage.savedBrowser));
