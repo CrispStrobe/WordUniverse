@@ -41,16 +41,68 @@ Note the shape differs from native: in the browser the *query* dominates
 (2,565 ms of 3,430 ms), because 73 MB of JSON has to cross the sqflite worker
 boundary. Not fetching it is the win either way.
 
-### The install itself is the web's real cost
+### The install, and why only the web path uses native primitives
 
-That same run took **88 seconds** to install the pack, 61 s of it decompressing
-93.9 MB. `db_platform_web.dart` hands the gunzip to `compute()`, which routes
-through an isolate on native but is only a microtask on the web — so it runs on
-the main thread. A browser's own `DecompressionStream('gzip')` would do this
-natively and incrementally. That is untouched here and is the largest remaining
-item on the web first-run path.
+The same run originally took **88 seconds** to install the pack, 61 s of it
+decompressing 93.9 MB. `compute()` gives native platforms a real isolate but is
+only a microtask on the web, so that ran on the main thread — as did SHA-256,
+which the German pack pins and enforces. Measured in Chromium:
+
+| 93.9 MB | Dart | browser |
+|---|---|---|
+| gunzip | 60,556 ms (`package:archive`) | **1,717 ms** (`DecompressionStream`) |
+| sha256 | 190,095 ms (`package:crypto`) | **624 ms** (`crypto.subtle`) |
+
+The web loader now uses the browser's own primitives, falling back to the Dart
+path when they are missing (older Safari, or a non-secure origin where
+`crypto.subtle` does not exist). Install went **88 s to 30 s**, decompression
+61.3 s to 1.3 s. Legacy adoption, which hashes a whole installed database to
+match it against the pinned digest, uses the same native digest.
+
+On the **VM** the same comparison says to leave the Dart path alone — it is
+compiled to machine code, and the alternatives are not worth touching a
+validation path for:
+
+| 149 MB (German pack) | |
+|---|---|
+| gunzip `package:archive` | 1,296 ms |
+| gunzip `dart:io gzip.decode` | 1,014 ms |
+| sha256 `package:crypto` | 4,329 ms |
+
+`dart run tools/bench/gzip_benchmark.dart <pack.db.gz>` reproduces that.
+
+### What the web install costs now
+
+| phase, 93.9 MB | |
+|---|---|
+| fetch the compressed asset | 885 ms |
+| gunzip (browser) | 1,056 ms |
+| **`writeDatabaseBytes` into IndexedDB** | **24,220 ms** |
+| open + validate (cold) | 11,852 ms |
+| open + validate (warm, the second open) | 147 ms |
+
+Storage is now the whole cost. `sqflite_common_ffi_web` 1.1.1 opens
+`IndexedDbFileSystem` unconditionally, with no OPFS option — OPFS is the
+storage SQLite-on-wasm is meant to use and would change both numbers, but
+reaching it means going around sqflite_common_ffi_web and migrating every
+installed pack, so it is a decision rather than a patch.
 
 Re-measure with:
+
+```sh
+# native catalogue load
+dart run tools/bench/catalogue_load_benchmark.dart path/to/pack.db
+
+# native gzip/sha comparison
+dart run tools/bench/gzip_benchmark.dart path/to/pack.db.gz
+
+# browser: install, index build, launch (see the test header for its fixtures)
+flutter test --platform chrome test/live/web_index_benchmark_live_test.dart
+```
+
+All figures here are single runs on one machine, and the browser ones move by
+roughly ±10% between runs. They are the right order of magnitude, not a
+benchmark suite.
 
 ## The three pieces
 

@@ -3,7 +3,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:sqflite/sqflite.dart';
+import 'db_digest_web.dart';
 import 'db_gzip.dart';
+import 'db_gzip_web.dart';
 import 'db_schema.dart';
 import 'db_revision.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
@@ -14,6 +16,36 @@ import '../../models/load_status.dart';
 DatabaseFactory? webDatabaseFactoryOverride;
 
 DatabaseFactory get _factory => webDatabaseFactoryOverride ?? databaseFactoryFfiWeb;
+
+/// Decompresses and gates a pack, natively where the browser allows it.
+///
+/// The portable path is pure Dart and `compute()` is only a microtask on the
+/// web, so it runs on the main thread: 60 s of gunzip and 190 s of SHA-256 for
+/// the English pack, more for the German one. The browser does the same work
+/// in about two seconds, so it is tried first and the Dart path is kept as the
+/// fallback for browsers without the APIs — or without a secure context, where
+/// crypto.subtle does not exist.
+///
+/// A bad payload throws from either path; only "this browser cannot" falls
+/// back, so a gate is never skipped.
+Future<List<int>> _decompress(DbGzipJob job) async {
+  final watch = Stopwatch()..start();
+  if (supportsNativeGzip) {
+    try {
+      final decoded = await decodeAndVerifyDbGzipNative(job);
+      logGzipPath('browser gzip', watch.elapsedMilliseconds, decoded.length);
+      return decoded;
+    } catch (error) {
+      if (!isNativeGzipUnavailable(error)) rethrow;
+      if (kDebugMode) {
+        debugPrint('[DB_WEB] native digest unavailable; using the Dart path');
+      }
+    }
+  }
+  final decoded = await compute(decodeAndVerifyDbGzip, job);
+  logGzipPath('dart gzip', watch.elapsedMilliseconds, decoded.length);
+  return decoded;
+}
 
 Future<Database> initPlatformDatabase({
   required String assetPath,
@@ -38,10 +70,16 @@ Future<Database> initPlatformDatabase({
       await adoptLegacyDatabase(
         factory: factory, destination: webDbName,
         candidates: legacyDatabaseNames, digest: expectedDecompressedSha256,
-        // No streaming in the browser: hash off the main thread, then hand
-        // the buffer to IndexedDB once per step.
-        digestOf: (name) async =>
-            compute(databaseDigest, await factory.readDatabaseBytes(name)),
+        // No streaming in the browser, so the whole artifact is buffered
+        // either way — but the browser can hash it in under a second where
+        // package:crypto needs minutes on the main thread (see
+        // db_digest_web.dart). Falls back when crypto.subtle is unavailable.
+        digestOf: (name) async {
+          final bytes = await factory.readDatabaseBytes(name);
+          return supportsNativeDigest
+              ? await nativeSha256HexOfBytes(bytes)
+              : await compute(databaseDigest, bytes);
+        },
         copy: (source, staging) async => factory.writeDatabaseBytes(
             staging, await factory.readDatabaseBytes(source)),
         promote: (staging, target) async => factory.writeDatabaseBytes(
@@ -97,22 +135,19 @@ Future<Database> initPlatformDatabase({
     final List<int> decompressedBytes;
 
     try {
-      // compute() routes through an isolate on mobile/desktop and through a
-      // microtask on web; either way the prior progress update has a chance
-      // to paint before this long sync call. gzip's CRC-32 validates the
-      // payload — a corrupt download throws here. The payload gates ride along
-      // so the SHA pass is never a separate UI-thread stall.
-      decompressedBytes = await compute(
-        decodeAndVerifyDbGzip,
-        DbGzipJob(
-          compressed: compressedBytes,
-          expectedDecompressedBytes: expectedDecompressedBytes,
-          expectedDecompressedSha256: expectedDecompressedSha256,
-          requireSha256: expectedDecompressedSha256 != null ||
-              (remoteUrl != null && remoteUrl.isNotEmpty &&
-                  DbDownloadController.sharedFor(remoteUrl).resumedWithoutValidator),
-        ),
+      // The browser's own gzip and SHA-256 where they exist, the portable
+      // Dart path otherwise — see _decompress and db_gzip_web.dart. gzip's
+      // CRC-32 validates the payload either way, and the payload gates ride
+      // along so the SHA pass is never a separate stall.
+      final job = DbGzipJob(
+        compressed: compressedBytes,
+        expectedDecompressedBytes: expectedDecompressedBytes,
+        expectedDecompressedSha256: expectedDecompressedSha256,
+        requireSha256: expectedDecompressedSha256 != null ||
+            (remoteUrl != null && remoteUrl.isNotEmpty &&
+                DbDownloadController.sharedFor(remoteUrl).resumedWithoutValidator),
       );
+      decompressedBytes = await _decompress(job);
 
       final decompressedSizeMB =
           (decompressedBytes.length / (1024 * 1024)).toStringAsFixed(1);
