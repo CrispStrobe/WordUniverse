@@ -2,6 +2,7 @@
 library;
 
 import 'dart:io';
+import 'dart:math';
 import 'package:crypto/crypto.dart';
 import 'package:WortUniversum/core/services/db_platform/db_remote.dart';
 import 'package:WortUniversum/core/models/language_pack.dart';
@@ -141,39 +142,55 @@ void main() {
     // The real German artifact is ~150 MB. Buffering it (let alone copying it
     // into an isolate to hash) on the upgrade path risks an out-of-memory kill
     // that no catch block can turn into "adoption failed, carry on", and that
-    // repeats on every launch. Adoption must stream, so it stays flat in the
-    // artifact size: this asserts peak RSS growth stays far below the file.
+    // repeats on every launch.
+    //
+    // The invariant is asserted where it is defined — the size of the reads
+    // adoption makes — rather than through process memory. RSS is not a
+    // portable proxy for buffering: allocator behaviour, GC timing and
+    // SQLite's own page cache all land in it, so perfectly streamed adoption
+    // can still show tens of MiB of growth on one runner and not another.
     await fixture();
     final old = File('${directory.path}/pack.db');
     final padded = await old.readAsBytes();
     // Grow the legacy artifact well past any plausible buffer reuse without
     // making the test slow: SQLite ignores trailing bytes beyond its pages,
     // so the file stays openable while being large.
+    const artifactBytes = 16 << 20;
     final sink = old.openWrite(mode: FileMode.append);
     final filler = Uint8List(1 << 20);
-    for (var written = 0; written < 48 << 20; written += filler.length) {
+    for (var written = 0; written < artifactBytes; written += filler.length) {
       sink.add(filler);
     }
     await sink.close();
-    final digest =
-        (await sha256.bind(old.openRead()).first).toString();
-    expect(await old.length(), greaterThan(48 << 20));
-    expect(padded.length, lessThan(48 << 20));
+    final length = await old.length();
+    final digest = (await sha256.bind(old.openRead()).first).toString();
+    expect(length, greaterThan(artifactBytes));
+    expect(padded.length, lessThan(artifactBytes));
 
-    final before = ProcessInfo.currentRss;
+    var largestRead = 0;
+    var totalRead = 0;
+    addTearDown(() => adoptionReadObserver = null);
+    adoptionReadObserver = (chunk) {
+      largestRead = max(largestRead, chunk);
+      totalRead += chunk;
+    };
+
     final adopted = await initPlatformDatabase(
         assetPath: 'offline-unused',
         databaseName: 'streamed.db',
         legacyDatabaseNames: ['pack.db'],
         expectedDecompressedSha256: digest);
     await adopted.close();
-    final growth = ProcessInfo.currentRss - before;
 
     expect(await File('${directory.path}/streamed.db').exists(), isTrue,
         reason: 'the artifact still has to be adopted');
-    expect(growth, lessThan(24 << 20),
-        reason: 'adoption grew memory by ${growth >> 20} MiB for a '
-            '${await old.length() >> 20} MiB artifact — it is buffering');
+    // Hashed once and copied once, so the whole file is read — twice over.
+    expect(totalRead, greaterThanOrEqualTo(length),
+        reason: 'adoption did not read the artifact it claims to have adopted');
+    expect(largestRead, lessThan(length ~/ 8),
+        reason: 'adoption took the artifact in ${largestRead >> 10} KiB reads '
+            'of ${length >> 20} MiB — a read that scales with the file is '
+            'buffering, whatever the process RSS says');
   });
 
   test('SQLite writes change legacy hash but not qualified readiness', () async {

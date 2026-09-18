@@ -13,6 +13,30 @@ import 'db_revision.dart';
 import 'db_remote.dart';
 import '../../models/load_status.dart';
 
+/// How adoption reads a legacy artifact.
+///
+/// Adoption must stream: a ~150 MB pack must never be buffered on a device that
+/// is merely upgrading. "Streaming" is only observable from the outside as the
+/// size of the reads that reach the hash and the copy, so tests watch those
+/// reads through [adoptionReadObserver] — process memory is not a portable
+/// proxy for it (allocator behaviour, GC timing and SQLite's page cache all
+/// land in RSS).
+///
+/// The observer only watches: the production read path is the same with it
+/// installed or not, so a test cannot accidentally assert on its own reader.
+@visibleForTesting
+void Function(int chunkBytes)? adoptionReadObserver;
+
+Stream<List<int>> _readFileStreamed(String path) {
+  final stream = File(path).openRead();
+  final observer = adoptionReadObserver;
+  if (observer == null) return stream;
+  return stream.map((chunk) {
+    observer(chunk.length);
+    return chunk;
+  });
+}
+
 Future<Database> initPlatformDatabase({
   required String assetPath,
   required String databaseName,
@@ -44,11 +68,11 @@ Future<Database> initPlatformDatabase({
         // Streamed: a ~150 MB artifact must never be buffered, let alone
         // copied into an isolate, on a device that is merely upgrading.
         digestOf: (name) async =>
-            (await sha256.bind(File(name).openRead()).first).toString(),
+            (await sha256.bind(_readFileStreamed(name)).first).toString(),
         copy: (source, staging) async {
           final sink = File(staging).openWrite();
           try {
-            await File(source).openRead().pipe(sink);
+            await _readFileStreamed(source).pipe(sink);
           } finally {
             await sink.close();
           }
