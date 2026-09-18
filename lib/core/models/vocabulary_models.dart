@@ -158,75 +158,85 @@ class ApiEnrichment {
   });
 
   factory ApiEnrichment.fromJson(Map<String, dynamic> json) {
+    /// Reads a field that is normally a list.
+    ///
+    /// The packs are assembled by a long pipeline and a few entries carry a
+    /// single object where the list belongs (`pronunciation` on acronyms like
+    /// "dvd", for instance). A cast threw there, and the whole word fell back
+    /// to a stub with no enrichment at all — losing every other field over one
+    /// malformed one. A lone object is read as a one-element list; anything
+    /// else reads as empty.
+    List<dynamic> listOf(String key) {
+      final value = json[key];
+      if (value is List) return value;
+      if (value is Map) return [value];
+      return const [];
+    }
+
     List<ApiSemanticTerm> parseTerms(String key) {
-      return (json[key] as List<dynamic>?)
-              ?.map((t) => ApiSemanticTerm.fromJson(t as Map<String, dynamic>))
-              .toList() ??
-          [];
+      return listOf(key)
+          .whereType<Map<String, dynamic>>()
+          .map(ApiSemanticTerm.fromJson)
+          .toList();
     }
 
     List<String> parseTermList(String key, String wordKey) {
-      return (json[key] as List<dynamic>?)
-              ?.map((t) {
-                if (t is Map<String, dynamic>) return t[wordKey] as String?;
-                if (t is String) return t;
-                return null;
-              })
-              .where((t) => t != null)
-              .cast<String>()
-              .toList() ??
-          [];
+      return listOf(key)
+          .map((t) {
+            if (t is Map<String, dynamic>) return t[wordKey] as String?;
+            if (t is String) return t;
+            return null;
+          })
+          .whereType<String>()
+          .toList();
     }
 
     return ApiEnrichment(
       enrichmentStatus: json['enrichment_status'] ?? 'unknown',
       primaryPos: json['primary_pos'],
       primaryLemma: json['primary_lemma'],
-      definitions: List<String>.from(json['definitions'] ?? []),
-      pronunciation: (json['pronunciation'] as List<dynamic>?)
-              ?.map((p) => ApiPronunciation.fromJson(p as Map<String, dynamic>))
-              .toList() ??
-          [],
-      examples: (json['examples'] as List<dynamic>?)
-              ?.map((e) => ApiExample.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
-      synonyms: List<String>.from(json['synonyms'] ?? []),
-      antonyms: List<String>.from(json['antonyms'] ?? []),
-      conceptnet: (json['conceptnet'] as List<dynamic>?)
-              ?.map((c) =>
-                  ApiConceptNetRelation.fromJson(c as Map<String, dynamic>))
-              .toList() ??
-          [],
-      alternativeAnalyses: (json['alternative_analyses'] as List<dynamic>?)
-              ?.map((a) =>
-                  ApiAlternativeAnalysis.fromJson(a as Map<String, dynamic>))
-              .toList() ??
-          [],
+      definitions: listOf('definitions').whereType<String>().toList(),
+      pronunciation: listOf('pronunciation')
+          .whereType<Map<String, dynamic>>()
+          .map(ApiPronunciation.fromJson)
+          .toList(),
+      examples: listOf('examples')
+          .whereType<Map<String, dynamic>>()
+          .map(ApiExample.fromJson)
+          .toList(),
+      synonyms: listOf('synonyms').whereType<String>().toList(),
+      antonyms: listOf('antonyms').whereType<String>().toList(),
+      conceptnet: listOf('conceptnet')
+          .whereType<Map<String, dynamic>>()
+          .map(ApiConceptNetRelation.fromJson)
+          .toList(),
+      alternativeAnalyses: listOf('alternative_analyses')
+          .whereType<Map<String, dynamic>>()
+          .map(ApiAlternativeAnalysis.fromJson)
+          .toList(),
       apiInfo: json['api_info'],
-      inflections: List<Map<String, dynamic>>.from(json['inflections'] ?? []),
+      inflections: listOf('inflections').whereType<Map<String, dynamic>>().toList(),
       inflectionsPattern: json['inflections_pattern'] as Map<String, dynamic>?,
-      semanticRelations: (json['semantic_relations'] as List<dynamic>?)
-              ?.map((r) =>
-                  ApiSemanticRelation.fromJson(r as Map<String, dynamic>))
-              .toList() ??
-          [],
-      hyphenation: List<String>.from(json['hyphenation'] ?? []),
-      translations: (json['wiktionary_translations'] as List<dynamic>?)
-              ?.map((t) => ApiTranslation.fromJson(t as Map<String, dynamic>))
-              .toList() ??
-          [],
+      semanticRelations: listOf('semantic_relations')
+          .whereType<Map<String, dynamic>>()
+          .map(ApiSemanticRelation.fromJson)
+          .toList(),
+      hyphenation: listOf('hyphenation').whereType<String>().toList(),
+      translations: listOf('wiktionary_translations')
+          .whereType<Map<String, dynamic>>()
+          .map(ApiTranslation.fromJson)
+          .toList(),
       derivedTerms: parseTermList('wiktionary_derived_terms', 'derived_word'),
       relatedTerms: parseTermList('wiktionary_related_terms', 'related_word'),
-      expressions: (json['expressions'] as List<dynamic>?)
-              ?.map((e) => ApiExpression.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
-      proverbs: (json['proverbs'] as List<dynamic>?)
-              ?.map((p) => ApiProverb.fromJson(p as Map<String, dynamic>))
-              .toList() ??
-          [],
-      entryNotes: List<String>.from(json['entry_notes'] ?? []),
+      expressions: listOf('expressions')
+          .whereType<Map<String, dynamic>>()
+          .map(ApiExpression.fromJson)
+          .toList(),
+      proverbs: listOf('proverbs')
+          .whereType<Map<String, dynamic>>()
+          .map(ApiProverb.fromJson)
+          .toList(),
+      entryNotes: listOf('entry_notes').whereType<String>().toList(),
       hypernyms: parseTerms('hypernyms'),
       hyponyms: parseTerms('hyponyms'),
       holonyms: parseTerms('holonyms'),

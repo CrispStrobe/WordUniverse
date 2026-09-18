@@ -89,6 +89,34 @@ void main() {
     expect((await vocabulary.hydrateOne(word!)).apiEnrichment, isNotNull);
   }, skip: enabled ? false : 'set WU_PACK=1');
 
+  test('what the index promises, hydration delivers', () async {
+    // The index is computed in SQL and hydration is computed in Dart, so
+    // comparing them over the whole pack catches any row the Dart mapper
+    // cannot read — which is how a word ends up a stub with no enrichment.
+    final sample = await vocabulary.hydrate(vocabulary.getAllWords(settings));
+
+    final broken = <String>[];
+    for (final word in sample) {
+      if (!word.isHydrated) {
+        broken.add('${word.word}: never hydrated');
+        continue;
+      }
+      if (word.has(WordFeature.definitions) &&
+          (word.apiEnrichment?.definitions.isEmpty ?? true)) {
+        broken.add('${word.word}: index says definitions, mapper found none');
+      }
+      if (word.has(WordFeature.synonyms) &&
+          (word.apiEnrichment?.synonyms.isEmpty ?? true)) {
+        broken.add('${word.word}: index says synonyms, mapper found none');
+      }
+      if (word.has(WordFeature.hyphenation) && word.hyphenation.isEmpty) {
+        broken.add('${word.word}: index says hyphenation, mapper found none');
+      }
+    }
+    expect(broken.take(10), isEmpty,
+        reason: '${broken.length} of ${sample.length} words disagree');
+  }, skip: enabled ? false : 'set WU_PACK=1');
+
   // Each entry is a pool some game opens with. An empty one is a game with
   // nothing to play.
   const poolsEveryGameNeeds = <WordFeature, String>{
