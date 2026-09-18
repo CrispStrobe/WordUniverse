@@ -30,7 +30,12 @@ enum WordFeature {
   gutenbergExamples(12),
   enrichmentSuccess(13),
   ipa(14),
-  inflections(15);
+  inflections(15),
+
+  /// This word's own spelling is recorded as a learner error of some *other*
+  /// entry — "didnt" where "didn't" lists it as a common mistake. Such
+  /// headwords must never be presented as something to learn.
+  knownMisspelling(16);
 
   const WordFeature(this.bit);
 

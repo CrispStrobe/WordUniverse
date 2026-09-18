@@ -65,6 +65,10 @@ class VocabularyService with ChangeNotifier {
 
   bool _isInitialized = false;
   bool get isInitialized => _isInitialized;
+
+  /// How many words the loaded catalogue holds. Changes when the pack does,
+  /// which is what makes it usable as a "has the catalogue changed" key.
+  int get wordCount => _vocabulary.length;
   String _learningLanguage = kDefaultLanguageCode;
   String get learningLanguage => _learningLanguage;
 

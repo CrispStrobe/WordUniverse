@@ -23,22 +23,58 @@ import '../../games/screens/definition_quiz_game.dart';
 import '../../games/widgets/cefr_chip.dart';
 import '../services/word_of_the_day_service.dart';
 
-class WordOfTheDayCard extends StatelessWidget {
+class WordOfTheDayCard extends StatefulWidget {
   final bool isVerySmall;
   const WordOfTheDayCard({super.key, this.isVerySmall = false});
 
   @override
-  Widget build(BuildContext context) {
-    final vocabService = context.watch<VocabularyService>();
-    if (!vocabService.isInitialized) return const SizedBox.shrink();
+  State<WordOfTheDayCard> createState() => _WordOfTheDayCardState();
+}
+
+/// The word is chosen once per (day, band, catalogue) rather than on every
+/// rebuild: this card sits on the home screen, and picking scans the whole
+/// catalogue. The chosen word is then decoded on its own — the card shows a
+/// definition, an example and synonyms, which live in the enrichment.
+class _WordOfTheDayCardState extends State<WordOfTheDayCard> {
+  GermanWord? _word;
+  Object? _pickedFor;
+
+  void _pickIfNeeded(VocabularyService vocabService) {
+    if (!vocabService.isInitialized) return;
 
     final gameProvider = context.read<GameProvider>();
-    final words = vocabService.getAllWords(gameProvider);
-    final word = pickWordOfTheDay(words, DateTime.now(),
-        targetBand: gameProvider.grade.clamp(1, 4));
-    if (word == null) return const SizedBox.shrink();
+    final band = gameProvider.grade.clamp(1, 4);
+    final today = DateTime.now();
+    final key = Object.hash(band, today.year, dayOfYear(today),
+        vocabService.learningLanguage, vocabService.wordCount);
+    if (key == _pickedFor) return;
+    _pickedFor = key;
 
-    return _WordOfTheDayContent(word: word, isVerySmall: isVerySmall);
+    final chosen = pickWordOfTheDay(
+      vocabService.getAllWords(gameProvider),
+      today,
+      targetBand: band,
+    );
+    if (chosen == null) {
+      // Still asynchronous, so this never calls setState during a build.
+      Future.microtask(() {
+        if (mounted) setState(() => _word = null);
+      });
+      return;
+    }
+    vocabService.hydrateOne(chosen).then((word) {
+      if (mounted) setState(() => _word = word);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Watched so the card follows a language switch or a pack install.
+    _pickIfNeeded(context.watch<VocabularyService>());
+
+    final word = _word;
+    if (word == null) return const SizedBox.shrink();
+    return _WordOfTheDayContent(word: word, isVerySmall: widget.isVerySmall);
   }
 }
 

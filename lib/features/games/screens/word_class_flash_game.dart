@@ -102,7 +102,7 @@ class _WordClassFlashGameState extends State<WordClassFlashGame>
 
     if (!_vocabService.isInitialized) await _vocabService.initialize();
     // No TTS/audio is played in this game, so no TTS language setup is needed.
-    _buildChallenges();
+    await _buildChallenges();
     if (!_onboardingScheduled) {
       _onboardingScheduled = true;
       OnboardingOverlay.maybeShow(
@@ -128,7 +128,7 @@ class _WordClassFlashGameState extends State<WordClassFlashGame>
     }
   }
 
-  void _buildChallenges() {
+  Future<void> _buildChallenges() async {
     final candidates = _vocabService
         .getAllWords(_gameProvider)
         .where((w) =>
@@ -168,8 +168,12 @@ class _WordClassFlashGameState extends State<WordClassFlashGame>
     final pool = gradePool.length >= 10 ? gradePool : allWords;
     pool.shuffle(_rng);
 
-    final challenges = pool
-        .take(_maxRounds)
+    // The CEFR chip on the card reads the enrichment, so decode it for the
+    // words this round shows — the pool itself stays light.
+    final playable = await _vocabService.hydrate(pool.take(_maxRounds));
+    if (!mounted) return;
+
+    final challenges = playable
         .map((w) => _WordClassChallenge(word: w, correctType: w.wordType))
         .toList();
 

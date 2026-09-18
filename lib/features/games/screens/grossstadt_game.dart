@@ -139,10 +139,10 @@ class _GrossstadtGameState extends State<GrossstadtGame>
       await _vocabularyService.initialize();
     }
 
-    _loadLevel();
+    await _loadLevel();
   }
 
-  void _loadLevel() {
+  Future<void> _loadLevel() async {
     _score = 0;
     _itemsCompleted = 0;
     _combo = 0;
@@ -151,14 +151,15 @@ class _GrossstadtGameState extends State<GrossstadtGame>
     _level = 1;
     _conveyorSpeed = 4.0;
 
-    _generateItemQueue();
+    await _generateItemQueue();
+    if (!mounted) return;
     _showNextItem();
 
     setState(() => _isLoading = false);
   }
 
   /// Generate capitalization items from vocabulary words
-  void _generateItemQueue() {
+  Future<void> _generateItemQueue() async {
     _log('========================================');
     _log('Starting item generation');
     _log('========================================');
@@ -166,9 +167,10 @@ class _GrossstadtGameState extends State<GrossstadtGame>
     _itemQueue.clear();
 
     // Get appropriate words for the grade level
-    final verbs = _getWordsForGame(GermanWordType.verb, 15);
-    final adjectives = _getWordsForGame(GermanWordType.adjektiv, 12);
-    final nouns = _getWordsForGame(GermanWordType.substantiv, 12);
+    final verbs = await _getWordsForGame(GermanWordType.verb, 15);
+    final adjectives = await _getWordsForGame(GermanWordType.adjektiv, 12);
+    final nouns = await _getWordsForGame(GermanWordType.substantiv, 12);
+    if (!mounted) return;
 
     if (kDebugMode) {
       _log('Available: ${verbs.length} verbs, ${adjectives.length} adjectives, ${nouns.length} nouns');
@@ -233,7 +235,10 @@ class _GrossstadtGameState extends State<GrossstadtGame>
     return adjective.toLowerCase();
   }
 
-  List<GermanWord> _getWordsForGame(GermanWordType type, int count) {
+  /// The chosen words, with their enrichment: conjugated forms come from the
+  /// Wiktionary inflections, and only these few words need them.
+  Future<List<GermanWord>> _getWordsForGame(
+      GermanWordType type, int count) async {
     final allWords = _vocabularyService
         .getAllWords(_gameProvider)
         .where((w) =>
@@ -262,7 +267,7 @@ class _GrossstadtGameState extends State<GrossstadtGame>
     }
 
     filtered.shuffle();
-    return filtered.take(count).toList();
+    return _vocabularyService.hydrate(filtered.take(count));
   }
 
   // --- MORPHOLOGY HELPERS ---

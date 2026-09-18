@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/models/skill_category.dart';
 import '../../../core/models/vocabulary_models.dart';
+import '../../../core/models/word_features.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart' as vocab_service;
 
@@ -214,7 +215,8 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
       await _vocabularyService.initialize();
     }
 
-    _loadWordPool();
+    await _loadWordPool();
+    if (!mounted) return;
     _loadLevel();
   }
 
@@ -232,14 +234,16 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
         word.word.length <= 10;
 
     if (requireApiData) {
+      // Same question as `enrichmentStatus == 'success'`, answered from the
+      // feature index so the catalogue stays undecoded.
       return hasValidType &&
           isCleanWord &&
-          word.apiEnrichment?.enrichmentStatus == 'success';
+          word.has(WordFeature.enrichmentSuccess);
     }
     return hasValidType && isCleanWord;
   }
 
-  void _loadWordPool() {
+  Future<void> _loadWordPool() async {
     final List<GermanWord> wordsForGame = [];
     final Set<String> addedWordIds = {};
     
@@ -255,16 +259,14 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
       if (wordString.startsWith('der ') || wordString.startsWith('die ') || wordString.startsWith('das ')) {
         wordString = wordString.split(' ')[1];
       }
-      try {
-        final word = _vocabularyService
-            .getAllWords(_gameProvider)
-            .firstWhere((w) => w.word.toLowerCase() == wordString!.toLowerCase());
+      // Indexed lookup: this used to scan the whole catalogue per review item.
+      final word = _vocabularyService.findByWrittenForm(wordString);
+      if (word == null) continue;
 
-        if (!addedWordIds.contains(word.id) && _isWordValidForGame(word)) {
-           wordsForGame.add(word);
-           addedWordIds.add(word.id);
-        }
-      } catch (e) {}
+      if (!addedWordIds.contains(word.id) && _isWordValidForGame(word)) {
+        wordsForGame.add(word);
+        addedWordIds.add(word.id);
+      }
     }
 
     final newWords = _vocabularyService.getNewWords(
@@ -315,7 +317,9 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
     }
 
     wordsForGame.shuffle();
-    _wordPool = wordsForGame;
+    // Round feedback shows a definition, which lives in the enrichment: decode
+    // it for the pool the round draws from, not for the catalogue.
+    _wordPool = await _vocabularyService.hydrate(wordsForGame);
     _wordPoolIndex = 0;
   }
 

@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
 import '../../../core/models/vocabulary_models.dart';
+import '../../../core/models/word_features.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart';
@@ -142,10 +143,10 @@ class _VerbtrennerGameState extends State<VerbtrennerGame>
       await _vocabularyService.initialize();
     }
 
-    _loadLevel();
+    await _loadLevel();
   }
 
-  void _loadLevel() {
+  Future<void> _loadLevel() async {
     _score = 0;
     _itemsCompleted = 0;
     _combo = 0;
@@ -154,23 +155,29 @@ class _VerbtrennerGameState extends State<VerbtrennerGame>
     _level = 1;
     _fallingSpeed = 5.0;
 
-    _generatePairQueue();
+    await _generatePairQueue();
+    if (!mounted) return;
     _showNextPair();
 
     setState(() => _isLoading = false);
   }
 
   /// Generate verb pairs from vocabulary data
-  void _generatePairQueue() {
+  Future<void> _generatePairQueue() async {
     _pairQueue.clear();
 
-    // Get all verbs at appropriate grade level
-    final verbs = _vocabularyService
-        .getAllWords(_gameProvider)
-        .where((w) =>
-            w.wordType == GermanWordType.verb &&
-            w.gradeLevel <= widget.gradeLevel.index + 3) // Slightly above grade
-        .toList();
+    // Separability is read off the Wiktionary inflections, so only verbs the
+    // feature index says carry inflections are decoded — enough to fill a
+    // queue of $_totalItems pairs many times over.
+    final verbs = await _vocabularyService.takeWordsWithFeature(
+      WordFeature.inflections,
+      settingsProvider: _gameProvider,
+      limit: 400,
+      where: (w) =>
+          w.wordType == GermanWordType.verb &&
+          w.gradeLevel <= widget.gradeLevel.index + 3, // Slightly above grade
+    );
+    if (!mounted) return;
 
     if (kDebugMode) debugPrint('[TRENNBARE VERBEN] Found ${verbs.length} verbs to check');
 

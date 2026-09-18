@@ -4,6 +4,7 @@
 
 import '../../../core/models/vocabulary_models.dart';
 import '../../../core/models/vocabulary_quality.dart';
+import '../../../core/models/word_features.dart';
 
 /// Returns the 0-based day index within the year (Jan 1 = 0).
 int dayOfYear(DateTime d) {
@@ -17,16 +18,25 @@ int dayOfYear(DateTime d) {
 /// selected from that learning band. Proper nouns and multi-word entries are
 /// excluded, malformed headwords and known misspellings are rejected, and a
 /// definition must be available.
+///
+/// Works on the light catalogue as well as on decoded words: "has a
+/// definition" and "is a known misspelling of another entry" are read from the
+/// feature index when the word carries no decoded enrichment, so the card does
+/// not have to open the whole pack to choose one word.
 /// Returns null when the pool is empty.
 GermanWord? pickWordOfTheDay(List<GermanWord> words, DateTime date,
     {int? targetBand}) {
   if (words.isEmpty) return null;
 
+  // Only decoded words can contribute here; for a light pool the same
+  // exclusion arrives as WordFeature.knownMisspelling, computed over the whole
+  // pack when the feature index was built.
   final knownMisspellings = <String>{
-    for (final word in words) ...[
-      ...?word.commonMistakes?.map(_normalizeHeadword),
-      ...?word.apiEnrichment?.commonLearnerErrors.map(_normalizeHeadword),
-    ],
+    for (final word in words)
+      if (word.isHydrated) ...[
+        ...?word.commonMistakes?.map(_normalizeHeadword),
+        ...?word.apiEnrichment?.commonLearnerErrors.map(_normalizeHeadword),
+      ],
   }..removeWhere((word) => word.isEmpty);
 
   final pool = words
@@ -36,12 +46,19 @@ GermanWord? pickWordOfTheDay(List<GermanWord> words, DateTime date,
               ? w.gradeLevel <= 3
               : w.gradeLevel == targetBand) &&
           isPresentableVocabularyEntry(w) &&
+          !w.has(WordFeature.knownMisspelling) &&
           !knownMisspellings.contains(_normalizeHeadword(w.word)) &&
-          (w.apiEnrichment?.definitions.isNotEmpty ?? false))
+          _hasDefinition(w))
       .toList();
   if (pool.isEmpty) return null;
   final seed = dayOfYear(date) + date.year * 366;
   return pool[seed.abs() % pool.length];
 }
+
+/// Whether the word has a definition to show — from the decoded enrichment
+/// when it is loaded, from the feature index otherwise.
+bool _hasDefinition(GermanWord word) => word.isHydrated
+    ? (word.apiEnrichment?.definitions.isNotEmpty ?? false)
+    : word.has(WordFeature.definitions);
 
 String _normalizeHeadword(String word) => word.trim().toLowerCase();
