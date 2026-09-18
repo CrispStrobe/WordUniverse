@@ -16,7 +16,9 @@ void main() {
     expect(pack.requiredFreeBytes,
         databaseCopies * pack.expectedDecompressedBytes! +
             pack.expectedCompressedBytes!);
-    expect(pack.requiredFreeSizeLabel, kIsWeb ? '325 MiB' : '175 MiB');
+    // Down from 325/175 MiB: the published artifact now carries only the
+    // enrichment the app reads (tools/pack/slim_pack.py).
+    expect(pack.requiredFreeSizeLabel, kIsWeb ? '180 MiB' : '97 MiB');
     expect(kLanguagePacks['en']!.requiredFreeBytes, isNull);
     expect(kLanguagePacks['en']!.requiredFreeSizeLabel, isNull);
   });
