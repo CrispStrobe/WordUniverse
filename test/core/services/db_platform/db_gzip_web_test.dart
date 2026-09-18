@@ -12,12 +12,16 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'web_fixture_guard.dart';
+
 import 'package:WortUniversum/core/services/db_platform/db_digest_web.dart';
 import 'package:WortUniversum/core/services/db_platform/db_gzip.dart';
 import 'package:WortUniversum/core/services/db_platform/db_gzip_web.dart';
 import 'package:WortUniversum/core/services/db_platform/db_revision.dart';
 
 void main() {
+  setUpAll(assertWebFixturesServed);
+
   final payload =
       Uint8List.fromList(utf8.encode('word universe ' * 5000));
   final gz = Uint8List.fromList(GZipEncoder().encode(payload));

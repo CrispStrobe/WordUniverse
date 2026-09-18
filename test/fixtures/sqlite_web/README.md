@@ -12,6 +12,9 @@ Run from the repository root:
 flutter test --platform chrome test/core/services/db_platform
 ```
 
+CI runs exactly this (see .github/workflows/ci.yml); it gates the deploy,
+because the web storage and install path is what the deployed build runs.
+
 When updating the SQLite dependencies, regenerate the app binaries using the
 resolved repository dependencies, then rerun the browser tests:
 
