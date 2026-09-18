@@ -322,32 +322,6 @@ class DictionaryDatabaseService {
     }
   }
 
-  /// Get words by grade level
-  Future<List<GermanWord>> getWordsByGrade(int gradeLevel) async {
-    if (_database == null) {
-      _warnNotReady('Query');
-      return [];
-    }
-
-    try {
-      final results = await _database!.query(
-        'words',
-        where: 'grade_level = ?',
-        whereArgs: [gradeLevel],
-      );
-
-      if (kDebugMode)
-        debugPrint(
-            "[DB_SERVICE] Fetched ${results.length} words for grade $gradeLevel");
-      return _mapPresentableWords(results);
-    } catch (e) {
-      if (kDebugMode)
-        debugPrint(
-            "[DB_SERVICE] Error fetching words by grade $gradeLevel: $e");
-      return [];
-    }
-  }
-
   /// Get all phrasal verbs (EN database only). Returns rows from the
   /// `phrasal_verbs` table; empty if the table is absent (e.g. DE database).
   Future<List<Map<String, dynamic>>> getPhrasalVerbs() async {
