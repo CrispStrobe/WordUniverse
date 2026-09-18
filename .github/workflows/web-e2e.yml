@@ -42,7 +42,8 @@ jobs:
         run: |
           npm ci --prefix tools/e2e
           npm run setup:ci --prefix tools/e2e
-          node --test tools/e2e/run.test.mjs tools/macos-release.test.mjs
+          node --test tools/e2e/run.test.mjs tools/e2e/game-flow.test.mjs \
+            tools/e2e/menu.test.mjs tools/macos-release.test.mjs
 
       - name: Serve the build
         run: |
