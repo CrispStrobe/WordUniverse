@@ -42,6 +42,15 @@ class VocabularyService with ChangeNotifier {
 
   Set<String>? _allSourcesCache;
 
+  /// Filtered word lists, keyed by the settings and selectors that produced
+  /// them. Every game asks for a pool the moment it opens, and several ask
+  /// once per round; without this each call re-copied and re-filtered the
+  /// whole catalogue.
+  final Map<String, List<GermanWord>> _filteredCache = {};
+
+  /// Keeps the cache to the handful of shapes a session actually uses.
+  static const int _filteredCacheLimit = 8;
+
   /// Lowercased spelling (and lemma) to word, built on first use.
   ///
   /// Review queues address words by their written form, so this used to be a
@@ -121,6 +130,7 @@ class VocabularyService with ChangeNotifier {
       _vocabularySets.clear();
       _allSourcesCache = null;
       _byWrittenForm = null;
+      _filteredCache.clear();
       _isInitialized = false;
     }
 
@@ -330,6 +340,7 @@ class VocabularyService with ChangeNotifier {
     if (words.isNotEmpty) {
       _vocabulary = {for (var w in words) w.id: w};
       _byWrittenForm = null;
+      _filteredCache.clear();
       _log('Loaded ${_vocabulary.length} words from SQLite DB');
     } else {
       _log('⚠️ DB returned 0 words. Checking assets or DB integrity...');
@@ -410,8 +421,7 @@ class VocabularyService with ChangeNotifier {
     String query,
     GameProvider settingsProvider,
   ) {
-    final baseWords = _getBaseWordList(settingsProvider);
-    final filteredWords = _applyVocabularyFilters(baseWords, settingsProvider);
+    final filteredWords = _filtered(settingsProvider);
 
     final lowerQuery = query.toLowerCase();
     return filteredWords
@@ -433,9 +443,57 @@ class VocabularyService with ChangeNotifier {
       ..sort((a, b) => a.word.toLowerCase().compareTo(b.word.toLowerCase()));
   }
 
-  List<GermanWord> getAllWords(GameProvider settingsProvider) {
-    final baseWords = _getBaseWordList(settingsProvider);
-    return _applyVocabularyFilters(baseWords, settingsProvider);
+  List<GermanWord> getAllWords(GameProvider settingsProvider) =>
+      _filtered(settingsProvider);
+
+  /// Selecting and filtering, memoized on everything that decides the result.
+  ///
+  /// Callers shuffle and trim what they get back, so each gets its own list;
+  /// what is cached is the filtering — the length, source and wildcard passes
+  /// over the whole catalogue, which several games otherwise repeat per round.
+  List<GermanWord> _filtered(
+    GameProvider settings, {
+    GradeLevel? grade,
+    WordCategory? category,
+    GermanWordType? wordType,
+  }) {
+    final key = StringBuffer()
+      ..write(grade?.index)
+      ..write('|')
+      ..write(category?.index)
+      ..write('|')
+      ..write(wordType?.index)
+      ..write('|')
+      ..write(settings.tasksCustomizationEnabled);
+    if (settings.tasksCustomizationEnabled) {
+      key
+        ..write('|')
+        ..writeAll(settings.activeVocabularySetIds.toList()..sort(), ',')
+        ..write('|')
+        ..write(settings.taskWordLengthMin.round())
+        ..write('-')
+        ..write(settings.taskWordLengthMax.round())
+        ..write('|')
+        ..writeAll(settings.taskIncludedSources.toList()..sort(), ',')
+        ..write('|')
+        ..writeAll(settings.taskIncludeWildcards, ',')
+        ..write('|')
+        ..writeAll(settings.taskExcludeWildcards, ',');
+    }
+
+    final cached = _filteredCache[key.toString()];
+    if (cached != null) return List.of(cached);
+
+    final words = _applyVocabularyFilters(
+      _getBaseWordList(settings,
+          grade: grade, category: category, wordType: wordType),
+      settings,
+    );
+    if (_filteredCache.length >= _filteredCacheLimit) {
+      _filteredCache.remove(_filteredCache.keys.first);
+    }
+    _filteredCache[key.toString()] = words;
+    return List.of(words);
   }
 
   /// Phrasal verbs for the EN-only Phrasal Verb Power game. Empty for the
@@ -454,26 +512,20 @@ class VocabularyService with ChangeNotifier {
   List<GermanWord> getWordsByGrade(
     GradeLevel grade,
     GameProvider settingsProvider,
-  ) {
-    final baseWords = _getBaseWordList(settingsProvider, grade: grade);
-    return _applyVocabularyFilters(baseWords, settingsProvider);
-  }
+  ) =>
+      _filtered(settingsProvider, grade: grade);
 
   List<GermanWord> getWordsByCategory(
     WordCategory category,
     GameProvider settingsProvider,
-  ) {
-    final baseWords = _getBaseWordList(settingsProvider, category: category);
-    return _applyVocabularyFilters(baseWords, settingsProvider);
-  }
+  ) =>
+      _filtered(settingsProvider, category: category);
 
   List<GermanWord> getWordsByType(
     GermanWordType type,
     GameProvider settingsProvider,
-  ) {
-    final baseWords = _getBaseWordList(settingsProvider, wordType: type);
-    return _applyVocabularyFilters(baseWords, settingsProvider);
-  }
+  ) =>
+      _filtered(settingsProvider, wordType: type);
 
   // --- INTERNAL FILTERING LOGIC ---
 
@@ -614,8 +666,7 @@ class VocabularyService with ChangeNotifier {
     required GradeLevel grade,
     int limit = 5,
   }) {
-    final potentialWords = _getBaseWordList(settingsProvider, grade: grade);
-    var newWords = _applyVocabularyFilters(potentialWords, settingsProvider);
+    var newWords = _filtered(settingsProvider, grade: grade);
 
     final studiedWords = <String>{};
     for (final word in newWords) {
@@ -642,18 +693,16 @@ class VocabularyService with ChangeNotifier {
     WordCategory? category,
     GermanWordType? wordType,
   }) {
-    var filtered = _getBaseWordList(
+    var filtered = _filtered(
       settingsProvider,
       grade: grade,
       category: category,
       wordType: wordType,
     );
-    filtered = _applyVocabularyFilters(filtered, settingsProvider);
 
     if (filtered.isEmpty) {
       // Fallback: Try global list
-      filtered = _applyVocabularyFilters(
-          _vocabulary.values.toList(), settingsProvider);
+      filtered = _filtered(settingsProvider);
       if (filtered.isEmpty) return [];
     }
 
@@ -673,8 +722,7 @@ class VocabularyService with ChangeNotifier {
         .map((v) => v.spelling.toLowerCase())
         .toSet();
 
-    final allFilteredWords =
-        _applyVocabularyFilters(_vocabulary.values.toList(), settingsProvider);
+    final allFilteredWords = _filtered(settingsProvider);
 
     for (final word in allFilteredWords) {
       if (word.id == baseWord.id) continue;
@@ -881,8 +929,7 @@ class VocabularyService with ChangeNotifier {
     GradeLevel? grade,
     String? specificCase,
   }) {
-    var baseWords = _getBaseWordList(settingsProvider, grade: grade);
-    var filtered = _applyVocabularyFilters(baseWords, settingsProvider);
+    var filtered = _filtered(settingsProvider, grade: grade);
 
     filtered = filtered.where((w) {
       if (w.wordType != GermanWordType.pronomen &&
@@ -902,8 +949,7 @@ class VocabularyService with ChangeNotifier {
     required GameProvider settingsProvider,
     GradeLevel? grade,
   }) {
-    var baseWords = _getBaseWordList(settingsProvider, grade: grade);
-    var filtered = _applyVocabularyFilters(baseWords, settingsProvider);
+    var filtered = _filtered(settingsProvider, grade: grade);
 
     filtered = filtered.where((w) {
       return w.wordType == GermanWordType.verb && w.verbFormSpacy == 'Inf';
@@ -918,8 +964,7 @@ class VocabularyService with ChangeNotifier {
     required GameProvider settingsProvider,
     GradeLevel? grade,
   }) {
-    var baseWords = _getBaseWordList(settingsProvider, grade: grade);
-    var filtered = _applyVocabularyFilters(baseWords, settingsProvider);
+    var filtered = _filtered(settingsProvider, grade: grade);
 
     filtered = filtered.where((w) {
       return w.wordType == GermanWordType.adjektiv && w.degreeSpacy == 'Pos';
