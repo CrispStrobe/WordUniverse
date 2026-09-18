@@ -4,6 +4,8 @@
 import { createRequire } from 'node:module';
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
+import { playQuiz } from './game-flow.mjs';
+import { chooseFromMenu } from './menu.mjs';
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
 const BASE = process.env.BASE_URL || 'http://127.0.0.1:18100';
@@ -31,11 +33,12 @@ const snap = async name => {
 const collect = async () => ({ poll: seen, observer: await p.evaluate(() => window.__wuTexts || []) });
 const healthy = text => assert(!/\b(error|exception|failed|failure|Fehler)\b|Keine Definitionen/i.test(text), 'error UI: ' + text);
 try {
-  await p.goto(BASE);
-  await p.locator('flt-semantics-placeholder').waitFor({ state: 'attached' });
+  // A cold CanvasKit/wasm load from a CDN routinely exceeds the 30s default.
+  await p.goto(BASE, { timeout: 90000 });
+  // Engine boot, not an assertion: see language-setup-live.mjs.
+  await p.locator('flt-semantics-placeholder').waitFor({ state: 'attached', timeout: 90000 });
   await p.locator('flt-semantics-placeholder').evaluate(el => el.click());
-  await button(p, 'Interface language English').click();
-  await p.getByRole('menuitem', { name: 'Deutsch', exact: true }).click();
+  await chooseFromMenu(p, button(p, 'Interface language English'), 'Deutsch');
   await button(p, 'Weiter').waitFor();
 
   // Start after the language switch: the initial English picker is intentional.
@@ -134,31 +137,18 @@ try {
 
   await button(p, 'Alle Spiele entdecken').click();
   await p.getByRole('group', { name: /^Definitions-Quiz/ }).click({ position: { x: 80, y: 45 } });
-  const gameDeadline = Date.now() + 120000;
-  let playable = false;
-  while (Date.now() < gameDeadline) {
-    const text = await aria();
-    healthy(text);
-    const skip = button(p, 'Überspringen');
-    if (await skip.isVisible()) { await skip.click(); await p.waitForTimeout(400); continue; }
-    const prompt = 'Welches Wort wird beschrieben?';
-    if (text.includes(prompt)) {
-      const question = p.getByRole('group').filter({ hasText: prompt });
-      assert.equal(await question.count(), 1, 'one question');
-      assert.equal(await question.getByRole('button').count(), 4, 'four answers');
-      assert(/1 \/ 10/.test(text), 'first question counter');
-      assert((await question.innerText()).replace(prompt, '').trim().length > 10, 'nonempty definition and answers');
-      await snap('F-game-de');
-      await question.getByRole('button').first().click();
-      await p.waitForFunction(() => /2 \/ 10/.test(document.body.innerText), null, { timeout: 15000 });
-      healthy(await aria());
-      await snap('F-game-advanced-de');
-      playable = true;
-      break;
-    }
-    await p.waitForTimeout(500);
-  }
-  assert(playable, 'German quiz really played and advanced');
+  // Shared with A-E so the tutorial race is fixed in one place, not two.
+  const { stalls } = await playQuiz(p, {
+    prompt: 'Welches Wort wird beschrieben?',
+    skipLabel: 'Überspringen',
+    deadlineMs: 120000,
+    aria,
+    assertHealthy: healthy,
+    snap,
+    snapBefore: 'F-game-de',
+    snapAfter: 'F-game-advanced-de',
+  });
+  if (stalls.length) console.log('STALLED F: ' + JSON.stringify(stalls));
   assert.equal(pageerrors.length, 0, 'no pageerrors');
   results.F = { ok: true };
   console.log('PASS F: German-interface install/status pipeline and playable quiz');

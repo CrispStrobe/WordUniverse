@@ -1,6 +1,8 @@
 import { createRequire } from 'node:module';
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
+import { playQuiz } from './game-flow.mjs';
+import { chooseFromMenu } from './menu.mjs';
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
 const BASE = process.env.BASE_URL || 'http://127.0.0.1:18100';
@@ -22,8 +24,16 @@ async function snap(p, name) {
   fs.writeFileSync(`${EV}/${name}.aria.txt`, await aria(p));
   await p.screenshot({ path: `${EV}/${name}.png` });
 }
+// A cold CanvasKit/wasm load from a CDN routinely exceeds the 30s default,
+// and the post-install reload carries a populated cache. Only the wait is
+// generous here; nothing about what the scenarios assert changes.
+async function navigate(p) {
+  await p.goto(BASE, { timeout: 90000 });
+}
 async function semantics(p) {
-  await p.locator('flt-semantics-placeholder').waitFor({ state: 'attached', timeout: 30000 });
+  // Engine boot, not an assertion: a cold CanvasKit start on a busy machine
+  // or slow link regularly needs more than the 30s default.
+  await p.locator('flt-semantics-placeholder').waitFor({ state: 'attached', timeout: 90000 });
   await p.locator('flt-semantics-placeholder').evaluate(el => el.click());
 }
 async function prefs(p, learning, ui) {
@@ -54,30 +64,16 @@ async function consent(p) {
 }
 async function game(p, name, de = false) {
   // A menu title (even behind an error dialog) is never proof of a running game.
-  const prompt = de ? 'Welches Wort wird beschrieben?' : 'Which word is being described?';
-  const deadline = Date.now() + 240000;
-  while (Date.now() < deadline) {
-    const text = await healthy(p);
-    const skip = button(p, de ? 'Überspringen' : 'Skip');
-    if (await skip.isVisible()) { await skip.click(); await p.waitForTimeout(500); continue; }
-    if (text.includes(prompt)) {
-      const question = p.getByRole('group').filter({ hasText: prompt });
-      assert.equal(await question.count(), 1, 'one actual question');
-      assert.equal(await question.getByRole('button').count(), 4, 'four answer choices');
-      assert(/1 \/ 10/.test(text), 'first question counter');
-      assert(!/pack required|Paket erforderlich|button "Download"|Definition Quiz Match/.test(text), text);
-      const content = await question.innerText();
-      assert(content.replace(prompt, '').trim().length > 10, 'nonempty definition and answers');
-      await snap(p, name);
-      // Exercise a real answer and require the counter to advance.
-      await question.getByRole('button').first().click();
-      await p.waitForFunction(() => /2 \/ 10/.test(document.body.innerText), null, { timeout: 15000 });
-      await healthy(p);
-      return;
-    }
-    await p.waitForTimeout(500);
-  }
-  throw new Error('No playable question before deadline: ' + await aria(p));
+  const { stalls } = await playQuiz(p, {
+    prompt: de ? 'Welches Wort wird beschrieben?' : 'Which word is being described?',
+    skipLabel: de ? 'Überspringen' : 'Skip',
+    deadlineMs: 240000,
+    aria: () => aria(p),
+    assertHealthy: text => assert(!errors.test(text), 'Error UI: ' + text),
+    snap: label => snap(p, label),
+    snapBefore: name,
+  });
+  if (stalls.length) log(`STALLED ${name}: ${JSON.stringify(stalls)}`);
 }
 async function scenario(name, body) {
   let browser, p;
@@ -88,7 +84,7 @@ async function scenario(name, body) {
     p = await context.newPage();
     p.setDefaultTimeout(30000);
     p.on('pageerror', e => { pageerrors.push({ scenario: name, message: e.message }); log(`PAGEERROR ${name}: ${e.message}`); });
-    await p.goto(BASE);
+    await navigate(p);
     await semantics(p);
     await body(p);
     await healthy(p);
@@ -111,8 +107,7 @@ await scenario('A', async p => {
   for (const legend of ['What language do you want to learn?', 'Language for words, exercises and games.',
     'What language should the app use?', 'Language for menus, buttons and instructions.']) assert(text.includes(legend), legend);
   await snap(p, 'A-fresh-picker');
-  await button(p, 'Interface language English').click();
-  await p.getByRole('menuitem', { name: 'Deutsch', exact: true }).click();
+  await chooseFromMenu(p, button(p, 'Interface language English'), 'Deutsch');
   await button(p, 'Weiter').waitFor();
   const translated = await healthy(p);
   for (const label of ['Willkommen im WortUniversum', 'Welche Sprache möchtest du lernen?',
@@ -157,7 +152,7 @@ await scenario('D', async p => {
   await button(p, 'Download').click();
   await game(p, 'D-before-reload');
   // Navigate to the app root in the same context: persistent cache, no seed data.
-  await p.goto(BASE);
+  await navigate(p);
   await semantics(p);
   await button(p, 'Browse all games').waitFor({ timeout: 60000 });
   await healthy(p);
@@ -166,10 +161,8 @@ await scenario('D', async p => {
   await game(p, 'D-game'); // No fallback pass merely because consent is absent.
 });
 await scenario('E', async p => {
-  await p.getByRole('button', { name: /^Learning language/ }).click();
-  await p.getByRole('menuitem', { name: 'English', exact: true }).click();
-  await button(p, 'Interface language English').click();
-  await p.getByRole('menuitem', { name: 'Deutsch', exact: true }).click();
+  await chooseFromMenu(p, p.getByRole('button', { name: /^Learning language/ }), 'English');
+  await chooseFromMenu(p, button(p, 'Interface language English'), 'Deutsch');
   await snap(p, 'E-mixed');
   await completeOnboarding(p, true);
   await prefs(p, 'en', 'de');
@@ -177,7 +170,7 @@ await scenario('E', async p => {
   await openGame(p, true);
   await game(p, 'E-english-game-german-ui', true);
   await prefs(p, 'en', 'de');
-  await p.goto(BASE);
+  await navigate(p);
   await semantics(p);
   await button(p, 'Alle Spiele entdecken').waitFor({ timeout: 60000 });
   await prefs(p, 'en', 'de');
