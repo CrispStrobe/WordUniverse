@@ -8,23 +8,35 @@
     {
       "source": "/(.*\\.(?:js|wasm))",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=600" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=600"
+        }
       ]
     },
     {
-      "source": "/assets/assets/(?:fonts|images|sounds)/(.*)",
+      "source": "/assets/assets/((?:fonts|images|sounds)/.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
       ]
     },
     {
       "source": "/assets/assets/(.*\\.db\\.gz)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
       ]
     }
   ],
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ]
 }

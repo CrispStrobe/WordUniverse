@@ -61,3 +61,21 @@ at the same URLs in every deployment.
   Pages cannot express this, so the two hosts differ here on purpose.
 
 `tools/deployment-config.test.mjs` pins both halves of that policy.
+
+### Route patterns are path-to-regexp, not regex
+
+Vercel parses a rule's `source` with path-to-regexp, where a group in the path
+must be a *capture* group. `/assets/assets/(?:fonts|images|sounds)/(.*)` is
+valid JavaScript regex — `new RegExp` accepts it, so a test that only compiles
+the pattern passes — but the deploy fails validation with "invalid `source`
+pattern". Wrap the alternation in a capture group instead:
+`/assets/assets/((?:fonts|images|sounds)/.*)`.
+
+The test guards against a bare non-capturing group. To check a config against
+Vercel's own validator:
+
+```sh
+npm i @vercel/routing-utils
+node -e "const {getTransformedRoutes}=require('@vercel/routing-utils');
+  console.log(getTransformedRoutes(require('./vercel.json')).error ?? 'valid')"
+```

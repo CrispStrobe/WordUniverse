@@ -34,6 +34,39 @@ test('Vercel JS and WASM caching matches Pages without isolation requirements', 
   }
 });
 
+test('every route source is a pattern Vercel will accept', () => {
+  // Vercel parses `source` with path-to-regexp, not as a raw regular
+  // expression: a group in the path has to be a capture group. A bare
+  // "(?:a|b)" is valid JS regex and passes `new RegExp`, but the deploy fails
+  // at config validation with "invalid `source` pattern" — after tests are
+  // green, which is how it reached production once.
+  //
+  // Authoritative check, when a network install is available:
+  //   npm i @vercel/routing-utils
+  //   node -e "const {getTransformedRoutes}=require('@vercel/routing-utils'); \
+  //     const c=require('./vercel.json'); \
+  //     console.log(getTransformedRoutes(c).error ?? 'valid')"
+  const hasBareNonCapturingGroup = source => {
+    let depth = 0;
+    for (let i = 0; i < source.length; i++) {
+      if (source[i] === '\\') { i++; continue; }
+      if (source[i] === '(') {
+        if (depth === 0 && source.startsWith('(?:', i)) return true;
+        depth++;
+      } else if (source[i] === ')') {
+        depth--;
+      }
+    }
+    return false;
+  };
+
+  for (const rule of [...vercel.headers, ...(vercel.rewrites ?? []), ...(vercel.redirects ?? [])]) {
+    assert.ok(!hasBareNonCapturingGroup(rule.source),
+      `"${rule.source}" puts a non-capturing group in the path; wrap it in a capture group`);
+    assert.doesNotThrow(() => new RegExp(rule.source), rule.source);
+  }
+});
+
 test('content-stable assets are cached for a year, engine and app are not', () => {
   const cacheFor = asset => vercel.headers
     .filter(rule => new RegExp(`^${rule.source}$`).test(asset))
