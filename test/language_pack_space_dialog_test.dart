@@ -1,6 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:WortUniversum/core/models/language_pack.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -51,10 +50,11 @@ void main() {
             .map((t) => t.data ?? '')
             .join(' ');
         final pack = kLanguagePacks['de']!;
-        // Independent of requiredFreeSizeLabel: copying on web needs two DBs;
-        // native renames staging. Both reserve compressed-download headroom.
-        final budget = (kIsWeb ? 2 : 1) * pack.expectedDecompressedBytes! +
-            pack.expectedCompressedBytes!;
+        // Independent of requiredFreeSizeLabel: one database on either platform
+        // (web writes in place, native renames staging), plus headroom for one
+        // compressed download.
+        final budget =
+            pack.expectedDecompressedBytes! + pack.expectedCompressedBytes!;
         expect(texts, contains('${(budget / (1024 * 1024)).round()} MiB'));
         expect(texts, contains(locale == 'en' ? 'temporary' : 'temporär'));
         expect(texts, contains(locale == 'en' ? 'free' : 'frei'));

@@ -100,6 +100,34 @@ void main() {
     }
   });
 
+  test('web install writes the database once, staging no second copy', () async {
+    // Each write ships a whole decompressed database to the worker and into
+    // IndexedDB, so a staged copy doubles both the main-thread cost and the
+    // peak browser storage the install needs.
+    final db = await factory.openDatabase(name);
+    await db.execute('CREATE TABLE words (id INTEGER, original_id TEXT, word TEXT, word_type TEXT, grade_level INTEGER)');
+    await db.execute('INSERT INTO words (id) VALUES (1)');
+    await db.close();
+    final gzip = Uint8List.fromList(
+        GZipEncoder().encode(await factory.readDatabaseBytes(name)));
+    await factory.deleteDatabase(name);
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMessageHandler(
+            'flutter/assets', (_) async => ByteData.sublistView(gzip));
+    final counting = _CountingFactory(factory);
+    webDatabaseFactoryOverride = counting;
+    try {
+      final opened =
+          await initPlatformDatabase(assetPath: 'fixture.gz', databaseName: name);
+      await opened.close();
+      expect(counting.writes, [name]);
+      expect(await factory.databaseExists('$name.installing'), isFalse);
+      expect(await isPlatformDatabaseInstalled(name), isTrue);
+    } finally {
+      webDatabaseFactoryOverride = factory;
+    }
+  });
+
   test('web incompatible payload never promoted or ready', () async {
     // Schema validation is independent of artifact revision identity.
     final db = await factory.openDatabase(name);
@@ -123,4 +151,32 @@ void main() {
     expect(await factory.databaseExists(name), isFalse);
     expect(await isPlatformDatabaseInstalled(name), isFalse);
   });
+}
+
+/// Records which database names are written, delegating everything else.
+class _CountingFactory implements DatabaseFactory {
+  _CountingFactory(this._inner);
+  final DatabaseFactory _inner;
+  final List<String> writes = [];
+
+  @override
+  Future<void> writeDatabaseBytes(String path, Uint8List bytes) {
+    writes.add(path);
+    return _inner.writeDatabaseBytes(path, bytes);
+  }
+
+  @override
+  Future<Database> openDatabase(String path, {OpenDatabaseOptions? options}) =>
+      _inner.openDatabase(path, options: options);
+  @override
+  Future<Uint8List> readDatabaseBytes(String path) =>
+      _inner.readDatabaseBytes(path);
+  @override
+  Future<bool> databaseExists(String path) => _inner.databaseExists(path);
+  @override
+  Future<void> deleteDatabase(String path) => _inner.deleteDatabase(path);
+  @override
+  Future<String> getDatabasesPath() => _inner.getDatabasesPath();
+  @override
+  Future<void> setDatabasesPath(String path) => _inner.setDatabasesPath(path);
 }
