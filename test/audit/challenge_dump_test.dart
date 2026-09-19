@@ -42,9 +42,12 @@ import 'package:WortUniversum/features/games/providers/game_provider.dart';
 import 'package:WortUniversum/features/games/services/definition_quiz_service.dart';
 import 'package:WortUniversum/features/games/services/antonym_flash_service.dart';
 import 'package:WortUniversum/features/games/services/cloze_service.dart';
+import 'package:WortUniversum/features/games/services/conjugation_drill_challenges.dart';
+import 'package:WortUniversum/features/games/services/conjugation_drill_service.dart';
 import 'package:WortUniversum/features/games/services/false_friend_service.dart';
 import 'package:WortUniversum/features/games/services/hypernym_flash_service.dart';
 import 'package:WortUniversum/features/games/services/sentence_completion_service.dart';
+import 'package:WortUniversum/features/games/services/spelling_spotter_challenges.dart';
 import 'package:WortUniversum/features/games/services/syllable_count_service.dart';
 import 'package:WortUniversum/features/games/services/word_class_flash_service.dart';
 import 'package:WortUniversum/features/games/services/synonym_flash_service.dart';
@@ -111,6 +114,8 @@ typedef Generator = Future<List<Item>> Function(_Context context);
 /// review content no learner is offered.
 const Map<String, List<String>> generatorLanguages = {
   'antonym_flash': ['en', 'de'],
+  'conjugation_drill': ['de'],
+  'spelling_spotter': ['en', 'de'],
   'cloze_flash': ['en', 'de'],
   'expression_flash': ['de'],
   'proverb_cloze': ['de'],
@@ -159,6 +164,40 @@ class _Context {
 }
 
 final Map<String, Generator> generators = {
+  'conjugation_drill': (c) async => buildConjugationChallenges(
+        verbs: (await c.pool(WordFeature.inflections,
+                where: (w) => !w.isProperNoun && !w.word.contains(' ')))
+            .where(isConjugatableVerb)
+            .toList(),
+        maxChallenges: c.count,
+        rng: c.rng,
+      )
+          .map((ch) => Item(
+                game: 'conjugation_drill',
+                prompt: '${ch.verb.word}: ${ch.pronoun} ___',
+                options: ch.options,
+                answer: ch.options[ch.correctIndex],
+              ))
+          .toList(),
+  'spelling_spotter': (c) async => buildSpellingChallenges(
+        pool: (await c.pool(WordFeature.learnerErrors,
+                limitFactor: 20, where: (w) => !w.isProperNoun))
+            .where((w) => hasSpellingErrors(w, isGerman: c.isGerman))
+            .toList(),
+        isGerman: c.isGerman,
+        gradeLevel: c.grade,
+        rounds: c.count,
+        rng: c.rng,
+      )
+          .map((ch) => Item(
+                game: 'spelling_spotter',
+                prompt: ch.contextSentence == null
+                    ? 'Which spelling is correct?'
+                    : 'Which spelling is correct?  (${ch.contextSentence})',
+                options: ch.options,
+                answer: ch.options[ch.correctIndex],
+              ))
+          .toList(),
   'cloze_flash': (c) async => buildClozeChallenges(
         pool: await c.pool(WordFeature.examples,
             where: (w) => !w.isProperNoun && !w.word.contains(' ')),
@@ -468,7 +507,7 @@ final Map<String, Generator> generators = {
 const notYetReachable = [
   'hypernym_flash',
   'cloze_flash', 'proverb_cloze', 'translation_flash', 'reverse_translation_flash',
-  'spelling_spotter', 'sri_review', 'conjugation_drill', 'word_class_flash',
+  'sri_review', 'word_class_flash',
   'word_sort', 'word_type_whirl', 'grossschreib', 'grossstadt', 'verbtrenner',
   'wortbaumeister', 'word_find', 'word_snake', 'word_memory', 'word_builder',
 ];
