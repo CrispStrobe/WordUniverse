@@ -7,8 +7,9 @@ import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
-import '../../../core/models/vocabulary_models.dart';
 import '../../../core/models/word_features.dart';
+import '../models/verb_pair.dart';
+import '../services/verbtrenner_service.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart';
@@ -29,27 +30,7 @@ class VerbtrennerGame extends StatefulWidget {
 }
 
 /// Represents a single word pair challenge
-class VerbPair {
-  final String part1; // e.g., "stehe" or empty for infinitives
-  final String part2; // e.g., "auf" or "aufstehen"
-  final bool shouldBeSeparated; // true = GETRENNT, false = ZUSAMMEN
-  final String context; // Example sentence
-  final String explanation; // Rule explanation
-  final int difficulty; // 1-3
-  final String wordId; // For SRI tracking
-  final String formText; // Original form from Wiktionary
 
-  VerbPair({
-    required this.part1,
-    required this.part2,
-    required this.shouldBeSeparated,
-    required this.context,
-    required this.explanation,
-    required this.difficulty,
-    required this.wordId,
-    required this.formText,
-  });
-}
 
 enum FeedbackState { none, correct, incorrect }
 
@@ -88,11 +69,6 @@ class _VerbtrennerGameState extends State<VerbtrennerGame>
   late AnimationController _errorController;
 
   // Separable prefixes (comprehensive list)
-  static const _separablePrefixes = [
-    'ab', 'an', 'auf', 'aus', 'bei', 'ein', 'empor', 'fest',
-    'fort', 'her', 'hin', 'los', 'mit', 'nach', 'nieder',
-    'vor', 'weg', 'weiter', 'zu', 'zurecht', 'zurück', 'zusammen'
-  ];
 
   @override
   void initState() {
@@ -179,208 +155,24 @@ class _VerbtrennerGameState extends State<VerbtrennerGame>
     );
     if (!mounted) return;
 
-    if (kDebugMode) debugPrint('[TRENNBARE VERBEN] Found ${verbs.length} verbs to check');
-
-    // Process each verb to find separable ones
-    for (final verb in verbs) {
-      if (_isVerbSeparable(verb)) {
-        final pairs = _generatePairsFromVerb(verb);
-        _pairQueue.addAll(pairs);
-      }
-    }
-
-    // Shuffle and limit
-    _pairQueue.shuffle();
-    if (_pairQueue.length > _totalItems) {
-      _pairQueue.removeRange(_totalItems, _pairQueue.length);
-    }
+    _pairQueue.addAll(buildVerbPairs(verbs: verbs, maxPairs: _totalItems));
 
     if (kDebugMode) debugPrint('[TRENNBARE VERBEN] Generated ${_pairQueue.length} verb pairs');
   }
 
   /// Check if a verb is separable based on Wiktionary inflections
-  bool _isVerbSeparable(GermanWord word) {
-    final inflections = word.apiEnrichment?.inflections ?? [];
 
-    for (final form in inflections) {
-      final formText = form['form_text'] as String?;
-      if (formText == null) continue;
 
-      // Check for separated forms (e.g., "stehe auf")
-      if (formText.contains(' ')) {
-        final parts = formText.split(' ');
-        if (parts.length == 2 && _isSeparablePrefix(parts[1])) {
-          return true;
-        }
-      }
-    }
 
-    return false;
-  }
-
-  bool _isSeparablePrefix(String prefix) {
-    return _separablePrefixes.contains(prefix.toLowerCase());
-  }
 
   /// Generate all rule-based pairs from a separable verb.
   /// Only generates a VerbPair when a real example sentence is available.
-  List<VerbPair> _generatePairsFromVerb(GermanWord word) {
-  final pairs = <VerbPair>[];
-  final inflections = word.apiEnrichment?.inflections ?? [];
-  final apiExamples = word.apiEnrichment?.examples ?? [];
-  final tataoebaExamples = word.exampleSentences;
 
-  final String infinitive = word.word;
-  String prefix = '';
-
-  for (final form in inflections) {
-    final formText = form['form_text'] as String?;
-    if (formText != null && formText.contains(' ')) {
-      final parts = formText.split(' ');
-      if (parts.length == 2 && _isSeparablePrefix(parts[1])) {
-        prefix = parts[1];
-        break;
-      }
-    }
-  }
-
-  if (prefix.isEmpty) return pairs;
-
-  for (final form in inflections) {
-    final formText = form['form_text'] as String?;
-    final tags = form['tags'] as String?;
-    if (formText == null || tags == null) continue;
-
-    // RULE 1: Present/Past tense (conjugated) → GETRENNT
-    if ((tags.contains('present') || tags.contains('past')) &&
-        !tags.contains('participle') &&
-        !tags.contains('infinitive') &&
-        formText.contains(' ')) {
-      final parts = formText.split(' ');
-      if (parts.length == 2) {
-        final context = _findRealExample(
-          apiExamples: apiExamples,
-          tataoebaExamples: tataoebaExamples,
-          formText: formText,
-        );
-        if (context == null) continue;
-        pairs.add(VerbPair(
-          part1: parts[0],
-          part2: parts[1],
-          shouldBeSeparated: true,
-          context: context,
-          explanation: 'Konjugierte Form im Hauptsatz → getrennt',
-          difficulty: 2,
-          wordId: word.id,
-          formText: formText,
-        ));
-      }
-    }
-
-    // RULE 2: Extended infinitive with "zu"
-    if (tags.contains('extended') && tags.contains('infinitive')) {
-      final context = _findRealExample(
-        apiExamples: apiExamples,
-        tataoebaExamples: tataoebaExamples,
-        formText: formText,
-      );
-      if (context == null) continue;
-      final hasSpaces = formText.contains(' ');
-      final String part1, part2;
-      if (hasSpaces) {
-        final lastSpace = formText.lastIndexOf(' ');
-        part1 = formText.substring(0, lastSpace);
-        part2 = formText.substring(lastSpace + 1);
-      } else {
-        part1 = prefix;
-        part2 = formText.substring(prefix.length);
-      }
-      pairs.add(VerbPair(
-        part1: part1,
-        part2: part2,
-        shouldBeSeparated: hasSpaces,
-        context: context,
-        explanation: hasSpaces
-            ? 'Infinitiv mit Hilfsverb (zu haben/sein) → getrennt'
-            : 'zu-Infinitiv (ein Wort) → zusammen',
-        difficulty: 3,
-        wordId: word.id,
-        formText: formText,
-      ));
-    }
-
-    // RULE 3: Plain infinitive → ZUSAMMEN
-    if (tags.contains('infinitive') &&
-        !tags.contains('extended') &&
-        formText == infinitive) {
-      final context = _findRealExample(
-        apiExamples: apiExamples,
-        tataoebaExamples: tataoebaExamples,
-        formText: formText,
-      );
-      if (context == null) continue;
-      pairs.add(VerbPair(
-        part1: prefix,
-        part2: formText.substring(prefix.length),
-        shouldBeSeparated: false,
-        context: context,
-        explanation: 'Infinitiv nach Modalverb → zusammen',
-        difficulty: 1,
-        wordId: word.id,
-        formText: formText,
-      ));
-    }
-
-    // RULE 4: Past participle → ZUSAMMEN
-    if (tags.contains('participle') && tags.contains('perfect')) {
-      final context = _findRealExample(
-        apiExamples: apiExamples,
-        tataoebaExamples: tataoebaExamples,
-        formText: formText,
-      );
-      if (context == null) continue;
-      pairs.add(VerbPair(
-        part1: prefix,
-        part2: formText.substring(prefix.length),
-        shouldBeSeparated: false,
-        context: context,
-        explanation: 'Partizip Perfekt → zusammen',
-        difficulty: 2,
-        wordId: word.id,
-        formText: formText,
-      ));
-    }
-  }
-
-  return pairs;
-}
 
   /// Returns a real example sentence containing [formText], or any real sentence
   /// from the word's examples if no exact match exists. Returns null only when
   /// the word has no example sentences at all.
-  String? _findRealExample({
-    required List<ApiExample> apiExamples,
-    required List<String> tataoebaExamples,
-    required String formText,
-  }) {
-    // Prefer exact-match examples (sentence contains the specific inflected form)
-    for (final ex in apiExamples) {
-      final text = ex.text;
-      if (text != null && text.isNotEmpty && text.contains(formText)) return text;
-    }
-    for (final text in tataoebaExamples) {
-      if (text.isNotEmpty && text.contains(formText)) return text;
-    }
-    // Fall back to any real sentence — still better than a fabricated template
-    for (final ex in apiExamples) {
-      final text = ex.text;
-      if (text != null && text.isNotEmpty) return text;
-    }
-    for (final text in tataoebaExamples) {
-      if (text.isNotEmpty) return text;
-    }
-    return null;
-  }
+
 
 
   void _showNextPair() {

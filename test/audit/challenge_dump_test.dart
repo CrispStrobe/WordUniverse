@@ -53,6 +53,7 @@ import 'package:WortUniversum/features/games/services/spelling_spotter_challenge
 import 'package:WortUniversum/features/games/services/syllable_count_service.dart';
 import 'package:WortUniversum/features/games/services/word_class_flash_service.dart';
 import 'package:WortUniversum/features/games/services/synonym_flash_service.dart';
+import 'package:WortUniversum/features/games/services/verbtrenner_service.dart';
 import 'package:WortUniversum/features/games/services/translation_flash_service.dart';
 import 'package:WortUniversum/features/games/services/homophone_drill_service.dart';
 import 'package:WortUniversum/features/games/services/phrasal_verb_service.dart';
@@ -116,6 +117,7 @@ typedef Generator = Future<List<Item>> Function(_Context context);
 /// review content no learner is offered.
 const Map<String, List<String>> generatorLanguages = {
   'antonym_flash': ['en', 'de'],
+  'verbtrenner': ['de'],
   'word_find': ['en', 'de'],
   'word_snake': ['en', 'de'],
   'word_memory': ['en', 'de'],
@@ -207,6 +209,24 @@ Generator _wordPractice(
     };
 
 final Map<String, Generator> generators = {
+  'verbtrenner': (c) async => buildVerbPairs(
+        verbs: await c.pool(WordFeature.inflections,
+            limitFactor: 20,
+            where: (w) =>
+                w.wordType == GermanWordType.verb &&
+                w.gradeLevel <= c.grade + 3),
+        maxPairs: c.count,
+        rng: c.rng,
+      )
+          .map((pair) => Item(
+                game: 'verbtrenner',
+                prompt: pair.part1.isEmpty
+                    ? pair.part2
+                    : '${pair.part1} … ${pair.part2}',
+                answer: pair.shouldBeSeparated ? 'GETRENNT' : 'ZUSAMMEN',
+                notes: {'form': pair.formText, 'context': pair.context},
+              ))
+          .toList(),
   'word_find': _wordPractice('word_find', 'Find "%s" in the grid'),
   'word_snake': _wordPractice('word_snake', 'Trace "%s"',
       skill: skills.LanguageSkillType.spelling),
