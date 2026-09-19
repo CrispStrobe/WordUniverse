@@ -1,4 +1,5 @@
 import 'vocabulary_models.dart';
+import 'word_features.dart';
 
 /// Returns whether [entry] is safe to present as a vocabulary headword.
 ///
@@ -54,25 +55,36 @@ const _invalidSpellingMarkers = <String>[
 /// Christopher Columbus". Neither is vocabulary a learner can reason about.
 bool describesAName(String definition) {
   final lower = definition.toLowerCase();
-  const openings = [
-    'a surname', 'a male given name', 'a female given name', 'a given name',
-    'a unisex given name', 'a placename', 'a place name', 'an appellation',
-    'a diminutive of the male', 'a diminutive of the female',
-  ];
-  if (openings.any(lower.startsWith)) return true;
-  const places = [
-    'a city in', 'a town in', 'a village in', 'a county in', 'a river in',
-    'a lake in', 'a state of', 'a province of', 'an unincorporated community',
-    'a census-designated place',
-    // Countries and geography: "philippines" arrived as an ordinary grade-3
-    // word to be counted for syllables.
-    'a country in', 'a country of', 'a nation in', 'a republic in',
-    'an island', 'an archipelago', 'a peninsula', 'a continent',
-    'a mountain range', 'a sea ', 'an ocean', 'a capital of', 'a capital city',
-  ];
-  return places.any(lower.contains);
+  return kNameGlossOpenings.any(lower.startsWith) ||
+      kNameGlossPhrases.any(lower.contains);
 }
 
+/// Gloss openings Wiktionary uses for names. Also compiled into SQL when the
+/// feature index is built, so a light word can answer the same question.
+const List<String> kNameGlossOpenings = [
+  'a surname', 'a male given name', 'a female given name', 'a given name',
+  'a unisex given name', 'a placename', 'a place name', 'an appellation',
+  'a diminutive of the male', 'a diminutive of the female',
+];
+
+/// Gloss phrases that name a place or person wherever they appear.
+///
+/// Deliberately not anchored to the start: Wiktionary writes "A
+/// transcontinental country in the Caucasus" for Georgia, so a leading "a
+/// country in" misses it. "Official name:" and "Capital:" are that style's
+/// own markers and are the most reliable of these.
+const List<String> kNameGlossPhrases = [
+  'official name:', 'capital:',
+  ' country in ', ' country of ', ' city in ', ' town in ', ' village in ',
+  ' county in ', ' river in ', ' lake in ', ' province of ', ' state of ',
+  'an unincorporated community', 'a census-designated place',
+  'an island', 'an archipelago', 'a peninsula', 'a continent',
+  'a mountain range', 'a sea ', 'an ocean', 'a capital of', 'a capital city',
+  // Figures rather than places: "Mother of the prophet Samuel in the Old
+  // Testament" is a name, not vocabulary.
+  'in the old testament', 'in the new testament', 'in greek mythology',
+  'in roman mythology', 'in norse mythology',
+];
 /// Whether the entry's own gloss says it is a name or a place.
 ///
 /// Brands, surnames and placenames reach the catalogue untyped — "a sony",
@@ -80,6 +92,9 @@ bool describesAName(String definition) {
 /// not catch them. A name is not a word whose meaning a learner can reason
 /// about, as a prompt or as a distractor.
 bool namesSomething(GermanWord word) {
+  // A light word has no gloss to read; the feature index answered this for it
+  // when the pack was indexed.
+  if (!word.isHydrated) return word.has(WordFeature.nameLike);
   final definition = word.displayDefinitions.firstOrNull;
   return definition != null && describesAName(definition);
 }

@@ -15,6 +15,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../../models/vocabulary_quality.dart';
 import '../../models/word_features.dart';
 import 'db_partial_cache.dart';
 
@@ -22,7 +23,7 @@ import 'db_partial_cache.dart';
 ///
 /// `json_array_length` yields NULL for a missing path, and `NULL > 0` is not
 /// true, so absent enrichment reads as "feature absent" without extra guards.
-const Map<WordFeature, String> _featureSql = {
+final Map<WordFeature, String> _featureSql = {
   WordFeature.definitions:
       "json_array_length(enrichment_json, '\$.definitions') > 0",
   WordFeature.synonyms: "json_array_length(enrichment_json, '\$.synonyms') > 0",
@@ -58,11 +59,27 @@ const Map<WordFeature, String> _featureSql = {
       "json_array_length(enrichment_json, '\$.inflections') > 0",
   // knownMisspelling is not a per-row test — see _misspellingSql.
   WordFeature.curriculum: _curriculumSql,
+  WordFeature.nameLike: _nameLikeSql,
   // A missing primary_lemma means nothing claims the entry is derived.
   WordFeature.headword:
       "coalesce(lower(json_extract(enrichment_json, '\$.primary_lemma')), "
           "lower(word)) = lower(word)",
 };
+
+/// The SQL twin of `describesAName`, built from the same pattern lists so the
+/// two cannot drift. A light word has no gloss to test, and the word games
+/// select from light words — which is how "barbara" and "franklin" were being
+/// offered as words to find in a grid.
+String get _nameLikeSql {
+  String escape(String pattern) => pattern.replaceAll("'", "''");
+  const gloss = "lower(coalesce("
+      "json_extract(enrichment_json, '\$.definitions[0]'), ''))";
+  return [
+    for (final opening in kNameGlossOpenings)
+      "$gloss LIKE '${escape(opening)}%'",
+    for (final phrase in kNameGlossPhrases) "$gloss LIKE '%${escape(phrase)}%'",
+  ].join(' OR ');
+}
 
 /// Whether the word is on a word list a curriculum actually prescribes.
 ///
@@ -443,6 +460,13 @@ int featuresFromDecodedJson({
   const englishLists = {
     'source:dolch', 'source:fry', 'source:de_curriculum_en',
   };
+  final definitions = enrichment['definitions'];
+  final firstGloss = definitions is List && definitions.isNotEmpty
+      ? definitions.first
+      : null;
+  set(WordFeature.nameLike,
+      firstGloss is String && describesAName(firstGloss));
+
   final primaryLemma = enrichment['primary_lemma'];
   set(
       WordFeature.headword,

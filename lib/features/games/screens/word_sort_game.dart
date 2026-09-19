@@ -16,6 +16,7 @@ import '../../../core/services/vocabulary_service.dart';
 import '../../../core/theme/space_theme.dart';
 import '../../../generated/l10n.dart';
 import '../providers/game_provider.dart';
+import '../services/adaptive_word_selection.dart';
 import '../widgets/game_ui.dart';
 import '../widgets/space_background.dart';
 import '../../../shared/widgets/onboarding_overlay.dart';
@@ -178,11 +179,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     await _loadLevel();
   }
 
-  String? _extractBaseWordFromSriId(String id) {
-    if (id.startsWith('SPELL_')) return id.substring('SPELL_'.length);
-    if (id.startsWith('WORDTYPE_')) return id.substring('WORDTYPE_'.length);
-    return null;
-  }
+
 
   bool _isWordValidForGame(GermanWord word) {
     return _targetCategories.containsKey(word.wordType) &&
@@ -200,64 +197,15 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     _hintUsageCount.clear();
     _recentHints.clear();
 
-    final List<GermanWord> wordsForGame = [];
-    final Set<String> addedWordIds = {};
-
-    // Build a single lookup map keyed by lowercased word instead of
-    // re-scanning the full word list for every review id below.
-    final Map<String, GermanWord> wordsByLower = {};
-    for (final w in _vocabularyService.getAllWords(_gameProvider)) {
-      wordsByLower.putIfAbsent(w.word.toLowerCase(), () => w);
-    }
-
-    int reviewWordCount = (_wordsTotal * 0.5).ceil();
-    final reviewItemIds = _sriService.getItemsForReview(
-      limit: reviewWordCount * 2,
-      skillTypeFilter: LanguageSkillType.wordType,
-      gradeLevelFilter: widget.gradeLevel.index + 1,
-    );
-
-    for (final id in reviewItemIds) {
-      final wordString = _extractBaseWordFromSriId(id);
-      if (wordString == null) continue;
-
-      final word = wordsByLower[wordString.toLowerCase()];
-      if (word == null) continue;
-
-      if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
-        wordsForGame.add(word);
-        addedWordIds.add(word.id);
-        if (wordsForGame.length >= reviewWordCount) break;
-      }
-    }
-
-    final newWords = _vocabularyService.getNewWords(
-      sriService: _sriService,
+    final wordsForGame = selectAdaptiveWords(
+      vocabulary: _vocabularyService,
+      sri: _sriService,
+      settings: _gameProvider,
       grade: widget.gradeLevel,
-      limit: (_wordsTotal - wordsForGame.length) * 2,
-      settingsProvider: _gameProvider,
+      count: _wordsTotal,
+      isPlayable: _isWordValidForGame,
+      skillFilter: LanguageSkillType.wordType,
     );
-
-    for (final word in newWords) {
-      if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
-        wordsForGame.add(word);
-        addedWordIds.add(word.id);
-        if (wordsForGame.length >= _wordsTotal) break;
-      }
-    }
-
-    if (wordsForGame.length < _wordsTotal) {
-      final allWords = _vocabularyService.getWordsByGrade(widget.gradeLevel, _gameProvider);
-      allWords.shuffle();
-
-      for (final word in allWords) {
-        if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
-          wordsForGame.add(word);
-          addedWordIds.add(word.id);
-          if (wordsForGame.length >= _wordsTotal) break;
-        }
-      }
-    }
 
     // Smart hints read the enrichment, so decode it for the words in play.
     _wordQueue = Queue.from(await _vocabularyService.hydrate(wordsForGame));

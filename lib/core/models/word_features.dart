@@ -45,7 +45,12 @@ enum WordFeature {
 
   /// The entry's enrichment describes this spelling, rather than a lemma it
   /// was derived from. See [GermanWord.isHeadword].
-  headword(18);
+  headword(18),
+
+  /// The entry's own gloss says it names something — a surname, a given name,
+  /// a place. The packs carry these untyped, so [GermanWord.isProperNoun]
+  /// misses them. See `describesAName`.
+  nameLike(19);
 
   const WordFeature(this.bit);
 
@@ -56,7 +61,7 @@ enum WordFeature {
 }
 
 /// Bump when a bit's meaning changes, so cached indexes are discarded.
-const int kWordFeatureIndexFormat = 4;
+const int kWordFeatureIndexFormat = 5;
 
 extension WordFeatureMask on int {
   bool hasFeature(WordFeature feature) => this & feature.mask != 0;

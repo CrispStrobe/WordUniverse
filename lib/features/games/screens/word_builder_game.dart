@@ -14,6 +14,7 @@ import '../../../core/services/vocabulary_service.dart';
 import '../../../core/theme/space_theme.dart';
 import '../../../generated/l10n.dart';
 import '../providers/game_provider.dart';
+import '../services/adaptive_word_selection.dart';
 import '../widgets/space_background.dart';
 import '../models/game_outcome.dart';
 
@@ -136,11 +137,7 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
     _loadLevel();
   }
 
-  String? _extractBaseWordFromSriId(String id) {
-    if (id.startsWith('SPELL_')) return id.substring('SPELL_'.length);
-    if (id.startsWith('WORDTYPE_')) return id.substring('WORDTYPE_'.length);
-    return null;
-  }
+
 
   bool _isWordValidForGame(GermanWord word) {
     final length = word.word.length;
@@ -217,55 +214,16 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
       return;
     }
 
-    final List<GermanWord> candidateWords = [];
-    final Set<String> addedWordIds = {};
-
-    final reviewItemIds = _sriService.getItemsForReview(
-      limit: 20,
-      skillTypeFilter: LanguageSkillType.spelling,
-      gradeLevelFilter: widget.gradeLevel.index + 1,
-    );
-
-    for (final id in reviewItemIds) {
-      final wordString = _extractBaseWordFromSriId(id);
-      if (wordString == null) continue;
-
-      // Indexed lookup: this used to scan the whole catalogue per review item.
-      final word = _vocabularyService.findByWrittenForm(wordString);
-      if (word == null) continue; // Word from SRI not in vocab, skip
-
-      if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
-        candidateWords.add(word);
-        addedWordIds.add(word.id);
-      }
-    }
-
-    final newWords = _vocabularyService.getNewWords(
-      sriService: _sriService,
+    final candidateWords = selectAdaptiveWords(
+      vocabulary: _vocabularyService,
+      sri: _sriService,
+      settings: _gameProvider,
       grade: widget.gradeLevel,
-      limit: 20,
-      settingsProvider: _gameProvider,
+      count: 20,
+      isPlayable: _isWordValidForGame,
+      skillFilter: LanguageSkillType.spelling,
+      reviewQueueLimit: 20,
     );
-
-    for (final word in newWords) {
-      if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
-        candidateWords.add(word);
-        addedWordIds.add(word.id);
-      }
-    }
-
-    if (candidateWords.length < 10) {
-      final allWords = _vocabularyService.getWordsByGrade(widget.gradeLevel, _gameProvider);
-      allWords.shuffle();
-
-      for (final word in allWords) {
-        if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
-          candidateWords.add(word);
-          addedWordIds.add(word.id);
-          if (candidateWords.length >= 20) break;
-        }
-      }
-    }
 
     if (candidateWords.isEmpty) {
       if (kDebugMode) debugPrint("No words found for WordBuilderGame");

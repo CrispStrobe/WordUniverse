@@ -15,6 +15,7 @@ import '../../../core/services/vocabulary_service.dart' as vocab_service;
 import '../../../core/theme/space_theme.dart';
 import '../../../generated/l10n.dart';
 import '../providers/game_provider.dart';
+import '../services/adaptive_word_selection.dart';
 import '../widgets/space_background.dart';
 import '../models/game_outcome.dart';
 
@@ -220,12 +221,7 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
     _loadLevel();
   }
 
-  String? _extractBaseWordFromSriId(String id) {
-    if (id.startsWith('SPELL_')) return id.substring('SPELL_'.length);
-    if (id.startsWith('WORDTYPE_')) return id.substring('WORDTYPE_'.length);
-    if (id.startsWith('ARTICLE_')) return id.substring('ARTICLE_'.length);
-    return null;
-  }
+
 
   bool _isWordValidForGame(GermanWord word, {bool requireApiData = false}) {
     final bool hasValidType = _wordTypes.containsKey(word.wordType);
@@ -244,60 +240,24 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
   }
 
   Future<void> _loadWordPool() async {
-    final List<GermanWord> wordsForGame = [];
-    final Set<String> addedWordIds = {};
-    
-    final reviewItemIds = _sriService.getItemsForReview(
-      limit: 50,
-      skillTypeFilter: LanguageSkillType.wordType,
-      gradeLevelFilter: widget.gradeLevel.index + 1,
-    );
-
-    for (final id in reviewItemIds) {
-      String? wordString = _extractBaseWordFromSriId(id);
-      if (wordString == null) continue;
-      if (wordString.startsWith('der ') || wordString.startsWith('die ') || wordString.startsWith('das ')) {
-        wordString = wordString.split(' ')[1];
-      }
-      // Indexed lookup: this used to scan the whole catalogue per review item.
-      final word = _vocabularyService.findByWrittenForm(wordString);
-      if (word == null) continue;
-
-      if (!addedWordIds.contains(word.id) && _isWordValidForGame(word)) {
-        wordsForGame.add(word);
-        addedWordIds.add(word.id);
-      }
-    }
-
-    final newWords = _vocabularyService.getNewWords(
-      sriService: _sriService,
+    final wordsForGame = selectAdaptiveWords(
+      vocabulary: _vocabularyService,
+      sri: _sriService,
+      settings: _gameProvider,
       grade: widget.gradeLevel,
-      limit: 100,
-      settingsProvider: _gameProvider,
-    );
+      count: 100,
+      isPlayable: _isWordValidForGame,
+      skillFilter: LanguageSkillType.wordType,
+      reviewQueueLimit: 50,
+    ).toList();
 
-    for (final word in newWords) {
-      if (!addedWordIds.contains(word.id) && _isWordValidForGame(word)) {
-         wordsForGame.add(word);
-         addedWordIds.add(word.id);
-      }
-    }
-
-    if (wordsForGame.length < 60) {
-      final allWords = _vocabularyService.getWordsByGrade(widget.gradeLevel, _gameProvider);
-      allWords.shuffle();
-      for(final w in allWords) {
-         if(_isWordValidForGame(w) && !addedWordIds.contains(w.id)) {
-            wordsForGame.add(w);
-            addedWordIds.add(w.id);
-            if(wordsForGame.length >= 100) break;
-         }
-      }
-    }
-    
     // Ensure minimum distribution
     final allWordsFromService = _vocabularyService.getFullVocabularyList();
     allWordsFromService.shuffle();
+
+    // Top up any word class the adaptive selection left thin, so the falling
+    // tiles cover every class the game asks about.
+    final addedWordIds = wordsForGame.map((w) => w.id).toSet();
 
     for (final type in _wordTypes.keys) {
       final currentCount = wordsForGame.where((w) => w.wordType == type).length;

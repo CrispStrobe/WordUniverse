@@ -15,6 +15,7 @@ import '../../../core/theme/space_theme.dart';
 import '../../../generated/l10n.dart';
 import '../services/word_snake_generator.dart';
 import '../providers/game_provider.dart';
+import '../services/adaptive_word_selection.dart';
 import '../widgets/space_background.dart';
 import '../models/game_outcome.dart';
 
@@ -108,15 +109,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
     await _loadLevel();
   }
 
-  String? _extractBaseWordFromSriId(String id) {
-    if (id.startsWith('SPELL_')) {
-      return id.substring('SPELL_'.length);
-    }
-    if (id.startsWith('WORDTYPE_')) {
-      return id.substring('WORDTYPE_'.length);
-    }
-    return null;
-  }
+
 
   bool _isWordValidForGame(GermanWord word) {
     return word.word.length >= 4 &&
@@ -155,56 +148,16 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
       _isLoading = true;
     });
 
-    final List<GermanWord> wordsForGame = [];
-    final Set<String> addedWordIds = {};
-
-    final reviewItemIds = _sriService.getItemsForReview(
-      limit: 10,
-      skillTypeFilter: LanguageSkillType.spelling,
-      gradeLevelFilter: widget.gradeLevel.index + 1,
-    );
-
-    for (final id in reviewItemIds) {
-      final wordString = _extractBaseWordFromSriId(id);
-      if (wordString == null) continue;
-
-      // Indexed lookup: this used to scan the whole catalogue per review item.
-      final word = _vocabularyService.findByWrittenForm(wordString);
-      if (word == null) continue; // Word from SRI not in vocab, skip
-
-      if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
-        wordsForGame.add(word);
-        addedWordIds.add(word.id);
-      }
-    }
-
-    final newWords = _vocabularyService.getNewWords(
-      sriService: _sriService,
+    final wordsForGame = selectAdaptiveWords(
+      vocabulary: _vocabularyService,
+      sri: _sriService,
+      settings: _gameProvider,
       grade: widget.gradeLevel,
-      limit: 10,
-      settingsProvider: _gameProvider,
-    );
-
-    for (final word in newWords) {
-      if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
-        wordsForGame.add(word);
-        addedWordIds.add(word.id);
-      }
-    }
-
-    if (wordsForGame.isEmpty) {
-      final allWords = _vocabularyService.getWordsByGrade(widget.gradeLevel, _gameProvider);
-      allWords.shuffle();
-
-      for (final word in allWords) {
-        if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
-          wordsForGame.add(word);
-          addedWordIds.add(word.id);
-          if (wordsForGame.length >= 20) break;
-        }
-      }
-    }
-
+      count: 20,
+      isPlayable: _isWordValidForGame,
+      skillFilter: LanguageSkillType.spelling,
+      reviewQueueLimit: 10,
+    )..shuffle();
     wordsForGame.shuffle();
     // Example sentences come from the enrichment, so decode it for these words.
     final playable = await _vocabularyService.hydrate(wordsForGame);
