@@ -44,3 +44,26 @@ const _invalidSpellingMarkers = <String>[
   'obsolete form of',
   'falschschreibung von',
 ];
+
+/// Whether a gloss describes a name or a place rather than a meaning.
+///
+/// Wiktionary writes proper nouns with a fixed set of openings, and the packs
+/// do not always type them as proper nouns: "franklin" arrives as an ordinary
+/// grade-3 word glossed "A surname transferred from the nickname", and
+/// "columbia" as "America; the United States; an appellation given in honor of
+/// Christopher Columbus". Neither is vocabulary a learner can reason about.
+bool describesAName(String definition) {
+  final lower = definition.toLowerCase();
+  const openings = [
+    'a surname', 'a male given name', 'a female given name', 'a given name',
+    'a unisex given name', 'a placename', 'a place name', 'an appellation',
+    'a diminutive of the male', 'a diminutive of the female',
+  ];
+  if (openings.any(lower.startsWith)) return true;
+  const settlements = [
+    'a city in', 'a town in', 'a village in', 'a county in', 'a river in',
+    'a lake in', 'a state of', 'a province of', 'an unincorporated community',
+    'a census-designated place',
+  ];
+  return settlements.any(lower.contains);
+}

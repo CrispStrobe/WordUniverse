@@ -539,7 +539,9 @@ class DictionaryDatabaseService {
             // The JSON is already decoded here, so the fallback costs nothing
             // beyond the decode it is standing in for.
             ? featuresFromDecodedJson(
-                enrichment: apiEnrichment, metadata: metadata)
+                word: (row['word'] as String?) ?? '',
+                enrichment: apiEnrichment,
+                metadata: metadata)
             : rowId == null
                 ? 0
                 : _featureIndex.featuresOf(rowId),

@@ -35,7 +35,17 @@ enum WordFeature {
   /// This word's own spelling is recorded as a learner error of some *other*
   /// entry — "didnt" where "didn't" lists it as a common mistake. Such
   /// headwords must never be presented as something to learn.
-  knownMisspelling(16);
+  knownMisspelling(16),
+
+  /// The word appears on a curriculum or graded word list the packs ship —
+  /// a Bundesland Grundwortschatz in German, Cambridge YLE / Dolch / Fry /
+  /// UK year lists / CEFR-J in English — rather than reaching the catalogue
+  /// only through a frequency corpus.
+  curriculum(17),
+
+  /// The entry's enrichment describes this spelling, rather than a lemma it
+  /// was derived from. See [GermanWord.isHeadword].
+  headword(18);
 
   const WordFeature(this.bit);
 
@@ -46,7 +56,7 @@ enum WordFeature {
 }
 
 /// Bump when a bit's meaning changes, so cached indexes are discarded.
-const int kWordFeatureIndexFormat = 1;
+const int kWordFeatureIndexFormat = 3;
 
 extension WordFeatureMask on int {
   bool hasFeature(WordFeature feature) => this & feature.mask != 0;

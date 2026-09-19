@@ -79,7 +79,9 @@ void main() {
       expect(
           index.featuresOf(1).hasFeature(WordFeature.enrichmentSuccess), isTrue);
       expect(index.featuresOf(1).hasFeature(WordFeature.antonyms), isFalse);
-      expect(index.featuresOf(2), 0);
+      // "Leer" carries no enrichment, but it is still its own headword —
+      // nothing claims it was derived from another entry.
+      expect(index.featuresOf(2), WordFeature.headword.mask);
     });
 
     test('learner errors count under either pack\'s key', () async {
@@ -193,6 +195,18 @@ void main() {
         {'word': 'deutsch', 'enrichment': const {}, 'metadata': {'commonMistakes': ['deutch']}},
         // enrichment_status present but not success.
         {'word': 'partial', 'enrichment': {'enrichment_status': 'failed'}, 'metadata': const {}},
+        // Enrichment that belongs to another word, and a curriculum listing.
+        {
+          'word': 'ideas',
+          'enrichment': {'primary_lemma': 'idea', 'definitions': ['a thought']},
+          'metadata': {'sources': ['HESSEN']},
+        },
+        {
+          'word': 'cat',
+          'enrichment': {'primary_lemma': 'cat'},
+          'metadata': {'tags': ['source:cambridge_yle_starters']},
+        },
+        {'word': 'corpus', 'enrichment': const {}, 'metadata': {'sources': ['LEIPZIG']}},
       ];
 
       final db = await packFixture(words);
@@ -202,6 +216,7 @@ void main() {
       for (var i = 0; i < words.length; i++) {
         final word = words[i];
         final dart = featuresFromDecodedJson(
+          word: word['word'] as String,
           enrichment: (word['enrichment'] as Map).cast<String, dynamic>(),
           metadata: (word['metadata'] as Map).cast<String, dynamic>(),
         );
