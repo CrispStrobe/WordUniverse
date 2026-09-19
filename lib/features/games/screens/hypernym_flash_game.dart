@@ -7,8 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
-import '../../../core/models/vocabulary_models.dart';
 import '../../../core/models/word_features.dart';
+import '../services/hypernym_flash_service.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart';
@@ -28,18 +28,7 @@ class HypernymFlashGame extends StatefulWidget {
   State<HypernymFlashGame> createState() => _HypernymFlashGameState();
 }
 
-class _HypernymChallenge {
-  final GermanWord word;
-  final String correctHypernym;
-  final List<String> options;
-  final int correctIndex;
-  const _HypernymChallenge({
-    required this.word,
-    required this.correctHypernym,
-    required this.options,
-    required this.correctIndex,
-  });
-}
+
 
 enum _Feedback { none, correct, incorrect }
 
@@ -56,18 +45,10 @@ class _HypernymFlashGameState extends State<HypernymFlashGame>
   static const int _optionCount = 4;
   static const Duration _advanceDelay = Duration(milliseconds: 1100);
 
-  static const Set<String> _abstractENVerbs = {
-    'be', 'have', 'do', 'exist', 'become', 'get', 'make', 'take', 'go',
-    'come', 'give', 'use', 'find', 'think', 'see', 'know', 'want', 'seem',
-    'put', 'move', 'change', 'live', 'try', 'apply', 'act', 'work', 'play',
-    'bring', 'keep', 'turn', 'show', 'leave', 'feel', 'follow', 'need',
-    'run', 'call', 'look', 'set', 'hold', 'start', 'stop', 'stay', 'begin',
-    'appear', 'happen',
-  };
 
   bool _isLoading = true;
   bool _onboardingScheduled = false;
-  List<_HypernymChallenge> _challenges = [];
+  List<HypernymChallenge> _challenges = [];
   int _index = 0;
   int _correct = 0;
   int _total = 0;
@@ -139,63 +120,38 @@ class _HypernymFlashGameState extends State<HypernymFlashGame>
     }
   }
 
-  bool _isClean(String w, bool isDE) {
-    if (w.length < 3) return false;
-    final tokens = w.split(' ');
-    if (tokens.length > 2) return false;
-    if (!isDE && _abstractENVerbs.contains(w.toLowerCase())) return false;
-    return true;
-  }
 
-  String? _pickHypernym(GermanWord word) {
-    final isDE = _isDE;
-    final hypernyms = word.apiEnrichment?.hypernyms ?? [];
-    for (final h in hypernyms) {
-      final w = (h.word ?? '').trim();
-      if (_isClean(w, isDE)) return w;
-    }
-    return null;
-  }
+
+
 
   Future<void> _buildChallenges() async {
     // Only words the feature index says carry hypernyms are read back with
     // their enrichment; choosing *which* hypernym still needs the real data.
-    final candidates = await _vocabService.takeWordsWithFeature(
+    final pool = await _vocabService.takeWordsWithFeature(
       WordFeature.hypernyms,
       settingsProvider: _gameProvider,
       gradeLevel: widget.gradeLevel.index + 1,
-      limit: 200,
+      // Wider than the other flash games: requiring the answer to be a
+      // catalogue word of the prompt's own word type rejects most of what the
+      // packs list, so a 200-word pool filled only a third of a round.
+      limit: 400,
       where: (w) =>
           !w.isProperNoun && !w.word.contains('_') && !w.word.contains(' '),
       random: _rng,
     );
     if (!mounted) return;
 
-    // Compute the chosen hypernym once per word and reuse it everywhere
-    // (filter, distractor pool, and challenge build) instead of recomputing.
-    final picked = <GermanWord, String>{};
-    for (final w in candidates) {
-      final h = _pickHypernym(w);
-      if (h != null) picked[w] = h;
-    }
-    final allWords = picked.keys.toList();
+    final challenges = buildHypernymChallenges(
+      pool: pool,
+      isGerman: _isDE,
+      maxChallenges: _maxRounds,
+      optionCount: _optionCount,
+      rng: _rng,
+    );
 
-    if (allWords.isEmpty) {
+    if (challenges.isEmpty) {
       setState(() => _isLoading = false);
       return;
-    }
-
-    // Already grade-first and shuffled by the pool query.
-    final pool = allWords;
-
-    final hypernymPool = picked.values.toList();
-    hypernymPool.shuffle(_rng);
-
-    final challenges = <_HypernymChallenge>[];
-    for (final word in pool) {
-      if (challenges.length >= _maxRounds) break;
-      final c = _buildChallenge(word, picked[word]!, hypernymPool);
-      if (c != null) challenges.add(c);
     }
 
     setState(() {
@@ -213,40 +169,7 @@ class _HypernymFlashGameState extends State<HypernymFlashGame>
     _startTimer();
   }
 
-  _HypernymChallenge? _buildChallenge(
-      GermanWord word, String correct, List<String> hypernymPool) {
-    // Exclude EVERY hypernym of this word from the distractor pool, not just
-    // the chosen `correct` — a word often has several valid hypernyms, and any
-    // of them appearing as a "wrong" option would actually be correct.
-    final ownHypernyms = (word.apiEnrichment?.hypernyms ?? [])
-        .map((h) => (h.word ?? '').trim().toLowerCase())
-        .where((s) => s.isNotEmpty)
-        .toSet();
 
-    final distractors = <String>[];
-    for (final h in hypernymPool) {
-      if (distractors.length >= _optionCount - 1) break;
-      final hl = h.toLowerCase();
-      if (!ownHypernyms.contains(hl) &&
-          !distractors.any((d) => d.toLowerCase() == hl)) {
-        distractors.add(h);
-      }
-    }
-    if (distractors.isEmpty) return null;
-
-    final options = [correct, ...distractors.take(_optionCount - 1)];
-    options.shuffle(_rng);
-    final correctIndex =
-        options.indexWhere((o) => o.toLowerCase() == correct.toLowerCase());
-    if (correctIndex < 0) return null;
-
-    return _HypernymChallenge(
-      word: word,
-      correctHypernym: correct,
-      options: options,
-      correctIndex: correctIndex,
-    );
-  }
 
   void _startTimer() {
     if (!_gameProvider.puzzleTimerEnabled) return;
@@ -507,7 +430,7 @@ class _HypernymFlashGameState extends State<HypernymFlashGame>
     );
   }
 
-  Widget _buildWordCard(_HypernymChallenge challenge) {
+  Widget _buildWordCard(HypernymChallenge challenge) {
     return AnimatedBuilder(
       animation: _shakeCtrl,
       builder: (_, child) => Transform.translate(
@@ -582,7 +505,7 @@ class _HypernymFlashGameState extends State<HypernymFlashGame>
     );
   }
 
-  Widget _buildOptions(_HypernymChallenge challenge) {
+  Widget _buildOptions(HypernymChallenge challenge) {
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
@@ -596,7 +519,7 @@ class _HypernymFlashGameState extends State<HypernymFlashGame>
     );
   }
 
-  Widget _buildOption(_HypernymChallenge challenge, int index) {
+  Widget _buildOption(HypernymChallenge challenge, int index) {
     final isCorrect = index == challenge.correctIndex;
     final isSelected = _selectedOption == index;
     final hasAnswered = _feedback != _Feedback.none;
