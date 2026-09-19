@@ -13,8 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
-import '../../../core/models/vocabulary_models.dart';
 import '../../../core/models/word_features.dart';
+import '../services/cloze_service.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart';
@@ -35,32 +35,9 @@ class ProverbClozeGame extends StatefulWidget {
 
 // ─── data ────────────────────────────────────────────────────────────────────
 
-class _ClozeResult {
-  final String before;
-  final String after;
-  final String matchedForm;
-  const _ClozeResult(
-      {required this.before, required this.after, required this.matchedForm});
-}
 
-class _ProverbChallenge {
-  final GermanWord word;
-  final String proverb;
-  final String before;
-  final String after;
-  final String matchedForm;
-  final List<String> options;
-  final int correctIndex;
-  const _ProverbChallenge({
-    required this.word,
-    required this.proverb,
-    required this.before,
-    required this.after,
-    required this.matchedForm,
-    required this.options,
-    required this.correctIndex,
-  });
-}
+
+
 
 enum _Feedback { none, correct, incorrect }
 
@@ -86,7 +63,7 @@ class _ProverbClozeGameState extends State<ProverbClozeGame>
 
   bool _isLoading = true;
   bool _onboardingScheduled = false;
-  List<_ProverbChallenge> _challenges = [];
+  List<ClozeChallenge> _challenges = [];
   int _index = 0;
   int _correct = 0;
   int _total = 0;
@@ -105,38 +82,9 @@ class _ProverbClozeGameState extends State<ProverbClozeGame>
 
   // ─── blank extraction (same word-boundary logic as ClozeFlash) ─────────────
 
-  static bool _isLetter(String ch) =>
-      RegExp(r'[a-zA-ZäöüÄÖÜß]').hasMatch(ch);
 
-  static _ClozeResult? _tryBlank(String sentence, String target) {
-    if (target.isEmpty) return null;
-    final ls = sentence.toLowerCase();
-    final lt = target.toLowerCase();
-    int pos = 0;
-    while (pos < ls.length) {
-      final idx = ls.indexOf(lt, pos);
-      if (idx < 0) return null;
-      final end = idx + lt.length;
-      final prevOk = idx == 0 || !_isLetter(ls[idx - 1]);
-      final nextOk = end >= ls.length || !_isLetter(ls[end]);
-      if (prevOk && nextOk) {
-        return _ClozeResult(
-          before: sentence.substring(0, idx),
-          after: sentence.substring(end),
-          matchedForm: sentence.substring(idx, end),
-        );
-      }
-      pos = idx + 1;
-    }
-    return null;
-  }
 
-  static int _visibleWordCount(_ClozeResult cloze) =>
-      (cloze.before + cloze.after)
-          .trim()
-          .split(RegExp(r'\s+'))
-          .where((w) => w.trim().isNotEmpty)
-          .length;
+
 
   // ─── init ──────────────────────────────────────────────────────────────────
 
@@ -218,21 +166,19 @@ class _ProverbClozeGameState extends State<ProverbClozeGame>
     // Already grade-first and shuffled by the pool query.
     final pool = allWords;
 
-    final byType = <GermanWordType, List<String>>{};
-    for (final w in allWords) {
-      byType.putIfAbsent(w.wordType, () => []).add(w.word);
-    }
-    for (final list in byType.values) {
-      list.shuffle(_rng);
-    }
-    final allWordStrings = allWords.map((w) => w.word).toList()..shuffle(_rng);
-
-    final challenges = <_ProverbChallenge>[];
-    for (final word in pool) {
-      if (challenges.length >= _maxRounds) break;
-      final c = _buildChallenge(word, byType, allWordStrings);
-      if (c != null) challenges.add(c);
-    }
+    final challenges = buildClozeChallenges(
+      pool: pool,
+      texts: (w) => [
+        for (final entry in w.apiEnrichment?.proverbs ?? const [])
+          if (entry.proverb case final text?) text,
+      ],
+      maxChallenges: _maxRounds,
+      optionCount: _optionCount,
+      minLength: 8,
+      maxLength: 120,
+      minVisibleWords: 2,
+      rng: _rng,
+    );
 
     setState(() {
       _challenges = challenges;
@@ -249,72 +195,7 @@ class _ProverbClozeGameState extends State<ProverbClozeGame>
     _startTimer();
   }
 
-  _ProverbChallenge? _buildChallenge(
-    GermanWord word,
-    Map<GermanWordType, List<String>> byType,
-    List<String> allWordStrings,
-  ) {
-    final proverbs = word.apiEnrichment?.proverbs ?? [];
 
-    // Collect all usable (text, cloze) candidates.
-    final candidates = <(String, _ClozeResult)>[];
-    for (final p in proverbs) {
-      final text = p.proverb;
-      if (text == null || text.length < 8 || text.length > 120) continue;
-
-      final cloze = _tryBlank(text, word.word);
-      if (cloze == null) continue;
-      if (_visibleWordCount(cloze) < 2) continue;
-
-      candidates.add((text, cloze));
-    }
-    if (candidates.isEmpty) return null;
-
-    // C4: the blank is filled by the matched form in the sentence, which can be
-    // inflected or archaic, while the options would otherwise be bare lemmas.
-    // Prefer proverbs where the matched form equals the lemma so the correct
-    // option reads naturally; otherwise we still surface the matched form (not
-    // the lemma) as the correct option so it actually fits the gap.
-    candidates.sort((a, b) {
-      final aExact =
-          a.$2.matchedForm.toLowerCase() == word.word.toLowerCase() ? 0 : 1;
-      final bExact =
-          b.$2.matchedForm.toLowerCase() == word.word.toLowerCase() ? 0 : 1;
-      return aExact.compareTo(bExact);
-    });
-
-    final (text, cloze) = candidates.first;
-    // Use the form that actually appears in the proverb as the correct answer.
-    final correctForm = cloze.matchedForm;
-
-    final sameType = byType[word.wordType] ?? [];
-    final distractors = <String>[];
-    for (final d in [...sameType, ...allWordStrings]) {
-      if (distractors.length >= _optionCount - 1) break;
-      if (d.toLowerCase() != correctForm.toLowerCase() &&
-          d.toLowerCase() != word.word.toLowerCase() &&
-          !distractors.any((x) => x.toLowerCase() == d.toLowerCase())) {
-        distractors.add(d);
-      }
-    }
-    if (distractors.isEmpty) return null;
-
-    final options = [correctForm, ...distractors.take(_optionCount - 1)];
-    options.shuffle(_rng);
-    final correctIndex =
-        options.indexWhere((o) => o.toLowerCase() == correctForm.toLowerCase());
-    if (correctIndex < 0) return null;
-
-    return _ProverbChallenge(
-      word: word,
-      proverb: text,
-      before: cloze.before,
-      after: cloze.after,
-      matchedForm: cloze.matchedForm,
-      options: options,
-      correctIndex: correctIndex,
-    );
-  }
 
   // ─── timer ─────────────────────────────────────────────────────────────────
 
@@ -604,7 +485,7 @@ class _ProverbClozeGameState extends State<ProverbClozeGame>
     );
   }
 
-  Widget _buildProverbCard(_ProverbChallenge challenge) {
+  Widget _buildProverbCard(ClozeChallenge challenge) {
     final borderColor = _feedback == _Feedback.correct
         ? SpaceTheme.alienGreen
         : _feedback == _Feedback.incorrect
@@ -658,7 +539,7 @@ class _ProverbClozeGameState extends State<ProverbClozeGame>
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  challenge.proverb,
+                  challenge.source,
                   style: SpaceTheme.bodyStyle.copyWith(
                     color: _feedback == _Feedback.correct
                         ? SpaceTheme.alienGreen
@@ -675,7 +556,7 @@ class _ProverbClozeGameState extends State<ProverbClozeGame>
     );
   }
 
-  Widget _buildProverbRichText(_ProverbChallenge challenge) {
+  Widget _buildProverbRichText(ClozeChallenge challenge) {
     const blankLabel = '  _____  ';
     final blankColor = _feedback == _Feedback.correct
         ? SpaceTheme.alienGreen
@@ -720,7 +601,7 @@ class _ProverbClozeGameState extends State<ProverbClozeGame>
     );
   }
 
-  Widget _buildOptions(_ProverbChallenge challenge) {
+  Widget _buildOptions(ClozeChallenge challenge) {
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
@@ -734,7 +615,7 @@ class _ProverbClozeGameState extends State<ProverbClozeGame>
     );
   }
 
-  Widget _buildOption(_ProverbChallenge challenge, int index) {
+  Widget _buildOption(ClozeChallenge challenge, int index) {
     final isCorrect = index == challenge.correctIndex;
     final isSelected = _selectedOption == index;
     final hasAnswered = _feedback != _Feedback.none;

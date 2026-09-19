@@ -14,8 +14,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
-import '../../../core/models/vocabulary_models.dart';
 import '../../../core/models/word_features.dart';
+import '../services/cloze_service.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart';
@@ -37,32 +37,9 @@ class ExpressionFlashGame extends StatefulWidget {
 
 // ─── data ────────────────────────────────────────────────────────────────────
 
-class _ClozeResult {
-  final String before;
-  final String after;
-  final String matchedForm;
-  const _ClozeResult(
-      {required this.before, required this.after, required this.matchedForm});
-}
 
-class _ExprChallenge {
-  final GermanWord word;
-  final String expression; // original full expression text
-  final String before;
-  final String after;
-  final String matchedForm;
-  final List<String> options;
-  final int correctIndex;
-  const _ExprChallenge({
-    required this.word,
-    required this.expression,
-    required this.before,
-    required this.after,
-    required this.matchedForm,
-    required this.options,
-    required this.correctIndex,
-  });
-}
+
+
 
 enum _Feedback { none, correct, incorrect }
 
@@ -83,7 +60,7 @@ class _ExpressionFlashGameState extends State<ExpressionFlashGame>
 
   bool _isLoading = true;
   bool _onboardingScheduled = false;
-  List<_ExprChallenge> _challenges = [];
+  List<ClozeChallenge> _challenges = [];
   int _index = 0;
   int _correct = 0;
   int _total = 0;
@@ -102,31 +79,8 @@ class _ExpressionFlashGameState extends State<ExpressionFlashGame>
 
   // ─── blank extraction (same word-boundary logic as ClozeFlash) ─────────────
 
-  static bool _isLetter(String ch) =>
-      RegExp(r'[a-zA-ZäöüÄÖÜß]').hasMatch(ch);
 
-  static _ClozeResult? _tryBlank(String expression, String target) {
-    if (target.isEmpty) return null;
-    final le = expression.toLowerCase();
-    final lt = target.toLowerCase();
-    int pos = 0;
-    while (pos < le.length) {
-      final idx = le.indexOf(lt, pos);
-      if (idx < 0) return null;
-      final end = idx + lt.length;
-      final prevOk = idx == 0 || !_isLetter(le[idx - 1]);
-      final nextOk = end >= le.length || !_isLetter(le[end]);
-      if (prevOk && nextOk) {
-        return _ClozeResult(
-          before: expression.substring(0, idx),
-          after: expression.substring(end),
-          matchedForm: expression.substring(idx, end),
-        );
-      }
-      pos = idx + 1;
-    }
-    return null;
-  }
+
 
   // ─── init ──────────────────────────────────────────────────────────────────
 
@@ -209,21 +163,18 @@ class _ExpressionFlashGameState extends State<ExpressionFlashGame>
     final pool = allWords;
 
     // Separate same-type pools for distractor selection
-    final byType = <GermanWordType, List<String>>{};
-    for (final w in allWords) {
-      byType.putIfAbsent(w.wordType, () => []).add(w.word);
-    }
-    for (final list in byType.values) {
-      list.shuffle(_rng);
-    }
-    final allWordStrings = allWords.map((w) => w.word).toList()..shuffle(_rng);
-
-    final challenges = <_ExprChallenge>[];
-    for (final word in pool) {
-      if (challenges.length >= _maxRounds) break;
-      final c = _buildChallenge(word, byType, allWordStrings);
-      if (c != null) challenges.add(c);
-    }
+    final challenges = buildClozeChallenges(
+      pool: pool,
+      texts: (w) => [
+        for (final entry in w.apiEnrichment?.expressions ?? const [])
+          if (entry.expression case final text?) text,
+      ],
+      maxChallenges: _maxRounds,
+      optionCount: _optionCount,
+      minLength: 8,
+      maxLength: 80,
+      rng: _rng,
+    );
 
     setState(() {
       _challenges = challenges;
@@ -240,79 +191,7 @@ class _ExpressionFlashGameState extends State<ExpressionFlashGame>
     _startTimer();
   }
 
-  _ExprChallenge? _buildChallenge(
-    GermanWord word,
-    Map<GermanWordType, List<String>> byType,
-    List<String> allWordStrings,
-  ) {
-    final expressions = word.apiEnrichment?.expressions ?? [];
 
-    // Prefer expressions where the matched (blanked) form equals the lemma —
-    // those let the player pick exactly the word being practised. Fall back to
-    // inflected matches, where we present the matched form itself as the answer.
-    final ordered = <MapEntry<String, _ClozeResult>>[];
-    final inflected = <MapEntry<String, _ClozeResult>>[];
-    for (final expr in expressions) {
-      final text = expr.expression;
-      if (text == null || text.length < 8 || text.length > 80) continue;
-      final cloze = _tryBlank(text, word.word);
-      if (cloze == null) continue;
-      final entry = MapEntry(text, cloze);
-      if (cloze.matchedForm.toLowerCase() == word.word.toLowerCase()) {
-        ordered.add(entry);
-      } else {
-        inflected.add(entry);
-      }
-    }
-
-    for (final entry in [...ordered, ...inflected]) {
-      final text = entry.key;
-      final cloze = entry.value;
-
-      // Require at least 2 other words still visible around the blank
-      final visible = (cloze.before + cloze.after)
-          .split(' ')
-          .where((w) => w.trim().isNotEmpty)
-          .length;
-      if (visible < 2) continue;
-
-      // The correct answer is the exact form that was blanked out, so it
-      // matches the gap (lemma when uninflected, inflected form otherwise).
-      final answer = cloze.matchedForm;
-      final visibleText = (cloze.before + cloze.after).toLowerCase();
-
-      // Distractors: prefer same word type, fall back to any word.
-      // Exclude the answer and anything already visible in the expression.
-      final sameType = byType[word.wordType] ?? [];
-      final distractors = <String>[];
-      for (final d in [...sameType, ...allWordStrings]) {
-        if (distractors.length >= _optionCount - 1) break;
-        final ld = d.toLowerCase();
-        if (ld == answer.toLowerCase()) continue;
-        if (visibleText.contains(ld)) continue;
-        if (distractors.any((x) => x.toLowerCase() == ld)) continue;
-        distractors.add(d);
-      }
-      if (distractors.length < _optionCount - 1) continue; // need a full set
-
-      final options = [answer, ...distractors.take(_optionCount - 1)];
-      options.shuffle(_rng);
-      final correctIndex =
-          options.indexWhere((o) => o.toLowerCase() == answer.toLowerCase());
-      if (correctIndex < 0) continue;
-
-      return _ExprChallenge(
-        word: word,
-        expression: text,
-        before: cloze.before,
-        after: cloze.after,
-        matchedForm: cloze.matchedForm,
-        options: options,
-        correctIndex: correctIndex,
-      );
-    }
-    return null;
-  }
 
   // ─── timer ─────────────────────────────────────────────────────────────────
 
@@ -576,7 +455,7 @@ class _ExpressionFlashGameState extends State<ExpressionFlashGame>
     );
   }
 
-  Widget _buildExpressionCard(_ExprChallenge challenge) {
+  Widget _buildExpressionCard(ClozeChallenge challenge) {
     final borderColor = _feedback == _Feedback.correct
         ? SpaceTheme.alienGreen
         : _feedback == _Feedback.incorrect
@@ -629,7 +508,7 @@ class _ExpressionFlashGameState extends State<ExpressionFlashGame>
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  challenge.expression,
+                  challenge.source,
                   style: SpaceTheme.bodyStyle.copyWith(
                     color: _feedback == _Feedback.correct
                         ? SpaceTheme.alienGreen
@@ -650,7 +529,7 @@ class _ExpressionFlashGameState extends State<ExpressionFlashGame>
     );
   }
 
-  Widget _buildExpressionRichText(_ExprChallenge challenge) {
+  Widget _buildExpressionRichText(ClozeChallenge challenge) {
     const blankLabel = '  _____  ';
     final blankColor = _feedback == _Feedback.correct
         ? SpaceTheme.alienGreen
@@ -698,7 +577,7 @@ class _ExpressionFlashGameState extends State<ExpressionFlashGame>
     );
   }
 
-  Widget _buildOptions(_ExprChallenge challenge) {
+  Widget _buildOptions(ClozeChallenge challenge) {
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
@@ -712,7 +591,7 @@ class _ExpressionFlashGameState extends State<ExpressionFlashGame>
     );
   }
 
-  Widget _buildOption(_ExprChallenge challenge, int index) {
+  Widget _buildOption(ClozeChallenge challenge, int index) {
     final isCorrect = index == challenge.correctIndex;
     final isSelected = _selectedOption == index;
     final hasAnswered = _feedback != _Feedback.none;
