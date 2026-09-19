@@ -812,10 +812,17 @@ class GermanWord {
     );
   }
 
+  /// The word as it should be shown: German nouns with their article.
+  ///
+  /// The article belongs to the headword, not to its inflections. The packs
+  /// carry plurals as entries that inherit the singular's article, which read
+  /// as "an elements", "a gloves", "an instruments" wherever a word is
+  /// displayed. An entry that is not its own headword is shown bare.
   String get displayName {
     if (wordType == GermanWordType.substantiv &&
         article != null &&
-        article!.isNotEmpty) {
+        article!.isNotEmpty &&
+        isHeadword) {
       return '$article $word';
     }
     return word;

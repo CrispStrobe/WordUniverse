@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
-import '../../../core/models/vocabulary_models.dart';
+import '../services/word_class_flash_service.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart';
@@ -25,11 +25,7 @@ class WordClassFlashGame extends StatefulWidget {
   State<WordClassFlashGame> createState() => _WordClassFlashGameState();
 }
 
-class _WordClassChallenge {
-  final GermanWord word;
-  final GermanWordType correctType;
-  const _WordClassChallenge({required this.word, required this.correctType});
-}
+
 
 enum _Feedback { none, correct, incorrect }
 
@@ -54,7 +50,7 @@ class _WordClassFlashGameState extends State<WordClassFlashGame>
 
   bool _isLoading = true;
   bool _onboardingScheduled = false;
-  List<_WordClassChallenge> _challenges = [];
+  List<WordClassChallenge> _challenges = [];
   int _index = 0;
   int _correct = 0;
   int _total = 0;
@@ -129,53 +125,25 @@ class _WordClassFlashGameState extends State<WordClassFlashGame>
   }
 
   Future<void> _buildChallenges() async {
-    final candidates = _vocabService
-        .getAllWords(_gameProvider)
-        .where((w) =>
-            !w.isProperNoun &&
-            !w.word.contains('_') &&
-            !w.word.contains(' ') &&
-            _types.contains(w.wordType))
-        .toList();
+    final pool = selectWordClassCandidates(
+      catalogue: _vocabService.getAllWords(_gameProvider),
+      askableTypes: _types.toSet(),
+      gradeLevel: widget.gradeLevel.index + 1,
+      rng: _rng,
+    );
 
-    // Pedagogy: the DB has no explicit ambiguity flag, but the same surface
-    // form can map to more than one word class (e.g. "laut" =
-    // Adjektiv/Adverb/Substantiv). Such rounds would have more than one
-    // defensible answer, so skip any surface form that appears with conflicting
-    // wordTypes and keep only those that are unambiguous within the pool.
-    final typesPerSurface = <String, Set<GermanWordType>>{};
-    for (final w in candidates) {
-      typesPerSurface
-          .putIfAbsent(w.word.toLowerCase(), () => <GermanWordType>{})
-          .add(w.wordType);
-    }
-    final unambiguous = candidates
-        .where((w) => typesPerSurface[w.word.toLowerCase()]!.length == 1)
-        .toList();
-
-    // Fall back to the full candidate set if filtering left too few words to
-    // play a meaningful round.
-    final allWords = unambiguous.length >= 10 ? unambiguous : candidates;
-
-    if (allWords.isEmpty) {
+    if (pool.isEmpty) {
       setState(() => _isLoading = false);
       return;
     }
-
-    final gradePool = allWords
-        .where((w) => w.gradeLevel == widget.gradeLevel.index + 1)
-        .toList();
-    final pool = gradePool.length >= 10 ? gradePool : allWords;
-    pool.shuffle(_rng);
 
     // The CEFR chip on the card reads the enrichment, so decode it for the
     // words this round shows — the pool itself stays light.
     final playable = await _vocabService.hydrate(pool.take(_maxRounds));
     if (!mounted) return;
 
-    final challenges = playable
-        .map((w) => _WordClassChallenge(word: w, correctType: w.wordType))
-        .toList();
+    final challenges = buildWordClassChallenges(
+        words: playable, maxChallenges: _maxRounds);
 
     setState(() {
       _challenges = challenges;
@@ -465,7 +433,7 @@ class _WordClassFlashGameState extends State<WordClassFlashGame>
     );
   }
 
-  Widget _buildWordCard(_WordClassChallenge challenge) {
+  Widget _buildWordCard(WordClassChallenge challenge) {
     return AnimatedBuilder(
       animation: _shakeCtrl,
       builder: (_, child) => Transform.translate(
@@ -539,7 +507,7 @@ class _WordClassFlashGameState extends State<WordClassFlashGame>
     );
   }
 
-  Widget _buildOptions(_WordClassChallenge challenge) {
+  Widget _buildOptions(WordClassChallenge challenge) {
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
@@ -551,7 +519,7 @@ class _WordClassFlashGameState extends State<WordClassFlashGame>
     );
   }
 
-  Widget _buildTypeButton(_WordClassChallenge challenge, GermanWordType t) {
+  Widget _buildTypeButton(WordClassChallenge challenge, GermanWordType t) {
     final isCorrect = t == challenge.correctType;
     final isSelected = _selectedType == t;
     final hasAnswered = _feedback != _Feedback.none;
