@@ -36,10 +36,12 @@ import 'package:WortUniversum/core/models/word_features.dart';
 import 'package:WortUniversum/core/services/cognitive_profile_service.dart';
 import 'package:WortUniversum/core/services/dictionary_database_service.dart';
 import 'package:WortUniversum/core/services/progress_service.dart';
+import 'package:WortUniversum/core/models/skill_category.dart' as skills;
 import 'package:WortUniversum/core/services/sri_service.dart';
 import 'package:WortUniversum/core/services/vocabulary_service.dart';
 import 'package:WortUniversum/features/games/providers/game_provider.dart';
 import 'package:WortUniversum/features/games/services/definition_quiz_service.dart';
+import 'package:WortUniversum/features/games/services/adaptive_word_selection.dart';
 import 'package:WortUniversum/features/games/services/antonym_flash_service.dart';
 import 'package:WortUniversum/features/games/services/cloze_service.dart';
 import 'package:WortUniversum/features/games/services/conjugation_drill_challenges.dart';
@@ -114,6 +116,12 @@ typedef Generator = Future<List<Item>> Function(_Context context);
 /// review content no learner is offered.
 const Map<String, List<String>> generatorLanguages = {
   'antonym_flash': ['en', 'de'],
+  'word_find': ['en', 'de'],
+  'word_snake': ['en', 'de'],
+  'word_memory': ['en', 'de'],
+  'word_builder': ['en', 'de'],
+  'word_sort': ['en', 'de'],
+  'word_type_whirl': ['en', 'de'],
   'conjugation_drill': ['de'],
   'spelling_spotter': ['en', 'de'],
   'cloze_flash': ['en', 'de'],
@@ -136,9 +144,10 @@ const Map<String, List<String>> generatorLanguages = {
 };
 
 class _Context {
-  _Context(this.vocabulary, this.settings, this.grade, this.count, this.rng,
-      this.language);
+  _Context(this.vocabulary, this.sri, this.settings, this.grade, this.count,
+      this.rng, this.language);
   final VocabularyService vocabulary;
+  final SriService sri;
   final GameProvider settings;
   final int grade;
   final int count;
@@ -163,7 +172,52 @@ class _Context {
       );
 }
 
+/// The six games that practise a word rather than ask a question about it:
+/// the reviewable output is which words they pick, and on what grounds.
+Generator _wordPractice(
+  String game,
+  String ask, {
+  skills.LanguageSkillType? skill,
+  bool Function(GermanWord word)? playable,
+}) =>
+    (c) async {
+      final words = await c.vocabulary.hydrate(selectAdaptiveWords(
+        vocabulary: c.vocabulary,
+        sri: c.sri,
+        settings: c.settings,
+        grade: skills.GradeLevel.values[(c.grade - 1).clamp(0, 5)],
+        count: c.count,
+        isPlayable: playable ?? (w) => !w.word.contains(' '),
+        skillFilter: skill,
+      ));
+      return words
+          .map((w) => Item(
+                game: game,
+                prompt: ask.replaceAll('%s', w.displayName),
+                answer: game == 'word_sort' || game == 'word_type_whirl'
+                    ? w.wordType.name
+                    : w.word,
+                notes: {
+                  'grade': w.gradeLevel,
+                  if (w.displayDefinitions.isNotEmpty)
+                    'gloss': w.displayDefinitions.first,
+                },
+              ))
+          .toList();
+    };
+
 final Map<String, Generator> generators = {
+  'word_find': _wordPractice('word_find', 'Find "%s" in the grid'),
+  'word_snake': _wordPractice('word_snake', 'Trace "%s"',
+      skill: skills.LanguageSkillType.spelling),
+  'word_builder': _wordPractice('word_builder', 'Build "%s" from its letters',
+      skill: skills.LanguageSkillType.spelling),
+  'word_memory': _wordPractice('word_memory', 'Match the pair for "%s"'),
+  'word_sort': _wordPractice('word_sort', 'Sort "%s" into its word class',
+      skill: skills.LanguageSkillType.wordType),
+  'word_type_whirl': _wordPractice(
+      'word_type_whirl', 'Catch "%s" in the right bin',
+      skill: skills.LanguageSkillType.wordType),
   'conjugation_drill': (c) async => buildConjugationChallenges(
         verbs: (await c.pool(WordFeature.inflections,
                 where: (w) => !w.isProperNoun && !w.word.contains(' ')))
@@ -508,9 +562,8 @@ const notYetReachable = [
   'hypernym_flash',
   'cloze_flash', 'proverb_cloze', 'translation_flash', 'reverse_translation_flash',
   'sri_review', 'word_class_flash',
-  'word_sort', 'word_type_whirl', 'grossschreib', 'grossstadt', 'verbtrenner',
-  'wortbaumeister', 'word_find', 'word_snake', 'word_memory', 'word_builder',
-];
+  'grossschreib', 'grossstadt', 'verbtrenner',
+  'wortbaumeister', ];
 
 void main() {
   final requested = Platform.environment['WU_DUMP'];
@@ -556,9 +609,10 @@ void main() {
     final vocabulary = VocabularyService();
     await vocabulary.initialize(learningLanguage: language);
     addTearDown(DictionaryDatabaseService().close);
+    final sri = SriService();
     final settings = GameProvider(
       progressService: ProgressService(),
-      sriService: SriService(),
+      sriService: sri,
       cognitiveProfileService: CognitiveProfileService(),
       prefs: await SharedPreferences.getInstance(),
     );
@@ -582,8 +636,8 @@ void main() {
             'available: ${generators.keys.join(', ')}');
         continue;
       }
-      final items = await generator(_Context(
-          vocabulary, settings, grade, count, Random(seed), language));
+      final items = await generator(_Context(vocabulary, sri, settings, grade,
+          count, Random(seed), language));
       total += items.length;
       if (asJson) {
         for (final item in items) {

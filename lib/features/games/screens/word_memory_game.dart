@@ -13,6 +13,7 @@ import '../../../core/services/vocabulary_service.dart';
 import '../../../core/theme/space_theme.dart';
 import '../../../generated/l10n.dart';
 import '../providers/game_provider.dart';
+import '../services/adaptive_word_selection.dart';
 import '../widgets/space_background.dart';
 import '../models/game_outcome.dart';
 
@@ -124,11 +125,7 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
     await _loadLevel();
   }
 
-  String? _extractBaseWordFromSriId(String id) {
-    if (id.startsWith('SPELL_')) return id.substring('SPELL_'.length);
-    if (id.startsWith('WORDTYPE_')) return id.substring('WORDTYPE_'.length);
-    return null;
-  }
+
 
   bool _isWordValidForGame(GermanWord word) {
     return word.word.length >= 3 && word.word.length <= 8 && !word.word.contains(" ");
@@ -152,55 +149,14 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
         _totalPairs = 8; 
     }
 
-    final List<GermanWord> wordsForGame = [];
-    final Set<String> addedWordIds = {};
-
-    int reviewWordCount = (_totalPairs * 0.5).ceil();
-    final reviewItemIds = _sriService.getItemsForReview(
-      limit: reviewWordCount * 2,
-      gradeLevelFilter: widget.gradeLevel.index + 1,
-    );
-
-    for (final id in reviewItemIds) {
-      final wordString = _extractBaseWordFromSriId(id);
-      if (wordString == null) continue;
-      // Indexed lookup: this used to scan the whole catalogue per review item.
-      final word = _vocabularyService.findByWrittenForm(wordString);
-      if (word == null) continue; // Word from SRI not in vocab, skip
-
-      if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
-        wordsForGame.add(word);
-        addedWordIds.add(word.id);
-        if (wordsForGame.length >= reviewWordCount) break;
-      }
-    }
-
-    final newWords = _vocabularyService.getNewWords(
-      sriService: _sriService,
+    final wordsForGame = selectAdaptiveWords(
+      vocabulary: _vocabularyService,
+      sri: _sriService,
+      settings: _gameProvider,
       grade: widget.gradeLevel,
-      limit: (_totalPairs - wordsForGame.length) * 2,
-      settingsProvider: _gameProvider,
+      count: _totalPairs,
+      isPlayable: _isWordValidForGame,
     );
-
-    for (final word in newWords) {
-      if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
-        wordsForGame.add(word);
-        addedWordIds.add(word.id);
-        if (wordsForGame.length >= _totalPairs) break;
-      }
-    }
-
-    if (wordsForGame.length < _totalPairs) {
-      final allWords = _vocabularyService.getWordsByGrade(widget.gradeLevel, _gameProvider);
-      allWords.shuffle();
-      for (final word in allWords) {
-        if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
-          wordsForGame.add(word);
-          addedWordIds.add(word.id);
-          if (wordsForGame.length >= _totalPairs) break;
-        }
-      }
-    }
 
     // Definition cards read the enrichment, so decode it for the chosen words.
     final playable = await _vocabularyService.hydrate(wordsForGame);

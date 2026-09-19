@@ -14,6 +14,7 @@ import '../../../generated/l10n.dart';
 import '../services/word_search_generator.dart';
 import '../models/word_find_models.dart';
 import '../providers/game_provider.dart';
+import '../services/adaptive_word_selection.dart';
 import '../widgets/game_ui.dart';
 import '../widgets/space_background.dart';
 import '../models/game_outcome.dart';
@@ -101,64 +102,14 @@ class _WordFindGameState extends State<WordFindGame> {
     }
 
     // --- NEW ADAPTIVE WORD SELECTION ---
-    final List<GermanWord> wordsForGame = [];
-    final Set<String> addedWordIds = {};
-
-    int reviewWordCount = (wordCount * 0.5).ceil(); // 50% review
-    int newWordCount = wordCount - reviewWordCount;
-
-    // 1. Get REVIEW words (words the user struggles with)
-    // We get *all* review items, sorted by worst performance
-    final reviewItemIds = _sriService.getItemsForReview(
-      limit: reviewWordCount * 2, // Get extra in case of filtering
-      gradeLevelFilter: widget.gradeLevel.index + 1,
-    );
-
-    for (final id in reviewItemIds) {
-      final wordString = _extractBaseWordFromSriId(id);
-      if (wordString == null) continue;
-
-      // Indexed lookup: this used to scan the whole catalogue per review item.
-      final word = _vocabularyService.findByWrittenForm(wordString);
-      if (word == null) continue; // Word from SRI not in vocab, skip
-
-      if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
-        wordsForGame.add(word);
-        addedWordIds.add(word.id);
-        if (wordsForGame.length >= reviewWordCount) break;
-      }
-    }
-
-    // 2. Get NEW words (words the user has not seen)
-    newWordCount = wordCount - wordsForGame.length; // Recalculate how many we need
-    final newWords = _vocabularyService.getNewWords(
-      sriService: _sriService,
+    final wordsForGame = selectAdaptiveWords(
+      vocabulary: _vocabularyService,
+      sri: _sriService,
+      settings: _gameProvider,
       grade: widget.gradeLevel,
-      limit: newWordCount * 2, // Get extra
-      settingsProvider: _gameProvider,
+      count: wordCount,
+      isPlayable: _isWordValidForGame,
     );
-
-    for (final word in newWords) {
-      if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
-        wordsForGame.add(word);
-        addedWordIds.add(word.id);
-        if (wordsForGame.length >= wordCount) break;
-      }
-    }
-
-    // 3. Fill the rest with RANDOM words (if needed)
-    if (wordsForGame.length < wordCount) {
-      final allWords = _vocabularyService.getWordsByGrade(widget.gradeLevel, _gameProvider);
-      allWords.shuffle();
-
-      for (final word in allWords) {
-        if (_isWordValidForGame(word) && !addedWordIds.contains(word.id)) {
-          wordsForGame.add(word);
-          addedWordIds.add(word.id);
-          if (wordsForGame.length >= wordCount) break;
-        }
-      }
-    }
     // --- END ADAPTIVE SELECTION ---
 
     // The words in play get their enrichment (definitions, CEFR, hints); the
@@ -269,16 +220,7 @@ class _WordFindGameState extends State<WordFindGame> {
   }
 
   /// Extracts the base word (e.g., "haus") from an SRI ID (e.g., "SPELL_haus").
-  String? _extractBaseWordFromSriId(String id) {
-    if (id.startsWith('SPELL_')) {
-      return id.substring('SPELL_'.length);
-    }
-    if (id.startsWith('WORDTYPE_')) {
-      return id.substring('WORDTYPE_'.length);
-    }
-    // Add other prefixes if you track more word skills
-    return null;
-  }
+
 
   /// Checks if a word is valid for this specific game.
   bool _isWordValidForGame(GermanWord word) {
