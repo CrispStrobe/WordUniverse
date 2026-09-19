@@ -50,12 +50,18 @@ options, which option is keyed correct, and the data behind it.
 
 ## Coverage, and how to widen it
 
-Six generators are reachable today — the games whose challenge construction
-already lives in `lib/features/games/services/`. The other 25 build their
-challenges inside the widget, and a run lists them by name so the gap is
-visible rather than implied.
+All 31 games in the menu are reachable: every one builds its challenges in a
+service under `lib/features/games/services/`, and the screen only draws what
+the service returns. A run ends with the generator count, and names any game
+that is not reachable — today none are.
 
-Those builders are nearly pure already: `_buildChallenge(word, pool)` takes data
-and returns data, touching no widget. Widening coverage means moving one of them
-into a service and registering it here — worth doing per game when that game is
-being worked on anyway, rather than as one large refactor.
+Keep it that way when adding a game: put the challenge construction in a
+service that takes data and returns data, and register it in the `generators`
+map in `test/audit/challenge_dump_test.dart`. A game whose challenges are built
+inside its widget cannot be reviewed except by playing it.
+
+Several games share one service — `cloze_service.dart` backs cloze, expression
+and proverb; `adaptive_word_selection.dart` backs six practice games; the SRI
+review game reuses `definition_quiz_service.dart` so both inherit the same
+fairness rules (headword redaction, no name glosses, article-labelled options).
+A fix in one is a fix in all of them, which is the point.
