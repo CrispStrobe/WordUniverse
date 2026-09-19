@@ -30,12 +30,15 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:archive/archive.dart';
 
 import 'package:WortUniversum/core/models/language_pack.dart';
+import 'package:WortUniversum/core/models/vocabulary_models.dart';
+import 'package:WortUniversum/core/models/word_features.dart';
 import 'package:WortUniversum/core/services/cognitive_profile_service.dart';
 import 'package:WortUniversum/core/services/dictionary_database_service.dart';
 import 'package:WortUniversum/core/services/progress_service.dart';
 import 'package:WortUniversum/core/services/sri_service.dart';
 import 'package:WortUniversum/core/services/vocabulary_service.dart';
 import 'package:WortUniversum/features/games/providers/game_provider.dart';
+import 'package:WortUniversum/features/games/services/definition_quiz_service.dart';
 import 'package:WortUniversum/features/games/services/false_friend_service.dart';
 import 'package:WortUniversum/features/games/services/homophone_drill_service.dart';
 import 'package:WortUniversum/features/games/services/phrasal_verb_service.dart';
@@ -90,6 +93,7 @@ typedef Generator = Future<List<Item>> Function(_Context context);
 /// language, so dumping a German-only game against the English pack would
 /// review content no learner is offered.
 const Map<String, List<String>> generatorLanguages = {
+  'definition_quiz': ['en', 'de'],
   'homophone_drill': ['en'],
   'wortfalle': ['de'],
   'false_friends': ['en'],
@@ -99,15 +103,49 @@ const Map<String, List<String>> generatorLanguages = {
 };
 
 class _Context {
-  _Context(this.vocabulary, this.settings, this.grade, this.count, this.rng);
+  _Context(this.vocabulary, this.settings, this.grade, this.count, this.rng,
+      this.language);
   final VocabularyService vocabulary;
   final GameProvider settings;
   final int grade;
   final int count;
   final Random rng;
+  final String language;
+
+  bool get isGerman => language == 'de';
+
+  /// The pool a game opens with, on the same terms the screen asks for it.
+  Future<List<GermanWord>> pool(
+    WordFeature feature, {
+    int? limitFactor,
+    bool Function(GermanWord word)? where,
+  }) =>
+      vocabulary.takeWordsWithFeature(
+        feature,
+        settingsProvider: settings,
+        gradeLevel: grade,
+        limit: count * (limitFactor ?? 8),
+        where: where,
+        random: rng,
+      );
 }
 
 final Map<String, Generator> generators = {
+  'definition_quiz': (c) async => buildDefinitionChallenges(
+        pool: await c.pool(WordFeature.definitions,
+            where: (w) => !w.isProperNoun && w.isHeadword),
+        isGerman: c.isGerman,
+        maxChallenges: c.count,
+        rng: c.rng,
+      )
+          .map((ch) => Item(
+                game: 'definition_quiz',
+                prompt: ch.definition,
+                options: ch.options,
+                answer: ch.options[ch.correctIndex],
+                notes: {'word': ch.word.word, 'grade': ch.word.gradeLevel},
+              ))
+          .toList(),
   'homophone_drill': (c) async {
     final groups = groupsForMode(HomophoneGameMode.homophones);
     final wanted = <String>{
@@ -221,7 +259,7 @@ final Map<String, Generator> generators = {
 /// Games that still build their challenges inside the widget, so this harness
 /// cannot reach them yet. Printed after a run so the gap stays visible.
 const notYetReachable = [
-  'definition_quiz', 'synonym_flash', 'antonym_flash', 'hypernym_flash',
+  'synonym_flash', 'antonym_flash', 'hypernym_flash',
   'syllable_count', 'cloze_flash', 'proverb_cloze', 'expression_flash',
   'sentence_completion', 'translation_flash', 'reverse_translation_flash',
   'spelling_spotter', 'sri_review', 'conjugation_drill', 'word_class_flash',
@@ -299,8 +337,8 @@ void main() {
             'available: ${generators.keys.join(', ')}');
         continue;
       }
-      final items = await generator(
-          _Context(vocabulary, settings, grade, count, Random(seed)));
+      final items = await generator(_Context(
+          vocabulary, settings, grade, count, Random(seed), language));
       total += items.length;
       if (asJson) {
         for (final item in items) {

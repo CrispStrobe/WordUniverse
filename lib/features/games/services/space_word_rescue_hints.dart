@@ -111,7 +111,7 @@ String generateEducationalHint(
     }
 
     // Add definition if we have room
-    final def = api?.definitions.firstOrNull;
+    final def = word.displayDefinitions.firstOrNull;
     if (def != null && def.isNotEmpty && hints.length < 2) {
       final truncated = def.length > 70 ? '${def.substring(0, 67)}…' : def;
       hints.add('"$truncated"');
@@ -144,7 +144,7 @@ String generateEducationalHint(
     if (type != null) hints.add(type);
 
     // Add definition to help the learner remember
-    final def = api?.definitions.firstOrNull;
+    final def = word.displayDefinitions.firstOrNull;
     if (def != null && def.isNotEmpty) {
       final truncated = def.length > 70 ? '${def.substring(0, 67)}…' : def;
       hints.add('"$truncated"');

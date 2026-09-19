@@ -515,7 +515,7 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
   }
 
   Widget _buildPrompt(_SpellingChallenge challenge) {
-    final definition = challenge.word.apiEnrichment?.definitions.firstOrNull;
+    final definition = challenge.word.displayDefinitions.firstOrNull;
     final cefr = challenge.word.cefrLevel;
     return Column(
       children: [
