@@ -492,6 +492,32 @@ class GermanWord {
   /// Whether the word carries [feature], answerable without its JSON.
   bool has(WordFeature feature) => features.hasFeature(feature);
 
+  /// Whether this entry is its own dictionary headword.
+  ///
+  /// The packs carry inflected forms as entries in their own right, and those
+  /// entries carry the *lemma's* enrichment: "ideas" holds the definition of
+  /// "idea", "landing" holds the verb "land". Asking a learner to match that
+  /// definition to that spelling is a mismatch, and a noun plural additionally
+  /// takes a singular article from [displayName] — "an elements".
+  ///
+  /// Games that ask about what a word *means* should draw from headwords only.
+  /// Games about spelling or word shape can use any entry.
+  bool get isHeadword => word.toLowerCase() == lemma.toLowerCase();
+
+  /// The definitions that actually describe this spelling.
+  ///
+  /// Empty when the entry's enrichment belongs to a different word. The packs
+  /// attach a lemma's senses to its inflected forms, and sometimes to the
+  /// wrong word outright: 2,618 of the English pack's 11,539 entries name a
+  /// different `primary_lemma`, among them "click" carrying the senses of
+  /// "clutch" and — in an app for primary-school children — "come" carrying
+  /// those of "cum".
+  ///
+  /// Anything shown to a learner must read this rather than
+  /// `apiEnrichment.definitions`.
+  List<String> get displayDefinitions =>
+      isHeadword ? (apiEnrichment?.definitions ?? const []) : const [];
+
   // Consolidated V24 Fields
   final List<ApiExample> examples;
   final List<String> hyphenation;

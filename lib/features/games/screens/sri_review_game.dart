@@ -291,7 +291,7 @@ class _SriReviewGameState extends State<SriReviewGame>
     if (errors.isEmpty) return null;
 
     final options = [displayWord, ...errors]..shuffle(_rng);
-    final definition = word.apiEnrichment?.definitions.firstOrNull;
+    final definition = word.displayDefinitions.firstOrNull;
     final prompt = definition != null
         ? _s.spellingForDefinition(definition)
         : _s.spellingSpotterPrompt;
@@ -307,7 +307,7 @@ class _SriReviewGameState extends State<SriReviewGame>
 
   _ReviewChallenge? _buildDefinitionChallenge(
       GermanWord word, SriLanguageData sriData, List<GermanWord> allWords) {
-    final definition = word.apiEnrichment?.definitions.firstOrNull;
+    final definition = word.displayDefinitions.firstOrNull;
     if (definition == null) return null;
 
     final correctOption = word.word;
@@ -317,7 +317,7 @@ class _SriReviewGameState extends State<SriReviewGame>
           .where((w) =>
               w.id != word.id &&
               !w.isProperNoun &&
-              (w.apiEnrichment?.definitions.isNotEmpty ?? false))
+              w.displayDefinitions.isNotEmpty)
           .toList()
         ..shuffle(_rng));
 

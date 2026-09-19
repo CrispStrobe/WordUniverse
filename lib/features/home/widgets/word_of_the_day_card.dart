@@ -84,8 +84,8 @@ class _WordOfTheDayContent extends StatelessWidget {
   const _WordOfTheDayContent({required this.word, required this.isVerySmall});
 
   String? get _definition {
-    final defs = word.apiEnrichment?.definitions;
-    if (defs != null && defs.isNotEmpty) return defs.first;
+    final defs = word.displayDefinitions;
+    if (defs.isNotEmpty) return defs.first;
     final ex = word.exampleSentences;
     if (ex.isNotEmpty) return ex.first;
     return null;
@@ -322,7 +322,7 @@ class _WordDetailSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = S.of(context)!;
     final audioService = context.read<AudioService>();
-    final defs = word.apiEnrichment?.definitions ?? [];
+    final defs = word.displayDefinitions;
     final synonyms = word.apiEnrichment?.synonyms ?? [];
     final antonyms = word.apiEnrichment?.antonyms ?? [];
     final entryNotes = word.entryNotes;

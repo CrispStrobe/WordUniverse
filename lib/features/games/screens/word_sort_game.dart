@@ -435,8 +435,8 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       hints.add(_s.wordSortHintNounWithArticle(word.article!, word.word));
     }
 
-    if (apiData?.definitions.isNotEmpty ?? false) {
-      hints.add(_s.wordSortHintDefinition(apiData!.definitions.first));
+    if (word.displayDefinitions.isNotEmpty) {
+      hints.add(_s.wordSortHintDefinition(word.displayDefinitions.first));
     }
 
     hints.add(_s.wordSortHintNounNaming(word.word));
@@ -485,8 +485,8 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       } catch (e) {}
     }
 
-    if (apiData?.definitions.isNotEmpty ?? false) {
-      hints.add(_s.wordSortHintDefinition(apiData!.definitions.first));
+    if (word.displayDefinitions.isNotEmpty) {
+      hints.add(_s.wordSortHintDefinition(word.displayDefinitions.first));
     }
 
     hints.add(_s.wordSortHintVerbAction(word.word));
@@ -521,8 +521,8 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       } catch (e) {}
     }
 
-    if (apiData?.definitions.isNotEmpty ?? false) {
-      hints.add(_s.wordSortHintDefinition(apiData!.definitions.first));
+    if (word.displayDefinitions.isNotEmpty) {
+      hints.add(_s.wordSortHintDefinition(word.displayDefinitions.first));
     }
 
     hints.add(_s.wordSortHintAdjQuality(word.word));
@@ -548,8 +548,8 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       _s.wordSortHintAdverbQuestion(word.word),
     ];
     
-    if (advanced && (apiData?.definitions.isNotEmpty ?? false)) {
-      hints.add(_s.wordSortHintDefinition(apiData!.definitions.first));
+    if (advanced && (word.displayDefinitions.isNotEmpty)) {
+      hints.add(_s.wordSortHintDefinition(word.displayDefinitions.first));
     }
 
     return _selectHintFromList(hints);
@@ -561,8 +561,8 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       _s.wordSortHintPronounStands(word.word),
     ];
 
-    if (advanced && (apiData?.definitions.isNotEmpty ?? false)) {
-      hints.add(_s.wordSortHintDefinition(apiData!.definitions.first));
+    if (advanced && (word.displayDefinitions.isNotEmpty)) {
+      hints.add(_s.wordSortHintDefinition(word.displayDefinitions.first));
     }
     
     return _selectHintFromList(hints);
@@ -589,8 +589,8 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       case GermanWordType.adjektiv:
         return _getAdjectiveCorrectExplanation(word, apiData, patternData, guessedType);
       default:
-        if (apiData?.definitions.isNotEmpty ?? false) {
-          return _s.wordSortExplainCategoryDefinition(_getCategoryName(word.wordType), apiData!.definitions.first);
+        if (word.displayDefinitions.isNotEmpty) {
+          return _s.wordSortExplainCategoryDefinition(_getCategoryName(word.wordType), word.displayDefinitions.first);
         }
         return _s.wordSortExplainCategory(word.word, _getCategoryName(word.wordType));
     }
@@ -648,8 +648,8 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       if (reasons.isEmpty) return _s.wordSortExplainVerbAction(word.word);
       return _s.wordSortExplainVerbReasons(reasons.join(' • '));
     } else {
-      if (apiData?.definitions.isNotEmpty ?? false) {
-        return _s.wordSortExplainVerbDefinition(apiData!.definitions.first);
+      if (word.displayDefinitions.isNotEmpty) {
+        return _s.wordSortExplainVerbDefinition(word.displayDefinitions.first);
       }
       return _s.wordSortExplainVerbAction(word.word);
     }
@@ -676,8 +676,8 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
         }
       } catch (e) {}
       if (reasons.isEmpty) {
-        if (apiData?.definitions.isNotEmpty ?? false) {
-          return _s.wordSortExplainAdjDefinition(apiData!.definitions.first);
+        if (word.displayDefinitions.isNotEmpty) {
+          return _s.wordSortExplainAdjDefinition(word.displayDefinitions.first);
         }
         return _s.wordSortExplainAdjQuality(word.word);
       }

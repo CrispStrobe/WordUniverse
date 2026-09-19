@@ -365,7 +365,7 @@ class _WordFindGameState extends State<WordFindGame> {
     }
 
     // Primary: definition
-    final def = api?.definitions.firstOrNull;
+    final def = word.displayDefinitions.firstOrNull;
     if (def != null && def.isNotEmpty) {
       final truncated = def.length > 50 ? '${def.substring(0, 47)}…' : def;
       infoParts.add('"$truncated"');

@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
-import '../../../core/models/vocabulary_models.dart';
 import '../../../core/models/word_features.dart';
+import '../services/definition_quiz_service.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart';
@@ -26,20 +26,6 @@ class DefinitionQuizGame extends StatefulWidget {
   State<DefinitionQuizGame> createState() => _DefinitionQuizGameState();
 }
 
-class _DefChallenge {
-  final GermanWord word;
-  final String definition;
-  final List<String> options; // display labels, shuffled
-  final int correctIndex;
-
-  const _DefChallenge({
-    required this.word,
-    required this.definition,
-    required this.options,
-    required this.correctIndex,
-  });
-}
-
 enum _FeedbackState { none, correct, incorrect }
 
 class _DefinitionQuizGameState extends State<DefinitionQuizGame>
@@ -55,7 +41,7 @@ class _DefinitionQuizGameState extends State<DefinitionQuizGame>
 
   bool _isLoading = true;
   bool _onboardingScheduled = false;
-  List<_DefChallenge> _challenges = [];
+  List<DefinitionChallenge> _challenges = [];
   int _currentIndex = 0;
   int _score = 0;
   int _correct = 0;
@@ -137,7 +123,9 @@ class _DefinitionQuizGameState extends State<DefinitionQuizGame>
       settingsProvider: _gameProvider,
       gradeLevel: widget.gradeLevel.index + 1,
       limit: _totalRounds * 8,
-      where: (w) => !w.isProperNoun,
+      // Headwords only: an inflected entry carries its lemma's definition, so
+      // "ideas" would be keyed to the definition of "idea".
+      where: (w) => !w.isProperNoun && w.isHeadword,
       random: _rng,
     );
     if (!mounted) return;
@@ -147,12 +135,13 @@ class _DefinitionQuizGameState extends State<DefinitionQuizGame>
       return;
     }
 
-    final challenges = <_DefChallenge>[];
-    for (final word in pool) {
-      if (challenges.length >= _totalRounds) break;
-      final c = _buildChallenge(word, pool);
-      if (c != null) challenges.add(c);
-    }
+    final challenges = buildDefinitionChallenges(
+      pool: pool,
+      isGerman: _isDE,
+      maxChallenges: _totalRounds,
+      optionCount: _optionCount,
+      rng: _rng,
+    );
 
     setState(() {
       _challenges = challenges;
@@ -163,106 +152,6 @@ class _DefinitionQuizGameState extends State<DefinitionQuizGame>
       _feedbackState = _FeedbackState.none;
       _isLoading = false;
     });
-  }
-
-  _DefChallenge? _buildChallenge(GermanWord word, List<GermanWord> pool) {
-    final defs = word.apiEnrichment?.definitions ?? [];
-    if (defs.isEmpty) return null;
-
-    // Pick a definition that's reasonably short for display and — crucially —
-    // does not contain the headword (many dictionary glosses start with it,
-    // which would give the answer away). Redact any residual occurrence.
-    final wl = word.word.toLowerCase();
-    String def = defs.firstWhere(
-      (d) => d.length <= 120 && !d.toLowerCase().contains(wl),
-      orElse: () => defs.firstWhere(
-        (d) => d.length <= 120,
-        orElse: () => defs.first,
-      ),
-    );
-    def = def.replaceAll(
-      RegExp(RegExp.escape(word.word), caseSensitive: false),
-      '___',
-    );
-
-    final correctOption = _displayOption(word);
-
-    final distractors = _pickDistractors(word, correctOption, pool);
-    if (distractors.length < _optionCount - 1) return null;
-
-    final options = [correctOption, ...distractors.take(_optionCount - 1)];
-    options.shuffle(_rng);
-    final correctIndex = options.indexOf(correctOption);
-    if (correctIndex < 0) return null;
-
-    return _DefChallenge(
-      word: word,
-      definition: def,
-      options: options,
-      correctIndex: correctIndex,
-    );
-  }
-
-  String _displayOption(GermanWord w) {
-    if (_isDE && w.wordType == GermanWordType.substantiv &&
-        w.article != null && w.article!.isNotEmpty) {
-      return '${w.article} ${w.word}';
-    }
-    return w.word;
-  }
-
-  List<String> _pickDistractors(
-      GermanWord target, String correctOption, List<GermanWord> pool) {
-    final distractors = <String>{};
-
-    // Same CEFR level and word type first (most plausible distractors)
-    final sameLevel = pool
-        .where((w) =>
-            w.id != target.id &&
-            w.cefrLevel == target.cefrLevel &&
-            w.wordType == target.wordType)
-        .toList()
-      ..shuffle(_rng);
-    for (final w in sameLevel) {
-      final opt = _displayOption(w);
-      if (opt != correctOption) distractors.add(opt);
-      if (distractors.length >= _optionCount - 1) break;
-    }
-
-    // Same word type, same grade
-    if (distractors.length < _optionCount - 1) {
-      final same = pool
-          .where((w) =>
-              w.id != target.id &&
-              w.wordType == target.wordType &&
-              w.gradeLevel == target.gradeLevel)
-          .toList()
-        ..shuffle(_rng);
-      for (final w in same) {
-        final opt = _displayOption(w);
-        if (opt != correctOption && !distractors.contains(opt)) {
-          distractors.add(opt);
-        }
-        if (distractors.length >= _optionCount - 1) break;
-      }
-    }
-
-    // Any word with a definition as final fallback
-    if (distractors.length < _optionCount - 1) {
-      final any = pool
-          .where((w) => w.id != target.id)
-          .toList()
-        ..shuffle(_rng);
-      for (final w in any) {
-        final opt = _displayOption(w);
-        if (opt != correctOption && !distractors.contains(opt)) {
-          distractors.add(opt);
-        }
-        if (distractors.length >= _optionCount - 1) break;
-      }
-    }
-
-    return distractors.toList();
   }
 
   void _handleTap(int optionIndex) {
@@ -498,7 +387,7 @@ class _DefinitionQuizGameState extends State<DefinitionQuizGame>
     );
   }
 
-  Widget _buildDefinitionCard(_DefChallenge challenge) {
+  Widget _buildDefinitionCard(DefinitionChallenge challenge) {
     return AnimatedBuilder(
       animation: _shakeController,
       builder: (context, child) {
@@ -542,7 +431,7 @@ class _DefinitionQuizGameState extends State<DefinitionQuizGame>
     );
   }
 
-  Widget _buildOptions(_DefChallenge challenge) {
+  Widget _buildOptions(DefinitionChallenge challenge) {
     return Column(
       children: List.generate(challenge.options.length, (i) {
         return Padding(
@@ -553,7 +442,7 @@ class _DefinitionQuizGameState extends State<DefinitionQuizGame>
     );
   }
 
-  Widget _buildOption(_DefChallenge challenge, int index) {
+  Widget _buildOption(DefinitionChallenge challenge, int index) {
     final option = challenge.options[index];
     final isSelected = _selectedOption == index;
     final isCorrect = index == challenge.correctIndex;
@@ -634,7 +523,7 @@ class _DefinitionQuizGameState extends State<DefinitionQuizGame>
     );
   }
 
-  Widget _buildCorrectHint(_DefChallenge challenge) {
+  Widget _buildCorrectHint(DefinitionChallenge challenge) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(

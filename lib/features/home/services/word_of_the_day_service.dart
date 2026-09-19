@@ -46,11 +46,9 @@ GermanWord? pickWordOfTheDay(List<GermanWord> words, DateTime date,
               ? w.gradeLevel <= 3
               : w.gradeLevel == targetBand) &&
           isPresentableVocabularyEntry(w) &&
-          // Headwords only. The catalogue carries inflected forms as their own
-          // entries, and a noun plural still gets its singular article from
-          // displayName — "an elements", "a laughs". A word presented as the
-          // word of the day should be the one a learner would look up.
-          w.word.toLowerCase() == w.lemma.toLowerCase() &&
+          // A word presented as the word of the day should be the one a
+          // learner would look up. See GermanWord.isHeadword.
+          w.isHeadword &&
           !w.has(WordFeature.knownMisspelling) &&
           !knownMisspellings.contains(_normalizeHeadword(w.word)) &&
           _hasDefinition(w))

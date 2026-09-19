@@ -213,7 +213,7 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
     for (int i = 0; i < playable.length && i < _totalPairs; i++) {
       final word = playable[i];
       final shuffledFonts = List<String>.from(_availableFonts)..shuffle(random);
-      final def = definitionMode ? word.apiEnrichment?.definitions.firstOrNull : null;
+      final def = definitionMode ? word.displayDefinitions.firstOrNull : null;
       if (def != null && def.isNotEmpty) {
         final pairId = 'pair_$i';
         final truncDef = def.length > 55 ? '${def.substring(0, 52)}…' : def;
