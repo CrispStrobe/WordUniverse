@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
-import '../../../core/models/vocabulary_models.dart';
 import '../../../core/models/word_features.dart';
+import '../services/sentence_completion_service.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart';
@@ -27,23 +27,7 @@ class SentenceCompletionGame extends StatefulWidget {
       _SentenceCompletionGameState();
 }
 
-class _SentenceChallenge {
-  final GermanWord word;
-  final String before;   // sentence text before the blank
-  final String after;    // sentence text after the blank
-  final String correctOption;
-  final List<String> options;
-  final int correctIndex;
 
-  const _SentenceChallenge({
-    required this.word,
-    required this.before,
-    required this.after,
-    required this.correctOption,
-    required this.options,
-    required this.correctIndex,
-  });
-}
 
 enum _FeedbackState { none, correct, incorrect }
 
@@ -60,7 +44,7 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
 
   bool _isLoading = true;
   bool _onboardingScheduled = false;
-  List<_SentenceChallenge> _challenges = [];
+  List<SentenceChallenge> _challenges = [];
   int _currentIndex = 0;
   int _score = 0;
   int _correct = 0;
@@ -157,7 +141,7 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
           !w.word.contains(' '),
       random: _rng,
     ))
-        .where((w) => _hasGradeExamples(w, gradeIndex))
+        .where((w) => hasGradeExamples(w, gradeIndex))
         .toList();
     if (!mounted) return;
 
@@ -166,12 +150,13 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
       return;
     }
 
-    final challenges = <_SentenceChallenge>[];
-    for (final word in allWords) {
-      if (challenges.length >= _totalRounds) break;
-      final c = _buildChallenge(word, gradeIndex, allWords);
-      if (c != null) challenges.add(c);
-    }
+    final challenges = buildSentenceChallenges(
+      pool: allWords,
+      gradeIndex: gradeIndex,
+      maxChallenges: _totalRounds,
+      optionCount: _optionCount,
+      rng: _rng,
+    );
 
     setState(() {
       _challenges = challenges;
@@ -184,139 +169,17 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
     });
   }
 
-  bool _hasGradeExamples(GermanWord w, int gradeIndex) {
-    final ge = w.apiEnrichment?.gradeExamples;
-    if (ge == null) return false;
-    final key = '$gradeIndex';
-    final sents = ge[key] ?? ge.values.firstOrNull;
-    return sents != null && sents.isNotEmpty;
-  }
 
-  _SentenceChallenge? _buildChallenge(
-      GermanWord word, int gradeIndex, List<GermanWord> pool) {
-    final ge = word.apiEnrichment?.gradeExamples;
-    if (ge == null) return null;
 
-    final key = '$gradeIndex';
-    final sents = (ge[key] ?? ge.values.firstOrNull) ?? [];
-    if (sents.isEmpty) return null;
 
-    // Try each sentence until we find one containing the word
-    final shuffledSents = List<String>.from(sents)..shuffle(_rng);
-    for (final sent in shuffledSents) {
-      final result = _blankWord(sent, word.word);
-      if (result == null) continue;
-      final (before, after) = result;
-
-      final correctOption = _displayOption(word);
-      final distractors = _pickDistractors(word, correctOption, pool, gradeIndex);
-      if (distractors.isEmpty) continue;
-
-      final options = [correctOption, ...distractors.take(_optionCount - 1)];
-      options.shuffle(_rng);
-      final correctIndex = options.indexOf(correctOption);
-      if (correctIndex < 0) continue;
-
-      return _SentenceChallenge(
-        word: word,
-        before: before,
-        after: after,
-        correctOption: correctOption,
-        options: options,
-        correctIndex: correctIndex,
-      );
-    }
-    return null;
-  }
 
   // Returns (before, after) splitting the sentence at the found word token,
   // or null if the word cannot be found in the sentence.
-  (String, String)? _blankWord(String sentence, String word) {
-    // Try exact whole-word match first (case insensitive)
-    final exact = RegExp(
-        r'\b' + RegExp.escape(word) + r'\b',
-        caseSensitive: false);
-    var m = exact.firstMatch(sentence);
 
-    // Fall back to starts-with match for inflected forms, but only accept a
-    // short suffix (German inflection endings are ≤3 chars: -e/-en/-es/-er/-em
-    // /-s/-st…). Prevents blanking an unrelated longer word, e.g. target
-    // "Hund" wrongly matching "Hunderte".
-    if (m == null) {
-      final prefix = RegExp(
-          r'\b' + RegExp.escape(word) + r'\w*',
-          caseSensitive: false);
-      final pm = prefix.firstMatch(sentence);
-      if (pm != null && (pm.end - pm.start) <= word.length + 3) {
-        m = pm;
-      }
-    }
 
-    if (m == null) return null;
-    return (sentence.substring(0, m.start), sentence.substring(m.end));
-  }
 
-  String _displayOption(GermanWord w) {
-    // Do NOT prepend the article here: the cloze sentence already supplies the
-    // article in its correct grammatical case ("Ich sehe den ___"), so adding
-    // the nominative "der/die/das" would both clash with that case and double
-    // the article. Show the bare noun.
-    return w.word;
-  }
 
-  List<String> _pickDistractors(GermanWord target, String correctOption,
-      List<GermanWord> pool, int gradeIndex) {
-    final distractors = <String>{};
 
-    // Same word type, same grade first
-    final sameTypeSameGrade = pool
-        .where((w) =>
-            w.id != target.id &&
-            w.wordType == target.wordType &&
-            w.gradeLevel == gradeIndex)
-        .toList()
-      ..shuffle(_rng);
-
-    for (final w in sameTypeSameGrade) {
-      final opt = _displayOption(w);
-      if (opt != correctOption) distractors.add(opt);
-      if (distractors.length >= _optionCount - 1) break;
-    }
-
-    // Same word type, any grade
-    if (distractors.length < _optionCount - 1) {
-      final sameType = pool
-          .where((w) =>
-              w.id != target.id &&
-              w.wordType == target.wordType)
-          .toList()
-        ..shuffle(_rng);
-      for (final w in sameType) {
-        final opt = _displayOption(w);
-        if (opt != correctOption && !distractors.contains(opt)) {
-          distractors.add(opt);
-        }
-        if (distractors.length >= _optionCount - 1) break;
-      }
-    }
-
-    // Any word, same grade as last resort
-    if (distractors.length < _optionCount - 1) {
-      final sameGrade = pool
-          .where((w) => w.id != target.id && w.gradeLevel == gradeIndex)
-          .toList()
-        ..shuffle(_rng);
-      for (final w in sameGrade) {
-        final opt = _displayOption(w);
-        if (opt != correctOption && !distractors.contains(opt)) {
-          distractors.add(opt);
-        }
-        if (distractors.length >= _optionCount - 1) break;
-      }
-    }
-
-    return distractors.toList();
-  }
 
   void _handleTap(int optionIndex) {
     if (_feedbackState != _FeedbackState.none) return;
@@ -535,7 +398,7 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
     );
   }
 
-  Widget _buildSentenceCard(_SentenceChallenge challenge) {
+  Widget _buildSentenceCard(SentenceChallenge challenge) {
     const blankText = '___________';
     final blankColor = _feedbackState == _FeedbackState.correct
         ? SpaceTheme.alienGreen
@@ -603,7 +466,7 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
     );
   }
 
-  Widget _buildOptions(_SentenceChallenge challenge) {
+  Widget _buildOptions(SentenceChallenge challenge) {
     return Column(
       children: List.generate(challenge.options.length, (i) {
         return Padding(
@@ -614,7 +477,7 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
     );
   }
 
-  Widget _buildOption(_SentenceChallenge challenge, int index) {
+  Widget _buildOption(SentenceChallenge challenge, int index) {
     final option = challenge.options[index];
     final isSelected = _selectedOption == index;
     final isCorrect = index == challenge.correctIndex;
@@ -690,7 +553,7 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
     );
   }
 
-  Widget _buildCorrectWordHint(_SentenceChallenge challenge) {
+  Widget _buildCorrectWordHint(SentenceChallenge challenge) {
     final hint = _s.correctAnswerReveal(challenge.correctOption);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

@@ -14,8 +14,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
-import '../../../core/models/vocabulary_models.dart';
 import '../../../core/models/word_features.dart';
+import '../services/cloze_service.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart';
@@ -37,30 +37,9 @@ class ClozeFlashGame extends StatefulWidget {
 
 // ─── data ────────────────────────────────────────────────────────────────────
 
-class _ClozeResult {
-  final String before;
-  final String after;
-  final String matchedForm; // exact form found in the sentence
-  const _ClozeResult(
-      {required this.before, required this.after, required this.matchedForm});
-}
 
-class _ClozeChallenge {
-  final GermanWord word;
-  final String before;
-  final String after;
-  final String matchedForm;
-  final List<String> options;
-  final int correctIndex;
-  const _ClozeChallenge({
-    required this.word,
-    required this.before,
-    required this.after,
-    required this.matchedForm,
-    required this.options,
-    required this.correctIndex,
-  });
-}
+
+
 
 enum _Feedback { none, correct, incorrect }
 
@@ -81,7 +60,7 @@ class _ClozeFlashGameState extends State<ClozeFlashGame>
 
   bool _isLoading = true;
   bool _onboardingScheduled = false;
-  List<_ClozeChallenge> _challenges = [];
+  List<ClozeChallenge> _challenges = [];
   int _index = 0;
   int _correct = 0;
   int _total = 0;
@@ -101,34 +80,11 @@ class _ClozeFlashGameState extends State<ClozeFlashGame>
 
   // ─── cloze extraction ──────────────────────────────────────────────────────
 
-  static bool _isLetter(String ch) =>
-      RegExp(r'[a-zA-ZäöüÄÖÜß]').hasMatch(ch);
 
   // Finds the first word-boundary occurrence of [target] inside [sentence] and
   // splits the sentence around it. Returns null if no match or if the match
   // would be inside a longer word.
-  static _ClozeResult? _tryBlank(String sentence, String target) {
-    if (target.isEmpty) return null;
-    final ls = sentence.toLowerCase();
-    final lt = target.toLowerCase();
-    int pos = 0;
-    while (pos < ls.length) {
-      final idx = ls.indexOf(lt, pos);
-      if (idx < 0) return null;
-      final end = idx + lt.length;
-      final prevOk = idx == 0 || !_isLetter(ls[idx - 1]);
-      final nextOk = end >= ls.length || !_isLetter(ls[end]);
-      if (prevOk && nextOk) {
-        return _ClozeResult(
-          before: sentence.substring(0, idx),
-          after: sentence.substring(end),
-          matchedForm: sentence.substring(idx, end),
-        );
-      }
-      pos = idx + 1;
-    }
-    return null;
-  }
+
 
   // ─── init ──────────────────────────────────────────────────────────────────
 
@@ -210,23 +166,16 @@ class _ClozeFlashGameState extends State<ClozeFlashGame>
     // Already grade-first and shuffled by the pool query.
     final pool = allWords;
 
-    // Distractor pools: bucketed by word type (so distractors match the
-    // target's part of speech) plus a global fallback, all shuffled.
-    final byType = <GermanWordType, List<String>>{};
-    for (final w in allWords) {
-      byType.putIfAbsent(w.wordType, () => []).add(w.word);
-    }
-    for (final list in byType.values) {
-      list.shuffle(_rng);
-    }
-    final allWordStrings = allWords.map((w) => w.word).toList()..shuffle(_rng);
-
-    final challenges = <_ClozeChallenge>[];
-    for (final word in pool) {
-      if (challenges.length >= _maxRounds) break;
-      final c = _buildChallenge(word, byType, allWordStrings);
-      if (c != null) challenges.add(c);
-    }
+    final challenges = buildClozeChallenges(
+      pool: pool,
+      texts: (w) => [
+        for (final example in w.apiEnrichment?.examples ?? const [])
+          if (example.text case final text?) text,
+      ],
+      maxChallenges: _maxRounds,
+      optionCount: _optionCount,
+      rng: _rng,
+    );
 
     setState(() {
       _challenges = challenges;
@@ -243,70 +192,7 @@ class _ClozeFlashGameState extends State<ClozeFlashGame>
     _startTimer();
   }
 
-  _ClozeChallenge? _buildChallenge(
-    GermanWord word,
-    Map<GermanWordType, List<String>> byType,
-    List<String> allWordStrings,
-  ) {
-    final examples = word.apiEnrichment?.examples ?? [];
 
-    // Collect all usable (text, cloze) candidates.
-    final candidates = <(String, _ClozeResult)>[];
-    for (final ex in examples) {
-      final text = ex.text;
-      if (text == null || text.length < 20 || text.length > 180) continue;
-      final cloze = _tryBlank(text, word.word);
-      if (cloze == null) continue;
-      candidates.add((text, cloze));
-    }
-    if (candidates.isEmpty) return null;
-
-    // C4: the blank is filled by the form that actually appears in the
-    // sentence, which can be inflected, while the options would otherwise be
-    // bare lemmas. Prefer sentences where the matched form equals the lemma so
-    // the correct option reads naturally; otherwise surface the matched form
-    // (not the lemma) as the correct option so it actually fits the gap.
-    candidates.sort((a, b) {
-      final aExact =
-          a.$2.matchedForm.toLowerCase() == word.word.toLowerCase() ? 0 : 1;
-      final bExact =
-          b.$2.matchedForm.toLowerCase() == word.word.toLowerCase() ? 0 : 1;
-      return aExact.compareTo(bExact);
-    });
-
-    final (_, cloze) = candidates.first;
-    // Use the form that actually appears in the sentence as the correct answer.
-    final correctForm = cloze.matchedForm;
-
-    // C2: distractors restricted to the same word type as the target, deduped
-    // against the answer, the lemma and each other (case-insensitive).
-    final sameType = byType[word.wordType] ?? [];
-    final distractors = <String>[];
-    for (final d in [...sameType, ...allWordStrings]) {
-      if (distractors.length >= _optionCount - 1) break;
-      if (d.toLowerCase() != correctForm.toLowerCase() &&
-          d.toLowerCase() != word.word.toLowerCase() &&
-          !distractors.any((x) => x.toLowerCase() == d.toLowerCase())) {
-        distractors.add(d);
-      }
-    }
-    if (distractors.isEmpty) return null;
-
-    final options = [correctForm, ...distractors.take(_optionCount - 1)];
-    options.shuffle(_rng);
-    final correctIndex =
-        options.indexWhere((o) => o.toLowerCase() == correctForm.toLowerCase());
-    if (correctIndex < 0) return null;
-
-    return _ClozeChallenge(
-      word: word,
-      before: cloze.before,
-      after: cloze.after,
-      matchedForm: cloze.matchedForm,
-      options: options,
-      correctIndex: correctIndex,
-    );
-  }
 
   // ─── timer ─────────────────────────────────────────────────────────────────
 
@@ -596,7 +482,7 @@ class _ClozeFlashGameState extends State<ClozeFlashGame>
     );
   }
 
-  Widget _buildSentenceCard(_ClozeChallenge challenge) {
+  Widget _buildSentenceCard(ClozeChallenge challenge) {
     final borderColor = _feedback == _Feedback.correct
         ? SpaceTheme.alienGreen
         : _feedback == _Feedback.incorrect
@@ -658,7 +544,7 @@ class _ClozeFlashGameState extends State<ClozeFlashGame>
     );
   }
 
-  Widget _buildSentenceRichText(_ClozeChallenge challenge) {
+  Widget _buildSentenceRichText(ClozeChallenge challenge) {
     const blankLabel = '  _____  ';
     final blankColor = _feedback == _Feedback.correct
         ? SpaceTheme.alienGreen
@@ -702,7 +588,7 @@ class _ClozeFlashGameState extends State<ClozeFlashGame>
     );
   }
 
-  Widget _buildOptions(_ClozeChallenge challenge) {
+  Widget _buildOptions(ClozeChallenge challenge) {
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
@@ -716,7 +602,7 @@ class _ClozeFlashGameState extends State<ClozeFlashGame>
     );
   }
 
-  Widget _buildOption(_ClozeChallenge challenge, int index) {
+  Widget _buildOption(ClozeChallenge challenge, int index) {
     final isCorrect = index == challenge.correctIndex;
     final isSelected = _selectedOption == index;
     final hasAnswered = _feedback != _Feedback.none;

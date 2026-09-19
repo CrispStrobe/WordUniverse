@@ -41,8 +41,10 @@ import 'package:WortUniversum/core/services/vocabulary_service.dart';
 import 'package:WortUniversum/features/games/providers/game_provider.dart';
 import 'package:WortUniversum/features/games/services/definition_quiz_service.dart';
 import 'package:WortUniversum/features/games/services/antonym_flash_service.dart';
+import 'package:WortUniversum/features/games/services/cloze_service.dart';
 import 'package:WortUniversum/features/games/services/false_friend_service.dart';
 import 'package:WortUniversum/features/games/services/hypernym_flash_service.dart';
+import 'package:WortUniversum/features/games/services/sentence_completion_service.dart';
 import 'package:WortUniversum/features/games/services/syllable_count_service.dart';
 import 'package:WortUniversum/features/games/services/word_class_flash_service.dart';
 import 'package:WortUniversum/features/games/services/synonym_flash_service.dart';
@@ -93,6 +95,14 @@ class Item {
   }
 }
 
+Item _clozeItem(String game, ClozeChallenge challenge) => Item(
+      game: game,
+      prompt: '${challenge.before}___${challenge.after}',
+      options: challenge.options,
+      answer: challenge.options[challenge.correctIndex],
+      notes: {'word': challenge.word.word},
+    );
+
 /// Games whose challenge construction is callable without a widget.
 typedef Generator = Future<List<Item>> Function(_Context context);
 
@@ -101,6 +111,10 @@ typedef Generator = Future<List<Item>> Function(_Context context);
 /// review content no learner is offered.
 const Map<String, List<String>> generatorLanguages = {
   'antonym_flash': ['en', 'de'],
+  'cloze_flash': ['en', 'de'],
+  'expression_flash': ['de'],
+  'proverb_cloze': ['de'],
+  'sentence_completion': ['en', 'de'],
   'word_class_flash': ['en', 'de'],
   'hypernym_flash': ['en', 'de'],
   'syllable_count': ['en', 'de'],
@@ -145,6 +159,62 @@ class _Context {
 }
 
 final Map<String, Generator> generators = {
+  'cloze_flash': (c) async => buildClozeChallenges(
+        pool: await c.pool(WordFeature.examples,
+            where: (w) => !w.isProperNoun && !w.word.contains(' ')),
+        texts: (w) => [
+          for (final example in w.apiEnrichment?.examples ?? const [])
+            if (example.text case final text?) text,
+        ],
+        maxChallenges: c.count,
+        rng: c.rng,
+      ).map((ch) => _clozeItem('cloze_flash', ch)).toList(),
+  'expression_flash': (c) async => buildClozeChallenges(
+        pool: await c.pool(WordFeature.expressions,
+            where: (w) => !w.isProperNoun && !w.word.contains(' ')),
+        texts: (w) => [
+          for (final entry in w.apiEnrichment?.expressions ?? const [])
+            if (entry.expression case final text?) text,
+        ],
+        maxChallenges: c.count,
+        minLength: 8,
+        maxLength: 80,
+        rng: c.rng,
+      ).map((ch) => _clozeItem('expression_flash', ch)).toList(),
+  'proverb_cloze': (c) async => buildClozeChallenges(
+        pool: await c.pool(WordFeature.proverbs,
+            where: (w) => !w.isProperNoun && !w.word.contains(' ')),
+        texts: (w) => [
+          for (final entry in w.apiEnrichment?.proverbs ?? const [])
+            if (entry.proverb case final text?) text,
+        ],
+        maxChallenges: c.count,
+        minLength: 8,
+        maxLength: 120,
+        minVisibleWords: 2,
+        rng: c.rng,
+      ).map((ch) => _clozeItem('proverb_cloze', ch)).toList(),
+  'sentence_completion': (c) async => buildSentenceChallenges(
+        pool: (await c.pool(WordFeature.gradeExamples,
+                limitFactor: 10,
+                where: (w) =>
+                    !w.isProperNoun &&
+                    w.isHeadword &&
+                    !w.word.contains('_') &&
+                    !w.word.contains(' ')))
+            .where((w) => hasGradeExamples(w, c.grade))
+            .toList(),
+        gradeIndex: c.grade,
+        maxChallenges: c.count,
+        rng: c.rng,
+      )
+          .map((ch) => Item(
+                game: 'sentence_completion',
+                prompt: '${ch.before}___${ch.after}',
+                options: ch.options,
+                answer: ch.options[ch.correctIndex],
+              ))
+          .toList(),
   'word_class_flash': (c) async {
     const askable = {
       GermanWordType.substantiv,
@@ -397,8 +467,7 @@ final Map<String, Generator> generators = {
 /// cannot reach them yet. Printed after a run so the gap stays visible.
 const notYetReachable = [
   'hypernym_flash',
-  'cloze_flash', 'proverb_cloze', 'expression_flash',
-  'sentence_completion', 'translation_flash', 'reverse_translation_flash',
+  'cloze_flash', 'proverb_cloze', 'translation_flash', 'reverse_translation_flash',
   'spelling_spotter', 'sri_review', 'conjugation_drill', 'word_class_flash',
   'word_sort', 'word_type_whirl', 'grossschreib', 'grossstadt', 'verbtrenner',
   'wortbaumeister', 'word_find', 'word_snake', 'word_memory', 'word_builder',
