@@ -31,6 +31,7 @@ import 'package:archive/archive.dart';
 
 import 'package:WortUniversum/core/models/language_pack.dart';
 import 'package:WortUniversum/core/models/vocabulary_models.dart';
+import 'package:WortUniversum/core/models/skill_category.dart';
 import 'package:WortUniversum/core/models/word_features.dart';
 import 'package:WortUniversum/core/services/cognitive_profile_service.dart';
 import 'package:WortUniversum/core/services/dictionary_database_service.dart';
@@ -43,6 +44,7 @@ import 'package:WortUniversum/features/games/services/antonym_flash_service.dart
 import 'package:WortUniversum/features/games/services/false_friend_service.dart';
 import 'package:WortUniversum/features/games/services/hypernym_flash_service.dart';
 import 'package:WortUniversum/features/games/services/syllable_count_service.dart';
+import 'package:WortUniversum/features/games/services/word_class_flash_service.dart';
 import 'package:WortUniversum/features/games/services/synonym_flash_service.dart';
 import 'package:WortUniversum/features/games/services/translation_flash_service.dart';
 import 'package:WortUniversum/features/games/services/homophone_drill_service.dart';
@@ -99,6 +101,7 @@ typedef Generator = Future<List<Item>> Function(_Context context);
 /// review content no learner is offered.
 const Map<String, List<String>> generatorLanguages = {
   'antonym_flash': ['en', 'de'],
+  'word_class_flash': ['en', 'de'],
   'hypernym_flash': ['en', 'de'],
   'syllable_count': ['en', 'de'],
   'translation_flash': ['de'],
@@ -142,6 +145,28 @@ class _Context {
 }
 
 final Map<String, Generator> generators = {
+  'word_class_flash': (c) async {
+    const askable = {
+      GermanWordType.substantiv,
+      GermanWordType.verb,
+      GermanWordType.adjektiv,
+    };
+    final pool = selectWordClassCandidates(
+      catalogue: c.vocabulary.getAllWords(c.settings),
+      askableTypes: askable,
+      gradeLevel: c.grade,
+      rng: c.rng,
+    );
+    final words = await c.vocabulary.hydrate(pool.take(c.count));
+    return buildWordClassChallenges(words: words, maxChallenges: c.count)
+        .map((ch) => Item(
+              game: 'word_class_flash',
+              prompt: 'What word class is "${ch.word.displayName}"?',
+              options: askable.map((t) => t.name).toList(),
+              answer: ch.correctType.name,
+            ))
+        .toList();
+  },
   'hypernym_flash': (c) async => buildHypernymChallenges(
         pool: await c.pool(WordFeature.hypernyms,
             where: (w) =>
