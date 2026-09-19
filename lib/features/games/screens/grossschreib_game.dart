@@ -6,8 +6,8 @@ import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
-import '../../../core/models/vocabulary_models.dart';
 import '../../../core/models/word_features.dart';
+import '../services/grossschreib_service.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart';
@@ -25,40 +25,14 @@ class GrossschreibungsGalaxieGame extends StatefulWidget {
   const GrossschreibungsGalaxieGame({super.key, required this.gradeLevel});
 
   @override
-  State<GrossschreibungsGalaxieGame> createState() => _GrossschreibungsGalaxieGameState();
-}
-
-enum WordCase { allCaps, capitalized, lowercase }
-enum CapitalizationRule { noun, verbOrAdjective, sentenceStart }
-
-class SentenceChallenge {
-  final String beforeWord; // Text before the target word
-  final String targetWord; // The word to test (original correct form)
-  final String afterWord; // Text after the target word
-  final WordCase correctCase; // What the player should select
-  final CapitalizationRule rule;
-  final String explanation;
-  final String wordId;
-  final bool isAtSentenceStart;
-
-  SentenceChallenge({
-    required this.beforeWord,
-    required this.targetWord,
-    required this.afterWord,
-    required this.correctCase,
-    required this.rule,
-    required this.explanation,
-    required this.wordId,
-    required this.isAtSentenceStart,
-  });
-
-  String get fullSentence => '$beforeWord$targetWord$afterWord';
+  State<GrossschreibungsGalaxieGame> createState() =>
+      _GrossschreibungsGalaxieGameState();
 }
 
 enum FeedbackState { none, correct, incorrect }
 
-class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGame>
-    with TickerProviderStateMixin {
+class _GrossschreibungsGalaxieGameState
+    extends State<GrossschreibungsGalaxieGame> with TickerProviderStateMixin {
   // Services
   late VocabularyService _vocabularyService;
   late SriService _sriService;
@@ -90,7 +64,7 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
   // Effects
   late AnimationController _successController;
   late AnimationController _errorController;
-  
+
   // Title fade
   late AnimationController _titleFadeController;
   late Animation<double> _titleFadeAnimation;
@@ -191,7 +165,7 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
     _log('========================================');
     _log('Starting challenge generation');
     _log('========================================');
-    
+
     _challengeQueue.clear();
     final challenges = <SentenceChallenge>[];
 
@@ -213,10 +187,13 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
     // "Nomen werden großgeschrieben" rule this game teaches — presenting them
     // under that rule teaches the wrong reason.
     final nouns = allWords
-        .where((w) => w.wordType == GermanWordType.substantiv && !w.isProperNoun)
+        .where(
+            (w) => w.wordType == GermanWordType.substantiv && !w.isProperNoun)
         .toList();
-    final verbs = allWords.where((w) => w.wordType == GermanWordType.verb).toList();
-    final adjectives = allWords.where((w) => w.wordType == GermanWordType.adjektiv).toList();
+    final verbs =
+        allWords.where((w) => w.wordType == GermanWordType.verb).toList();
+    final adjectives =
+        allWords.where((w) => w.wordType == GermanWordType.adjektiv).toList();
 
     if (kDebugMode) {
       _log('Available nouns with examples: ${nouns.length}');
@@ -237,23 +214,24 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
     for (final noun in nouns) {
       if (nounSuccesses >= 10) break;
       nounAttempts++;
-      
-      final challenge = _createChallengeFromWord(
+
+      final challenge = challengeFromWord(
         noun,
         correctCase: WordCase.capitalized,
         rule: CapitalizationRule.noun,
         explanation: 'Nomen werden immer großgeschrieben',
         forceMiddlePosition: true,
-        attemptNumber: nounAttempts,
       );
-      
+
       if (challenge != null) {
         challenges.add(challenge);
         nounSuccesses++;
-        if (kDebugMode) _log('✓ Noun challenge $nounSuccesses created successfully');
+        if (kDebugMode)
+          _log('✓ Noun challenge $nounSuccesses created successfully');
       }
     }
-    if (kDebugMode) _log('Noun challenges: $nounSuccesses/$nounAttempts successful');
+    if (kDebugMode)
+      _log('Noun challenges: $nounSuccesses/$nounAttempts successful');
 
     _log('');
     _log('--- GENERATING VERB CHALLENGES (lowercase in middle) ---');
@@ -263,23 +241,24 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
     for (final verb in verbs) {
       if (verbSuccesses >= 6) break;
       verbAttempts++;
-      
-      final challenge = _createChallengeFromWord(
+
+      final challenge = challengeFromWord(
         verb,
         correctCase: WordCase.lowercase,
         rule: CapitalizationRule.verbOrAdjective,
         explanation: 'Verben werden kleingeschrieben',
         forceMiddlePosition: true,
-        attemptNumber: verbAttempts,
       );
-      
+
       if (challenge != null) {
         challenges.add(challenge);
         verbSuccesses++;
-        if (kDebugMode) _log('✓ Verb challenge $verbSuccesses created successfully');
+        if (kDebugMode)
+          _log('✓ Verb challenge $verbSuccesses created successfully');
       }
     }
-    if (kDebugMode) _log('Verb challenges: $verbSuccesses/$verbAttempts successful');
+    if (kDebugMode)
+      _log('Verb challenges: $verbSuccesses/$verbAttempts successful');
 
     _log('');
     _log('--- GENERATING ADJECTIVE CHALLENGES (lowercase in middle) ---');
@@ -289,23 +268,24 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
     for (final adj in adjectives) {
       if (adjSuccesses >= 6) break;
       adjAttempts++;
-      
-      final challenge = _createChallengeFromWord(
+
+      final challenge = challengeFromWord(
         adj,
         correctCase: WordCase.lowercase,
         rule: CapitalizationRule.verbOrAdjective,
         explanation: 'Adjektive werden kleingeschrieben',
         forceMiddlePosition: true,
-        attemptNumber: adjAttempts,
       );
-      
+
       if (challenge != null) {
         challenges.add(challenge);
         adjSuccesses++;
-        if (kDebugMode) _log('✓ Adjective challenge $adjSuccesses created successfully');
+        if (kDebugMode)
+          _log('✓ Adjective challenge $adjSuccesses created successfully');
       }
     }
-    if (kDebugMode) _log('Adjective challenges: $adjSuccesses/$adjAttempts successful');
+    if (kDebugMode)
+      _log('Adjective challenges: $adjSuccesses/$adjAttempts successful');
 
     _log('');
     _log('--- GENERATING SENTENCE START CHALLENGES (capitalized at start) ---');
@@ -315,27 +295,30 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
     for (final word in [...verbs, ...adjectives]) {
       if (startSuccesses >= 3) break;
       startAttempts++;
-      
-      final challenge = _createChallengeFromWord(
+
+      final challenge = challengeFromWord(
         word,
         correctCase: WordCase.capitalized,
         rule: CapitalizationRule.sentenceStart,
         explanation: 'Am Satzanfang wird großgeschrieben',
         forceSentenceStart: true,
-        attemptNumber: startAttempts,
       );
-      
+
       if (challenge != null) {
         challenges.add(challenge);
         startSuccesses++;
-        if (kDebugMode) _log('✓ Sentence start challenge $startSuccesses created successfully');
+        if (kDebugMode)
+          _log(
+              '✓ Sentence start challenge $startSuccesses created successfully');
       }
     }
-    if (kDebugMode) _log('Sentence start challenges: $startSuccesses/$startAttempts successful');
+    if (kDebugMode)
+      _log(
+          'Sentence start challenges: $startSuccesses/$startAttempts successful');
 
     _log('');
     if (kDebugMode) _log('Total challenges created: ${challenges.length}');
-    
+
     // Shuffle and limit
     challenges.shuffle();
     _challengeQueue.addAll(challenges.take(_totalItems));
@@ -349,127 +332,6 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
   }
 
   /// Create a challenge from a word using ONLY real examples
-  SentenceChallenge? _createChallengeFromWord(
-    GermanWord word, {
-    required WordCase correctCase,
-    required CapitalizationRule rule,
-    required String explanation,
-    bool forceMiddlePosition = false,
-    bool forceSentenceStart = false,
-    required int attemptNumber,
-  }) {
-    if (kDebugMode) {
-      final wordTypeStr = word.wordType.toString().split('.').last;
-      _log('  Attempt #$attemptNumber: "${word.word}" ($wordTypeStr)');
-    }
-
-    if (word.examples.isEmpty) {
-      _log('    ✗ No examples available');
-      return null;
-    }
-
-    if (kDebugMode) _log('    → Found ${word.examples.length} example(s)');
-
-    // Try each example
-    for (int i = 0; i < word.examples.length; i++) {
-      final example = word.examples[i];
-      
-      if (example.text == null || example.text!.isEmpty) {
-        if (kDebugMode) _log('    → Example ${i + 1}: empty text, skipping');
-        continue;
-      }
-
-      final sentence = example.text!;
-      if (kDebugMode) _log('    → Example ${i + 1}: "$sentence"');
-
-      // Check sentence length
-      if (sentence.length > 120) {
-        if (kDebugMode) _log('      ✗ Too long (${sentence.length} chars)');
-        continue;
-      }
-
-      // Find the word in the sentence at a word boundary, and extend the
-      // match through any inflectional ending (so a lemma like
-      // "amerikanisch" picks up "amerikanische" / "amerikanischen" as a
-      // single token, and "Peter" doesn't get sliced into "Pete"+"r").
-      final candidates = <String>{
-        word.word,
-        if (word.lemma.isNotEmpty) word.lemma,
-      }..removeWhere((c) => c.isEmpty);
-
-      int wordIndex = -1;
-      int wordEnd = -1;
-      String foundWord = word.word;
-      for (final candidate in candidates) {
-        final escaped = RegExp.escape(candidate);
-        // \b on the front; on the tail, eat any German letters that
-        // follow without a boundary (the inflection).
-        final pattern = RegExp(
-          r'\b' + escaped + r'[A-Za-zÄÖÜäöüß]*',
-          caseSensitive: false,
-        );
-        final m = pattern.firstMatch(sentence);
-        if (m != null) {
-          wordIndex = m.start;
-          wordEnd = m.end;
-          foundWord = candidate;
-          break;
-        }
-      }
-
-      if (wordIndex == -1) {
-        _log('      ✗ Word not found in sentence');
-        continue;
-      }
-
-      if (kDebugMode) _log('      → Word "$foundWord" found at [$wordIndex,$wordEnd]');
-
-      // Determine if word is at sentence start: the trimmed text before the
-      // target must be empty or end with a sentence terminator (. ! ?),
-      // ignoring trailing quotes and spaces.
-      final beforeTarget = sentence.substring(0, wordIndex);
-      final trimmedBefore = beforeTarget
-          .replaceAll(RegExp('[\\s"“”«»‚‘’\']+\$'), '');
-      final isAtStart = trimmedBefore.isEmpty ||
-          RegExp(r'[.!?]$').hasMatch(trimmedBefore);
-      if (kDebugMode) _log('      → Is at sentence start: $isAtStart');
-
-      // Check position requirements
-      if (forceMiddlePosition && isAtStart) {
-        _log('      ✗ Need middle position but word is at start');
-        continue;
-      }
-
-      if (forceSentenceStart && !isAtStart) {
-        _log('      ✗ Need sentence start but word is in middle');
-        continue;
-      }
-
-      // Extract the full inflected form actually present in the sentence.
-      final actualWordInSentence = sentence.substring(wordIndex, wordEnd);
-
-      // Extract surrounding parts.
-      final before = sentence.substring(0, wordIndex);
-      final after = wordEnd < sentence.length ? sentence.substring(wordEnd) : '';
-
-      final challenge = SentenceChallenge(
-        beforeWord: before,
-        targetWord: actualWordInSentence,
-        afterWord: after,
-        correctCase: correctCase,
-        rule: rule,
-        explanation: explanation,
-        wordId: word.id,
-        isAtSentenceStart: isAtStart,
-      );
-
-      if (kDebugMode) _log('      ✓ CREATED: "$before[$actualWordInSentence]$after"');
-      return challenge;
-    }
-
-    if (kDebugMode) _log('    ✗ No suitable example found after checking all ${word.examples.length} examples');
-    return null;
-  }
 
   void _showNextChallenge() {
     if (_itemsCompleted >= _totalItems || _challengeQueue.isEmpty) {
@@ -495,9 +357,9 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
   /// Player clicks the word to cycle through cases
   void _cycleWordCase() {
     if (_feedbackState != FeedbackState.none) return;
-    
+
     _audioService.playSound('tap');
-    
+
     setState(() {
       switch (_currentWordCase) {
         case WordCase.allCaps:
@@ -515,13 +377,15 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
 
   /// Player submits their choice
   void _submitChoice() {
-    if (_currentChallenge == null || _feedbackState != FeedbackState.none) return;
+    if (_currentChallenge == null || _feedbackState != FeedbackState.none)
+      return;
 
     _fallingController.stop();
     final isCorrect = _currentWordCase == _currentChallenge!.correctCase;
 
     setState(() {
-      _feedbackState = isCorrect ? FeedbackState.correct : FeedbackState.incorrect;
+      _feedbackState =
+          isCorrect ? FeedbackState.correct : FeedbackState.incorrect;
       _feedbackMessage = _currentChallenge!.explanation;
     });
 
@@ -617,7 +481,8 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
     setState(() {
       _level++;
       _fallingSpeed = max(3.0, _fallingSpeed * 0.92);
-      _fallingController.duration = Duration(milliseconds: (_fallingSpeed * 1000).toInt());
+      _fallingController.duration =
+          Duration(milliseconds: (_fallingSpeed * 1000).toInt());
     });
 
     _audioService.playSound('levelup');
@@ -631,7 +496,8 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
       gameType: 'grossschreib_game',
       difficulty: widget.gradeLevel.index + 1,
       score: _score,
-      wasSuccessful: _itemsCompleted > 0 && _correctCount * 2 >= _itemsCompleted,
+      wasSuccessful:
+          _itemsCompleted > 0 && _correctCount * 2 >= _itemsCompleted,
     ));
 
     showDialog(
@@ -748,7 +614,8 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
               decoration: BoxDecoration(
                 color: SpaceTheme.nebulaPurple.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: SpaceTheme.nebulaPurple.withValues(alpha: 0.5)),
+                border: Border.all(
+                    color: SpaceTheme.nebulaPurple.withValues(alpha: 0.5)),
               ),
               child: FittedBox(
                 fit: BoxFit.scaleDown,
@@ -766,12 +633,14 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
           const SizedBox(width: 6),
           Semantics(
             label: s.grossschreibSemScore(_score),
-            child: _buildCompactStat(Icons.stars, '$_score', SpaceTheme.starYellow),
+            child: _buildCompactStat(
+                Icons.stars, '$_score', SpaceTheme.starYellow),
           ),
           const SizedBox(width: 6),
           Semantics(
             label: s.grossschreibSemProgress(_itemsCompleted, _totalItems),
-            child: _buildCompactStat(Icons.check_circle_outline, '$_itemsCompleted/$_totalItems', SpaceTheme.cosmicPink),
+            child: _buildCompactStat(Icons.check_circle_outline,
+                '$_itemsCompleted/$_totalItems', SpaceTheme.cosmicPink),
           ),
           if (_combo > 1) ...[
             const SizedBox(width: 6),
@@ -858,7 +727,8 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
     );
   }
 
-  Widget _buildFallingSentence(String selectedFontFamily, double availableHeight) {
+  Widget _buildFallingSentence(
+      String selectedFontFamily, double availableHeight) {
     if (_currentChallenge == null) return const SizedBox.shrink();
 
     // Calculate position (more space for falling)
@@ -918,7 +788,8 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
                 children: [
                   // Sentence with tappable word
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 16),
                     decoration: BoxDecoration(
                       color: Colors.black.withValues(alpha: 0.6),
                       borderRadius: BorderRadius.circular(16),
@@ -953,7 +824,9 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
                           WidgetSpan(
                             alignment: PlaceholderAlignment.middle,
                             child: Semantics(
-                              label: S.of(context)!.grossschreibSemWord(_getDisplayWord()),
+                              label: S
+                                  .of(context)!
+                                  .grossschreibSemWord(_getDisplayWord()),
                               button: true,
                               child: GestureDetector(
                                 onTap: _cycleWordCase,
@@ -973,7 +846,8 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
                                       color: _getWordBackgroundColor(),
                                       borderRadius: BorderRadius.circular(8),
                                       border: Border.all(
-                                        color: Colors.white.withValues(alpha: 0.5),
+                                        color:
+                                            Colors.white.withValues(alpha: 0.5),
                                         width: 2,
                                       ),
                                     ),
@@ -1057,7 +931,7 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
 
   String _getDisplayWord() {
     final word = _currentChallenge!.targetWord;
-    
+
     switch (_currentWordCase) {
       case WordCase.allCaps:
         return word.toUpperCase();
@@ -1106,7 +980,8 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
               opacity: _feedbackState == FeedbackState.none ? 1.0 : 0.5,
               duration: const Duration(milliseconds: 200),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
@@ -1117,7 +992,8 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
                     end: Alignment.bottomRight,
                   ),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 2),
+                  border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.3), width: 2),
                   boxShadow: [
                     BoxShadow(
                       color: SpaceTheme.alienGreen.withValues(alpha: 0.4),
@@ -1129,7 +1005,8 @@ class _GrossschreibungsGalaxieGameState extends State<GrossschreibungsGalaxieGam
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.check_circle, size: 28, color: Colors.white),
+                    const Icon(Icons.check_circle,
+                        size: 28, color: Colors.white),
                     const SizedBox(width: 10),
                     Text(
                       s.grossschreibCheck,

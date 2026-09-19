@@ -62,6 +62,18 @@ List<DefinitionChallenge> buildDefinitionChallenges({
   return challenges;
 }
 
+/// Whether a gloss only makes sense next to the sense above it — "The fruit of
+/// this tree", "One who does this". Read alone as a quiz prompt it carries no
+/// information, so a self-contained sense is preferred when there is one.
+bool refersToAnotherSense(String definition) => _anaphora.hasMatch(definition);
+
+/// Demonstratives that point at a neighbouring sense, in both pack languages.
+/// Only used to *prefer* another sense, so a false positive costs nothing when
+/// the word has no second sense to fall back to.
+final RegExp _anaphora = RegExp(
+    r'\b(this|these|such|the same|dieser|diese|dieses|diesem|diesen|solche[rsmn]?)\b',
+    caseSensitive: false);
+
 /// One challenge, or null when [word] cannot make a fair one.
 DefinitionChallenge? buildDefinitionChallenge({
   required GermanWord word,
@@ -88,12 +100,21 @@ DefinitionChallenge? buildDefinitionChallenge({
   // about a meaning no learner will meet.
   const sensesConsidered = 2;
   final lower = word.word.toLowerCase();
-  final common = definitions.take(sensesConsidered);
+  final common = definitions.take(sensesConsidered).toList();
   var definition = common.firstWhere(
-    (d) => d.length <= 120 && !d.toLowerCase().contains(lower),
+    (d) =>
+        d.length <= 120 &&
+        !d.toLowerCase().contains(lower) &&
+        !refersToAnotherSense(d),
+    // A gloss carrying the headword beats one that only points at the sense
+    // above it: redaction removes the giveaway and what is left still
+    // describes the word, where "The fruit of this tree" describes nothing.
     orElse: () => common.firstWhere(
-      (d) => d.length <= 120,
-      orElse: () => definitions.first,
+      (d) => d.length <= 120 && !refersToAnotherSense(d),
+      orElse: () => common.firstWhere(
+        (d) => d.length <= 120,
+        orElse: () => definitions.first,
+      ),
     ),
   );
   // Word boundaries: an unanchored replace redacted the headword inside other
@@ -143,9 +164,10 @@ List<String> pickDefinitionDistractors({
 
   void drawFrom(Iterable<GermanWord> candidates) {
     if (distractors.length >= optionCount - 1) return;
-    // Headwords only, as for the answer: an inflected form among the options
-    // reads as a different kind of thing ("interests" beside "conviction").
-    candidates = candidates.where((w) => w.isHeadword);
+    // Headwords only, and never a name: "hannibal" sat among the options for
+    // "detector" because the pack does not flag it as a proper noun — its
+    // gloss ("A male given name from …") does.
+    candidates = candidates.where((w) => w.isHeadword && !namesSomething(w));
     final shuffled = candidates.toList()..shuffle(random);
     for (final word in shuffled) {
       final option = definitionOptionLabel(word, isGerman: isGerman);
