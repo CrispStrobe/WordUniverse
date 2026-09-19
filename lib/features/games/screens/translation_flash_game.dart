@@ -13,8 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
-import '../../../core/models/vocabulary_models.dart';
 import '../../../core/models/word_features.dart';
+import '../services/translation_flash_service.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart';
@@ -28,18 +28,7 @@ import '../../../shared/widgets/onboarding_overlay.dart';
 
 // ─── Internal data model ──────────────────────────────────────────────────────
 
-class _TranslChallenge {
-  final GermanWord deWord;
-  final String enTranslation;
-  final List<String> options;
-  final int correctIndex;
-  const _TranslChallenge({
-    required this.deWord,
-    required this.enTranslation,
-    required this.options,
-    required this.correctIndex,
-  });
-}
+
 
 enum _Feedback { none, correct, incorrect }
 
@@ -68,7 +57,7 @@ class _TranslationFlashGameState extends State<TranslationFlashGame>
 
   bool _isLoading = true;
   bool _onboardingScheduled = false;
-  List<_TranslChallenge> _challenges = [];
+  List<TranslationChallenge> _challenges = [];
   int _index = 0;
   int _correct = 0;
   int _total = 0;
@@ -146,28 +135,13 @@ class _TranslationFlashGameState extends State<TranslationFlashGame>
   // apostrophes, and spaces — no dots (abbreviations), no diacritics, no digits,
   // no all-caps abbreviations. Maximum 2 words (single-word preferred, but a
   // 2-word standard phrase beats a rare single-word regional variant).
-  static bool _isCleanTranslation(String w) {
-    if (w.isEmpty) return false;
-    if (w.contains('.')) return false;
-    if (w == w.toUpperCase() && w.length > 1) return false;
-    if (!RegExp(r"^[a-zA-Z\-' ]+$").hasMatch(w)) return false;
-    return w.split(' ').length <= 2;
-  }
+
 
   /// Returns the first Wiktionary EN translation that passes [_isCleanTranslation].
   /// Positional priority respects Wiktionary's sense ordering; single-word is
   /// not forced over multi-word so standard phrases (e.g. "traffic light") beat
   /// obscure single-word regional synonyms (e.g. "robot").
-  static String? _primaryEnTranslation(GermanWord word) {
-    final translations = word.apiEnrichment?.translations ?? [];
-    for (final t in translations) {
-      if (t.langCode == 'en' && t.word != null) {
-        final w = t.word!.trim();
-        if (_isCleanTranslation(w)) return w;
-      }
-    }
-    return null;
-  }
+
 
   Future<void> _buildChallenges() async {
     // Which words carry translations at all comes from the feature index;
@@ -184,7 +158,7 @@ class _TranslationFlashGameState extends State<TranslationFlashGame>
           !w.word.contains(' '),
       random: _rng,
     ))
-        .where((w) => _primaryEnTranslation(w) != null)
+        .where((w) => primaryEnglishTranslation(w) != null)
         .toList();
     if (!mounted) return;
 
@@ -193,22 +167,12 @@ class _TranslationFlashGameState extends State<TranslationFlashGame>
       return;
     }
 
-    // Already grade-first and shuffled by the pool query.
-    final pool = allWords;
-
-    // Build the EN translation distractor pool from the full word set.
-    final enPool = allWords
-        .map((w) => _primaryEnTranslation(w))
-        .whereType<String>()
-        .toList()
-      ..shuffle(_rng);
-
-    final challenges = <_TranslChallenge>[];
-    for (final word in pool) {
-      if (challenges.length >= _maxRounds) break;
-      final c = _buildChallenge(word, enPool);
-      if (c != null) challenges.add(c);
-    }
+    final challenges = buildTranslationChallenges(
+      pool: allWords,
+      maxChallenges: _maxRounds,
+      optionCount: _optionCount,
+      rng: _rng,
+    );
 
     setState(() {
       _challenges = challenges;
@@ -225,39 +189,7 @@ class _TranslationFlashGameState extends State<TranslationFlashGame>
     _startTimer();
   }
 
-  _TranslChallenge? _buildChallenge(GermanWord word, List<String> enPool) {
-    final correct = _primaryEnTranslation(word);
-    if (correct == null) return null;
 
-    // All EN translations for this word (to exclude from distractors).
-    final allEntryEn = (word.apiEnrichment?.translations ?? [])
-        .where((t) => t.langCode == 'en' && t.word != null)
-        .map((t) => t.word!.toLowerCase())
-        .toSet();
-
-    final distractors = <String>[];
-    for (final t in enPool) {
-      if (distractors.length >= _optionCount - 1) break;
-      if (!allEntryEn.contains(t.toLowerCase()) &&
-          t.toLowerCase() != correct.toLowerCase()) {
-        distractors.add(t);
-      }
-    }
-    if (distractors.length < _optionCount - 1) return null; // need a full set
-
-    final options = [correct, ...distractors.take(_optionCount - 1)];
-    options.shuffle(_rng);
-    final correctIndex = options.indexWhere(
-        (o) => o.toLowerCase() == correct.toLowerCase());
-    if (correctIndex < 0) return null;
-
-    return _TranslChallenge(
-      deWord: word,
-      enTranslation: correct,
-      options: options,
-      correctIndex: correctIndex,
-    );
-  }
 
   // ─── Timer ─────────────────────────────────────────────────────────────────
 
@@ -303,7 +235,7 @@ class _TranslationFlashGameState extends State<TranslationFlashGame>
       _correct++;
       _sriService.recordResponse(
         skillType: LanguageSkillType.vocabulary,
-        baseWord: challenge.deWord.word,
+        baseWord: challenge.word.word,
         wasCorrect: true,
       );
     } else {
@@ -312,7 +244,7 @@ class _TranslationFlashGameState extends State<TranslationFlashGame>
       _shakeCtrl.forward(from: 0).then((_) => _shakeCtrl.reverse());
       _sriService.recordResponse(
         skillType: LanguageSkillType.vocabulary,
-        baseWord: challenge.deWord.word,
+        baseWord: challenge.word.word,
         wasCorrect: false,
       );
     }
@@ -522,7 +454,7 @@ class _TranslationFlashGameState extends State<TranslationFlashGame>
     );
   }
 
-  Widget _buildWordCard(_TranslChallenge challenge) {
+  Widget _buildWordCard(TranslationChallenge challenge) {
     return AnimatedBuilder(
       animation: _shakeCtrl,
       builder: (_, child) => Transform.translate(
@@ -564,7 +496,7 @@ class _TranslationFlashGameState extends State<TranslationFlashGame>
             ),
             const SizedBox(height: 10),
             Text(
-              challenge.deWord.word,
+              challenge.word.word,
               style: SpaceTheme.headlineStyle.copyWith(
                 fontSize: 34,
                 color: Colors.white,
@@ -572,9 +504,9 @@ class _TranslationFlashGameState extends State<TranslationFlashGame>
               ),
               textAlign: TextAlign.center,
             ),
-            if (challenge.deWord.cefrLevel != null) ...[
+            if (challenge.word.cefrLevel != null) ...[
               const SizedBox(height: 8),
-              CefrChip(challenge.deWord.cefrLevel!),
+              CefrChip(challenge.word.cefrLevel!),
             ],
           ],
         ),
@@ -582,7 +514,7 @@ class _TranslationFlashGameState extends State<TranslationFlashGame>
     );
   }
 
-  Widget _buildOptions(_TranslChallenge challenge) {
+  Widget _buildOptions(TranslationChallenge challenge) {
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
@@ -596,7 +528,7 @@ class _TranslationFlashGameState extends State<TranslationFlashGame>
     );
   }
 
-  Widget _buildOption(_TranslChallenge challenge, int index) {
+  Widget _buildOption(TranslationChallenge challenge, int index) {
     final isCorrect = index == challenge.correctIndex;
     final isSelected = _selectedOption == index;
     final hasAnswered = _feedback != _Feedback.none;

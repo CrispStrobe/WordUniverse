@@ -29,8 +29,12 @@ const Map<WordFeature, String> _featureSql = {
   WordFeature.antonyms: "json_array_length(enrichment_json, '\$.antonyms') > 0",
   WordFeature.hyphenation:
       "json_array_length(enrichment_json, '\$.hyphenation') > 0",
+  // wiktionary_translations, which is the key the packs use and the key
+  // GermanWord.translations reads. '$.translations' is empty in both packs, so
+  // this bit answered false for every word and the translation games opened
+  // with nothing.
   WordFeature.translations:
-      "json_array_length(enrichment_json, '\$.translations') > 0",
+      "json_array_length(enrichment_json, '\$.wiktionary_translations') > 0",
   // EN fills commonLearnerErrors (Norvig/Wikipedia); DE fills commonMistakes
   // (LiTKey/DysList). Either means the word can carry a spelling-error round.
   WordFeature.learnerErrors:
@@ -412,7 +416,8 @@ int featuresFromDecodedJson({
   set(WordFeature.synonyms, nonEmptyList(enrichment, 'synonyms'));
   set(WordFeature.antonyms, nonEmptyList(enrichment, 'antonyms'));
   set(WordFeature.hyphenation, nonEmptyList(enrichment, 'hyphenation'));
-  set(WordFeature.translations, nonEmptyList(enrichment, 'translations'));
+  set(WordFeature.translations,
+      nonEmptyList(enrichment, 'wiktionary_translations'));
   set(
       WordFeature.learnerErrors,
       nonEmptyList(metadata, 'commonLearnerErrors') ||

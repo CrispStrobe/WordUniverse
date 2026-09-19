@@ -39,8 +39,10 @@ import 'package:WortUniversum/core/services/sri_service.dart';
 import 'package:WortUniversum/core/services/vocabulary_service.dart';
 import 'package:WortUniversum/features/games/providers/game_provider.dart';
 import 'package:WortUniversum/features/games/services/definition_quiz_service.dart';
+import 'package:WortUniversum/features/games/services/antonym_flash_service.dart';
 import 'package:WortUniversum/features/games/services/false_friend_service.dart';
 import 'package:WortUniversum/features/games/services/synonym_flash_service.dart';
+import 'package:WortUniversum/features/games/services/translation_flash_service.dart';
 import 'package:WortUniversum/features/games/services/homophone_drill_service.dart';
 import 'package:WortUniversum/features/games/services/phrasal_verb_service.dart';
 import 'package:WortUniversum/features/games/services/wortfalle_service.dart';
@@ -94,6 +96,9 @@ typedef Generator = Future<List<Item>> Function(_Context context);
 /// language, so dumping a German-only game against the English pack would
 /// review content no learner is offered.
 const Map<String, List<String>> generatorLanguages = {
+  'antonym_flash': ['en', 'de'],
+  'translation_flash': ['de'],
+  'reverse_translation_flash': ['de'],
   'definition_quiz': ['en', 'de'],
   'synonym_flash': ['en', 'de'],
   'homophone_drill': ['en'],
@@ -133,6 +138,52 @@ class _Context {
 }
 
 final Map<String, Generator> generators = {
+  'translation_flash': (c) async => buildTranslationChallenges(
+        pool: await c.pool(WordFeature.translations,
+            where: (w) => !w.isProperNoun && w.isHeadword),
+        maxChallenges: c.count,
+        rng: c.rng,
+      )
+          .map((ch) => Item(
+                game: 'translation_flash',
+                prompt: 'What is "${ch.word.displayName}" in English?',
+                options: ch.options,
+                answer: ch.options[ch.correctIndex],
+              ))
+          .toList(),
+  'reverse_translation_flash': (c) async => buildTranslationChallenges(
+        pool: await c.pool(WordFeature.translations,
+            where: (w) => !w.isProperNoun && w.isHeadword),
+        maxChallenges: c.count,
+        reversed: true,
+        rng: c.rng,
+      )
+          .map((ch) => Item(
+                game: 'reverse_translation_flash',
+                prompt: 'Which word means "${ch.translation}"?',
+                options: ch.options,
+                answer: ch.options[ch.correctIndex],
+              ))
+          .toList(),
+  'antonym_flash': (c) async => buildAntonymChallenges(
+        pool: await c.pool(WordFeature.antonyms,
+            where: (w) =>
+                !w.isProperNoun &&
+                w.isHeadword &&
+                !w.word.contains('_') &&
+                !w.word.contains(' ')),
+        isGerman: c.isGerman,
+        maxChallenges: c.count,
+        rng: c.rng,
+      )
+          .map((ch) => Item(
+                game: 'antonym_flash',
+                prompt: 'Which word is the opposite of "${ch.word.word}"?',
+                options: ch.options,
+                answer: ch.options[ch.correctIndex],
+                notes: {'grade': ch.word.gradeLevel},
+              ))
+          .toList(),
   'synonym_flash': (c) async => buildSynonymChallenges(
         pool: await c.pool(WordFeature.synonyms,
             where: (w) =>
@@ -281,7 +332,7 @@ final Map<String, Generator> generators = {
 /// Games that still build their challenges inside the widget, so this harness
 /// cannot reach them yet. Printed after a run so the gap stays visible.
 const notYetReachable = [
-  'antonym_flash', 'hypernym_flash',
+  'hypernym_flash',
   'syllable_count', 'cloze_flash', 'proverb_cloze', 'expression_flash',
   'sentence_completion', 'translation_flash', 'reverse_translation_flash',
   'spelling_spotter', 'sri_review', 'conjugation_drill', 'word_class_flash',

@@ -12,8 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
-import '../../../core/models/vocabulary_models.dart';
 import '../../../core/models/word_features.dart';
+import '../services/antonym_flash_service.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart';
@@ -31,21 +31,6 @@ class AntonymFlashGame extends StatefulWidget {
 
   @override
   State<AntonymFlashGame> createState() => _AntonymFlashGameState();
-}
-
-class _AntonymChallenge {
-  final GermanWord word;
-  final String correctAntonym;
-  final List<String> antonyms;
-  final List<String> options;
-  final int correctIndex;
-  const _AntonymChallenge({
-    required this.word,
-    required this.correctAntonym,
-    required this.antonyms,
-    required this.options,
-    required this.correctIndex,
-  });
 }
 
 enum _Feedback { none, correct, incorrect }
@@ -66,7 +51,7 @@ class _AntonymFlashGameState extends State<AntonymFlashGame>
 
   bool _isLoading = true;
   bool _onboardingScheduled = false;
-  List<_AntonymChallenge> _challenges = [];
+  List<AntonymChallenge> _challenges = [];
   int _index = 0;
   int _correct = 0;
   int _total = 0;
@@ -163,12 +148,13 @@ class _AntonymFlashGameState extends State<AntonymFlashGame>
     // Already grade-first and shuffled by the pool query.
     final pool = allWords;
 
-    final challenges = <_AntonymChallenge>[];
-    for (final word in pool) {
-      if (challenges.length >= _maxRounds) break;
-      final c = _buildChallenge(word, allWords);
-      if (c != null) challenges.add(c);
-    }
+    final challenges = buildAntonymChallenges(
+      pool: pool,
+      isGerman: _vocabService.learningLanguage == 'de',
+      maxChallenges: _maxRounds,
+      optionCount: _optionCount,
+      rng: _rng,
+    );
 
     setState(() {
       _challenges = challenges;
@@ -183,57 +169,6 @@ class _AntonymFlashGameState extends State<AntonymFlashGame>
     });
 
     _startTimer();
-  }
-
-  _AntonymChallenge? _buildChallenge(
-      GermanWord word, List<GermanWord> allWords) {
-    final antonyms = word.apiEnrichment!.antonyms
-        .where((a) => a.trim().isNotEmpty)
-        .toList();
-    if (antonyms.isEmpty) return null;
-    // Variety: pick a random antonym among the clean ones as the displayed
-    // correct answer (any listed antonym is still accepted on tap).
-    final correct = antonyms[_rng.nextInt(antonyms.length)];
-
-    final antonymsLower = antonyms.map((a) => a.toLowerCase()).toSet();
-    bool isUsableDistractor(String t) =>
-        t.isNotEmpty &&
-        t != word.word &&
-        t.toLowerCase() != correct.toLowerCase() &&
-        !antonymsLower.contains(t.toLowerCase());
-
-    // Distractor pool: prefer words sharing the prompt's part of speech so the
-    // options are grammatically plausible. Fall back to the broader pool only
-    // when the same-type pool is too small to fill the options.
-    List<String> distractorPool(Iterable<GermanWord> source) =>
-        source.map((w) => w.word).where(isUsableDistractor).toSet().toList();
-
-    var sourceTexts = distractorPool(
-        allWords.where((w) => w.wordType == word.wordType));
-    if (sourceTexts.length < _optionCount - 1) {
-      // Not enough same-type words; widen to the full pool (deduped).
-      final widened = distractorPool(allWords);
-      sourceTexts = {...sourceTexts, ...widened}.toList();
-    }
-    // Reshuffle the distractor source per challenge so the same filler words
-    // don't recur every round.
-    sourceTexts.shuffle(_rng);
-
-    final distractors = sourceTexts.take(_optionCount - 1).toList();
-    if (distractors.isEmpty) return null;
-
-    final options = [correct, ...distractors];
-    options.shuffle(_rng);
-    final correctIndex = options.indexOf(correct);
-    if (correctIndex < 0) return null;
-
-    return _AntonymChallenge(
-      word: word,
-      correctAntonym: correct,
-      antonyms: antonyms,
-      options: options,
-      correctIndex: correctIndex,
-    );
   }
 
   void _startTimer() {
@@ -499,7 +434,7 @@ class _AntonymFlashGameState extends State<AntonymFlashGame>
     );
   }
 
-  Widget _buildWordCard(_AntonymChallenge challenge) {
+  Widget _buildWordCard(AntonymChallenge challenge) {
     return AnimatedBuilder(
       animation: _shakeCtrl,
       builder: (_, child) => Transform.translate(
@@ -562,7 +497,7 @@ class _AntonymFlashGameState extends State<AntonymFlashGame>
     );
   }
 
-  Widget _buildOptions(_AntonymChallenge challenge) {
+  Widget _buildOptions(AntonymChallenge challenge) {
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
@@ -576,7 +511,7 @@ class _AntonymFlashGameState extends State<AntonymFlashGame>
     );
   }
 
-  Widget _buildOption(_AntonymChallenge challenge, int index) {
+  Widget _buildOption(AntonymChallenge challenge, int index) {
     final isCorrect = index == challenge.correctIndex;
     final isSelected = _selectedOption == index;
     final hasAnswered = _feedback != _Feedback.none;
