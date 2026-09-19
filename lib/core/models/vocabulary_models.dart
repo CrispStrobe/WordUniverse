@@ -502,7 +502,14 @@ class GermanWord {
   ///
   /// Games that ask about what a word *means* should draw from headwords only.
   /// Games about spelling or word shape can use any entry.
-  bool get isHeadword => word.toLowerCase() == lemma.toLowerCase();
+  ///
+  /// A decoded word compares its own lemma, which hydration takes from the
+  /// enrichment's `primary_lemma`. A light word has no enrichment to compare,
+  /// and the packs' `lemma` column simply echoes the spelling for 11,503 of
+  /// the English pack's 11,539 rows — so it reads the feature index instead.
+  bool get isHeadword => isHydrated
+      ? word.toLowerCase() == lemma.toLowerCase()
+      : has(WordFeature.headword);
 
   /// The definitions that actually describe this spelling.
   ///

@@ -53,7 +53,46 @@ const Map<WordFeature, String> _featureSql = {
   WordFeature.inflections:
       "json_array_length(enrichment_json, '\$.inflections') > 0",
   // knownMisspelling is not a per-row test — see _misspellingSql.
+  WordFeature.curriculum: _curriculumSql,
+  // A missing primary_lemma means nothing claims the entry is derived.
+  WordFeature.headword:
+      "coalesce(lower(json_extract(enrichment_json, '\$.primary_lemma')), "
+          "lower(word)) = lower(word)",
 };
+
+/// Whether the word is on a word list a curriculum actually prescribes.
+///
+/// The two packs record this differently: German carries a Bundesland token in
+/// `metadata_json.sources` for each state whose Grundwortschatz lists the word,
+/// English carries the list in `metadata_json.tags`. Everything else in those
+/// fields is a frequency corpus (Leipzig, Gutenberg, HermitDave), a name
+/// register, or generation provenance, none of which says a teacher chose the
+/// word.
+///
+/// Two English tags are deliberately excluded. `source:cefr_j` is a graded EFL
+/// list covering 6,879 of 11,539 entries — broad enough that the bit would
+/// stop selecting, and adult-leaning enough to put "psychological" and
+/// "genetic" in front of a nine-year-old. `source:curriculum_added` only
+/// records that an entry was inserted *because* a list named it; that list's
+/// own tag is stored alongside, so nothing is lost by ignoring the marker.
+/// What remains is 1,764 words from Dolch, Fry, Cambridge YLE and the UK DfE
+/// statutory year lists.
+const String _curriculumSql = '''
+  EXISTS (
+    SELECT 1 FROM json_each(words.metadata_json, '\$.sources') AS entry
+     WHERE entry.value IN (
+       'BAYERN', 'BERLIN', 'BRANDENBURG', 'BW1', 'BW3', 'HESSEN',
+       'NIEDERSACHSEN', 'NRW111', 'NRW422', 'RHEINLAND_PFALZ',
+       'SCHLESWIG_HOLSTEIN')
+  )
+  OR EXISTS (
+    SELECT 1 FROM json_each(words.metadata_json, '\$.tags') AS entry
+     WHERE entry.value IN (
+       'source:dolch', 'source:fry', 'source:de_curriculum_en')
+        OR entry.value LIKE 'source:cambridge_yle_%'
+        OR entry.value LIKE 'source:uk_y%'
+  )
+'''; 
 
 /// Rowids whose spelling appears in another entry's recorded learner errors.
 ///
@@ -355,6 +394,7 @@ Future<WordFeatureIndex> loadWordFeatureIndex(
 /// question, and on this path the words are decoded anyway, so the word-of-the
 /// -day picker recomputes that exclusion from the real data itself.
 int featuresFromDecodedJson({
+  required String word,
   required Map<String, dynamic> enrichment,
   required Map<String, dynamic> metadata,
 }) {
@@ -389,5 +429,31 @@ int featuresFromDecodedJson({
       enrichment['enrichment_status'] == 'success');
   set(WordFeature.ipa, nonEmptyList(enrichment, 'pronunciation'));
   set(WordFeature.inflections, nonEmptyList(enrichment, 'inflections'));
+
+  const germanCurricula = {
+    'BAYERN', 'BERLIN', 'BRANDENBURG', 'BW1', 'BW3', 'HESSEN',
+    'NIEDERSACHSEN', 'NRW111', 'NRW422', 'RHEINLAND_PFALZ',
+    'SCHLESWIG_HOLSTEIN',
+  };
+  const englishLists = {
+    'source:dolch', 'source:fry', 'source:de_curriculum_en',
+  };
+  final primaryLemma = enrichment['primary_lemma'];
+  set(
+      WordFeature.headword,
+      primaryLemma is! String ||
+          primaryLemma.toLowerCase() == word.toLowerCase());
+
+  final sources = metadata['sources'];
+  final tags = metadata['tags'];
+  set(
+      WordFeature.curriculum,
+      (sources is List && sources.any(germanCurricula.contains)) ||
+          (tags is List &&
+              tags.any((tag) =>
+                  englishLists.contains(tag) ||
+                  (tag is String &&
+                      (tag.startsWith('source:cambridge_yle_') ||
+                          tag.startsWith('source:uk_y'))))));
   return features;
 }
