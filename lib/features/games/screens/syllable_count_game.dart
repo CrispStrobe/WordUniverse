@@ -13,8 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
-import '../../../core/models/vocabulary_models.dart';
 import '../../../core/models/word_features.dart';
+import '../services/syllable_count_service.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart';
@@ -34,16 +34,7 @@ class SyllableCountGame extends StatefulWidget {
   State<SyllableCountGame> createState() => _SyllableCountGameState();
 }
 
-class _SyllableChallenge {
-  final GermanWord word;
-  final int syllableCount;
-  final int correctBucket; // 0→1, 1→2, 2→3, 3→4+
-  const _SyllableChallenge({
-    required this.word,
-    required this.syllableCount,
-    required this.correctBucket,
-  });
-}
+
 
 enum _Feedback { none, correct, incorrect }
 
@@ -63,7 +54,7 @@ class _SyllableCountGameState extends State<SyllableCountGame>
 
   bool _isLoading = true;
   bool _onboardingScheduled = false;
-  List<_SyllableChallenge> _challenges = [];
+  List<SyllableChallenge> _challenges = [];
   int _index = 0;
   int _correct = 0;
   int _total = 0;
@@ -85,32 +76,8 @@ class _SyllableCountGameState extends State<SyllableCountGame>
   // Parses a raw hyphenation string (e.g. "Schmet-ter-ling") into a syllable
   // count. Returns null when the string is malformed (consonant-only segments,
   // concatenated forms that can't be safely split, etc.).
-  static int? _countSyllables(String rawHyph) {
-    if (rawHyph.isEmpty) return null;
 
-    // Some DB entries concatenate two hyphenation forms without a separator,
-    // detectable by an uppercase letter that is not at the start and not after
-    // a hyphen (e.g. "Bei-spielBei-spie-le"). Truncate to the first form.
-    String truncated = rawHyph;
-    for (int i = 1; i < rawHyph.length; i++) {
-      final ch = rawHyph[i];
-      if (ch == ch.toUpperCase() && ch != ch.toLowerCase() && rawHyph[i - 1] != '-') {
-        truncated = rawHyph.substring(0, i);
-        break;
-      }
-    }
 
-    final segments = truncated.split('-');
-    // Every segment must contain at least one vowel; otherwise the split is
-    // character-level noise (e.g. "Fe-b-ru-ar" for Februar).
-    const vowels = 'aeiouyäöüAEIOUYÄÖÜ';
-    for (final seg in segments) {
-      if (!seg.split('').any(vowels.contains)) return null;
-    }
-    return segments.length;
-  }
-
-  static int _toBucket(int n) => n <= 3 ? n - 1 : 3; // 1→0, 2→1, 3→2, 4+→3
 
   // ─── init ──────────────────────────────────────────────────────────────────
 
@@ -192,12 +159,8 @@ class _SyllableCountGameState extends State<SyllableCountGame>
     // Already grade-first and shuffled by the pool query.
     final pool = allWords;
 
-    final challenges = <_SyllableChallenge>[];
-    for (final word in pool) {
-      if (challenges.length >= _maxRounds) break;
-      final c = _buildChallenge(word);
-      if (c != null) challenges.add(c);
-    }
+    final challenges =
+        buildSyllableChallenges(pool: pool, maxChallenges: _maxRounds);
 
     setState(() {
       _challenges = challenges;
@@ -214,21 +177,7 @@ class _SyllableCountGameState extends State<SyllableCountGame>
     _startTimer();
   }
 
-  _SyllableChallenge? _buildChallenge(GermanWord word) {
-    final hyphenations = word.apiEnrichment!.hyphenation;
-    // Try each hyphenation entry; use the first that parses cleanly.
-    for (final raw in hyphenations) {
-      final count = _countSyllables(raw);
-      if (count != null && count >= 1) {
-        return _SyllableChallenge(
-          word: word,
-          syllableCount: count,
-          correctBucket: _toBucket(count),
-        );
-      }
-    }
-    return null;
-  }
+
 
   // ─── timer ─────────────────────────────────────────────────────────────────
 
@@ -496,7 +445,7 @@ class _SyllableCountGameState extends State<SyllableCountGame>
     );
   }
 
-  Widget _buildWordCard(_SyllableChallenge challenge) {
+  Widget _buildWordCard(SyllableChallenge challenge) {
     return AnimatedBuilder(
       animation: _shakeCtrl,
       builder: (_, child) => Transform.translate(
@@ -559,7 +508,7 @@ class _SyllableCountGameState extends State<SyllableCountGame>
     );
   }
 
-  Widget _buildBuckets(_SyllableChallenge challenge) {
+  Widget _buildBuckets(SyllableChallenge challenge) {
     return Row(
       children: List.generate(4, (i) {
         return Expanded(
@@ -572,7 +521,7 @@ class _SyllableCountGameState extends State<SyllableCountGame>
     );
   }
 
-  Widget _buildBucket(_SyllableChallenge challenge, int bucket) {
+  Widget _buildBucket(SyllableChallenge challenge, int bucket) {
     final isCorrect = bucket == challenge.correctBucket;
     final isSelected = _selectedBucket == bucket;
     final hasAnswered = _feedback != _Feedback.none;
@@ -623,7 +572,7 @@ class _SyllableCountGameState extends State<SyllableCountGame>
     );
   }
 
-  Widget _buildHint(_SyllableChallenge challenge) {
+  Widget _buildHint(SyllableChallenge challenge) {
     // Show the hyphenated form so the user learns the correct split.
     final hyph = challenge.word.apiEnrichment!.hyphenation.first;
     final syllableWord = hyph.contains('-') ? hyph : challenge.word.word;

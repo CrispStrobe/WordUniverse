@@ -60,12 +60,17 @@ bool describesAName(String definition) {
     'a diminutive of the male', 'a diminutive of the female',
   ];
   if (openings.any(lower.startsWith)) return true;
-  const settlements = [
+  const places = [
     'a city in', 'a town in', 'a village in', 'a county in', 'a river in',
     'a lake in', 'a state of', 'a province of', 'an unincorporated community',
     'a census-designated place',
+    // Countries and geography: "philippines" arrived as an ordinary grade-3
+    // word to be counted for syllables.
+    'a country in', 'a country of', 'a nation in', 'a republic in',
+    'an island', 'an archipelago', 'a peninsula', 'a continent',
+    'a mountain range', 'a sea ', 'an ocean', 'a capital of', 'a capital city',
   ];
-  return settlements.any(lower.contains);
+  return places.any(lower.contains);
 }
 
 /// Whether the entry's own gloss says it is a name or a place.

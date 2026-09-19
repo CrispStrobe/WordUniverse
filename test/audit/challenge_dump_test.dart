@@ -41,6 +41,8 @@ import 'package:WortUniversum/features/games/providers/game_provider.dart';
 import 'package:WortUniversum/features/games/services/definition_quiz_service.dart';
 import 'package:WortUniversum/features/games/services/antonym_flash_service.dart';
 import 'package:WortUniversum/features/games/services/false_friend_service.dart';
+import 'package:WortUniversum/features/games/services/hypernym_flash_service.dart';
+import 'package:WortUniversum/features/games/services/syllable_count_service.dart';
 import 'package:WortUniversum/features/games/services/synonym_flash_service.dart';
 import 'package:WortUniversum/features/games/services/translation_flash_service.dart';
 import 'package:WortUniversum/features/games/services/homophone_drill_service.dart';
@@ -97,6 +99,8 @@ typedef Generator = Future<List<Item>> Function(_Context context);
 /// review content no learner is offered.
 const Map<String, List<String>> generatorLanguages = {
   'antonym_flash': ['en', 'de'],
+  'hypernym_flash': ['en', 'de'],
+  'syllable_count': ['en', 'de'],
   'translation_flash': ['de'],
   'reverse_translation_flash': ['de'],
   'definition_quiz': ['en', 'de'],
@@ -138,6 +142,41 @@ class _Context {
 }
 
 final Map<String, Generator> generators = {
+  'hypernym_flash': (c) async => buildHypernymChallenges(
+        pool: await c.pool(WordFeature.hypernyms,
+            where: (w) =>
+                !w.isProperNoun &&
+                w.isHeadword &&
+                !w.word.contains('_') &&
+                !w.word.contains(' ')),
+        isGerman: c.isGerman,
+        maxChallenges: c.count,
+        rng: c.rng,
+      )
+          .map((ch) => Item(
+                game: 'hypernym_flash',
+                prompt: 'A "${ch.word.word}" is a kind of what?',
+                options: ch.options,
+                answer: ch.options[ch.correctIndex],
+              ))
+          .toList(),
+  'syllable_count': (c) async => buildSyllableChallenges(
+        pool: await c.pool(WordFeature.hyphenation,
+            where: (w) =>
+                !w.isProperNoun &&
+                w.isHeadword &&
+                !w.word.contains('_') &&
+                !w.word.contains(' ')),
+        maxChallenges: c.count,
+      )
+          .map((ch) => Item(
+                game: 'syllable_count',
+                prompt: 'How many syllables in "${ch.word.displayName}"?',
+                options: const ['1', '2', '3', '4+'],
+                answer: const ['1', '2', '3', '4+'][ch.correctBucket],
+                notes: {'hyphenation': ch.word.hyphenation.join('|')},
+              ))
+          .toList(),
   'translation_flash': (c) async => buildTranslationChallenges(
         pool: await c.pool(WordFeature.translations,
             where: (w) => !w.isProperNoun && w.isHeadword),
@@ -333,7 +372,7 @@ final Map<String, Generator> generators = {
 /// cannot reach them yet. Printed after a run so the gap stays visible.
 const notYetReachable = [
   'hypernym_flash',
-  'syllable_count', 'cloze_flash', 'proverb_cloze', 'expression_flash',
+  'cloze_flash', 'proverb_cloze', 'expression_flash',
   'sentence_completion', 'translation_flash', 'reverse_translation_flash',
   'spelling_spotter', 'sri_review', 'conjugation_drill', 'word_class_flash',
   'word_sort', 'word_type_whirl', 'grossschreib', 'grossstadt', 'verbtrenner',
