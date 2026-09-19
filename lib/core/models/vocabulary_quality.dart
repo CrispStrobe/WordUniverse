@@ -67,3 +67,14 @@ bool describesAName(String definition) {
   ];
   return settlements.any(lower.contains);
 }
+
+/// Whether the entry's own gloss says it is a name or a place.
+///
+/// Brands, surnames and placenames reach the catalogue untyped — "a sony",
+/// "columbia", "atlantic", "pennsylvania" — so [GermanWord.isProperNoun] does
+/// not catch them. A name is not a word whose meaning a learner can reason
+/// about, as a prompt or as a distractor.
+bool namesSomething(GermanWord word) {
+  final definition = word.displayDefinitions.firstOrNull;
+  return definition != null && describesAName(definition);
+}

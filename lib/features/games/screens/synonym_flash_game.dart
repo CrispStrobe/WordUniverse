@@ -12,8 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
-import '../../../core/models/vocabulary_models.dart';
 import '../../../core/models/word_features.dart';
+import '../services/synonym_flash_service.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart';
@@ -33,19 +33,6 @@ class SynonymFlashGame extends StatefulWidget {
   State<SynonymFlashGame> createState() => _SynonymFlashGameState();
 }
 
-class _SynonymChallenge {
-  final GermanWord word;
-  final String correctSynonym;
-  final List<String> options;
-  final int correctIndex;
-  const _SynonymChallenge({
-    required this.word,
-    required this.correctSynonym,
-    required this.options,
-    required this.correctIndex,
-  });
-}
-
 enum _Feedback { none, correct, incorrect }
 
 class _SynonymFlashGameState extends State<SynonymFlashGame>
@@ -63,7 +50,7 @@ class _SynonymFlashGameState extends State<SynonymFlashGame>
 
   bool _isLoading = true;
   bool _onboardingScheduled = false;
-  List<_SynonymChallenge> _challenges = [];
+  List<SynonymChallenge> _challenges = [];
   int _index = 0;
   int _correct = 0;
   int _total = 0;
@@ -159,14 +146,13 @@ class _SynonymFlashGameState extends State<SynonymFlashGame>
     // Already grade-first and shuffled by the pool query.
     final pool = allWords;
 
-    final wordSet = allWords.map((w) => w.word.toLowerCase()).toSet();
-
-    final challenges = <_SynonymChallenge>[];
-    for (final word in pool) {
-      if (challenges.length >= _maxRounds) break;
-      final c = _buildChallenge(word, allWords, wordSet);
-      if (c != null) challenges.add(c);
-    }
+    final challenges = buildSynonymChallenges(
+      pool: pool,
+      isGerman: _vocabService.learningLanguage == 'de',
+      maxChallenges: _maxRounds,
+      optionCount: _optionCount,
+      rng: _rng,
+    );
 
     setState(() {
       _challenges = challenges;
@@ -186,85 +172,6 @@ class _SynonymFlashGameState extends State<SynonymFlashGame>
   // A synonym is "clean" if it is a single word, at least 2 chars, with only
   // letters/hyphens/apostrophes — no digits, no all-caps abbreviations.
   // Uses a Unicode letter class so German synonyms with ä/ö/ü/ß are kept.
-  static bool _isCleanSynonym(String s) {
-    if (s.length < 2 || s.contains(' ')) return false;
-    if (RegExp(r'\d').hasMatch(s)) return false;
-    if (s == s.toUpperCase() && s.length > 1) return false;
-    return RegExp(r"^[\p{L}\-' ]+$", unicode: true).hasMatch(s);
-  }
-
-  _SynonymChallenge? _buildChallenge(
-      GermanWord word, List<GermanWord> allWords, Set<String> wordSet) {
-    final synonyms = word.apiEnrichment!.synonyms;
-    if (synonyms.isEmpty) return null;
-
-    // Collect every clean synonym, noting which appear in the vocabulary so we
-    // can prefer those (learners recognise them) without losing the others.
-    final inVocab = <String>[];
-    final outOfVocab = <String>[];
-    for (final syn in synonyms) {
-      final clean = syn.replaceAll(RegExp(r'\s*\(.*?\)\s*$'), '').trim();
-      if (!_isCleanSynonym(clean)) continue;
-      if (wordSet.contains(clean.toLowerCase())) {
-        inVocab.add(clean);
-      } else {
-        outOfVocab.add(clean);
-      }
-    }
-    // Randomize which valid synonym is the answer (rather than always the
-    // first), preferring in-vocabulary ones when any exist.
-    final candidates = inVocab.isNotEmpty ? inVocab : outOfVocab;
-    if (candidates.isEmpty) return null;
-    final correctWord = candidates[_rng.nextInt(candidates.length)];
-
-    // Any of the word's listed synonyms counts as correct, so exclude them all
-    // (plus the prompt word itself) from the distractor pool.
-    final synSet =
-        synonyms.map((s) => s.toLowerCase()).toSet()..add(word.word.toLowerCase());
-
-    // Restrict distractors to the same word type as the prompt for plausibility;
-    // fall back to any word type if too few same-type candidates exist.
-    bool eligible(GermanWord w) =>
-        !synSet.contains(w.word.toLowerCase()) &&
-        w.word.toLowerCase() != correctWord.toLowerCase();
-
-    final sameType = allWords
-        .where((w) => w.wordType == word.wordType && eligible(w))
-        .map((w) => w.word)
-        .toList()
-      ..shuffle(_rng);
-    final anyType = allWords
-        .where(eligible)
-        .map((w) => w.word)
-        .toList()
-      ..shuffle(_rng);
-
-    final needed = _optionCount - 1;
-    // Dedupe distractors against each other (case-insensitively) and against
-    // the correct answer using a seen-set guard.
-    final distractors = <String>[];
-    final seen = <String>{correctWord.toLowerCase()};
-    for (final source in [sameType, anyType]) {
-      for (final t in source) {
-        if (distractors.length >= needed) break;
-        if (seen.add(t.toLowerCase())) distractors.add(t);
-      }
-      if (distractors.length >= needed) break;
-    }
-    if (distractors.isEmpty) return null;
-
-    final options = [correctWord, ...distractors.take(needed)]..shuffle(_rng);
-    final correctIndex = options.indexWhere(
-        (o) => o.toLowerCase() == correctWord.toLowerCase());
-    if (correctIndex < 0) return null;
-
-    return _SynonymChallenge(
-      word: word,
-      correctSynonym: correctWord,
-      options: options,
-      correctIndex: correctIndex,
-    );
-  }
 
   void _startTimer() {
     if (!_gameProvider.puzzleTimerEnabled) return;
@@ -525,7 +432,7 @@ class _SynonymFlashGameState extends State<SynonymFlashGame>
     );
   }
 
-  Widget _buildWordCard(_SynonymChallenge challenge) {
+  Widget _buildWordCard(SynonymChallenge challenge) {
     return AnimatedBuilder(
       animation: _shakeCtrl,
       builder: (_, child) => Transform.translate(
@@ -588,7 +495,7 @@ class _SynonymFlashGameState extends State<SynonymFlashGame>
     );
   }
 
-  Widget _buildOptions(_SynonymChallenge challenge) {
+  Widget _buildOptions(SynonymChallenge challenge) {
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
@@ -602,7 +509,7 @@ class _SynonymFlashGameState extends State<SynonymFlashGame>
     );
   }
 
-  Widget _buildOption(_SynonymChallenge challenge, int index) {
+  Widget _buildOption(SynonymChallenge challenge, int index) {
     final isCorrect = index == challenge.correctIndex;
     final isSelected = _selectedOption == index;
     final hasAnswered = _feedback != _Feedback.none;
