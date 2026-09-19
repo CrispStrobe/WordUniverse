@@ -12,8 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
-import '../../../core/models/vocabulary_models.dart';
 import '../../../core/models/word_features.dart';
+import '../services/conjugation_drill_challenges.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart';
@@ -34,21 +34,7 @@ class ConjugationDrillGame extends StatefulWidget {
   State<ConjugationDrillGame> createState() => _ConjugationDrillGameState();
 }
 
-class _ConjugationChallenge {
-  final GermanWord verb;
-  final String pronoun;
-  final String correctForm;
-  final List<String> options; // length 4, shuffled
-  final int correctIndex;
 
-  const _ConjugationChallenge({
-    required this.verb,
-    required this.pronoun,
-    required this.correctForm,
-    required this.options,
-    required this.correctIndex,
-  });
-}
 
 enum _Feedback { none, correct, incorrect }
 
@@ -65,7 +51,7 @@ class _ConjugationDrillGameState extends State<ConjugationDrillGame>
 
   bool _isLoading = true;
   bool _onboardingScheduled = false;
-  List<_ConjugationChallenge> _challenges = [];
+  List<ConjugationChallenge> _challenges = [];
   int _index = 0;
   int _correct = 0;
   int _total = 0;
@@ -156,56 +142,12 @@ class _ConjugationDrillGameState extends State<ConjugationDrillGame>
     // Already grade-first and shuffled by the pool query.
     final pool = verbs;
 
-    // Pre-collect all forms per pronoun for distractor selection.
-    final formsByPronoun = <String, List<String>>{};
-    for (final pronoun in conjugationPronouns) {
-      formsByPronoun[pronoun] = verbs
-          .map((v) => getPraesensForWord(v)?[pronoun])
-          .whereType<String>()
-          .toList()
-        ..shuffle(_rng);
-    }
-
-    final challenges = <_ConjugationChallenge>[];
-    for (final verb in pool) {
-      if (challenges.length >= _maxRounds) break;
-      final pres = getPraesensForWord(verb)!;
-      // Pick a random available pronoun for this verb.
-      // Skip pronouns whose Präsens form is identical to the infinitive shown
-      // on the verb card (wir/sie/Sie → "wir laufen"): the answer would just
-      // be the displayed word. Keep ich/du/er-sie-es where the stem changes.
-      final availablePronouns = conjugationPronouns
-          .where((p) =>
-              pres.containsKey(p) &&
-              pres[p]!.toLowerCase() != verb.word.toLowerCase())
-          .toList()
-        ..shuffle(_rng);
-      if (availablePronouns.isEmpty) continue;
-      final pronoun = availablePronouns.first;
-      final correct = pres[pronoun]!;
-
-      final distractors = pickDistractors(
-        pronoun,
-        correct,
-        verb.word,
-        formsByPronoun[pronoun] ?? [],
-        count: _optionCount - 1,
-      );
-      if (distractors.length < 2) continue;
-
-      final options = [correct, ...distractors];
-      options.shuffle(_rng);
-      final correctIndex = options.indexOf(correct);
-      if (correctIndex < 0) continue;
-
-      challenges.add(_ConjugationChallenge(
-        verb: verb,
-        pronoun: pronoun,
-        correctForm: correct,
-        options: options,
-        correctIndex: correctIndex,
-      ));
-    }
+    final challenges = buildConjugationChallenges(
+      verbs: pool,
+      maxChallenges: _maxRounds,
+      optionCount: _optionCount,
+      rng: _rng,
+    );
 
     setState(() {
       _challenges = challenges;
@@ -430,7 +372,7 @@ class _ConjugationDrillGameState extends State<ConjugationDrillGame>
     );
   }
 
-  Widget _buildVerbCard(_ConjugationChallenge challenge) {
+  Widget _buildVerbCard(ConjugationChallenge challenge) {
     final s = S.of(context)!;
     return AnimatedBuilder(
       animation: _shakeCtrl,
@@ -516,7 +458,7 @@ class _ConjugationDrillGameState extends State<ConjugationDrillGame>
     );
   }
 
-  Widget _buildOptions(_ConjugationChallenge challenge) {
+  Widget _buildOptions(ConjugationChallenge challenge) {
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
@@ -529,7 +471,7 @@ class _ConjugationDrillGameState extends State<ConjugationDrillGame>
     );
   }
 
-  Widget _buildOption(_ConjugationChallenge challenge, int index) {
+  Widget _buildOption(ConjugationChallenge challenge, int index) {
     final isCorrect = index == challenge.correctIndex;
     final isSelected = _selectedOption == index;
     final hasAnswered = _feedback != _Feedback.none;

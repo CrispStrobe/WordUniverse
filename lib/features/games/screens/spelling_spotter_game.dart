@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import '../../../core/models/skill_category.dart';
 import '../../../core/models/vocabulary_models.dart';
 import '../../../core/models/word_features.dart';
+import '../services/spelling_spotter_challenges.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart';
@@ -32,19 +33,7 @@ class SpellingSpotterGame extends StatefulWidget {
   State<SpellingSpotterGame> createState() => _SpellingSpotterGameState();
 }
 
-class _SpellingChallenge {
-  final GermanWord word;
-  final List<String> options; // 4 items, shuffled
-  final int correctIndex;
-  final String? contextSentence;
 
-  const _SpellingChallenge({
-    required this.word,
-    required this.options,
-    required this.correctIndex,
-    this.contextSentence,
-  });
-}
 
 enum _FeedbackState { none, correct, incorrect }
 
@@ -61,7 +50,7 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
 
   bool _isLoading = true;
   bool _onboardingScheduled = false;
-  List<_SpellingChallenge> _challenges = [];
+  List<SpellingChallenge> _challenges = [];
   int _currentIndex = 0;
   int _score = 0;
   int _correct = 0;
@@ -138,7 +127,6 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
   }
 
   static String _norm(String w) => normWord(w);
-  static List<String> _parseErrors(List<String> raw) => parseErrors(raw);
 
   Future<void> _buildChallenges() async {
     // Whether a word has recorded learner errors at all is answered by the
@@ -152,7 +140,7 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
       where: (w) => !w.isProperNoun,
       random: _rng,
     ))
-        .where(_hasErrors)
+        .where((w) => hasSpellingErrors(w, isGerman: _isDE))
         .toList();
     if (!mounted) return;
 
@@ -162,41 +150,14 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
     }
 
     // Already grade-first, from the pool query.
-    final pool = allWords.toList();
-    // Sort by difficulty descending:
-    //   DE — LiTKey empirical child-error rate (null → 0.5 neutral)
-    //   EN — Norvig/Wikipedia misspelling variant count, normalised to 0–1
-    final de = _isDE;
-    pool.sort((a, b) =>
-        spellingDifficultyScore(b, isDE: de)
-            .compareTo(spellingDifficultyScore(a, isDE: de)));
-
-    // Collect all error strings for distractor padding (split + normalised).
-    final allErrors = _parseErrors(allWords
-        .expand((w) => _isDE
-            ? (w.commonMistakes ?? <String>[])
-            : (w.apiEnrichment?.commonLearnerErrors ?? <String>[]))
-        .toList())
-        .toSet()
-        .toList();
-
-    // Build a set of all valid correct words so we can exclude them from
-    // being used as distractors (avoids "ihn" appearing as both correct and
-    // as a distractor in the same session).
-    final validWords = allWords.map((w) => _norm(w.word).toLowerCase()).toSet();
-
-    // Variety: taking the strict top-N every time always yields the same
-    // hardest 10 words, so replays feel identical. Instead, draw from a wider
-    // difficulty tier (the hardest ~3× rounds) and shuffle within it, so the
-    // session still skews hard but varies between plays.
-    final tierSize = min(pool.length, _totalRounds * 3);
-    final tier = pool.take(tierSize).toList()..shuffle(_rng);
-    final selected = tier.take(_totalRounds).toList();
-    final challenges = <_SpellingChallenge>[];
-    for (final word in selected) {
-      final challenge = _buildChallenge(word, allErrors, validWords);
-      if (challenge != null) challenges.add(challenge);
-    }
+    final challenges = buildSpellingChallenges(
+      pool: allWords,
+      isGerman: _isDE,
+      gradeLevel: widget.gradeLevel.index + 1,
+      rounds: _totalRounds,
+      optionCount: _optionCount,
+      rng: _rng,
+    );
 
     setState(() {
       _challenges = challenges;
@@ -210,95 +171,10 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
     });
   }
 
-  bool _hasErrors(GermanWord w) {
-    if (w.isProperNoun) return false;
-    final display = _norm(w.word);
-    if (display.contains(' ') || display.isEmpty) return false;
-    if (_isDE) {
-      return w.commonMistakes?.isNotEmpty ?? false;
-    }
-    return w.apiEnrichment?.commonLearnerErrors.isNotEmpty ?? false;
-  }
 
-  _SpellingChallenge? _buildChallenge(
-      GermanWord word, List<String> allErrors, Set<String> validWords) {
-    final displayWord = _norm(word.word);
 
-    final rawErrors = _isDE
-        ? (word.commonMistakes ?? <String>[])
-        : (word.apiEnrichment?.commonLearnerErrors ?? <String>[]);
 
-    final errors = _parseErrors(rawErrors)
-        .map(_norm)
-        .where((e) => e.toLowerCase() != displayWord.toLowerCase() &&
-            e.isNotEmpty &&
-            !e.contains(' ') &&
-            // Skip error forms that are themselves valid vocabulary words
-            // (e.g. "in" is a commonMistake of "ihn" but is a real word too).
-            !validWords.contains(e.toLowerCase()))
-        .toList();
 
-    final distractors = <String>{};
-    for (final e in errors) {
-      distractors.add(e);
-      if (distractors.length >= _optionCount - 1) break;
-    }
-
-    // Pad with errors from other words if needed.
-    if (distractors.length < _optionCount - 1) {
-      final others = allErrors
-          .map(_norm)
-          .where((e) =>
-              !distractors.contains(e) &&
-              e.length >= 2 &&
-              isDistractorPlausible(e, displayWord, validWords: validWords))
-          .toList()
-        ..shuffle(_rng);
-      for (final e in others) {
-        distractors.add(e);
-        if (distractors.length >= _optionCount - 1) break;
-      }
-    }
-
-    if (distractors.length < _optionCount - 1) return null; // need a full set
-
-    final options = [displayWord, ...distractors.take(_optionCount - 1)];
-    options.shuffle(_rng);
-    final correctIndex = options.indexOf(displayWord);
-    if (correctIndex < 0) return null;
-
-    // Example sentence: for DE prefer Tatoeba (human-verified) > Gutenberg >
-    // gradeExamples (LLM). Validate that the sentence contains the word.
-    String? context;
-    if (_isDE) {
-      context = word.exampleSentences
-          .where((s) => _sentenceContains(s, displayWord))
-          .firstOrNull;
-    }
-    context ??= word.apiEnrichment?.gutenbergExamples
-        .where((s) => _sentenceContains(s, displayWord))
-        .firstOrNull;
-    if (context == null) {
-      final gradeKey = '${widget.gradeLevel.index + 1}';
-      final ge = word.apiEnrichment?.gradeExamples;
-      if (ge != null) {
-        final sents = ge[gradeKey] ?? ge.values.firstOrNull ?? [];
-        context = sents
-            .where((s) => _sentenceContains(s, displayWord))
-            .firstOrNull;
-      }
-    }
-
-    return _SpellingChallenge(
-      word: word,
-      options: options,
-      correctIndex: correctIndex,
-      contextSentence: context,
-    );
-  }
-
-  bool _sentenceContains(String sentence, String word) =>
-      sentence.toLowerCase().contains(word.toLowerCase());
 
   void _handleTap(int optionIndex) {
     if (_feedbackState != _FeedbackState.none) return;
@@ -514,7 +390,7 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
     );
   }
 
-  Widget _buildPrompt(_SpellingChallenge challenge) {
+  Widget _buildPrompt(SpellingChallenge challenge) {
     final definition = challenge.word.displayDefinitions.firstOrNull;
     final cefr = challenge.word.cefrLevel;
     return Column(
@@ -556,7 +432,7 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
   }
 
 
-  Widget _buildOptions(_SpellingChallenge challenge) {
+  Widget _buildOptions(SpellingChallenge challenge) {
     return Column(
       children: List.generate(challenge.options.length, (i) {
         return Padding(
@@ -567,7 +443,7 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
     );
   }
 
-  Widget _buildOption(_SpellingChallenge challenge, int index) {
+  Widget _buildOption(SpellingChallenge challenge, int index) {
     final option = challenge.options[index];
     final isSelected = _selectedOption == index;
     final isCorrect = index == challenge.correctIndex;
@@ -692,7 +568,7 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
     );
   }
 
-  Widget _buildContext(_SpellingChallenge challenge) {
+  Widget _buildContext(SpellingChallenge challenge) {
     return AnimatedOpacity(
       duration: const Duration(milliseconds: 400),
       opacity: _showContext ? 1.0 : 0.0,
