@@ -67,40 +67,95 @@ bool isVerbSeparable(GermanWord word) {
 }
 
 List<VerbPair> pairsFromVerb(GermanWord word) {
-final pairs = <VerbPair>[];
-final inflections = word.apiEnrichment?.inflections ?? [];
-final apiExamples = word.apiEnrichment?.examples ?? [];
-final tataoebaExamples = word.exampleSentences;
+  final pairs = <VerbPair>[];
+  final inflections = word.apiEnrichment?.inflections ?? [];
+  final apiExamples = word.apiEnrichment?.examples ?? [];
+  final tataoebaExamples = word.exampleSentences;
 
-final String infinitive = word.word;
-String prefix = '';
+  final String infinitive = word.word;
+  String prefix = '';
 
-for (final form in inflections) {
-  final formText = form['form_text'] as String?;
-  if (formText != null && formText.contains(' ')) {
-    final parts = formText.split(' ');
-    if (parts.length == 2 && _isSeparablePrefix(parts[1])) {
-      prefix = parts[1];
-      break;
+  for (final form in inflections) {
+    final formText = form['form_text'] as String?;
+    if (formText != null && formText.contains(' ')) {
+      final parts = formText.split(' ');
+      if (parts.length == 2 && _isSeparablePrefix(parts[1])) {
+        prefix = parts[1];
+        break;
+      }
     }
   }
-}
 
-if (prefix.isEmpty) return pairs;
+  if (prefix.isEmpty) return pairs;
 
-for (final form in inflections) {
-  final formText = form['form_text'] as String?;
-  if (formText == null || !isAskableSeparableForm(formText)) continue;
-  final tags = form['tags'] as String?;
-  if (formText == null || tags == null) continue;
+  for (final form in inflections) {
+    final formText = form['form_text'] as String?;
+    if (formText == null || !isAskableSeparableForm(formText)) continue;
+    final tags = form['tags'] as String?;
+    if (tags == null) continue;
 
-  // RULE 1: Present/Past tense (conjugated) → GETRENNT
-  if ((tags.contains('present') || tags.contains('past')) &&
-      !tags.contains('participle') &&
-      !tags.contains('infinitive') &&
-      formText.contains(' ')) {
-    final parts = formText.split(' ');
-    if (parts.length == 2) {
+    // RULE 1: Present/Past tense (conjugated) → GETRENNT
+    if ((tags.contains('present') || tags.contains('past')) &&
+        !tags.contains('participle') &&
+        !tags.contains('infinitive') &&
+        formText.contains(' ')) {
+      final parts = formText.split(' ');
+      if (parts.length == 2) {
+        final context = findRealExample(
+          apiExamples: apiExamples,
+          tataoebaExamples: tataoebaExamples,
+          formText: formText,
+        );
+        if (context == null) continue;
+        pairs.add(VerbPair(
+          part1: parts[0],
+          part2: parts[1],
+          shouldBeSeparated: true,
+          context: context,
+          explanation: 'Konjugierte Form im Hauptsatz → getrennt',
+          difficulty: 2,
+          wordId: word.id,
+          formText: formText,
+        ));
+      }
+    }
+
+    // RULE 2: Extended infinitive with "zu"
+    if (tags.contains('extended') && tags.contains('infinitive')) {
+      final context = findRealExample(
+        apiExamples: apiExamples,
+        tataoebaExamples: tataoebaExamples,
+        formText: formText,
+      );
+      if (context == null) continue;
+      final hasSpaces = formText.contains(' ');
+      final String part1, part2;
+      if (hasSpaces) {
+        final lastSpace = formText.lastIndexOf(' ');
+        part1 = formText.substring(0, lastSpace);
+        part2 = formText.substring(lastSpace + 1);
+      } else {
+        part1 = prefix;
+        part2 = formText.substring(prefix.length);
+      }
+      pairs.add(VerbPair(
+        part1: part1,
+        part2: part2,
+        shouldBeSeparated: hasSpaces,
+        context: context,
+        explanation: hasSpaces
+            ? 'Infinitiv mit Hilfsverb (zu haben/sein) → getrennt'
+            : 'zu-Infinitiv (ein Wort) → zusammen',
+        difficulty: 3,
+        wordId: word.id,
+        formText: formText,
+      ));
+    }
+
+    // RULE 3: Plain infinitive → ZUSAMMEN
+    if (tags.contains('infinitive') &&
+        !tags.contains('extended') &&
+        formText == infinitive) {
       final context = findRealExample(
         apiExamples: apiExamples,
         tataoebaExamples: tataoebaExamples,
@@ -108,11 +163,31 @@ for (final form in inflections) {
       );
       if (context == null) continue;
       pairs.add(VerbPair(
-        part1: parts[0],
-        part2: parts[1],
-        shouldBeSeparated: true,
+        part1: prefix,
+        part2: formText.substring(prefix.length),
+        shouldBeSeparated: false,
         context: context,
-        explanation: 'Konjugierte Form im Hauptsatz → getrennt',
+        explanation: 'Infinitiv nach Modalverb → zusammen',
+        difficulty: 1,
+        wordId: word.id,
+        formText: formText,
+      ));
+    }
+
+    // RULE 4: Past participle → ZUSAMMEN
+    if (tags.contains('participle') && tags.contains('perfect')) {
+      final context = findRealExample(
+        apiExamples: apiExamples,
+        tataoebaExamples: tataoebaExamples,
+        formText: formText,
+      );
+      if (context == null) continue;
+      pairs.add(VerbPair(
+        part1: prefix,
+        part2: formText.substring(prefix.length),
+        shouldBeSeparated: false,
+        context: context,
+        explanation: 'Partizip Perfekt → zusammen',
         difficulty: 2,
         wordId: word.id,
         formText: formText,
@@ -120,88 +195,32 @@ for (final form in inflections) {
     }
   }
 
-  // RULE 2: Extended infinitive with "zu"
-  if (tags.contains('extended') && tags.contains('infinitive')) {
-    final context = findRealExample(
-      apiExamples: apiExamples,
-      tataoebaExamples: tataoebaExamples,
-      formText: formText,
-    );
-    if (context == null) continue;
-    final hasSpaces = formText.contains(' ');
-    final String part1, part2;
-    if (hasSpaces) {
-      final lastSpace = formText.lastIndexOf(' ');
-      part1 = formText.substring(0, lastSpace);
-      part2 = formText.substring(lastSpace + 1);
-    } else {
-      part1 = prefix;
-      part2 = formText.substring(prefix.length);
-    }
-    pairs.add(VerbPair(
-      part1: part1,
-      part2: part2,
-      shouldBeSeparated: hasSpaces,
-      context: context,
-      explanation: hasSpaces
-          ? 'Infinitiv mit Hilfsverb (zu haben/sein) → getrennt'
-          : 'zu-Infinitiv (ein Wort) → zusammen',
-      difficulty: 3,
-      wordId: word.id,
-      formText: formText,
-    ));
-  }
-
-  // RULE 3: Plain infinitive → ZUSAMMEN
-  if (tags.contains('infinitive') &&
-      !tags.contains('extended') &&
-      formText == infinitive) {
-    final context = findRealExample(
-      apiExamples: apiExamples,
-      tataoebaExamples: tataoebaExamples,
-      formText: formText,
-    );
-    if (context == null) continue;
-    pairs.add(VerbPair(
-      part1: prefix,
-      part2: formText.substring(prefix.length),
-      shouldBeSeparated: false,
-      context: context,
-      explanation: 'Infinitiv nach Modalverb → zusammen',
-      difficulty: 1,
-      wordId: word.id,
-      formText: formText,
-    ));
-  }
-
-  // RULE 4: Past participle → ZUSAMMEN
-  if (tags.contains('participle') && tags.contains('perfect')) {
-    final context = findRealExample(
-      apiExamples: apiExamples,
-      tataoebaExamples: tataoebaExamples,
-      formText: formText,
-    );
-    if (context == null) continue;
-    pairs.add(VerbPair(
-      part1: prefix,
-      part2: formText.substring(prefix.length),
-      shouldBeSeparated: false,
-      context: context,
-      explanation: 'Partizip Perfekt → zusammen',
-      difficulty: 2,
-      wordId: word.id,
-      formText: formText,
-    ));
-  }
-}
-
-return pairs;
+  return pairs;
 }
 
 const _separablePrefixes = [
-  'ab', 'an', 'auf', 'aus', 'bei', 'ein', 'empor', 'fest',
-  'fort', 'her', 'hin', 'los', 'mit', 'nach', 'nieder',
-  'vor', 'weg', 'weiter', 'zu', 'zurecht', 'zurück', 'zusammen'
+  'ab',
+  'an',
+  'auf',
+  'aus',
+  'bei',
+  'ein',
+  'empor',
+  'fest',
+  'fort',
+  'her',
+  'hin',
+  'los',
+  'mit',
+  'nach',
+  'nieder',
+  'vor',
+  'weg',
+  'weiter',
+  'zu',
+  'zurecht',
+  'zurück',
+  'zusammen'
 ];
 
 bool _isSeparablePrefix(String prefix) {

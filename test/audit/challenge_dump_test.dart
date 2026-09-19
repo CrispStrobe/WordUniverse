@@ -29,7 +29,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:archive/archive.dart';
 
+import 'package:flutter/widgets.dart' show Locale;
+
 import 'package:WortUniversum/core/models/language_pack.dart';
+import 'package:WortUniversum/generated/l10n.dart';
 import 'package:WortUniversum/core/models/vocabulary_models.dart';
 import 'package:WortUniversum/core/models/skill_category.dart';
 import 'package:WortUniversum/core/models/word_features.dart';
@@ -50,10 +53,14 @@ import 'package:WortUniversum/features/games/services/false_friend_service.dart'
 import 'package:WortUniversum/features/games/services/hypernym_flash_service.dart';
 import 'package:WortUniversum/features/games/services/sentence_completion_service.dart';
 import 'package:WortUniversum/features/games/services/spelling_spotter_challenges.dart';
+import 'package:WortUniversum/features/games/services/sri_review_service.dart';
 import 'package:WortUniversum/features/games/services/syllable_count_service.dart';
 import 'package:WortUniversum/features/games/services/word_class_flash_service.dart';
 import 'package:WortUniversum/features/games/services/synonym_flash_service.dart';
+import 'package:WortUniversum/features/games/services/grossschreib_service.dart';
+import 'package:WortUniversum/features/games/services/grossstadt_service.dart';
 import 'package:WortUniversum/features/games/services/verbtrenner_service.dart';
+import 'package:WortUniversum/features/games/services/wortbaumeister_service.dart';
 import 'package:WortUniversum/features/games/services/translation_flash_service.dart';
 import 'package:WortUniversum/features/games/services/homophone_drill_service.dart';
 import 'package:WortUniversum/features/games/services/phrasal_verb_service.dart';
@@ -95,7 +102,8 @@ class Item {
       buffer.writeln('    ✓ $answer');
     }
     if (notes.isNotEmpty) {
-      buffer.writeln('    · ${notes.entries.map((e) => '${e.key}: ${e.value}').join('  ')}');
+      buffer.writeln(
+          '    · ${notes.entries.map((e) => '${e.key}: ${e.value}').join('  ')}');
     }
     return buffer.toString();
   }
@@ -117,6 +125,10 @@ typedef Generator = Future<List<Item>> Function(_Context context);
 /// review content no learner is offered.
 const Map<String, List<String>> generatorLanguages = {
   'antonym_flash': ['en', 'de'],
+  'sri_review': ['en', 'de'],
+  'grossschreib': ['de'],
+  'grossstadt': ['de'],
+  'wortbaumeister': ['de'],
   'verbtrenner': ['de'],
   'word_find': ['en', 'de'],
   'word_snake': ['en', 'de'],
@@ -208,7 +220,131 @@ Generator _wordPractice(
           .toList();
     };
 
+const _reviewSkills = [
+  LanguageSkillType.spelling,
+  LanguageSkillType.articleSelection,
+  LanguageSkillType.vocabulary,
+];
+
 final Map<String, Generator> generators = {
+  'sri_review': (c) async {
+    // The review game asks about words the learner has already struggled
+    // with; with an empty SRI history there is nothing due, so the dump shows
+    // what it would ask for the words it can reach.
+    final strings = lookupS(Locale(c.language));
+    final pool = await c.pool(WordFeature.definitions,
+        where: (w) => !w.isProperNoun && w.isHeadword);
+    final validWords = c.vocabulary
+        .getAllWords(c.settings)
+        .map((w) => w.word.toLowerCase())
+        .toSet();
+    final items = <Item>[];
+    for (final word in pool) {
+      if (items.length >= c.count) break;
+      // Cycle the skill types so the dump shows all three review formats;
+      // each falls back to the definition quiz when it cannot build.
+      final skill = _reviewSkills[items.length % _reviewSkills.length];
+      final challenge = buildReviewChallenge(
+        word,
+        SriLanguageData(
+          itemId: word.word,
+          skillType: skill,
+          nextReviewDate: DateTime.utc(2020),
+        ),
+        pool,
+        validWords,
+        strings: strings,
+        isGerman: c.isGerman,
+        rng: c.rng,
+      );
+      if (challenge == null) continue;
+      items.add(Item(
+        game: 'sri_review',
+        prompt: challenge.prompt,
+        options: challenge.options,
+        answer: challenge.options[challenge.correctIndex],
+        notes: {'type': challenge.type.name},
+      ));
+    }
+    return items;
+  },
+  'grossschreib': (c) async {
+    final pool = await c.pool(WordFeature.examples,
+        limitFactor: 40,
+        where: (w) => w.gradeLevel <= c.grade + 3 && w.word.isNotEmpty);
+    final items = <Item>[];
+    for (final word in pool) {
+      if (items.length >= c.count) break;
+      final isNoun = word.wordType == GermanWordType.substantiv;
+      final challenge = challengeFromWord(
+        word,
+        correctCase: isNoun ? WordCase.capitalized : WordCase.lowercase,
+        rule: isNoun
+            ? CapitalizationRule.noun
+            : CapitalizationRule.verbOrAdjective,
+        explanation: isNoun
+            ? 'Nomen werden immer großgeschrieben'
+            : 'Verben und Adjektive werden kleingeschrieben',
+        forceMiddlePosition: true,
+      );
+      if (challenge == null) continue;
+      items.add(Item(
+        game: 'grossschreib',
+        prompt: '${challenge.beforeWord}[${challenge.targetWord}]'
+            '${challenge.afterWord}',
+        answer:
+            challenge.correctCase == WordCase.capitalized ? 'GROSS' : 'klein',
+        notes: {'word': challenge.targetWord, 'rule': challenge.explanation},
+      ));
+    }
+    return items;
+  },
+  'grossstadt': (c) async {
+    Future<List<GermanWord>> ofType(GermanWordType type, int count) async {
+      final words = c.vocabulary
+          .getAllWords(c.settings)
+          .where((w) =>
+              w.wordType == type &&
+              !w.word.contains(' ') &&
+              w.word.length >= 3 &&
+              w.gradeLevel <= c.grade + 2)
+          .toList()
+        ..shuffle(c.rng);
+      return c.vocabulary.hydrate(words.take(count));
+    }
+
+    return buildCapitalizationItems(
+      verbs: await ofType(GermanWordType.verb, 15),
+      adjectives: await ofType(GermanWordType.adjektiv, 12),
+      nouns: await ofType(GermanWordType.substantiv, 12),
+    )
+        .take(c.count)
+        .map((item) => Item(
+              game: 'grossstadt',
+              prompt: '${item.prefix}[${item.target}]${item.suffix}',
+              answer: item.shouldBeCapitalized ? 'GROSS' : 'klein',
+              notes: {'rule': item.explanation},
+            ))
+        .toList();
+  },
+  'wortbaumeister': (c) async {
+    final catalogue = c.vocabulary.getAllWords(c.settings);
+    final nouns = catalogue
+        .where((w) => w.wordType == GermanWordType.substantiv)
+        .toList();
+    final nounMap = {for (final w in nouns) w.word.toLowerCase(): w};
+    final candidates = await c.vocabulary.hydrate(
+        nouns.where((w) => w.word.length >= minCompoundLength).take(300));
+    return buildCompoundChallenges(candidates, nounMap)
+        .take(c.count)
+        .map((ch) => Item(
+              game: 'wortbaumeister',
+              prompt: 'Build the compound: ${ch.part1} + ${ch.part2}',
+              answer: ch.fullWord,
+              notes: {'context': ch.context},
+            ))
+        .toList();
+  },
   'verbtrenner': (c) async => buildVerbPairs(
         verbs: await c.pool(WordFeature.inflections,
             limitFactor: 20,
@@ -567,7 +703,8 @@ final Map<String, Generator> generators = {
       final word = await c.vocabulary.hydrateOne(chosen);
       items.add(Item(
         game: 'word_of_the_day',
-        prompt: '${date.toIso8601String().substring(0, 10)}: ${word.displayName}',
+        prompt:
+            '${date.toIso8601String().substring(0, 10)}: ${word.displayName}',
         answer: word.apiEnrichment?.definitions.firstOrNull,
         notes: {'grade': word.gradeLevel, 'cefr': word.cefrLevel ?? '—'},
       ));
@@ -578,12 +715,9 @@ final Map<String, Generator> generators = {
 
 /// Games that still build their challenges inside the widget, so this harness
 /// cannot reach them yet. Printed after a run so the gap stays visible.
-const notYetReachable = [
-  'hypernym_flash',
-  'cloze_flash', 'proverb_cloze', 'translation_flash', 'reverse_translation_flash',
-  'sri_review', 'word_class_flash',
-  'grossschreib', 'grossstadt', 'verbtrenner',
-  'wortbaumeister', ];
+/// Games that still build their challenges inside the widget. Empty: every
+/// game in the menu can now be generated and reviewed headlessly.
+const notYetReachable = <String>[];
 
 void main() {
   final requested = Platform.environment['WU_DUMP'];
@@ -595,8 +729,10 @@ void main() {
       return;
     }
     final language = Platform.environment['WU_DUMP_LANG'] ?? 'en';
-    final count = int.tryParse(Platform.environment['WU_DUMP_COUNT'] ?? '') ?? 20;
-    final grade = int.tryParse(Platform.environment['WU_DUMP_GRADE'] ?? '') ?? 3;
+    final count =
+        int.tryParse(Platform.environment['WU_DUMP_COUNT'] ?? '') ?? 20;
+    final grade =
+        int.tryParse(Platform.environment['WU_DUMP_GRADE'] ?? '') ?? 3;
     final asJson = Platform.environment['WU_DUMP_FORMAT'] == 'json';
     final seed = int.tryParse(Platform.environment['WU_DUMP_SEED'] ?? '') ?? 1;
 
@@ -614,12 +750,13 @@ void main() {
     final pack = kLanguagePacks[language]!;
     final List<int> bytes;
     if (language == 'en') {
-      bytes = GZipDecoder()
-          .decodeBytes(await File('assets/grundwortschatz_en.db.gz').readAsBytes());
+      bytes = GZipDecoder().decodeBytes(
+          await File('assets/grundwortschatz_en.db.gz').readAsBytes());
     } else {
       final path = Platform.environment['WU_PACK_DE'];
       if (path == null) {
-        markTestSkipped('set WU_PACK_DE=/path/to/decompressed/grundwortschatz.db');
+        markTestSkipped(
+            'set WU_PACK_DE=/path/to/decompressed/grundwortschatz.db');
         return;
       }
       bytes = await File(path).readAsBytes();
@@ -656,8 +793,8 @@ void main() {
             'available: ${generators.keys.join(', ')}');
         continue;
       }
-      final items = await generator(_Context(vocabulary, sri, settings, grade,
-          count, Random(seed), language));
+      final items = await generator(_Context(
+          vocabulary, sri, settings, grade, count, Random(seed), language));
       total += items.length;
       if (asJson) {
         for (final item in items) {
@@ -673,9 +810,9 @@ void main() {
     }
 
     if (!asJson) {
-      buffer.writeln('\n$total items from ${names.length} generator(s). '
-          'Not reachable headlessly yet (${notYetReachable.length} games): '
-          '${notYetReachable.join(', ')}.');
+      buffer.writeln('\n$total items from ${names.length} generator(s).'
+          '${notYetReachable.isEmpty ? '' : ' Not reachable headlessly yet '
+              '(${notYetReachable.length}): ${notYetReachable.join(', ')}.'}');
     }
 
     final out = Platform.environment['WU_DUMP_OUT'];

@@ -14,9 +14,9 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../core/models/skill_category.dart';
 import '../../../core/models/vocabulary_models.dart';
 import '../../../core/models/word_features.dart';
+import '../services/sri_review_service.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart';
@@ -24,33 +24,11 @@ import '../../../core/theme/space_theme.dart';
 import '../../../generated/l10n.dart';
 import '../models/game_outcome.dart';
 import '../providers/game_provider.dart';
-import '../services/spelling_spotter_service.dart';
 import '../widgets/cefr_chip.dart';
 import '../widgets/space_background.dart';
 import '../../../shared/widgets/onboarding_overlay.dart';
 
 // ─── Data model ───────────────────────────────────────────────────────────────
-
-enum _ChallengeType { definition, article, spelling }
-
-class _ReviewChallenge {
-  final GermanWord word;
-  final SriLanguageData sriData;
-  final _ChallengeType type;
-  /// Prompt displayed above the options (definition, "Der/Die/Das ___?", …)
-  final String prompt;
-  final List<String> options;
-  final int correctIndex;
-
-  const _ReviewChallenge({
-    required this.word,
-    required this.sriData,
-    required this.type,
-    required this.prompt,
-    required this.options,
-    required this.correctIndex,
-  });
-}
 
 // ─── Widget ───────────────────────────────────────────────────────────────────
 
@@ -76,7 +54,7 @@ class _SriReviewGameState extends State<SriReviewGame>
 
   bool _isLoading = true;
   bool _onboardingScheduled = false;
-  List<_ReviewChallenge> _challenges = [];
+  List<ReviewChallenge> _challenges = [];
   int _index = 0;
   int _correct = 0;
   int? _selectedOption;
@@ -146,8 +124,15 @@ class _SriReviewGameState extends State<SriReviewGame>
   String _baseWordFromId(SriLanguageData d) {
     // Strip the prefix added by SriService.getItemId() to recover the word.
     const prefixes = [
-      'SPELL_', 'ARTICLE_', 'PLURAL_', 'WORDTYPE_', 'SENTENCE_',
-      'PUNCT_', 'CAPITAL_', 'CONJUG_', 'CASE_',
+      'SPELL_',
+      'ARTICLE_',
+      'PLURAL_',
+      'WORDTYPE_',
+      'SENTENCE_',
+      'PUNCT_',
+      'CAPITAL_',
+      'CONJUG_',
+      'CASE_',
     ];
     var id = d.itemId;
     for (final p in prefixes) {
@@ -211,13 +196,22 @@ class _SriReviewGameState extends State<SriReviewGame>
     }
     if (!mounted) return;
 
-    final challenges = <_ReviewChallenge>[];
+    final challenges = <ReviewChallenge>[];
     for (final item in sriItems) {
       if (challenges.length >= _targetRounds) break;
       final word = reviewed[item];
       if (word == null) continue;
 
-      final challenge = _buildChallenge(word, item, definitionPool, validWords);
+      final challenge = buildReviewChallenge(
+        word,
+        item,
+        definitionPool,
+        validWords,
+        strings: _s,
+        isGerman: _isDE,
+        optionCount: _optionCount,
+        rng: _rng,
+      );
       if (challenge != null) challenges.add(challenge);
     }
 
@@ -229,117 +223,6 @@ class _SriReviewGameState extends State<SriReviewGame>
       _feedback = _Feedback.none;
       _isLoading = false;
     });
-  }
-
-  _ReviewChallenge? _buildChallenge(
-    GermanWord word,
-    SriLanguageData sriData,
-    List<GermanWord> allWords,
-    Set<String> validWords,
-  ) {
-    // Try the skill-specific format first, fall back to definition quiz.
-    if (sriData.skillType == LanguageSkillType.articleSelection &&
-        _isDE &&
-        word.wordType == GermanWordType.substantiv &&
-        word.article != null &&
-        ['der', 'die', 'das'].contains(word.article!.toLowerCase())) {
-      return _buildArticleChallenge(word, sriData);
-    }
-
-    if (sriData.skillType == LanguageSkillType.spelling) {
-      final c = _buildSpellingChallenge(word, sriData, validWords);
-      if (c != null) return c;
-    }
-
-    return _buildDefinitionChallenge(word, sriData, allWords);
-  }
-
-  _ReviewChallenge? _buildArticleChallenge(
-      GermanWord word, SriLanguageData sriData) {
-    final correct = word.article!.toLowerCase();
-    final wrong = ['der', 'die', 'das'].where((a) => a != correct).toList();
-    final options = [correct, ...wrong]..shuffle(_rng);
-    final prompt = _s.articleChallengePrompt(word.word);
-    return _ReviewChallenge(
-      word: word,
-      sriData: sriData,
-      type: _ChallengeType.article,
-      prompt: prompt,
-      options: options,
-      correctIndex: options.indexOf(correct),
-    );
-  }
-
-  _ReviewChallenge? _buildSpellingChallenge(
-      GermanWord word, SriLanguageData sriData, Set<String> validWords) {
-    final displayWord = normWord(word.word);
-    if (displayWord.contains(' ')) return null;
-
-    final rawErrors = _isDE
-        ? (word.commonMistakes ?? <String>[])
-        : (word.apiEnrichment?.commonLearnerErrors ?? <String>[]);
-    final errors = parseErrors(rawErrors)
-        .map(normWord)
-        .where((e) =>
-            e.toLowerCase() != displayWord.toLowerCase() &&
-            e.isNotEmpty &&
-            !e.contains(' ') &&
-            !validWords.contains(e.toLowerCase()))
-        .take(_optionCount - 1)
-        .toList();
-
-    if (errors.isEmpty) return null;
-
-    final options = [displayWord, ...errors]..shuffle(_rng);
-    final definition = word.displayDefinitions.firstOrNull;
-    final prompt = definition != null
-        ? _s.spellingForDefinition(definition)
-        : _s.spellingSpotterPrompt;
-    return _ReviewChallenge(
-      word: word,
-      sriData: sriData,
-      type: _ChallengeType.spelling,
-      prompt: prompt,
-      options: options,
-      correctIndex: options.indexOf(displayWord),
-    );
-  }
-
-  _ReviewChallenge? _buildDefinitionChallenge(
-      GermanWord word, SriLanguageData sriData, List<GermanWord> allWords) {
-    final definition = word.displayDefinitions.firstOrNull;
-    if (definition == null) return null;
-
-    final correctOption = word.word;
-    // Prefer same grade, same type as distractors.
-    final distractors = <String>{};
-    final pool = (allWords
-          .where((w) =>
-              w.id != word.id &&
-              !w.isProperNoun &&
-              w.displayDefinitions.isNotEmpty)
-          .toList()
-        ..shuffle(_rng));
-
-    for (final w in pool) {
-      if (distractors.length >= _optionCount - 1) break;
-      final opt = w.word;
-      if (opt != correctOption) distractors.add(opt);
-    }
-
-    if (distractors.isEmpty) return null;
-
-    final options = [correctOption, ...distractors.take(_optionCount - 1)]
-      ..shuffle(_rng);
-    final prompt = '"$definition"';
-    return _ReviewChallenge(
-      word: word,
-      sriData: sriData,
-      type: _ChallengeType.definition,
-      prompt: prompt,
-      options: options,
-      correctIndex: options.indexOf(correctOption),
-    );
   }
 
   // ─── Gameplay ────────────────────────────────────────────────────────────
@@ -509,7 +392,7 @@ class _SriReviewGameState extends State<SriReviewGame>
     );
   }
 
-  Widget _buildHeader(_ReviewChallenge challenge) {
+  Widget _buildHeader(ReviewChallenge challenge) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
@@ -524,8 +407,8 @@ class _SriReviewGameState extends State<SriReviewGame>
               children: [
                 Text(
                   _s.sriReviewHeader,
-                  style:
-                      SpaceTheme.titleStyle.copyWith(color: SpaceTheme.starYellow),
+                  style: SpaceTheme.titleStyle
+                      .copyWith(color: SpaceTheme.starYellow),
                 ),
                 Text(
                   '${_index + 1} / ${_challenges.length}',
@@ -544,7 +427,7 @@ class _SriReviewGameState extends State<SriReviewGame>
     );
   }
 
-  Widget _buildDifficultyBanner(_ReviewChallenge challenge) {
+  Widget _buildDifficultyBanner(ReviewChallenge challenge) {
     final ef = challenge.sriData.easinessFactor;
     final label = ef < 1.5
         ? _s.difficultyVeryHard
@@ -586,11 +469,11 @@ class _SriReviewGameState extends State<SriReviewGame>
     );
   }
 
-  Widget _buildPromptCard(_ReviewChallenge challenge) {
+  Widget _buildPromptCard(ReviewChallenge challenge) {
     final typeLabel = switch (challenge.type) {
-      _ChallengeType.article => _s.challengeTypeArticle,
-      _ChallengeType.spelling => _s.challengeTypeSpelling,
-      _ChallengeType.definition => _s.challengeTypeDefinition,
+      ReviewChallengeType.article => _s.challengeTypeArticle,
+      ReviewChallengeType.spelling => _s.challengeTypeSpelling,
+      ReviewChallengeType.definition => _s.challengeTypeDefinition,
     };
 
     return AnimatedBuilder(
@@ -645,7 +528,7 @@ class _SriReviewGameState extends State<SriReviewGame>
     );
   }
 
-  Widget _buildOptions(_ReviewChallenge challenge) {
+  Widget _buildOptions(ReviewChallenge challenge) {
     return Column(
       children: List.generate(challenge.options.length, (i) {
         return Padding(
@@ -656,7 +539,7 @@ class _SriReviewGameState extends State<SriReviewGame>
     );
   }
 
-  Widget _buildOption(_ReviewChallenge challenge, int index) {
+  Widget _buildOption(ReviewChallenge challenge, int index) {
     final isCorrect = index == challenge.correctIndex;
     final isSelected = _selectedOption == index;
     final hasAnswered = _feedback != _Feedback.none;
@@ -683,9 +566,8 @@ class _SriReviewGameState extends State<SriReviewGame>
     Widget tile = AnimatedBuilder(
       animation: _pulseCtrl,
       builder: (_, child) => Transform.scale(
-        scale: (hasAnswered && isCorrect)
-            ? 1.0 + (_pulseCtrl.value * 0.025)
-            : 1.0,
+        scale:
+            (hasAnswered && isCorrect) ? 1.0 + (_pulseCtrl.value * 0.025) : 1.0,
         child: child,
       ),
       child: AnimatedContainer(

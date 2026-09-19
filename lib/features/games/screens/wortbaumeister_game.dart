@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
 import '../../../core/models/vocabulary_models.dart';
+import '../services/wortbaumeister_service.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart';
@@ -24,32 +25,6 @@ class WortbaumeisterGame extends StatefulWidget {
 
   @override
   State<WortbaumeisterGame> createState() => _WortbaumeisterGameState();
-}
-
-enum GameMode { trennbareVerben, nomenKomposita }
-
-class WordChallenge {
-  final String part1;
-  final String part2;
-  final bool shouldBeTogether;
-  final String context;
-  final String explanation;
-  final int difficulty;
-  final String wordId; // Base Lemma
-  final GameMode mode;
-  final String fullWord; // Specific Form
-
-  WordChallenge({
-    required this.part1,
-    required this.part2,
-    required this.shouldBeTogether,
-    required this.context,
-    required this.explanation,
-    required this.difficulty,
-    required this.wordId,
-    required this.mode,
-    required this.fullWord,
-  });
 }
 
 enum FeedbackState { none, correct, incorrect }
@@ -91,7 +66,6 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
   // Effects
   late AnimationController _successController;
   late AnimationController _errorController;
-
 
   @override
   void initState() {
@@ -162,18 +136,16 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
 
   // --- GENERATION LOGIC ---
 
-  /// Shortest noun worth splitting into a compound.
-  static const int _minCompoundLength = 8;
-
   Future<void> _generateChallengeQueue() async {
     _challengeQueue.clear();
-    if (kDebugMode) debugPrint('[WORTBAUMEISTER] 🏗️ Generating new queue from Database examples...');
+    if (kDebugMode)
+      debugPrint(
+          '[WORTBAUMEISTER] 🏗️ Generating new queue from Database examples...');
 
     final allWords = _vocabularyService.getAllWords(_gameProvider);
 
-    final nouns = allWords
-        .where((w) => w.wordType == GermanWordType.substantiv)
-        .toList();
+    final nouns =
+        allWords.where((w) => w.wordType == GermanWordType.substantiv).toList();
 
     // Every noun is a possible compound part, so the split map stays the whole
     // (light) noun list. Only the nouns long enough to *be* a challenge need
@@ -183,89 +155,20 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
     };
 
     final candidates = await _vocabularyService.hydrate(
-        nouns.where((w) => w.word.length >= _minCompoundLength).take(300));
+        nouns.where((w) => w.word.length >= minCompoundLength).take(300));
     if (!mounted) return;
 
-    final nounChallenges = _generateNounChallenges(candidates, nounMap)
+    final nounChallenges = buildCompoundChallenges(candidates, nounMap)
       ..shuffle();
 
-    if (kDebugMode) debugPrint('[WORTBAUMEISTER] 📊 Generated Pool: ${nounChallenges.length} Nouns');
+    if (kDebugMode)
+      debugPrint(
+          '[WORTBAUMEISTER] 📊 Generated Pool: ${nounChallenges.length} Nouns');
 
     for (final c in nounChallenges) {
       if (_challengeQueue.length >= _totalItems) break;
       _challengeQueue.add(c);
     }
-  }
-
-  List<WordChallenge> _generateNounChallenges(List<GermanWord> nouns, Map<String, GermanWord> nounMap) {
-    final challenges = <WordChallenge>[];
-
-    for (final noun in nouns) {
-      if (challenges.length > 20) break;
-      if (noun.word.length < _minCompoundLength) continue;
-
-      final split = _findValidCompoundSplit(noun.word, nounMap);
-
-      if (split != null) {
-        String context = 'Das Wort "${noun.word}" wird so geschrieben.';
-        if (noun.examples.isNotEmpty) {
-           final ex = noun.examples.firstWhere(
-             (e) => e.text != null && e.text!.length < 100,
-             // --- FIX 3: Use ApiExample class, not Example ---
-             orElse: () => ApiExample(text: null)
-           );
-           if (ex.text != null) context = ex.text!;
-        }
-
-        challenges.add(WordChallenge(
-          part1: split.part1,
-          part2: split.part2,
-          shouldBeTogether: true,
-          context: context,
-          explanation: 'Nomen-Komposita schreibt man immer zusammen.',
-          difficulty: 1,
-          wordId: noun.word,
-          mode: GameMode.nomenKomposita,
-          fullWord: noun.word,
-        ));
-      }
-    }
-    return challenges;
-  }
-
-  CompoundSplit? _findValidCompoundSplit(String word, Map<String, GermanWord> nounMap) {
-    // Collect every split where both halves are real DB nouns (≥4 chars each),
-    // then pick the most BALANCED one (largest min-part-length). Returning the
-    // first match favoured a tiny coincidental modifier and produced wrong
-    // decompositions; balanced splits track real compound boundaries better.
-    CompoundSplit? best;
-    int bestScore = -1;
-    for (int i = 4; i < word.length - 3; i++) {
-      final String p1 = word.substring(0, i);
-      final String p2 = word.substring(i);
-      final String p1Lower = p1.toLowerCase();
-      final String p2Lower = p2.toLowerCase();
-
-      bool valid = _isValidNoun(p1Lower, nounMap) && _isValidNoun(p2Lower, nounMap);
-      // Allow a single Fugen-s on the modifier (Geburts+tag).
-      if (!valid && p1Lower.endsWith('s')) {
-        valid = _isValidNoun(p1Lower.substring(0, p1Lower.length - 1), nounMap) &&
-            _isValidNoun(p2Lower, nounMap);
-      }
-      if (valid) {
-        final score = p1.length < p2.length ? p1.length : p2.length;
-        if (score > bestScore) {
-          bestScore = score;
-          best = CompoundSplit(part1: p1, part2: p2, difficulty: 1);
-        }
-      }
-    }
-    return best;
-  }
-
-  bool _isValidNoun(String key, Map<String, GermanWord> map) {
-    final w = map[key];
-    return w != null && w.wordType == GermanWordType.substantiv;
   }
 
   // --- GAMEPLAY & UI ---
@@ -293,13 +196,15 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
   }
 
   void _handleChoice(bool chooseTogether) {
-    if (_currentChallenge == null || _feedbackState != FeedbackState.none) return;
+    if (_currentChallenge == null || _feedbackState != FeedbackState.none)
+      return;
 
     _fallingController.stop();
     final isCorrect = chooseTogether == _currentChallenge!.shouldBeTogether;
 
     setState(() {
-      _feedbackState = isCorrect ? FeedbackState.correct : FeedbackState.incorrect;
+      _feedbackState =
+          isCorrect ? FeedbackState.correct : FeedbackState.incorrect;
       _feedbackMessage = _currentChallenge!.explanation;
       _showContext = true;
     });
@@ -397,7 +302,8 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
     setState(() {
       _level++;
       _fallingSpeed = max(2.5, _fallingSpeed * 0.9);
-      _fallingController.duration = Duration(milliseconds: (_fallingSpeed * 1000).toInt());
+      _fallingController.duration =
+          Duration(milliseconds: (_fallingSpeed * 1000).toInt());
     });
     _audioService.playSound('levelup');
   }
@@ -410,7 +316,8 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
       gameType: 'wortbaumeister_game',
       difficulty: widget.gradeLevel.index + 1,
       score: _score,
-      wasSuccessful: _itemsCompleted > 0 && _correctCount * 2 >= _itemsCompleted,
+      wasSuccessful:
+          _itemsCompleted > 0 && _correctCount * 2 >= _itemsCompleted,
     ));
 
     showDialog(
@@ -507,7 +414,8 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
               decoration: BoxDecoration(
                 color: SpaceTheme.nebulaPurple.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: SpaceTheme.nebulaPurple.withValues(alpha: 0.5)),
+                border: Border.all(
+                    color: SpaceTheme.nebulaPurple.withValues(alpha: 0.5)),
               ),
               child: FittedBox(
                 fit: BoxFit.scaleDown,
@@ -525,12 +433,14 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
           const SizedBox(width: 8),
           Semantics(
             label: s.semanticsScore(_score),
-            child: _buildCompactStat(Icons.stars, '$_score', SpaceTheme.starYellow),
+            child: _buildCompactStat(
+                Icons.stars, '$_score', SpaceTheme.starYellow),
           ),
           const SizedBox(width: 8),
           Semantics(
             label: s.semanticsProgress(_itemsCompleted, _totalItems),
-            child: _buildCompactStat(Icons.check_circle_outline, '$_itemsCompleted/$_totalItems', SpaceTheme.cosmicPink),
+            child: _buildCompactStat(Icons.check_circle_outline,
+                '$_itemsCompleted/$_totalItems', SpaceTheme.cosmicPink),
           ),
           const Spacer(),
           if (_combo > 1)
@@ -599,7 +509,9 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
           child: FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(
-              _currentMode == GameMode.trennbareVerben ? s.verbtrennerSeparableTitle : s.verbtrennerCompoundTitle,
+              _currentMode == GameMode.trennbareVerben
+                  ? s.verbtrennerSeparableTitle
+                  : s.verbtrennerCompoundTitle,
               style: SpaceTheme.headlineStyle.copyWith(fontSize: 18),
             ),
           ),
@@ -641,7 +553,6 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
             ),
           ),
         ),
-
         Positioned(
           left: 0,
           right: 0,
@@ -683,8 +594,8 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildBlock(_currentChallenge!.part1.toUpperCase(), selectedFontFamily),
-
+              _buildBlock(
+                  _currentChallenge!.part1.toUpperCase(), selectedFontFamily),
               Container(
                 width: 40,
                 height: 4,
@@ -694,8 +605,8 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
-
-              _buildBlock(_currentChallenge!.part2.toUpperCase(), selectedFontFamily),
+              _buildBlock(
+                  _currentChallenge!.part2.toUpperCase(), selectedFontFamily),
             ],
           ),
           if (_showContext) ...[
@@ -706,7 +617,8 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
               decoration: BoxDecoration(
                 color: Colors.black54,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: SpaceTheme.nebulaPurple.withValues(alpha: 0.3)),
+                border: Border.all(
+                    color: SpaceTheme.nebulaPurple.withValues(alpha: 0.3)),
               ),
               child: Column(
                 children: [
@@ -769,7 +681,8 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
       decoration: BoxDecoration(
         color: _getWordColor(),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 2),
+        border:
+            Border.all(color: Colors.white.withValues(alpha: 0.3), width: 2),
         boxShadow: [
           BoxShadow(
             color: _getWordColor().withValues(alpha: 0.4),
@@ -857,7 +770,8 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 2),
+              border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.3), width: 2),
               boxShadow: [
                 BoxShadow(
                   color: color.withValues(alpha: 0.4),
@@ -902,14 +816,3 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
 }
 
 /// Helper class for compound splits
-class CompoundSplit {
-  final String part1;
-  final String part2;
-  final int difficulty;
-
-  CompoundSplit({
-    required this.part1,
-    required this.part2,
-    required this.difficulty,
-  });
-}
