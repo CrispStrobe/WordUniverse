@@ -46,13 +46,39 @@ GermanWord? pickWordOfTheDay(List<GermanWord> words, DateTime date,
               ? w.gradeLevel <= 3
               : w.gradeLevel == targetBand) &&
           isPresentableVocabularyEntry(w) &&
+          // Headwords only. The catalogue carries inflected forms as their own
+          // entries, and a noun plural still gets its singular article from
+          // displayName — "an elements", "a laughs". A word presented as the
+          // word of the day should be the one a learner would look up.
+          w.word.toLowerCase() == w.lemma.toLowerCase() &&
           !w.has(WordFeature.knownMisspelling) &&
           !knownMisspellings.contains(_normalizeHeadword(w.word)) &&
           _hasDefinition(w))
       .toList();
   if (pool.isEmpty) return null;
   final seed = dayOfYear(date) + date.year * 366;
-  return pool[seed.abs() % pool.length];
+  return pool[_scatter(seed) % pool.length];
+}
+
+/// Spreads consecutive seeds across the pool.
+///
+/// The index used to be the seed itself, and the pool arrives in catalogue
+/// order — so the word of the day walked the dictionary one entry per day:
+/// *concern, concerned, concerning, concerns, conclusion…* through January,
+/// and *Lexikon, lila, Limonade, Lineal, links…* in German. Still a pure
+/// function of the date, so a given day is still the same word for everyone;
+/// only the order is no longer alphabetical.
+///
+/// A 32-bit integer finalizer (MurmurHash3's), which is cheap and mixes
+/// adjacent inputs to unrelated outputs.
+int _scatter(int seed) {
+  var x = seed & 0xffffffff;
+  x ^= x >>> 16;
+  x = (x * 0x85ebca6b) & 0xffffffff;
+  x ^= x >>> 13;
+  x = (x * 0xc2b2ae35) & 0xffffffff;
+  x ^= x >>> 16;
+  return x;
 }
 
 /// Whether the word has a definition to show — from the decoded enrichment
