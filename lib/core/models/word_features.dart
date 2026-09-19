@@ -56,7 +56,7 @@ enum WordFeature {
 }
 
 /// Bump when a bit's meaning changes, so cached indexes are discarded.
-const int kWordFeatureIndexFormat = 3;
+const int kWordFeatureIndexFormat = 4;
 
 extension WordFeatureMask on int {
   bool hasFeature(WordFeature feature) => this & feature.mask != 0;

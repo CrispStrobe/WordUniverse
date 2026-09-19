@@ -12,8 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
-import '../../../core/models/vocabulary_models.dart';
 import '../../../core/models/word_features.dart';
+import '../services/translation_flash_service.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart';
@@ -27,18 +27,7 @@ import '../../../shared/widgets/onboarding_overlay.dart';
 
 // ─── Internal data model ──────────────────────────────────────────────────────
 
-class _ReverseChallenge {
-  final GermanWord deWord;
-  final String enPrompt;
-  final List<String> options;
-  final int correctIndex;
-  const _ReverseChallenge({
-    required this.deWord,
-    required this.enPrompt,
-    required this.options,
-    required this.correctIndex,
-  });
-}
+
 
 enum _Feedback { none, correct, incorrect }
 
@@ -68,7 +57,7 @@ class _ReverseTranslationFlashGameState
 
   bool _isLoading = true;
   bool _onboardingScheduled = false;
-  List<_ReverseChallenge> _challenges = [];
+  List<TranslationChallenge> _challenges = [];
   int _index = 0;
   int _correct = 0;
   int _total = 0;
@@ -140,24 +129,9 @@ class _ReverseTranslationFlashGameState
 
   // ─── Challenge building ────────────────────────────────────────────────────
 
-  static bool _isCleanTranslation(String w) {
-    if (w.isEmpty) return false;
-    if (w.contains('.')) return false;
-    if (w == w.toUpperCase() && w.length > 1) return false;
-    if (!RegExp(r"^[a-zA-Z\-' ]+$").hasMatch(w)) return false;
-    return w.split(' ').length <= 2;
-  }
 
-  static String? _primaryEnTranslation(GermanWord word) {
-    final translations = word.apiEnrichment?.translations ?? [];
-    for (final t in translations) {
-      if (t.langCode == 'en' && t.word != null) {
-        final w = t.word!.trim();
-        if (_isCleanTranslation(w)) return w;
-      }
-    }
-    return null;
-  }
+
+
 
   Future<void> _buildChallenges() async {
     // Which words carry translations at all comes from the feature index;
@@ -174,7 +148,7 @@ class _ReverseTranslationFlashGameState
           !w.word.contains(' '),
       random: _rng,
     ))
-        .where((w) => _primaryEnTranslation(w) != null)
+        .where((w) => primaryEnglishTranslation(w) != null)
         .toList();
     if (!mounted) return;
 
@@ -183,17 +157,13 @@ class _ReverseTranslationFlashGameState
       return;
     }
 
-    // Already grade-first and shuffled by the pool query.
-    final pool = allWords;
-
-    final dePool = allWords.toList()..shuffle(_rng);
-
-    final challenges = <_ReverseChallenge>[];
-    for (final word in pool) {
-      if (challenges.length >= _maxRounds) break;
-      final c = _buildChallenge(word, dePool);
-      if (c != null) challenges.add(c);
-    }
+    final challenges = buildTranslationChallenges(
+      pool: allWords,
+      maxChallenges: _maxRounds,
+      optionCount: _optionCount,
+      reversed: true,
+      rng: _rng,
+    );
 
     setState(() {
       _challenges = challenges;
@@ -210,38 +180,7 @@ class _ReverseTranslationFlashGameState
     _startTimer();
   }
 
-  _ReverseChallenge? _buildChallenge(GermanWord word, List<GermanWord> dePool) {
-    final enPrompt = _primaryEnTranslation(word);
-    if (enPrompt == null) return null;
 
-    final answerEn = enPrompt.toLowerCase();
-    final distractors = <String>[];
-    for (final cand in dePool) {
-      if (distractors.length >= _optionCount - 1) break;
-      if (cand.word.toLowerCase() == word.word.toLowerCase()) continue;
-      // Skip distractors that ALSO translate the shown English word
-      // (e.g. Frau/Ehefrau both → "wife") — they'd be wrong-but-valid.
-      if (_primaryEnTranslation(cand)?.toLowerCase() == answerEn) continue;
-      if (distractors.any((x) => x.toLowerCase() == cand.word.toLowerCase())) {
-        continue;
-      }
-      distractors.add(cand.word);
-    }
-    if (distractors.length < _optionCount - 1) return null;
-
-    final options = [word.word, ...distractors.take(_optionCount - 1)];
-    options.shuffle(_rng);
-    final correctIndex =
-        options.indexWhere((o) => o.toLowerCase() == word.word.toLowerCase());
-    if (correctIndex < 0) return null;
-
-    return _ReverseChallenge(
-      deWord: word,
-      enPrompt: enPrompt,
-      options: options,
-      correctIndex: correctIndex,
-    );
-  }
 
   // ─── Timer ─────────────────────────────────────────────────────────────────
 
@@ -287,7 +226,7 @@ class _ReverseTranslationFlashGameState
       _correct++;
       _sriService.recordResponse(
         skillType: LanguageSkillType.vocabulary,
-        baseWord: challenge.deWord.word,
+        baseWord: challenge.word.word,
         wasCorrect: true,
       );
     } else {
@@ -296,7 +235,7 @@ class _ReverseTranslationFlashGameState
       _shakeCtrl.forward(from: 0).then((_) => _shakeCtrl.reverse());
       _sriService.recordResponse(
         skillType: LanguageSkillType.vocabulary,
-        baseWord: challenge.deWord.word,
+        baseWord: challenge.word.word,
         wasCorrect: false,
       );
     }
@@ -506,7 +445,7 @@ class _ReverseTranslationFlashGameState
     );
   }
 
-  Widget _buildWordCard(_ReverseChallenge challenge) {
+  Widget _buildWordCard(TranslationChallenge challenge) {
     return AnimatedBuilder(
       animation: _shakeCtrl,
       builder: (_, child) => Transform.translate(
@@ -548,7 +487,7 @@ class _ReverseTranslationFlashGameState
             ),
             const SizedBox(height: 10),
             Text(
-              challenge.enPrompt,
+              challenge.translation,
               style: SpaceTheme.headlineStyle.copyWith(
                 fontSize: 34,
                 color: Colors.white,
@@ -556,9 +495,9 @@ class _ReverseTranslationFlashGameState
               ),
               textAlign: TextAlign.center,
             ),
-            if (challenge.deWord.cefrLevel != null) ...[
+            if (challenge.word.cefrLevel != null) ...[
               const SizedBox(height: 8),
-              CefrChip(challenge.deWord.cefrLevel!),
+              CefrChip(challenge.word.cefrLevel!),
             ],
           ],
         ),
@@ -566,7 +505,7 @@ class _ReverseTranslationFlashGameState
     );
   }
 
-  Widget _buildOptions(_ReverseChallenge challenge) {
+  Widget _buildOptions(TranslationChallenge challenge) {
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
@@ -580,7 +519,7 @@ class _ReverseTranslationFlashGameState
     );
   }
 
-  Widget _buildOption(_ReverseChallenge challenge, int index) {
+  Widget _buildOption(TranslationChallenge challenge, int index) {
     final isCorrect = index == challenge.correctIndex;
     final isSelected = _selectedOption == index;
     final hasAnswered = _feedback != _Feedback.none;

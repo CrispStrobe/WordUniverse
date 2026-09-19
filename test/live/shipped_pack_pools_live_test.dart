@@ -190,7 +190,9 @@ void main() {
     probeWord: 'Hund',
     pools: {
       ...shared,
-      // German-only games.
+      // German-only games. Translation asks for the English of a German word,
+      // so the English pack carries no data for it by design.
+      WordFeature.translations: 'translation flash, reverse translation flash',
       WordFeature.expressions: 'expression flash',
       WordFeature.proverbs: 'proverb cloze',
     },
