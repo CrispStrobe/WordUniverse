@@ -40,6 +40,7 @@ import 'package:WortUniversum/core/services/vocabulary_service.dart';
 import 'package:WortUniversum/features/games/providers/game_provider.dart';
 import 'package:WortUniversum/features/games/services/definition_quiz_service.dart';
 import 'package:WortUniversum/features/games/services/false_friend_service.dart';
+import 'package:WortUniversum/features/games/services/synonym_flash_service.dart';
 import 'package:WortUniversum/features/games/services/homophone_drill_service.dart';
 import 'package:WortUniversum/features/games/services/phrasal_verb_service.dart';
 import 'package:WortUniversum/features/games/services/wortfalle_service.dart';
@@ -94,6 +95,7 @@ typedef Generator = Future<List<Item>> Function(_Context context);
 /// review content no learner is offered.
 const Map<String, List<String>> generatorLanguages = {
   'definition_quiz': ['en', 'de'],
+  'synonym_flash': ['en', 'de'],
   'homophone_drill': ['en'],
   'wortfalle': ['de'],
   'false_friends': ['en'],
@@ -131,6 +133,26 @@ class _Context {
 }
 
 final Map<String, Generator> generators = {
+  'synonym_flash': (c) async => buildSynonymChallenges(
+        pool: await c.pool(WordFeature.synonyms,
+            where: (w) =>
+                !w.isProperNoun &&
+                w.isHeadword &&
+                w.word.length >= 3 &&
+                !w.word.contains('_') &&
+                !w.word.contains(' ')),
+        isGerman: c.isGerman,
+        maxChallenges: c.count,
+        rng: c.rng,
+      )
+          .map((ch) => Item(
+                game: 'synonym_flash',
+                prompt: 'Which word means the same as "${ch.word.word}"?',
+                options: ch.options,
+                answer: ch.options[ch.correctIndex],
+                notes: {'grade': ch.word.gradeLevel},
+              ))
+          .toList(),
   'definition_quiz': (c) async => buildDefinitionChallenges(
         pool: await c.pool(WordFeature.definitions,
             where: (w) => !w.isProperNoun && w.isHeadword),
@@ -259,7 +281,7 @@ final Map<String, Generator> generators = {
 /// Games that still build their challenges inside the widget, so this harness
 /// cannot reach them yet. Printed after a run so the gap stays visible.
 const notYetReachable = [
-  'synonym_flash', 'antonym_flash', 'hypernym_flash',
+  'antonym_flash', 'hypernym_flash',
   'syllable_count', 'cloze_flash', 'proverb_cloze', 'expression_flash',
   'sentence_completion', 'translation_flash', 'reverse_translation_flash',
   'spelling_spotter', 'sri_review', 'conjugation_drill', 'word_class_flash',

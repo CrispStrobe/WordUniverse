@@ -50,7 +50,7 @@ GermanWord? pickWordOfTheDay(List<GermanWord> words, DateTime date,
       _hasDefinition(w) &&
       // Brands and place names reach the catalogue untyped — "a sony",
       // "columbia" — and a name is not a word to learn the meaning of.
-      !_namesSomething(w);
+      !namesSomething(w);
 
   final eligibleWords = words.where(eligible).toList();
   if (eligibleWords.isEmpty) return null;
@@ -150,14 +150,5 @@ int _scatter(int seed) {
 bool _hasDefinition(GermanWord word) => word.isHydrated
     ? (word.apiEnrichment?.definitions.isNotEmpty ?? false)
     : word.has(WordFeature.definitions);
-
-/// Whether the word's own gloss says it is a name or a place.
-///
-/// Only decoded words can be checked; a light pool is filtered by the same
-/// rule once the chosen word is hydrated for display.
-bool _namesSomething(GermanWord word) {
-  final definition = word.displayDefinitions.firstOrNull;
-  return definition != null && describesAName(definition);
-}
 
 String _normalizeHeadword(String word) => word.trim().toLowerCase();
