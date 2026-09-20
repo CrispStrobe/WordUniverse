@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:WortUniversum/features/home/services/word_of_the_day_service.dart';
 import 'package:WortUniversum/core/models/vocabulary_models.dart';
 import 'package:WortUniversum/core/models/skill_category.dart';
+import 'package:WortUniversum/core/models/word_features.dart';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -48,6 +49,7 @@ GermanWord _word(
   List<String> sources = const [],
   List<String>? commonMistakes,
   GermanWordType wordType = GermanWordType.substantiv,
+  int features = 0,
   ApiEnrichment? api,
 }) =>
     GermanWord(
@@ -64,6 +66,7 @@ GermanWord _word(
       exampleSentences: const [],
       spellingDifficulty: SpellingDifficulty.easy,
       isProperNoun: isProperNoun,
+      features: features,
       commonMistakes: commonMistakes,
       apiEnrichment: api,
       examples: const [],
@@ -82,8 +85,16 @@ GermanWord _word(
       coordinateTerms: const [],
     );
 
-GermanWord _eligible(String word, {int grade = 1}) =>
-    _word(word, grade: grade, api: _enrichment(definitions: ['a meaning']));
+GermanWord _eligible(String word, {int grade = 1, int features = 0}) => _word(
+      word,
+      grade: grade,
+      features: features,
+      api: _enrichment(definitions: ['a meaning']),
+    );
+
+/// A word the packs' curriculum lists prescribe — see WordFeature.curriculum.
+GermanWord _curriculum(String word, {int grade = 1}) =>
+    _eligible(word, grade: grade, features: WordFeature.curriculum.mask);
 
 void main() {
   // ─── dayOfYear ─────────────────────────────────────────────────────────────
@@ -153,6 +164,48 @@ void main() {
         expect(pickWordOfTheDay(words, date), isNotNull,
             reason: 'grade $g should be included');
       }
+    });
+
+    test('reaches a band ahead of the learner before the band itself', () {
+      final words = [
+        _eligible('vierte', grade: 4),
+        _eligible('fuenfte', grade: 5),
+        _eligible('sechste', grade: 6),
+      ];
+      // kWordOfTheDayStretch asks for band+1 first: a grade 4 learner meets a
+      // grade 5 word, which is the point of the card.
+      expect(pickWordOfTheDay(words, date, targetBand: 4)?.word, 'fuenfte');
+    });
+
+    test('falls back through the stretch to the learner\'s own band', () {
+      final words = [_eligible('vierte', grade: 4)];
+      expect(pickWordOfTheDay(words, date, targetBand: 4)?.word, 'vierte');
+    });
+
+    test('the stretch clamps at the top band', () {
+      final words = [_eligible('sechste', grade: 6)];
+      expect(pickWordOfTheDay(words, date, targetBand: 6)?.word, 'sechste');
+    });
+
+    test('prefers a curriculum word over an untagged one in the same band', () {
+      final words = [
+        _eligible('beliebig', grade: 5),
+        _curriculum('vorgeschrieben', grade: 5),
+      ];
+      expect(
+          pickWordOfTheDay(words, date, targetBand: 4)?.word, 'vorgeschrieben');
+    });
+
+    test('an untagged word still shows when no curriculum word fits the band',
+        () {
+      final words = [
+        _curriculum('vorgeschrieben', grade: 1),
+        _eligible('beliebig', grade: 5),
+      ];
+      // The curriculum pool is searched across the whole stretch before the
+      // untagged one is consulted, but grade 1 is not in a grade 4 learner's
+      // stretch, so the untagged grade 5 word wins.
+      expect(pickWordOfTheDay(words, date, targetBand: 4)?.word, 'beliebig');
     });
 
     test('targets the selected learning band when requested', () {
