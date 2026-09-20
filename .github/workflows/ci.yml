@@ -94,6 +94,13 @@ jobs:
           WU_PACK_DE: ${{ github.workspace }}/.cache/packs/grundwortschatz.db
         run: flutter test --reporter expanded test/live/shipped_pack_pools_live_test.dart
 
+      # A frozen sample of what the games ask, so a change to the content
+      # arrives as a diff someone reads rather than as nothing at all.
+      - name: Content golden sample
+        env:
+          WU_PACK_DE: ${{ github.workspace }}/.cache/packs/grundwortschatz.db
+        run: flutter test --reporter expanded test/audit/challenge_golden_test.dart
+
       # Every German form the games compose, against the pack's own tables.
       # A structural check cannot tell "du sprichst" from "du sprechst".
       - name: German forms

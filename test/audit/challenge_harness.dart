@@ -195,6 +195,7 @@ Generator _wordPractice(
         count: c.count,
         isPlayable: playable ?? (w) => !w.word.contains(' '),
         skillFilter: skill,
+        rng: c.rng,
       ));
       return words
           .map((w) => Item(
