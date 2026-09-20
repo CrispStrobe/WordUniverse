@@ -20,7 +20,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
+        with:
+          # Two commits, so the deploy step can ask what actually changed.
+          fetch-depth: 2
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -29,7 +32,7 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: '22'
 
@@ -103,12 +106,36 @@ jobs:
       - name: Build web
         run: flutter build web --release
 
-      - name: Install Vercel CLI
+      # Deploying every push burned the account's hundred-a-day and left CI
+      # red on commits that changed nothing the browser can see. A commit
+      # that only touches docs, tests or tools produces the same build, so
+      # there is nothing to promote.
+      - name: Does this commit change the app?
+        id: shipped
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          before='${{ github.event.before }}'
+          if [ -z "$before" ] || [ "$before" = '0000000000000000000000000000000000000000' ] \
+             || ! git cat-file -e "$before^{commit}" 2>/dev/null; then
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+            echo 'No usable base commit; deploying.'
+            exit 0
+          fi
+          files="$(git diff --name-only "$before" '${{ github.sha }}')"
+          echo "$files"
+          if echo "$files" | grep -qvE '^(docs/|test/|tools/|\.github/|[^/]*\.md$)'; then
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+            echo 'Only docs, tests and tooling changed — not deploying.'
+          fi
+
+      - name: Install Vercel CLI
+        if: steps.shipped.outputs.changed == 'true'
         run: npm install --global vercel@latest
 
       - name: Deploy
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        if: steps.shipped.outputs.changed == 'true'
         working-directory: build/web
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
