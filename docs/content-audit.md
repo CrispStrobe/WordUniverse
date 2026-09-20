@@ -9,30 +9,41 @@ games one round at a time surfaces a handful of items an hour.
 JSON, so a reviewer or an agent can read hundreds at once.
 
 ```sh
-# everything reachable, English pack, 25 items per game
-WU_DUMP=all WU_DUMP_COUNT=25 flutter test test/audit/challenge_dump_test.dart
+tools/audit/dump.sh --list                       # the games, and their packs
+tools/audit/dump.sh --game definition_quiz --grade 4 --count 30
+tools/audit/dump.sh --lang de --pack-de ~/grundwortschatz.db --json
+tools/audit/dump.sh --check                      # assert instead of print
+```
 
-# one game, a particular grade band, as JSON lines for a script to check
+`--check` runs `test/audit/challenge_contract_test.dart` (below). The German
+pack is a download, so `--lang de` needs `--pack-de` pointing at a decompressed
+copy; the English pack ships as an asset.
+
+The script is a wrapper: the harness itself is driven by environment variables
+and can be run directly.
+
+```sh
+WU_DUMP=all WU_DUMP_COUNT=25 flutter test test/audit/challenge_dump_test.dart
 WU_DUMP=homophone_drill WU_DUMP_GRADE=4 WU_DUMP_FORMAT=json \
   flutter test test/audit/challenge_dump_test.dart
-
-# the German pack (a download, so point at a decompressed copy)
-WU_DUMP=all WU_DUMP_LANG=de WU_PACK_DE=/path/to/grundwortschatz.db \
-  WU_DUMP_OUT=/tmp/dump_de.txt flutter test test/audit/challenge_dump_test.dart
 ```
 
 | variable | meaning |
 |---|---|
-| `WU_DUMP` | `all`, or a comma-separated list of generators |
+| `WU_DUMP` | `all`, `list`, or a comma-separated list of generators |
 | `WU_DUMP_COUNT` | items per generator (default 20) |
 | `WU_DUMP_GRADE` | grade band to generate for (default 3) |
 | `WU_DUMP_LANG` | `en` (default) or `de` |
 | `WU_DUMP_FORMAT` | `text` (default) or `json` — one JSON object per line |
 | `WU_DUMP_SEED` | RNG seed, so a review is reproducible (default 1) |
 | `WU_DUMP_OUT` | write to a file instead of stdout |
+| `WU_PACK_DE` | decompressed German pack, required for `WU_DUMP_LANG=de` |
 
-It asserts nothing. The output is the product: each item shows the prompt, the
-options, which option is keyed correct, and the data behind it.
+The dump asserts nothing: the output is the product. Each item shows the
+prompt, the options, which option is keyed correct, and the data behind it, so
+a reviewer can judge whether the question is answerable, whether the marked
+answer is right, and whether the distractors are fair. What *can* be judged
+without a person is in the contract test below.
 
 ## What it found on its first run
 
@@ -46,7 +57,34 @@ options, which option is keyed correct, and the data behind it.
   singular article from `displayName` — "an elements", "a laughs", "an arms".
   Fixed by restricting the pool to entries whose spelling is their own lemma.
 - Both were invisible to the test suite and to ordinary play, and obvious
-  within seconds of reading a dump.
+  within seconds of reading a dump. Later runs added: a cloze sentence that
+  said the answer again beside the gap, Translation Flash asking cognates
+  ("What is *das Hobby* in English?"), and names the packs do not flag sitting
+  among the options — *hannibal*, offered as a meaning of *detector*.
+
+## The contract test
+
+`test/audit/challenge_contract_test.dart` runs every generator over grades 1-6
+of both packs — 1,214 English items and 1,568 German ones — and asserts what
+does not need a person:
+
+- the prompt is not blank, and carries no stray `null`
+- every option is non-blank, and no two options are the same
+- the keyed answer is among the options
+- the prompt does not contain its own answer
+- every game fills a round, at more than one grade band
+
+Each rule was a real bug first. The last one is the widest: Translation Flash
+was in the menu with an empty pool for weeks, because the feature bit it
+filtered on read a JSON key neither pack uses, and nothing failed.
+
+Exemptions are declared in the test with a reason — games whose prompt names
+the word on purpose (*Find "x" in the grid*), and the three where two options
+differing only in case *is* the question (Wortfalle's *Wagen* / *wagen*). A new
+game that needs an exemption should say why it needs one.
+
+CI runs the English half, since that pack ships as an asset. The German half
+skips unless `WU_PACK_DE` points at a decompressed pack.
 
 ## Coverage, and how to widen it
 
