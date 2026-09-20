@@ -50,7 +50,13 @@ enum WordFeature {
   /// The entry's own gloss says it names something — a surname, a given name,
   /// a place. The packs carry these untyped, so [GermanWord.isProperNoun]
   /// misses them. See `describesAName`.
-  nameLike(19);
+  nameLike(19),
+
+  /// The entry's first gloss is a meaning a learner can be asked about —
+  /// not a parse ("plural of passerby"), an abbreviation ("Abbreviation of
+  /// July."), a bare domain label ("Botanik:"), a single word pointing at
+  /// another entry, or a name. See `isUsableDefinition`.
+  usableDefinition(20);
 
   const WordFeature(this.bit);
 
@@ -61,7 +67,7 @@ enum WordFeature {
 }
 
 /// Bump when a bit's meaning changes, so cached indexes are discarded.
-const int kWordFeatureIndexFormat = 6;
+const int kWordFeatureIndexFormat = 7;
 
 extension WordFeatureMask on int {
   bool hasFeature(WordFeature feature) => this & feature.mask != 0;

@@ -100,6 +100,10 @@ const List<String> kNameGlossPhrases = [
   // The German pack's grade glosses are written as sentences: "Afrika ist ein
   // Kontinent.", "Berlin ist eine Stadt."
   'ist ein kontinent', 'ist eine stadt', 'ist ein land', 'ist ein fluss',
+  // And the appositive form the pack also uses: "eine Stadt in Nordrhein-
+  // Westfalen, Deutschland" for Lünen.
+  'eine stadt in', 'eine gemeinde in', 'ein ort in', 'ein fluss in',
+  'ein stadtteil', 'ein bundesland', 'ein dorf in',
   'ist ein meer', 'ist ein gebirge', 'hauptstadt von',
   'an island', 'an archipelago', 'a peninsula', 'a continent',
   'a mountain range', 'a sea ', 'an ocean', 'a capital of', 'a capital city',
@@ -107,6 +111,10 @@ const List<String> kNameGlossPhrases = [
   // Testament" is a name, not vocabulary.
   'in the old testament', 'in the new testament', 'in greek mythology',
   'in roman mythology', 'in norse mythology',
+  // Religious figures: "jesus" reached an English grade 3 definition quiz,
+  // keyed against "batman" and "cam".
+  'the messiah', 'son of god', 'in christianity', 'in islam', 'in judaism',
+  'in the bible', 'in the quran', 'biblical figure', 'a prophet',
 ];
 
 /// Whether the entry's own gloss says it is a name or a place.
@@ -133,10 +141,11 @@ bool namesSomething(GermanWord word) {
 /// misspelling — "simple past and past participle of annoint".
 bool describesAGrammaticalForm(String definition) {
   final lower = definition.toLowerCase();
-  return _grammaticalFormMarkers.any(lower.contains);
+  return kGrammaticalFormMarkers.any(lower.contains);
 }
 
-const _grammaticalFormMarkers = <String>[
+/// Also compiled into SQL when the pack's feature index is built.
+const kGrammaticalFormMarkers = <String>[
   // English
   'plural of', 'singular of', 'past participle of', 'present participle of',
   'simple past', 'third-person singular of', 'comparative of',
@@ -155,10 +164,11 @@ const _grammaticalFormMarkers = <String>[
 /// Whether a gloss says the entry is an abbreviation: "Abbreviation of July."
 bool describesAnAbbreviation(String definition) {
   final lower = definition.toLowerCase();
-  return _abbreviationMarkers.any(lower.contains);
+  return kAbbreviationMarkers.any(lower.contains);
 }
 
-const _abbreviationMarkers = <String>[
+/// Also compiled into SQL when the pack's feature index is built.
+const kAbbreviationMarkers = <String>[
   'abbreviation of',
   'initialism of',
   'acronym of',
@@ -182,5 +192,29 @@ bool isUsableDefinition(String definition) {
   if (describesAGrammaticalForm(trimmed)) return false;
   if (describesAnAbbreviation(trimmed)) return false;
   if (describesAName(trimmed)) return false;
+  if (_endsMidSentence(trimmed)) return false;
   return true;
 }
+
+/// Whether the gloss stops in the middle of itself — the German pack cuts
+/// "eine Hupe am Kraftfahrzeug betätigen, um" off after the conjunction.
+bool _endsMidSentence(String definition) {
+  final trimmed = definition.trim();
+  // "Eine Alternative ist,." — the generator stopped and punctuated anyway.
+  if (trimmed.contains(',.') || trimmed.contains(' .')) return true;
+  final stripped = trimmed.replaceAll(RegExp(r'[\s.,;:!?]+$'), '');
+  if (stripped.isEmpty) return true;
+  if (trimmed.endsWith(',') || trimmed.endsWith(';')) return true;
+  return _danglingWords
+      .contains(stripped.split(RegExp(r'\s+')).last.toLowerCase());
+}
+
+const _danglingWords = <String>{
+  // German
+  'um', 'und', 'oder', 'dass', 'zu', 'mit', 'von', 'für', 'der', 'die', 'das',
+  'ein', 'eine', 'einen', 'einem', 'einer', 'im', 'am', 'beim', 'zum', 'zur',
+  'wenn', 'weil', 'sich', 'als', 'aus', 'auf', 'in',
+  // English
+  'to', 'of', 'the', 'a', 'an', 'and', 'or', 'that', 'with', 'for', 'by',
+  'from', 'as', 'at', 'on',
+};

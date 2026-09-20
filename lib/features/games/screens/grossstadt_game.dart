@@ -7,6 +7,8 @@ import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
 import '../../../core/models/vocabulary_models.dart';
+import '../../../core/models/vocabulary_quality.dart';
+import '../../../core/models/word_features.dart';
 import '../services/grossstadt_service.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
@@ -188,6 +190,11 @@ class _GrossstadtGameState extends State<GrossstadtGame>
             w.wordType == type &&
             !w.word.contains(' ') && // Single words only
             w.word.length >= 3 &&
+            // A word the pack gives no meaning for is not one to drill: the
+            // spelling-error corpora contribute "kacken" and "furzen" with no
+            // gloss, no grade and nothing else.
+            w.has(WordFeature.usableDefinition) &&
+            !namesSomething(w) &&
             w.gradeLevel <= widget.gradeLevel.index + 2)
         .toList();
 

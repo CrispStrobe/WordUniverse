@@ -136,6 +136,23 @@ void main() {
     });
   });
 
+  group('isUsableDefinition, continued', () {
+    test('rejects a gloss that stops mid-sentence', () {
+      // Shipped: the German gloss of "hupen".
+      expect(isUsableDefinition('eine Hupe am Kraftfahrzeug betätigen, um'),
+          isFalse);
+      expect(isUsableDefinition('Ein Gerät zum'), isFalse);
+      expect(isUsableDefinition('A device used for,'), isFalse);
+      // "Eine Alternative ist,." — stopped, then punctuated anyway.
+      expect(isUsableDefinition('Eine Alternative ist,.'), isFalse);
+    });
+
+    test('a gloss that merely ends in a short word is fine', () {
+      expect(isUsableDefinition('Etwas, das man gerne tut.'), isTrue);
+      expect(isUsableDefinition('A person who helps.'), isTrue);
+    });
+  });
+
   group('describesAName', () {
     test('catches the German pack\'s sentence glosses', () {
       expect(describesAName('Afrika ist ein Kontinent.'), isTrue);
@@ -146,6 +163,19 @@ void main() {
       expect(
           describesAName('The capital city of the United Kingdom; the capital '
               'city of England.'),
+          isTrue);
+    });
+
+    test('catches religious figures', () {
+      // "jesus" reached an English grade 3 definition quiz.
+      expect(
+          describesAName('Jesus of Nazareth, a first-century Jewish '
+              'religious preacher, held to be the Messiah in Christianity.'),
+          isTrue);
+    });
+
+    test('catches German place glosses in the appositive form', () {
+      expect(describesAName('eine Stadt in Nordrhein-Westfalen, Deutschland'),
           isTrue);
     });
 
