@@ -740,7 +740,12 @@ class AuditPack {
 
 /// Where the German pack is, for a caller that needs to skip without it. The
 /// English pack ships as an asset; the German one is a download.
-String? get germanPackPath => Platform.environment['WU_PACK_DE'];
+String? get germanPackPath {
+  // Empty counts as unset: a wrapper that always exports WU_PACK_DE would
+  // otherwise make every caller look for a pack at "".
+  final path = Platform.environment['WU_PACK_DE'];
+  return (path == null || path.isEmpty) ? null : path;
+}
 
 /// Unpacks [language] into a temporary directory and initialises the services
 /// the generators read from. The caller owns [AuditPack.dispose].

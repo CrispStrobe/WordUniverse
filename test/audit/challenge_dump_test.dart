@@ -37,6 +37,16 @@ void main() {
       markTestSkipped('set WU_DUMP=all or WU_DUMP=<game>[,<game>...]');
       return;
     }
+    if (requested == 'list') {
+      for (final name in generators.keys.toList()..sort()) {
+        // ignore: avoid_print
+        print('$name\t${(generatorLanguages[name] ?? const [
+              'en',
+              'de'
+            ]).join(',')}');
+      }
+      return;
+    }
     final language = Platform.environment['WU_DUMP_LANG'] ?? 'en';
     final count =
         int.tryParse(Platform.environment['WU_DUMP_COUNT'] ?? '') ?? 20;
