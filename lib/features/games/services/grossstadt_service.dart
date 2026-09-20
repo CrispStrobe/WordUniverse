@@ -104,7 +104,10 @@ String? conjugatedForm(GermanWord word, String person) {
   return null;
 }
 
-List<CapitalizationItem> verbVariants(GermanWord word) {
+/// [rng] is threaded through so a dump can be reproduced from its seed: these
+/// built their own Random(), and the same command gave different items.
+List<CapitalizationItem> verbVariants(GermanWord word, {Random? rng}) {
+  final random = rng ?? Random();
   final items = <CapitalizationItem>[];
 
   // Skip if lemma is not an infinitive
@@ -116,7 +119,7 @@ List<CapitalizationItem> verbVariants(GermanWord word) {
 
   // 1. Nominalization (Groß) -> "DAS LAUFEN"
   final articles = ['DAS', 'BEIM', 'ZUM'];
-  final article = articles[Random().nextInt(articles.length)];
+  final article = articles[random.nextInt(articles.length)];
 
   items.add(CapitalizationItem(
     prefix: '$article ',
@@ -131,7 +134,7 @@ List<CapitalizationItem> verbVariants(GermanWord word) {
 
   // 2. Conjugated (Klein) -> "ICH LAUFE"
   final pronouns = ['ICH', 'DU', 'WIR'];
-  final pronoun = pronouns[Random().nextInt(pronouns.length)];
+  final pronoun = pronouns[random.nextInt(pronouns.length)];
   final conjugated = conjugatedForm(word, pronoun.toLowerCase());
 
   if (conjugated != null) {
@@ -149,7 +152,7 @@ List<CapitalizationItem> verbVariants(GermanWord word) {
 
   // 3. Modal + Infinitive (Klein) -> "KANN LAUFEN"
   final modals = ['KANN', 'MUSS', 'WILL', 'DARF'];
-  final modal = modals[Random().nextInt(modals.length)];
+  final modal = modals[random.nextInt(modals.length)];
 
   items.add(CapitalizationItem(
     prefix: '$modal ',
@@ -165,7 +168,8 @@ List<CapitalizationItem> verbVariants(GermanWord word) {
   return items;
 }
 
-List<CapitalizationItem> adjectiveVariants(GermanWord word) {
+List<CapitalizationItem> adjectiveVariants(GermanWord word, {Random? rng}) {
+  final random = rng ?? Random();
   final items = <CapitalizationItem>[];
 
   // Get clean base form
@@ -176,7 +180,7 @@ List<CapitalizationItem> adjectiveVariants(GermanWord word) {
   final nominalizedForm = _nominalizeAdjective(word.lemma);
   if (nominalizedForm != null) {
     final indefinites = ['ETWAS', 'NICHTS', 'VIEL', 'WENIG'];
-    final indefinite = indefinites[Random().nextInt(indefinites.length)];
+    final indefinite = indefinites[random.nextInt(indefinites.length)];
     items.add(CapitalizationItem(
       prefix: '$indefinite ',
       target: nominalizedForm,
@@ -191,7 +195,7 @@ List<CapitalizationItem> adjectiveVariants(GermanWord word) {
 
   // 2. Predicative (Klein) -> "IST GUT"
   final copulas = ['IST', 'WAR', 'SIND'];
-  final copula = copulas[Random().nextInt(copulas.length)];
+  final copula = copulas[random.nextInt(copulas.length)];
 
   items.add(CapitalizationItem(
     prefix: '$copula ',
@@ -207,7 +211,8 @@ List<CapitalizationItem> adjectiveVariants(GermanWord word) {
   return items;
 }
 
-List<CapitalizationItem> nounVariants(GermanWord word) {
+List<CapitalizationItem> nounVariants(GermanWord word, {Random? rng}) {
+  final random = rng ?? Random();
   final items = <CapitalizationItem>[];
   final noun = word.word;
 
@@ -231,7 +236,7 @@ List<CapitalizationItem> nounVariants(GermanWord word) {
 
   // 2. Possessive Context (Groß) -> "MEIN TISCH" / "MEINE STIRN"
   final possessiveBases = ['MEIN', 'DEIN', 'UNSER', 'KEIN'];
-  final basePoss = possessiveBases[Random().nextInt(possessiveBases.length)];
+  final basePoss = possessiveBases[random.nextInt(possessiveBases.length)];
   final poss = _getPossessiveArticle(basePoss, article);
 
   items.add(CapitalizationItem(
@@ -277,9 +282,10 @@ List<CapitalizationItem> buildCapitalizationItems({
   required List<GermanWord> verbs,
   required List<GermanWord> adjectives,
   required List<GermanWord> nouns,
+  Random? rng,
 }) =>
     [
-      for (final word in verbs) ...verbVariants(word),
-      for (final word in adjectives) ...adjectiveVariants(word),
-      for (final word in nouns) ...nounVariants(word),
+      for (final word in verbs) ...verbVariants(word, rng: rng),
+      for (final word in adjectives) ...adjectiveVariants(word, rng: rng),
+      for (final word in nouns) ...nounVariants(word, rng: rng),
     ];

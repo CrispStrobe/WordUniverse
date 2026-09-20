@@ -10,21 +10,21 @@ import '../../../core/models/vocabulary_models.dart';
 import '../../../core/models/vocabulary_quality.dart';
 
 class SentenceChallenge {
-final GermanWord word;
-final String before;   // sentence text before the blank
-final String after;    // sentence text after the blank
-final String correctOption;
-final List<String> options;
-final int correctIndex;
+  final GermanWord word;
+  final String before; // sentence text before the blank
+  final String after; // sentence text after the blank
+  final String correctOption;
+  final List<String> options;
+  final int correctIndex;
 
-const SentenceChallenge({
-  required this.word,
-  required this.before,
-  required this.after,
-  required this.correctOption,
-  required this.options,
-  required this.correctIndex,
-});
+  const SentenceChallenge({
+    required this.word,
+    required this.before,
+    required this.after,
+    required this.correctOption,
+    required this.options,
+    required this.correctIndex,
+  });
 }
 
 bool hasGradeExamples(GermanWord w, int gradeIndex) {
@@ -56,9 +56,15 @@ SentenceChallenge? buildSentenceChallenge({
     final result = blankWord(sent, word.word);
     if (result == null) continue;
     final (before, after) = result;
+    // A sentence that says the word again beside the gap answers itself.
+    if (RegExp('\\b${RegExp.escape(word.word)}', caseSensitive: false)
+        .hasMatch('$before $after')) {
+      continue;
+    }
 
     final correctOption = _sentenceOption(word);
-    final distractors = _pickDistractors(word, correctOption, pool, gradeIndex, optionCount, random);
+    final distractors = _pickDistractors(
+        word, correctOption, pool, gradeIndex, optionCount, random);
     if (distractors.isEmpty) continue;
 
     final options = [correctOption, ...distractors.take(optionCount - 1)];
@@ -80,9 +86,8 @@ SentenceChallenge? buildSentenceChallenge({
 
 (String, String)? blankWord(String sentence, String word) {
   // Try exact whole-word match first (case insensitive)
-  final exact = RegExp(
-      r'\b' + RegExp.escape(word) + r'\b',
-      caseSensitive: false);
+  final exact =
+      RegExp(r'\b' + RegExp.escape(word) + r'\b', caseSensitive: false);
   var m = exact.firstMatch(sentence);
 
   // Fall back to starts-with match for inflected forms, but only accept a
@@ -90,9 +95,8 @@ SentenceChallenge? buildSentenceChallenge({
   // /-s/-st…). Prevents blanking an unrelated longer word, e.g. target
   // "Hund" wrongly matching "Hunderte".
   if (m == null) {
-    final prefix = RegExp(
-        r'\b' + RegExp.escape(word) + r'\w*',
-        caseSensitive: false);
+    final prefix =
+        RegExp(r'\b' + RegExp.escape(word) + r'\w*', caseSensitive: false);
     final pm = prefix.firstMatch(sentence);
     if (pm != null && (pm.end - pm.start) <= word.length + 3) {
       m = pm;
@@ -133,9 +137,7 @@ List<String> _pickDistractors(GermanWord target, String correctOption,
   // Same word type, any grade
   if (distractors.length < optionCount - 1) {
     final sameType = pool
-        .where((w) =>
-            w.id != target.id &&
-            w.wordType == target.wordType)
+        .where((w) => w.id != target.id && w.wordType == target.wordType)
         .toList()
       ..shuffle(random);
     for (final w in sameType) {
