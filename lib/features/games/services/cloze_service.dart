@@ -188,12 +188,16 @@ ClozeChallenge? buildClozeChallenge({
   final correctForm = cloze.matchedForm;
 
   // Distractors restricted to the target's word type, deduped against the
-  // answer, the lemma and each other.
+  // answer, the lemma and each other, and never a word the learner can
+  // already read beside the gap. (Expression Flash had that last rule before
+  // the three games were unified; it belongs to all of them.)
+  final visibleText = '${cloze.before}${cloze.after}'.toLowerCase();
   final distractors = <String>[];
   for (final candidate in [...byType[word.wordType] ?? const [], ...anyType]) {
     if (distractors.length >= optionCount - 1) break;
     if (candidate.toLowerCase() == correctForm.toLowerCase()) continue;
     if (candidate.toLowerCase() == word.word.toLowerCase()) continue;
+    if (visibleText.contains(candidate.toLowerCase())) continue;
     if (distractors.any((d) => d.toLowerCase() == candidate.toLowerCase())) {
       continue;
     }

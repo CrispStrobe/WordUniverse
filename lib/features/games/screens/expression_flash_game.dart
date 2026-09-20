@@ -37,10 +37,6 @@ class ExpressionFlashGame extends StatefulWidget {
 
 // ─── data ────────────────────────────────────────────────────────────────────
 
-
-
-
-
 enum _Feedback { none, correct, incorrect }
 
 // ─── state ───────────────────────────────────────────────────────────────────
@@ -78,9 +74,6 @@ class _ExpressionFlashGameState extends State<ExpressionFlashGame>
   final _rng = Random();
 
   // ─── blank extraction (same word-boundary logic as ClozeFlash) ─────────────
-
-
-
 
   // ─── init ──────────────────────────────────────────────────────────────────
 
@@ -147,9 +140,7 @@ class _ExpressionFlashGameState extends State<ExpressionFlashGame>
       gradeLevel: widget.gradeLevel.index + 1,
       limit: 200,
       where: (w) =>
-          !w.isProperNoun &&
-          !w.word.contains('_') &&
-          !w.word.contains(' '),
+          !w.isProperNoun && !w.word.contains('_') && !w.word.contains(' '),
       random: _rng,
     );
     if (!mounted) return;
@@ -173,6 +164,8 @@ class _ExpressionFlashGameState extends State<ExpressionFlashGame>
       optionCount: _optionCount,
       minLength: 8,
       maxLength: 80,
+      // An expression with one word left beside the blank is not a question.
+      minVisibleWords: 2,
       rng: _rng,
     );
 
@@ -190,8 +183,6 @@ class _ExpressionFlashGameState extends State<ExpressionFlashGame>
 
     _startTimer();
   }
-
-
 
   // ─── timer ─────────────────────────────────────────────────────────────────
 
@@ -486,8 +477,8 @@ class _ExpressionFlashGameState extends State<ExpressionFlashGame>
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: borderColor,
-              width: _feedback != _Feedback.none ? 2.5 : 1),
+          border: Border.all(
+              color: borderColor, width: _feedback != _Feedback.none ? 2.5 : 1),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -502,7 +493,8 @@ class _ExpressionFlashGameState extends State<ExpressionFlashGame>
             if (_feedback != _Feedback.none) ...[
               const SizedBox(height: 14),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.06),
                   borderRadius: BorderRadius.circular(8),
@@ -615,8 +607,7 @@ class _ExpressionFlashGameState extends State<ExpressionFlashGame>
     return AnimatedBuilder(
       animation: _pulseCtrl,
       builder: (_, child) => Transform.scale(
-        scale:
-            hasAnswered && isCorrect ? 1.0 + (_pulseCtrl.value * 0.04) : 1.0,
+        scale: hasAnswered && isCorrect ? 1.0 + (_pulseCtrl.value * 0.04) : 1.0,
         child: child,
       ),
       child: Semantics(
