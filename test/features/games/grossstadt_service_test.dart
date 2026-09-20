@@ -10,6 +10,7 @@ import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:WortUniversum/core/models/skill_category.dart';
+import 'package:WortUniversum/core/models/vocabulary_models.dart';
 import 'package:WortUniversum/features/games/services/grossstadt_service.dart';
 
 import 'word_fixture.dart';
@@ -28,52 +29,75 @@ void main() {
   });
 
   group('conjugatedForm', () {
-    test('prefers the form the pack carries', () {
-      final word =
-          testWord('laufen', type: GermanWordType.verb, wiktionaryInflections: [
-        {'form_text': 'läufst', 'tags': 'present second-person singular'},
-        {'form_text': 'lief', 'tags': 'past first-person singular'},
-      ]);
-      expect(conjugatedForm(word, 'du'), 'läufst');
+    /// The German pack's convention: three bare "present" forms, in ich / du
+    /// / er order. See conjugation_drill_service.dart.
+    List<Map<String, dynamic>> present(List<String> forms) => [
+          for (final form in forms) {'form_text': form, 'tags': 'present'},
+        ];
+
+    test('takes the forms the pack carries', () {
+      final word = testWord('lesen',
+          type: GermanWordType.verb,
+          wiktionaryInflections: present(['lese', 'liest', 'liest']));
+      expect(conjugatedForm(word, 'ich'), 'lese');
+      expect(conjugatedForm(word, 'du'), 'liest',
+          reason: 'not "lesst" — the vowel changes, and only the pack knows');
     });
 
-    test('reads tags given as a list as well as a string', () {
-      final word =
-          testWord('laufen', type: GermanWordType.verb, wiktionaryInflections: [
-        {
-          'form_text': 'laufe',
-          'tags': ['present', 'first-person', 'singular'],
-        },
-      ]);
-      expect(conjugatedForm(word, 'ich'), 'laufe');
+    test('a separable verb keeps its prefix where German puts it', () {
+      final word = testWord('abbrechen',
+          type: GermanWordType.verb,
+          wiktionaryInflections:
+              present(['breche ab', 'brichst ab', 'bricht ab']));
+      expect(conjugatedForm(word, 'ich'), 'breche ab');
+      expect(conjugatedForm(word, 'du'), 'brichst ab');
+      expect(conjugatedForm(word, 'wir'), isNull,
+          reason: '"wir abbrechen" is not German, and the pack lists no '
+              'first-person plural to use instead');
     });
 
-    test('never answers with a past form or a participle', () {
-      final word =
-          testWord('laufen', type: GermanWordType.verb, wiktionaryInflections: [
-        {'form_text': 'gelaufen', 'tags': 'participle perfect'},
-        {'form_text': 'liefst', 'tags': 'past second-person singular'},
-      ]);
-      // Falls through to the regular conjugation instead.
-      expect(conjugatedForm(word, 'du'), 'laufst');
-    });
-
-    test('falls back to regular conjugation when the pack has nothing', () {
-      final word = testWord('lachen', type: GermanWordType.verb);
-      expect(conjugatedForm(word, 'ich'), 'lache');
-      expect(conjugatedForm(word, 'du'), 'lachst');
+    test('first-person plural is the infinitive, for a verb that stays whole',
+        () {
+      final word = testWord('lachen',
+          type: GermanWordType.verb,
+          wiktionaryInflections: present(['lache', 'lachst', 'lacht']));
       expect(conjugatedForm(word, 'wir'), 'lachen');
     });
 
-    test('a lemma that is not an -en infinitive has no fallback form', () {
-      final word = testWord('wandern', type: GermanWordType.verb);
+    test('nothing is invented when the pack carries no present row', () {
+      // It used to conjugate regularly, which is wrong for every strong verb
+      // in the language: "du sprechst", "du essst", "du gebst".
+      final word = testWord('sprechen', type: GermanWordType.verb);
       expect(conjugatedForm(word, 'ich'), isNull);
+      expect(conjugatedForm(word, 'du'), isNull);
+      expect(conjugatedForm(word, 'wir'), isNull);
+    });
+
+    test('an imperative is never offered as a conjugated form', () {
+      // "du flieg ab!" reached the game this way.
+      final word = testWord('abfliegen',
+          type: GermanWordType.verb,
+          wiktionaryInflections: [
+            {'form_text': 'flieg ab!', 'tags': 'singular, imperative'},
+            {'form_text': 'fliegt ab!', 'tags': 'plural, imperative'},
+          ]);
+      expect(conjugatedForm(word, 'du'), isNull);
     });
   });
 
   group('verbVariants', () {
+    /// A verb as the pack carries one: three bare "present" forms, ich / du
+    /// / er. Without them there is no conjugated frame to show.
+    GermanWord verb(String infinitive, List<String> forms) => testWord(
+          infinitive,
+          type: GermanWordType.verb,
+          wiktionaryInflections: [
+            for (final form in forms) {'form_text': form, 'tags': 'present'},
+          ],
+        );
+
     test('nominalised is large, conjugated and infinitive are small', () {
-      final word = testWord('laufen', type: GermanWordType.verb);
+      final word = verb('laufen', ['laufe', 'läufst', 'läuft']);
       final items = verbVariants(word, rng: Random(1));
       expect(items.length, 3);
 
@@ -97,7 +121,7 @@ void main() {
     });
 
     test('the same seed gives the same frames', () {
-      final word = testWord('laufen', type: GermanWordType.verb);
+      final word = verb('laufen', ['laufe', 'läufst', 'läuft']);
       expect(
         verbVariants(word, rng: Random(7)).map((i) => i.prefix),
         verbVariants(word, rng: Random(7)).map((i) => i.prefix),
@@ -172,7 +196,12 @@ void main() {
 
   test('buildCapitalizationItems keeps the three groups in order', () {
     final items = buildCapitalizationItems(
-      verbs: [testWord('laufen', type: GermanWordType.verb)],
+      verbs: [
+        testWord('laufen', type: GermanWordType.verb, wiktionaryInflections: [
+          for (final form in ['laufe', 'läufst', 'läuft'])
+            {'form_text': form, 'tags': 'present'},
+        ])
+      ],
       adjectives: [testWord('gut', type: GermanWordType.adjektiv)],
       nouns: [
         testWord('Tisch', type: GermanWordType.substantiv, article: 'der')
