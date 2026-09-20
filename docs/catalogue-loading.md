@@ -12,10 +12,30 @@ enrichment/metadata JSON), desktop native, via
 | **new launch** — nine light columns, no JSON | **85 ms** |
 | hydrating a 200-word round pool | 97 ms |
 | building the feature index (once per pack revision, then cached) | 446 ms |
+| reading it from the pack instead (the packs ship it now) | 209 ms |
 
 **~29× faster to a usable catalogue**, and the enrichment is never resident.
 A phone or a browser pays more for the decode than this desktop run does, so
 the ratio there is at least as good.
+
+## The index the pack brings with it
+
+The feature index is a pure function of the pack: the same bitmask per row on
+every device, derived from the same JSON. Deriving it costs about 3 seconds
+for the German pack and 3 for the English one — once per install, and again
+whenever the bit layout changes and the cache is discarded.
+
+`tools/pack/index_pack.sh` writes it into the artifact instead, using the
+app's own `WordFeatureIndex.build` rather than a reimplementation. On open the
+app reads `word_feature_index` if the pack has one, after checking that the
+format matches `kWordFeatureIndexFormat` and that the row count still matches
+the `words` table; anything else and it derives its own as before. Measured on
+the English pack: **3,075 ms to derive, 209 ms to read**, for 94 KB more
+download (146 KB for German).
+
+The verification is the point. The bits are persisted, so an index built for
+an older layout would be silently wrong in a way no game could notice — and a
+pack is republished far less often than the app ships.
 
 ## In a browser
 

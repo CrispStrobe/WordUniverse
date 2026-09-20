@@ -17,8 +17,10 @@ void main() {
         databaseCopies * pack.expectedDecompressedBytes! +
             pack.expectedCompressedBytes!);
     // Down from 325/175 MiB: the published artifact now carries only the
-    // enrichment the app reads (tools/pack/slim_pack.py).
-    expect(pack.requiredFreeSizeLabel, kIsWeb ? '180 MiB' : '97 MiB');
+    // enrichment the app reads (tools/pack/slim_pack.py), and the megabyte
+    // back on top of that is the feature index it also ships
+    // (tools/pack/index_pack.sh), which the device no longer has to derive.
+    expect(pack.requiredFreeSizeLabel, kIsWeb ? '182 MiB' : '98 MiB');
     expect(kLanguagePacks['en']!.requiredFreeBytes, isNull);
     expect(kLanguagePacks['en']!.requiredFreeSizeLabel, isNull);
   });
