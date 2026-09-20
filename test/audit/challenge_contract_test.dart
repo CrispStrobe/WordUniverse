@@ -16,6 +16,7 @@ library;
 //   flutter test test/audit/challenge_contract_test.dart
 //   WU_PACK_DE=/path/to/grundwortschatz.db flutter test test/audit/challenge_contract_test.dart
 
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -23,10 +24,25 @@ import 'package:flutter_test/flutter_test.dart';
 import 'challenge_harness.dart';
 
 /// Grades a learner can be in. Every game is asked for every one of them.
-const _grades = [1, 2, 3, 4, 5, 6];
+/// Grades a learner can be in. Every game is asked for every one of them —
+/// or for the ones WU_CONTRACT_GRADES names, so a sweep can be sharded.
+List<int> get _grades {
+  final requested = Platform.environment['WU_CONTRACT_GRADES'];
+  if (requested == null || requested.isEmpty) return const [1, 2, 3, 4, 5, 6];
+  return [
+    for (final part in requested.split(','))
+      if (int.tryParse(part.trim()) case final grade?) grade,
+  ];
+}
 
 /// Items requested per game per grade.
-const _perGrade = 10;
+///
+/// Ten on every push: enough to catch a generator that broke, fast enough not
+/// to be noticed. The nightly sweep raises it far higher — the games can
+/// produce on the order of a hundred thousand distinct items, and a rule that
+/// holds for ten of them is not yet a rule that holds.
+int get _perGrade =>
+    int.tryParse(Platform.environment['WU_CONTRACT_COUNT'] ?? '') ?? 10;
 
 /// Games whose prompt names the word on purpose, so "the prompt must not
 /// contain the answer" does not apply to them.
@@ -150,7 +166,13 @@ String _summarize(List<_Violation> violations) {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  for (final language in ['en', 'de']) {
+  // A sharded sweep runs one pack per job; by default both are checked.
+  final languages = (Platform.environment['WU_CONTRACT_LANGUAGES'] ?? 'en,de')
+      .split(',')
+      .map((code) => code.trim())
+      .where((code) => code.isNotEmpty);
+
+  for (final language in languages) {
     group('$language pack', () {
       late AuditPack pack;
       var opened = false;
@@ -226,6 +248,10 @@ void main() {
             _checkItem(generated.item, language, generated.grade, violations);
           }
         }
+        // ignore: avoid_print
+        print('$language: $checked items checked across '
+            '${byGame.length} games, grade(s) ${_grades.join(',')}, '
+            '$_perGrade per game per grade');
         expect(checked, greaterThan(100),
             reason: 'the sweep itself produced almost nothing to check');
         expect(
@@ -253,7 +279,10 @@ void main() {
             reason: 'these games produced no item at any grade 1-6');
 
         // A game that can only ever fill one grade is a narrower failure of
-        // the same kind, and is worth seeing even when it is intended.
+        // the same kind, and is worth seeing even when it is intended. Only
+        // meaningful when the run covers more than one grade: a sharded
+        // sweep asks for one at a time.
+        if (_grades.length < 2) return;
         final thin = <String>[];
         for (final entry in byGame.entries) {
           final grades =
