@@ -35,10 +35,10 @@ jobs:
       BASE_URL: ${{ matrix.url }}
       EVIDENCE_DIR: ${{ github.workspace }}/tools/e2e/evidence
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: '22'
           cache: npm
