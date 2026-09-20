@@ -39,6 +39,11 @@ jobs:
       - name: Check deployment parity
         run: node --test tools/deployment-config.test.mjs
 
+      - name: Check the content review tooling
+        run: |
+          pip install --quiet openai
+          python3 tools/audit/review_test.py
+
       - name: Show Flutter version
         run: flutter --version
 
