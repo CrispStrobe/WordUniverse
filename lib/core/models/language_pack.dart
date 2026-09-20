@@ -229,19 +229,23 @@ const Map<String, LanguagePack> kLanguagePacks = {
     // enrichment the app never reads stripped (tools/pack/slim_pack.py),
     // 149.6 MB -> 83.1 MB, then repaired (tools/pack/repair_pack.py) so that
     // 33 place and person names are typed proper_noun and 122 entries lead
-    // with a meaning rather than a parse. `grundwortschatz.db.gz` beside it
+    // with a meaning rather than a parse, and it carries the feature index
+    // the app would otherwise derive on first launch
+    // (tools/pack/index_pack.sh): 146 KB of download for three seconds of
+    // work on every install. `grundwortschatz.db.gz` beside it
     // remains the complete lexical database and is unchanged.
     remoteUrl:
-        'https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/510fe81a7f127c4df467b872861b9407473fa36d/grundwortschatz-app.db.gz',
+        'https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/c1737ee6fb72745e91e8f52f4630495c1cbc5e7e/grundwortschatz-app.db.gz',
     // Update the immutable URL and all pins together; retain this qualified
     // databaseName in previousDatabaseNames when publishing a new artifact.
-    expectedCompressedBytes: 14931440,
+    expectedCompressedBytes: 15077428,
     expectedCompressedSha256:
-        '1596aba51bda9f9860462e36f5895a47c2a631d67bac59fa34e65574e30321ba',
-    expectedDecompressedBytes: 87195648,
+        'f9668a794290991ef3a7e62f1e7e1d65565ed782deacc1e0b8e9592dc06e9b80',
+    expectedDecompressedBytes: 88059904,
     expectedDecompressedSha256:
-        '32487bb8280cc5a709abf83119482fe68c84be3ee47aa1251f1aabb494801712',
+        '158bea51ba1b0c0e4bcb696042dd45a03b0ddbccc132337a8ce8ef388117d9f1',
     previousDatabaseNames: [
+      'grundwortschatz-32487bb8280cc5a709abf83119482fe68c84be3ee47aa1251f1aabb494801712.db',
       'grundwortschatz-4088731ba18bb477bbf41faacc633beedc967b5e5e7108a89c75c62d87b5aca1.db',
       'grundwortschatz-2890e0c1b1dd25aacaee53bb133f4a4b3c4e69acb5827ce4c1af1813a2a7af44.db',
       'grundwortschatz-c66e3b49192694c00d7c2a171562ac8fe4f54c05d986adb0ebf276f141aa00df.db',
@@ -260,12 +264,15 @@ const Map<String, LanguagePack> kLanguagePacks = {
     // misspellings marked as such, 620 names typed proper_noun — London,
     // Texas, Canada and Isaac all arrived as ordinary nouns — and 141
     // entries whose leading gloss was a parse or a label had it dropped so a
-    // real meaning leads. The digest qualifies the storage slot, so this
-    // selects a fresh one and the previous slots are listed below rather than
-    // silently reused.
+    // real meaning leads, and carries the feature index the app would
+    // otherwise derive on first launch (tools/pack/index_pack.sh): 94 KB of
+    // download for three seconds of work on every install. The digest
+    // qualifies the storage slot, so this selects a fresh one and the
+    // previous slots are listed below rather than silently reused.
     expectedDecompressedSha256:
-        'cbbdef45fb1b2da6726ada0f98071c5ff622f4fa3903bf13fdf9d5f4f8d2f365',
+        '53365e2ae71884bad1e53b5e34c2cdc543f0f9ba8ba578eca7eb5050235c76d9',
     previousDatabaseNames: [
+      'grundwortschatz_en-cbbdef45fb1b2da6726ada0f98071c5ff622f4fa3903bf13fdf9d5f4f8d2f365.db',
       'grundwortschatz_en-7c810a70430f5e2218e8ef15b91cdf52bb20224afad4963ea6c200e47c0b840d.db',
       'grundwortschatz_en-49e65596954cb7f8a0268e214e3e26c866f593ad781c567481993f08dc8471db.db',
       'grundwortschatz_en-367021742f6c3ae6a3c347a9ef25f162683fb40c8e983f290c6e9667b6216893.db',

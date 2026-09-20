@@ -3,7 +3,6 @@ library;
 
 import 'dart:convert';
 
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
@@ -62,7 +61,9 @@ void main() {
           },
           'metadata': {
             'commonLearnerErrors': ['Hunt'],
-            'grade_examples': {'1': ['Der Hund bellt.']},
+            'grade_examples': {
+              '1': ['Der Hund bellt.']
+            },
           },
         },
         {'word': 'Leer'},
@@ -76,8 +77,8 @@ void main() {
       expect(index.featuresOf(1).hasFeature(WordFeature.hyphenation), isTrue);
       expect(index.featuresOf(1).hasFeature(WordFeature.learnerErrors), isTrue);
       expect(index.featuresOf(1).hasFeature(WordFeature.gradeExamples), isTrue);
-      expect(
-          index.featuresOf(1).hasFeature(WordFeature.enrichmentSuccess), isTrue);
+      expect(index.featuresOf(1).hasFeature(WordFeature.enrichmentSuccess),
+          isTrue);
       expect(index.featuresOf(1).hasFeature(WordFeature.antonyms), isFalse);
       // "Leer" carries no enrichment, but it is still its own headword —
       // nothing claims it was derived from another entry.
@@ -87,8 +88,18 @@ void main() {
     test('learner errors count under either pack\'s key', () async {
       // EN fills commonLearnerErrors, DE fills commonMistakes.
       final db = await packFixture([
-        {'word': 'accommodate', 'metadata': {'commonLearnerErrors': ['acommodate']}},
-        {'word': 'Rhythmus', 'metadata': {'commonMistakes': ['Rytmus']}},
+        {
+          'word': 'accommodate',
+          'metadata': {
+            'commonLearnerErrors': ['acommodate']
+          }
+        },
+        {
+          'word': 'Rhythmus',
+          'metadata': {
+            'commonMistakes': ['Rytmus']
+          }
+        },
       ]);
       addTearDown(db.close);
 
@@ -101,26 +112,39 @@ void main() {
   group('presentability', () {
     test('rejects source-tagged and definition-marked misspellings', () async {
       final db = await packFixture([
-        {'word': 'clean', 'enrichment': {'definitions': ['tidy']}},
+        {
+          'word': 'clean',
+          'enrichment': {
+            'definitions': ['tidy']
+          }
+        },
         {
           'word': 'accomodate',
-          'metadata': {'sources': ['SOURCE:COMMON_MISSPELLED']},
+          'metadata': {
+            'sources': ['SOURCE:COMMON_MISSPELLED']
+          },
         },
         {
           'word': 'didnt',
-          'enrichment': {'definitions': ["Misspelling of didn't."]},
+          'enrichment': {
+            'definitions': ["Misspelling of didn't."]
+          },
         },
         {
           'word': 'noted',
-          'enrichment': {'entryNotes': ['Obsolete form of note.']},
+          'enrichment': {
+            'entryNotes': ['Obsolete form of note.']
+          },
         },
       ]);
       addTearDown(db.close);
 
       final index = await WordFeatureIndex.build(db);
       expect(index.isPresentable(1), isTrue);
-      expect(index.isPresentable(2), isFalse, reason: 'tagged as a misspelling');
-      expect(index.isPresentable(3), isFalse, reason: 'defined as a misspelling');
+      expect(index.isPresentable(2), isFalse,
+          reason: 'tagged as a misspelling');
+      expect(index.isPresentable(3), isFalse,
+          reason: 'defined as a misspelling');
       expect(index.isPresentable(4), isFalse, reason: 'noted as obsolete');
     });
 
@@ -130,21 +154,30 @@ void main() {
         {'word': 'didnt'},
         {
           'word': "didn't",
-          'metadata': {'commonMistakes': ['didnt']},
+          'metadata': {
+            'commonMistakes': ['didnt']
+          },
         },
       ]);
       addTearDown(db.close);
 
       final index = await WordFeatureIndex.build(db);
-      expect(index.featuresOf(1).hasFeature(WordFeature.knownMisspelling), isTrue);
-      expect(index.featuresOf(2).hasFeature(WordFeature.knownMisspelling), isFalse);
+      expect(
+          index.featuresOf(1).hasFeature(WordFeature.knownMisspelling), isTrue);
+      expect(index.featuresOf(2).hasFeature(WordFeature.knownMisspelling),
+          isFalse);
     });
   });
 
   group('sources', () {
     test('travel with the index so filtering needs no metadata', () async {
       final db = await packFixture([
-        {'word': 'Haus', 'metadata': {'sources': ['BERLIN', 'HESSEN']}},
+        {
+          'word': 'Haus',
+          'metadata': {
+            'sources': ['BERLIN', 'HESSEN']
+          }
+        },
         {'word': 'Baum'},
       ]);
       addTearDown(db.close);
@@ -168,19 +201,37 @@ void main() {
             'synonyms': ['another'],
             'antonyms': ['opposite'],
             'hyphenation': ['full'],
-            'translations': [{'lang_code': 'en', 'word': 'full'}],
-            'examples': [{'text': 'A full sentence.'}],
-            'hypernyms': [{'hypernym_word': 'thing'}],
-            'hyponyms': [{'hyponym_word': 'part'}],
-            'expressions': [{'expression': 'in full'}],
-            'proverbs': [{'proverb': 'full is full'}],
-            'pronunciation': [{'ipa': 'fʊl'}],
-            'inflections': [{'form_text': 'fuller'}],
+            'translations': [
+              {'lang_code': 'en', 'word': 'full'}
+            ],
+            'examples': [
+              {'text': 'A full sentence.'}
+            ],
+            'hypernyms': [
+              {'hypernym_word': 'thing'}
+            ],
+            'hyponyms': [
+              {'hyponym_word': 'part'}
+            ],
+            'expressions': [
+              {'expression': 'in full'}
+            ],
+            'proverbs': [
+              {'proverb': 'full is full'}
+            ],
+            'pronunciation': [
+              {'ipa': 'fʊl'}
+            ],
+            'inflections': [
+              {'form_text': 'fuller'}
+            ],
             'enrichment_status': 'success',
           },
           'metadata': {
             'commonLearnerErrors': ['ful'],
-            'grade_examples': {'1': ['A full cup.']},
+            'grade_examples': {
+              '1': ['A full cup.']
+            },
             'gutenberg_examples': ['Full of it.'],
           },
         },
@@ -188,25 +239,52 @@ void main() {
         // Empty lists must read as absent, not present.
         {
           'word': 'hollow',
-          'enrichment': {'definitions': [], 'synonyms': [], 'pronunciation': []},
+          'enrichment': {
+            'definitions': [],
+            'synonyms': [],
+            'pronunciation': []
+          },
           'metadata': {'commonLearnerErrors': []},
         },
         // The German pack's spelling of learner errors.
-        {'word': 'deutsch', 'enrichment': const {}, 'metadata': {'commonMistakes': ['deutch']}},
+        {
+          'word': 'deutsch',
+          'enrichment': const {},
+          'metadata': {
+            'commonMistakes': ['deutch']
+          }
+        },
         // enrichment_status present but not success.
-        {'word': 'partial', 'enrichment': {'enrichment_status': 'failed'}, 'metadata': const {}},
+        {
+          'word': 'partial',
+          'enrichment': {'enrichment_status': 'failed'},
+          'metadata': const {}
+        },
         // Enrichment that belongs to another word, and a curriculum listing.
         {
           'word': 'ideas',
-          'enrichment': {'primary_lemma': 'idea', 'definitions': ['a thought']},
-          'metadata': {'sources': ['HESSEN']},
+          'enrichment': {
+            'primary_lemma': 'idea',
+            'definitions': ['a thought']
+          },
+          'metadata': {
+            'sources': ['HESSEN']
+          },
         },
         {
           'word': 'cat',
           'enrichment': {'primary_lemma': 'cat'},
-          'metadata': {'tags': ['source:cambridge_yle_starters']},
+          'metadata': {
+            'tags': ['source:cambridge_yle_starters']
+          },
         },
-        {'word': 'corpus', 'enrichment': const {}, 'metadata': {'sources': ['LEIPZIG']}},
+        {
+          'word': 'corpus',
+          'enrichment': const {},
+          'metadata': {
+            'sources': ['LEIPZIG']
+          }
+        },
       ];
 
       final db = await packFixture(words);
@@ -222,7 +300,8 @@ void main() {
         );
         // knownMisspelling is corpus-wide and deliberately not derived in
         // Dart, so compare everything else.
-        final sql = index.featuresOf(i + 1) & ~WordFeature.knownMisspelling.mask;
+        final sql =
+            index.featuresOf(i + 1) & ~WordFeature.knownMisspelling.mask;
         expect(dart, sql, reason: 'SQL and Dart disagree on "${word['word']}"');
       }
     });
@@ -234,15 +313,117 @@ void main() {
     });
   });
 
+  group('an index shipped inside the pack', () {
+    Future<Database> indexedFixture({
+      int? format,
+      int? rows,
+      bool corrupt = false,
+    }) async {
+      final db = await packFixture([
+        {
+          'word': 'Hund',
+          'enrichment': {
+            'definitions': ['ein Haustier'],
+            'synonyms': ['Köter'],
+          },
+          'metadata': {
+            'sources': ['BERLIN'],
+          },
+        },
+        {'word': 'Leer', 'enrichment': const {}, 'metadata': const {}},
+      ]);
+      final index = await WordFeatureIndex.build(db);
+      await db.execute('CREATE TABLE ${WordFeatureIndex.shippedTable} ('
+          'row_id INTEGER PRIMARY KEY, flags INTEGER NOT NULL, sources TEXT)');
+      await db.execute('CREATE TABLE ${WordFeatureIndex.shippedMetaTable} ('
+          'format INTEGER NOT NULL, rows INTEGER NOT NULL)');
+      for (final (rowId, flags, sources) in index.shippedRows) {
+        await db.insert(WordFeatureIndex.shippedTable, {
+          'row_id': rowId,
+          'flags': corrupt ? flags : flags,
+          'sources': sources.isEmpty ? null : sources,
+        });
+      }
+      await db.insert(WordFeatureIndex.shippedMetaTable, {
+        'format': format ?? kWordFeatureIndexFormat,
+        'rows': rows ?? index.length,
+      });
+      return db;
+    }
+
+    test('is read instead of derived, bit for bit', () async {
+      final db = await indexedFixture();
+      addTearDown(db.close);
+      final shipped = await WordFeatureIndex.readShipped(db);
+      expect(shipped, isNotNull);
+      expect(
+          shipped!.featuresOf(1).hasFeature(WordFeature.definitions), isTrue);
+      expect(shipped.featuresOf(1).hasFeature(WordFeature.synonyms), isTrue);
+      expect(shipped.sourcesOf(1), ['BERLIN']);
+      expect(shipped.isPresentable(1), isTrue);
+      expect(shipped.featuresOf(2), WordFeature.headword.mask,
+          reason: '"Leer" carries no enrichment but is its own headword');
+    });
+
+    test('an index built for another bit layout is ignored', () async {
+      // The bits are persisted; reading last release's layout as this one's
+      // would be silently wrong in a way no game could notice.
+      final db = await indexedFixture(format: kWordFeatureIndexFormat - 1);
+      addTearDown(db.close);
+      expect(await WordFeatureIndex.readShipped(db), isNull);
+      expect((await WordFeatureIndex.build(db)).length, 2,
+          reason: 'and the index is derived instead');
+    });
+
+    test('an index that does not cover the pack is ignored', () async {
+      final db = await indexedFixture(rows: 99);
+      addTearDown(db.close);
+      expect(await WordFeatureIndex.readShipped(db), isNull);
+    });
+
+    test('a pack with no shipped index derives one as before', () async {
+      final db = await packFixture([
+        {'word': 'Hund', 'enrichment': const {}, 'metadata': const {}},
+      ]);
+      addTearDown(db.close);
+      expect(await WordFeatureIndex.readShipped(db), isNull);
+      expect((await WordFeatureIndex.build(db)).length, 1);
+    });
+
+    test('a malformed index is a pack without one', () async {
+      final db = await packFixture([
+        {'word': 'Hund', 'enrichment': const {}, 'metadata': const {}},
+      ]);
+      addTearDown(db.close);
+      await db.execute('CREATE TABLE ${WordFeatureIndex.shippedTable} ('
+          'nonsense TEXT)');
+      await db.execute('CREATE TABLE ${WordFeatureIndex.shippedMetaTable} ('
+          'format INTEGER, rows INTEGER)');
+      await db.insert(WordFeatureIndex.shippedMetaTable,
+          {'format': kWordFeatureIndexFormat, 'rows': 1});
+      expect(await WordFeatureIndex.readShipped(db), isNull);
+      expect((await WordFeatureIndex.build(db)).length, 1);
+    });
+  });
+
   group('cache record', () {
     Future<WordFeatureIndex> fixtureIndex() async {
       final db = await packFixture([
         {
           'word': 'Hund',
-          'enrichment': {'definitions': ['a dog']},
-          'metadata': {'sources': ['BERLIN']},
+          'enrichment': {
+            'definitions': ['a dog']
+          },
+          'metadata': {
+            'sources': ['BERLIN']
+          },
         },
-        {'word': 'Katze', 'metadata': {'sources': ['COMMON_MISSPELLED']}},
+        {
+          'word': 'Katze',
+          'metadata': {
+            'sources': ['COMMON_MISSPELLED']
+          }
+        },
       ]);
       addTearDown(db.close);
       return WordFeatureIndex.build(db);
@@ -272,7 +453,12 @@ void main() {
 
     test('is built once and reused on the next launch', () async {
       final db = await packFixture([
-        {'word': 'Hund', 'enrichment': {'definitions': ['a dog']}},
+        {
+          'word': 'Hund',
+          'enrichment': {
+            'definitions': ['a dog']
+          }
+        },
       ]);
       addTearDown(db.close);
       final cache = MemoryDbPartialCache();

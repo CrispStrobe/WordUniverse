@@ -246,7 +246,66 @@ class WordFeatureIndex {
   }
 
   /// Derives the index from an open (read-only) pack database.
+  /// The table a pack may ship the finished index in. See
+  /// tools/pack/index_pack.dart, which writes it with this same code.
+  static const String shippedTable = 'word_feature_index';
+  static const String shippedMetaTable = 'word_feature_index_meta';
+
+  /// Reads a shipped index, or null when the pack has none it can vouch for.
+  ///
+  /// The pack has to agree on the format *and* on how many rows it indexed:
+  /// an index built for an older bit layout, or for a `words` table that has
+  /// since changed, would be silently wrong in a way no test could see. Both
+  /// checks are cheap, and failing either simply derives the index instead.
+  static Future<WordFeatureIndex?> readShipped(DatabaseExecutor db) async {
+    try {
+      final present = await db
+          .rawQuery("SELECT name FROM sqlite_master WHERE type = 'table' "
+              "AND name IN ('$shippedTable', '$shippedMetaTable')");
+      if (present.length != 2) return null;
+
+      final meta = await db
+          .rawQuery('SELECT format, rows FROM $shippedMetaTable LIMIT 1');
+      if (meta.isEmpty) return null;
+      final format = (meta.first['format'] as num?)?.toInt();
+      final indexedRows = (meta.first['rows'] as num?)?.toInt();
+      if (format != kWordFeatureIndexFormat) return null;
+
+      final actualRows =
+          (await db.rawQuery('SELECT COUNT(*) AS n FROM words')).first['n'];
+      if (indexedRows != (actualRows as num?)?.toInt()) return null;
+
+      final entries = <int, WordIndexEntry>{};
+      for (final row in await db.rawQuery('SELECT row_id, flags, sources '
+          'FROM $shippedTable')) {
+        final sources = (row['sources'] as String?) ?? '';
+        entries[(row['row_id'] as num).toInt()] = WordIndexEntry(
+          (row['flags'] as num).toInt(),
+          sources.isEmpty ? const [] : sources.split(_sourceSeparator),
+        );
+      }
+      if (entries.isEmpty) return null;
+      return WordFeatureIndex(entries);
+    } catch (_) {
+      // A pack that ships a malformed index is a pack without one.
+      return null;
+    }
+  }
+
+  /// The index as [build] computes it, flattened for [readShipped].
+  List<(int rowId, int flags, String sources)> get shippedRows => [
+        for (final entry in _entriesByRowId.entries)
+          (
+            entry.key,
+            entry.value.flags,
+            entry.value.sources.join(_sourceSeparator)
+          ),
+      ];
+
   static Future<WordFeatureIndex> build(DatabaseExecutor db) async {
+    final shipped = await readShipped(db);
+    if (shipped != null) return shipped;
+
     // Driven by the map, not by WordFeature.values: features that are not a
     // per-row JSON test (knownMisspelling) are computed separately.
     final bits = _featureSql.entries
