@@ -10,6 +10,8 @@ import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:WortUniversum/core/models/vocabulary_models.dart';
 import 'package:WortUniversum/core/models/skill_category.dart';
+import 'package:WortUniversum/features/games/services/translation_flash_service.dart'
+    as service;
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -41,9 +43,8 @@ ApiEnrichment _enrichment({List<ApiTranslation> translations = const []}) =>
       commonLearnerErrors: const [],
     );
 
-ApiTranslation _en(String word, {String? sense}) =>
-    ApiTranslation(langCode: 'en', word: word, lang: 'Englisch',
-        senseText: sense);
+ApiTranslation _en(String word, {String? sense}) => ApiTranslation(
+    langCode: 'en', word: word, lang: 'Englisch', senseText: sense);
 ApiTranslation _de(String word) =>
     ApiTranslation(langCode: 'de', word: word, lang: 'Deutsch');
 ApiTranslation _fr(String word) =>
@@ -163,12 +164,16 @@ _TranslChallenge? buildChallenge(
 void main() {
   // ── isCleanTranslation ──────────────────────────────────────────────────────
   group('isCleanTranslation', () {
-    test('accepts single-word ASCII', () => expect(isCleanTranslation('house'), isTrue));
-    test('accepts two-word phrase', () => expect(isCleanTranslation('traffic light'), isTrue));
-    test('accepts two-word with hyphen', () => expect(isCleanTranslation('old-fashioned'), isTrue));
+    test('accepts single-word ASCII',
+        () => expect(isCleanTranslation('house'), isTrue));
+    test('accepts two-word phrase',
+        () => expect(isCleanTranslation('traffic light'), isTrue));
+    test('accepts two-word with hyphen',
+        () => expect(isCleanTranslation('old-fashioned'), isTrue));
     test('accepts "I" (English first-person pronoun, single uppercase char)',
         () => expect(isCleanTranslation('I'), isTrue));
-    test('accepts "pay attention"', () => expect(isCleanTranslation('pay attention'), isTrue));
+    test('accepts "pay attention"',
+        () => expect(isCleanTranslation('pay attention'), isTrue));
     test('rejects abbreviation with dot (e.g.)',
         () => expect(isCleanTranslation('e.g.'), isFalse));
     test('rejects all-caps abbreviation (HGV)',
@@ -292,22 +297,22 @@ void main() {
   // All values verified against pipeline/voc-de/grundwortschatz.db 2026-05-26.
   group('DB-pinned DE→EN translation choices', () {
     test('Haus → house (first clean single-word)', () {
-      final w = _word('Haus',
-          translations: [_en('house'), _en('home')]);
+      final w = _word('Haus', translations: [_en('house'), _en('home')]);
       expect(primaryEnTranslation(w), equals('house'));
     });
 
     test('laufen → run (first clean single-word)', () {
-      final w = _word('laufen',
-          translations: [_en('run'), _en('walk')]);
+      final w = _word('laufen', translations: [_en('run'), _en('walk')]);
       expect(primaryEnTranslation(w), equals('run'));
     });
 
-    test('Ampel → hanging lamp (2-word preferred over regional single-word robot)', () {
+    test(
+        'Ampel → hanging lamp (2-word preferred over regional single-word robot)',
+        () {
       final w = _word('Ampel', translations: [
         _en('hanging lamp'),
         _en('traffic light'),
-        _en('robot'),   // South African English — should NOT win
+        _en('robot'), // South African English — should NOT win
       ]);
       expect(primaryEnTranslation(w), equals('hanging lamp'));
     });
@@ -332,6 +337,48 @@ void main() {
     test('LKW → null (HGV is all-caps abbreviation; no other translation)', () {
       final w = _word('LKW', translations: [_en('HGV')]);
       expect(primaryEnTranslation(w), isNull);
+    });
+  });
+
+  // ── the real service ────────────────────────────────────────────────────────
+  group('buildTranslationChallenge', () {
+    List<String> distractors() => ['house', 'car', 'tree', 'river'];
+
+    test('builds a challenge when the translation differs from the word', () {
+      final challenge = service.buildTranslationChallenge(
+        word: _word('Haus', translations: [_en('house')]),
+        optionTexts: ['car', 'tree', 'river'],
+        rng: Random(1),
+      );
+      expect(challenge, isNotNull);
+      expect(challenge!.options[challenge.correctIndex], 'house');
+    });
+
+    test('rejects a cognate, which answers itself either direction', () {
+      // "What is 'das Hobby' in English?" → hobby.
+      for (final reversed in [false, true]) {
+        expect(
+          service.buildTranslationChallenge(
+            word: _word('Hobby', translations: [_en('hobby')]),
+            optionTexts: distractors(),
+            reversed: reversed,
+            rng: Random(1),
+          ),
+          isNull,
+          reason: 'reversed: $reversed',
+        );
+      }
+    });
+
+    test('a cognate differing only in case is still a cognate', () {
+      expect(
+        service.buildTranslationChallenge(
+          word: _word('Info', translations: [_en('info')]),
+          optionTexts: distractors(),
+          rng: Random(1),
+        ),
+        isNull,
+      );
     });
   });
 }

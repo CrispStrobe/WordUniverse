@@ -86,6 +86,16 @@ int visibleWordCount(ClozeResult cloze) => (cloze.before + cloze.after)
     .where((word) => word.trim().isNotEmpty)
     .length;
 
+/// Whether the target still stands, as a whole word, in what is left visible
+/// around the blank — in which case the gap is not a question.
+bool _saysItAgain(ClozeResult cloze, String lemma) {
+  final visible = '${cloze.before} ${cloze.after}';
+  for (final form in {lemma, cloze.matchedForm}) {
+    if (tryBlank(visible, form) != null) return true;
+  }
+  return false;
+}
+
 /// Builds up to [maxChallenges] by blanking each word out of one of its texts.
 List<ClozeChallenge> buildClozeChallenges({
   required List<GermanWord> pool,
@@ -155,6 +165,9 @@ ClozeChallenge? buildClozeChallenge({
     if (cloze == null) continue;
     // A proverb with one word left beside the blank is not a question.
     if (visibleWordCount(cloze) < minVisibleWords) continue;
+    // Neither is a sentence that says the word again beside the gap: "I asked
+    // Mary, but ___ said that she didn't know."
+    if (_saysItAgain(cloze, word.word)) continue;
     candidates.add((text, cloze));
   }
   if (candidates.isEmpty) return null;

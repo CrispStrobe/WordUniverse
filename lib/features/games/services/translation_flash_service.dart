@@ -51,12 +51,11 @@ String? primaryEnglishTranslation(GermanWord word) {
 }
 
 /// Every clean English translation of [word], for excluding from distractors.
-Set<String> englishTranslations(GermanWord word) => (word.apiEnrichment
-            ?.translations ??
-        const [])
-    .where((t) => t.langCode == 'en' && t.word != null)
-    .map((t) => t.word!.toLowerCase())
-    .toSet();
+Set<String> englishTranslations(GermanWord word) =>
+    (word.apiEnrichment?.translations ?? const [])
+        .where((t) => t.langCode == 'en' && t.word != null)
+        .map((t) => t.word!.toLowerCase())
+        .toSet();
 
 /// Builds up to [maxChallenges] asking for the English of a catalogue word.
 ///
@@ -110,12 +109,15 @@ TranslationChallenge? buildTranslationChallenge({
 
   final translation = primaryEnglishTranslation(word);
   if (translation == null) return null;
+  // A cognate answers itself in either direction — "What is 'das Hobby' in
+  // English?", "Which word means 'info'?" — so it is not a question.
+  if (translation.toLowerCase() == word.word.toLowerCase()) return null;
 
   // When the English is the prompt, the answer is the catalogue word itself.
   final correct = reversed ? word.word : translation;
-  final excluded = reversed
-      ? {word.word.toLowerCase()}
-      : englishTranslations(word)..add(correct.toLowerCase());
+  final excluded =
+      reversed ? {word.word.toLowerCase()} : englishTranslations(word)
+        ..add(correct.toLowerCase());
 
   // Shuffled per challenge: taking from the front of one shuffled list put
   // the same three distractors in every round.
