@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -46,7 +47,8 @@ class GermanVocabularyFixture extends VocabularyService {
           {required SriService sriService,
           required GameProvider settingsProvider,
           required GradeLevel grade,
-          int limit = 5}) =>
+          int limit = 5,
+          Random? rng}) =>
       words.take(limit).toList();
 }
 

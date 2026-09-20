@@ -65,6 +65,7 @@ class VocabularyService with ChangeNotifier {
   static const _setsStorageKey = 'vocabulary_sets';
   static const _customWordsKey = 'custom_words';
   static const _learningLanguageKey = 'learning_language';
+
   /// Packs come from the registry in models/language_pack.dart — that is the
   /// only place a language is declared.
   static Map<String, LanguagePack> get _packs => kLanguagePacks;
@@ -216,7 +217,8 @@ class VocabularyService with ChangeNotifier {
     final pack = _packs[language];
     if (pack == null) return false;
     for (final name in pack.legacyDatabaseNames) {
-      if (name != pack.databaseName && await _dbService.isDatabaseInstalled(name)) return true;
+      if (name != pack.databaseName &&
+          await _dbService.isDatabaseInstalled(name)) return true;
     }
     return false;
   }
@@ -300,7 +302,8 @@ class VocabularyService with ChangeNotifier {
       // missing pack never got this far destructively, but a mid-download
       // failure can have closed the old DB.
       if (hadVocabulary && !_isInitialized && previousLanguage != language) {
-        _log('↩️ Restoring previous language "$previousLanguage" after failure');
+        _log(
+            '↩️ Restoring previous language "$previousLanguage" after failure');
         try {
           await initialize(learningLanguage: previousLanguage);
         } catch (restoreError) {
@@ -407,8 +410,7 @@ class VocabularyService with ChangeNotifier {
       _dbService.hydrate(words);
 
   /// [hydrate] for a single word — the word-of-the-day card, a detail sheet.
-  Future<GermanWord> hydrateOne(GermanWord word) =>
-      _dbService.hydrateOne(word);
+  Future<GermanWord> hydrateOne(GermanWord word) => _dbService.hydrateOne(word);
 
   /// FAST ASYNC SEARCH: Uses SQLite FTS5 index.
   Future<List<GermanWord>> searchWordsAsync(String query) async {
@@ -665,6 +667,9 @@ class VocabularyService with ChangeNotifier {
     required GameProvider settingsProvider,
     required GradeLevel grade,
     int limit = 5,
+    // Seeded by the audit harness so a dumped round can be reproduced; the
+    // games leave it null and meet different words every session.
+    Random? rng,
   }) {
     var newWords = _filtered(settingsProvider, grade: grade);
 
@@ -682,7 +687,7 @@ class VocabularyService with ChangeNotifier {
     var unstudiedWords =
         newWords.where((word) => !studiedWords.contains(word.id)).toList();
 
-    unstudiedWords.shuffle();
+    unstudiedWords.shuffle(rng);
     return unstudiedWords.take(limit).toList();
   }
 

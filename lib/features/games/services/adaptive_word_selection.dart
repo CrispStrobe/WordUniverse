@@ -9,6 +9,8 @@
 // reviewed without running a game — see docs/content-audit.md — and so a fix
 // to it reaches every game rather than one.
 
+import 'dart:math';
+
 import '../../../core/models/skill_category.dart';
 import '../../../core/models/vocabulary_models.dart';
 import '../../../core/models/vocabulary_quality.dart';
@@ -40,6 +42,9 @@ List<GermanWord> selectAdaptiveWords({
   LanguageSkillType? skillFilter,
   double reviewShare = 0.5,
   int? reviewQueueLimit,
+  // Seeded by the audit harness so a dumped round can be reproduced; the
+  // games leave it null and get a different fill every session.
+  Random? rng,
 }) {
   final selected = <GermanWord>[];
   final takenIds = <String>{};
@@ -77,6 +82,7 @@ List<GermanWord> selectAdaptiveWords({
     grade: grade,
     limit: (count - selected.length) * 2,
     settingsProvider: settings,
+    rng: rng,
   )) {
     if (selected.length >= count) break;
     offer(word);
@@ -85,7 +91,7 @@ List<GermanWord> selectAdaptiveWords({
   // 3. Anything else at this grade, so a thin review queue never shortens the
   //    game.
   if (selected.length < count) {
-    final fill = vocabulary.getWordsByGrade(grade, settings)..shuffle();
+    final fill = vocabulary.getWordsByGrade(grade, settings)..shuffle(rng);
     for (final word in fill) {
       if (selected.length >= count) break;
       offer(word);

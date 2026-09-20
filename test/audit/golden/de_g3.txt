@@ -1,0 +1,502 @@
+── antonym_flash (4)
+  blond
+    ✓ dunkel
+      wirklich
+      still
+      kühl
+    · grade: 3
+  vorne
+      Rakete
+    ✓ hinten
+      sonnig
+      sprechen
+    · grade: 3
+  Reihe
+      Thema
+    ✓ Spalte
+      Abendessen
+      Rakete
+    · grade: 3
+  Rakete
+      Abendessen
+      König
+    ✓ Flugzeug
+      Geburtstag
+    · grade: 3
+── cloze_flash (4)
+  Das ___ wird renoviert.
+      Filzstift
+      Prinzessin
+    ✓ Theater
+      Lob
+    · word: Theater
+  Man soll ___ zwei Liter Wasser trinken.
+      Rätsel
+      rechts
+    ✓ täglich
+      Deutschland
+    · word: täglich
+  Der Hausmeister soll endlich die ___ im Flur reparieren.
+      Theater
+    ✓ Heizung
+      Nacht
+      Kreis
+    · word: Heizung
+  Ich habe die ganze ___ kein Auge zugetan.
+      Rakete
+    ✓ Nacht
+      Kreis
+      Prinzessin
+    · word: Nacht
+── conjugation_drill (4)
+  proben: er/sie/es ___
+      verkleidet
+    ✓ probt
+      beginnt
+      öffnet
+  öffnen: du ___
+      beginnst
+    ✓ öffnest
+      verkleidest
+      probst
+  beginnen: ich ___
+      verkleide
+      probe
+      öffne
+    ✓ beginne
+  verkleiden: ich ___
+      öffne
+      probe
+    ✓ verkleide
+      beginne
+── definition_quiz (4)
+  etwas aufmachen; offen machen
+      brüllen
+      der Kalender
+      proben
+    ✓ öffnen
+    · word: öffnen  grade: 3
+  Organisation von Menschen mit einem gemeinsamen Ziel oder gemeinsamen Interessen
+    ✓ der Verein
+      der Fußball
+      das Ohr
+      der Radiergummi
+    · word: Verein  grade: 3
+  unkluge, ungereimte Aussage oder Aussagen
+      das Abendessen
+    ✓ der Quatsch
+      die Mathematik
+      der Radiergummi
+    · word: Quatsch  grade: 3
+  eine beliebte Mannschaftssportart, welche mit 22 Spielern und einem Ball gespielt wird
+    ✓ der Fußball
+      der Radiergummi
+      die Reihe
+      die Maschine
+    · word: Fußball  grade: 3
+── expression_flash (4)
+  kein ___ vor den Mund nehmen
+      Reh
+    ✓ Blatt
+      Fleisch
+      Schuh
+    · word: Blatt
+  Äpfel mit Birnen ___
+      kriechen
+    ✓ vergleichen
+      verschwinden
+      Wand
+    · word: vergleichen
+  aus der ___ kommen
+      Faust
+      Kuchen
+      Reh
+    ✓ Reihe
+    · word: Reihe
+  wie eine ___ abgehen
+      Schuh
+    ✓ Rakete
+      Reihe
+      Kreis
+    · word: Rakete
+── grossschreib (4)
+  Die [Pflaumen] blühen.
+    ✓ GROSS
+    · word: Pflaumen  rule: Nomen werden immer großgeschrieben
+  Jedes Haus ist ein [Gebäude].
+    ✓ GROSS
+    · word: Gebäude  rule: Nomen werden immer großgeschrieben
+  „Das Fliegen mit motorisierten Gleitschirmen ist seit 1994 in [Deutschland] fest im Luftverkehrsgesetz verankert.“
+    ✓ GROSS
+    · word: Deutschland  rule: Nomen werden immer großgeschrieben
+  Ich habe vom Markt eine [Tüte] Pflaumen mitgebracht.
+    ✓ GROSS
+    · word: Tüte  rule: Nomen werden immer großgeschrieben
+── grossstadt (4)
+  ZUM [leugnen]
+    ✓ GROSS
+    · rule: Nomen-Signal "ZUM" → Großschreibung
+  DU [leugnest]
+    ✓ klein
+    · rule: Verben im Satz → Kleinschreibung
+  DARF [leugnen]
+    ✓ klein
+    · rule: Verben (Infinitiv) → Kleinschreibung
+  DAS [prügeln]
+    ✓ GROSS
+    · rule: Nomen-Signal "DAS" → Großschreibung
+── hypernym_flash (4)
+  Motorrad
+      Tageszeit
+      Sinnesorgan
+      Titel
+    ✓ Fahrzeug
+  Spatz
+    ✓ Singvogel
+      Sinnesorgan
+      Titel
+      Tageszeit
+  Abendessen
+      Sinnesorgan
+    ✓ Hauptmahlzeit
+      Titel
+      Tageszeit
+  Klassenfahrt
+      Tageszeit
+    ✓ Fahrt
+      Titel
+      Sinnesorgan
+── proverb_cloze (4)
+  lieber den ___ in der Hand als die Taube auf dem Dach
+      Schokolade
+      Schild
+    ✓ Spatz
+      Wurst
+    · word: Spatz
+  ___ macht den Meister
+      Kaiser
+      Päckchen
+      Ordnung
+    ✓ Übung
+    · word: Übung
+  die zarteste Versuchung, seit es ___ gibt
+    ✓ Schokolade
+      Käfig
+      Religion
+      Kaiser
+    · word: Schokolade
+  ___ ist, wer vergisst, was nicht mehr zu ändern ist
+      stark
+    ✓ glücklich
+      heiß
+      stumm
+    · word: glücklich
+── reverse_translation_flash (4)
+  small packet
+      Waffe
+      Sturm
+    ✓ Päckchen
+      Ereignis
+  tower
+      Clown
+      Päckchen
+      verstehen
+    ✓ Turm
+  snow
+      Rätsel
+    ✓ schneien
+      Päckchen
+      blind
+  powerful
+    ✓ stark
+      Pirat
+      Planet
+      Schatz
+── sentence_completion (4)
+  Mein Freund spielt Schlagzeug in einer ___.
+    ✓ Band
+      Nacht
+      Polizei
+      Beere
+  Wir backen einen Kuchen mit ___.
+      Tomate
+      Reifen
+      Ordnung
+    ✓ Beere
+  Die Sterne leuchten in der ___.
+      Dreieck
+    ✓ Nacht
+      Bibel
+      Radiergummi
+  Der Lehrer steht ___ im Klassenzimmer.
+      sogar
+      hoffentlich
+    ✓ vorne
+      manchmal
+── spelling_spotter (4)
+  Which spelling is correct?
+      vleißig
+    ✓ fleißig
+      fleach
+    · shown after answering: Lerne fleißig!
+  Which spelling is correct?
+      plat
+    ✓ Party
+      paty
+    · shown after answering: Die Party ist vorbei.
+  Which spelling is correct?
+    ✓ Räuber
+      reuber
+    · shown after answering: Der Räuber entging seiner Strafe.
+  Which spelling is correct?
+      kakau
+    ✓ Kakao
+      k.no
+    · shown after answering: Wer möchte Kakao?
+── sri_review (4)
+  "etwas aufmachen; offen machen"
+      brüllen
+      der Kalender
+      proben
+    ✓ öffnen
+    · type: definition
+  Welcher Artikel passt?
+"___ Verein"
+      das
+    ✓ der
+      die
+    · type: article
+  "unkluge, ungereimte Aussage oder Aussagen"
+      das Motorrad
+    ✓ der Quatsch
+      die Maschine
+      das Ohr
+    · type: definition
+  "eine beliebte Mannschaftssportart, welche mit 22 Spielern und einem Ball gespielt wird"
+      die Mannschaft
+      das Pfingsten
+      das Abendessen
+    ✓ der Fußball
+    · type: definition
+── syllable_count (4)
+  öffnen
+      1
+    ✓ 2
+      3
+      4+
+    · hyphenation: öff-nen
+  der Verein
+      1
+    ✓ 2
+      3
+      4+
+    · hyphenation: Ver-ein
+  der Quatsch
+    ✓ 1
+      2
+      3
+      4+
+    · hyphenation: Quatsch
+  der Fußball
+      1
+    ✓ 2
+      3
+      4+
+    · hyphenation: Fuß-ball
+── synonym_flash (4)
+  Schreck
+      Stuhl
+      Sattel
+      Preis
+    ✓ Entsetzen
+    · grade: 3
+  Mittagessen
+      Stuhl
+      Hals
+    ✓ Mittagbrot
+      Schreck
+    · grade: 3
+  Geheimnis
+      Obst
+      Schokolade
+    ✓ Wunder
+      Brücke
+    · grade: 3
+  Virus
+      Kälte
+    ✓ Viruserkrankung
+      Mittagessen
+      Brücke
+    · grade: 3
+── translation_flash (4)
+  das Päckchen
+      angry
+    ✓ small packet
+      event
+      roe
+  der Turm
+      powerful
+      trust
+    ✓ tower
+      polite
+  schneien
+    ✓ snow
+      salami
+      teddy
+      treasure
+  stark
+      association
+    ✓ powerful
+      some
+      knight
+── verbtrenner (4)
+  taucht … auf
+    ✓ GETRENNT
+    · form: taucht auf  context: Seht, am Horizont taucht die Sonne auf.
+  vor … nehmen
+    ✓ ZUSAMMEN
+    · form: vornehmen  context: „Ich muß einige Abmessungen vornehmen; ich muß dieses Bauwerk in seiner ganzen Bedeutung kennenlernen“. (Quelle: Max Eyth - Der Kampf um die Cheopspyramide / 4. Kapitel)
+  auf … tauchen
+    ✓ ZUSAMMEN
+    · form: auftauchen  context: Nach einer Weile muss ich wieder auftauchen.
+  vor … schreiben
+    ✓ ZUSAMMEN
+    · form: vorschreiben  context: Du kannst mir nicht vorschreiben, welches Kleid ich zum Abschlussball anzuziehen habe.
+── word_builder (4)
+  Build "das Rad" from its letters
+    ✓ Rad
+    · grade: 3  gloss: rundes Bauteil, das um seine Achse rotiert
+  Build "der Verein" from its letters
+    ✓ Verein
+    · grade: 3  gloss: Organisation von Menschen mit einem gemeinsamen Ziel oder gemeinsamen Interessen
+  Build "küssen" from its letters
+    ✓ küssen
+    · grade: 3  gloss: mit den Lippen eine andere Person oder einen Gegenstand berühren, zum Zeichen der Liebe oder Verehrung; einen Kuss geben
+  Build "die Glocke" from its letters
+    ✓ Glocke
+    · grade: 3  gloss: nach unten hin geöffneter kelchartiger Metallgegenstand, der durch Schlagen mit einem Klöppel zum Klingen gebracht wird
+── word_class_flash (4)
+  die Klassenfahrt
+    ✓ substantiv
+      verb
+      adjektiv
+  nebelig
+      substantiv
+      verb
+    ✓ adjektiv
+  blühen
+      substantiv
+    ✓ verb
+      adjektiv
+  das Mittagessen
+    ✓ substantiv
+      verb
+      adjektiv
+── word_find (4)
+  Find "das Rad" in the grid
+    ✓ Rad
+    · grade: 3  gloss: rundes Bauteil, das um seine Achse rotiert
+  Find "der Verein" in the grid
+    ✓ Verein
+    · grade: 3  gloss: Organisation von Menschen mit einem gemeinsamen Ziel oder gemeinsamen Interessen
+  Find "küssen" in the grid
+    ✓ küssen
+    · grade: 3  gloss: mit den Lippen eine andere Person oder einen Gegenstand berühren, zum Zeichen der Liebe oder Verehrung; einen Kuss geben
+  Find "die Glocke" in the grid
+    ✓ Glocke
+    · grade: 3  gloss: nach unten hin geöffneter kelchartiger Metallgegenstand, der durch Schlagen mit einem Klöppel zum Klingen gebracht wird
+── word_memory (4)
+  Match the pair for "das Rad"
+    ✓ Rad
+    · grade: 3  gloss: rundes Bauteil, das um seine Achse rotiert
+  Match the pair for "der Verein"
+    ✓ Verein
+    · grade: 3  gloss: Organisation von Menschen mit einem gemeinsamen Ziel oder gemeinsamen Interessen
+  Match the pair for "küssen"
+    ✓ küssen
+    · grade: 3  gloss: mit den Lippen eine andere Person oder einen Gegenstand berühren, zum Zeichen der Liebe oder Verehrung; einen Kuss geben
+  Match the pair for "die Glocke"
+    ✓ Glocke
+    · grade: 3  gloss: nach unten hin geöffneter kelchartiger Metallgegenstand, der durch Schlagen mit einem Klöppel zum Klingen gebracht wird
+── word_of_the_day (4)
+  2026-01-01: die Million
+    ✓ 1.000.000, eintausend mal eintausend, 10⁶
+    · grade: 4  cefr: —
+  2026-01-02: meist
+    ✓ fast immer, fast nur, sehr oft, am häufigsten
+    · grade: 4  cefr: —
+  2026-01-03: fremd
+    ✓ nicht bekannt, fremdartig
+    · grade: 4  cefr: —
+  2026-01-04: die Arbeit
+    ✓ selbstgewählte, bewusste, schöpferische Handlung
+    · grade: 4  cefr: —
+── word_snake (4)
+  Trace "das Rad"
+    ✓ Rad
+    · grade: 3  gloss: rundes Bauteil, das um seine Achse rotiert
+  Trace "der Verein"
+    ✓ Verein
+    · grade: 3  gloss: Organisation von Menschen mit einem gemeinsamen Ziel oder gemeinsamen Interessen
+  Trace "küssen"
+    ✓ küssen
+    · grade: 3  gloss: mit den Lippen eine andere Person oder einen Gegenstand berühren, zum Zeichen der Liebe oder Verehrung; einen Kuss geben
+  Trace "die Glocke"
+    ✓ Glocke
+    · grade: 3  gloss: nach unten hin geöffneter kelchartiger Metallgegenstand, der durch Schlagen mit einem Klöppel zum Klingen gebracht wird
+── word_sort (4)
+  Sort "das Rad" into its word class
+    ✓ substantiv
+    · grade: 3  gloss: rundes Bauteil, das um seine Achse rotiert
+  Sort "der Verein" into its word class
+    ✓ substantiv
+    · grade: 3  gloss: Organisation von Menschen mit einem gemeinsamen Ziel oder gemeinsamen Interessen
+  Sort "küssen" into its word class
+    ✓ verb
+    · grade: 3  gloss: mit den Lippen eine andere Person oder einen Gegenstand berühren, zum Zeichen der Liebe oder Verehrung; einen Kuss geben
+  Sort "die Glocke" into its word class
+    ✓ substantiv
+    · grade: 3  gloss: nach unten hin geöffneter kelchartiger Metallgegenstand, der durch Schlagen mit einem Klöppel zum Klingen gebracht wird
+── word_type_whirl (4)
+  Catch "das Rad" in the right bin
+    ✓ substantiv
+    · grade: 3  gloss: rundes Bauteil, das um seine Achse rotiert
+  Catch "der Verein" in the right bin
+    ✓ substantiv
+    · grade: 3  gloss: Organisation von Menschen mit einem gemeinsamen Ziel oder gemeinsamen Interessen
+  Catch "küssen" in the right bin
+    ✓ verb
+    · grade: 3  gloss: mit den Lippen eine andere Person oder einen Gegenstand berühren, zum Zeichen der Liebe oder Verehrung; einen Kuss geben
+  Catch "die Glocke" in the right bin
+    ✓ substantiv
+    · grade: 3  gloss: nach unten hin geöffneter kelchartiger Metallgegenstand, der durch Schlagen mit einem Klöppel zum Klingen gebracht wird
+── wortbaumeister (4)
+  Build the compound: Abend + essen
+    ✓ Abendessen
+    · context: Zum Abendessen gibt es heute einen besonders guten Wein.
+  Build the compound: Abfall + eimer
+    ✓ Abfalleimer
+    · context: „Die Abfalleimer aus Aluminium standen überquellend von Müll auf der Straße neben den Treppen.“
+  Build the compound: Alarm + stufe
+    ✓ Alarmstufe
+    · context: Das Wort "Alarmstufe" wird so geschrieben.
+  Build the compound: Alters + heim
+    ✓ Altersheim
+    · context: Sonntags besuchen wir meist Uroma im Altersheim.
+── wortfalle (4)
+  Der ___ bringt uns ein wichtiges Päckchen.
+    ✓ Bote
+      Boote
+    · pair: Bote/Boote
+  Am Steg liegen viele bunte ___ im Wasser.
+      Bote
+    ✓ Boote
+    · pair: Bote/Boote
+  Vor dem Haus steht ein roter ___.
+    ✓ Wagen
+      wagen
+    · pair: Wagen/wagen
+  Ich möchte den Sprung vom Brett endlich ___.
+      Wagen
+    ✓ wagen
+    · pair: Wagen/wagen
