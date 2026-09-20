@@ -91,8 +91,10 @@ void main() {
           buffer.writeln(jsonEncode(item.toJson()));
         }
       } else {
+        final title = gameTitle(name, pack.strings);
         buffer.writeln('\n── $name  (${items.length} items, '
             '$language, grade $grade) ${'─' * 20}');
+        if (title != null) buffer.writeln('   "$title" in the menu');
         for (final item in items) {
           buffer.write(item.toText());
         }
