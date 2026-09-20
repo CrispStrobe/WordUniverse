@@ -174,6 +174,14 @@ void main() {
           isTrue);
     });
 
+    test('a state of being is not a state of the union', () {
+      expect(
+          describesAName('The state of being free from physical or '
+              'psychological disease.'),
+          isFalse);
+      expect(describesAName('A state of the United States.'), isTrue);
+    });
+
     test('catches German place glosses in the appositive form', () {
       expect(describesAName('eine Stadt in Nordrhein-Westfalen, Deutschland'),
           isTrue);

@@ -227,19 +227,22 @@ const Map<String, LanguagePack> kLanguagePacks = {
     // binaries; downloaded once from the Hugging Face dataset instead.
     // The runtime artifact, not the full dataset: the same database with the
     // enrichment the app never reads stripped (tools/pack/slim_pack.py),
-    // 149.6 MB -> 83.1 MB. `grundwortschatz.db.gz` beside it remains the
-    // complete lexical database and is unchanged.
+    // 149.6 MB -> 83.1 MB, then repaired (tools/pack/repair_pack.py) so that
+    // 33 place and person names are typed proper_noun and 137 entries lead
+    // with a meaning rather than a parse. `grundwortschatz.db.gz` beside it
+    // remains the complete lexical database and is unchanged.
     remoteUrl:
-        'https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/68af2171ad1fd59d9b7bfa2d8b2a5b1ca9e4528e/grundwortschatz-app.db.gz',
+        'https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/f80a88a726c91ea40d88e6a9d6dfb71fd44b9020/grundwortschatz-app.db.gz',
     // Update the immutable URL and all pins together; retain this qualified
     // databaseName in previousDatabaseNames when publishing a new artifact.
-    expectedCompressedBytes: 14895335,
+    expectedCompressedBytes: 14934424,
     expectedCompressedSha256:
-        'ca38f7eececaf1cc9541d6aa461345b0d738e92921b3103ccce0e1487e7355a5',
-    expectedDecompressedBytes: 87130112,
+        '25d03a6d3c752d9a8fc88afbf106f169ec480fc4c290bbbf7c9c86fed77c18c5',
+    expectedDecompressedBytes: 87195648,
     expectedDecompressedSha256:
-        '2890e0c1b1dd25aacaee53bb133f4a4b3c4e69acb5827ce4c1af1813a2a7af44',
+        '4088731ba18bb477bbf41faacc633beedc967b5e5e7108a89c75c62d87b5aca1',
     previousDatabaseNames: [
+      'grundwortschatz-2890e0c1b1dd25aacaee53bb133f4a4b3c4e69acb5827ce4c1af1813a2a7af44.db',
       'grundwortschatz-c66e3b49192694c00d7c2a171562ac8fe4f54c05d986adb0ebf276f141aa00df.db',
     ],
     licenseLabel: 'GPL-3.0-or-later',
@@ -252,11 +255,16 @@ const Map<String, LanguagePack> kLanguagePacks = {
     assetPath: 'assets/grundwortschatz_en.db.gz',
     // Slimmed 2026-09-18: enrichment no code path reads was stripped from the
     // artifact (tools/pack/slim_pack.py), 93.9 MB -> 58.3 MB decompressed.
-    // The digest qualifies the storage slot, so this selects a fresh one and
-    // the previous slot is listed below rather than silently reused.
+    // Repaired 2026-09-20 (tools/pack/repair_pack.py): 853 recorded
+    // misspellings marked as such, 75 names typed proper_noun, and 436
+    // entries whose leading gloss was a parse or a label had it dropped so a
+    // real meaning leads. The digest qualifies the storage slot, so this
+    // selects a fresh one and the previous slots are listed below rather than
+    // silently reused.
     expectedDecompressedSha256:
-        '49e65596954cb7f8a0268e214e3e26c866f593ad781c567481993f08dc8471db',
+        '7c810a70430f5e2218e8ef15b91cdf52bb20224afad4963ea6c200e47c0b840d',
     previousDatabaseNames: [
+      'grundwortschatz_en-49e65596954cb7f8a0268e214e3e26c866f593ad781c567481993f08dc8471db.db',
       'grundwortschatz_en-367021742f6c3ae6a3c347a9ef25f162683fb40c8e983f290c6e9667b6216893.db',
     ],
     licenseLabel: 'CC BY-SA 4.0',

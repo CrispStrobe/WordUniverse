@@ -188,6 +188,30 @@ void main() {
         return byGame;
       }
 
+      test('the catalogue keeps its ordinary words', () async {
+        if (!opened) {
+          markTestSkipped('set WU_PACK_DE=/path/to/grundwortschatz.db');
+          return;
+        }
+        // A quality rule that reads the packs' own tags can be read
+        // backwards: `often_misspelled` marks the *pair*, so filtering on it
+        // took "add", "all" and "and" out of the English catalogue, and
+        // nothing failed — every game still produced well-formed items from
+        // what was left.
+        final words = pack.vocabulary
+            .getAllWords(pack.settings)
+            .map((word) => word.word.toLowerCase())
+            .toSet();
+        final common = language == 'en'
+            ? ['add', 'all', 'and', 'also', 'area', 'water', 'school']
+            : ['und', 'haus', 'schule', 'wasser', 'gehen', 'gut'];
+        for (final word in common) {
+          expect(words, contains(word), reason: 'the catalogue lost "$word"');
+        }
+        expect(words.length, greaterThan(9000),
+            reason: 'the catalogue shrank far below what the pack ships');
+      }, timeout: const Timeout(Duration(minutes: 10)));
+
       test('every item is well formed', () async {
         if (!opened) {
           markTestSkipped('set WU_PACK_DE=/path/to/grundwortschatz.db');
