@@ -301,6 +301,7 @@ final Map<String, Generator> generators = {
               w.word.length >= 3 &&
               w.has(WordFeature.usableDefinition) &&
               !namesSomething(w) &&
+              w.isHeadword &&
               w.gradeLevel <= c.grade + 2)
           .toList()
         ..shuffle(c.rng);

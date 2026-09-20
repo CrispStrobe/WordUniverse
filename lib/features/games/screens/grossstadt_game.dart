@@ -195,6 +195,10 @@ class _GrossstadtGameState extends State<GrossstadtGame>
             // gloss, no grade and nothing else.
             w.has(WordFeature.usableDefinition) &&
             !namesSomething(w) &&
+            // "abgebrochen" is a row of its own, typed verb, whose lemma is
+            // "abbrechen" — the frame would show forms of a word the learner
+            // was not shown.
+            w.isHeadword &&
             w.gradeLevel <= widget.gradeLevel.index + 2)
         .toList();
 

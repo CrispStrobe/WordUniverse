@@ -7,6 +7,7 @@
 import 'dart:math';
 
 import '../../../core/models/vocabulary_models.dart';
+import 'conjugation_drill_service.dart' show getPraesensForWord;
 import 'grossstadt_possessive.dart';
 import 'verbtrenner_service.dart' show hasSeparablePrefix;
 
@@ -39,74 +40,37 @@ bool isInfinitive(String verb) {
   return lower.endsWith('en') || lower.endsWith('ern') || lower.endsWith('eln');
 }
 
+/// The present-tense form of [word] for [person], or null when the pack does
+/// not carry one.
+///
+/// This used to match Wiktionary tags itself and fall back to regular
+/// conjugation. The German pack tags its present forms bare — "present",
+/// three of them, in ich/du/er order — so the matcher never fired and every
+/// German verb went through the fallback: "du lesst", "du sprechst", "du
+/// essst", and for separable verbs "du abbiegst" where German says "du biegst
+/// ab". Where a tag did match, it was sometimes the imperative: "du flieg
+/// ab!".
+///
+/// The conjugation drill already reads that convention correctly, so this
+/// asks it. Nothing is invented: a verb the pack has no forms for is not
+/// asked about.
 String? conjugatedForm(GermanWord word, String person) {
-  // Try API data first
-  if (word.wiktionaryInflections.isNotEmpty) {
-    for (final inflection in word.wiktionaryInflections) {
-      final formText = inflection['form_text'] as String?;
-      final tagsRaw = inflection['tags'];
-
-      if (formText == null || tagsRaw == null) continue;
-
-      // Handle both String and List<dynamic> for tags
-      String tagString;
-      if (tagsRaw is String) {
-        tagString = tagsRaw.toLowerCase();
-      } else if (tagsRaw is List) {
-        tagString = tagsRaw.join('|').toLowerCase();
-      } else {
-        continue;
-      }
-
-      // Must be present tense and match person
-      if (!tagString.contains('present') && !tagString.contains('pres'))
-        continue;
-      if (tagString.contains('past') || tagString.contains('participle'))
-        continue;
-
-      bool matches = false;
-      if (person == 'ich' &&
-          tagString.contains('first-person') &&
-          tagString.contains('singular')) {
-        matches = true;
-      } else if (person == 'du' &&
-          tagString.contains('second-person') &&
-          tagString.contains('singular')) {
-        matches = true;
-      } else if (person == 'wir' &&
-          tagString.contains('first-person') &&
-          tagString.contains('plural')) {
-        matches = true;
-      }
-
-      if (matches) {
-        return formText;
-      }
-    }
-  }
-
-  // Fallback: Basic regular verb conjugation
-  final lemma = word.lemma.toLowerCase();
-  if (lemma.endsWith('en')) {
-    final stem = lemma.substring(0, lemma.length - 2);
-    String result;
-    if (person == 'ich') {
-      result = '${stem}e';
-    } else if (person == 'du') {
-      result = '${stem}st';
-    } else if (person == 'wir') {
-      result = lemma; // Same as infinitive
-    } else {
+  final praesens = getPraesensForWord(word);
+  if (praesens == null) return null;
+  switch (person) {
+    case 'ich':
+    case 'du':
+      return praesens[person];
+    case 'wir':
+      // The flat list carries ich/du/er only. First-person plural is the
+      // infinitive — but only for a verb that does not separate: "wir
+      // brechen ab", not "wir abbrechen".
+      return hasSeparablePrefix(word.lemma) ? null : word.lemma.toLowerCase();
+    default:
       return null;
-    }
-    return result;
   }
-
-  return null;
 }
 
-/// [rng] is threaded through so a dump can be reproduced from its seed: these
-/// built their own Random(), and the same command gave different items.
 List<CapitalizationItem> verbVariants(GermanWord word, {Random? rng}) {
   final random = rng ?? Random();
   final items = <CapitalizationItem>[];
@@ -138,12 +102,7 @@ List<CapitalizationItem> verbVariants(GermanWord word, {Random? rng}) {
   final pronoun = pronouns[random.nextInt(pronouns.length)];
   final conjugated = conjugatedForm(word, pronoun.toLowerCase());
 
-  // A separable verb the pack carries no forms for cannot be conjugated by
-  // the regular rule: it produced "WIR aufbleiben", where German writes "wir
-  // bleiben auf".
-  final separableWithoutForms =
-      word.wiktionaryInflections.isEmpty && hasSeparablePrefix(infinitive);
-  if (conjugated != null && !separableWithoutForms) {
+  if (conjugated != null) {
     items.add(CapitalizationItem(
       prefix: '$pronoun ',
       target: conjugated,
