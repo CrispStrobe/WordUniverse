@@ -143,6 +143,41 @@ wrong — "The book has a pair of pages." is the English pack's sentence for
 *pair*, and the Homophone Drill can only blank a word out of what it is
 given.
 
+## Having a model read them
+
+`tools/audit/review.py` asks a model the four questions a teacher would ask of
+each generated item — is it answerable, is the marked answer right and every
+other option wrong, is every sentence grammatical, would you put it in front
+of a ten-year-old — and writes one verdict per item.
+
+```sh
+tools/audit/dump.sh --lang de --pack-de pack.db --count 200 --json --out items.jsonl
+python3 tools/audit/review.py items.jsonl --model <name> --out verdicts.jsonl
+python3 tools/audit/review.py items.jsonl --report verdicts.jsonl
+```
+
+It flags; it does not fix. A flag is a claim with a reason attached, which is
+what makes it cheap to dismiss when the model is wrong — and the model will be
+wrong, so the output is a triage list for a person, never a gate. `--dry-run`
+prints the rubric and one batch without calling anything; the run is
+resumable, so a long sweep can be stopped and continued.
+
+Any OpenAI-compatible endpoint works (`--endpoint`), which includes a local
+server. It is worth saying plainly that a small local model is not good enough
+for this: judging whether *du sprichst* is right takes a model that knows
+German well. Run it where a capable one is, on the JSONL — that is the whole
+reason the dump speaks JSON.
+
+`--sheet N` writes the same items as a numbered sheet for a person instead,
+N per game, spread across the file rather than taken from the front. An hour
+of a teacher's time on what the machine flagged is worth more than a day of
+unguided reading.
+
+`tools/audit/review_test.py` checks the plumbing against a stub endpoint: that
+a flag survives the round trip with its reason, that a model answering about
+fewer items than it was asked does not silently flag the rest, and that a
+resumed run skips what it already judged.
+
 ## How much of this is actually checked
 
 | | |

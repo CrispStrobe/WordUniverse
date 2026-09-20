@@ -73,8 +73,12 @@ void main() {
     for (final name in names) {
       final supported = generatorLanguages[name] ?? const ['en', 'de'];
       if (!supported.contains(language)) {
-        buffer.writeln('\n── $name  skipped: $language is not one of '
-            '${supported.join('/')}');
+        // JSON mode has to stay machine-readable line by line; a reader of
+        // the text wants to see what was skipped and why.
+        if (!asJson) {
+          buffer.writeln('\n── $name  skipped: $language is not one of '
+              '${supported.join('/')}');
+        }
         continue;
       }
       final generator = generators[name];
