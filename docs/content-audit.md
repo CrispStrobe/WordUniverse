@@ -143,6 +143,31 @@ wrong — "The book has a pair of pages." is the English pack's sentence for
 *pair*, and the Homophone Drill can only blank a word out of what it is
 given.
 
+## How much of this is actually checked
+
+| | |
+|---|---|
+| structural rules, every push | 1,260 English items; German too, since CI fetches the pack |
+| structural rules, nightly | 500 per game per grade, sharded twelve ways |
+| German the app composes itself | 3,240 Großstadt frames, 3,531 drill forms, 328 verb tiles, 359 compounds — every one against the pack's own tables |
+| the frozen sample | four items per game, both packs, as a diff |
+| meaning | nothing automated; read by hand |
+
+The games can produce on the order of a hundred thousand distinct items —
+Definition Quiz alone gave 4,000 at English grade 3 without running out — so
+ten items per game per grade is a tripwire, not a proof. Three reading passes
+found twenty-one content bugs in a sample that size.
+
+`tools/pack/consistency_report.py` compares the pack's overlapping fields
+against each other. What it found is worth keeping in mind before trusting any
+of them: 1,057 German nouns know their gender but carry no article, 693 have a
+lemma column that is neither the word nor its lemma ("abbiegen: Abbieg"), and
+73 have an article and a gender that contradict each other. Filling the
+missing articles from the gender field looks obvious until you read what it
+would write — "die Chicago", "das Allah", "der Hunden", "das Landes". The rows
+missing an article are mostly the ones that should not be taught at all, and
+their gender field is no better than the rest of them.
+
 ## What the dump shows
 
 What a generator returns is what the screen shows. The flash games display a
