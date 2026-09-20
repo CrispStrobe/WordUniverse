@@ -304,6 +304,7 @@ final Map<String, Generator> generators = {
       verbs: await ofType(GermanWordType.verb, 15),
       adjectives: await ofType(GermanWordType.adjektiv, 12),
       nouns: await ofType(GermanWordType.substantiv, 12),
+      rng: c.rng,
     )
         .take(c.count)
         .map((item) => Item(

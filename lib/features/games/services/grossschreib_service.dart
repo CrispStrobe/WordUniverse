@@ -96,8 +96,10 @@ SentenceChallenge? challengeFromWord(
     // target must be empty or end with a sentence terminator (. ! ?),
     // ignoring trailing quotes and spaces.
     final beforeTarget = sentence.substring(0, wordIndex);
+    // „ is how German opens a quotation, so leaving it out of this set made
+    // the first word of a quoted sentence look like a word in the middle.
     final trimmedBefore =
-        beforeTarget.replaceAll(RegExp('[\\s"“”«»‚‘’\']+\$'), '');
+        beforeTarget.replaceAll(RegExp('[\\s"„“”«»‹›‚‘’\']+\$'), '');
     final isAtStart =
         trimmedBefore.isEmpty || RegExp(r'[.!?]$').hasMatch(trimmedBefore);
 
