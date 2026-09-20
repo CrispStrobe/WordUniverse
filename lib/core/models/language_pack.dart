@@ -228,20 +228,21 @@ const Map<String, LanguagePack> kLanguagePacks = {
     // The runtime artifact, not the full dataset: the same database with the
     // enrichment the app never reads stripped (tools/pack/slim_pack.py),
     // 149.6 MB -> 83.1 MB, then repaired (tools/pack/repair_pack.py) so that
-    // 33 place and person names are typed proper_noun and 137 entries lead
+    // 33 place and person names are typed proper_noun and 122 entries lead
     // with a meaning rather than a parse. `grundwortschatz.db.gz` beside it
     // remains the complete lexical database and is unchanged.
     remoteUrl:
-        'https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/f80a88a726c91ea40d88e6a9d6dfb71fd44b9020/grundwortschatz-app.db.gz',
+        'https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/510fe81a7f127c4df467b872861b9407473fa36d/grundwortschatz-app.db.gz',
     // Update the immutable URL and all pins together; retain this qualified
     // databaseName in previousDatabaseNames when publishing a new artifact.
-    expectedCompressedBytes: 14934424,
+    expectedCompressedBytes: 14931440,
     expectedCompressedSha256:
-        '25d03a6d3c752d9a8fc88afbf106f169ec480fc4c290bbbf7c9c86fed77c18c5',
+        '1596aba51bda9f9860462e36f5895a47c2a631d67bac59fa34e65574e30321ba',
     expectedDecompressedBytes: 87195648,
     expectedDecompressedSha256:
-        '4088731ba18bb477bbf41faacc633beedc967b5e5e7108a89c75c62d87b5aca1',
+        '32487bb8280cc5a709abf83119482fe68c84be3ee47aa1251f1aabb494801712',
     previousDatabaseNames: [
+      'grundwortschatz-4088731ba18bb477bbf41faacc633beedc967b5e5e7108a89c75c62d87b5aca1.db',
       'grundwortschatz-2890e0c1b1dd25aacaee53bb133f4a4b3c4e69acb5827ce4c1af1813a2a7af44.db',
       'grundwortschatz-c66e3b49192694c00d7c2a171562ac8fe4f54c05d986adb0ebf276f141aa00df.db',
     ],
@@ -256,14 +257,16 @@ const Map<String, LanguagePack> kLanguagePacks = {
     // Slimmed 2026-09-18: enrichment no code path reads was stripped from the
     // artifact (tools/pack/slim_pack.py), 93.9 MB -> 58.3 MB decompressed.
     // Repaired 2026-09-20 (tools/pack/repair_pack.py): 853 recorded
-    // misspellings marked as such, 75 names typed proper_noun, and 436
+    // misspellings marked as such, 620 names typed proper_noun — London,
+    // Texas, Canada and Isaac all arrived as ordinary nouns — and 141
     // entries whose leading gloss was a parse or a label had it dropped so a
     // real meaning leads. The digest qualifies the storage slot, so this
     // selects a fresh one and the previous slots are listed below rather than
     // silently reused.
     expectedDecompressedSha256:
-        '7c810a70430f5e2218e8ef15b91cdf52bb20224afad4963ea6c200e47c0b840d',
+        'cbbdef45fb1b2da6726ada0f98071c5ff622f4fa3903bf13fdf9d5f4f8d2f365',
     previousDatabaseNames: [
+      'grundwortschatz_en-7c810a70430f5e2218e8ef15b91cdf52bb20224afad4963ea6c200e47c0b840d.db',
       'grundwortschatz_en-49e65596954cb7f8a0268e214e3e26c866f593ad781c567481993f08dc8471db.db',
       'grundwortschatz_en-367021742f6c3ae6a3c347a9ef25f162683fb40c8e983f290c6e9667b6216893.db',
     ],

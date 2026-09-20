@@ -88,7 +88,7 @@ const List<String> kNameGlossPhrases = [
   ' county in ', ' river in ', ' lake in ', ' province of ',
   // " state of " alone read "The state of being free from illness" as a
   // place, and took health, life and on out of the games.
-  ' state of the ',
+  ' state of the united states',
   'an unincorporated community', 'a census-designated place',
   // Peoples, languages and the sky: "dravidian", "guatemalan", "franciscan"
   // and "fomalhaut" all arrive lowercase and untyped, and were being asked
@@ -108,8 +108,13 @@ const List<String> kNameGlossPhrases = [
   'eine stadt in', 'eine gemeinde in', 'ein ort in', 'ein fluss in',
   'ein stadtteil', 'ein bundesland', 'ein dorf in',
   'ist ein meer', 'ist ein gebirge', 'hauptstadt von',
-  'an island', 'an archipelago', 'a peninsula', 'a continent',
-  'a mountain range', 'a sea ', 'an ocean', 'a capital of', 'a capital city',
+  // Geography needs a naming context, not just the noun: "a person who lives
+  // on an island" is not a place, "a large landmass smaller than a continent"
+  // is not a continent, and "any disturbed state of the atmosphere" is not a
+  // state of the union.
+  ' island in ', ' island of ', ' archipelago in ', ' peninsula in ',
+  ' continent in ', ' sea in ', 'an ocean', ' mountain range in ',
+  'a capital of', 'a capital city',
   // Figures rather than places: "Mother of the prophet Samuel in the Old
   // Testament" is a name, not vocabulary.
   'in the old testament', 'in the new testament', 'in greek mythology',
