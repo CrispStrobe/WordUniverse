@@ -420,6 +420,7 @@ final Map<String, Generator> generators = {
         maxChallenges: c.count,
         minLength: 8,
         maxLength: 80,
+        minVisibleWords: 2,
         rng: c.rng,
       ).map((ch) => _clozeItem('expression_flash', ch)).toList(),
   'proverb_cloze': (c) async => buildClozeChallenges(

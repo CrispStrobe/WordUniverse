@@ -10,6 +10,7 @@ import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:WortUniversum/core/models/vocabulary_models.dart';
 import 'package:WortUniversum/core/models/skill_category.dart';
+import 'package:WortUniversum/features/games/services/cloze_service.dart';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -79,98 +80,29 @@ GermanWord _word(
       coordinateTerms: const [],
     );
 
-// ─── Mirror of game logic ─────────────────────────────────────────────────────
+// ─── The service, called the way Cloze Flash calls it ───────────────────────
 
-bool isLetter(String ch) => RegExp(r'[a-zA-ZäöüÄÖÜß]').hasMatch(ch);
-
-class _ClozeResult {
-  final String before;
-  final String after;
-  final String matchedForm;
-  const _ClozeResult(
-      {required this.before, required this.after, required this.matchedForm});
-}
-
-_ClozeResult? tryBlank(String sentence, String target) {
-  if (target.isEmpty) return null;
-  final ls = sentence.toLowerCase();
-  final lt = target.toLowerCase();
-  int pos = 0;
-  while (pos < ls.length) {
-    final idx = ls.indexOf(lt, pos);
-    if (idx < 0) return null;
-    final end = idx + lt.length;
-    final prevOk = idx == 0 || !isLetter(ls[idx - 1]);
-    final nextOk = end >= ls.length || !isLetter(ls[end]);
-    if (prevOk && nextOk) {
-      return _ClozeResult(
-        before: sentence.substring(0, idx),
-        after: sentence.substring(end),
-        matchedForm: sentence.substring(idx, end),
-      );
-    }
-    pos = idx + 1;
-  }
-  return null;
-}
-
-class _Challenge {
-  final GermanWord word;
-  final String before;
-  final String after;
-  final String matchedForm;
-  final List<String> options;
-  final int correctIndex;
-  const _Challenge({
-    required this.word,
-    required this.before,
-    required this.after,
-    required this.matchedForm,
-    required this.options,
-    required this.correctIndex,
-  });
-}
-
-_Challenge? buildChallenge(
+/// The game passes its whole pool as distractors; these tests pass a list of
+/// spellings, so the adapter offers them as both the same-type and any-type
+/// pools.
+ClozeChallenge? buildChallenge(
   GermanWord word,
   List<String> wordPool, {
   Random? rng,
   int optionCount = 4,
-}) {
-  final r = rng ?? Random(42);
-  final examples = word.apiEnrichment?.examples ?? [];
-  for (final ex in examples) {
-    final text = ex.text;
-    if (text == null || text.length < 20 || text.length > 180) continue;
-    final cloze = tryBlank(text, word.word);
-    if (cloze == null) continue;
-
-    final distractors = <String>[];
-    for (final w in wordPool) {
-      if (distractors.length >= optionCount - 1) break;
-      if (w.toLowerCase() != word.word.toLowerCase()) distractors.add(w);
-    }
-    if (distractors.isEmpty) return null;
-
-    final options = [word.word, ...distractors.take(optionCount - 1)];
-    options.shuffle(r);
-    final correctIndex =
-        options.indexWhere((o) => o.toLowerCase() == word.word.toLowerCase());
-    if (correctIndex < 0) return null;
-
-    return _Challenge(
+}) =>
+    buildClozeChallenge(
       word: word,
-      before: cloze.before,
-      after: cloze.after,
-      matchedForm: cloze.matchedForm,
-      options: options,
-      correctIndex: correctIndex,
+      // The same projection the screen passes (cloze_flash_game.dart:171).
+      texts: [
+        for (final example in word.apiEnrichment?.examples ?? const [])
+          if (example.text case final text?) text,
+      ],
+      byType: {word.wordType: wordPool},
+      anyType: wordPool,
+      optionCount: optionCount,
+      rng: rng ?? Random(42),
     );
-  }
-  return null;
-}
-
-// ─── Tests ────────────────────────────────────────────────────────────────────
 
 void main() {
   // ── tryBlank — basic matching ────────────────────────────────────────────────
@@ -278,7 +210,9 @@ void main() {
       expect(buildChallenge(w, ['Baum', 'Hund', 'Kind']), isNull);
     });
 
-    test('returns null when word does not appear in any example at word boundary', () {
+    test(
+        'returns null when word does not appear in any example at word boundary',
+        () {
       // 'ab' only appears inside 'abbiegen', never standalone
       final w = _word('ab',
           examples: [_ex('Das Abbiegen an der Kreuzung war notwendig.')]);

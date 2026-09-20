@@ -11,6 +11,7 @@ import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:WortUniversum/core/models/vocabulary_models.dart';
 import 'package:WortUniversum/core/models/skill_category.dart';
+import 'package:WortUniversum/features/games/services/cloze_service.dart';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -80,111 +81,30 @@ GermanWord _word(
       coordinateTerms: const [],
     );
 
-// ─── Mirror of game logic ─────────────────────────────────────────────────────
+// ─── The service, called the way Expression Flash calls it ─────────────────
 
-bool isLetter(String ch) => RegExp(r'[a-zA-ZäöüÄÖÜß]').hasMatch(ch);
-
-class _ClozeResult {
-  final String before;
-  final String after;
-  final String matchedForm;
-  const _ClozeResult(
-      {required this.before, required this.after, required this.matchedForm});
-}
-
-_ClozeResult? tryBlank(String expression, String target) {
-  if (target.isEmpty) return null;
-  final le = expression.toLowerCase();
-  final lt = target.toLowerCase();
-  int pos = 0;
-  while (pos < le.length) {
-    final idx = le.indexOf(lt, pos);
-    if (idx < 0) return null;
-    final end = idx + lt.length;
-    final prevOk = idx == 0 || !isLetter(le[idx - 1]);
-    final nextOk = end >= le.length || !isLetter(le[end]);
-    if (prevOk && nextOk) {
-      return _ClozeResult(
-        before: expression.substring(0, idx),
-        after: expression.substring(end),
-        matchedForm: expression.substring(idx, end),
-      );
-    }
-    pos = idx + 1;
-  }
-  return null;
-}
-
-int _visibleWordCount(_ClozeResult cloze) =>
-    (cloze.before + cloze.after)
-        .split(' ')
-        .where((w) => w.trim().isNotEmpty)
-        .length;
-
-class _Challenge {
-  final GermanWord word;
-  final String expression;
-  final String before;
-  final String after;
-  final String matchedForm;
-  final List<String> options;
-  final int correctIndex;
-  const _Challenge({
-    required this.word,
-    required this.expression,
-    required this.before,
-    required this.after,
-    required this.matchedForm,
-    required this.options,
-    required this.correctIndex,
-  });
-}
-
-_Challenge? buildChallenge(
+/// Mirrors expression_flash_game.dart: expressions are the texts, 8-80
+/// characters, and at least two words have to stay visible beside the gap.
+ClozeChallenge? buildChallenge(
   GermanWord word,
   List<String> pool, {
   Random? rng,
   int optionCount = 4,
-}) {
-  final r = rng ?? Random(42);
-  final expressions = word.apiEnrichment?.expressions ?? [];
-  for (final expr in expressions) {
-    final text = expr.expression;
-    if (text == null || text.length < 8 || text.length > 80) continue;
-    final cloze = tryBlank(text, word.word);
-    if (cloze == null) continue;
-    if (_visibleWordCount(cloze) < 2) continue;
-
-    final distractors = <String>[];
-    for (final d in pool) {
-      if (distractors.length >= optionCount - 1) break;
-      if (d.toLowerCase() != word.word.toLowerCase() &&
-          !distractors.any((x) => x.toLowerCase() == d.toLowerCase())) {
-        distractors.add(d);
-      }
-    }
-    if (distractors.isEmpty) return null;
-
-    final options = [word.word, ...distractors.take(optionCount - 1)];
-    options.shuffle(r);
-    final correctIndex =
-        options.indexWhere((o) => o.toLowerCase() == word.word.toLowerCase());
-    if (correctIndex < 0) return null;
-
-    return _Challenge(
+}) =>
+    buildClozeChallenge(
       word: word,
-      expression: text,
-      before: cloze.before,
-      after: cloze.after,
-      matchedForm: cloze.matchedForm,
-      options: options,
-      correctIndex: correctIndex,
+      texts: [
+        for (final entry in word.apiEnrichment?.expressions ?? const [])
+          if (entry.expression case final text?) text,
+      ],
+      byType: {word.wordType: pool},
+      anyType: pool,
+      optionCount: optionCount,
+      minLength: 8,
+      maxLength: 80,
+      minVisibleWords: 2,
+      rng: rng ?? Random(42),
     );
-  }
-  return null;
-}
-
-// ─── Tests ────────────────────────────────────────────────────────────────────
 
 void main() {
   // ── tryBlank — word boundary (reused from ClozeFlash, spot-check) ──────────
@@ -221,13 +141,13 @@ void main() {
   group('visible word count requirement', () {
     test('2 visible words → accepted', () {
       final r = tryBlank('zu Abend essen', 'Abend')!;
-      expect(_visibleWordCount(r), greaterThanOrEqualTo(2));
+      expect(visibleWordCount(r), greaterThanOrEqualTo(2));
     });
 
     test('1 visible word → rejected (Hürden abbauen → only "Hürden" left)', () {
       // 'Hürden abbauen' — blanking 'abbauen' leaves only 'Hürden'
       final r = tryBlank('Hürden abbauen', 'abbauen')!;
-      expect(_visibleWordCount(r), equals(1));
+      expect(visibleWordCount(r), equals(1));
     });
   });
 
@@ -251,14 +171,12 @@ void main() {
 
     test('returns null when word not at word boundary in expression', () {
       // 'ab' is a prefix of 'abbrechen', not standalone
-      final w = _word('ab',
-          expressions: [_expr('etwas die Spitze abbrechen')]);
+      final w = _word('ab', expressions: [_expr('etwas die Spitze abbrechen')]);
       expect(buildChallenge(w, ['nehmen', 'geben', 'laufen']), isNull);
     });
 
     test('returns null when pool has no distractors', () {
-      final w =
-          _word('abgeben', expressions: [_expr('den Löffel abgeben')]);
+      final w = _word('abgeben', expressions: [_expr('den Löffel abgeben')]);
       expect(buildChallenge(w, ['abgeben']), isNull);
     });
   });
@@ -266,8 +184,7 @@ void main() {
   // ── buildChallenge — structural invariants ───────────────────────────────────
   group('buildChallenge — structural invariants', () {
     test('options[correctIndex] == word.word', () {
-      final w =
-          _word('abgeben', expressions: [_expr('den Löffel abgeben')]);
+      final w = _word('abgeben', expressions: [_expr('den Löffel abgeben')]);
       final pool = ['nehmen', 'laufen', 'stehen', 'sehen'];
       final c = buildChallenge(w, pool, rng: Random(1));
       expect(c, isNotNull);
@@ -284,14 +201,12 @@ void main() {
     });
 
     test('target word not duplicated among distractors', () {
-      final w =
-          _word('abgeben', expressions: [_expr('den Löffel abgeben')]);
+      final w = _word('abgeben', expressions: [_expr('den Löffel abgeben')]);
       final pool = ['abgeben', 'nehmen', 'laufen', 'stehen'];
       final c = buildChallenge(w, pool, rng: Random(2));
       expect(c, isNotNull);
-      final count = c!.options
-          .where((o) => o.toLowerCase() == 'abgeben')
-          .length;
+      final count =
+          c!.options.where((o) => o.toLowerCase() == 'abgeben').length;
       expect(count, equals(1));
     });
 
@@ -311,7 +226,7 @@ void main() {
       final pool = ['nehmen', 'laufen', 'stehen'];
       final c = buildChallenge(w, pool, rng: Random(0));
       expect(c, isNotNull);
-      expect(c!.expression, equals('Vorurteile langsam abbauen'));
+      expect(c!.source, equals('Vorurteile langsam abbauen'));
     });
   });
 
@@ -325,9 +240,10 @@ void main() {
       expect(r.after, equals(''));
     });
 
-    test('abbrechen: "alle Brücken hinter sich abbrechen" → 4 visible words', () {
+    test('abbrechen: "alle Brücken hinter sich abbrechen" → 4 visible words',
+        () {
       final r = tryBlank('alle Brücken hinter sich abbrechen', 'abbrechen')!;
-      expect(_visibleWordCount(r), equals(4));
+      expect(visibleWordCount(r), equals(4));
     });
 
     test('Abend: "zu Abend essen" → blank in middle', () {
@@ -360,7 +276,7 @@ void main() {
       final c = buildChallenge(w, pool, rng: Random(5));
       expect(c, isNotNull);
       expect(c!.options[c.correctIndex].toLowerCase(), equals('abgeben'));
-      expect(c.expression, equals('den Löffel abgeben'));
+      expect(c.source, equals('den Löffel abgeben'));
     });
   });
 }

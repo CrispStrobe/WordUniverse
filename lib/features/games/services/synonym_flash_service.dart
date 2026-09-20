@@ -54,7 +54,7 @@ SynonymChallenge? buildSynonymChallenge({
   final outOfVocab = <String>[];
   for (final syn in synonyms) {
     final clean = syn.replaceAll(RegExp(r'\s*\(.*?\)\s*$'), '').trim();
-    if (!_isCleanSynonym(clean)) continue;
+    if (!isCleanSynonym(clean)) continue;
     // A synonym that differs from the prompt only in case is no question at
     // all: the pack offered "Creator" for "creator", "Atlantic" for
     // "atlantic".
@@ -94,8 +94,8 @@ SynonymChallenge? buildSynonymChallenge({
 
   // Any of the word's listed synonyms counts as correct, so exclude them all
   // (plus the prompt word itself) from the distractor pool.
-  final synSet =
-      synonyms.map((s) => s.toLowerCase()).toSet()..add(word.word.toLowerCase());
+  final synSet = synonyms.map((s) => s.toLowerCase()).toSet()
+    ..add(word.word.toLowerCase());
 
   // Restrict distractors to the same word type as the prompt for plausibility;
   // fall back to any word type if too few same-type candidates exist.
@@ -109,10 +109,7 @@ SynonymChallenge? buildSynonymChallenge({
       .map((w) => w.word)
       .toList()
     ..shuffle(random);
-  final anyType = allWords
-      .where(eligible)
-      .map((w) => w.word)
-      .toList()
+  final anyType = allWords.where(eligible).map((w) => w.word).toList()
     ..shuffle(random);
 
   final needed = optionCount - 1;
@@ -130,8 +127,8 @@ SynonymChallenge? buildSynonymChallenge({
   if (distractors.isEmpty) return null;
 
   final options = [correctWord, ...distractors.take(needed)]..shuffle(random);
-  final correctIndex = options.indexWhere(
-      (o) => o.toLowerCase() == correctWord.toLowerCase());
+  final correctIndex =
+      options.indexWhere((o) => o.toLowerCase() == correctWord.toLowerCase());
   if (correctIndex < 0) return null;
 
   return SynonymChallenge(
@@ -142,7 +139,9 @@ SynonymChallenge? buildSynonymChallenge({
   );
 }
 
-bool _isCleanSynonym(String s) {
+/// Whether a listed synonym is usable as a one-word answer. Letters (any
+/// script, so German diacritics pass), hyphen and apostrophe only.
+bool isCleanSynonym(String s) {
   if (s.length < 2 || s.contains(' ')) return false;
   if (RegExp(r'\d').hasMatch(s)) return false;
   if (s == s.toUpperCase() && s.length > 1) return false;
