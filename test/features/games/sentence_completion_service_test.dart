@@ -14,6 +14,10 @@ import 'package:WortUniversum/features/games/services/sentence_completion_servic
 
 import 'word_fixture.dart';
 
+/// Every pack entry a game may use carries a meaning; one that does not is
+/// filtered out, so the fixtures carry one too.
+const _def = ['Ein Ding, das man benutzt.'];
+
 GermanWord _word(
   String word, {
   Map<String, List<String>>? examples,
@@ -30,10 +34,10 @@ GermanWord _word(
     );
 
 List<GermanWord> _pool() => [
-      _word('Tisch'),
-      _word('Stuhl'),
-      _word('Lampe'),
-      _word('Teppich'),
+      _word('Tisch', definitions: _def),
+      _word('Stuhl', definitions: _def),
+      _word('Lampe', definitions: _def),
+      _word('Teppich', definitions: _def),
     ];
 
 void main() {
@@ -175,7 +179,7 @@ void main() {
   group('buildSentenceChallenges', () {
     test('skips names and stops at maxChallenges', () {
       final pool = [
-        _word('Tisch', examples: {
+        _word('Tisch', definitions: _def, examples: {
           '4': ['Der Tisch steht im Zimmer.']
         }),
         _word('columbia', definitions: [
@@ -183,7 +187,11 @@ void main() {
         ], examples: {
           '4': ['Wir fahren nach columbia.']
         }),
-        _word('Stuhl', examples: {
+        // No meaning at all: "iot" was asked as "___ has practical uses."
+        _word('iot', examples: {
+          '4': ['Das iot hat viele Anwendungen.']
+        }),
+        _word('Stuhl', definitions: _def, examples: {
           '4': ['Der Stuhl ist bequem und alt.']
         }),
         ..._pool(),
@@ -194,7 +202,8 @@ void main() {
 
       final all = buildSentenceChallenges(
           pool: pool, gradeIndex: 4, maxChallenges: 10, rng: Random(1));
-      expect(all.map((c) => c.word.word), ['Tisch', 'Stuhl']);
+      expect(all.map((c) => c.word.word), ['Tisch', 'Stuhl'],
+          reason: 'a name and a word with no meaning are both skipped');
     });
   });
 

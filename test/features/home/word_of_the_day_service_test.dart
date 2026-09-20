@@ -196,16 +196,51 @@ void main() {
           pickWordOfTheDay(words, date, targetBand: 4)?.word, 'vorgeschrieben');
     });
 
-    test('an untagged word still shows when no curriculum word fits the band',
-        () {
+    test('a curriculum word from a lower band beats an untagged one', () {
+      // "a jun", "a html", "a linux": the untagged tail of a frequency list,
+      // which is what a grade-5 learner used to be shown.
       final words = [
         _curriculum('vorgeschrieben', grade: 1),
         _eligible('beliebig', grade: 5),
       ];
-      // The curriculum pool is searched across the whole stretch before the
-      // untagged one is consulted, but grade 1 is not in a grade 4 learner's
-      // stretch, so the untagged grade 5 word wins.
+      expect(
+          pickWordOfTheDay(words, date, targetBand: 4)?.word, 'vorgeschrieben');
+    });
+
+    test('an untagged word shows when the pack tags no curriculum at all', () {
+      final words = [_eligible('beliebig', grade: 5)];
       expect(pickWordOfTheDay(words, date, targetBand: 4)?.word, 'beliebig');
+    });
+
+    test('a pool too small to last a fortnight is passed over', () {
+      // The English pack's curriculum tagging reaches five words at grade 5,
+      // four of them junk from a bad Fry-list import; the card walks a pool
+      // one word per day, so five words repeat every five days.
+      final words = [
+        // Letters only: a headword with a digit is not presentable.
+        for (final suffix in 'abcde'.split(''))
+          _curriculum('winzig$suffix', grade: 5),
+        for (final suffix in 'abcdefghijklmnopqrst'.split(''))
+          _curriculum('brauchbar$suffix', grade: 4),
+      ];
+      expect(pickWordOfTheDay(words, date, targetBand: 4)?.word,
+          startsWith('brauchbar'));
+    });
+
+    test('the last resort takes a small pool rather than show nothing', () {
+      final words = [_curriculum('einzig', grade: 5)];
+      expect(pickWordOfTheDay(words, date, targetBand: 4)?.word, 'einzig');
+    });
+
+    test('candidates walk the pool without repeating', () {
+      final words = [
+        for (final suffix in 'abcdefghijklmnopqrst'.split(''))
+          _curriculum('wort$suffix', grade: 5),
+      ];
+      final candidates =
+          wordOfTheDayCandidates(words, date, targetBand: 4, count: 5);
+      expect(candidates.length, 5);
+      expect(candidates.map((w) => w.word).toSet().length, 5);
     });
 
     test('targets the selected learning band when requested', () {

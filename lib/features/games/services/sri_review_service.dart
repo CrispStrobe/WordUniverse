@@ -7,6 +7,7 @@ import 'dart:math';
 
 import '../../../core/models/skill_category.dart';
 import '../../../core/models/vocabulary_models.dart';
+import '../../../core/models/vocabulary_quality.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../generated/l10n.dart';
 import 'definition_quiz_service.dart';
@@ -108,7 +109,9 @@ ReviewChallenge? _spellingChallenge(
   if (errors.isEmpty) return null;
 
   final options = [displayWord, ...errors]..shuffle(random);
-  final definition = word.displayDefinitions.firstOrNull;
+  // "Partizip Präsens des Verbs wüten" is a parse, not a meaning to spell to.
+  final definition =
+      word.displayDefinitions.where(isUsableDefinition).firstOrNull;
   final prompt = definition != null
       ? strings.spellingForDefinition(definition)
       : strings.spellingSpotterPrompt;

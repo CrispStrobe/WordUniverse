@@ -37,6 +37,11 @@ List<GermanWord> selectWordClassCandidates({
           !namesSomething(w) &&
           !w.word.contains('_') &&
           !w.word.contains(' ') &&
+          // "Geheimnisse" is the plural of "Geheimnis"; asking the class of an
+          // inflected form teaches the form, not the class.
+          w.isHeadword &&
+          // "PDS", "SPD": an abbreviation is not a word class question.
+          w.word != w.word.toUpperCase() &&
           askableTypes.contains(w.wordType))
       .toList();
 
@@ -55,7 +60,28 @@ List<GermanWord> selectWordClassCandidates({
 
   final graded = pool.where((w) => w.gradeLevel == gradeLevel).toList();
   final chosen = graded.length >= minimumPool ? graded : pool.toList();
-  return chosen..shuffle(random);
+  return _roundRobinByType(chosen..shuffle(random));
+}
+
+/// Deals the words out one word class at a time.
+///
+/// German nouns outnumber everything else in the packs, so a shuffled pool
+/// gave six noun rounds in a row — "Nomen" every time scored full marks.
+List<GermanWord> _roundRobinByType(List<GermanWord> words) {
+  final byType = <GermanWordType, List<GermanWord>>{};
+  for (final word in words) {
+    byType.putIfAbsent(word.wordType, () => []).add(word);
+  }
+  final queues = byType.values.toList();
+  final dealt = <GermanWord>[];
+  var index = 0;
+  while (dealt.length < words.length) {
+    final queue = queues[index % queues.length];
+    if (queue.isNotEmpty) dealt.add(queue.removeAt(0));
+    index++;
+    if (queues.every((queue) => queue.isEmpty)) break;
+  }
+  return dealt;
 }
 
 /// The challenges for [words], which are expected to be hydrated already.

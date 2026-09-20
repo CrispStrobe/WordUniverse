@@ -43,6 +43,8 @@ const _invalidSpellingMarkers = <String>[
   'nonstandard spelling of',
   'obsolete spelling of',
   'obsolete form of',
+  'archaic form of',
+  'archaic spelling of',
   'falschschreibung von',
 ];
 
@@ -62,9 +64,16 @@ bool describesAName(String definition) {
 /// Gloss openings Wiktionary uses for names. Also compiled into SQL when the
 /// feature index is built, so a light word can answer the same question.
 const List<String> kNameGlossOpenings = [
-  'a surname', 'a male given name', 'a female given name', 'a given name',
-  'a unisex given name', 'a placename', 'a place name', 'an appellation',
-  'a diminutive of the male', 'a diminutive of the female',
+  'a surname',
+  'a male given name',
+  'a female given name',
+  'a given name',
+  'a unisex given name',
+  'a placename',
+  'a place name',
+  'an appellation',
+  'a diminutive of the male',
+  'a diminutive of the female',
 ];
 
 /// Gloss phrases that name a place or person wherever they appear.
@@ -78,6 +87,20 @@ const List<String> kNameGlossPhrases = [
   ' country in ', ' country of ', ' city in ', ' town in ', ' village in ',
   ' county in ', ' river in ', ' lake in ', ' province of ', ' state of ',
   'an unincorporated community', 'a census-designated place',
+  // Peoples, languages and the sky: "dravidian", "guatemalan", "franciscan"
+  // and "fomalhaut" all arrive lowercase and untyped, and were being asked
+  // as if they were vocabulary.
+  'aboriginal peoples', 'ethnic group', 'a people of', 'a people in',
+  'surname', 'in the solar system', 'county seat',
+  'inhabitant of', 'native or inhabitant', 'in the constellation',
+  'a family of related ethnicities',
+  // Without the leading article: London is glossed "The capital city of the
+  // United Kingdom", which "a capital city" missed.
+  'capital city', 'capital of',
+  // The German pack's grade glosses are written as sentences: "Afrika ist ein
+  // Kontinent.", "Berlin ist eine Stadt."
+  'ist ein kontinent', 'ist eine stadt', 'ist ein land', 'ist ein fluss',
+  'ist ein meer', 'ist ein gebirge', 'hauptstadt von',
   'an island', 'an archipelago', 'a peninsula', 'a continent',
   'a mountain range', 'a sea ', 'an ocean', 'a capital of', 'a capital city',
   // Figures rather than places: "Mother of the prophet Samuel in the Old
@@ -85,6 +108,7 @@ const List<String> kNameGlossPhrases = [
   'in the old testament', 'in the new testament', 'in greek mythology',
   'in roman mythology', 'in norse mythology',
 ];
+
 /// Whether the entry's own gloss says it is a name or a place.
 ///
 /// Brands, surnames and placenames reach the catalogue untyped — "a sony",
@@ -95,6 +119,68 @@ bool namesSomething(GermanWord word) {
   // A light word has no gloss to read; the feature index answered this for it
   // when the pack was indexed.
   if (!word.isHydrated) return word.has(WordFeature.nameLike);
-  final definition = word.displayDefinitions.firstOrNull;
-  return definition != null && describesAName(definition);
+  // Two senses, not one: Wiktionary leads "isaac" with the biblical figure
+  // and only calls it a given name in the second. A common word does not
+  // acquire a name sense that early.
+  return word.displayDefinitions.take(2).any(describesAName);
+}
+
+/// Whether a gloss describes a grammatical form rather than a meaning.
+///
+/// The packs carry inflected and derived entries whose "definition" is a
+/// parse: "plural of passerby", "Partizip Präsens des Verbs wüten". Asked as
+/// a question that is grammar homework at best, and at worst it keys a
+/// misspelling — "simple past and past participle of annoint".
+bool describesAGrammaticalForm(String definition) {
+  final lower = definition.toLowerCase();
+  return _grammaticalFormMarkers.any(lower.contains);
+}
+
+const _grammaticalFormMarkers = <String>[
+  // English
+  'plural of', 'singular of', 'past participle of', 'present participle of',
+  'simple past', 'third-person singular of', 'comparative of',
+  'superlative of', 'inflection of', 'alternative form of',
+  'alternative letter-case form of', 'gerund of',
+  // German
+  'des verbs', 'des substantivs', 'des adjektivs', 'partizip',
+  'indikativ', 'konjunktiv', 'imperativ', 'person singular',
+  'person plural', 'komparativ', 'superlativ', 'grundform',
+  // Case names: "Nominativ Singular Femininum attributiv des
+  // Indefinitpronomens jeder" is a parse, not a meaning.
+  'nominativ', 'genitiv', 'dativ', 'akkusativ',
+  'des pronomens', 'des indefinitpronomens', 'des artikels',
+];
+
+/// Whether a gloss says the entry is an abbreviation: "Abbreviation of July."
+bool describesAnAbbreviation(String definition) {
+  final lower = definition.toLowerCase();
+  return _abbreviationMarkers.any(lower.contains);
+}
+
+const _abbreviationMarkers = <String>[
+  'abbreviation of',
+  'initialism of',
+  'acronym of',
+  'short for',
+  'abkürzung für',
+  'kurzform von',
+];
+
+/// Whether a gloss can carry a question on its own.
+///
+/// A one-word gloss is a synonym, not an explanation — and when the pack is
+/// wrong it is a misspelling pointing at another misspelling ("residental" is
+/// glossed "residentiary"). A gloss ending in a colon is a domain label whose
+/// text never arrived: the German pack offers "Botanik:" as the meaning of
+/// "Mais".
+bool isUsableDefinition(String definition) {
+  final trimmed = definition.trim();
+  if (trimmed.length < 4) return false;
+  if (trimmed.endsWith(':')) return false;
+  if (!trimmed.contains(' ')) return false;
+  if (describesAGrammaticalForm(trimmed)) return false;
+  if (describesAnAbbreviation(trimmed)) return false;
+  if (describesAName(trimmed)) return false;
+  return true;
 }

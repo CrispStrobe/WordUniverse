@@ -80,16 +80,31 @@ void main() {
   });
 
   group('findRealExample', () {
-    test('takes a sentence that actually contains the form', () {
+    test('a separated form is matched with its parts apart', () {
+      // German never writes "stehe auf" contiguously: the sentence is "Ich
+      // stehe früh auf."
       expect(
         findRealExample(
           apiExamples: [ApiExample(text: 'Ich stehe früh auf.')],
           tataoebaExamples: const [],
           formText: 'stehe auf',
         ),
-        isNull,
-        reason: 'the sentence has the parts split, not the form as written',
+        'Ich stehe früh auf.',
       );
+    });
+
+    test('the parts have to appear in order', () {
+      expect(
+        findRealExample(
+          apiExamples: [ApiExample(text: 'Auf dem Berg stehe ich.')],
+          tataoebaExamples: const [],
+          formText: 'stehe auf',
+        ),
+        isNull,
+      );
+    });
+
+    test('a joined form is matched as itself', () {
       expect(
         findRealExample(
           apiExamples: [ApiExample(text: 'Wann willst du aufstehen?')],

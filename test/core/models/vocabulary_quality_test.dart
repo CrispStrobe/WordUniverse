@@ -95,4 +95,78 @@ void main() {
       isFalse,
     );
   });
+
+  group('isUsableDefinition', () {
+    test('accepts an explanation', () {
+      expect(isUsableDefinition('A large natural stream of water.'), isTrue);
+      expect(isUsableDefinition('Not shared.'), isTrue);
+    });
+
+    test('rejects a parse of the word', () {
+      // Both shipped: "passerbys" and "annointed" are English grade 6.
+      expect(isUsableDefinition('plural of passerby'), isFalse);
+      expect(isUsableDefinition('simple past and past participle of annoint'),
+          isFalse);
+      expect(isUsableDefinition('Partizip Präsens des Verbs wüten'), isFalse);
+      expect(
+          isUsableDefinition('Nominativ Singular Femininum attributiv des '
+              'Indefinitpronomens jeder'),
+          isFalse);
+    });
+
+    test('rejects an abbreviation', () {
+      expect(isUsableDefinition('Abbreviation of July.'), isFalse);
+    });
+
+    test('rejects a bare domain label', () {
+      // The German pack offers this as the meaning of "Mais".
+      expect(isUsableDefinition('Botanik:'), isFalse);
+    });
+
+    test('rejects a one-word gloss', () {
+      // "residental" is glossed "residentiary" — a misspelling pointing at an
+      // obscure word.
+      expect(isUsableDefinition('residentiary'), isFalse);
+    });
+
+    test('rejects a name', () {
+      expect(isUsableDefinition('The capital city of the United Kingdom.'),
+          isFalse);
+      expect(isUsableDefinition('Afrika ist ein Kontinent.'), isFalse);
+    });
+  });
+
+  group('describesAName', () {
+    test('catches the German pack\'s sentence glosses', () {
+      expect(describesAName('Afrika ist ein Kontinent.'), isTrue);
+      expect(describesAName('Berlin ist eine Stadt.'), isTrue);
+    });
+
+    test('catches a capital without the leading article', () {
+      expect(
+          describesAName('The capital city of the United Kingdom; the capital '
+              'city of England.'),
+          isTrue);
+    });
+
+    test('catches peoples and languages', () {
+      expect(
+          describesAName('Any of the languages of these aboriginal peoples.'),
+          isTrue);
+    });
+
+    test('leaves ordinary meanings alone', () {
+      expect(describesAName('A large natural stream of water.'), isFalse);
+      expect(describesAName('ein Gebäude zum Wohnen'), isFalse);
+    });
+  });
+
+  test('rejects an entry the pack tags as often misspelled', () {
+    expect(
+      isPresentableVocabularyEntry(
+        _word('desireable', definitions: ['Archaic form of desirable.']),
+      ),
+      isFalse,
+    );
+  });
 }

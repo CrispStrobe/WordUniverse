@@ -8,6 +8,7 @@ import 'dart:math';
 
 import '../../../core/models/vocabulary_models.dart';
 import 'grossstadt_possessive.dart';
+import 'verbtrenner_service.dart' show hasSeparablePrefix;
 
 class CapitalizationItem {
   final String prefix; // Text before the target word
@@ -137,7 +138,12 @@ List<CapitalizationItem> verbVariants(GermanWord word, {Random? rng}) {
   final pronoun = pronouns[random.nextInt(pronouns.length)];
   final conjugated = conjugatedForm(word, pronoun.toLowerCase());
 
-  if (conjugated != null) {
+  // A separable verb the pack carries no forms for cannot be conjugated by
+  // the regular rule: it produced "WIR aufbleiben", where German writes "wir
+  // bleiben auf".
+  final separableWithoutForms =
+      word.wiktionaryInflections.isEmpty && hasSeparablePrefix(infinitive);
+  if (conjugated != null && !separableWithoutForms) {
     items.add(CapitalizationItem(
       prefix: '$pronoun ',
       target: conjugated,

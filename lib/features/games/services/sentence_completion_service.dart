@@ -115,8 +115,37 @@ String _sentenceOption(GermanWord w) {
   return w.word;
 }
 
+/// Whether [word] can stand beside the answer as a plausible wrong option.
+///
+/// The packs carry fragments and misspellings as entries of their own — "ike"
+/// and "iot" were offered as answers to "The ___'s actions are wrong." A
+/// light word has no gloss to judge and was filtered when the pack was
+/// indexed.
+bool _usableAsOption(GermanWord word) =>
+    word.isHeadword &&
+    isPresentableVocabularyEntry(word) &&
+    !namesSomething(word) &&
+    // A gloss the pack does not have cannot condemn the word; a bad one does.
+    (!word.isHydrated || !_hasUnusableGloss(word));
+
+/// Stricter, for the word being asked about: a prompt needs a meaning. "iot"
+/// carries none at all and was asked as "___ has practical uses."
+bool _usableAsPrompt(GermanWord word) =>
+    _usableAsOption(word) && (!word.isHydrated || _hasUsableGloss(word));
+
+bool _hasUnusableGloss(GermanWord word) {
+  final definition = word.displayDefinitions.firstOrNull;
+  return definition != null && !isUsableDefinition(definition);
+}
+
+bool _hasUsableGloss(GermanWord word) {
+  final definition = word.displayDefinitions.firstOrNull;
+  return definition != null && isUsableDefinition(definition);
+}
+
 List<String> _pickDistractors(GermanWord target, String correctOption,
     List<GermanWord> pool, int gradeIndex, int optionCount, Random random) {
+  pool = pool.where(_usableAsOption).toList();
   final distractors = <String>{};
 
   // Same word type, same grade first
@@ -176,10 +205,12 @@ List<SentenceChallenge> buildSentenceChallenges({
   Random? rng,
 }) {
   final random = rng ?? Random();
+  // The same rule for the prompt as for the options: "iot" carries no meaning
+  // at all and was being asked as "___ has practical uses."
+  pool = pool.where(_usableAsPrompt).toList();
   final challenges = <SentenceChallenge>[];
   for (final word in pool) {
     if (challenges.length >= maxChallenges) break;
-    if (namesSomething(word)) continue;
     final challenge = buildSentenceChallenge(
       word: word,
       gradeIndex: gradeIndex,

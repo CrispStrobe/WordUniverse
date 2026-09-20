@@ -13,6 +13,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
 import '../../../core/models/vocabulary_models.dart';
+import '../../../core/models/vocabulary_quality.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/vocabulary_service.dart';
 import '../../../shared/widgets/language_pack_dialog.dart';
@@ -50,21 +51,39 @@ class _WordOfTheDayCardState extends State<WordOfTheDayCard> {
     if (key == _pickedFor) return;
     _pickedFor = key;
 
-    final chosen = pickWordOfTheDay(
+    // More than one candidate: whether a gloss is worth reading — "jul" is
+    // glossed "Abbreviation of July." — can only be judged once the word is
+    // decoded, and the catalogue is light until then.
+    final candidates = wordOfTheDayCandidates(
       vocabService.getAllWords(gameProvider),
       today,
       targetBand: band,
+      count: 5,
     );
-    if (chosen == null) {
+    if (candidates.isEmpty) {
       // Still asynchronous, so this never calls setState during a build.
       Future.microtask(() {
         if (mounted) setState(() => _word = null);
       });
       return;
     }
-    vocabService.hydrateOne(chosen).then((word) {
+    _hydrateFirstShowable(vocabService, candidates).then((word) {
       if (mounted) setState(() => _word = word);
     });
+  }
+
+  /// The first candidate whose decoded gloss can be shown, or the first one
+  /// when none qualifies — an odd definition beats an empty card.
+  Future<GermanWord> _hydrateFirstShowable(
+      VocabularyService vocabulary, List<GermanWord> candidates) async {
+    GermanWord? first;
+    for (final candidate in candidates) {
+      final word = await vocabulary.hydrateOne(candidate);
+      first ??= word;
+      final definition = word.displayDefinitions.firstOrNull;
+      if (definition != null && isUsableDefinition(definition)) return word;
+    }
+    return first!;
   }
 
   @override

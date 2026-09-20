@@ -51,6 +51,7 @@ SynonymChallenge? buildSynonymChallenge({
   final curriculumTier = <String>[];
   final nearTier = <String>[];
   final inVocab = <String>[];
+  final farTier = <String>[];
   final outOfVocab = <String>[];
   for (final syn in synonyms) {
     final clean = syn.replaceAll(RegExp(r'\s*\(.*?\)\s*$'), '').trim();
@@ -59,6 +60,9 @@ SynonymChallenge? buildSynonymChallenge({
     // all: the pack offered "Creator" for "creator", "Atlantic" for
     // "atlantic".
     if (clean.toLowerCase() == word.word.toLowerCase()) continue;
+    // Nor one that is written inside the prompt, or writes the prompt inside
+    // itself: "high" for "high-pitched", "lily-white" for "white".
+    if (sharesAWrittenPart(clean, word.word)) continue;
     // In English a capitalised synonym for a lowercase word is a proper-noun
     // sense — "Almighty" for "creator", "Romance" for "latin". German
     // capitalises every noun, so the same test cannot be applied there.
@@ -81,13 +85,17 @@ SynonymChallenge? buildSynonymChallenge({
       curriculumTier.add(clean);
     } else if (entry.gradeLevel <= word.gradeLevel + 1) {
       nearTier.add(clean);
-    } else {
+    } else if (entry.gradeLevel <= word.gradeLevel + 2) {
       inVocab.add(clean);
+    } else {
+      // In the catalogue, but bands above the prompt: "Menagerie" for "Zoo"
+      // in front of a seven-year-old.
+      farTier.add(clean);
     }
   }
   // Randomize which valid synonym is the answer (rather than always the
   // first), from the best tier that has one.
-  final candidates = [curriculumTier, nearTier, inVocab, outOfVocab]
+  final candidates = [curriculumTier, nearTier, inVocab, farTier, outOfVocab]
       .firstWhere((tier) => tier.isNotEmpty, orElse: () => const []);
   if (candidates.isEmpty) return null;
   final correctWord = candidates[random.nextInt(candidates.length)];
@@ -137,6 +145,24 @@ SynonymChallenge? buildSynonymChallenge({
     options: options,
     correctIndex: correctIndex,
   );
+}
+
+/// Whether either word is written inside the other as a whole part —
+/// "high"/"high-pitched", "white"/"lily-white". The answer is then visible in
+/// the prompt, whichever way round it is asked.
+bool sharesAWrittenPart(String a, String b) {
+  List<String> parts(String word) => word
+      .toLowerCase()
+      .split(RegExp(r"[-'’\s]+"))
+      .where((part) => part.isNotEmpty)
+      .toList();
+  final first = parts(a);
+  final second = parts(b);
+  // Two plain words share nothing but themselves, and that case is handled
+  // before this. "bye-bye" splits into two parts that are the same word, so
+  // the count has to be taken before deduplicating.
+  if (first.length == 1 && second.length == 1) return false;
+  return first.toSet().intersection(second.toSet()).isNotEmpty;
 }
 
 /// Whether a listed synonym is usable as a one-word answer. Letters (any

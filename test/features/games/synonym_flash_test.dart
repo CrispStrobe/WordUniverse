@@ -201,6 +201,18 @@ void main() {
       expect(challenge!.correctSynonym, 'felicitous');
     });
 
+    test('a synonym written inside the prompt is not asked', () {
+      // "Which word means the same as high-pitched?" → high.
+      final word = _word('high-pitched', synonyms: ['high', 'shrill']);
+      expect(_build(word, _filler())!.correctSynonym, 'shrill');
+    });
+
+    test('nor one the prompt is written inside', () {
+      // "white" → "lily-white", "cool" → "coolheaded" reads the same way.
+      final word = _word('white', synonyms: ['lily-white', 'pale']);
+      expect(_build(word, _filler())!.correctSynonym, 'pale');
+    });
+
     test('a trailing parenthetical is stripped before the rules are applied',
         () {
       final word = _word('begin', synonyms: ['commence (formal)']);
