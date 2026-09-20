@@ -112,23 +112,41 @@ MISSPELLING_TAGS = ('common_misspell', 'often_misspelled')
 # The misspelling tags mark the *pair* — "accomodation" carries them and so
 # does "add". What separates the mistake from the word is that the word is
 # also on a vocabulary list.
+# Any independent corroboration that this half of a misspelling pair is the
+# word rather than the mistake — a frequency corpus counts here, since a
+# corpus that lists "accomodation" also lists "accommodation" far more often
+# and only the latter reaches a word list.
 VOCABULARY_TAGS = re.compile(
     r'^(source:(fry|dolch|cefr_j|hermit|cambridge_yle_.*|uk_y.*|'
     r'de_curriculum_en)|fry_.*|dolch_.*)$')
 
 
 def is_attested_vocabulary(metadata):
-    """Whether something independent says this is a word people teach.
+    """Whether something independent says this entry is a word, not a name.
 
-    Wiktionary gives "january" a given-name sense and "isaac" a biblical one;
-    what separates them is that january is CEFR A1 and sits on the Fry list.
-    The app cannot see either from a light catalogue row, which is why the
-    deeper name check lives here.
+    A CEFR level, and only that. Levels are assigned to meanings a learner is
+    expected to acquire, and no one assigns one to a place: "of", "gay" and
+    "mrs" are A1/B1 and lead with a surname or a territory gloss, while
+    "london", "texas", "canada" and "ii" have no level at all — though all
+    four sit on the Fry list, which is why word lists cannot answer this.
     """
-    if metadata.get('cefr_level'):
-        return True
-    tags = [str(tag).lower() for tag in metadata.get('tags') or []]
-    return any(VOCABULARY_TAGS.match(tag) for tag in tags)
+    return bool(metadata.get('cefr_level'))
+
+
+def names_something(definitions, metadata, rules):
+    """Whether the entry is a name rather than a word.
+
+    Either of the first two senses naming something is enough, unless the
+    entry carries a CEFR level. See is_attested_vocabulary.
+    """
+    described = [definition for definition in definitions
+                 if isinstance(definition, str) and definition.strip()]
+    if not described:
+        return False
+    if is_attested_vocabulary(metadata):
+        return False
+    return any(describes_a_name(definition, rules)
+               for definition in described[:2])
 
 
 def row_verdict(word, definitions, metadata, rules):
@@ -152,9 +170,7 @@ def row_verdict(word, definitions, metadata, rules):
         # already knows that from WordFeature.usableDefinition.
         return reasons, False
 
-    names = (any(describes_a_name(definition, rules)
-                 for definition in described[:2])
-             and not is_attested_vocabulary(metadata))
+    names = names_something(described, metadata, rules)
     return reasons, names
 
 
@@ -202,7 +218,14 @@ def main():
         definitions = enrichment.get('definitions') or []
 
         verdict, names = row_verdict(row['word'], definitions, metadata, rules)
-        drop = 0 if verdict else leading_unusable(definitions, rules)
+        # Never for a name: its leading gloss is *why* it is a name, and
+        # dropping it left "london" reading "A former administrative county of
+        # England" and looking like ordinary vocabulary again.
+        drop = 0 if (verdict or names) else leading_unusable(definitions, rules)
+        # Nor when dropping would *reveal* one: "erin" is glossed "Ireland."
+        # first — a single word, and unusable — and a town in Ontario next.
+        if drop and names_something(definitions[drop:], metadata, rules):
+            names, drop = True, 0
         # Only for what is demonstrably not the word: "my" and "they" really
         # are Dolch words, however parse-like their glosses are, and a true
         # fact is not worth removing to make a filter easier.
