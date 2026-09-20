@@ -12,7 +12,10 @@ int dayOfYear(DateTime d) {
   return d.difference(start).inDays;
 }
 
-/// Picks a deterministic word for [date] from [words].
+/// The words for [date], best first: the card walks them and shows the first
+/// whose decoded gloss is worth reading. A light word cannot be judged on its
+/// gloss — "jul" is glossed "Abbreviation of July." — so the check has to
+/// happen after hydration, which means offering more than one candidate.
 ///
 /// By default, uses levels 1–3. When [targetBand] is supplied, the word is
 /// selected from that learning band. Proper nouns and multi-word entries are
@@ -23,10 +26,10 @@ int dayOfYear(DateTime d) {
 /// definition" and "is a known misspelling of another entry" are read from the
 /// feature index when the word carries no decoded enrichment, so the card does
 /// not have to open the whole pack to choose one word.
-/// Returns null when the pool is empty.
-GermanWord? pickWordOfTheDay(List<GermanWord> words, DateTime date,
-    {int? targetBand}) {
-  if (words.isEmpty) return null;
+/// Returns an empty list when nothing is eligible.
+List<GermanWord> wordOfTheDayCandidates(List<GermanWord> words, DateTime date,
+    {int? targetBand, int count = 1}) {
+  if (words.isEmpty) return const [];
 
   // Only decoded words can contribute here; for a light pool the same
   // exclusion arrives as WordFeature.knownMisspelling, computed over the whole
@@ -53,13 +56,37 @@ GermanWord? pickWordOfTheDay(List<GermanWord> words, DateTime date,
       !namesSomething(w);
 
   final eligibleWords = words.where(eligible).toList();
-  if (eligibleWords.isEmpty) return null;
+  if (eligibleWords.isEmpty) return const [];
 
+  List<GermanWord>? fallback;
+  var chosen = const <GermanWord>[];
   for (final pool in _poolsInPreferenceOrder(eligibleWords, targetBand)) {
-    if (pool.isNotEmpty) return pool[_indexForDay(date, pool.length)];
+    if (pool.isEmpty) continue;
+    fallback ??= pool;
+    if (pool.length < kWordOfTheDayMinimumPool) continue;
+    chosen = pool;
+    break;
   }
-  return null;
+  if (chosen.isEmpty) {
+    if (fallback == null) return const [];
+    chosen = fallback;
+  }
+  {
+    final pool = chosen;
+    final start = _indexForDay(date, pool.length);
+    final stride = _strideFor(pool.length, date.year);
+    return [
+      for (var step = 0; step < count && step < pool.length; step++)
+        pool[(start + step * stride) % pool.length],
+    ];
+  }
 }
+
+/// The word for [date], or null when nothing in [words] can be shown.
+GermanWord? pickWordOfTheDay(List<GermanWord> words, DateTime date,
+        {int? targetBand}) =>
+    wordOfTheDayCandidates(words, date, targetBand: targetBand, count: 1)
+        .firstOrNull;
 
 /// Which entry of a pool of [length] belongs to [date].
 ///
@@ -104,6 +131,13 @@ int _greatestCommonDivisor(int a, int b) {
 /// "prosperity" and "paralyse"; a stretch should be reachable.
 const List<int> kWordOfTheDayStretch = [1, 2, 0];
 
+/// A pool smaller than this is passed over, because the card walks it one
+/// entry per day: the English pack's curriculum tagging reaches five words at
+/// grade 5 — and four of them are "jun", "jul", "html" and "linux", a Fry
+/// word list that imported badly — so the same word came round every few
+/// days. Only the last resort ignores this, so the card is never empty.
+const int kWordOfTheDayMinimumPool = 14;
+
 /// Candidate pools, best first. Each falls back to the next when a pack cannot
 /// fill it, so a narrow band or a pack without curriculum tagging still yields
 /// a word instead of an empty card.
@@ -112,16 +146,33 @@ Iterable<List<GermanWord>> _poolsInPreferenceOrder(
   final curriculum = words.where((w) => w.has(WordFeature.curriculum)).toList();
 
   if (targetBand != null) {
-    for (final source in [curriculum, words]) {
-      for (final stretch in kWordOfTheDayStretch) {
-        final band = (targetBand + stretch).clamp(1, 6);
-        yield source.where((w) => w.gradeLevel == band).toList();
-      }
+    // A curriculum word from a band below beats an untagged word at the right
+    // one. Without this, an English grade-5 learner got "a jun", "a html" and
+    // "a linux" — the untagged tail of a frequency list — because no
+    // curriculum list reaches that far.
+    for (final band in _curriculumBands(targetBand)) {
+      yield curriculum.where((w) => w.gradeLevel == band).toList();
+    }
+    for (final stretch in kWordOfTheDayStretch) {
+      final band = (targetBand + stretch).clamp(1, 6);
+      yield words.where((w) => w.gradeLevel == band).toList();
     }
   }
   // No band asked for: the original behaviour, curriculum words first.
   yield curriculum.where((w) => w.gradeLevel <= 3).toList();
   yield words.where((w) => w.gradeLevel <= 3).toList();
+}
+
+/// Bands to look for a curriculum word in: the stretch first, then downwards.
+Iterable<int> _curriculumBands(int targetBand) sync* {
+  final seen = <int>{};
+  for (final stretch in kWordOfTheDayStretch) {
+    final band = (targetBand + stretch).clamp(1, 6);
+    if (seen.add(band)) yield band;
+  }
+  for (var band = targetBand - 1; band >= 1; band--) {
+    if (seen.add(band)) yield band;
+  }
 }
 
 /// Spreads consecutive seeds across the pool.

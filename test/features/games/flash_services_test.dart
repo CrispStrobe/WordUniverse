@@ -251,6 +251,45 @@ void main() {
       expect(chosen, isNot(contains('zum Beispiel')));
     });
 
+    test('the classes take turns, so "Nomen" is not always right', () {
+      // German nouns outnumber everything else: a shuffled pool gave six noun
+      // rounds in a row.
+      final catalogue = [
+        for (var i = 0; i < 20; i++)
+          testWord('nomen${String.fromCharCode(97 + i % 20)}',
+              type: GermanWordType.substantiv),
+        testWord('laufen', type: GermanWordType.verb),
+        testWord('gehen', type: GermanWordType.verb),
+        testWord('schnell', type: GermanWordType.adjektiv),
+      ];
+      final chosen = selectWordClassCandidates(
+        catalogue: catalogue,
+        askableTypes: askable,
+        gradeLevel: 3,
+        rng: Random(1),
+      ).take(4).map((w) => w.wordType).toSet();
+      expect(chosen.length, greaterThan(1));
+    });
+
+    test('inflected forms and abbreviations are not asked about', () {
+      final catalogue = [
+        for (var i = 0; i < 12; i++)
+          testWord('wort${String.fromCharCode(97 + i)}',
+              type: GermanWordType.substantiv),
+        testWord('Geheimnisse',
+            type: GermanWordType.substantiv, lemma: 'Geheimnis'),
+        testWord('PDS', type: GermanWordType.substantiv),
+      ];
+      final chosen = selectWordClassCandidates(
+        catalogue: catalogue,
+        askableTypes: askable,
+        gradeLevel: 3,
+        rng: Random(1),
+      ).map((w) => w.word);
+      expect(chosen, isNot(contains('Geheimnisse')));
+      expect(chosen, isNot(contains('PDS')));
+    });
+
     test('the answer is the word\'s own class', () {
       final challenges = buildWordClassChallenges(
         words: [testWord('Haus', type: GermanWordType.substantiv)],

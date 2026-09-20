@@ -58,7 +58,12 @@ GermanWord _verb(
 /// in the canonical ich/du/er/sie/es order.
 List<Map<String, dynamic>> _wikiInflections(List<String> presentForms) => [
       for (final f in presentForms)
-        {'form_text': f, 'tags': 'present', 'sense_index': null, 'topics': null},
+        {
+          'form_text': f,
+          'tags': 'present',
+          'sense_index': null,
+          'topics': null
+        },
     ];
 
 Map<String, dynamic> _praesensData(Map<String, String> forms) => {
@@ -80,7 +85,11 @@ void main() {
     });
 
     test('returns null when Präsens key is absent', () {
-      expect(extractPraesens({'conjugation': {'Präteritum': {}}}), isNull);
+      expect(
+          extractPraesens({
+            'conjugation': {'Präteritum': {}}
+          }),
+          isNull);
     });
 
     test('returns null for empty Präsens map', () {
@@ -124,7 +133,9 @@ void main() {
 
     test('handles non-map value for Präsens gracefully', () {
       expect(
-        extractPraesens({'conjugation': {'Präsens': 'invalid'}}),
+        extractPraesens({
+          'conjugation': {'Präsens': 'invalid'}
+        }),
         isNull,
       );
     });
@@ -156,25 +167,35 @@ void main() {
       });
     });
 
-    test('handles single present form (ich only)', () {
-      final result = extractPraesensFromWiktionary(
-          _wikiInflections(['bin']));
-      expect(result, {'ich': 'bin'});
+    test('a lone present form is not mapped positionally', () {
+      // "geschehen" is impersonal: Wiktionary lists only "geschieht", and
+      // reading that positionally asked "geschehen: ich ___" and keyed the
+      // third-person form as the answer.
+      expect(extractPraesensFromWiktionary(_wikiInflections(['geschieht'])),
+          isNull);
+      expect(extractPraesensFromWiktionary(_wikiInflections(['bin', 'bist'])),
+          isNull);
     });
 
     test('trims whitespace from form_text', () {
-      final forms = [{'form_text': '  laufe  ', 'tags': 'present'}];
-      final result = extractPraesensFromWiktionary(forms);
-      expect(result!['ich'], 'laufe');
+      final forms = [
+        {'form_text': '  laufe  ', 'tags': 'present'},
+        {'form_text': 'läufst', 'tags': 'present'},
+        {'form_text': 'läuft', 'tags': 'present'},
+      ];
+      expect(extractPraesensFromWiktionary(forms)!['ich'], 'laufe');
     });
 
     test('skips empty form_text entries', () {
       final forms = [
         {'form_text': '', 'tags': 'present'},
+        {'form_text': 'laufe', 'tags': 'present'},
         {'form_text': 'läufst', 'tags': 'present'},
+        {'form_text': 'läuft', 'tags': 'present'},
       ];
-      final result = extractPraesensFromWiktionary(forms);
-      expect(result!['ich'], 'läufst');
+      final result = extractPraesensFromWiktionary(forms)!;
+      expect(result['ich'], 'laufe');
+      expect(result['er/sie/es'], 'läuft');
     });
 
     test('realistic: laufen → ich/du/er from Wiktionary data', () {
@@ -213,22 +234,31 @@ void main() {
             'ich': 'structured-form',
             'du': 'structured-du',
           }),
-          wiktionaryInflections: _wikiInflections(['wiki-ich', 'wiki-du', 'wiki-er']));
+          wiktionaryInflections:
+              _wikiInflections(['wiki-ich', 'wiki-du', 'wiki-er']));
       final result = getPraesensForWord(w)!;
       expect(result['ich'], 'structured-form');
     });
 
     test('falls back to wiktionaryInflections when inflectionData is null', () {
       final w = _verb('laufen',
-          wiktionaryInflections: _wikiInflections(['laufe', 'läufst', 'läuft']));
+          wiktionaryInflections:
+              _wikiInflections(['laufe', 'läufst', 'läuft']));
       final result = getPraesensForWord(w)!;
       expect(result['er/sie/es'], 'läuft');
     });
 
-    test('falls back to wiktionaryInflections when inflectionData has no valid Präsens', () {
+    test(
+        'falls back to wiktionaryInflections when inflectionData has no valid Präsens',
+        () {
       final w = _verb('laufen',
-          inflectionData: {'conjugation': {'Präteritum': {'ich': 'lief'}}},
-          wiktionaryInflections: _wikiInflections(['laufe', 'läufst', 'läuft']));
+          inflectionData: {
+            'conjugation': {
+              'Präteritum': {'ich': 'lief'}
+            }
+          },
+          wiktionaryInflections:
+              _wikiInflections(['laufe', 'läufst', 'läuft']));
       final result = getPraesensForWord(w)!;
       expect(result['ich'], 'laufe');
     });
@@ -244,13 +274,18 @@ void main() {
           isTrue);
     });
 
-    test('returns false when both inflectionData and wiktionaryInflections are absent', () {
+    test(
+        'returns false when both inflectionData and wiktionaryInflections are absent',
+        () {
       expect(isConjugatableVerb(_verb('laufen')), isFalse);
     });
 
-    test('returns true when inflectionData is null but wiktionaryInflections has present forms', () {
+    test(
+        'returns true when inflectionData is null but wiktionaryInflections has present forms',
+        () {
       final w = _verb('laufen',
-          wiktionaryInflections: _wikiInflections(['laufe', 'läufst', 'läuft']));
+          wiktionaryInflections:
+              _wikiInflections(['laufe', 'läufst', 'läuft']));
       expect(isConjugatableVerb(w), isTrue);
     });
 
@@ -264,8 +299,7 @@ void main() {
 
     test('returns false when word contains a space', () {
       expect(
-        isConjugatableVerb(
-            _verb('', inflectionData: goodData, hasSpace: true)),
+        isConjugatableVerb(_verb('', inflectionData: goodData, hasSpace: true)),
         isFalse,
       );
     });
@@ -324,14 +358,14 @@ void main() {
 
     test('does not include the verb infinitive', () {
       final poolWithInfinitive = ['laufen', 'geht', 'kommt', 'sieht'];
-      final d = pickDistractors('er/sie/es', correct, infinitive,
-          poolWithInfinitive);
+      final d =
+          pickDistractors('er/sie/es', correct, infinitive, poolWithInfinitive);
       expect(d, isNot(contains(infinitive)));
     });
 
     test('returns fewer items when pool is small', () {
-      final d = pickDistractors('er/sie/es', correct, infinitive,
-          ['geht', 'kommt']);
+      final d =
+          pickDistractors('er/sie/es', correct, infinitive, ['geht', 'kommt']);
       expect(d.length, 2);
     });
 

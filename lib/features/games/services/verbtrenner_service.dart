@@ -13,19 +13,41 @@ String? findRealExample({
   required List<String> tataoebaExamples,
   required String formText,
 }) {
-  // Prefer exact-match examples (sentence contains the specific inflected form)
+  final matches = _matcherFor(formText);
   for (final ex in apiExamples) {
     final text = ex.text;
-    if (text != null && text.isNotEmpty && text.contains(formText)) return text;
+    if (text != null && text.isNotEmpty && matches(text)) return text;
   }
   for (final text in tataoebaExamples) {
-    if (text.isNotEmpty && text.contains(formText)) return text;
+    if (text.isNotEmpty && matches(text)) return text;
   }
   // No fallback to an unrelated sentence. The tile shows the context beneath
   // the form, and falling back attached "Komm doch mal vor zu mir!" to
   // "vorzukommen" — a sentence that does not contain the form the learner is
   // being asked to judge.
   return null;
+}
+
+/// How a sentence has to contain [formText] to be its context.
+///
+/// A separated form is *never* contiguous in German: "stehe auf" appears as
+/// "Ich stehe früh auf." Requiring the literal string found a sentence for
+/// almost no separated form, so the game asked one side of its own contrast —
+/// 29 of 33 generated tiles were ZUSAMMEN, and answering "together" every
+/// time scored full marks. The parts are matched in order instead, each on a
+/// word boundary.
+bool Function(String) _matcherFor(String formText) {
+  final parts = formText.split(' ').where((p) => p.isNotEmpty).toList();
+  if (parts.length != 2) return (text) => text.contains(formText);
+  final pattern = RegExp(
+    r'\b' +
+        RegExp.escape(parts[0]) +
+        r'\b.*\b' +
+        RegExp.escape(parts[1]) +
+        r'\b',
+    caseSensitive: false,
+  );
+  return pattern.hasMatch;
 }
 
 /// Whether an inflected form can be asked as a separable-verb tile.
@@ -225,6 +247,15 @@ const _separablePrefixes = [
 
 bool _isSeparablePrefix(String prefix) {
   return _separablePrefixes.contains(prefix.toLowerCase());
+}
+
+/// Whether an infinitive begins with one of the separable prefixes, which is
+/// what makes "wir bleiben auf" rather than "wir aufbleiben". Shared with
+/// Großstadt, which frames verbs the same way.
+bool hasSeparablePrefix(String infinitive) {
+  final lower = infinitive.toLowerCase();
+  return _separablePrefixes.any(
+      (prefix) => lower.startsWith(prefix) && lower.length > prefix.length + 2);
 }
 
 /// Builds up to [maxPairs] from [verbs], which are expected hydrated.

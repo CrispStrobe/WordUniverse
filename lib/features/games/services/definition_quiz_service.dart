@@ -62,6 +62,11 @@ List<DefinitionChallenge> buildDefinitionChallenges({
   return challenges;
 }
 
+bool _hasUsableGloss(GermanWord word) {
+  final definition = word.displayDefinitions.firstOrNull;
+  return definition != null && isUsableDefinition(definition);
+}
+
 /// Whether a gloss only makes sense next to the sense above it — "The fruit of
 /// this tree", "One who does this". Read alone as a quiz prompt it carries no
 /// information, so a self-contained sense is preferred when there is one.
@@ -100,7 +105,12 @@ DefinitionChallenge? buildDefinitionChallenge({
   // about a meaning no learner will meet.
   const sensesConsidered = 2;
   final lower = word.word.toLowerCase();
-  final common = definitions.take(sensesConsidered).toList();
+  // A gloss that parses the word ("plural of passerby"), abbreviates it
+  // ("Abbreviation of July."), names a place, or is a bare domain label
+  // ("Botanik:") is not a meaning to ask about.
+  final common =
+      definitions.take(sensesConsidered).where(isUsableDefinition).toList();
+  if (common.isEmpty) return null;
   var definition = common.firstWhere(
     (d) =>
         d.length <= 120 &&
@@ -167,7 +177,17 @@ List<String> pickDefinitionDistractors({
     // Headwords only, and never a name: "hannibal" sat among the options for
     // "detector" because the pack does not flag it as a proper noun — its
     // gloss ("A male given name from …") does.
-    candidates = candidates.where((w) => w.isHeadword && !namesSomething(w));
+    //
+    // Nor a misspelling: English grade 6 is full of entries like "residental"
+    // (glossed "residentiary"), "controversal" and "undesireable", and three
+    // wrong spellings beside one right word is a spelling lesson in reverse.
+    // A light word has no gloss to judge, and was filtered when the pack was
+    // indexed.
+    candidates = candidates.where((w) =>
+        w.isHeadword &&
+        !namesSomething(w) &&
+        isPresentableVocabularyEntry(w) &&
+        (!w.isHydrated || _hasUsableGloss(w)));
     final shuffled = candidates.toList()..shuffle(random);
     for (final word in shuffled) {
       final option = definitionOptionLabel(word, isGerman: isGerman);

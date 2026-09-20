@@ -62,6 +62,51 @@ without a person is in the contract test below.
   ("What is *das Hobby* in English?"), and names the packs do not flag sitting
   among the options — *hannibal*, offered as a meaning of *detector*.
 
+## What reading 1,500 items found
+
+A pass over every game at every grade of both packs, after the contract test
+was green. The contract catches what is mechanically wrong; a reader catches
+what is merely useless.
+
+- **Questions that answered themselves.** Sentence Completion blanked a word
+  out of a sentence that said it again; Synonym Flash asked *"which word means
+  the same as high-pitched?"* and keyed **high**, and *white → lily-white* the
+  other way round; Translation Flash asked cognates in both directions.
+- **Questions with no meaning in them.** The packs carry parses as glosses —
+  *"Partizip Präsens des Verbs wüten"*, *"plural of passerby"*, *"simple past
+  and past participle of annoint"* — plus abbreviations (*"Abbreviation of
+  July."*), bare domain labels (*"Botanik:"*) and one-word glosses that point
+  at another misspelling (*residental* → *"residentiary"*). None of them is
+  something to ask a learner. `isUsableDefinition` is the rule now.
+- **Wrong answers.** Conjugation Drill asked *"geschehen: ich ___"* and keyed
+  *geschieht*: it mapped Wiktionary's present forms positionally, and an
+  impersonal verb lists only the third person. Großstadt framed *"WIR
+  [aufbleiben]"*, where German writes *wir bleiben auf*.
+- **A game that only ever showed one side of its own contrast.** 29 of 33
+  Trennbare Verben tiles were ZUSAMMEN, and four grades had no GETRENNT tile
+  at all — answering "together" every time scored full marks. It looked for
+  the literal string "stehe auf", which German never writes contiguously.
+- **Rounds with one answer.** Word Class Flash dealt six nouns in a row in
+  German, where nouns outnumber everything else; the classes take turns now.
+- **Misspellings as vocabulary.** English grade 6 was full of *residental*,
+  *controversal*, *undesireable* and *resistent*, as prompts and as options.
+  The packs mark them, but in `tags`, and only `sources` was being read.
+- **Wrong articles.** The English pack stores the indefinite article by a
+  naive vowel rule: *an user*, *an university*. It also made the prompt
+  disagree with the answer — *Find "a vegetable"* over a grid holding
+  `vegetable`. The article is German-only now; English has no gender to teach.
+- **Word of the day was "a jun", "a html", "a linux", "a jul"** at English
+  grade 5, repeating every five days. Those four carry `source:fry`, so the
+  curriculum preference chose them: the pack's Fry list imported badly, and
+  the five curriculum words at that band are four pieces of junk. A pool too
+  small to last a fortnight is passed over now, and the card verifies the
+  gloss after hydrating.
+
+Three findings belong to the packs rather than the app, and are left as they
+are: that Fry list; `fart`, whose LLM-written grade examples are read out to a
+ten-year-old; and Hypernym Flash, which is nearly empty in German because the
+pack rarely holds a hypernym with the same word class as the prompt.
+
 ## The contract test
 
 `test/audit/challenge_contract_test.dart` runs every generator over grades 1-6

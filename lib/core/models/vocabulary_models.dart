@@ -215,7 +215,8 @@ class ApiEnrichment {
           .map(ApiAlternativeAnalysis.fromJson)
           .toList(),
       apiInfo: json['api_info'],
-      inflections: listOf('inflections').whereType<Map<String, dynamic>>().toList(),
+      inflections:
+          listOf('inflections').whereType<Map<String, dynamic>>().toList(),
       inflectionsPattern: json['inflections_pattern'] as Map<String, dynamic>?,
       semanticRelations: listOf('semantic_relations')
           .whereType<Map<String, dynamic>>()
@@ -243,9 +244,9 @@ class ApiEnrichment {
       meronyms: parseTerms('meronyms'),
       coordinateTerms: parseTerms('coordinate_terms'),
       gradeExamples: _parseGradeExamples(json['grade_examples']),
-      gutenbergExamples:
-          List<String>.from(json['gutenberg_examples'] ?? []),
-      commonLearnerErrors: _parseCommonLearnerErrors(json['commonLearnerErrors']),
+      gutenbergExamples: List<String>.from(json['gutenberg_examples'] ?? []),
+      commonLearnerErrors:
+          _parseCommonLearnerErrors(json['commonLearnerErrors']),
       spellingStrategyPrimary: json['spellingStrategyPrimary'] as String?,
       spellingExplanation: json['spellingExplanation'] as String?,
     );
@@ -799,9 +800,9 @@ class GermanWord {
       frequencyData: json['frequencyData'] as Map<String, dynamic>?,
       averageRank: _parseDouble(json['averageRank'], 0.0), // SAFE PARSE
       litekeyErrorRate: () {
-            final v = _parseDouble(json['litkey_error_rate'], -1.0);
-            return v < 0 ? null : v;
-          }(),
+        final v = _parseDouble(json['litkey_error_rate'], -1.0);
+        return v < 0 ? null : v;
+      }(),
       artikelDetailsNRW: json['artikelDetailsNRW'] as Map<String, dynamic>?,
       morphematischesPrinzip:
           json['morphematisches Prinzip'] as Map<String, dynamic>?,
@@ -819,9 +820,13 @@ class GermanWord {
   /// as "an elements", "a gloves", "an instruments" wherever a word is
   /// displayed. An entry that is not its own headword is shown bare.
   String get displayName {
+    // German only. The article teaches gender, which English has none of, and
+    // the English pack's own values are wrong where the rule is about sound
+    // rather than spelling: it stores "an" for user and university.
+    const germanArticles = {'der', 'die', 'das'};
     if (wordType == GermanWordType.substantiv &&
         article != null &&
-        article!.isNotEmpty &&
+        germanArticles.contains(article!.toLowerCase()) &&
         isHeadword) {
       return '$article $word';
     }
@@ -863,7 +868,8 @@ class GermanWord {
         'artikelDetailsNRW': artikelDetailsNRW,
         'morphematisches Prinzip': morphematischesPrinzip,
         'hyphenation': hyphenation,
-        if (gradeLevelEstimate != null) 'gradeLevelEstimate': gradeLevelEstimate,
+        if (gradeLevelEstimate != null)
+          'gradeLevelEstimate': gradeLevelEstimate,
         if (cefrLevel != null) 'cefr_level': cefrLevel,
       };
 }

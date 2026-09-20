@@ -7,6 +7,7 @@ import 'dart:math';
 
 import '../../../core/models/vocabulary_models.dart';
 import '../../../core/models/vocabulary_quality.dart';
+import 'synonym_flash_service.dart' show isCleanSynonym;
 
 class AntonymChallenge {
   const AntonymChallenge({
@@ -63,6 +64,9 @@ AntonymChallenge? buildAntonymChallenge({
 
   final antonyms = word.apiEnrichment?.antonyms
           .where((a) => a.trim().isNotEmpty)
+          // The packs list symbols and phrases among the antonyms: the
+          // opposite of "Kreuz" came out as "♭".
+          .where(isCleanSynonym)
           // Same rules as the synonym game: an "antonym" differing only in
           // case is not one, and in English a capitalised answer for a
           // lowercase prompt is a proper-noun sense.

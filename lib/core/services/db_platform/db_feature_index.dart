@@ -72,12 +72,18 @@ final Map<WordFeature, String> _featureSql = {
 /// offered as words to find in a grid.
 String get _nameLikeSql {
   String escape(String pattern) => pattern.replaceAll("'", "''");
-  const gloss = "lower(coalesce("
-      "json_extract(enrichment_json, '\$.definitions[0]'), ''))";
+  // The first two senses, matching namesSomething(): "isaac" is glossed as
+  // the biblical figure first and as a given name second.
+  const senses = ['\$.definitions[0]', '\$.definitions[1]'];
   return [
-    for (final opening in kNameGlossOpenings)
-      "$gloss LIKE '${escape(opening)}%'",
-    for (final phrase in kNameGlossPhrases) "$gloss LIKE '%${escape(phrase)}%'",
+    for (final sense in senses) ...[
+      for (final opening in kNameGlossOpenings)
+        "lower(coalesce(json_extract(enrichment_json, '$sense'), '')) "
+            "LIKE '${escape(opening)}%'",
+      for (final phrase in kNameGlossPhrases)
+        "lower(coalesce(json_extract(enrichment_json, '$sense'), '')) "
+            "LIKE '%${escape(phrase)}%'",
+    ],
   ].join(' OR ');
 }
 
@@ -113,7 +119,7 @@ const String _curriculumSql = '''
         OR entry.value LIKE 'source:cambridge_yle_%'
         OR entry.value LIKE 'source:uk_y%'
   )
-'''; 
+''';
 
 /// Rowids whose spelling appears in another entry's recorded learner errors.
 ///
@@ -161,6 +167,14 @@ String _presentableSql() {
     NOT EXISTS (
       SELECT 1 FROM json_each(words.metadata_json, '\$.sources') AS entry
       WHERE upper(entry.value) LIKE '%COMMON_MISSPELL%'
+    )
+    AND NOT EXISTS (
+      -- The English pack records this in tags rather than sources:
+      -- "controversal", "desireable" and "resistent" are entries in their own
+      -- right, tagged often_misspelled, and were being offered as answers.
+      SELECT 1 FROM json_each(words.metadata_json, '\$.tags') AS entry
+      WHERE lower(entry.value) LIKE '%common_misspell%'
+         OR lower(entry.value) LIKE '%often_misspelled%'
     )
     AND NOT EXISTS (
       SELECT 1 FROM json_each(words.enrichment_json, '\$.definitions') AS entry
@@ -270,7 +284,9 @@ class WordFeatureIndex {
       entries[rowId] = WordIndexEntry(
         features |
             (presentable != 0 ? _presentableBit : 0) |
-            (misspelled.contains(rowId) ? WordFeature.knownMisspelling.mask : 0),
+            (misspelled.contains(rowId)
+                ? WordFeature.knownMisspelling.mask
+                : 0),
         sources.isEmpty ? const [] : sources.split(_sourceSeparator),
       );
     }
@@ -342,7 +358,8 @@ class WordFeatureIndex {
       final sources = length == 0
           ? const <String>[]
           : utf8
-              .decode(raw.sublist(offset, offset + length), allowMalformed: true)
+              .decode(raw.sublist(offset, offset + length),
+                  allowMalformed: true)
               .split(_sourceSeparator);
       offset += length;
       entries[rowId] = WordIndexEntry(flags, sources);
@@ -453,19 +470,27 @@ int featuresFromDecodedJson({
   set(WordFeature.inflections, nonEmptyList(enrichment, 'inflections'));
 
   const germanCurricula = {
-    'BAYERN', 'BERLIN', 'BRANDENBURG', 'BW1', 'BW3', 'HESSEN',
-    'NIEDERSACHSEN', 'NRW111', 'NRW422', 'RHEINLAND_PFALZ',
+    'BAYERN',
+    'BERLIN',
+    'BRANDENBURG',
+    'BW1',
+    'BW3',
+    'HESSEN',
+    'NIEDERSACHSEN',
+    'NRW111',
+    'NRW422',
+    'RHEINLAND_PFALZ',
     'SCHLESWIG_HOLSTEIN',
   };
   const englishLists = {
-    'source:dolch', 'source:fry', 'source:de_curriculum_en',
+    'source:dolch',
+    'source:fry',
+    'source:de_curriculum_en',
   };
   final definitions = enrichment['definitions'];
-  final firstGloss = definitions is List && definitions.isNotEmpty
-      ? definitions.first
-      : null;
-  set(WordFeature.nameLike,
-      firstGloss is String && describesAName(firstGloss));
+  final firstGloss =
+      definitions is List && definitions.isNotEmpty ? definitions.first : null;
+  set(WordFeature.nameLike, firstGloss is String && describesAName(firstGloss));
 
   final primaryLemma = enrichment['primary_lemma'];
   set(

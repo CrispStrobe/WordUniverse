@@ -47,9 +47,14 @@ Map<String, String>? extractPraesensFromWiktionary(
       .map((f) => (f['form_text'] as String?)?.trim() ?? '')
       .where((s) => s.isNotEmpty)
       .toList();
-  if (exactPresent.isEmpty) return null;
+  // Positional mapping only holds for a full ich/du/er row. An impersonal
+  // verb lists one form — "geschieht" — and reading it positionally asked
+  // "geschehen: ich ___" and keyed the third-person form.
+  if (exactPresent.length < _wiktionaryPresentPronouns.length) return null;
   final result = <String, String>{};
-  for (var i = 0; i < exactPresent.length && i < _wiktionaryPresentPronouns.length; i++) {
+  for (var i = 0;
+      i < exactPresent.length && i < _wiktionaryPresentPronouns.length;
+      i++) {
     result[_wiktionaryPresentPronouns[i]] = exactPresent[i];
   }
   return result.isEmpty ? null : result;

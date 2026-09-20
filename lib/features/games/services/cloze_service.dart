@@ -193,7 +193,13 @@ ClozeChallenge? buildClozeChallenge({
   // the three games were unified; it belongs to all of them.)
   final visibleText = '${cloze.before}${cloze.after}'.toLowerCase();
   final distractors = <String>[];
-  for (final candidate in [...byType[word.wordType] ?? const [], ...anyType]) {
+  // Shuffled per challenge: taking from the front of one list put the same
+  // three words beside every gap — "Schule, Eltern, Schwein", round after
+  // round.
+  final sameType = (byType[word.wordType] ?? const <String>[]).toList()
+    ..shuffle(random);
+  final anyOther = anyType.toList()..shuffle(random);
+  for (final candidate in [...sameType, ...anyOther]) {
     if (distractors.length >= optionCount - 1) break;
     if (candidate.toLowerCase() == correctForm.toLowerCase()) continue;
     if (candidate.toLowerCase() == word.word.toLowerCase()) continue;

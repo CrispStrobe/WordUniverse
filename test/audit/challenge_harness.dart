@@ -21,6 +21,7 @@ import 'package:flutter/widgets.dart' show Locale;
 import 'package:WortUniversum/core/models/language_pack.dart';
 import 'package:WortUniversum/generated/l10n.dart';
 import 'package:WortUniversum/core/models/vocabulary_models.dart';
+import 'package:WortUniversum/core/models/vocabulary_quality.dart';
 import 'package:WortUniversum/core/models/skill_category.dart';
 import 'package:WortUniversum/core/models/word_features.dart';
 import 'package:WortUniversum/core/services/cognitive_profile_service.dart';
@@ -692,14 +693,26 @@ final Map<String, Generator> generators = {
     final pool = c.vocabulary.getAllWords(c.settings);
     for (var day = 0; day < c.count; day++) {
       final date = DateTime(2026, 1, 1).add(Duration(days: day));
-      final chosen = pickWordOfTheDay(pool, date, targetBand: c.grade);
-      if (chosen == null) continue;
-      final word = await c.vocabulary.hydrateOne(chosen);
+      // The card walks candidates and shows the first with a usable gloss;
+      // the dump has to do the same or it reviews a word nobody is shown.
+      final candidates =
+          wordOfTheDayCandidates(pool, date, targetBand: c.grade, count: 5);
+      if (candidates.isEmpty) continue;
+      GermanWord? word;
+      for (final candidate in candidates) {
+        final hydrated = await c.vocabulary.hydrateOne(candidate);
+        word ??= hydrated;
+        final definition = hydrated.displayDefinitions.firstOrNull;
+        if (definition != null && isUsableDefinition(definition)) {
+          word = hydrated;
+          break;
+        }
+      }
       items.add(Item(
         game: 'word_of_the_day',
         prompt:
-            '${date.toIso8601String().substring(0, 10)}: ${word.displayName}',
-        answer: word.apiEnrichment?.definitions.firstOrNull,
+            '${date.toIso8601String().substring(0, 10)}: ${word!.displayName}',
+        answer: word.displayDefinitions.firstOrNull,
         notes: {'grade': word.gradeLevel, 'cefr': word.cefrLevel ?? '—'},
       ));
     }
