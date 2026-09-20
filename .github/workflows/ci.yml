@@ -45,8 +45,51 @@ jobs:
       - name: Static analysis
         run: flutter analyze --fatal-infos
 
+      # The pinned German runtime artifact, so the audit contract can check
+      # its 1,500 generated items too — half the games are German-only, and
+      # until this ran they were checked nowhere. Keyed on the pin, so a new
+      # artifact fetches once and every later run is a cache hit.
+      - name: Read the German pack pin
+        id: depack
+        run: |
+          python3 - <<'PIN' >> "$GITHUB_OUTPUT"
+          import re, pathlib
+          source = pathlib.Path('lib/core/models/language_pack.dart').read_text()
+          url = re.search(r"remoteUrl:\s*\n?\s*'([^']+)'", source).group(1)
+          sha = re.search(r"expectedCompressedSha256:\s*\n?\s*'([0-9a-f]+)'",
+                          source).group(1)
+          print(f'url={url}')
+          print(f'sha={sha}')
+          PIN
+
+      - name: Cache the German pack
+        id: depack-cache
+        uses: actions/cache@v4
+        with:
+          path: .cache/packs/grundwortschatz.db
+          key: de-pack-${{ steps.depack.outputs.sha }}
+
+      - name: Fetch the German pack
+        if: steps.depack-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p .cache/packs
+          curl -fsSL "${{ steps.depack.outputs.url }}" -o /tmp/de.db.gz
+          echo "${{ steps.depack.outputs.sha }}  /tmp/de.db.gz" | sha256sum -c -
+          gunzip -c /tmp/de.db.gz > .cache/packs/grundwortschatz.db
+
       - name: Run tests
+        env:
+          WU_PACK_DE: ${{ github.workspace }}/.cache/packs/grundwortschatz.db
         run: flutter test --reporter expanded
+
+      # Opt-in suites: the real shipped packs, not fixtures. They open the
+      # bundled English artifact and the downloaded German one and check that
+      # what the feature index promises the games is what hydration delivers.
+      - name: Shipped pack contract
+        env:
+          WU_PACK: '1'
+          WU_PACK_DE: ${{ github.workspace }}/.cache/packs/grundwortschatz.db
+        run: flutter test --reporter expanded test/live/shipped_pack_pools_live_test.dart
 
       # `flutter test` skips @TestOn('browser') suites, so the web storage and
       # install path — sqlite3.wasm, the shared worker, IndexedDB, the browser

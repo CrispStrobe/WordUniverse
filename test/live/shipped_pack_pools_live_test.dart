@@ -105,14 +105,14 @@ void main() {
         expect(words.any((w) => w.sources.isNotEmpty), isTrue,
             reason: 'sources travel with the feature index');
         expect(words, hasLength(vocabulary.wordCount));
-      }, skip: skip);
+      }, skip: skip, timeout: const Timeout(Duration(minutes: 5)));
 
       test('an indexed lookup finds a shipped word', () async {
         await installPack();
         final word = vocabulary.findByWrittenForm(probeWord);
         expect(word, isNotNull, reason: '"$probeWord" should be in this pack');
         expect((await vocabulary.hydrateOne(word!)).apiEnrichment, isNotNull);
-      }, skip: skip);
+      }, skip: skip, timeout: const Timeout(Duration(minutes: 5)));
 
       test('what the index promises, hydration delivers', () async {
         await installPack();
@@ -130,19 +130,21 @@ void main() {
           }
           if (word.has(WordFeature.definitions) &&
               (word.apiEnrichment?.definitions.isEmpty ?? true)) {
-            broken.add('${word.word}: index says definitions, mapper found none');
+            broken
+                .add('${word.word}: index says definitions, mapper found none');
           }
           if (word.has(WordFeature.synonyms) &&
               (word.apiEnrichment?.synonyms.isEmpty ?? true)) {
             broken.add('${word.word}: index says synonyms, mapper found none');
           }
           if (word.has(WordFeature.hyphenation) && word.hyphenation.isEmpty) {
-            broken.add('${word.word}: index says hyphenation, mapper found none');
+            broken
+                .add('${word.word}: index says hyphenation, mapper found none');
           }
         }
         expect(broken.take(10), isEmpty,
             reason: '${broken.length} of ${sample.length} words disagree');
-      }, skip: skip);
+      }, skip: skip, timeout: const Timeout(Duration(minutes: 5)));
 
       test('every pool a game opens with is populated', () async {
         await installPack();
@@ -163,7 +165,7 @@ void main() {
           expect(pool.every((w) => w.has(entry.key)), isTrue);
         }
         expect(empty, isEmpty, reason: 'these games would have no words');
-      }, skip: skip);
+      }, skip: skip, timeout: const Timeout(Duration(minutes: 5)));
     });
   }
 

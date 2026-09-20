@@ -59,34 +59,12 @@ final Map<WordFeature, String> _featureSql = {
       "json_array_length(enrichment_json, '\$.inflections') > 0",
   // knownMisspelling is not a per-row test — see _misspellingSql.
   WordFeature.curriculum: _curriculumSql,
-  WordFeature.nameLike: _nameLikeSql,
-  WordFeature.usableDefinition: _usableDefinitionSql,
+
   // A missing primary_lemma means nothing claims the entry is derived.
   WordFeature.headword:
       "coalesce(lower(json_extract(enrichment_json, '\$.primary_lemma')), "
           "lower(word)) = lower(word)",
 };
-
-/// The SQL twin of `describesAName`, built from the same pattern lists so the
-/// two cannot drift. A light word has no gloss to test, and the word games
-/// select from light words — which is how "barbara" and "franklin" were being
-/// offered as words to find in a grid.
-String get _nameLikeSql {
-  String escape(String pattern) => pattern.replaceAll("'", "''");
-  // The first two senses, matching namesSomething(): "isaac" is glossed as
-  // the biblical figure first and as a given name second.
-  const senses = ['\$.definitions[0]', '\$.definitions[1]'];
-  return [
-    for (final sense in senses) ...[
-      for (final opening in kNameGlossOpenings)
-        "lower(coalesce(json_extract(enrichment_json, '$sense'), '')) "
-            "LIKE '${escape(opening)}%'",
-      for (final phrase in kNameGlossPhrases)
-        "lower(coalesce(json_extract(enrichment_json, '$sense'), '')) "
-            "LIKE '%${escape(phrase)}%'",
-    ],
-  ].join(' OR ');
-}
 
 /// Whether the word is on a word list a curriculum actually prescribes.
 ///
@@ -121,25 +99,6 @@ const String _curriculumSql = '''
         OR entry.value LIKE 'source:uk_y%'
   )
 ''';
-
-/// Whether the first gloss is a meaning rather than a parse, an abbreviation,
-/// a label or a name — the SQL twin of `isUsableDefinition`.
-String get _usableDefinitionSql {
-  String escape(String pattern) => pattern.replaceAll("'", "''");
-  const gloss = "trim(coalesce("
-      "json_extract(enrichment_json, '\$.definitions[0]'), ''))";
-  final markers = [
-    ...kGrammaticalFormMarkers,
-    ...kAbbreviationMarkers,
-  ].map((marker) => "lower($gloss) LIKE '%${escape(marker)}%'").join(' OR ');
-  return '''
-    length($gloss) >= 4
-    AND $gloss NOT LIKE '%:'
-    AND $gloss LIKE '% %'
-    AND NOT ($markers)
-    AND NOT ($_nameLikeSql)
-  ''';
-}
 
 /// Rowids whose spelling appears in another entry's recorded learner errors.
 ///
@@ -188,13 +147,28 @@ String _presentableSql() {
       SELECT 1 FROM json_each(words.metadata_json, '\$.sources') AS entry
       WHERE upper(entry.value) LIKE '%COMMON_MISSPELL%'
     )
-    AND NOT EXISTS (
-      -- The English pack records this in tags rather than sources:
-      -- "controversal", "desireable" and "resistent" are entries in their own
-      -- right, tagged often_misspelled, and were being offered as answers.
-      SELECT 1 FROM json_each(words.metadata_json, '\$.tags') AS entry
-      WHERE lower(entry.value) LIKE '%common_misspell%'
-         OR lower(entry.value) LIKE '%often_misspelled%'
+    AND NOT (
+      -- "controversal" and "accomodation" are entries in their own right,
+      -- tagged often_misspelled. So are "add", "all" and "and" — the tag
+      -- marks the *pair*, not which half is the mistake. What separates them
+      -- is that the real word is also on a word list.
+      EXISTS (
+        SELECT 1 FROM json_each(words.metadata_json, '\$.tags') AS entry
+        WHERE lower(entry.value) LIKE '%common_misspell%'
+           OR lower(entry.value) LIKE '%often_misspelled%'
+      )
+      AND NOT EXISTS (
+        SELECT 1 FROM json_each(words.metadata_json, '\$.tags') AS entry
+        WHERE lower(entry.value) LIKE 'source:fry%'
+           OR lower(entry.value) LIKE 'source:dolch%'
+           OR lower(entry.value) LIKE 'source:cefr_j%'
+           OR lower(entry.value) LIKE 'source:hermit%'
+           OR lower(entry.value) LIKE 'source:cambridge_yle_%'
+           OR lower(entry.value) LIKE 'source:uk_y%'
+           OR lower(entry.value) LIKE 'source:de_curriculum_en%'
+           OR lower(entry.value) LIKE 'fry%'
+           OR lower(entry.value) LIKE 'dolch%'
+      )
     )
     AND NOT EXISTS (
       SELECT 1 FROM json_each(words.enrichment_json, '\$.definitions') AS entry
@@ -282,6 +256,11 @@ class WordFeatureIndex {
     final rows = await db.rawQuery('''
       SELECT id AS row_id,
              ($bits) AS features,
+             -- Extracted once and judged in Dart. As SQL these two bits were
+             -- a hundred LIKE patterns over json_extract, and SQLite
+             -- re-extracts the gloss for each one: the German index took 25
+             -- seconds to build instead of 3.
+             json_extract(enrichment_json, '\$.definitions[0]') AS gloss,
              CASE WHEN ${_presentableSql()} THEN 1 ELSE 0 END AS presentable,
              (SELECT group_concat(entry.value, '$_sourceSeparator')
                 FROM json_each(words.metadata_json, '\$.sources') AS entry)
@@ -298,7 +277,14 @@ class WordFeatureIndex {
     final entries = <int, WordIndexEntry>{};
     for (final row in rows) {
       final rowId = (row['row_id'] as num).toInt();
-      final features = (row['features'] as num?)?.toInt() ?? 0;
+      var features = (row['features'] as num?)?.toInt() ?? 0;
+      final gloss = row['gloss'] as String?;
+      if (gloss != null) {
+        if (describesAName(gloss)) features |= WordFeature.nameLike.mask;
+        if (isUsableDefinition(gloss)) {
+          features |= WordFeature.usableDefinition.mask;
+        }
+      }
       final presentable = (row['presentable'] as num?)?.toInt() ?? 1;
       final sources = (row['sources'] as String?) ?? '';
       entries[rowId] = WordIndexEntry(

@@ -85,7 +85,10 @@ const List<String> kNameGlossOpenings = [
 const List<String> kNameGlossPhrases = [
   'official name:', 'capital:',
   ' country in ', ' country of ', ' city in ', ' town in ', ' village in ',
-  ' county in ', ' river in ', ' lake in ', ' province of ', ' state of ',
+  ' county in ', ' river in ', ' lake in ', ' province of ',
+  // " state of " alone read "The state of being free from illness" as a
+  // place, and took health, life and on out of the games.
+  ' state of the ',
   'an unincorporated community', 'a census-designated place',
   // Peoples, languages and the sky: "dravidian", "guatemalan", "franciscan"
   // and "fomalhaut" all arrive lowercase and untyped, and were being asked
@@ -127,10 +130,13 @@ bool namesSomething(GermanWord word) {
   // A light word has no gloss to read; the feature index answered this for it
   // when the pack was indexed.
   if (!word.isHydrated) return word.has(WordFeature.nameLike);
-  // Two senses, not one: Wiktionary leads "isaac" with the biblical figure
-  // and only calls it a given name in the second. A common word does not
-  // acquire a name sense that early.
-  return word.displayDefinitions.take(2).any(describesAName);
+  // The first sense only. Wiktionary gives "january" a given-name sense and
+  // "of" an island one, so reading further down turns ordinary words into
+  // names; the entries where the name sense comes second — "isaac" — are
+  // marked in the pack instead, where the CEFR level and the word lists are
+  // there to tell a month from a first name. See tools/pack/repair_pack.py.
+  final definition = word.displayDefinitions.firstOrNull;
+  return definition != null && describesAName(definition);
 }
 
 /// Whether a gloss describes a grammatical form rather than a meaning.
@@ -202,9 +208,14 @@ bool _endsMidSentence(String definition) {
   final trimmed = definition.trim();
   // "Eine Alternative ist,." — the generator stopped and punctuated anyway.
   if (trimmed.contains(',.') || trimmed.contains(' .')) return true;
+  if (trimmed.endsWith(',') || trimmed.endsWith(';')) return true;
+  // A gloss that ends in a full stop finished, whatever its last word is:
+  // English definitions strand prepositions — "Everything that one is
+  // capable of." — and reading those as truncated took "all", "can" and "by"
+  // out of the games.
+  if (RegExp(r'[.!?]$').hasMatch(trimmed)) return false;
   final stripped = trimmed.replaceAll(RegExp(r'[\s.,;:!?]+$'), '');
   if (stripped.isEmpty) return true;
-  if (trimmed.endsWith(',') || trimmed.endsWith(';')) return true;
   return _danglingWords
       .contains(stripped.split(RegExp(r'\s+')).last.toLowerCase());
 }
