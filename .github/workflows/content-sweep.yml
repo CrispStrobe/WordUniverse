@@ -1,0 +1,87 @@
+name: Content sweep
+
+# The per-push contract checks ten items per game per grade. The games can
+# produce on the order of a hundred thousand distinct items, so ten of them
+# holding is not yet a rule holding — three reading passes found twenty-one
+# content bugs in a sample that size, which says the tail is long.
+#
+# This runs the same invariants over a far larger sample, sharded by grade so
+# each job stays short, and only on a schedule: it is a net to catch what the
+# per-push check is too small to see, not a gate on a commit.
+
+on:
+  schedule:
+    # 04:20 UTC, after the day's pushes have settled.
+    - cron: '20 4 * * *'
+  workflow_dispatch:
+    inputs:
+      count:
+        description: 'Items per game per grade'
+        default: '500'
+
+concurrency:
+  group: content-sweep
+  cancel-in-progress: true
+
+jobs:
+  sweep:
+    name: ${{ matrix.language }} grade ${{ matrix.grade }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [en, de]
+        grade: [1, 2, 3, 4, 5, 6]
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.2'
+          channel: 'stable'
+          cache: true
+
+      - name: Resolve dependencies
+        run: flutter pub get
+
+      - name: Read the German pack pin
+        id: depack
+        if: matrix.language == 'de'
+        run: |
+          python3 - <<'PIN' >> "$GITHUB_OUTPUT"
+          import re, pathlib
+          source = pathlib.Path('lib/core/models/language_pack.dart').read_text()
+          url = re.search(r"remoteUrl:\s*\n?\s*'([^']+)'", source).group(1)
+          sha = re.search(r"expectedCompressedSha256:\s*\n?\s*'([0-9a-f]+)'",
+                          source).group(1)
+          print(f'url={url}')
+          print(f'sha={sha}')
+          PIN
+
+      - name: Cache the German pack
+        id: depack-cache
+        if: matrix.language == 'de'
+        uses: actions/cache@v5
+        with:
+          path: .cache/packs/grundwortschatz.db
+          key: de-pack-${{ steps.depack.outputs.sha }}
+
+      - name: Fetch the German pack
+        if: matrix.language == 'de' && steps.depack-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p .cache/packs
+          curl -fsSL "${{ steps.depack.outputs.url }}" -o /tmp/de.db.gz
+          echo "${{ steps.depack.outputs.sha }}  /tmp/de.db.gz" | sha256sum -c -
+          gunzip -c /tmp/de.db.gz > .cache/packs/grundwortschatz.db
+
+      # One language and one grade per job, so each stays inside the hour and
+      # a failure names exactly where it lives.
+      - name: Sweep
+        env:
+          WU_CONTRACT_COUNT: ${{ github.event.inputs.count || '500' }}
+          WU_CONTRACT_GRADES: ${{ matrix.grade }}
+          WU_CONTRACT_LANGUAGES: ${{ matrix.language }}
+          WU_PACK_DE: ${{ matrix.language == 'de' && format('{0}/.cache/packs/grundwortschatz.db', github.workspace) || '' }}
+        run: flutter test --reporter expanded test/audit/challenge_contract_test.dart
