@@ -102,10 +102,39 @@ what is merely useless.
   small to last a fortnight is passed over now, and the card verifies the
   gloss after hydrating.
 
-Three findings belong to the packs rather than the app, and are left as they
+A second pass, on a different seed, found seven more:
+
+- **The word of the day walked the alphabet again** — das Dorf, elf, feiern,
+  früher, der Grad, hoch, krank, der Mensch. The stride that guarantees a full
+  cycle without repeats steps through a pool that arrives in catalogue order,
+  and for that pool size it stepped alphabetically. The pool is permuted per
+  year now (a stable hash of the word, so every device agrees), and the
+  candidates a day falls back on walk by their own stride — with one stride,
+  today's second candidate was tomorrow's first, and "sorry" came up twice in
+  a row.
+- **Spelling Spotter padded its options with other words' misspellings** —
+  "Which spelling is correct? tüb / ales / nehbehn / Typ", where only one
+  option even resembles the word. A padded distractor now has to start with
+  the same letter and be within an edit distance of half the word, and two
+  plausible options beat four where three are noise.
+- **Großstadt drilled "kacken" and "furzen"** — words a spelling-error corpus
+  contributes with no gloss, no grade and nothing else. The games' pools
+  require a usable definition now; that is a new feature bit, so the packs'
+  own filtering agrees with the app's.
+- **"jesus" reached an English grade 3 definition quiz**, keyed against
+  "batman" and "cam".
+- **Truncated glosses**: "eine Hupe am Kraftfahrzeug betätigen, um", "Eine
+  Alternative ist,.".
+- **"Lünen"**, a town, in a German word snake: the pack writes place glosses
+  appositively ("eine Stadt in Nordrhein-Westfalen") as well as as sentences.
+
+Some findings belong to the packs rather than the app, and are left as they
 are: that Fry list; `fart`, whose LLM-written grade examples are read out to a
-ten-year-old; and Hypernym Flash, which is nearly empty in German because the
-pack rarely holds a hypernym with the same word class as the prompt.
+ten-year-old; Hypernym Flash, nearly empty in German because the pack rarely
+holds a hypernym with the same word class as the prompt; Wiktionary's noisier
+antonyms (*Nebel* → *Smog*, *Auge* → *Ohr*); and LLM grade examples that are
+simply wrong — "The book has a pair of pages." is the English pack's sentence
+for *pair*, and the Homophone Drill can only blank a word out of it.
 
 ## The contract test
 

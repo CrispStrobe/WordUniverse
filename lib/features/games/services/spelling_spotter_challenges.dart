@@ -10,17 +10,17 @@ import '../../../core/models/vocabulary_models.dart';
 import 'spelling_spotter_service.dart';
 
 class SpellingChallenge {
-final GermanWord word;
-final List<String> options; // 4 items, shuffled
-final int correctIndex;
-final String? contextSentence;
+  final GermanWord word;
+  final List<String> options; // 4 items, shuffled
+  final int correctIndex;
+  final String? contextSentence;
 
-const SpellingChallenge({
-  required this.word,
-  required this.options,
-  required this.correctIndex,
-  this.contextSentence,
-});
+  const SpellingChallenge({
+    required this.word,
+    required this.options,
+    required this.correctIndex,
+    this.contextSentence,
+  });
 }
 
 bool hasSpellingErrors(GermanWord w, {required bool isGerman}) {
@@ -51,7 +51,8 @@ SpellingChallenge? buildSpellingChallenge({
 
   final errors = parseErrors(rawErrors)
       .map(normWord)
-      .where((e) => e.toLowerCase() != displayWord.toLowerCase() &&
+      .where((e) =>
+          e.toLowerCase() != displayWord.toLowerCase() &&
           e.isNotEmpty &&
           !e.contains(' ') &&
           // Skip error forms that are themselves valid vocabulary words
@@ -81,7 +82,8 @@ SpellingChallenge? buildSpellingChallenge({
     }
   }
 
-  if (distractors.length < optionCount - 1) return null; // need a full set
+  // Two options that both look like the word beat four where three do not.
+  if (distractors.isEmpty) return null;
 
   final options = [displayWord, ...distractors.take(optionCount - 1)];
   options.shuffle(random);
@@ -104,9 +106,8 @@ SpellingChallenge? buildSpellingChallenge({
     final ge = word.apiEnrichment?.gradeExamples;
     if (ge != null) {
       final sents = ge[gradeKey] ?? ge.values.firstOrNull ?? [];
-      context = sents
-          .where((s) => _sentenceContains(s, displayWord))
-          .firstOrNull;
+      context =
+          sents.where((s) => _sentenceContains(s, displayWord)).firstOrNull;
     }
   }
 
@@ -157,8 +158,7 @@ List<SpellingChallenge> buildSpellingChallenges({
       .toList();
   // Error forms that are themselves real words must never be offered as the
   // wrong spelling: "in" is a recorded mistake for "ihn" and also a word.
-  final validWords =
-      pool.map((w) => normWord(w.word).toLowerCase()).toSet();
+  final validWords = pool.map((w) => normWord(w.word).toLowerCase()).toSet();
 
   final challenges = <SpellingChallenge>[];
   for (final word in selectSpellingWords(

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:WortUniversum/core/models/skill_category.dart';
 import 'package:WortUniversum/core/models/vocabulary_models.dart';
+import 'package:WortUniversum/core/models/word_features.dart';
 import 'package:WortUniversum/core/services/audio_service.dart';
 import 'package:WortUniversum/core/services/cognitive_profile_service.dart';
 import 'package:WortUniversum/core/services/progress_service.dart';
@@ -11,6 +12,9 @@ import 'package:WortUniversum/core/services/vocabulary_service.dart';
 import 'package:WortUniversum/features/games/providers/game_provider.dart';
 import 'package:WortUniversum/generated/l10n.dart';
 
+/// A pack word as the catalogue hands one over: light, with the feature bits
+/// the index would have computed. Games filter on those, so a fixture without
+/// them is filtered out — Großstadt generated nothing at all.
 GermanWord germanNoun(String word) => GermanWord.fromJson({
       'id': word,
       'word': word,
@@ -18,6 +22,10 @@ GermanWord germanNoun(String word) => GermanWord.fromJson({
       'wordType': 'substantiv',
       'gradeLevel': 1,
       'article': 'das',
+      'features': WordFeature.usableDefinition.mask |
+          WordFeature.headword.mask |
+          WordFeature.definitions.mask,
+      'isHydrated': false,
     });
 
 class GermanVocabularyFixture extends VocabularyService {

@@ -72,9 +72,20 @@ List<GermanWord> wordOfTheDayCandidates(List<GermanWord> words, DateTime date,
     chosen = fallback;
   }
   {
-    final pool = chosen;
+    // Permuted per year, then walked: the pool arrives in catalogue order, so
+    // stepping through it by a stride showed the alphabet — das Dorf, elf,
+    // feiern, früher, der Grad, hoch, krank, der Mensch. The permutation is a
+    // pure function of the word and the year, so the day still decides the
+    // word and everyone sees the same one.
+    final pool = chosen.toList()
+      ..sort((a, b) =>
+          _orderKey(a.word, date.year).compareTo(_orderKey(b.word, date.year)));
     final start = _indexForDay(date, pool.length);
-    final stride = _strideFor(pool.length, date.year);
+    // A second stride for the candidates, distinct from the one the days walk
+    // by. With one stride, today's second candidate is tomorrow's first — and
+    // when today's first was rejected for its gloss, "sorry" came up twice in
+    // a row.
+    final stride = _candidateStrideFor(pool.length, date.year);
     return [
       for (var step = 0; step < count && step < pool.length; step++)
         pool[(start + step * stride) % pool.length],
@@ -175,6 +186,31 @@ Iterable<int> _curriculumBands(int targetBand) sync* {
   }
 }
 
+/// A stride for walking candidates within one day, coprime with [length] and
+/// different from the stride the days themselves advance by.
+int _candidateStrideFor(int length, int year) {
+  if (length <= 2) return 1;
+  final daily = _strideFor(length, year);
+  var stride = 1 + _scatter(year * 104729 + length) % (length - 1);
+  var guard = 0;
+  while ((stride == daily || _greatestCommonDivisor(stride, length) != 1) &&
+      guard++ < length) {
+    stride = stride % (length - 1) + 1;
+  }
+  return stride;
+}
+
+/// A stable per-year sort key for a word. Dart's String.hashCode is not
+/// guaranteed stable across platforms, and the word of the day has to be the
+/// same on every device, so this hashes the code units itself (FNV-1a).
+int _orderKey(String word, int year) {
+  var hash = 2166136261 ^ _scatter(year);
+  for (final unit in word.toLowerCase().codeUnits) {
+    hash = ((hash ^ unit) * 16777619) & 0xffffffff;
+  }
+  return _scatter(hash);
+}
+
 /// Spreads consecutive seeds across the pool.
 ///
 /// The index used to be the seed itself, and the pool arrives in catalogue
@@ -198,8 +234,16 @@ int _scatter(int seed) {
 
 /// Whether the word has a definition to show — from the decoded enrichment
 /// when it is loaded, from the feature index otherwise.
+/// Whether the word has a meaning worth showing on the card — from the
+/// decoded gloss when it is loaded, from the feature index otherwise, where
+/// the same rule was applied in SQL when the pack was indexed.
 bool _hasDefinition(GermanWord word) => word.isHydrated
-    ? (word.apiEnrichment?.definitions.isNotEmpty ?? false)
-    : word.has(WordFeature.definitions);
+    ? _hasUsableGloss(word)
+    : word.has(WordFeature.usableDefinition);
+
+bool _hasUsableGloss(GermanWord word) {
+  final definition = word.displayDefinitions.firstOrNull;
+  return definition != null && isUsableDefinition(definition);
+}
 
 String _normalizeHeadword(String word) => word.trim().toLowerCase();

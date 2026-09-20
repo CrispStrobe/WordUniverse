@@ -295,6 +295,8 @@ final Map<String, Generator> generators = {
               w.wordType == type &&
               !w.word.contains(' ') &&
               w.word.length >= 3 &&
+              w.has(WordFeature.usableDefinition) &&
+              !namesSomething(w) &&
               w.gradeLevel <= c.grade + 2)
           .toList()
         ..shuffle(c.rng);

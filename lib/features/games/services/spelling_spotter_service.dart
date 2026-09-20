@@ -43,5 +43,28 @@ bool isDistractorPlausible(
       candidate.contains(',')) return false;
   if ((candidate.length - target.length).abs() > maxLenDelta) return false;
   if (validWords.contains(candidate.toLowerCase())) return false;
-  return true;
+  // It has to be a plausible *misspelling of this word*. Padding the options
+  // with another word's errors gave "Which spelling is correct? tüb / ales /
+  // nehbehn / Typ", where only one option even resembles the word.
+  final a = candidate.toLowerCase();
+  final b = target.toLowerCase();
+  if (a.isEmpty || b.isEmpty || a[0] != b[0]) return false;
+  return editDistance(a, b) <= (b.length / 2).ceil();
+}
+
+/// Levenshtein distance, for judging whether one spelling could be a slip of
+/// the other. The words are short; the straightforward table is fine.
+int editDistance(String a, String b) {
+  var previous = List<int>.generate(b.length + 1, (i) => i);
+  for (var i = 1; i <= a.length; i++) {
+    final current = List<int>.filled(b.length + 1, 0);
+    current[0] = i;
+    for (var j = 1; j <= b.length; j++) {
+      final substitution = previous[j - 1] + (a[i - 1] == b[j - 1] ? 0 : 1);
+      current[j] = [substitution, previous[j] + 1, current[j - 1] + 1]
+          .reduce((x, y) => x < y ? x : y);
+    }
+    previous = current;
+  }
+  return previous[b.length];
 }

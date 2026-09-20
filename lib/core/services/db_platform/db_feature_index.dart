@@ -60,6 +60,7 @@ final Map<WordFeature, String> _featureSql = {
   // knownMisspelling is not a per-row test — see _misspellingSql.
   WordFeature.curriculum: _curriculumSql,
   WordFeature.nameLike: _nameLikeSql,
+  WordFeature.usableDefinition: _usableDefinitionSql,
   // A missing primary_lemma means nothing claims the entry is derived.
   WordFeature.headword:
       "coalesce(lower(json_extract(enrichment_json, '\$.primary_lemma')), "
@@ -120,6 +121,25 @@ const String _curriculumSql = '''
         OR entry.value LIKE 'source:uk_y%'
   )
 ''';
+
+/// Whether the first gloss is a meaning rather than a parse, an abbreviation,
+/// a label or a name — the SQL twin of `isUsableDefinition`.
+String get _usableDefinitionSql {
+  String escape(String pattern) => pattern.replaceAll("'", "''");
+  const gloss = "trim(coalesce("
+      "json_extract(enrichment_json, '\$.definitions[0]'), ''))";
+  final markers = [
+    ...kGrammaticalFormMarkers,
+    ...kAbbreviationMarkers,
+  ].map((marker) => "lower($gloss) LIKE '%${escape(marker)}%'").join(' OR ');
+  return '''
+    length($gloss) >= 4
+    AND $gloss NOT LIKE '%:'
+    AND $gloss LIKE '% %'
+    AND NOT ($markers)
+    AND NOT ($_nameLikeSql)
+  ''';
+}
 
 /// Rowids whose spelling appears in another entry's recorded learner errors.
 ///
@@ -491,6 +511,8 @@ int featuresFromDecodedJson({
   final firstGloss =
       definitions is List && definitions.isNotEmpty ? definitions.first : null;
   set(WordFeature.nameLike, firstGloss is String && describesAName(firstGloss));
+  set(WordFeature.usableDefinition,
+      firstGloss is String && isUsableDefinition(firstGloss));
 
   final primaryLemma = enrichment['primary_lemma'];
   set(
