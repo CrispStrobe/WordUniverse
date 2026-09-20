@@ -111,9 +111,12 @@ void main() {
     expect(index.sourcesOf(1), ['BERLIN'],
         reason: 'group_concat over json_each has to work here too');
 
-    expect(index.featuresOf(2), WordFeature.knownMisspelling.mask,
+    expect(
+        index.featuresOf(2),
+        WordFeature.knownMisspelling.mask | WordFeature.headword.mask,
         reason: '"Hunt" carries no enrichment of its own, but it is listed as '
-            'a common mistake for "Hund"');
+            'a common mistake for "Hund" — and nothing claims it was derived '
+            'from another entry, so it is still its own headword');
 
     expect(index.isPresentable(3), isFalse,
         reason: 'defined as a misspelling');
