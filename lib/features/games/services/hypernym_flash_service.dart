@@ -9,25 +9,65 @@ import '../../../core/models/vocabulary_models.dart';
 import '../../../core/models/vocabulary_quality.dart';
 
 class HypernymChallenge {
-final GermanWord word;
-final String correctHypernym;
-final List<String> options;
-final int correctIndex;
-const HypernymChallenge({
-  required this.word,
-  required this.correctHypernym,
-  required this.options,
-  required this.correctIndex,
-});
+  final GermanWord word;
+  final String correctHypernym;
+  final List<String> options;
+  final int correctIndex;
+  const HypernymChallenge({
+    required this.word,
+    required this.correctHypernym,
+    required this.options,
+    required this.correctIndex,
+  });
 }
 
 const Set<String> _abstractEnglishVerbs = {
-  'be', 'have', 'do', 'exist', 'become', 'get', 'make', 'take', 'go',
-  'come', 'give', 'use', 'find', 'think', 'see', 'know', 'want', 'seem',
-  'put', 'move', 'change', 'live', 'try', 'apply', 'act', 'work', 'play',
-  'bring', 'keep', 'turn', 'show', 'leave', 'feel', 'follow', 'need',
-  'run', 'call', 'look', 'set', 'hold', 'start', 'stop', 'stay', 'begin',
-  'appear', 'happen',
+  'be',
+  'have',
+  'do',
+  'exist',
+  'become',
+  'get',
+  'make',
+  'take',
+  'go',
+  'come',
+  'give',
+  'use',
+  'find',
+  'think',
+  'see',
+  'know',
+  'want',
+  'seem',
+  'put',
+  'move',
+  'change',
+  'live',
+  'try',
+  'apply',
+  'act',
+  'work',
+  'play',
+  'bring',
+  'keep',
+  'turn',
+  'show',
+  'leave',
+  'feel',
+  'follow',
+  'need',
+  'run',
+  'call',
+  'look',
+  'set',
+  'hold',
+  'start',
+  'stop',
+  'stay',
+  'begin',
+  'appear',
+  'happen',
 };
 
 bool _isCleanHypernym(String w, bool isDE) {
@@ -52,6 +92,7 @@ String? pickHypernym(
 }) {
   final isDE = isGerman;
   final hypernyms = word.apiEnrichment?.hypernyms ?? [];
+  String? outsideCatalogue;
   for (final h in hypernyms) {
     final w = (h.word ?? '').trim();
     if (!_isCleanHypernym(w, isDE)) continue;
@@ -60,10 +101,19 @@ String? pickHypernym(
     if (w.toLowerCase() == word.word.toLowerCase()) continue;
     if (catalogue == null) return w;
     final entry = catalogue[w.toLowerCase()];
-    if (entry == null || namesSomething(entry)) continue;
+    if (entry == null) {
+      // Remembered, not taken: a hypernym the catalogue holds with the right
+      // word type is a better answer, because the learner has met it.
+      outsideCatalogue ??= w;
+      continue;
+    }
+    if (namesSomething(entry)) continue;
     if (entry.wordType == word.wordType) return w;
   }
-  return null;
+  // Nothing in the catalogue fits. The German pack rarely holds one with the
+  // matching word type, and requiring it left the game empty at five of the
+  // six grades — an answer the learner has not met beats no game at all.
+  return outsideCatalogue;
 }
 
 HypernymChallenge? buildHypernymChallenge({

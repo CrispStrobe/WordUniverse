@@ -147,7 +147,8 @@ const Map<String, List<String>> generatorLanguages = {
 
 class AuditContext {
   AuditContext(this.vocabulary, this.sri, this.settings, this.grade, this.count,
-      this.rng, this.language);
+      this.rng, this.language)
+      : strings = lookupS(Locale(language));
   final VocabularyService vocabulary;
   final SriService sri;
   final GameProvider settings;
@@ -155,6 +156,9 @@ class AuditContext {
   final int count;
   final Random rng;
   final String language;
+
+  /// The app's own strings for this pack's language.
+  final S strings;
 
   bool get isGerman => language == 'de';
 
@@ -477,7 +481,7 @@ final Map<String, Generator> generators = {
     return buildWordClassChallenges(words: words, maxChallenges: c.count)
         .map((ch) => Item(
               game: 'word_class_flash',
-              prompt: 'What word class is "${ch.word.displayName}"?',
+              prompt: ch.word.displayName,
               options: askable.map((t) => t.name).toList(),
               answer: ch.correctType.name,
             ))
@@ -496,7 +500,7 @@ final Map<String, Generator> generators = {
       )
           .map((ch) => Item(
                 game: 'hypernym_flash',
-                prompt: 'A "${ch.word.word}" is a kind of what?',
+                prompt: ch.word.word,
                 options: ch.options,
                 answer: ch.options[ch.correctIndex],
               ))
@@ -512,7 +516,7 @@ final Map<String, Generator> generators = {
       )
           .map((ch) => Item(
                 game: 'syllable_count',
-                prompt: 'How many syllables in "${ch.word.displayName}"?',
+                prompt: ch.word.displayName,
                 options: const ['1', '2', '3', '4+'],
                 answer: const ['1', '2', '3', '4+'][ch.correctBucket],
                 notes: {'hyphenation': ch.word.hyphenation.join('|')},
@@ -526,7 +530,7 @@ final Map<String, Generator> generators = {
       )
           .map((ch) => Item(
                 game: 'translation_flash',
-                prompt: 'What is "${ch.word.displayName}" in English?',
+                prompt: ch.word.displayName,
                 options: ch.options,
                 answer: ch.options[ch.correctIndex],
               ))
@@ -540,7 +544,7 @@ final Map<String, Generator> generators = {
       )
           .map((ch) => Item(
                 game: 'reverse_translation_flash',
-                prompt: 'Which word means "${ch.translation}"?',
+                prompt: ch.translation,
                 options: ch.options,
                 answer: ch.options[ch.correctIndex],
               ))
@@ -558,7 +562,7 @@ final Map<String, Generator> generators = {
       )
           .map((ch) => Item(
                 game: 'antonym_flash',
-                prompt: 'Which word is the opposite of "${ch.word.word}"?',
+                prompt: ch.word.word,
                 options: ch.options,
                 answer: ch.options[ch.correctIndex],
                 notes: {'grade': ch.word.gradeLevel},
@@ -578,7 +582,7 @@ final Map<String, Generator> generators = {
       )
           .map((ch) => Item(
                 game: 'synonym_flash',
-                prompt: 'Which word means the same as "${ch.word.word}"?',
+                prompt: ch.word.word,
                 options: ch.options,
                 answer: ch.options[ch.correctIndex],
                 notes: {'grade': ch.word.gradeLevel},
@@ -728,6 +732,44 @@ final Map<String, Generator> generators = {
 /// game in the menu can now be generated and reviewed headlessly.
 const notYetReachable = <String>[];
 
+/// What the menu calls each game, and what it tells a learner it is — the
+/// localized strings the app actually shows, so a dump is read against the
+/// game as offered rather than against a label this harness made up.
+String? gameTitle(String game, S strings) => switch (game) {
+      'word_find' => strings.wordFindTitle,
+      'word_sort' => strings.wordSortTitle,
+      'word_snake' => strings.wordSnakeTitle,
+      'word_memory' => strings.wordMemoryTitle,
+      'word_builder' => strings.wordBuilderTitle,
+      'word_type_whirl' => strings.wordWhirlTitle,
+      'spelling_spotter' => strings.spellingSpotterTitle,
+      'sentence_completion' => strings.sentenceCompletionTitle,
+      'definition_quiz' => strings.definitionQuizTitle,
+      'sri_review' => strings.sriReviewTitle,
+      'antonym_flash' => strings.antonymFlashTitle,
+      'synonym_flash' => strings.synonymFlashTitle,
+      'conjugation_drill' => strings.conjugationDrillTitle,
+      'translation_flash' => strings.translationFlashTitle,
+      'syllable_count' => strings.syllableCountTitle,
+      'cloze_flash' => strings.clozeFlashTitle,
+      'expression_flash' => strings.expressionFlashTitle,
+      'homophone_drill' => strings.homophoneDrillTitle,
+      'phrasal_verb_power' => strings.phrasalVerbPowerTitle,
+      'phrasal_verb_match' => strings.phrasalVerbMatchTitle,
+      'false_friends' => strings.falseFriendsTitle,
+      'wortfalle' => strings.wortfalleTitle,
+      'wortbaumeister' => strings.wortbaumeisterCardTitle,
+      'grossstadt' => strings.grossstadtCardTitle,
+      'grossschreib' => strings.grossschreibTitle,
+      'verbtrenner' => strings.verbtrennerCardTitle,
+      'hypernym_flash' => strings.hypernymFlashTitle,
+      'word_class_flash' => strings.wordClassFlashTitle,
+      'proverb_cloze' => strings.proverbClozeTitle,
+      'reverse_translation_flash' => strings.reverseTranslationTitle,
+      'word_of_the_day' => strings.wordOfTheDay,
+      _ => null,
+    };
+
 /// A pack opened for auditing: the services a generator needs, plus the
 /// temporary directory the database was unpacked into.
 class AuditPack {
@@ -739,6 +781,9 @@ class AuditPack {
   final GameProvider settings;
   final String language;
   final Directory _directory;
+
+  /// The app's own strings for this pack's language.
+  S get strings => lookupS(Locale(language));
 
   AuditContext context({
     required int grade,

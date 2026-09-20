@@ -128,13 +128,35 @@ A second pass, on a different seed, found seven more:
 - **"Lünen"**, a town, in a German word snake: the pack writes place glosses
   appositively ("eine Stadt in Nordrhein-Westfalen") as well as as sentences.
 
-Some findings belong to the packs rather than the app, and are left as they
-are: that Fry list; `fart`, whose LLM-written grade examples are read out to a
-ten-year-old; Hypernym Flash, nearly empty in German because the pack rarely
-holds a hypernym with the same word class as the prompt; Wiktionary's noisier
-antonyms (*Nebel* → *Smog*, *Auge* → *Ohr*); and LLM grade examples that are
-simply wrong — "The book has a pair of pages." is the English pack's sentence
-for *pair*, and the Homophone Drill can only blank a word out of it.
+Some findings belong to the packs rather than the app. Two are fixed *in* the
+packs now, by `tools/pack/repair_pack.py`: names are typed `proper_noun`, and
+a leading gloss that is a parse rather than a meaning is dropped so a real
+sense comes first. `tools/pack/quality_report.py` shows what every content
+rule excludes and, in the column to read first, how much of that is attested
+vocabulary.
+
+These are still open, and belong to the pack pipeline: the Fry list that
+contains "jun", "jul", "html" and "linux"; `fart`, whose LLM-written grade
+examples are read out to a ten-year-old; Wiktionary's noisier antonyms
+(*Nebel* → *Smog*, *Auge* → *Ohr*); and LLM grade examples that are simply
+wrong — "The book has a pair of pages." is the English pack's sentence for
+*pair*, and the Homophone Drill can only blank a word out of what it is
+given.
+
+## What the dump shows
+
+What a generator returns is what the screen shows. The flash games display a
+word and its options, with the task carried by the game's own title — so the
+items are the word and the options, and the dump prints the localized title
+above them. Where the screen composes a sentence (the cloze games, Wortfalle,
+Großschreib-Rakete, Sentence Completion, the conjugation drill), the item
+carries that sentence.
+
+This matters more than it sounds. The harness used to write its own question
+prose, and the one place where its phrasing and the screen's differed hid a
+bug for weeks: Spelling Spotter's example sentence, which the screen reveals
+only *after* an answer, was being printed as part of the question — where it
+gave the spelling away.
 
 ## The contract test
 
