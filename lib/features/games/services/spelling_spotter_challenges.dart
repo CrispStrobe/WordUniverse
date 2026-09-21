@@ -109,8 +109,11 @@ SpellingChallenge? buildSpellingChallenge({
     final ge = word.apiEnrichment?.gradeExamples;
     if (ge != null) {
       final sents = ge[gradeKey] ?? ge.values.firstOrNull ?? [];
-      context =
-          sents.where((s) => _sentenceContains(s, displayWord)).firstOrNull;
+      context = sents
+          .where((s) => _sentenceContains(s, displayWord))
+          .where(sentenceSuitsAChild)
+          .where(looksLikeAWholeSentence)
+          .firstOrNull;
     }
   }
 

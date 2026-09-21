@@ -212,6 +212,20 @@ bool isUsableDefinition(String definition) {
   return true;
 }
 
+/// Whether an example sentence is a whole sentence.
+///
+/// The packs' graded examples are generated two per grade, and the second one
+/// is regularly cut off: "The process of pear cultivation involves", "Pears
+/// are sweet". A gap exercise built on the first of those asks a child to
+/// complete a sentence that was never finished. Eighty-eight per cent of the
+/// English examples and ninety-nine per cent of the German ones end in a full
+/// stop, and nine in ten words keep at least one, so this costs the games
+/// little.
+bool looksLikeAWholeSentence(String sentence) =>
+    _endsInPunctuation.hasMatch(sentence.trim());
+
+final RegExp _endsInPunctuation = RegExp(r'''[.!?][)"”'’]?$''');
+
 /// Whether the gloss stops in the middle of itself — the German pack cuts
 /// "eine Hupe am Kraftfahrzeug betätigen, um" off after the conjunction.
 bool _endsMidSentence(String definition) {

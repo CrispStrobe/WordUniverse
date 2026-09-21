@@ -8,6 +8,7 @@
 import 'dart:math';
 
 import '../../../core/models/vocabulary_models.dart';
+import '../../../core/models/vocabulary_quality.dart';
 
 // ─── Homophone catalogue ──────────────────────────────────────────────────────
 
@@ -317,6 +318,7 @@ String? _pickSentence(GermanWord entry, int gradeLevel, String targetWord) {
     final sentences = examples[key];
     if (sentences == null || sentences.isEmpty) continue;
     for (final raw in sentences) {
+      if (!looksLikeAWholeSentence(raw)) continue;
       final blanked = _blankWord(raw, targetWord);
       if (blanked != null) return blanked;
     }
