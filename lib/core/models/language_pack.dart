@@ -45,7 +45,8 @@ class LanguagePack {
   /// Historical slots are retained, never silently treated as this revision.
   /// Keep earlier qualified names here when publishing a replacement.
   final List<String> previousDatabaseNames;
-  List<String> get legacyDatabaseNames => [_databaseName, ...previousDatabaseNames];
+  List<String> get legacyDatabaseNames =>
+      [_databaseName, ...previousDatabaseNames];
 
   /// Bundled gzipped asset, when the DB ships with the app.
   final String? assetPath;
@@ -96,7 +97,8 @@ class LanguagePack {
 
   /// Download size for disclosure, e.g. "25 MB". Falls back to an estimate
   /// when no pin is set.
-  String get downloadSizeLabel => _megabytes(expectedCompressedBytes) ?? '~25 MB';
+  String get downloadSizeLabel =>
+      _megabytes(expectedCompressedBytes) ?? '~25 MB';
 
   /// What the pack occupies once installed, which is what actually has to fit
   /// on the device: the database is stored decompressed. Disclosing only the
@@ -210,7 +212,8 @@ class LanguagePackState {
       progress: progress ?? this.progress,
       message: message ?? this.message,
       error: clearError ? null : (error ?? this.error),
-      errorIsNetwork: clearError ? false : (errorIsNetwork ?? this.errorIsNetwork),
+      errorIsNetwork:
+          clearError ? false : (errorIsNetwork ?? this.errorIsNetwork),
       errorIsSpace: clearError ? false : (errorIsSpace ?? this.errorIsSpace),
       cachedBytes: clearCachedBytes ? null : (cachedBytes ?? this.cachedBytes),
     );
@@ -235,16 +238,17 @@ const Map<String, LanguagePack> kLanguagePacks = {
     // work on every install. `grundwortschatz.db.gz` beside it
     // remains the complete lexical database and is unchanged.
     remoteUrl:
-        'https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/c1737ee6fb72745e91e8f52f4630495c1cbc5e7e/grundwortschatz-app.db.gz',
+        'https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/0558599d4ec267bde3be35023ce377388c8eaec2/grundwortschatz-app.db.gz',
     // Update the immutable URL and all pins together; retain this qualified
     // databaseName in previousDatabaseNames when publishing a new artifact.
-    expectedCompressedBytes: 15077428,
+    expectedCompressedBytes: 15077429,
     expectedCompressedSha256:
-        'f9668a794290991ef3a7e62f1e7e1d65565ed782deacc1e0b8e9592dc06e9b80',
+        '253dd72ab5423967c6176c2ac09dbc2518630a6cf12f12571877247c912d8df5',
     expectedDecompressedBytes: 88059904,
     expectedDecompressedSha256:
-        '158bea51ba1b0c0e4bcb696042dd45a03b0ddbccc132337a8ce8ef388117d9f1',
+        '1c87cbeed45007e7d61c4f73010c79804478eebf97c61487f806a2789dd6949a',
     previousDatabaseNames: [
+      'grundwortschatz-158bea51ba1b0c0e4bcb696042dd45a03b0ddbccc132337a8ce8ef388117d9f1.db',
       'grundwortschatz-32487bb8280cc5a709abf83119482fe68c84be3ee47aa1251f1aabb494801712.db',
       'grundwortschatz-4088731ba18bb477bbf41faacc633beedc967b5e5e7108a89c75c62d87b5aca1.db',
       'grundwortschatz-2890e0c1b1dd25aacaee53bb133f4a4b3c4e69acb5827ce4c1af1813a2a7af44.db',
@@ -270,8 +274,9 @@ const Map<String, LanguagePack> kLanguagePacks = {
     // qualifies the storage slot, so this selects a fresh one and the
     // previous slots are listed below rather than silently reused.
     expectedDecompressedSha256:
-        '53365e2ae71884bad1e53b5e34c2cdc543f0f9ba8ba578eca7eb5050235c76d9',
+        '3d2201f21098d96af2864961cb21b065d41f0171022aa53abeea81a96ccc5a1d',
     previousDatabaseNames: [
+      'grundwortschatz_en-53365e2ae71884bad1e53b5e34c2cdc543f0f9ba8ba578eca7eb5050235c76d9.db',
       'grundwortschatz_en-cbbdef45fb1b2da6726ada0f98071c5ff622f4fa3903bf13fdf9d5f4f8d2f365.db',
       'grundwortschatz_en-7c810a70430f5e2218e8ef15b91cdf52bb20224afad4963ea6c200e47c0b840d.db',
       'grundwortschatz_en-49e65596954cb7f8a0268e214e3e26c866f593ad781c567481993f08dc8471db.db',

@@ -175,7 +175,11 @@ void main() {
               word: word, pool: words, isGerman: isGerman, rng: Random(1));
           if (challenge == null) continue;
           checked++;
+          // The two transformations the quiz makes, undone: a long sense is
+          // cut at its first clause, and the headword is redacted out.
           final redacted = word.displayDefinitions
+              .expand(
+                  (definition) => [definition, firstClauseIfLong(definition)])
               .map((definition) => definition.replaceAll(
                     RegExp('\\b${RegExp.escape(word.word)}\\b',
                         caseSensitive: false),

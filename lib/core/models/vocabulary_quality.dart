@@ -13,6 +13,7 @@ import 'word_features.dart';
 /// See db_feature_index.dart.
 bool isPresentableVocabularyEntry(GermanWord entry) {
   if (!_cleanHeadword.hasMatch(entry.word.trim())) return false;
+  if (!wordSuitsAChild(entry.word)) return false;
   if (entry.sources.any(_isMisspellingSource)) return false;
   if (!entry.isHydrated) return true;
 
@@ -57,6 +58,10 @@ const _invalidSpellingMarkers = <String>[
 /// Christopher Columbus". Neither is vocabulary a learner can reason about.
 bool describesAName(String definition) {
   final lower = definition.toLowerCase();
+  // A capital and a city in one gloss is a place, however the sentence is
+  // put together: "The capital and largest city of Germany" matched none of
+  // the phrases below, and berlin reached an English definition quiz.
+  if (lower.contains('capital') && lower.contains('city')) return true;
   return kNameGlossOpenings.any(lower.startsWith) ||
       kNameGlossPhrases.any(lower.contains);
 }
@@ -234,3 +239,58 @@ const _danglingWords = <String>{
   'to', 'of', 'the', 'a', 'an', 'and', 'or', 'that', 'with', 'for', 'by',
   'from', 'as', 'at', 'on',
 };
+
+/// Whether an example sentence is one to put in front of a nine-year-old.
+///
+/// The packs draw their examples from Wikipedia, news and Gutenberg, so a
+/// perfectly ordinary word arrives with a perfectly unsuitable sentence: the
+/// German pack illustrates "auffordern" with "Die syrische Armee fordert
+/// Rebellen und Bewohner auf, die Stadt zu verlassen." A model reading the
+/// generated items flagged that one; this is the rule that keeps it out.
+///
+/// A stopgap, and a deliberately short one — the packs mark nothing about
+/// register or subject, so this is a word list, with all a word list's
+/// limits. It filters sentences, never words: a game with no suitable
+/// example shows none rather than showing that one. German nouns are matched
+/// case-sensitively, which is what separates "Kriege" from "kriege".
+bool sentenceSuitsAChild(String sentence) =>
+    !_unsuitableGerman.hasMatch(sentence) &&
+    !_unsuitableGermanAnyCase.hasMatch(sentence) &&
+    !_unsuitableEnglish.hasMatch(sentence);
+
+final RegExp _unsuitableGerman = RegExp(
+    r'\b(Armee|Rebell|Rebellen|Krieg|Kriege|Krieges|Kriegs\w*|Soldat|Soldaten|'
+    r'Mord|Mordes|Morde|Waffe|Waffen|Terror\w*|Bombe|Bomben|Drogen|Heroin|'
+    r'Kokain|Leiche|Leichen|Selbstmord|Suizid|Nazi|Nazis|Hitler|Holocaust|'
+    r'Massaker|Folter\w*|Vergewaltigung\w*|Prostituierte\w*)\b');
+
+final RegExp _unsuitableGermanAnyCase = RegExp(
+    r'\b(getötet|ermordet|erschossen|vergewaltig\w*|gefoltert|sexuell\w*)\b',
+    caseSensitive: false);
+
+final RegExp _unsuitableEnglish = RegExp(
+    r'\b(army|armies|rebel|rebels|war|wars|warfare|soldier|soldiers|killed|'
+    r'murder|murders|murdered|weapon|weapons|terroris\w*|bomb|bombs|bombed|'
+    r'raped|raping|drugs|heroin|cocaine|prostitut\w*|corpse|corpses|suicide|'
+    r'nazi|nazis|hitler|holocaust|massacre|tortur\w*|sexual\w*)\b',
+    caseSensitive: false);
+
+/// Whether the word itself belongs in a game for a nine-year-old.
+///
+/// A model reading the generated items found "sexual" offered as a word to
+/// find in a grid, trace, build from letters and match — at English grade 3,
+/// from four different games. The packs mark nothing about register, so this
+/// is a word list with all a word list's limits: short, explicit, and about
+/// the words no school exercise reaches for rather than about propriety in
+/// general. It gates the catalogue, so such a word is not a prompt, an
+/// option, or a distractor anywhere.
+bool wordSuitsAChild(String word) => !_unsuitableWords.hasMatch(word.trim());
+
+final RegExp _unsuitableWords = RegExp(
+    r'^(sex|sexes|sexual\w*|sexuality|erotic\w*|porn\w*|orgasm\w*|'
+    r'masturbat\w*|condom|condoms|brothel|brothels|prostitute|prostitutes|'
+    r'rape|raped|rapist|penis|vagina|vulva|testicle|testicles|ejaculat\w*|'
+    r'sexuell\w*|Sexualität|Erotik|Porno\w*|Orgasmus|Kondom|Kondome|Bordell|'
+    r'Hure|Huren|Nutte|Nutten|ficken|Fotze|Penis|Vagina|'
+    r'kacken|Kacke|furzen|Furz|pissen|Pisse|Scheiße|scheißen|Kotze|kotzen)$',
+    caseSensitive: false);

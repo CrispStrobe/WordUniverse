@@ -31,12 +31,19 @@ import json
 import os
 import pathlib
 import sys
+import time
 from collections import Counter, defaultdict
 from concurrent.futures import ThreadPoolExecutor
 
 RUBRIC = """You are checking exercises from a German/English vocabulary app \
 for children in school years 1-6. For each numbered item, judge only what is \
 shown.
+
+Some games are not multiple choice: a word-search hands out a letter grid, a \
+snake traces letters, a memory game turns over tiles. For those the item \
+gives the word the game uses and no options, and that is complete — judge \
+whether the word itself suits the game and the age, not whether options are \
+missing.
 
 For each item answer four questions:
 - answerable: can a learner answer it from the prompt and options alone?
@@ -54,7 +61,9 @@ FIELDS = ('answerable', 'keyed', 'grammatical', 'appropriate')
 
 
 def render(item, number):
-    lines = [f'{number}. game: {item.get("game")}']
+    title = item.get('title')
+    lines = [f'{number}. game: {item.get("game")}'
+             + (f' — "{title}", as the menu names it' if title else '')]
     lines.append(f'   prompt: {item.get("prompt", "")}')
     options = item.get('options') or []
     if options:
@@ -73,19 +82,39 @@ def batches(items, size):
         yield items[start:start + size]
 
 
-def judge(client, model, batch, temperature):
+def judge(client, model, batch, temperature, attempts=5):
     prompt = '\n\n'.join(render(item, i + 1) for i, item in enumerate(batch))
-    response = client.chat.completions.create(
-        model=model,
-        temperature=temperature,
-        messages=[
-            {'role': 'system', 'content': RUBRIC},
-            {'role': 'user', 'content': prompt},
-        ],
-        response_format={'type': 'json_object'},
-    )
-    text = response.choices[0].message.content or '{}'
-    verdicts = json.loads(text).get('verdicts') or []
+    text = '{}'
+    for attempt in range(attempts):
+        try:
+            response = client.chat.completions.create(
+                model=model,
+                temperature=temperature,
+                messages=[
+                    {'role': 'system', 'content': RUBRIC},
+                    {'role': 'user', 'content': prompt},
+                ],
+                response_format={'type': 'json_object'},
+            )
+            text = response.choices[0].message.content or '{}'
+            break
+        except Exception as error:  # noqa: BLE001 - any transport problem
+            # Free tiers rate-limit hard and models occasionally return
+            # something that is not JSON. Neither is worth losing a sweep
+            # over, so back off and try again; give up quietly at the end and
+            # let the items count as unjudged rather than as passing.
+            retryable = any(code in str(error)
+                            for code in ('429', '500', '502', '503', '529',
+                                         'overloaded', 'timeout'))
+            if attempt == attempts - 1 or not retryable:
+                if not retryable:
+                    print(f'\n  {type(error).__name__}: {error}'[:300])
+                return []
+            time.sleep(min(2 ** attempt * 2, 30))
+    try:
+        verdicts = json.loads(text).get('verdicts') or []
+    except json.JSONDecodeError:
+        return []
     by_number = {int(v.get('n', 0)): v for v in verdicts if isinstance(v, dict)}
     out = []
     for index, item in enumerate(batch, start=1):

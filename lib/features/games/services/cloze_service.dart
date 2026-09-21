@@ -161,6 +161,7 @@ ClozeChallenge? buildClozeChallenge({
   final candidates = <(String, ClozeResult)>[];
   for (final text in texts) {
     if (text.length < minLength || text.length > maxLength) continue;
+    if (!sentenceSuitsAChild(text)) continue;
     final cloze = tryBlank(text, word.word);
     if (cloze == null) continue;
     // A proverb with one word left beside the blank is not a question.

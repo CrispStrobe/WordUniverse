@@ -79,6 +79,27 @@ final RegExp _anaphora = RegExp(
     r'\b(this|these|such|the same|dieser|diese|dieses|diesem|diesen|solche[rsmn]?)\b',
     caseSensitive: false);
 
+/// A long gloss cut at its first clause, when that leaves something usable.
+///
+/// Public because a prompt has to be traceable back to the pack: see
+/// test/live/item_provenance_live_test.dart, which undoes this to check that
+/// what a learner reads is what the pack wrote.
+///
+/// The packs join senses with semicolons — "To make somebody able (to do, or
+/// to be, something); to give sufficient ability or power to do or to be" —
+/// and the first clause is the sense a learner needs.
+String firstClauseIfLong(String definition) {
+  if (definition.length <= 120) return definition;
+  for (final separator in [';', '. ']) {
+    final cut = definition.indexOf(separator);
+    if (cut > 20 && cut <= 120) {
+      final clause = definition.substring(0, cut).trim();
+      if (isUsableDefinition(clause)) return clause;
+    }
+  }
+  return definition;
+}
+
 /// One challenge, or null when [word] cannot make a fair one.
 DefinitionChallenge? buildDefinitionChallenge({
   required GermanWord word,
@@ -108,9 +129,15 @@ DefinitionChallenge? buildDefinitionChallenge({
   // A gloss that parses the word ("plural of passerby"), abbreviates it
   // ("Abbreviation of July."), names a place, or is a bare domain label
   // ("Botanik:") is not a meaning to ask about.
-  final common =
+  final usable =
       definitions.take(sensesConsidered).where(isUsableDefinition).toList();
-  if (common.isEmpty) return null;
+  if (usable.isEmpty) return null;
+  // A sense longer than the card can show is shortened at its own first
+  // clause rather than skipped: skipping took "enable" from "To make somebody
+  // able to do something" — 130 characters — down to its archaic second
+  // sense, "To affirm; to make firm and strong", which a model reading the
+  // items flagged as not matching the word at all.
+  final common = [for (final d in usable) firstClauseIfLong(d)];
   var definition = common.firstWhere(
     (d) =>
         d.length <= 120 &&

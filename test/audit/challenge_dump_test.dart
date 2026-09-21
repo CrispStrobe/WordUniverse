@@ -91,8 +91,9 @@ void main() {
           pack.context(grade: grade, count: count, rng: Random(seed)));
       total += items.length;
       if (asJson) {
+        final title = gameTitle(name, pack.strings);
         for (final item in items) {
-          buffer.writeln(jsonEncode(item.toJson()));
+          buffer.writeln(jsonEncode(item.toJson(title: title)));
         }
       } else {
         final title = gameTitle(name, pack.strings);

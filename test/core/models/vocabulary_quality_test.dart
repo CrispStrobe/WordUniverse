@@ -199,6 +199,33 @@ void main() {
     });
   });
 
+  group('sentenceSuitsAChild', () {
+    test('keeps ordinary sentences', () {
+      expect(
+          sentenceSuitsAChild('Wir frühstücken immer in der Küche.'), isTrue);
+      expect(sentenceSuitsAChild('The cat sat on the mat.'), isTrue);
+      expect(sentenceSuitsAChild('Kriegen wir heute noch ein Eis?'), isTrue,
+          reason: '"kriegen" is not "Kriege" — German nouns are capitalised, '
+              'which is the whole reason this half of the rule is '
+              'case-sensitive');
+      expect(sentenceSuitsAChild('She was warm and well.'), isTrue);
+    });
+
+    test('drops the ones a model flagged', () {
+      // Shipped as the example for "auffordern".
+      expect(
+          sentenceSuitsAChild('„Die syrische Armee fordert Rebellen und '
+              'Bewohner auf, die Stadt zu verlassen."'),
+          isFalse);
+      expect(
+          sentenceSuitsAChild('We had to ration our food because there '
+              'was a war on.'),
+          isFalse);
+      expect(sentenceSuitsAChild('Der Mann wurde erschossen.'), isFalse);
+      expect(sentenceSuitsAChild('The soldiers killed him.'), isFalse);
+    });
+  });
+
   test('rejects an entry the pack tags as often misspelled', () {
     expect(
       isPresentableVocabularyEntry(

@@ -72,8 +72,13 @@ class Item {
   final String? answer;
   final Map<String, Object?> notes;
 
-  Map<String, Object?> toJson() => {
+  /// [title] is the game's own name as the menu shows it, so a reviewer —
+  /// or a model — knows what the learner is looking at. Word Find hands out
+  /// a letter grid; without that, "Find 'Pilz' in the grid" reads as a
+  /// question with no grid attached.
+  Map<String, Object?> toJson({String? title}) => {
         'game': game,
+        if (title != null) 'title': title,
         'prompt': prompt,
         if (options.isNotEmpty) 'options': options,
         if (answer != null) 'answer': answer,
@@ -200,7 +205,12 @@ Generator _wordPractice(
       return words
           .map((w) => Item(
                 game: game,
-                prompt: ask.replaceAll('%s', w.displayName),
+                // The bare word, as these screens show it: only Word Type
+                // Whirl puts the article in front of a German noun, and a
+                // dump that says «Trace "der Pilz"» while the snake spells
+                // "Pilz" is reviewing a game nobody plays.
+                prompt: ask.replaceAll(
+                    '%s', game == 'word_type_whirl' ? w.displayName : w.word),
                 answer: game == 'word_sort' || game == 'word_type_whirl'
                     ? w.wordType.name
                     : w.word,
