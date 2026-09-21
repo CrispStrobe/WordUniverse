@@ -62,9 +62,28 @@ bool describesAName(String definition) {
   // put together: "The capital and largest city of Germany" matched none of
   // the phrases below, and berlin reached an English definition quiz.
   if (lower.contains('capital') && lower.contains('city')) return true;
+  if (_geographyGloss.hasMatch(lower)) return true;
   return kNameGlossOpenings.any(lower.startsWith) ||
       kNameGlossPhrases.any(lower.contains);
 }
+
+/// The German pack's way of glossing a place: the kind of place, then where
+/// it is. "Stadt im US-Bundesstaat Pennsylvania", "Staat in Ostasien",
+/// "Bundesstaat im Südosten der USA", "Kontinent, der das Festland des
+/// Staats Australien … umfasst" — 78 entries, of which 66 were still typed
+/// as ordinary nouns, so Australien, China, Texas, Leipzig and Sydney were
+/// vocabulary. "Australien" reached the word of the day.
+///
+/// The locating word right after the noun is what makes this safe: without
+/// it the same nouns open the glosses of the ordinary words they are —
+/// "Ausland: Land oder Länder außerhalb des eigenen Staatsgebiets", "Insel:
+/// vollständig von Wasser umgebenes Stück Land", "Fluss: größeres,
+/// fließendes Gewässer". None of those matches.
+final RegExp _geographyGloss = RegExp(
+    r'^(hauptstadt|stadt|fluss|insel|gebirge|ozean|provinz|bundesland'
+    r'|bundesstaat|kontinent|staat|region|gemeinde|dorf)\s*,?\s*'
+    r'(in|im|der|des|von|vom|zwischen|an|auf|nahe|bei|südlich|nördlich'
+    r'|östlich|westlich|mit)');
 
 /// Gloss openings Wiktionary uses for names. Also compiled into SQL when the
 /// feature index is built, so a light word can answer the same question.
@@ -320,7 +339,8 @@ final RegExp _adultSetting = RegExp(
 final RegExp _unsuitableGerman = RegExp(
     r'\b(Armee|Rebell|Rebellen|Krieg|Kriege|Krieges|Kriegs\w*|Soldat|Soldaten|'
     r'Mord|Mordes|Morde|Waffe|Waffen|Terror\w*|Bombe|Bomben|Drogen|Heroin|'
-    r'Kokain|Leiche|Leichen|Selbstmord|Suizid|Nazi|Nazis|Hitler|Holocaust|'
+    r'Kokain|Opium|Leiche|Leichen|Selbstmord|Suizid|Nazi|Nazis|Hitler|'
+    r'Holocaust|'
     r'Massaker|Folter\w*|Vergewaltigung\w*|Prostituierte\w*)\b');
 
 final RegExp _unsuitableGermanAnyCase = RegExp(
@@ -351,5 +371,12 @@ final RegExp _unsuitableWords = RegExp(
     r'rape|raped|rapist|penis|vagina|vulva|testicle|testicles|ejaculat\w*|'
     r'sexuell\w*|Sexualität|Erotik|Porno\w*|Orgasmus|Kondom|Kondome|Bordell|'
     r'Hure|Huren|Nutte|Nutten|ficken|Fotze|Penis|Vagina|'
-    r'kacken|Kacke|furzen|Furz|pissen|Pisse|Scheiße|scheißen|Kotze|kotzen)$',
+    r'kacken|Kacke|furzen|Furz|pissen|Pisse|Scheiße|scheißen|Kotze|kotzen|'
+    // A word game keys one of four options. A model found the German pack's
+    // gloss "massenhafte, systematische Verfolgung, Deportation, Vertreibung
+    // ... und Vernichtung europäischer Juden" asked as a review question with
+    // "der Holocaust" as the answer and three ordinary nouns beside it. These
+    // are already barred from the example sentences; a multiple-choice prompt
+    // is no better a place for them.
+    r'Holocaust|Holokaust|holocaust|Völkermord|Genozid|genocide)$',
     caseSensitive: false);

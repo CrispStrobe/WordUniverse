@@ -25,53 +25,53 @@
     · grade: 3
 ── cloze_flash (4)
   A micro-___ is defined as a company or business having 5 or fewer employees and a low seed capital.
-      languages
-      voter
-      drops
+      arrangements
+      intel
     ✓ enterprise
+      bullshit
     · word: enterprise
   Some ___ boys at school hid the teacher's lesson notes.
-      earlier
-      historic
       secure
+      earlier
+      automatic
     ✓ naughty
     · word: naughty
   Thanks to its sonar, the narwhal can remain active even at ___, unhindered by the darkness.
-      intel
+      complaint
     ✓ midnight
-      arrangements
-      scenery
+      fridge
+      independence
     · word: midnight
   That best portion of a good man's life, / His little, nameless, unremembered ___ / Of kindness and of love.
     ✓ acts
-      midnight
-      arrangements
       enterprise
+      lap
+      bodies
     · word: acts
 ── definition_quiz (4)
   Dealing with the practical management of patients, in practice at the point of care
-      heart-warming
     ✓ clinical
-      distant
       worthy
+      universal
+      awful
     · word: clinical  grade: 3
   A rural habitation of size between a hamlet and a town.
-    ✓ village
       host
-      inspiration
-      challenge
+      kilometer
+      award
+    ✓ village
     · word: village  grade: 3
   To pierce; now generally replaced by transfix.
     ✓ fix
       deliver
-      involvement
-      liar
+      gently
+      disposal
     · word: fix  grade: 3
   The act of involving, or the state of being involved.
-      commander
-      disposal
-      marathon
     ✓ involvement
+      commander
+      patch
+      theme
     · word: involvement  grade: 3
 ── false_friends (4)
   What does "ordinary" really mean?
@@ -164,25 +164,25 @@
     · phrasal: drive out  means: to make someone or something leave a place
 ── sentence_completion (4)
   ___ members are experts in their fields.
+      limit
     ✓ faculty
-      battery
-      solution
-      pole
-  The ___ is used to hold things up.
-      scissors
-      transport
+      van
+      feet
+  I can see the ___ from my window.
+      defender
     ✓ pole
       battery
-  We ___ our leather by the fire.
-      transport
-      fiction
       maintenance
+  We ___ our leather by the fire.
     ✓ tan
-  The thief ___ the store by breaking the window.
-      commercial
-    ✓ assault
       pole
+      dominant
       van
+  The thief ___ the store by breaking the window.
+      dominant
+      bay
+    ✓ assault
+      maintenance
 ── spelling_spotter (4)
   Which spelling is correct?
     ✓ majority
@@ -211,25 +211,25 @@
 ── sri_review (4)
   Correct spelling for:
 "Dealing with the practical management of patients, in practice at the point of care; as contrasted with other health care venues (see clinical medicine for more explanation)."
-      clincial
     ✓ clinical
+      clincial
     · type: spelling
   "A rural habitation of size between a hamlet and a town."
     ✓ village
       kilometer
-      inspiration
+      challenge
       award
     · type: definition
   "To pierce; now generally replaced by transfix."
-      commander
-      village
     ✓ fix
+      last-minute
+      variety
       deliver
     · type: definition
   Correct spelling for:
 "The act of involving, or the state of being involved."
-      involvment
     ✓ involvement
+      involvment
     · type: spelling
 ── syllable_count (4)
   envelope
@@ -296,21 +296,21 @@
     · grade: 3  gloss: Miscellaneous items of little value, especially discarded or unwanted items.
 ── word_class_flash (4)
   diagnosis
-    ✓ substantiv
-      verb
-      adjektiv
+    ✓ Noun
+      Verb
+      Adjective
   visual
-      substantiv
-      verb
-    ✓ adjektiv
+      Noun
+      Verb
+    ✓ Adjective
   bless
-      substantiv
-    ✓ verb
-      adjektiv
+      Noun
+    ✓ Verb
+      Adjective
   mention
-    ✓ substantiv
-      verb
-      adjektiv
+    ✓ Noun
+      Verb
+      Adjective
 ── word_find (4)
   Find "essential" in the grid
     ✓ essential
@@ -365,27 +365,27 @@
     · grade: 3  gloss: Miscellaneous items of little value, especially discarded or unwanted items.
 ── word_sort (4)
   Sort "essential" into its word class
-    ✓ adjektiv
+    ✓ Adjectives
     · grade: 3  gloss: Very important; of high importance.
   Sort "populations" into its word class
-    ✓ substantiv
+    ✓ Nouns
     · grade: 3
   Sort "disco" into its word class
-    ✓ substantiv
+    ✓ Nouns
     · grade: 3  gloss: Clipping of discotheque (“nightclub for dancing”).
   Sort "junk" into its word class
-    ✓ substantiv
+    ✓ Nouns
     · grade: 3  gloss: Miscellaneous items of little value, especially discarded or unwanted items.
 ── word_type_whirl (4)
   Catch "essential" in the right bin
-    ✓ adjektiv
+    ✓ Adjectives
     · grade: 3  gloss: Very important; of high importance.
   Catch "populations" in the right bin
-    ✓ substantiv
+    ✓ Nouns
     · grade: 3
   Catch "disco" in the right bin
-    ✓ substantiv
+    ✓ Nouns
     · grade: 3  gloss: Clipping of discotheque (“nightclub for dancing”).
   Catch "junk" in the right bin
-    ✓ substantiv
+    ✓ Nouns
     · grade: 3  gloss: Miscellaneous items of little value, especially discarded or unwanted items.

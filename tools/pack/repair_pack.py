@@ -116,11 +116,24 @@ def load_rules():
     }
 
 
+# Mirrors _geographyGloss in vocabulary_quality.dart. Keep the two together.
+GEOGRAPHY_GLOSS = re.compile(
+    r'^(hauptstadt|stadt|fluss|insel|gebirge|ozean|provinz|bundesland'
+    r'|bundesstaat|kontinent|staat|region|gemeinde|dorf)\s*,?\s*'
+    r'(in|im|der|des|von|vom|zwischen|an|auf|nahe|bei|südlich|nördlich'
+    r'|östlich|westlich|mit)\b')
+
+
 def describes_a_name(definition, rules):
     lower = definition.lower()
     # Mirrors the one rule in describesAName that is code rather than a list:
     # a capital and a city in one gloss is a place however it is phrased.
     if 'capital' in lower and 'city' in lower:
+        return True
+    # And the German pack's "kind of place, then where it is": "Stadt im
+    # US-Bundesstaat Pennsylvania", "Staat in Ostasien". The locating word is
+    # what keeps "Ausland: Land oder Länder außerhalb ..." out of it.
+    if GEOGRAPHY_GLOSS.match(lower):
         return True
     return (any(lower.startswith(opening) for opening in rules['name_openings'])
             or any(phrase in lower for phrase in rules['name_phrases']))

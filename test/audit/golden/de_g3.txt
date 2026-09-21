@@ -1,123 +1,123 @@
 ── antonym_flash (4)
   vorne
-      Reihe
-      flüssig
-      kühl
+      sprechen
+      nachdem
     ✓ hinten
+      sonnig
     · grade: 3
   Reihe
-      Königin
     ✓ Linie
-      Abendessen
+      Salz
+      Hagel
       Kugel
     · grade: 3
   traurig
-    ✓ fröhlich
+      wirklich
+      flüssig
       kühl
-      sonnig
-      auffällig
+    ✓ fröhlich
     · grade: 3
   nachdem
     ✓ bevor
-      obwohl
       während
+      obwohl
       trotzdem
     · grade: 3
 ── cloze_flash (4)
   Das ___ wird renoviert.
     ✓ Theater
-      Jeans
-      Rakete
-      Schwimmbad
+      Gebäude
+      Schuh
+      Kakao
     · word: Theater
   Man soll ___ zwei Liter Wasser trinken.
-      etwas
-      rechts
-      ehrlich
+      Heizung
     ✓ täglich
+      Filzstift
+      rechts
     · word: täglich
   Der Hausmeister soll endlich die ___ im Flur reparieren.
+      Kreis
       Schuh
-      Schwimmbad
+      Filzstift
     ✓ Heizung
-      Motorrad
     · word: Heizung
   Ich habe die ganze ___ kein Auge zugetan.
-      Kakao
-      Gebäude
+      Filzstift
+      Theater
     ✓ Nacht
-      Schuh
+      Schwimmbad
     · word: Nacht
 ── conjugation_drill (4)
-  proben: er/sie/es ___
-      verkleidet
-      beginnt
-      öffnet
-    ✓ probt
-  öffnen: du ___
-      probst
-      verkleidest
-      beginnst
-    ✓ öffnest
+  proben: ich ___
+      beginne
+    ✓ probe
+      verkleide
+      öffne
+  öffnen: ich ___
+    ✓ öffne
+      probe
+      verkleide
+      beginne
   beginnen: er/sie/es ___
-      öffnet
-    ✓ beginnt
-      probt
       verkleidet
-  verkleiden: er/sie/es ___
-      probt
       öffnet
-    ✓ verkleidet
-      beginnt
+      probt
+    ✓ beginnt
+  verkleiden: ich ___
+      öffne
+      beginne
+    ✓ verkleide
+      probe
 ── definition_quiz (4)
   etwas aufmachen; offen machen
-      das Lexikon
-      proben
     ✓ öffnen
+      proben
       brüllen
+      der Radiergummi
     · word: öffnen  grade: 3
   Organisation von Menschen mit einem gemeinsamen Ziel oder gemeinsamen Interessen
-      der Fußball
-      die Mannschaft
-      der Kalender
     ✓ der Verein
+      die Maschine
+      das Pfingsten
+      das Hobby
     · word: Verein  grade: 3
   unkluge, ungereimte Aussage oder Aussagen
-      der Fußball
+      das Motorrad
     ✓ der Quatsch
-      der Radiergummi
-      das Ohr
+      der Fußball
+      der Kalender
     · word: Quatsch  grade: 3
   eine beliebte Mannschaftssportart, welche mit 22 Spielern und einem Ball gespielt wird
-      der Radiergummi
-      die Reihe
-      das Lexikon
+      die Mannschaft
+      der Kalender
     ✓ der Fußball
+      das Lexikon
     · word: Fußball  grade: 3
 ── expression_flash (4)
   kein ___ vor den Mund nehmen
+      Ereignis
+      Abendessen
     ✓ Blatt
       Salat
-      Reihe
-      Fleisch
     · word: Blatt
   Äpfel mit Birnen ___
-      kriechen
-      verschwinden
     ✓ vergleichen
-      Kuchen
+      verschwinden
+      Blatt
+      kriechen
     · word: vergleichen
   aus der ___ kommen
-      Kegel
-      Axt
+      Mühe
+      Reh
+      Party
     ✓ Reihe
-      Ereignis
     · word: Reihe
   wie eine ___ abgehen
+      Vertrauen
     ✓ Rakete
-      Mauer
-      Reh
-      Ereignis
+      Sohn
+      Salat
     · word: Rakete
 ── grossschreib (4)
   Die [Pflaumen] blühen.
@@ -133,39 +133,43 @@
     ✓ GROSS
     · word: Tüte  rule: Nomen werden immer großgeschrieben
 ── grossstadt (4)
-  ZUM [gesunden]
+  Groß oder klein? DAS [gesunden]
     ✓ GROSS
-    · rule: Nomen-Signal "ZUM" → Großschreibung
-  WIR [gesunden]
+      klein
+    · rule: Nomen-Signal "DAS" → Großschreibung
+  Groß oder klein? WIR [gesunden]
+      GROSS
     ✓ klein
     · rule: Verben im Satz → Kleinschreibung
-  DARF [gesunden]
+  Groß oder klein? MUSS [gesunden]
+      GROSS
     ✓ klein
     · rule: Verben (Infinitiv) → Kleinschreibung
-  ZUM [spülen]
+  Groß oder klein? BEIM [spülen]
     ✓ GROSS
-    · rule: Nomen-Signal "ZUM" → Großschreibung
+      klein
+    · rule: Nomen-Signal "BEIM" → Großschreibung
 ── hypernym_flash (4)
   Motorrad
-      Mahlzeit
+      Person
       Fleisch
-    ✓ Fahrzeug
-      Frucht
-  Abendessen
       Buch
-      Fleisch
+    ✓ Fahrzeug
+  Abendessen
+      Fahrzeug
+      Buch
+      Person
     ✓ Mahlzeit
-      Frucht
   nicken
-      Fleisch
-      Mahlzeit
+      Buch
     ✓ ausdrücken
-      Frucht
+      Person
+      Fahrzeug
   Bibel
-      Fleisch
-      Mahlzeit
-      Frucht
+      Person
     ✓ Buch
+      Fleisch
+      Fahrzeug
 ── proverb_cloze (4)
   lieber den ___ in der Hand als die Taube auf dem Dach
       Ordnung
@@ -193,45 +197,45 @@
     · word: glücklich
 ── reverse_translation_flash (4)
   small packet
-      Ritter
-    ✓ Päckchen
       Salami
-      Schatz
+      Biber
+      Quelle
+    ✓ Päckchen
   tower
-      Sturm
     ✓ Turm
-      Rätsel
+      Vertrauen
+      Abendessen
       Waffe
   snow
+      blind
+      Kugel
+      Abendessen
     ✓ schneien
-      zornig
-      Päckchen
-      Biber
   powerful
-      zornig
-      Post
+      Schatz
+      Punkt
     ✓ stark
-      Ritter
+      Pirat
 ── sentence_completion (4)
   Die ___ hat gestern Abend ein großes Konzert gegeben.
-      Polizei
+      Post
     ✓ Band
-      Fleck
-      Kastanie
-  ___ sind lecker und gesund.
-      Astronaut
-      Kastanie
-    ✓ Beere
-      Polizei
-  Ich höre ___ den Hund bellen.
-      Band
-      Ordnung
-    ✓ Nacht
+      Kreis
       Bad
-  Der Lehrer steht ___ im Klassenzimmer.
+  Wir backen einen Kuchen mit ___.
+      Fleck
+      Tomate
+    ✓ Beere
+      Dreieck
+  Ich höre ___ den Hund bellen.
+      Astronaut
+      Richtung
+    ✓ Nacht
+      Radiergummi
+  Die Schüler sitzen ___ in der ersten Reihe.
       manchmal
-      sogar
       hoffentlich
+      sogar
     ✓ vorne
 ── spelling_spotter (4)
   Which spelling is correct?
@@ -257,27 +261,27 @@
     · shown after answering: Alles läuft glatt.
 ── sri_review (4)
   "etwas aufmachen; offen machen"
-      das Lexikon
-      proben
     ✓ öffnen
+      proben
       brüllen
+      der Radiergummi
     · type: definition
   Welcher Artikel passt?
 "___ Verein"
-    ✓ der
       die
       das
+    ✓ der
     · type: article
   "unkluge, ungereimte Aussage oder Aussagen"
-      das Ohr
-      die Mathematik
-      die Reihe
+      das Motorrad
     ✓ der Quatsch
+      die Maschine
+      der Verein
     · type: definition
   "eine beliebte Mannschaftssportart, welche mit 22 Spielern und einem Ball gespielt wird"
-      das Hobby
-      das Lexikon
-      der Quatsch
+      die Reihe
+      die Paprika
+      der Radiergummi
     ✓ der Fußball
     · type: definition
 ── syllable_count (4)
@@ -287,19 +291,19 @@
       3
       4+
     · hyphenation: öff-nen
-  der Verein
+  Verein
       1
     ✓ 2
       3
       4+
     · hyphenation: Ver-ein
-  der Quatsch
+  Quatsch
     ✓ 1
       2
       3
       4+
     · hyphenation: Quatsch
-  der Fußball
+  Fußball
       1
     ✓ 2
       3
@@ -307,66 +311,74 @@
     · hyphenation: Fuß-ball
 ── synonym_flash (4)
   Schreck
+      Geheimnis
     ✓ Erschrecken
-      Obst
-      Abendessen
-      Gott
+      Pause
+      Sattel
     · grade: 3
   Mittagessen
+      Schreck
+      Pause
+      Virus
     ✓ Mittag
-      Satz
-      Gott
-      Brille
     · grade: 3
   Geheimnis
+      Hals
+      Pause
+      Schreck
     ✓ Rätsel
-      Mittagessen
-      Turm
-      Satz
     · grade: 3
   Schokolade
-      Geheimnis
     ✓ Kakao
-      Turm
-      Virus
+      Text
+      Palme
+      Gott
     · grade: 3
 ── translation_flash (4)
   das Päckchen
-      snow
+      treasure
     ✓ small packet
-      storm
-      beaver
+      puzzle
+      trust
   der Turm
-      blond
     ✓ tower
-      teddy
-      salami
+      sphere
+      planet
+      school trip
   schneien
-      blind
-    ✓ snow
-      full
-      clown
-  stark
-      supper
-      mail
-    ✓ powerful
       pirate
+      roe
+      sphere
+    ✓ snow
+  stark
+      roe
+      blind
+    ✓ powerful
+      beaver
 ── verbtrenner (4)
-  aus … drücken
+  Steht das Verb in diesem Satz getrennt oder zusammen?
+aus … drücken
 Diese Tube Zahnpasta lässt sich nicht mehr ausdrücken, weil sie leer ist.
+      GETRENNT
     ✓ ZUSAMMEN
     · form: ausdrücken
-  fährt … vor
+  Steht das Verb in diesem Satz getrennt oder zusammen?
+fährt … vor
 „Der Autosalon in Paris gehört zum Herbst wie bunte Blätter an den Bäumen. In diesem Jahr fährt man elektrisch vor. Die meisten Autobauer haben ein E-Auto am Stand.“
     ✓ GETRENNT
+      ZUSAMMEN
     · form: fährt vor
-  schreibt … vor
+  Steht das Verb in diesem Satz getrennt oder zusammen?
+schreibt … vor
 Meine Mutti schreibt mir vor, bis wann die Hausaufgaben fertig sein sollen.
     ✓ GETRENNT
+      ZUSAMMEN
     · form: schreibt vor
-  schlage … vor
+  Steht das Verb in diesem Satz getrennt oder zusammen?
+schlage … vor
 Ich schlage vor, dass wir zuerst die Grundlagen besprechen.
     ✓ GETRENNT
+      ZUSAMMEN
     · form: schlage vor
 ── word_builder (4)
   Build "Rad" from its letters
@@ -383,21 +395,21 @@ Ich schlage vor, dass wir zuerst die Grundlagen besprechen.
     · grade: 3  gloss: nach unten hin geöffneter kelchartiger Metallgegenstand, der durch Schlagen mit einem Klöppel zum Klingen gebracht wird
 ── word_class_flash (4)
   die Klassenfahrt
-    ✓ substantiv
-      verb
-      adjektiv
+    ✓ Nomen
+      Verb
+      Adjektiv
   nebelig
-      substantiv
-      verb
-    ✓ adjektiv
+      Nomen
+      Verb
+    ✓ Adjektiv
   blühen
-      substantiv
-    ✓ verb
-      adjektiv
+      Nomen
+    ✓ Verb
+      Adjektiv
   das Mittagessen
-    ✓ substantiv
-      verb
-      adjektiv
+    ✓ Nomen
+      Verb
+      Adjektiv
 ── word_find (4)
   Find "Rad" in the grid
     ✓ Rad
@@ -452,29 +464,29 @@ Ich schlage vor, dass wir zuerst die Grundlagen besprechen.
     · grade: 3  gloss: nach unten hin geöffneter kelchartiger Metallgegenstand, der durch Schlagen mit einem Klöppel zum Klingen gebracht wird
 ── word_sort (4)
   Sort "Rad" into its word class
-    ✓ substantiv
+    ✓ Nomen
     · grade: 3  gloss: rundes Bauteil, das um seine Achse rotiert
   Sort "Verein" into its word class
-    ✓ substantiv
+    ✓ Nomen
     · grade: 3  gloss: Organisation von Menschen mit einem gemeinsamen Ziel oder gemeinsamen Interessen
   Sort "küssen" into its word class
-    ✓ verb
+    ✓ Verb
     · grade: 3  gloss: mit den Lippen eine andere Person oder einen Gegenstand berühren, zum Zeichen der Liebe oder Verehrung; einen Kuss geben
   Sort "Glocke" into its word class
-    ✓ substantiv
+    ✓ Nomen
     · grade: 3  gloss: nach unten hin geöffneter kelchartiger Metallgegenstand, der durch Schlagen mit einem Klöppel zum Klingen gebracht wird
 ── word_type_whirl (4)
   Catch "das Rad" in the right bin
-    ✓ substantiv
+    ✓ Nomen
     · grade: 3  gloss: rundes Bauteil, das um seine Achse rotiert
   Catch "der Verein" in the right bin
-    ✓ substantiv
+    ✓ Nomen
     · grade: 3  gloss: Organisation von Menschen mit einem gemeinsamen Ziel oder gemeinsamen Interessen
   Catch "küssen" in the right bin
-    ✓ verb
+    ✓ Verb
     · grade: 3  gloss: mit den Lippen eine andere Person oder einen Gegenstand berühren, zum Zeichen der Liebe oder Verehrung; einen Kuss geben
   Catch "die Glocke" in the right bin
-    ✓ substantiv
+    ✓ Nomen
     · grade: 3  gloss: nach unten hin geöffneter kelchartiger Metallgegenstand, der durch Schlagen mit einem Klöppel zum Klingen gebracht wird
 ── wortbaumeister (4)
   Build the compound: Abend + essen

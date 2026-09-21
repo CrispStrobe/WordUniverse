@@ -185,6 +185,40 @@ class AuditContext {
 
 /// The six games that practise a word rather than ask a question about it:
 /// the reviewable output is which words they pick, and on what grounds.
+/// The five classes Word Sort and Word Type Whirl put bins on screen for.
+const _binnedClasses = {
+  GermanWordType.substantiv,
+  GermanWordType.verb,
+  GermanWordType.adjektiv,
+  GermanWordType.adverb,
+  GermanWordType.pronomen,
+};
+
+bool _hasABin(GermanWord word) =>
+    !word.word.contains(' ') && _binnedClasses.contains(word.wordType);
+
+/// What the games call a word class on screen.
+///
+/// They never show the enum: Word Sort and Word Type Whirl label their bins
+/// with the interface language's plural ("Nouns", "Nomen"), Word Class Flash
+/// with its singular. A dump that answers "substantiv" to an English prompt
+/// reads as a bug that is not there — a model reviewing the items flagged it
+/// four times in one pass, once as "option labels are not capitalized".
+String _classLabel(S strings, GermanWordType type, {bool plural = true}) =>
+    switch ((type, plural)) {
+      (GermanWordType.substantiv, true) => strings.wordSortCategoryNoun,
+      (GermanWordType.verb, true) => strings.wordSortCategoryVerb,
+      (GermanWordType.adjektiv, true) => strings.wordSortCategoryAdjective,
+      (GermanWordType.adverb, true) => strings.wordSortCategoryAdverb,
+      (GermanWordType.pronomen, true) => strings.wordSortCategoryPronoun,
+      (GermanWordType.substantiv, false) => strings.wordTypeNoun,
+      (GermanWordType.verb, false) => strings.wordTypeVerb,
+      (GermanWordType.adjektiv, false) => strings.wordTypeAdjective,
+      (GermanWordType.adverb, false) => strings.wordTypeAdverb,
+      (GermanWordType.pronomen, false) => strings.wordTypePronoun,
+      _ => type.name,
+    };
+
 Generator _wordPractice(
   String game,
   String ask, {
@@ -212,7 +246,7 @@ Generator _wordPractice(
                 prompt: ask.replaceAll(
                     '%s', game == 'word_type_whirl' ? w.displayName : w.word),
                 answer: game == 'word_sort' || game == 'word_type_whirl'
-                    ? w.wordType.name
+                    ? _classLabel(c.strings, w.wordType)
                     : w.word,
                 notes: {
                   'grade': w.gradeLevel,
@@ -328,8 +362,14 @@ final Map<String, Generator> generators = {
         .take(c.count)
         .map((item) => Item(
               game: 'grossstadt',
-              prompt: '${item.prefix}[${item.target}]${item.suffix}',
+              // The question the screen asks, spelled out. Without it the
+              // bracketed word looks like a prompt with a missing question:
+              // "DAS [besprechen] → GROSS" reads as nonsense rather than as
+              // the nominalisation it is.
+              prompt: 'Groß oder klein? '
+                  '${item.prefix}[${item.target}]${item.suffix}',
               answer: item.shouldBeCapitalized ? 'GROSS' : 'klein',
+              options: const ['GROSS', 'klein'],
               notes: {'rule': item.explanation},
             ))
         .toList();
@@ -366,10 +406,17 @@ final Map<String, Generator> generators = {
                 // The screen shows the sentence under the two halves, and
                 // the answer is about that sentence: without it «an … ziehen»
                 // reads as a question about the infinitive and any reader
-                // will say GETRENNT.
-                prompt: '${pair.part1.isEmpty ? pair.part2 : '${pair.part1} … '
-                    '${pair.part2}'}\n${pair.context}',
+                // will say GETRENNT. Saying so in the prompt matters as much
+                // as showing the sentence — a model that had the sentence
+                // still called "vorschreiben" GETRENNT three times in one
+                // pass, because it was answering "is this verb separable?"
+                // and not "is it written apart here?".
+                prompt: 'Steht das Verb in diesem Satz getrennt oder '
+                    'zusammen?\n'
+                    '${pair.part1.isEmpty ? pair.part2 : '${pair.part1} … '
+                        '${pair.part2}'}\n${pair.context}',
                 answer: pair.shouldBeSeparated ? 'GETRENNT' : 'ZUSAMMEN',
+                options: const ['GETRENNT', 'ZUSAMMEN'],
                 notes: {'form': pair.formText},
               ))
           .toList(),
@@ -411,11 +458,15 @@ final Map<String, Generator> generators = {
       );
     }).toList();
   },
+  // Both games bin into the same five classes, and skip a word whose class
+  // is not one of them. The dump did not, so it asked which bin "Dariusz"
+  // and "siebzig" belong in and answered "andere" and "numerale" — bins no
+  // player is ever shown.
   'word_sort': _wordPractice('word_sort', 'Sort "%s" into its word class',
-      skill: skills.LanguageSkillType.wordType),
+      skill: skills.LanguageSkillType.wordType, playable: _hasABin),
   'word_type_whirl': _wordPractice(
       'word_type_whirl', 'Catch "%s" in the right bin',
-      skill: skills.LanguageSkillType.wordType),
+      skill: skills.LanguageSkillType.wordType, playable: _hasABin),
   'conjugation_drill': (c) async => buildConjugationChallenges(
         verbs: (await c.pool(WordFeature.inflections,
                 where: (w) => !w.isProperNoun && !w.word.contains(' ')))
@@ -529,8 +580,10 @@ final Map<String, Generator> generators = {
         .map((ch) => Item(
               game: 'word_class_flash',
               prompt: ch.word.displayName,
-              options: askable.map((t) => t.name).toList(),
-              answer: ch.correctType.name,
+              options: askable
+                  .map((t) => _classLabel(c.strings, t, plural: false))
+                  .toList(),
+              answer: _classLabel(c.strings, ch.correctType, plural: false),
             ))
         .toList();
   },
@@ -570,7 +623,9 @@ final Map<String, Generator> generators = {
       )
           .map((ch) => Item(
                 game: 'syllable_count',
-                prompt: ch.word.displayName,
+                // The card shows the bare word: an article the count does not
+                // include made "die Tür" read as a two-syllable prompt keyed 1.
+                prompt: ch.word.word,
                 options: const ['1', '2', '3', '4+'],
                 answer: const ['1', '2', '3', '4+'][ch.correctBucket],
                 notes: {'hyphenation': ch.word.hyphenation.join('|')},
