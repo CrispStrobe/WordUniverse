@@ -404,6 +404,26 @@ class VocabularyService with ChangeNotifier {
     return hydrate([...graded, ...rest].take(limit));
   }
 
+  /// The catalogue entries for [spellings], hydrated, matched case-insensitively.
+  ///
+  /// A game that has to check a relation from both sides needs the other word
+  /// too, and the other word is rarely in the sample it drew: Antonym Flash
+  /// asks whether "Norden" and "Süden" call each other opposites, and drawing
+  /// 200 words with antonyms lands both of them together about never. Missing
+  /// spellings are simply absent from the result.
+  Future<List<GermanWord>> hydrateBySpelling(Iterable<String> spellings) async {
+    final wanted = spellings
+        .map((s) => s.trim().toLowerCase())
+        .where((s) => s.isNotEmpty)
+        .toSet();
+    if (wanted.isEmpty) return const [];
+    final found = <GermanWord>[];
+    for (final word in _vocabulary.values) {
+      if (wanted.contains(word.word.toLowerCase())) found.add(word);
+    }
+    return hydrate(found);
+  }
+
   /// The same words with their enrichment decoded. Words that are already
   /// hydrated, or that came from outside a pack, are returned unchanged.
   Future<List<GermanWord>> hydrate(Iterable<GermanWord> words) =>

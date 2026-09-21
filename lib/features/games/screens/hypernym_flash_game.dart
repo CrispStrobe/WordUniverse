@@ -28,8 +28,6 @@ class HypernymFlashGame extends StatefulWidget {
   State<HypernymFlashGame> createState() => _HypernymFlashGameState();
 }
 
-
-
 enum _Feedback { none, correct, incorrect }
 
 class _HypernymFlashGameState extends State<HypernymFlashGame>
@@ -44,7 +42,6 @@ class _HypernymFlashGameState extends State<HypernymFlashGame>
   static const int _maxRounds = 20;
   static const int _optionCount = 4;
   static const Duration _advanceDelay = Duration(milliseconds: 1100);
-
 
   bool _isLoading = true;
   bool _onboardingScheduled = false;
@@ -120,10 +117,6 @@ class _HypernymFlashGameState extends State<HypernymFlashGame>
     }
   }
 
-
-
-
-
   Future<void> _buildChallenges() async {
     // Only words the feature index says carry hypernyms are read back with
     // their enrichment; choosing *which* hypernym still needs the real data.
@@ -141,8 +134,17 @@ class _HypernymFlashGameState extends State<HypernymFlashGame>
     );
     if (!mounted) return;
 
+    // The catalogue entries for the hypernyms themselves, so the word-type
+    // check has something to look them up in.
+    final candidates = await _vocabService.hydrateBySpelling(pool.expand((w) =>
+        (w.apiEnrichment?.hypernyms ?? const [])
+            .map((h) => h.word ?? '')
+            .where((h) => h.isNotEmpty)));
+    if (!mounted) return;
+
     final challenges = buildHypernymChallenges(
       pool: pool,
+      candidates: candidates,
       isGerman: _isDE,
       maxChallenges: _maxRounds,
       optionCount: _optionCount,
@@ -168,8 +170,6 @@ class _HypernymFlashGameState extends State<HypernymFlashGame>
 
     _startTimer();
   }
-
-
 
   void _startTimer() {
     if (!_gameProvider.puzzleTimerEnabled) return;
@@ -543,9 +543,7 @@ class _HypernymFlashGameState extends State<HypernymFlashGame>
     return AnimatedBuilder(
       animation: _pulseCtrl,
       builder: (_, child) => Transform.scale(
-        scale: hasAnswered && isCorrect
-            ? 1.0 + (_pulseCtrl.value * 0.04)
-            : 1.0,
+        scale: hasAnswered && isCorrect ? 1.0 + (_pulseCtrl.value * 0.04) : 1.0,
         child: child,
       ),
       child: Semantics(

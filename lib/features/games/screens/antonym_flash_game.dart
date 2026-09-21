@@ -77,8 +77,7 @@ class _AntonymFlashGameState extends State<AntonymFlashGame>
     _shakeCtrl = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 350));
     _timerCtrl = AnimationController(
-        vsync: this,
-        duration: const Duration(seconds: _sessionSeconds));
+        vsync: this, duration: const Duration(seconds: _sessionSeconds));
     WidgetsBinding.instance.addPostFrameCallback((_) => _init());
   }
 
@@ -132,9 +131,7 @@ class _AntonymFlashGameState extends State<AntonymFlashGame>
       gradeLevel: widget.gradeLevel.index + 1,
       limit: 200,
       where: (w) =>
-          !w.isProperNoun &&
-          !w.word.contains('_') &&
-          !w.word.contains(' '),
+          !w.isProperNoun && !w.word.contains('_') && !w.word.contains(' '),
       random: _rng,
     );
     if (!mounted) return;
@@ -148,8 +145,15 @@ class _AntonymFlashGameState extends State<AntonymFlashGame>
     // Already grade-first and shuffled by the pool query.
     final pool = allWords;
 
+    // The other half of every listed pair, so the reciprocity check has
+    // something to check against.
+    final partners = await _vocabService.hydrateBySpelling(
+        pool.expand((w) => w.apiEnrichment?.antonyms ?? const <String>[]));
+    if (!mounted) return;
+
     final challenges = buildAntonymChallenges(
       pool: pool,
+      partners: partners,
       isGerman: _vocabService.learningLanguage == 'de',
       maxChallenges: _maxRounds,
       optionCount: _optionCount,
@@ -535,9 +539,7 @@ class _AntonymFlashGameState extends State<AntonymFlashGame>
     return AnimatedBuilder(
       animation: _pulseCtrl,
       builder: (_, child) => Transform.scale(
-        scale: hasAnswered && isCorrect
-            ? 1.0 + (_pulseCtrl.value * 0.04)
-            : 1.0,
+        scale: hasAnswered && isCorrect ? 1.0 + (_pulseCtrl.value * 0.04) : 1.0,
         child: child,
       ),
       child: Semantics(

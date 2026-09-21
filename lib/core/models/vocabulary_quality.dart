@@ -256,7 +256,22 @@ const _danglingWords = <String>{
 bool sentenceSuitsAChild(String sentence) =>
     !_unsuitableGerman.hasMatch(sentence) &&
     !_unsuitableGermanAnyCase.hasMatch(sentence) &&
-    !_unsuitableEnglish.hasMatch(sentence);
+    !_unsuitableEnglish.hasMatch(sentence) &&
+    !_adultSetting.hasMatch(sentence);
+
+/// Settings a school exercise does not put a nine-year-old in. A model reading
+/// the English cloze items found one built on "a beer commercial … two aliens
+/// order a pint in a rural pub": grammatical, on-topic, and not a sentence a
+/// primary teacher hands out. The packs hold millions of sentences, so the
+/// cost of skipping these is nil.
+final RegExp _adultSetting = RegExp(
+    r'\b(beer|beers|pint|pints|pub|pubs|ale|lager|whisky|whiskey|vodka|'
+    r'brandy|liquor|cocktail|cocktails|booze|drunk|drunken|tipsy|cigarette|'
+    r'cigarettes|cigar|cigars|tobacco|casino|casinos|gambling|betting|'
+    r'Bier|Biere|Kneipe|Kneipen|Schnaps|Wodka|Whisky|Likör|Alkohol|'
+    r'betrunken|besoffen|Zigarette|Zigaretten|Zigarre|Zigarren|Tabak|'
+    r'Kasino|Casino|Glücksspiel)\b',
+    caseSensitive: false);
 
 final RegExp _unsuitableGerman = RegExp(
     r'\b(Armee|Rebell|Rebellen|Krieg|Kriege|Krieges|Kriegs\w*|Soldat|Soldaten|'

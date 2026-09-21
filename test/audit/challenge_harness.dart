@@ -363,11 +363,14 @@ final Map<String, Generator> generators = {
       )
           .map((pair) => Item(
                 game: 'verbtrenner',
-                prompt: pair.part1.isEmpty
-                    ? pair.part2
-                    : '${pair.part1} … ${pair.part2}',
+                // The screen shows the sentence under the two halves, and
+                // the answer is about that sentence: without it «an … ziehen»
+                // reads as a question about the infinitive and any reader
+                // will say GETRENNT.
+                prompt: '${pair.part1.isEmpty ? pair.part2 : '${pair.part1} … '
+                    '${pair.part2}'}\n${pair.context}',
                 answer: pair.shouldBeSeparated ? 'GETRENNT' : 'ZUSAMMEN',
-                notes: {'form': pair.formText, 'context': pair.context},
+                notes: {'form': pair.formText},
               ))
           .toList(),
   'word_find': _wordPractice('word_find', 'Find "%s" in the grid'),
@@ -375,7 +378,39 @@ final Map<String, Generator> generators = {
       skill: skills.LanguageSkillType.spelling),
   'word_builder': _wordPractice('word_builder', 'Build "%s" from its letters',
       skill: skills.LanguageSkillType.spelling),
-  'word_memory': _wordPractice('word_memory', 'Match the pair for "%s"'),
+  // Memory deals two cards per word. From year 3 the partner card carries the
+  // definition, so the pair a player has to see through is word ↔ gloss; below
+  // that the two cards both say the word in different fonts. A dump that
+  // answers «undo» to «Match the pair for "undo"» reviews neither.
+  'word_memory': (c) async {
+    final words = await c.vocabulary.hydrate(selectAdaptiveWords(
+      vocabulary: c.vocabulary,
+      sri: c.sri,
+      settings: c.settings,
+      grade: skills.GradeLevel.values[(c.grade - 1).clamp(0, 5)],
+      count: c.count,
+      isPlayable: (w) =>
+          w.word.length >= 3 && w.word.length <= 8 && !w.word.contains(' '),
+      rng: c.rng,
+    ));
+    final withDefinitions =
+        skills.GradeLevel.values[(c.grade - 1).clamp(0, 5)].index >= 2;
+    return words.map((w) {
+      final gloss = withDefinitions ? w.displayDefinitions.firstOrNull : null;
+      final partner = gloss == null || gloss.isEmpty
+          ? w.word
+          : (gloss.length > 55 ? '${gloss.substring(0, 52)}…' : gloss);
+      return Item(
+        game: 'word_memory',
+        prompt: 'Match the pair for "${w.word}"',
+        answer: partner,
+        notes: {
+          'grade': w.gradeLevel,
+          'partner': partner == w.word ? 'same word, other font' : 'definition',
+        },
+      );
+    }).toList();
+  },
   'word_sort': _wordPractice('word_sort', 'Sort "%s" into its word class',
       skill: skills.LanguageSkillType.wordType),
   'word_type_whirl': _wordPractice(
@@ -499,24 +534,31 @@ final Map<String, Generator> generators = {
             ))
         .toList();
   },
-  'hypernym_flash': (c) async => buildHypernymChallenges(
-        pool: await c.pool(WordFeature.hypernyms,
-            where: (w) =>
-                !w.isProperNoun &&
-                w.isHeadword &&
-                !w.word.contains('_') &&
-                !w.word.contains(' ')),
-        isGerman: c.isGerman,
-        maxChallenges: c.count,
-        rng: c.rng,
-      )
-          .map((ch) => Item(
-                game: 'hypernym_flash',
-                prompt: ch.word.word,
-                options: ch.options,
-                answer: ch.options[ch.correctIndex],
-              ))
-          .toList(),
+  'hypernym_flash': (c) async {
+    final pool = await c.pool(WordFeature.hypernyms,
+        where: (w) =>
+            !w.isProperNoun &&
+            w.isHeadword &&
+            !w.word.contains('_') &&
+            !w.word.contains(' '));
+    return buildHypernymChallenges(
+      pool: pool,
+      candidates: await c.vocabulary.hydrateBySpelling(pool.expand((w) =>
+          (w.apiEnrichment?.hypernyms ?? const [])
+              .map((h) => h.word ?? '')
+              .where((h) => h.isNotEmpty))),
+      isGerman: c.isGerman,
+      maxChallenges: c.count,
+      rng: c.rng,
+    )
+        .map((ch) => Item(
+              game: 'hypernym_flash',
+              prompt: ch.word.word,
+              options: ch.options,
+              answer: ch.options[ch.correctIndex],
+            ))
+        .toList();
+  },
   'syllable_count': (c) async => buildSyllableChallenges(
         pool: await c.pool(WordFeature.hyphenation,
             where: (w) =>
@@ -561,25 +603,30 @@ final Map<String, Generator> generators = {
                 answer: ch.options[ch.correctIndex],
               ))
           .toList(),
-  'antonym_flash': (c) async => buildAntonymChallenges(
-        pool: await c.pool(WordFeature.antonyms,
-            where: (w) =>
-                !w.isProperNoun &&
-                w.isHeadword &&
-                !w.word.contains('_') &&
-                !w.word.contains(' ')),
-        isGerman: c.isGerman,
-        maxChallenges: c.count,
-        rng: c.rng,
-      )
-          .map((ch) => Item(
-                game: 'antonym_flash',
-                prompt: ch.word.word,
-                options: ch.options,
-                answer: ch.options[ch.correctIndex],
-                notes: {'grade': ch.word.gradeLevel},
-              ))
-          .toList(),
+  'antonym_flash': (c) async {
+    final pool = await c.pool(WordFeature.antonyms,
+        where: (w) =>
+            !w.isProperNoun &&
+            w.isHeadword &&
+            !w.word.contains('_') &&
+            !w.word.contains(' '));
+    return buildAntonymChallenges(
+      pool: pool,
+      partners: await c.vocabulary.hydrateBySpelling(
+          pool.expand((w) => w.apiEnrichment?.antonyms ?? const <String>[])),
+      isGerman: c.isGerman,
+      maxChallenges: c.count,
+      rng: c.rng,
+    )
+        .map((ch) => Item(
+              game: 'antonym_flash',
+              prompt: ch.word.word,
+              options: ch.options,
+              answer: ch.options[ch.correctIndex],
+              notes: {'grade': ch.word.gradeLevel},
+            ))
+        .toList();
+  },
   'synonym_flash': (c) async => buildSynonymChallenges(
         pool: await c.pool(WordFeature.synonyms,
             where: (w) =>

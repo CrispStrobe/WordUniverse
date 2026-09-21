@@ -1,27 +1,27 @@
 ── antonym_flash (4)
-  blond
-      sonnig
-      flüssig
-    ✓ dunkel
-      fleißig
-    · grade: 3
   vorne
+      Reihe
+      flüssig
+      kühl
     ✓ hinten
-      auffällig
-      während
-      nachdem
     · grade: 3
   Reihe
+      Königin
     ✓ Linie
-      Fehler
-      Geburtstag
       Abendessen
+      Kugel
     · grade: 3
-  Rakete
-      Abendessen
-      Thema
-    ✓ Tischfeuerwerk
-      Reihe
+  traurig
+    ✓ fröhlich
+      kühl
+      sonnig
+      auffällig
+    · grade: 3
+  nachdem
+    ✓ bevor
+      obwohl
+      während
+      trotzdem
     · grade: 3
 ── cloze_flash (4)
   Das ___ wird renoviert.
@@ -147,24 +147,24 @@
     · rule: Nomen-Signal "ZUM" → Großschreibung
 ── hypernym_flash (4)
   Motorrad
-      Figur
-      Schall
-      Sinnesorgan
+      Pflanze
+      Kommunikation
+      Frucht
     ✓ Fahrzeug
   Spatz
-      Schall
-      Sinnesorgan
-      Figur
-    ✓ Singvogel
+      Pflanze
+      Frucht
+    ✓ Vogel
+      Kommunikation
   Abendessen
-      Schall
-      Figur
-    ✓ Hauptmahlzeit
-      Sinnesorgan
+      Frucht
+      Pflanze
+      Kommunikation
+    ✓ Mahlzeit
   Klassenfahrt
-      Figur
-      Schall
-      Sinnesorgan
+      Pflanze
+      Kommunikation
+      Frucht
     ✓ Fahrt
 ── proverb_cloze (4)
   lieber den ___ in der Hand als die Taube auf dem Dach
@@ -353,17 +353,21 @@
       pirate
 ── verbtrenner (4)
   aus … drücken
+Diese Tube Zahnpasta lässt sich nicht mehr ausdrücken, weil sie leer ist.
     ✓ ZUSAMMEN
-    · form: ausdrücken  context: Diese Tube Zahnpasta lässt sich nicht mehr ausdrücken, weil sie leer ist.
+    · form: ausdrücken
   fährt … vor
+„Der Autosalon in Paris gehört zum Herbst wie bunte Blätter an den Bäumen. In diesem Jahr fährt man elektrisch vor. Die meisten Autobauer haben ein E-Auto am Stand.“
     ✓ GETRENNT
-    · form: fährt vor  context: „Der Autosalon in Paris gehört zum Herbst wie bunte Blätter an den Bäumen. In diesem Jahr fährt man elektrisch vor. Die meisten Autobauer haben ein E-Auto am Stand.“
+    · form: fährt vor
   schreibt … vor
+Meine Mutti schreibt mir vor, bis wann die Hausaufgaben fertig sein sollen.
     ✓ GETRENNT
-    · form: schreibt vor  context: Meine Mutti schreibt mir vor, bis wann die Hausaufgaben fertig sein sollen.
+    · form: schreibt vor
   schlage … vor
+Ich schlage vor, dass wir zuerst die Grundlagen besprechen.
     ✓ GETRENNT
-    · form: schlage vor  context: Ich schlage vor, dass wir zuerst die Grundlagen besprechen.
+    · form: schlage vor
 ── word_builder (4)
   Build "Rad" from its letters
     ✓ Rad
@@ -409,17 +413,17 @@
     · grade: 3  gloss: nach unten hin geöffneter kelchartiger Metallgegenstand, der durch Schlagen mit einem Klöppel zum Klingen gebracht wird
 ── word_memory (4)
   Match the pair for "Rad"
-    ✓ Rad
-    · grade: 3  gloss: rundes Bauteil, das um seine Achse rotiert
+    ✓ rundes Bauteil, das um seine Achse rotiert
+    · grade: 3  partner: definition
   Match the pair for "Verein"
-    ✓ Verein
-    · grade: 3  gloss: Organisation von Menschen mit einem gemeinsamen Ziel oder gemeinsamen Interessen
+    ✓ Organisation von Menschen mit einem gemeinsamen Ziel…
+    · grade: 3  partner: definition
   Match the pair for "küssen"
-    ✓ küssen
-    · grade: 3  gloss: mit den Lippen eine andere Person oder einen Gegenstand berühren, zum Zeichen der Liebe oder Verehrung; einen Kuss geben
+    ✓ mit den Lippen eine andere Person oder einen Gegenst…
+    · grade: 3  partner: definition
   Match the pair for "Glocke"
-    ✓ Glocke
-    · grade: 3  gloss: nach unten hin geöffneter kelchartiger Metallgegenstand, der durch Schlagen mit einem Klöppel zum Klingen gebracht wird
+    ✓ nach unten hin geöffneter kelchartiger Metallgegenst…
+    · grade: 3  partner: definition
 ── word_of_the_day (4)
   2026-01-01: die Million
     ✓ 1.000.000, eintausend mal eintausend, 10⁶

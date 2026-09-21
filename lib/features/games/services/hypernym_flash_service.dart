@@ -5,6 +5,7 @@
 
 import 'dart:math';
 
+import '../../../core/models/skill_category.dart';
 import '../../../core/models/vocabulary_models.dart';
 import '../../../core/models/vocabulary_quality.dart';
 
@@ -70,13 +71,67 @@ const Set<String> _abstractEnglishVerbs = {
   'happen',
 };
 
+/// WordNet's upper ontology. Every noun climbs to these, so they are true of
+/// almost anything and mean nothing to a child: "curiosity is a kind of
+/// cognitive state" is the sort of answer that follows. A hypernym one step
+/// down — "a robin is a kind of bird" — is the question worth asking.
+const Set<String> _wordNetAbstractions = {
+  'entity',
+  'abstraction',
+  'abstract entity',
+  'physical entity',
+  'thing',
+  'object',
+  'whole',
+  'unit',
+  'group',
+  'grouping',
+  'relation',
+  'attribute',
+  'property',
+  'state',
+  'condition',
+  'cognitive state',
+  'psychological feature',
+  'cognition',
+  'knowledge',
+  'event',
+  'act',
+  'human action',
+  'human activity',
+  'activity',
+  'phenomenon',
+  'process',
+  'measure',
+  'quantity',
+  'amount',
+  'causal agent',
+  'physical object',
+  'matter',
+  'substance',
+  'part',
+  'region',
+  'location',
+};
+
 bool _isCleanHypernym(String w, bool isDE) {
   if (w.length < 3) return false;
   final tokens = w.split(' ');
   if (tokens.length > 2) return false;
-  if (!isDE && _abstractEnglishVerbs.contains(w.toLowerCase())) return false;
+  final lower = w.toLowerCase();
+  if (!isDE && _abstractEnglishVerbs.contains(lower)) return false;
+  if (!isDE && _wordNetAbstractions.contains(lower)) return false;
   return true;
 }
+
+/// Whether the word can be asked "is a kind of what?" at all.
+///
+/// WordNet has no hypernymy for adjectives or adverbs, so every hypernym on
+/// one of them was written for a different word class: "deaf" arrives with
+/// "desensitise" (the verb) and "people" (the noun), and neither answers a
+/// question about the adjective.
+bool _hasHypernymy(GermanWordType type) =>
+    type == GermanWordType.substantiv || type == GermanWordType.verb;
 
 /// The hypernym to ask for, or null when none of them makes a fair question.
 ///
@@ -91,29 +146,40 @@ String? pickHypernym(
   Map<String, GermanWord>? catalogue,
 }) {
   final isDE = isGerman;
-  final hypernyms = word.apiEnrichment?.hypernyms ?? [];
-  String? outsideCatalogue;
+  if (!_hasHypernymy(word.wordType)) return null;
+  final all = word.apiEnrichment?.hypernyms ?? [];
+  // Curated relations first, in their own order; the unsourced remainder only
+  // when the curated list yields nothing usable.
+  final hypernyms = [
+    ...all.where((h) => (h.source ?? '').isNotEmpty),
+    ...all.where((h) => (h.source ?? '').isEmpty),
+  ];
+  final promptIsLowercase = word.word == word.word.toLowerCase();
   for (final h in hypernyms) {
     final w = (h.word ?? '').trim();
     if (!_isCleanHypernym(w, isDE)) continue;
+    // English capitalises only names, so a capitalised answer to a lowercase
+    // prompt is a name sense: "a boy is a kind of Black man", "a satyr is a
+    // kind of Greek deity". German capitalises every noun, so the signal
+    // exists in English only.
+    if (!isDE && promptIsLowercase && w != w.toLowerCase()) continue;
     // The packs list the word among its own hypernyms, which would key
     // "launch" as the answer to "a launch is a kind of what?".
     if (w.toLowerCase() == word.word.toLowerCase()) continue;
     if (catalogue == null) return w;
     final entry = catalogue[w.toLowerCase()];
-    if (entry == null) {
-      // Remembered, not taken: a hypernym the catalogue holds with the right
-      // word type is a better answer, because the learner has met it.
-      outsideCatalogue ??= w;
-      continue;
-    }
+    // The first hypernym the catalogue confirms, in WordNet's own order —
+    // nearest sense first. The packs list hypernyms across every sense with no
+    // note of which, so a word the catalogue does not hold cannot be checked
+    // at all, and unchecked is where "a show is a kind of affirm" and "an
+    // archive is a kind of pull in" come from. Nine in ten words that have
+    // hypernyms have one the catalogue confirms, at every grade in both
+    // languages, so the game loses little by asking only about those.
+    if (entry == null) continue;
     if (namesSomething(entry)) continue;
     if (entry.wordType == word.wordType) return w;
   }
-  // Nothing in the catalogue fits. The German pack rarely holds one with the
-  // matching word type, and requiring it left the game empty at five of the
-  // six grades — an answer the learner has not met beats no game at all.
-  return outsideCatalogue;
+  return null;
 }
 
 HypernymChallenge? buildHypernymChallenge({
@@ -162,15 +228,22 @@ HypernymChallenge? buildHypernymChallenge({
 /// The chosen hypernym is computed once per word and reused for the answer and
 /// for the distractor pool, so the options can never contain another valid
 /// hypernym of the prompt.
+/// [candidates] are the catalogue entries for the hypernyms the pool lists.
+/// The word-type check below only bites when the catalogue holds the hypernym,
+/// and a 200-word sample of words-that-have-hypernyms holds almost none of
+/// them, so without these the check quietly does nothing and "a show is a kind
+/// of affirm" gets through.
 List<HypernymChallenge> buildHypernymChallenges({
   required List<GermanWord> pool,
   required bool isGerman,
+  List<GermanWord> candidates = const [],
   int maxChallenges = 10,
   int optionCount = 4,
   Random? rng,
 }) {
   final random = rng ?? Random();
   final catalogue = {
+    for (final word in candidates) word.word.toLowerCase(): word,
     for (final word in pool) word.word.toLowerCase(): word,
   };
   final picked = <GermanWord, String>{};
