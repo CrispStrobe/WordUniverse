@@ -103,6 +103,9 @@ class Lane:
         self.min_interval = min_interval
         self.ready_at = 0.0
         self.failures = 0
+        # Answers that came back with no choices at all. Counted apart from
+        # `failures` because a provider fault is not the lane being busy.
+        self.empty = 0
         self.judged = 0
         self.retired = False
 
@@ -114,6 +117,7 @@ class Lane:
     def used(self):
         self.ready_at = time.monotonic() + self.min_interval
         self.failures = 0
+        self.empty = 0
 
     def retire(self):
         """Out for the rest of the run — a refusal repeats."""
@@ -172,7 +176,25 @@ def judge(pool, batch, temperature, attempts=6):
                 ],
                 response_format={'type': 'json_object'},
             )
-            verdicts = parse_verdicts(response.choices[0].message.content or '')
+            choices = getattr(response, 'choices', None)
+            if not choices:
+                # OpenRouter answers 200 with an error body when the upstream
+                # provider is down or the free model is out of capacity, and
+                # the SDK leaves `choices` as None. That is the provider's
+                # problem, not this lane's spelling, so park rather than
+                # retire — and give up on the lane if it keeps doing it.
+                detail = str(getattr(response, 'error', None) or 'no choices')
+                lane.empty += 1
+                if lane.empty >= 3:
+                    print(f'\n  {lane.label}: {detail[:160]} — '
+                          'retiring this lane')
+                    lane.retire()
+                else:
+                    print('\n  ' + lane.parked(
+                        5 * lane.empty,
+                        f'answered with no choices ({detail[:120]})'))
+                continue
+            verdicts = parse_verdicts(choices[0].message.content or '')
             if verdicts is None:
                 print('\n  ' + lane.parked(10, 'answered with something that '
                                             'is not JSON'))
