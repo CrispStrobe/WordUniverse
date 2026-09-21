@@ -124,6 +124,22 @@ bool _isCleanHypernym(String w, bool isDE) {
   return true;
 }
 
+/// How many hypernyms an entry may list and still be worth asking about.
+///
+/// The packs give no sense for a hypernym, so the longer the list the more
+/// senses it silently spans and the more a single answer is a coin flip. The
+/// count separates the two cases cleanly: every item a model judged correct
+/// came from an entry with eight or fewer — yacht 3, aspirin 5, comedian 7,
+/// frost 8 — and the ones it flagged came from entries with fifteen to
+/// ninety-three: show 35, water 23, deal 69, fall 93. Those are the common
+/// monosyllables that dominate the first two English grades, which is why
+/// that band was the last to stay wrong: "water is a kind of food", "a fall
+/// is a kind of die".
+///
+/// Two thirds of the English candidates and nine tenths of the German ones
+/// are under the line, at every grade, so the game keeps enough to play.
+const int _sensesAWordCanCarry = 8;
+
 /// Whether the word can be asked "is a kind of what?" at all.
 ///
 /// WordNet has no hypernymy for adjectives or adverbs, so every hypernym on
@@ -148,14 +164,63 @@ String? pickHypernym(
   final isDE = isGerman;
   if (!_hasHypernymy(word.wordType)) return null;
   final all = word.apiEnrichment?.hypernyms ?? [];
-  // Curated relations first, in their own order; the unsourced remainder only
-  // when the curated list yields nothing usable.
-  final hypernyms = [
-    ...all.where((h) => (h.source ?? '').isNotEmpty),
-    ...all.where((h) => (h.source ?? '').isEmpty),
-  ];
+  if (all.length > _sensesAWordCanCarry) return null;
+  // Curated relations first; the unsourced remainder only when the curated
+  // ones yield nothing usable.
+  final sourced = all.where((h) => (h.source ?? '').isNotEmpty).toList();
+  final unsourced = all.where((h) => (h.source ?? '').isEmpty).toList();
+  for (final tier in [sourced, unsourced]) {
+    final usable = _saidInItsOwnDefinition(
+        word, _confirmed(word, tier, isDE: isDE, catalogue: catalogue));
+    if (usable.isNotEmpty) return _mostFamiliar(usable, catalogue);
+  }
+  return null;
+}
+
+/// The candidates the word's own leading senses mention, or all of them.
+///
+/// This is the only thing in the packs that says which sense a hypernym was
+/// listed under. Wiktionary and WordNet write the genus into the gloss —
+/// "frost: ice crystals forming a white deposit", "a yacht is an expensive
+/// vessel", "an idol: a material image of a deity" — so a hypernym the gloss
+/// repeats belongs to the sense the gloss describes. Reading only the first
+/// three senses keeps it about what the word mostly means: read the whole
+/// entry and "frost" matches "poet", from "United States poet Robert Frost".
+///
+/// It fixes jungle → camp into jungle → forest, idol → lead into idol →
+/// image, advantage → point into advantage → benefit.
+///
+/// Where the entry mentions none of them, the word is not asked about at all.
+/// That is what finally clears the first two English grades, whose pool is
+/// the common monosyllables and the two-letter entries whose only noun sense
+/// is a chemical symbol: "at" is astatine, "in" indium, "he" helium, "it"
+/// information technology. None of their glosses says so, and the game was
+/// asking a six-year-old whether "at" is a kind of element. It costs the
+/// answerable-but-unstated ones too — comedian → actor, debris → trash — and
+/// leaves six candidates at English grade 1, where the pool then fills from
+/// the grades either side. A word from the next grade up beats a wrong
+/// answer.
+List<String> _saidInItsOwnDefinition(GermanWord word, List<String> candidates) {
+  if (candidates.isEmpty) return candidates;
+  final senses = word.displayDefinitions.take(3).join(' ').toLowerCase();
+  if (senses.isEmpty) return const [];
+  final mentioned = candidates
+      .where((c) =>
+          RegExp('\\b${RegExp.escape(c.toLowerCase())}\\b').hasMatch(senses))
+      .toList();
+  return mentioned;
+}
+
+/// The hypernyms in [tier] that could fairly be the answer.
+List<String> _confirmed(
+  GermanWord word,
+  List<ApiSemanticTerm> tier, {
+  required bool isDE,
+  Map<String, GermanWord>? catalogue,
+}) {
   final promptIsLowercase = word.word == word.word.toLowerCase();
-  for (final h in hypernyms) {
+  final usable = <String>[];
+  for (final h in tier) {
     final w = (h.word ?? '').trim();
     if (!_isCleanHypernym(w, isDE)) continue;
     // English capitalises only names, so a capitalised answer to a lowercase
@@ -164,22 +229,60 @@ String? pickHypernym(
     // exists in English only.
     if (!isDE && promptIsLowercase && w != w.toLowerCase()) continue;
     // The packs list the word among its own hypernyms, which would key
-    // "launch" as the answer to "a launch is a kind of what?".
-    if (w.toLowerCase() == word.word.toLowerCase()) continue;
-    if (catalogue == null) return w;
+    // "launch" as the answer to "a launch is a kind of what?". A German
+    // compound spells its own answer out too: reading the gloss to find the
+    // sense turns up "Ball" for "Fußball", and the prompt is then the answer
+    // with a word in front of it.
+    final lower = w.toLowerCase();
+    final promptLower = word.word.toLowerCase();
+    if (lower == promptLower) continue;
+    if (promptLower.contains(lower) || lower.contains(promptLower)) continue;
+    if (catalogue == null) {
+      usable.add(w);
+      continue;
+    }
     final entry = catalogue[w.toLowerCase()];
-    // The first hypernym the catalogue confirms, in WordNet's own order —
-    // nearest sense first. The packs list hypernyms across every sense with no
-    // note of which, so a word the catalogue does not hold cannot be checked
-    // at all, and unchecked is where "a show is a kind of affirm" and "an
-    // archive is a kind of pull in" come from. Nine in ten words that have
-    // hypernyms have one the catalogue confirms, at every grade in both
-    // languages, so the game loses little by asking only about those.
+    // The packs list hypernyms across every sense with no note of which, so a
+    // word the catalogue does not hold cannot be checked at all — and
+    // unchecked is where "a show is a kind of affirm" and "an archive is a
+    // kind of pull in" come from. Nine in ten words that have hypernyms have
+    // one the catalogue confirms, at every grade in both languages, so the
+    // game loses little by asking only about those.
     if (entry == null) continue;
     if (namesSomething(entry)) continue;
-    if (entry.wordType == word.wordType) return w;
+    if (entry.wordType == word.wordType) usable.add(w);
   }
-  return null;
+  return usable;
+}
+
+/// The one of [candidates] a learner is likeliest to have met.
+///
+/// Position in the list looked like WordNet's own order, nearest sense first,
+/// and it is not: the lists are sense-grouped and alphabetical inside each
+/// group, and 38% of the entries with three or more hypernyms were sorted
+/// wholesale at some point, which destroys the grouping. So the first entry
+/// is often just the alphabetically first — "a boy is a kind of adult male",
+/// "a frost is a kind of cold weather", "a comedian is a kind of histrion".
+///
+/// Familiarity is the honest tiebreak, and it is the one that suits the game:
+/// the answer should be a word the learner already has. It gives boy → man,
+/// frost → ice, yacht → boat, comedian → actor. It cannot rescue a word whose
+/// every listed hypernym belongs to a sense the child does not mean — "show",
+/// "hand" — because there is nothing in the data that says which sense a
+/// hypernym was listed under.
+String _mostFamiliar(
+    List<String> candidates, Map<String, GermanWord>? catalogue) {
+  if (catalogue == null) return candidates.first;
+  final ranked = [...candidates]..sort((a, b) {
+      final ga = catalogue[a.toLowerCase()]?.gradeLevel ?? 99;
+      final gb = catalogue[b.toLowerCase()]?.gradeLevel ?? 99;
+      if (ga != gb) return ga.compareTo(gb);
+      // A shorter word at the same grade is the plainer one: "ice" over
+      // "cover", "actor" over "performer".
+      if (a.length != b.length) return a.length.compareTo(b.length);
+      return a.compareTo(b);
+    });
+  return ranked.first;
 }
 
 HypernymChallenge? buildHypernymChallenge({

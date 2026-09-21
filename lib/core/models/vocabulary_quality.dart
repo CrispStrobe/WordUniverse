@@ -82,10 +82,8 @@ const List<String> kNameGlossOpenings = [
   // Three entries in the English pack word it differently and arrived as
   // ordinary vocabulary: "eddie" (A diminutive of Edward, Edgar, Edwin),
   // "fred" (A short version of Frederick, Alfred, or Wilfred) and "kirby"
-  // (An English placename.). Only three, so the shipped index is left alone
-  // rather than bumping its format and making every device rebuild: light
-  // words keep the old answer for those three until the next republish, and
-  // every hydrated path reads this list directly.
+  // (An English placename.). The pack now types all three proper_noun, so
+  // the games never reach them; this list is what tells it to.
   'a diminutive of',
   'a short version of',
   'a short form of',

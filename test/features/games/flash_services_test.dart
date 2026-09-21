@@ -165,7 +165,9 @@ void main() {
         () {
       // The packs list hypernyms across every WordNet sense: "crowd" is also
       // a verb, and "displace" is the hypernym of *that* sense.
-      final crowd = _noun('crowd', hypernyms: ['displace', 'gathering']);
+      final crowd = _noun('crowd',
+          hypernyms: ['displace', 'gathering'],
+          definitions: ['A large gathering of people.']);
       final words = [
         crowd,
         testWord('displace', type: GermanWordType.verb),
@@ -176,7 +178,8 @@ void main() {
     });
 
     test('a word is never its own hypernym', () {
-      final launch = _noun('launch', hypernyms: ['launch', 'boat']);
+      final launch = _noun('launch',
+          hypernyms: ['launch', 'boat'], definitions: ['A large motor boat.']);
       final words = [launch, _noun('boat')];
       expect(pickHypernym(launch, isGerman: false, catalogue: catalogue(words)),
           'boat');
@@ -184,7 +187,9 @@ void main() {
 
     test('an abstract English verb is not an answer worth asking for', () {
       // "a rise is a kind of make" is not a question about meaning.
-      final word = _noun('rise', hypernyms: ['make', 'movement']);
+      final word = _noun('rise',
+          hypernyms: ['make', 'movement'],
+          definitions: ['To make an upward movement.']);
       final words = [word, _noun('make'), _noun('movement')];
       expect(pickHypernym(word, isGerman: false, catalogue: catalogue(words)),
           'movement');
@@ -194,7 +199,9 @@ void main() {
     });
 
     test('a hypernym naming a place is not offered', () {
-      final word = _noun('alp', hypernyms: ['alps', 'mountain']);
+      final word = _noun('alp',
+          hypernyms: ['alps', 'mountain'],
+          definitions: ['A high mountain, especially in the Alps.']);
       final words = [
         word,
         _noun('alps', definitions: ['A mountain range in central Europe.']),
@@ -205,7 +212,9 @@ void main() {
     });
 
     test('without a catalogue the first clean hypernym is taken', () {
-      final word = _noun('crowd', hypernyms: ['gathering']);
+      final word = _noun('crowd',
+          hypernyms: ['gathering'],
+          definitions: ['A large gathering of people.']);
       expect(pickHypernym(word, isGerman: false), 'gathering');
     });
 
@@ -229,15 +238,18 @@ void main() {
     test('a capitalised English answer to a lowercase prompt is a name sense',
         () {
       // "a boy is a kind of Black man", "a satyr is a kind of Greek deity".
-      final boy = _noun('boy', hypernyms: ['Black man', 'male child']);
+      final boy = _noun('boy',
+          hypernyms: ['Black man', 'male child'],
+          definitions: ['A young male child; a Black man (dated, offensive).']);
       final words = [boy, _noun('Black man'), _noun('male child')];
       expect(pickHypernym(boy, isGerman: false, catalogue: catalogue(words)),
           'male child');
     });
 
     test('the top of WordNet is true of everything and answers nothing', () {
-      final word =
-          _noun('curiosity', hypernyms: ['cognitive state', 'interest']);
+      final word = _noun('curiosity',
+          hypernyms: ['cognitive state', 'interest'],
+          definitions: ['A cognitive state of eager interest in learning.']);
       final words = [word, _noun('cognitive state'), _noun('interest')];
       expect(pickHypernym(word, isGerman: false, catalogue: catalogue(words)),
           'interest');
@@ -247,10 +259,16 @@ void main() {
       // "poet" arrives unsourced, from the Robert Frost sense.
       final frost = testWord('frost',
           type: GermanWordType.substantiv,
-          enrichment: testEnrichment(hypernyms: [
-            term('poet'),
-            term('ice', source: 'OEWN'),
-          ]));
+          enrichment: testEnrichment(
+            definitions: [
+              'Ice crystals forming a white deposit; a United '
+                  'States poet.'
+            ],
+            hypernyms: [
+              term('poet'),
+              term('ice', source: 'OEWN'),
+            ],
+          ));
       final words = [frost, _noun('poet'), _noun('ice')];
       expect(pickHypernym(frost, isGerman: false, catalogue: catalogue(words)),
           'ice');
@@ -262,6 +280,53 @@ void main() {
       final show = _noun('show', hypernyms: ['affirm']);
       expect(pickHypernym(show, isGerman: false, catalogue: catalogue([show])),
           isNull);
+    });
+
+    test('only a hypernym the entry itself mentions is asked about', () {
+      // The one thing in the packs that says which sense a hypernym belongs
+      // to. Without it a six-year-old was asked whether "at" is a kind of
+      // element — "at" is astatine, and nothing in its gloss says so.
+      final at = _noun('at',
+          hypernyms: ['element'],
+          definitions: ['Indicating a position in space or time.']);
+      final words = [at, _noun('element')];
+      expect(pickHypernym(at, isGerman: false, catalogue: catalogue(words)),
+          isNull);
+    });
+
+    test('among the mentioned ones, the most familiar wins', () {
+      // The lists are alphabetical inside each sense group and a third of
+      // them were sorted wholesale, so position says nothing: "adult male"
+      // only leads because of the a. The learner should get the word they
+      // have.
+      final boy = _noun('boy',
+          hypernyms: ['adult male', 'man'],
+          definitions: ['A young man; an adult male servant (dated).']);
+      final words = [
+        boy,
+        testWord('adult male', type: GermanWordType.substantiv, grade: 4),
+        testWord('man', type: GermanWordType.substantiv, grade: 1),
+      ];
+      expect(pickHypernym(boy, isGerman: false, catalogue: catalogue(words)),
+          'man');
+    });
+
+    test('a compound does not answer itself', () {
+      // Reading the gloss for the sense turns up "Ball" for "Fußball", and
+      // the prompt is then the answer with a word in front of it.
+      final ball = testWord('Fußball',
+          type: GermanWordType.substantiv,
+          enrichment: testEnrichment(
+            definitions: ['Ein Ball für das Spiel; ein Sportgerät.'],
+            hypernyms: [term('Ball'), term('Sportgerät')],
+          ));
+      final words = [
+        ball,
+        testWord('Ball', type: GermanWordType.substantiv),
+        testWord('Sportgerät', type: GermanWordType.substantiv),
+      ];
+      expect(pickHypernym(ball, isGerman: true, catalogue: catalogue(words)),
+          'Sportgerät');
     });
 
     test('no other hypernym of the same word is ever a distractor', () {
