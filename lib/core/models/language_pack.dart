@@ -238,15 +238,15 @@ const Map<String, LanguagePack> kLanguagePacks = {
     // work on every install. `grundwortschatz.db.gz` beside it
     // remains the complete lexical database and is unchanged.
     remoteUrl:
-        'https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/2cba9fdd4bf11c56a5879a960567ac80ffd2d4a3/grundwortschatz-app.db.gz',
+        'https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/96497d8e36a22a54260f8715665cf5a86db4d446/grundwortschatz-app.db.gz',
     // Update the immutable URL and all pins together; retain this qualified
     // databaseName in previousDatabaseNames when publishing a new artifact.
-    expectedCompressedBytes: 15081318,
+    expectedCompressedBytes: 15081304,
     expectedCompressedSha256:
-        '95454d488cec9f8a9e711c970757e39b76da99686c14b3649ef2768a3d0f3650',
+        'abe41c6491a4c5809c7ae9756442d20d1587ba910834297608b88fad73a8a98b',
     expectedDecompressedBytes: 88072192,
     expectedDecompressedSha256:
-        '85bfe359b428cd8ccf354c589363027909fa05ca3fed5bdd45a93b68372478c1',
+        '2837e2ba51db73b15135bf551f0a8a26a5e08ce35f0ee6273f0dd4f8fe21f969',
     previousDatabaseNames: [
       'grundwortschatz-158bea51ba1b0c0e4bcb696042dd45a03b0ddbccc132337a8ce8ef388117d9f1.db',
       'grundwortschatz-32487bb8280cc5a709abf83119482fe68c84be3ee47aa1251f1aabb494801712.db',
@@ -254,6 +254,7 @@ const Map<String, LanguagePack> kLanguagePacks = {
       'grundwortschatz-2890e0c1b1dd25aacaee53bb133f4a4b3c4e69acb5827ce4c1af1813a2a7af44.db',
       'grundwortschatz-c66e3b49192694c00d7c2a171562ac8fe4f54c05d986adb0ebf276f141aa00df.db',
       'grundwortschatz-1c87cbeed45007e7d61c4f73010c79804478eebf97c61487f806a2789dd6949a.db',
+      'grundwortschatz-85bfe359b428cd8ccf354c589363027909fa05ca3fed5bdd45a93b68372478c1.db',
     ],
     licenseLabel: 'GPL-3.0-or-later',
     datasetUrl: 'https://huggingface.co/datasets/cstr/grundwortschatz-voc-de',
@@ -275,13 +276,14 @@ const Map<String, LanguagePack> kLanguagePacks = {
     // qualifies the storage slot, so this selects a fresh one and the
     // previous slots are listed below rather than silently reused.
     expectedDecompressedSha256:
-        '3d2201f21098d96af2864961cb21b065d41f0171022aa53abeea81a96ccc5a1d',
+        'ca0032b7431790fdbc8c23ebad860e4e473f6d4ef0b4a9b9a89ac247572626c7',
     previousDatabaseNames: [
       'grundwortschatz_en-53365e2ae71884bad1e53b5e34c2cdc543f0f9ba8ba578eca7eb5050235c76d9.db',
       'grundwortschatz_en-cbbdef45fb1b2da6726ada0f98071c5ff622f4fa3903bf13fdf9d5f4f8d2f365.db',
       'grundwortschatz_en-7c810a70430f5e2218e8ef15b91cdf52bb20224afad4963ea6c200e47c0b840d.db',
       'grundwortschatz_en-49e65596954cb7f8a0268e214e3e26c866f593ad781c567481993f08dc8471db.db',
       'grundwortschatz_en-367021742f6c3ae6a3c347a9ef25f162683fb40c8e983f290c6e9667b6216893.db',
+      'grundwortschatz_en-3d2201f21098d96af2864961cb21b065d41f0171022aa53abeea81a96ccc5a1d.db',
     ],
     licenseLabel: 'CC BY-SA 4.0',
     datasetUrl: 'https://huggingface.co/datasets/cstr/grundwortschatz-voc-en',

@@ -60,6 +60,7 @@ SentenceChallenge? buildSentenceChallenge({
   final shuffledSents = List<String>.from(sents)..shuffle(random);
   for (final sent in shuffledSents) {
     if (!sentenceSuitsAChild(sent)) continue;
+    if (!looksLikeAWholeSentence(sent)) continue;
     final result = blankWord(sent, word.word);
     if (result == null) continue;
     final (before, after) = result;

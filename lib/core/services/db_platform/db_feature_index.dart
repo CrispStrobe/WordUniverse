@@ -170,6 +170,36 @@ String _presentableSql() {
            OR lower(entry.value) LIKE 'dolch%'
       )
     )
+    AND NOT (
+      -- A three-letter English entry that no word list and no CEFR level
+      -- attests is not vocabulary: it is a name (abe, ali, amy), an
+      -- abbreviation (bbc, ceo, cia), a noise (aah, aww, duh) or an artefact
+      -- ("aii", glossed "All right."). A model found "aii" offered to trace,
+      -- to find in a grid and to sort into a word class; the same 176 entries
+      -- hold "fag", "ass" and "jew". Every ordinary short word — cat, run,
+      -- all, and — is on one of the lists, so this takes none of them.
+      --
+      -- Scoped by the tags themselves: the English pack tags all 11,539 of
+      -- its entries and the German pack tags none, so German abstains rather
+      -- than losing "alt", "auf" and "Arm".
+      length(words.word) <= 3
+      AND EXISTS (
+        SELECT 1 FROM json_each(words.metadata_json, '\$.tags')
+      )
+      AND json_extract(words.metadata_json, '\$.cefr_level') IS NULL
+      AND NOT EXISTS (
+        SELECT 1 FROM json_each(words.metadata_json, '\$.tags') AS entry
+        WHERE lower(entry.value) LIKE 'source:fry%'
+           OR lower(entry.value) LIKE 'source:dolch%'
+           OR lower(entry.value) LIKE 'source:cefr_j%'
+           OR lower(entry.value) LIKE 'source:cambridge_yle_%'
+           OR lower(entry.value) LIKE 'source:uk_y%'
+           OR lower(entry.value) LIKE 'source:curriculum_added%'
+           OR lower(entry.value) LIKE 'source:de_curriculum_en%'
+           OR lower(entry.value) LIKE 'fry%'
+           OR lower(entry.value) LIKE 'dolch%'
+      )
+    )
     AND NOT EXISTS (
       SELECT 1 FROM json_each(words.enrichment_json, '\$.definitions') AS entry
       WHERE $markerTest

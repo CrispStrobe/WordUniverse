@@ -1,78 +1,78 @@
 ── antonym_flash (4)
-  enter
-    ✓ exit
-      depression
-      income
-      intelligence
+  lend
+      sufficient
+    ✓ borrow
+      efficiency
+      host
     · grade: 3
-  cheap
-      actual
-    ✓ expensive
-      classical
-      downstairs
+  appropriate
+      collective
+      necessarily
+      technical
+    ✓ inappropriate
     · grade: 3
-  admit
-      defence
-      joint
-      disappear
-    ✓ deny
+  net
+      sufficient
+      dominant
+    ✓ gross
+      promotion
     · grade: 3
-  disappear
-    ✓ appear
-      joint
-      intelligence
-      actual
+  appearance
+    ✓ disappearance
+      hire
+      responsibility
+      sufficient
     · grade: 3
 ── cloze_flash (4)
-  As they turned into Hertford Street they startled a ___ from the poet's head on a barren fountain, and he fled away with a cameo note.
-    ✓ robin
-      shadow
-      cargo
-      reign
-    · word: robin
-  It came to me, like a ___ on the door / Erasing all that had gone before / Broken wings can be mended / But this love of ours, we've got to defend it
-    ✓ knock
-      fashion
-      shadow
-      eh
-    · word: knock
-  His mother prepared ___ for him and his friends for dessert.
-      eh
-      robin
-      fashion
-    ✓ jelly
-    · word: jelly
-  “I had a difficult session with my ___ last evening and the slightest thing is apt to set me off.”
-    ✓ analyst
-      journalists
-      gun
-      fuckin
-    · word: analyst
+  Neither ___ nor child was left living the length of the seacoast.
+      knight
+      humor
+    ✓ chick
+      registration
+    · word: chick
+  Want to hire a coding ___? Call the agent.
+      legacy
+      chick
+      crime
+    ✓ superstar
+    · word: superstar
+  I must, however, ___ remark, that the power of generalizing ideas, to any great extent, is not very common amongst men or women.
+      registration
+      legislative
+    ✓ previously
+      crime
+    · word: previously
+  She spent thirty years working for Canada's ___ service.
+      multiple
+      aggressive
+    ✓ diplomatic
+      harsh
+    · word: diplomatic
 ── definition_quiz (4)
-  A suit in certain playing card decks, particularly those used in Spain and Italy, or those used for divination.
-    ✓ sword
-      usage
-      surgery
-      membership
-    · word: sword  grade: 3
-  Free from attack or danger; protected.
-      religious
-      brief
-      selfish
-    ✓ secure
-    · word: secure  grade: 3
-  A procedure involving major incisions to remove, repair, or replace a part of a body.
-      funeral
-    ✓ surgery
-      loyalty
-      sword
-    · word: surgery  grade: 3
-  The art or science of making and flying aircraft.
-      mood
-      inn
-    ✓ aviation
-      loyalty
-    · word: aviation  grade: 3
+  Close investigation.; A careful reading.
+    ✓ scan
+      regulation
+      pause
+      selection
+    · word: scan  grade: 3
+  The process or act of selecting.
+      democracy
+      regulation
+    ✓ selection
+      scan
+    · word: selection  grade: 3
+  On board; into or within a ship or boat; hence, into or within a railway car.
+      democracy
+    ✓ aboard
+      luckily
+      constitutional
+    · word: aboard  grade: 3
+  a thing or group of things in a disagreeable, disorganised, or dirty state; hence a bad situation
+      stress
+    ✓ mess
+      selection
+      crop
+    · word: mess  grade: 3
 ── false_friends (4)
   What does "ordinary" really mean?
       ordinär
@@ -116,26 +116,26 @@
     ✓ male
     · group: mail/male
 ── hypernym_flash (4)
-  basket
-      discussion
-      assembly
-    ✓ goal
-      gift
-  butt
-      discussion
-      assembly
-    ✓ barrel
-      gift
-  donation
-    ✓ gift
-      barrel
-      discussion
-      assembly
-  lab
-    ✓ workplace
-      gift
-      discussion
-      assembly
+  presence
+      practice
+      seek
+      function
+    ✓ attendance
+  explosion
+    ✓ noise
+      practice
+      seek
+      function
+  belt
+      function
+      seek
+    ✓ accessory
+      practice
+  cheat
+    ✓ deceive
+      function
+      practice
+      seek
 ── phrasal_verb_match (4)
   What does "stop up" mean?
       to wait and not give up
@@ -183,180 +183,182 @@
       up
     · phrasal: drive out  means: to make someone or something leave a place
 ── sentence_completion (4)
-  The ___ in the sink is clogged.
-      pile
-    ✓ drain
-      clown
-      creativity
-  The ___ feels very strong.
-      competition
-      behavior
-      drain
-    ✓ emotion
-  ___ people often have more free time.
-      amused
-    ✓ retired
-      immune
-      naked
-  ___ a contract has consequences.
-      pile
-      status
-      essence
-    ✓ breach
+  The ___ sounds nice outside.
+      kilo
+    ✓ violin
+      dozen
+      patch
+  The athlete is very ___.
+      proud
+      temporary
+      spectacular
+    ✓ fit
+  The city has ___ holiday lights.
+    ✓ spectacular
+      manual
+      genetic
+      gentle
+  The ___ gives orders.
+      kilometre
+    ✓ commander
+      headteacher
+      award
 ── spelling_spotter (4)
   Which spelling is correct?
-      travic
-    ✓ traffic
-      tacter
-      trafic
-    · shown after answering: Freight and passenger way-traffic remains to the steamers.
+    ✓ majority
+      marjority
+      majoroty
+      majoraly
+    · shown after answering: In the eyes of the majority Baptists of Waco he was an infidel.
   Which spelling is correct?
-      chalenge
-      challange
-    ✓ challenge
-      challege
-    · shown after answering: There was no sound of challenge outside.
+      containte
+    ✓ contents
+      contence
+      contense
+    · shown after answering: Other men were continually lifting out boxes whose contents had become hard frozen.
   Which spelling is correct?
-      vicillilies
-    ✓ facilities
-      facilites
-      vacilities
-    · shown after answering: Remember we are given all facilities—and Name of God!—they give them to us too!
+      excented
+      exstended
+    ✓ extended
+      extened
+    · shown after answering: It was a policy which extended--and extends--from New Orleans to St. Paul.
   Which spelling is correct?
-    ✓ harassment
-      harassement
-      harasment
-      harasments
+    ✓ injured
+      injur
+      injore
+      inger
+    · shown after answering: No organ was fatally injured.
 ── sri_review (4)
-  "A suit in certain playing card decks, particularly those used in Spain and Italy, or those used for divination."
-    ✓ sword
-      usage
-      surgery
-      membership
+  "Close investigation.; A careful reading."
+    ✓ scan
+      regulation
+      pause
+      selection
     · type: definition
-  "Free from attack or danger; protected."
-      religious
-      brief
-      selfish
-    ✓ secure
+  "The process or act of selecting."
+      democracy
+      regulation
+    ✓ selection
+      scan
     · type: definition
-  "A procedure involving major incisions to remove, repair, or replace a part of a body."
-      funeral
-    ✓ surgery
-      loyalty
-      sword
+  "On board; into or within a ship or boat; hence, into or within a railway car."
+      democracy
+    ✓ aboard
+      luckily
+      constitutional
     · type: definition
-  Correct spelling for:
-"The art or science of making and flying aircraft."
-    ✓ aviation
-      avation
-    · type: spelling
+  "a thing or group of things in a disagreeable, disorganised, or dirty state; hence a bad situation"
+      stress
+    ✓ mess
+      selection
+      crop
+    · type: definition
 ── syllable_count (4)
-  fortune
-      1
-    ✓ 2
-      3
-      4+
-    · hyphenation: for-tune
-  downtown
-      1
-    ✓ 2
-      3
-      4+
-    · hyphenation: down-town
-  granny
-      1
-    ✓ 2
-      3
-      4+
-    · hyphenation: gran-ny
-  sacrifice
+  envelope
       1
       2
     ✓ 3
       4+
-    · hyphenation: sac-ri-fice
+    · hyphenation: en-vel-ope
+  exclusive
+      1
+      2
+    ✓ 3
+      4+
+    · hyphenation: ex-clu-sive
+  maximum
+      1
+      2
+    ✓ 3
+      4+
+    · hyphenation: max-i-mum
+  photography
+      1
+      2
+      3
+    ✓ 4+
+    · hyphenation: pho-to-gra-phy
 ── synonym_flash (4)
-  quick
-    ✓ immediate
-      impossible
-      naughty
-      auto
+  custom
+      chart
+    ✓ usance
+      billion
+      grain
     · grade: 3
-  diagnosis
-      formation
-      carpet
-    ✓ diagnosing
-      formula
+  chest
+      genius
+      possession
+    ✓ thorax
+      bunch
     · grade: 3
-  lifetime
-      chick
-    ✓ life
-      administration
-      helicopter
+  desire
+    ✓ trust
+      contain
+      bust
+      bless
     · grade: 3
-  exist
-      delete
-    ✓ be
-      count
-      separate
+  subsequently
+    ✓ afterward
+      contain
+      firmly
+      hardly
     · grade: 3
 ── word_builder (4)
-  Build "centuries" from its letters
-    ✓ centuries
+  Build "essential" from its letters
+    ✓ essential
+    · grade: 3  gloss: Very important; of high importance.
+  Build "populations" from its letters
+    ✓ populations
     · grade: 3
-  Build "fix" from its letters
-    ✓ fix
-    · grade: 3  gloss: To pierce; now generally replaced by transfix.
-  Build "well-balanced" from its letters
-    ✓ well-balanced
-    · grade: 3  gloss: properly balanced; in equilibrium
-  Build "similarly" from its letters
-    ✓ similarly
-    · grade: 3  gloss: In a like style or manner.
+  Build "disco" from its letters
+    ✓ disco
+    · grade: 3  gloss: Clipping of discotheque (“nightclub for dancing”).
+  Build "junk" from its letters
+    ✓ junk
+    · grade: 3  gloss: Miscellaneous items of little value, especially discarded or unwanted items.
 ── word_class_flash (4)
-  object
+  scandal
     ✓ substantiv
       verb
       adjektiv
-  legendary
+  marked
       substantiv
       verb
     ✓ adjektiv
-  explain
+  oppose
       substantiv
     ✓ verb
       adjektiv
-  excitement
+  journal
     ✓ substantiv
       verb
       adjektiv
 ── word_find (4)
-  Find "centuries" in the grid
-    ✓ centuries
+  Find "essential" in the grid
+    ✓ essential
+    · grade: 3  gloss: Very important; of high importance.
+  Find "populations" in the grid
+    ✓ populations
     · grade: 3
-  Find "fix" in the grid
-    ✓ fix
-    · grade: 3  gloss: To pierce; now generally replaced by transfix.
-  Find "well-balanced" in the grid
-    ✓ well-balanced
-    · grade: 3  gloss: properly balanced; in equilibrium
-  Find "similarly" in the grid
-    ✓ similarly
-    · grade: 3  gloss: In a like style or manner.
+  Find "disco" in the grid
+    ✓ disco
+    · grade: 3  gloss: Clipping of discotheque (“nightclub for dancing”).
+  Find "junk" in the grid
+    ✓ junk
+    · grade: 3  gloss: Miscellaneous items of little value, especially discarded or unwanted items.
 ── word_memory (4)
-  Match the pair for "fix"
-    ✓ To pierce; now generally replaced by transfix.
+  Match the pair for "disco"
+    ✓ Clipping of discotheque (“nightclub for dancing”).
     · grade: 3  partner: definition
-  Match the pair for "peak"
-    ✓ A point; the sharp end or top of anything that termi…
+  Match the pair for "junk"
+    ✓ Miscellaneous items of little value, especially disc…
     · grade: 3  partner: definition
-  Match the pair for "appears"
-    ✓ appears
-    · grade: 3  partner: same word, other font
-  Match the pair for "harder"
-    ✓ harder
-    · grade: 3  partner: same word, other font
+  Match the pair for "stamp"
+    ✓ An act of stamping the foot, paw or hoof.
+    · grade: 3  partner: definition
+  Match the pair for "garage"
+    ✓ A building (or section of a building) used to store …
+    · grade: 3  partner: definition
 ── word_of_the_day (4)
   2026-01-01: archive
     ✓ A place for storing earlier, and often historical, material. An archive usually contains documents (letters, records, newspapers, etc.) or other types of media kept for historical interest.
@@ -371,41 +373,41 @@
     ✓ A small, open, wheeled vehicle, drawn or pushed by a person or animal, often with two wheels on one axle, more often used for transporting goods than passengers.
     · grade: 4  cefr: —
 ── word_snake (4)
-  Trace "centuries"
-    ✓ centuries
+  Trace "essential"
+    ✓ essential
+    · grade: 3  gloss: Very important; of high importance.
+  Trace "populations"
+    ✓ populations
     · grade: 3
-  Trace "fix"
-    ✓ fix
-    · grade: 3  gloss: To pierce; now generally replaced by transfix.
-  Trace "well-balanced"
-    ✓ well-balanced
-    · grade: 3  gloss: properly balanced; in equilibrium
-  Trace "similarly"
-    ✓ similarly
-    · grade: 3  gloss: In a like style or manner.
+  Trace "disco"
+    ✓ disco
+    · grade: 3  gloss: Clipping of discotheque (“nightclub for dancing”).
+  Trace "junk"
+    ✓ junk
+    · grade: 3  gloss: Miscellaneous items of little value, especially discarded or unwanted items.
 ── word_sort (4)
-  Sort "centuries" into its word class
+  Sort "essential" into its word class
+    ✓ adjektiv
+    · grade: 3  gloss: Very important; of high importance.
+  Sort "populations" into its word class
     ✓ substantiv
     · grade: 3
-  Sort "fix" into its word class
-    ✓ verb
-    · grade: 3  gloss: To pierce; now generally replaced by transfix.
-  Sort "well-balanced" into its word class
-    ✓ adjektiv
-    · grade: 3  gloss: properly balanced; in equilibrium
-  Sort "similarly" into its word class
-    ✓ adverb
-    · grade: 3  gloss: In a like style or manner.
+  Sort "disco" into its word class
+    ✓ substantiv
+    · grade: 3  gloss: Clipping of discotheque (“nightclub for dancing”).
+  Sort "junk" into its word class
+    ✓ substantiv
+    · grade: 3  gloss: Miscellaneous items of little value, especially discarded or unwanted items.
 ── word_type_whirl (4)
-  Catch "centuries" in the right bin
+  Catch "essential" in the right bin
+    ✓ adjektiv
+    · grade: 3  gloss: Very important; of high importance.
+  Catch "populations" in the right bin
     ✓ substantiv
     · grade: 3
-  Catch "fix" in the right bin
-    ✓ verb
-    · grade: 3  gloss: To pierce; now generally replaced by transfix.
-  Catch "well-balanced" in the right bin
-    ✓ adjektiv
-    · grade: 3  gloss: properly balanced; in equilibrium
-  Catch "similarly" in the right bin
-    ✓ adverb
-    · grade: 3  gloss: In a like style or manner.
+  Catch "disco" in the right bin
+    ✓ substantiv
+    · grade: 3  gloss: Clipping of discotheque (“nightclub for dancing”).
+  Catch "junk" in the right bin
+    ✓ substantiv
+    · grade: 3  gloss: Miscellaneous items of little value, especially discarded or unwanted items.
