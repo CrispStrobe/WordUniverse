@@ -30,7 +30,9 @@ import argparse
 import json
 import os
 import pathlib
+import re
 import sys
+import threading
 import time
 from collections import Counter, defaultdict
 from concurrent.futures import ThreadPoolExecutor
@@ -82,13 +84,87 @@ def batches(items, size):
         yield items[start:start + size]
 
 
-def judge(client, model, batch, temperature, attempts=5):
+
+class Lane:
+    """One key on one model, with its own pace and its own cooldown.
+
+    Free tiers rate-limit per key *and* per model, and they do it by
+    returning 429 rather than by telling you the limit. So a lane carries the
+    earliest time it may be used again: a 429 parks it (honouring Retry-After
+    when the provider sends one), everything else waits out a minimum
+    interval. Work goes to whichever lane comes free first, which is what
+    turns three rate-limited free models into one usable one.
+    """
+
+    def __init__(self, client, model, label, min_interval):
+        self.client = client
+        self.model = model
+        self.label = label
+        self.min_interval = min_interval
+        self.ready_at = 0.0
+        self.failures = 0
+        self.judged = 0
+        self.retired = False
+
+    def parked(self, seconds, reason):
+        self.ready_at = time.monotonic() + seconds
+        self.failures += 1
+        return f'{self.label}: {reason}, back in {seconds:.0f}s'
+
+    def used(self):
+        self.ready_at = time.monotonic() + self.min_interval
+        self.failures = 0
+
+    def retire(self):
+        """Out for the rest of the run — a refusal repeats."""
+        self.ready_at = float('inf')
+        self.retired = True
+
+
+class Pool:
+    """Hands out lanes, one at a time, waiting when they are all parked."""
+
+    def __init__(self, lanes, patience):
+        self._lanes = lanes
+        self._lock = threading.Lock()
+        self._patience = patience
+
+    def take(self):
+        deadline = time.monotonic() + self._patience
+        while True:
+            with self._lock:
+                if all(lane.retired for lane in self._lanes):
+                    return None
+                lane = min(self._lanes, key=lambda candidate: candidate.ready_at)
+                wait = lane.ready_at - time.monotonic()
+                if wait <= 0:
+                    lane.ready_at = time.monotonic() + lane.min_interval
+                    return lane
+            if time.monotonic() > deadline:
+                return None
+            time.sleep(min(wait, 5))
+
+    def report(self):
+        return ', '.join(f'{lane.label}: {lane.judged}' for lane in self._lanes
+                         if lane.judged)
+
+
+def retry_after(error):
+    """Seconds the provider asked for, or None."""
+    match = re.search(r"retry.after[^0-9]{0,12}(\d+)", str(error), re.I)
+    return int(match.group(1)) if match else None
+
+
+def judge(pool, batch, temperature, attempts=6):
     prompt = '\n\n'.join(render(item, i + 1) for i, item in enumerate(batch))
-    text = '{}'
-    for attempt in range(attempts):
+    for _ in range(attempts):
+        lane = pool.take()
+        if lane is None:
+            print('\n  every lane is rate-limited; giving these up')
+            return []
         try:
-            response = client.chat.completions.create(
-                model=model,
+            response = lane.client.chat.completions.create(
+                model=lane.model,
                 temperature=temperature,
                 messages=[
                     {'role': 'system', 'content': RUBRIC},
@@ -96,35 +172,65 @@ def judge(client, model, batch, temperature, attempts=5):
                 ],
                 response_format={'type': 'json_object'},
             )
-            text = response.choices[0].message.content or '{}'
-            break
+            verdicts = parse_verdicts(response.choices[0].message.content or '')
+            if verdicts is None:
+                print('\n  ' + lane.parked(10, 'answered with something that '
+                                            'is not JSON'))
+                continue
+            lane.used()
+            lane.judged += len(batch)
+            return stitch(batch, verdicts)
         except Exception as error:  # noqa: BLE001 - any transport problem
-            # Free tiers rate-limit hard and models occasionally return
-            # something that is not JSON. Neither is worth losing a sweep
-            # over, so back off and try again; give up quietly at the end and
-            # let the items count as unjudged rather than as passing.
-            retryable = any(code in str(error)
-                            for code in ('429', '500', '502', '503', '529',
-                                         'overloaded', 'timeout'))
-            if attempt == attempts - 1 or not retryable:
-                if not retryable:
-                    print(f'\n  {type(error).__name__}: {error}'[:300])
-                return []
-            time.sleep(min(2 ** attempt * 2, 30))
+            text = str(error)
+            transient = any(code in text for code in
+                            ('429', '500', '502', '503', '504', '529',
+                             'overloaded', 'timeout', 'Connection'))
+            if not transient:
+                # A refusal is about the lane, not the batch: a model that is
+                # gated, misspelled or out of credit says so every time.
+                print(f'\n  {lane.label}: {type(error).__name__}: '
+                      f'{text[:160]} — retiring this lane')
+                lane.retire()
+                continue
+            wait = retry_after(error) or min(2 ** lane.failures * 5, 120)
+            print('\n  ' + lane.parked(wait, 'rate-limited'))
+    return []
+
+
+def parse_verdicts(text):
+    """The verdict list, or None when the model did not answer in JSON.
+
+    Models wrap JSON in ```fences and prepend commentary; neither is worth
+    losing a batch over.
+    """
+    body = text.strip()
+    if body.startswith('```'):
+        body = body.split('```', 2)[1]
+        if body.lstrip().lower().startswith('json'):
+            body = body.lstrip()[4:]
+    if not body.lstrip().startswith('{'):
+        start, end = body.find('{'), body.rfind('}')
+        if start == -1 or end == -1:
+            return None
+        body = body[start:end + 1]
     try:
-        verdicts = json.loads(text).get('verdicts') or []
+        return json.loads(body).get('verdicts') or []
     except json.JSONDecodeError:
-        return []
+        return None
+
+
+def stitch(batch, verdicts):
+    """Verdicts back onto the items they judged, defaulting to unflagged."""
     by_number = {int(v.get('n', 0)): v for v in verdicts if isinstance(v, dict)}
-    out = []
-    for index, item in enumerate(batch, start=1):
-        verdict = by_number.get(index, {})
-        out.append({
+    return [
+        {
             'item': item,
-            **{field: bool(verdict.get(field, True)) for field in FIELDS},
-            'note': str(verdict.get('note') or ''),
-        })
-    return out
+            **{field: bool(by_number.get(index, {}).get(field, True))
+               for field in FIELDS},
+            'note': str(by_number.get(index, {}).get('note') or ''),
+        }
+        for index, item in enumerate(batch, start=1)
+    ]
 
 
 def key_of(item):
@@ -162,10 +268,24 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('items', type=pathlib.Path,
                         help='JSONL from tools/audit/dump.sh --json')
-    parser.add_argument('--model')
+    parser.add_argument('--model', help='one model, or several separated by '
+                        'commas: the work is spread over all of them')
     parser.add_argument('--endpoint', default=os.environ.get(
         'WU_REVIEW_ENDPOINT', 'https://api.openai.com/v1'))
-    parser.add_argument('--api-key-env', default='WU_REVIEW_API_KEY')
+    parser.add_argument('--api-key-env', default='WU_REVIEW_API_KEY',
+                        help='environment variable holding the key, or '
+                             'several separated by commas — a lane is opened '
+                             'for every key on every model')
+    parser.add_argument('--pace', type=float, default=3.0, metavar='SECONDS',
+                        help='shortest gap between two requests on the same '
+                             'lane (default 3s, which free tiers tolerate)')
+    parser.add_argument('--lane', action='append', default=[],
+                        metavar='URL|KEY_ENV|MODEL',
+                        help='one lane, spelled out; repeatable, and mixes '
+                             'providers in a single run')
+    parser.add_argument('--patience', type=float, default=180.0,
+                        metavar='SECONDS',
+                        help='how long to wait when every lane is parked')
     parser.add_argument('--out', type=pathlib.Path)
     parser.add_argument('--report', type=pathlib.Path,
                         help='summarise an existing verdict file and stop')
@@ -231,7 +351,7 @@ def main():
             print(text)
         return 0
 
-    if args.dry_run or not args.model:
+    if args.dry_run or not (args.model or args.lane):
         print(RUBRIC)
         print('\n--- one batch would look like ---\n')
         print('\n\n'.join(render(item, i + 1)
@@ -244,23 +364,48 @@ def main():
         from openai import OpenAI
     except ImportError:
         sys.exit('pip install openai')
-    client = OpenAI(base_url=args.endpoint,
-                    api_key=os.environ.get(args.api_key_env, 'not-needed'))
+
+    lanes = []
+    for spec in args.lane:
+        url, key_env, model = [part.strip() for part in spec.split('|')]
+        key = os.environ.get(key_env)
+        if not key:
+            print(f'  {key_env} is not set; skipping {model}')
+            continue
+        lanes.append(Lane(OpenAI(base_url=url, api_key=key), model,
+                          f'{model} @ {url.split("//")[-1].split("/")[0]}',
+                          args.pace))
+    for key_env in [name.strip() for name in args.api_key_env.split(',')
+                    if name.strip()]:
+        key = os.environ.get(key_env)
+        if not key:
+            print(f'  {key_env} is not set; skipping it')
+            continue
+        client = OpenAI(base_url=args.endpoint, api_key=key)
+        for model in [name.strip() for name in (args.model or '').split(',')
+                      if name.strip()]:
+            label = model if len(args.api_key_env.split(',')) == 1 \
+                else f'{model} via {key_env}'
+            lanes.append(Lane(client, model, label, args.pace))
+    if not lanes:
+        sys.exit(f'no usable key: set {args.api_key_env}')
+    print(f'{len(lanes)} lane(s): '
+          + ', '.join(lane.label for lane in lanes))
+    pool = Pool(lanes, args.patience)
 
     out = args.out or args.items.with_suffix('.verdicts.jsonl')
     written = 0
     with out.open('a') as handle:
-        with ThreadPoolExecutor(max_workers=args.concurrency) as pool:
-            for verdicts in pool.map(
-                    lambda batch: judge(client, args.model, batch,
-                                        args.temperature),
+        with ThreadPoolExecutor(max_workers=args.concurrency) as workers:
+            for verdicts in workers.map(
+                    lambda batch: judge(pool, batch, args.temperature),
                     list(batches(items, args.batch))):
                 for verdict in verdicts:
                     handle.write(json.dumps(verdict, ensure_ascii=False) + '\n')
                     written += 1
                 handle.flush()
                 print(f'  {written}/{len(items)}', end='\r', flush=True)
-    print(f'\nwrote {written} verdicts to {out}')
+    print(f'\nwrote {written} verdicts to {out}   [{pool.report()}]')
     report(out, args.samples)
     return 0
 

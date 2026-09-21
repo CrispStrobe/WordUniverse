@@ -66,10 +66,15 @@ class ReviewTest(unittest.TestCase):
     def tearDownClass(cls):
         cls.server.shutdown()
 
+    @staticmethod
+    def _pool(client, label='stub'):
+        return review.Pool([review.Lane(client, 'stub-model', label, 0.0)],
+                           patience=1.0)
+
     def test_verdicts_are_written_and_reported(self):
         from openai import OpenAI
         client = OpenAI(base_url=self.endpoint, api_key='stub')
-        verdicts = review.judge(client, 'stub-model', ITEMS, 0.0)
+        verdicts = review.judge(self._pool(client), ITEMS, 0.0)
         self.assertEqual(len(verdicts), 2)
         self.assertTrue(verdicts[0]['grammatical'])
         self.assertFalse(verdicts[1]['grammatical'],
@@ -81,11 +86,46 @@ class ReviewTest(unittest.TestCase):
     def test_a_missing_verdict_counts_as_unflagged(self):
         """A model that answers about fewer items must not flag the rest."""
         verdicts = review.judge(
-            _FixedClient({'verdicts': [{'n': 1, 'keyed': False,
-                                        'note': 'wrong'}]}),
-            'stub', ITEMS, 0.0)
+            self._pool(_FixedClient({'verdicts': [{'n': 1, 'keyed': False,
+                                                   'note': 'wrong'}]})),
+            ITEMS, 0.0)
         self.assertFalse(verdicts[0]['keyed'])
         self.assertTrue(all(verdicts[1][field] for field in review.FIELDS))
+
+
+    def test_a_rate_limited_lane_steps_aside_for_another(self):
+        """Two lanes, one always 429: the work still gets done."""
+        angry = _FailingClient('Error code: 429 - rate limited, '
+                               'retry_after_seconds: 1')
+        calm = _FixedClient({'verdicts': [{'n': 1}, {'n': 2}]})
+        pool = review.Pool([
+            review.Lane(angry, 'busy-model', 'busy', 0.0),
+            review.Lane(calm, 'free-model', 'free', 0.0),
+        ], patience=5.0)
+        verdicts = review.judge(pool, ITEMS, 0.0, attempts=4)
+        self.assertEqual(len(verdicts), 2)
+        self.assertGreater(
+            next(lane for lane in pool._lanes if lane.label == 'busy').failures,
+            0, 'the rate-limited lane has to have been parked')
+
+    def test_every_lane_parked_gives_up_rather_than_hangs(self):
+        angry = _FailingClient('Error code: 429 - rate limited')
+        pool = review.Pool(
+            [review.Lane(angry, 'busy-model', 'busy', 0.0)], patience=0.2)
+        self.assertEqual(review.judge(pool, ITEMS, 0.0, attempts=3), [])
+
+    def test_json_in_a_fence_is_still_json(self):
+        fenced = '```json\n{"verdicts": [{"n": 1, "keyed": false}]}\n```'
+        self.assertEqual(review.parse_verdicts(fenced),
+                         [{'n': 1, 'keyed': False}])
+        self.assertEqual(review.parse_verdicts('here you go: '
+                                               '{"verdicts": []}'), [])
+        self.assertIsNone(review.parse_verdicts('I could not do that'))
+
+    def test_retry_after_is_read_when_the_provider_sends_one(self):
+        self.assertEqual(
+            review.retry_after('429 ... retry_after_seconds: 17 ...'), 17)
+        self.assertIsNone(review.retry_after('500 server error'))
 
     def test_resume_skips_what_was_judged(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -96,6 +136,18 @@ class ReviewTest(unittest.TestCase):
             remaining = [item for item in ITEMS
                          if review.key_of(item) not in done]
             self.assertEqual(remaining, [ITEMS[1]])
+
+
+class _FailingClient:
+    """Always raises, the way a rate-limited provider does."""
+
+    def __init__(self, message):
+        self.chat = self
+        self.completions = self
+        self._message = message
+
+    def create(self, **_):
+        raise RuntimeError(self._message)
 
 
 class _FixedClient:
