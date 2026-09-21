@@ -7,7 +7,8 @@ import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
 import '../../../core/models/vocabulary_models.dart';
-import '../../../core/models/word_features.dart'; 
+import '../../../core/models/vocabulary_quality.dart';
+import '../../../core/models/word_features.dart';
 
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
@@ -32,7 +33,8 @@ class WordSortGame extends StatefulWidget {
 
 enum FeedbackState { none, correct, incorrect }
 
-class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMixin {
+class _WordSortGameState extends State<WordSortGame>
+    with TickerProviderStateMixin {
   late VocabularyService _vocabularyService;
   late SriService _sriService;
   late AudioService _audioService;
@@ -50,21 +52,22 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
 
   FeedbackState _feedbackState = FeedbackState.none;
   Timer? _feedbackTimer;
-  
+
   // Non-blocking hint system
   String? _currentHint;
   late AnimationController _hintController;
   late Animation<double> _hintAnimation;
-  
+
   // Hint rotation tracking
   final Map<String, int> _hintUsageCount = {};
   final List<String> _recentHints = [];
-  
+
   // Confetti
   late AnimationController _confettiController;
   bool _showConfetti = false;
 
-  late Map<GermanWordType, ({String label, IconData icon, Color color})> _targetCategories;
+  late Map<GermanWordType, ({String label, IconData icon, Color color})>
+      _targetCategories;
 
   bool _onboardingScheduled = false;
 
@@ -116,7 +119,8 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     };
 
     // Add advanced categories for grades > 3
-    if (widget.gradeLevel.index >= 2) { // Grade 3+
+    if (widget.gradeLevel.index >= 2) {
+      // Grade 3+
       _targetCategories[GermanWordType.adverb] = (
         label: _s.wordSortCategoryAdverb,
         icon: Icons.speed,
@@ -124,7 +128,8 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       );
     }
 
-    if (widget.gradeLevel.index >= 3) { // Grade 4+
+    if (widget.gradeLevel.index >= 3) {
+      // Grade 4+
       _targetCategories[GermanWordType.pronomen] = (
         label: _s.wordSortCategoryPronoun,
         icon: Icons.person,
@@ -179,8 +184,6 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     await _loadLevel();
   }
 
-
-
   bool _isWordValidForGame(GermanWord word) {
     return _targetCategories.containsKey(word.wordType) &&
         !word.word.contains(" ") &&
@@ -208,7 +211,10 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     );
 
     // Smart hints read the enrichment, so decode it for the words in play.
-    _wordQueue = Queue.from(await _vocabularyService.hydrate(wordsForGame));
+    // It also settles the word class: the pack files "at" as a noun while its
+    // own primary_pos says preposition, and this game asks for the class.
+    _wordQueue = Queue.from((await _vocabularyService.hydrate(wordsForGame))
+        .where((w) => !classIsContradicted(w)));
     if (!mounted) return;
 
     if (_wordQueue.isEmpty) {
@@ -270,7 +276,8 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       _showConfetti = true;
     });
 
-    if (_gameProvider.hintsEnabled) _showSmartHint(_currentWord!, isCorrect: true);
+    if (_gameProvider.hintsEnabled)
+      _showSmartHint(_currentWord!, isCorrect: true);
     _confettiController.forward(from: 0.0);
 
     _feedbackTimer?.cancel();
@@ -292,7 +299,9 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       _feedbackState = FeedbackState.incorrect;
     });
 
-    if (_gameProvider.hintsEnabled) _showSmartHint(_currentWord!, isCorrect: false, guessedType: guessedCategory);
+    if (_gameProvider.hintsEnabled)
+      _showSmartHint(_currentWord!,
+          isCorrect: false, guessedType: guessedCategory);
 
     _feedbackTimer?.cancel();
     _feedbackTimer = Timer(const Duration(milliseconds: 2000), () {
@@ -304,20 +313,22 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     });
   }
 
-  void _showSmartHint(GermanWord word, {required bool isCorrect, GermanWordType? guessedType}) {
-    final apiData = word.apiEnrichment; 
-    String hint = _generateSmartHint(word, apiData, isCorrect: isCorrect, guessedType: guessedType);
-    
+  void _showSmartHint(GermanWord word,
+      {required bool isCorrect, GermanWordType? guessedType}) {
+    final apiData = word.apiEnrichment;
+    String hint = _generateSmartHint(word, apiData,
+        isCorrect: isCorrect, guessedType: guessedType);
+
     _hintUsageCount[hint] = (_hintUsageCount[hint] ?? 0) + 1;
     _recentHints.add(hint);
     if (_recentHints.length > 10) _recentHints.removeAt(0);
-    
+
     setState(() {
       _currentHint = hint;
     });
-    
+
     _hintController.forward();
-    
+
     Future.delayed(Duration(milliseconds: isCorrect ? 1200 : 1800), () {
       if (mounted) {
         _hintController.reverse();
@@ -325,26 +336,34 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     });
   }
 
-  String _generateSmartHint(GermanWord word, ApiEnrichment? apiData, {required bool isCorrect, GermanWordType? guessedType}) {
-    final patternData = apiData?.inflectionsPattern; 
-    final genericHintCount = _hintUsageCount.values.where((count) => count >= 2).length;
+  String _generateSmartHint(GermanWord word, ApiEnrichment? apiData,
+      {required bool isCorrect, GermanWordType? guessedType}) {
+    final patternData = apiData?.inflectionsPattern;
+    final genericHintCount =
+        _hintUsageCount.values.where((count) => count >= 2).length;
     final shouldUseAdvancedHints = genericHintCount >= 1 || _wordsCorrect >= 3;
-    
+
     if (isCorrect) {
-      return _generateCorrectHint(word, apiData, patternData, shouldUseAdvancedHints);
+      return _generateCorrectHint(
+          word, apiData, patternData, shouldUseAdvancedHints);
     } else {
-      return _generateIncorrectHint(word, apiData, patternData, guessedType, shouldUseAdvancedHints);
+      return _generateIncorrectHint(
+          word, apiData, patternData, guessedType, shouldUseAdvancedHints);
     }
   }
 
-  String _generateCorrectHint(GermanWord word, ApiEnrichment? apiData, Map<String, dynamic>? patternData, bool advanced) {
+  String _generateCorrectHint(GermanWord word, ApiEnrichment? apiData,
+      Map<String, dynamic>? patternData, bool advanced) {
     switch (word.wordType) {
       case GermanWordType.substantiv:
-        return _getNounHint(word, apiData, patternData, advanced, isCorrect: true);
+        return _getNounHint(word, apiData, patternData, advanced,
+            isCorrect: true);
       case GermanWordType.verb:
-        return _getVerbHint(word, apiData, patternData, advanced, isCorrect: true);
+        return _getVerbHint(word, apiData, patternData, advanced,
+            isCorrect: true);
       case GermanWordType.adjektiv:
-        return _getAdjectiveHint(word, apiData, patternData, advanced, isCorrect: true);
+        return _getAdjectiveHint(word, apiData, patternData, advanced,
+            isCorrect: true);
       case GermanWordType.adverb:
         return _getAdverbHint(word, apiData, advanced);
       case GermanWordType.pronomen:
@@ -356,13 +375,19 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
 
   bool get _isDE => _vocabularyService.learningLanguage == 'de';
 
-  String _getNounHint(GermanWord word, ApiEnrichment? apiData, Map<String, dynamic>? patternData, bool advanced, {bool isCorrect = true}) {
+  String _getNounHint(GermanWord word, ApiEnrichment? apiData,
+      Map<String, dynamic>? patternData, bool advanced,
+      {bool isCorrect = true}) {
     final List<String> hints = [];
-    
+
     if (advanced && patternData != null) {
       try {
         final plural = patternData['plural'];
-        if (plural != null && plural is String && plural.isNotEmpty && plural != word.word && plural != '-') {
+        if (plural != null &&
+            plural is String &&
+            plural.isNotEmpty &&
+            plural != word.word &&
+            plural != '-') {
           hints.add(_s.wordSortHintNounPluralForm(word.word, plural));
         }
 
@@ -378,7 +403,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
         }
       } catch (e) {}
     }
-    
+
     if (_isDE && word.article != null && word.article!.isNotEmpty) {
       hints.add(_s.wordSortHintNounWithArticle(word.article!, word.word));
     }
@@ -403,16 +428,18 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     return _selectHintFromList(hints);
   }
 
-  String _getVerbHint(GermanWord word, ApiEnrichment? apiData, Map<String, dynamic>? patternData, bool advanced, {bool isCorrect = true}) {
+  String _getVerbHint(GermanWord word, ApiEnrichment? apiData,
+      Map<String, dynamic>? patternData, bool advanced,
+      {bool isCorrect = true}) {
     final List<String> hints = [];
-    
+
     if (advanced && patternData != null) {
       try {
         final conjugation = patternData['conjugation']?['Präsens'];
         if (conjugation != null && conjugation is Map) {
           final ich = conjugation['ich'];
           final du = conjugation['du'];
-          
+
           if (ich != null && du != null) {
             hints.add(_s.wordSortHintVerbPersonalForms('$ich', '$du'));
           }
@@ -427,7 +454,9 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
         }
 
         final prateritum = patternData['conjugation']?['Präteritum'];
-        if (prateritum != null && prateritum is Map && prateritum['ich'] != null) {
+        if (prateritum != null &&
+            prateritum is Map &&
+            prateritum['ich'] != null) {
           hints.add(_s.wordSortHintVerbPast('${prateritum['ich']}'));
         }
       } catch (e) {}
@@ -453,15 +482,22 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     return _selectHintFromList(hints);
   }
 
-  String _getAdjectiveHint(GermanWord word, ApiEnrichment? apiData, Map<String, dynamic>? patternData, bool advanced, {bool isCorrect = true}) {
+  String _getAdjectiveHint(GermanWord word, ApiEnrichment? apiData,
+      Map<String, dynamic>? patternData, bool advanced,
+      {bool isCorrect = true}) {
     final List<String> hints = [];
-    
+
     if (advanced && patternData != null) {
       try {
         final comp = patternData['comparative'];
         final superl = patternData['superlative'];
-        
-        if (comp != null && superl != null && comp is String && superl is String && comp.isNotEmpty && superl.isNotEmpty) {
+
+        if (comp != null &&
+            superl != null &&
+            comp is String &&
+            superl is String &&
+            comp.isNotEmpty &&
+            superl.isNotEmpty) {
           hints.add(_s.wordSortHintAdjComparison(word.word, comp, superl));
         } else if (comp != null && comp is String && comp.isNotEmpty) {
           hints.add(_s.wordSortHintAdjComparative(word.word, comp));
@@ -490,12 +526,13 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     return _selectHintFromList(hints);
   }
 
-  String _getAdverbHint(GermanWord word, ApiEnrichment? apiData, bool advanced) {
+  String _getAdverbHint(
+      GermanWord word, ApiEnrichment? apiData, bool advanced) {
     final hints = [
       _s.wordSortHintAdverbAction(word.word),
       _s.wordSortHintAdverbQuestion(word.word),
     ];
-    
+
     if (advanced && (word.displayDefinitions.isNotEmpty)) {
       hints.add(_s.wordSortHintDefinition(word.displayDefinitions.first));
     }
@@ -503,7 +540,8 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     return _selectHintFromList(hints);
   }
 
-  String _getPronomenHint(GermanWord word, ApiEnrichment? apiData, bool advanced) {
+  String _getPronomenHint(
+      GermanWord word, ApiEnrichment? apiData, bool advanced) {
     final hints = [
       _s.wordSortHintPronounReplaces(word.word),
       _s.wordSortHintPronounStands(word.word),
@@ -512,39 +550,50 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     if (advanced && (word.displayDefinitions.isNotEmpty)) {
       hints.add(_s.wordSortHintDefinition(word.displayDefinitions.first));
     }
-    
+
     return _selectHintFromList(hints);
   }
 
-  String _generateIncorrectHint(GermanWord word, ApiEnrichment? apiData, Map<String, dynamic>? patternData, 
-      GermanWordType? guessedType, bool advanced) {
-    
+  String _generateIncorrectHint(
+      GermanWord word,
+      ApiEnrichment? apiData,
+      Map<String, dynamic>? patternData,
+      GermanWordType? guessedType,
+      bool advanced) {
     String wrongPart = guessedType != null
         ? '${_s.wordSortHintNotA(_getCategoryName(guessedType))}\n'
         : '${_s.wordSortHintWrong}\n';
-    
-    String correctPart = _getDetailedCorrectExplanation(word, apiData, patternData, guessedType);
-    
+
+    String correctPart =
+        _getDetailedCorrectExplanation(word, apiData, patternData, guessedType);
+
     return wrongPart + correctPart;
   }
 
-  String _getDetailedCorrectExplanation(GermanWord word, ApiEnrichment? apiData, Map<String, dynamic>? patternData, GermanWordType? guessedType) {
+  String _getDetailedCorrectExplanation(GermanWord word, ApiEnrichment? apiData,
+      Map<String, dynamic>? patternData, GermanWordType? guessedType) {
     switch (word.wordType) {
       case GermanWordType.substantiv:
-        return _getNounCorrectExplanation(word, apiData, patternData, guessedType);
+        return _getNounCorrectExplanation(
+            word, apiData, patternData, guessedType);
       case GermanWordType.verb:
-        return _getVerbCorrectExplanation(word, apiData, patternData, guessedType);
+        return _getVerbCorrectExplanation(
+            word, apiData, patternData, guessedType);
       case GermanWordType.adjektiv:
-        return _getAdjectiveCorrectExplanation(word, apiData, patternData, guessedType);
+        return _getAdjectiveCorrectExplanation(
+            word, apiData, patternData, guessedType);
       default:
         if (word.displayDefinitions.isNotEmpty) {
-          return _s.wordSortExplainCategoryDefinition(_getCategoryName(word.wordType), word.displayDefinitions.first);
+          return _s.wordSortExplainCategoryDefinition(
+              _getCategoryName(word.wordType), word.displayDefinitions.first);
         }
-        return _s.wordSortExplainCategory(word.word, _getCategoryName(word.wordType));
+        return _s.wordSortExplainCategory(
+            word.word, _getCategoryName(word.wordType));
     }
   }
 
-  String _getNounCorrectExplanation(GermanWord word, ApiEnrichment? apiData, Map<String, dynamic>? patternData, GermanWordType? guessedType) {
+  String _getNounCorrectExplanation(GermanWord word, ApiEnrichment? apiData,
+      Map<String, dynamic>? patternData, GermanWordType? guessedType) {
     final List<String> reasons = [];
 
     if (_isDE) {
@@ -558,7 +607,11 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       }
       try {
         final plural = patternData?['plural'];
-        if (plural != null && plural is String && plural.isNotEmpty && plural != word.word && plural != '-') {
+        if (plural != null &&
+            plural is String &&
+            plural.isNotEmpty &&
+            plural != word.word &&
+            plural != '-') {
           reasons.add(_s.wordSortReasonPlural(plural));
         }
       } catch (e) {}
@@ -567,7 +620,11 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     } else {
       try {
         final plural = patternData?['plural'];
-        if (plural != null && plural is String && plural.isNotEmpty && plural != word.word && plural != '-') {
+        if (plural != null &&
+            plural is String &&
+            plural.isNotEmpty &&
+            plural != word.word &&
+            plural != '-') {
           reasons.add(_s.wordSortReasonPlural(plural));
         }
       } catch (e) {}
@@ -576,7 +633,8 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     }
   }
 
-  String _getVerbCorrectExplanation(GermanWord word, ApiEnrichment? apiData, Map<String, dynamic>? patternData, GermanWordType? guessedType) {
+  String _getVerbCorrectExplanation(GermanWord word, ApiEnrichment? apiData,
+      Map<String, dynamic>? patternData, GermanWordType? guessedType) {
     final List<String> reasons = [];
 
     if (_isDE) {
@@ -592,7 +650,8 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
           }
         }
       } catch (e) {}
-      if (guessedType == GermanWordType.substantiv) reasons.add(_s.wordSortReasonNoArticle);
+      if (guessedType == GermanWordType.substantiv)
+        reasons.add(_s.wordSortReasonNoArticle);
       if (reasons.isEmpty) return _s.wordSortExplainVerbAction(word.word);
       return _s.wordSortExplainVerbReasons(reasons.join(' • '));
     } else {
@@ -603,7 +662,11 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     }
   }
 
-  String _getAdjectiveCorrectExplanation(GermanWord word, ApiEnrichment? apiData, Map<String, dynamic>? patternData, GermanWordType? guessedType) {
+  String _getAdjectiveCorrectExplanation(
+      GermanWord word,
+      ApiEnrichment? apiData,
+      Map<String, dynamic>? patternData,
+      GermanWordType? guessedType) {
     final List<String> reasons = [];
 
     if (_isDE) {
@@ -613,7 +676,8 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
           reasons.add(_s.wordSortReasonComparable(comp));
         }
       } catch (e) {}
-      if (guessedType == GermanWordType.substantiv) reasons.add(_s.wordSortReasonNoArticle);
+      if (guessedType == GermanWordType.substantiv)
+        reasons.add(_s.wordSortReasonNoArticle);
       if (reasons.isEmpty) reasons.add(_s.wordSortReasonAdjExample(word.word));
       return _s.wordSortExplainAdjReasons(reasons.join(' • '));
     } else {
@@ -632,20 +696,27 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       return _s.wordSortExplainAdjReasons(reasons.join(' • '));
     }
   }
-  
+
   String _selectHintFromList(List<String> hints) {
-    hints.sort((a, b) => (_hintUsageCount[a] ?? 0).compareTo(_hintUsageCount[b] ?? 0));
+    hints.sort(
+        (a, b) => (_hintUsageCount[a] ?? 0).compareTo(_hintUsageCount[b] ?? 0));
     return hints.first;
   }
 
   String _getCategoryName(GermanWordType type) {
     switch (type) {
-      case GermanWordType.substantiv: return _s.wordTypeNoun;
-      case GermanWordType.verb: return _s.wordTypeVerb;
-      case GermanWordType.adjektiv: return _s.wordTypeAdjective;
-      case GermanWordType.adverb: return _s.wordTypeAdverb;
-      case GermanWordType.pronomen: return _s.wordTypePronoun;
-      default: return type.toString().split('.').last;
+      case GermanWordType.substantiv:
+        return _s.wordTypeNoun;
+      case GermanWordType.verb:
+        return _s.wordTypeVerb;
+      case GermanWordType.adjektiv:
+        return _s.wordTypeAdjective;
+      case GermanWordType.adverb:
+        return _s.wordTypeAdverb;
+      case GermanWordType.pronomen:
+        return _s.wordTypePronoun;
+      default:
+        return type.toString().split('.').last;
     }
   }
 
@@ -667,10 +738,11 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
           mainAxisSize: MainAxisSize.min,
           children: [
             Text('${_s.score}: $_score',
-              style: SpaceTheme.titleStyle.copyWith(color: SpaceTheme.starYellow)),
+                style: SpaceTheme.titleStyle
+                    .copyWith(color: SpaceTheme.starYellow)),
             const SizedBox(height: 16),
             Text('$_wordsCorrect / $_wordsTotal ${_s.correct}',
-              style: SpaceTheme.bodyStyle),
+                style: SpaceTheme.bodyStyle),
           ],
         ),
         actions: [
@@ -687,7 +759,8 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
               Navigator.of(context).pop();
               _loadLevel();
             },
-            style: ElevatedButton.styleFrom(backgroundColor: SpaceTheme.planetOrange),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: SpaceTheme.planetOrange),
             child: Text(_s.playAgain),
           ),
         ],
@@ -697,7 +770,8 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
-    final String selectedFontFamily = context.watch<GameProvider>().selectedFontFamily;
+    final String selectedFontFamily =
+        context.watch<GameProvider>().selectedFontFamily;
     return Scaffold(
       body: SpaceBackground(
         child: SafeArea(
@@ -709,7 +783,8 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
                 onBack: () => Navigator.of(context).pop(),
               ),
               if (_isLoading)
-                const Expanded(child: Center(child: CircularProgressIndicator()))
+                const Expanded(
+                    child: Center(child: CircularProgressIndicator()))
               else if (_isEmpty)
                 Expanded(child: _buildEmptyState())
               else
@@ -744,7 +819,8 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () => Navigator.of(context).pop(),
-              style: ElevatedButton.styleFrom(backgroundColor: SpaceTheme.planetOrange),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: SpaceTheme.planetOrange),
               child: Text(_s.gameBack),
             ),
           ],
@@ -758,8 +834,9 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
       builder: (context, constraints) {
         // Responsive breakpoint
         final isWideScreen = constraints.maxWidth > 800;
-        final isTablet = constraints.maxWidth > 600 && constraints.maxWidth <= 800;
-        
+        final isTablet =
+            constraints.maxWidth > 600 && constraints.maxWidth <= 800;
+
         return Stack(
           children: [
             // Main game layout
@@ -769,21 +846,18 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
               _buildTabletLayout(selectedFontFamily)
             else
               _buildMobileLayout(selectedFontFamily),
-            
+
             // Non-blocking confetti
-            if (_showConfetti)
-              IgnorePointer(child: _buildCategoryConfetti()),
-            
+            if (_showConfetti) IgnorePointer(child: _buildCategoryConfetti()),
+
             // Non-blocking hint overlay
             Positioned(
-              top: 8,
-              right: 8,
-              left: 8,
-              child: Align(
-                alignment: Alignment.topCenter,
-                child: _buildFloatingHint(selectedFontFamily)
-              )
-            ),
+                top: 8,
+                right: 8,
+                left: 8,
+                child: Align(
+                    alignment: Alignment.topCenter,
+                    child: _buildFloatingHint(selectedFontFamily))),
           ],
         );
       },
@@ -797,8 +871,8 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
         Expanded(
           flex: 4,
           child: Center(
-            child: _currentWord == null 
-                ? const SizedBox.shrink() 
+            child: _currentWord == null
+                ? const SizedBox.shrink()
                 : _buildDraggableWord(selectedFontFamily),
           ),
         ),
@@ -817,8 +891,8 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
         Expanded(
           flex: 5,
           child: Center(
-            child: _currentWord == null 
-                ? const SizedBox.shrink() 
+            child: _currentWord == null
+                ? const SizedBox.shrink()
                 : _buildDraggableWord(selectedFontFamily),
           ),
         ),
@@ -838,8 +912,8 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
         Expanded(
           flex: 3,
           child: Center(
-            child: _currentWord == null 
-                ? const SizedBox.shrink() 
+            child: _currentWord == null
+                ? const SizedBox.shrink()
                 : _buildDraggableWord(selectedFontFamily),
           ),
         ),
@@ -860,62 +934,65 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
           CurvedAnimation(parent: _hintController, curve: Curves.elasticOut),
         ),
         child: Container(
-          constraints: const BoxConstraints(maxWidth: 500), 
+          constraints: const BoxConstraints(maxWidth: 500),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          child: _currentHint == null 
-            ? const SizedBox.shrink() 
-            : Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: _feedbackState == FeedbackState.correct
-                      ? [Colors.green.shade400, Colors.green.shade600]
-                      : [Colors.orange.shade400, Colors.deepOrange.shade600],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.white, width: 2),
-                boxShadow: [
-                  BoxShadow(
-                    color: (_feedbackState == FeedbackState.correct 
-                        ? Colors.green 
-                        : Colors.orange).withValues(alpha: 0.5),
-                    blurRadius: 20,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    _feedbackState == FeedbackState.correct 
-                        ? Icons.check_circle 
-                        : Icons.lightbulb,
-                    color: Colors.white,
-                    size: 28,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      _currentHint!,
-                      style: TextStyle(
-                        fontFamily: selectedFontFamily,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        height: 1.3,
-                      ),
-                      textAlign: TextAlign.left,
+          child: _currentHint == null
+              ? const SizedBox.shrink()
+              : Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: _feedbackState == FeedbackState.correct
+                          ? [Colors.green.shade400, Colors.green.shade600]
+                          : [
+                              Colors.orange.shade400,
+                              Colors.deepOrange.shade600
+                            ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.white, width: 2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: (_feedbackState == FeedbackState.correct
+                                ? Colors.green
+                                : Colors.orange)
+                            .withValues(alpha: 0.5),
+                        blurRadius: 20,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        _feedbackState == FeedbackState.correct
+                            ? Icons.check_circle
+                            : Icons.lightbulb,
+                        color: Colors.white,
+                        size: 28,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          _currentHint!,
+                          style: TextStyle(
+                            fontFamily: selectedFontFamily,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            height: 1.3,
+                          ),
+                          textAlign: TextAlign.left,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
         ),
       ),
     );
   }
-
 
   Widget _buildDraggableWord(String selectedFontFamily) {
     // --- UPDATED: Removed article display ---
@@ -934,8 +1011,10 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
             data: _currentWord!.wordType,
             onDragStarted: () => setState(() => _isDragging = true),
             onDragEnd: (details) => setState(() => _isDragging = false),
-            feedback: _buildWordCard(displayWord, selectedFontFamily, isFeedback: true),
-            childWhenDragging: _buildWordCard(displayWord, selectedFontFamily, isPlaceholder: true),
+            feedback: _buildWordCard(displayWord, selectedFontFamily,
+                isFeedback: true),
+            childWhenDragging: _buildWordCard(displayWord, selectedFontFamily,
+                isPlaceholder: true),
             child: Semantics(
               button: true,
               label: _s.wordSortDragLabel(displayWord),
@@ -947,7 +1026,8 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
     );
   }
 
-  Widget _buildWordCard(String word, String selectedFontFamily, {bool isFeedback = false, bool isPlaceholder = false}) {
+  Widget _buildWordCard(String word, String selectedFontFamily,
+      {bool isFeedback = false, bool isPlaceholder = false}) {
     Color borderColor = SpaceTheme.planetOrange;
     IconData? feedbackIcon;
     if (_feedbackState == FeedbackState.correct) {
@@ -971,10 +1051,22 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
           borderRadius: BorderRadius.circular(16),
           // Border style changes on incorrect to add a shape signal
           // alongside the color (color-blind redundancy).
-          border: Border.all(color: borderColor, width: _feedbackState == FeedbackState.incorrect ? 5 : 3),
+          border: Border.all(
+              color: borderColor,
+              width: _feedbackState == FeedbackState.incorrect ? 5 : 3),
           boxShadow: isFeedback
-              ? [BoxShadow(color: Colors.white.withValues(alpha: 0.3), blurRadius: 20, spreadRadius: 5)]
-              : [BoxShadow(color: borderColor.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 4))],
+              ? [
+                  BoxShadow(
+                      color: Colors.white.withValues(alpha: 0.3),
+                      blurRadius: 20,
+                      spreadRadius: 5)
+                ]
+              : [
+                  BoxShadow(
+                      color: borderColor.withValues(alpha: 0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4))
+                ],
         ),
         child: Stack(
           children: [
@@ -983,7 +1075,8 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
                 fit: BoxFit.scaleDown,
                 child: Text(
                   word,
-                  style: SpaceTheme.headlineStyle.copyWith(fontFamily: selectedFontFamily, fontSize: 32),
+                  style: SpaceTheme.headlineStyle
+                      .copyWith(fontFamily: selectedFontFamily, fontSize: 32),
                   maxLines: 2,
                   textAlign: TextAlign.center,
                 ),
@@ -1014,7 +1107,8 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
         children: _targetCategories.entries.map((entry) {
           return Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+              padding:
+                  const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
               child: _buildDragTarget(
                 targetType: entry.key,
                 label: entry.value.label,
@@ -1044,29 +1138,39 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
           button: true,
           label: _s.wordSortDropZoneLabel(label),
           child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          // Width is handled by parent column/stretch; enforce a minimum
-          // touch-target height (≥48dp) for accessibility.
-          constraints: const BoxConstraints(minHeight: 56),
-          decoration: BoxDecoration(
-            color: isHighlighted
-                ? color.withValues(alpha: 0.4)
-                : SpaceTheme.deepSpace.withValues(alpha: 0.6),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: isHighlighted ? color : color.withValues(alpha: 0.5),
-              width: 3,
+            duration: const Duration(milliseconds: 200),
+            // Width is handled by parent column/stretch; enforce a minimum
+            // touch-target height (≥48dp) for accessibility.
+            constraints: const BoxConstraints(minHeight: 56),
+            decoration: BoxDecoration(
+              color: isHighlighted
+                  ? color.withValues(alpha: 0.4)
+                  : SpaceTheme.deepSpace.withValues(alpha: 0.6),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: isHighlighted ? color : color.withValues(alpha: 0.5),
+                width: 3,
+              ),
+              boxShadow: isHighlighted
+                  ? [
+                      BoxShadow(
+                          color: color.withValues(alpha: 0.5),
+                          blurRadius: 15,
+                          spreadRadius: 2)
+                    ]
+                  : [
+                      BoxShadow(
+                          color: color.withValues(alpha: 0.2),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2))
+                    ],
             ),
-            boxShadow: isHighlighted
-                ? [BoxShadow(color: color.withValues(alpha: 0.5), blurRadius: 15, spreadRadius: 2)]
-                : [BoxShadow(color: color.withValues(alpha: 0.2), blurRadius: 8, offset: const Offset(0, 2))],
-          ),
-          child: Center(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
+            child: Center(
+              child: LayoutBuilder(builder: (context, constraints) {
                 // Adaptive icon size based on available height
-                final iconSize = (constraints.maxHeight * 0.4).clamp(20.0, 40.0);
-                
+                final iconSize =
+                    (constraints.maxHeight * 0.4).clamp(20.0, 40.0);
+
                 return Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -1077,9 +1181,9 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
                       child: FittedBox(
                         fit: BoxFit.scaleDown,
                         child: Text(
-                          label, 
+                          label,
                           style: SpaceTheme.titleStyle.copyWith(
-                            color: color, 
+                            color: color,
                             fontSize: 22,
                           ),
                         ),
@@ -1087,10 +1191,9 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
                     ),
                   ],
                 );
-              }
+              }),
             ),
           ),
-        ),
         );
       },
       onWillAcceptWithDetails: (data) => true,
@@ -1102,7 +1205,7 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
 
   Widget _buildCategoryConfetti() {
     final emoji = _getCategoryEmoji(_currentWord?.wordType);
-    
+
     return AnimatedBuilder(
       animation: _confettiController,
       builder: (context, child) {
@@ -1132,12 +1235,18 @@ class _WordSortGameState extends State<WordSortGame> with TickerProviderStateMix
   String _getCategoryEmoji(GermanWordType? type) {
     if (type == null) return '⭐';
     switch (type) {
-      case GermanWordType.substantiv: return '🏠';
-      case GermanWordType.verb: return '🏃';
-      case GermanWordType.adjektiv: return '🎨';
-      case GermanWordType.adverb: return '⚡';
-      case GermanWordType.pronomen: return '👤';
-      default: return '⭐';
+      case GermanWordType.substantiv:
+        return '🏠';
+      case GermanWordType.verb:
+        return '🏃';
+      case GermanWordType.adjektiv:
+        return '🎨';
+      case GermanWordType.adverb:
+        return '⚡';
+      case GermanWordType.pronomen:
+        return '👤';
+      default:
+        return '⭐';
     }
   }
 }

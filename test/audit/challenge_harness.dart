@@ -197,6 +197,11 @@ const _binnedClasses = {
 bool _hasABin(GermanWord word) =>
     !word.word.contains(' ') && _binnedClasses.contains(word.wordType);
 
+/// Both games drop a word whose class the pack contradicts itself about,
+/// once hydration has made that visible. Light words cannot answer it.
+List<GermanWord> _withASettledClass(List<GermanWord> words) =>
+    words.where((w) => !classIsContradicted(w)).toList();
+
 /// What the games call a word class on screen.
 ///
 /// They never show the enum: Word Sort and Word Type Whirl label their bins
@@ -236,7 +241,10 @@ Generator _wordPractice(
         skillFilter: skill,
         rng: c.rng,
       ));
-      return words
+      final playableWords = game == 'word_sort' || game == 'word_type_whirl'
+          ? _withASettledClass(words)
+          : words;
+      return playableWords
           .map((w) => Item(
                 game: game,
                 // The bare word, as these screens show it: only Word Type
@@ -487,6 +495,7 @@ final Map<String, Generator> generators = {
                 limitFactor: 20, where: (w) => !w.isProperNoun))
             .where((w) => hasSpellingErrors(w, isGerman: c.isGerman))
             .toList(),
+        catalogue: c.vocabulary.getAllWords(c.settings),
         isGerman: c.isGerman,
         gradeLevel: c.grade,
         rounds: c.count,

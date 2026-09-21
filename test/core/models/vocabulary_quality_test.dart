@@ -3,6 +3,8 @@ import 'package:WortUniversum/core/models/vocabulary_models.dart';
 import 'package:WortUniversum/core/models/vocabulary_quality.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../features/games/word_fixture.dart';
+
 GermanWord _word(
   String headword, {
   List<String> definitions = const ['definition'],
@@ -210,6 +212,47 @@ void main() {
     test('leaves ordinary meanings alone', () {
       expect(describesAName('A large natural stream of water.'), isFalse);
       expect(describesAName('ein Gebäude zum Wohnen'), isFalse);
+    });
+  });
+
+  group('classIsContradicted', () {
+    // 2% of the English pack and 0.5% of the German one; the column is the
+    // half that is wrong, and it is wrong about exactly the function words.
+    test('a word filed as a noun whose own primary_pos says otherwise', () {
+      expect(
+          classIsContradicted(testWord('at',
+              type: GermanWordType.substantiv,
+              enrichment: testEnrichment(primaryPos: 'preposition'))),
+          isTrue);
+      expect(
+          classIsContradicted(testWord('he',
+              type: GermanWordType.substantiv,
+              enrichment: testEnrichment(primaryPos: 'pronoun'))),
+          isTrue);
+    });
+
+    test('the two spellings of the same class agree', () {
+      // The packs write the class differently in the two fields: the column
+      // says "substantiv" and "adjektiv" where primary_pos says "noun" and
+      // "adj", and reading those as disagreements would empty the game.
+      expect(
+          classIsContradicted(testWord('Haus',
+              type: GermanWordType.substantiv,
+              enrichment: testEnrichment(primaryPos: 'noun'))),
+          isFalse);
+      expect(
+          classIsContradicted(testWord('schön',
+              type: GermanWordType.adjektiv,
+              enrichment: testEnrichment(primaryPos: 'adj'))),
+          isFalse);
+    });
+
+    test('a word with no primary_pos is not contradicted', () {
+      // Three thousand German entries have none; they are not suspect.
+      expect(
+          classIsContradicted(
+              testWord('Baum', type: GermanWordType.substantiv)),
+          isFalse);
     });
   });
 

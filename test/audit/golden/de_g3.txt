@@ -250,14 +250,12 @@
       beginnnen
     · shown after answering: Beginnen wir?
   Which spelling is correct?
-    ✓ fleißig
-      vleißig
       fleach
+    ✓ fleißig
     · shown after answering: Lerne fleißig!
   Which spelling is correct?
-      glat
     ✓ glatt
-      got
+      glat
     · shown after answering: Alles läuft glatt.
 ── sri_review (4)
   "etwas aufmachen; offen machen"

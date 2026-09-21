@@ -10,6 +10,7 @@ import 'package:WortUniversum/core/models/skill_category.dart';
 import 'package:WortUniversum/core/models/vocabulary_models.dart';
 
 ApiEnrichment testEnrichment({
+  String? primaryPos,
   List<String> definitions = const [],
   List<String> synonyms = const [],
   List<String> antonyms = const [],
@@ -26,6 +27,7 @@ ApiEnrichment testEnrichment({
   String enrichmentStatus = 'ok',
 }) =>
     ApiEnrichment(
+      primaryPos: primaryPos,
       enrichmentStatus: enrichmentStatus,
       definitions: definitions,
       pronunciation: const [],
