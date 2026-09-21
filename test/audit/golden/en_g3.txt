@@ -24,55 +24,55 @@
       sufficient
     · grade: 3
 ── cloze_flash (4)
-  Neither ___ nor child was left living the length of the seacoast.
-      knight
-      humor
-    ✓ chick
-      registration
-    · word: chick
-  Want to hire a coding ___? Call the agent.
-      legacy
-      chick
-      crime
-    ✓ superstar
-    · word: superstar
-  I must, however, ___ remark, that the power of generalizing ideas, to any great extent, is not very common amongst men or women.
-      registration
-      legislative
-    ✓ previously
-      crime
-    · word: previously
-  She spent thirty years working for Canada's ___ service.
-      multiple
-      aggressive
-    ✓ diplomatic
-      harsh
-    · word: diplomatic
+  A micro-___ is defined as a company or business having 5 or fewer employees and a low seed capital.
+      languages
+      voter
+      drops
+    ✓ enterprise
+    · word: enterprise
+  Some ___ boys at school hid the teacher's lesson notes.
+      earlier
+      historic
+      secure
+    ✓ naughty
+    · word: naughty
+  Thanks to its sonar, the narwhal can remain active even at ___, unhindered by the darkness.
+      intel
+    ✓ midnight
+      arrangements
+      scenery
+    · word: midnight
+  That best portion of a good man's life, / His little, nameless, unremembered ___ / Of kindness and of love.
+    ✓ acts
+      midnight
+      arrangements
+      enterprise
+    · word: acts
 ── definition_quiz (4)
-  Close investigation.; A careful reading.
-    ✓ scan
-      regulation
-      pause
-      selection
-    · word: scan  grade: 3
-  The process or act of selecting.
-      democracy
-      regulation
-    ✓ selection
-      scan
-    · word: selection  grade: 3
-  On board; into or within a ship or boat; hence, into or within a railway car.
-      democracy
-    ✓ aboard
-      luckily
-      constitutional
-    · word: aboard  grade: 3
-  a thing or group of things in a disagreeable, disorganised, or dirty state; hence a bad situation
-      stress
-    ✓ mess
-      selection
-      crop
-    · word: mess  grade: 3
+  Dealing with the practical management of patients, in practice at the point of care
+      heart-warming
+    ✓ clinical
+      distant
+      worthy
+    · word: clinical  grade: 3
+  A rural habitation of size between a hamlet and a town.
+    ✓ village
+      host
+      inspiration
+      challenge
+    · word: village  grade: 3
+  To pierce; now generally replaced by transfix.
+    ✓ fix
+      deliver
+      involvement
+      liar
+    · word: fix  grade: 3
+  The act of involving, or the state of being involved.
+      commander
+      disposal
+      marathon
+    ✓ involvement
+    · word: involvement  grade: 3
 ── false_friends (4)
   What does "ordinary" really mean?
       ordinär
@@ -115,27 +115,7 @@
       mail
     ✓ male
     · group: mail/male
-── hypernym_flash (4)
-  presence
-      practice
-      seek
-      function
-    ✓ attendance
-  explosion
-    ✓ noise
-      practice
-      seek
-      function
-  belt
-      function
-      seek
-    ✓ accessory
-      practice
-  cheat
-    ✓ deceive
-      function
-      practice
-      seek
+── hypernym_flash (0)
 ── phrasal_verb_match (4)
   What does "stop up" mean?
       to wait and not give up
@@ -183,26 +163,26 @@
       up
     · phrasal: drive out  means: to make someone or something leave a place
 ── sentence_completion (4)
-  The ___ sounds nice outside.
-      kilo
-    ✓ violin
-      dozen
-      patch
-  The athlete is very ___.
-      proud
-      temporary
-      spectacular
-    ✓ fit
-  The city has ___ holiday lights.
-    ✓ spectacular
-      manual
-      genetic
-      gentle
-  The ___ gives orders.
-      kilometre
-    ✓ commander
-      headteacher
-      award
+  ___ members are experts in their fields.
+    ✓ faculty
+      battery
+      solution
+      pole
+  The ___ is used to hold things up.
+      scissors
+      transport
+    ✓ pole
+      battery
+  We ___ our leather by the fire.
+      transport
+      fiction
+      maintenance
+    ✓ tan
+  The thief ___ the store by breaking the window.
+      commercial
+    ✓ assault
+      pole
+      van
 ── spelling_spotter (4)
   Which spelling is correct?
     ✓ majority
@@ -229,30 +209,28 @@
       inger
     · shown after answering: No organ was fatally injured.
 ── sri_review (4)
-  "Close investigation.; A careful reading."
-    ✓ scan
-      regulation
-      pause
-      selection
+  Correct spelling for:
+"Dealing with the practical management of patients, in practice at the point of care; as contrasted with other health care venues (see clinical medicine for more explanation)."
+      clincial
+    ✓ clinical
+    · type: spelling
+  "A rural habitation of size between a hamlet and a town."
+    ✓ village
+      kilometer
+      inspiration
+      award
     · type: definition
-  "The process or act of selecting."
-      democracy
-      regulation
-    ✓ selection
-      scan
+  "To pierce; now generally replaced by transfix."
+      commander
+      village
+    ✓ fix
+      deliver
     · type: definition
-  "On board; into or within a ship or boat; hence, into or within a railway car."
-      democracy
-    ✓ aboard
-      luckily
-      constitutional
-    · type: definition
-  "a thing or group of things in a disagreeable, disorganised, or dirty state; hence a bad situation"
-      stress
-    ✓ mess
-      selection
-      crop
-    · type: definition
+  Correct spelling for:
+"The act of involving, or the state of being involved."
+      involvment
+    ✓ involvement
+    · type: spelling
 ── syllable_count (4)
   envelope
       1
@@ -317,19 +295,19 @@
     ✓ junk
     · grade: 3  gloss: Miscellaneous items of little value, especially discarded or unwanted items.
 ── word_class_flash (4)
-  scandal
+  diagnosis
     ✓ substantiv
       verb
       adjektiv
-  marked
+  visual
       substantiv
       verb
     ✓ adjektiv
-  oppose
+  bless
       substantiv
     ✓ verb
       adjektiv
-  journal
+  mention
     ✓ substantiv
       verb
       adjektiv

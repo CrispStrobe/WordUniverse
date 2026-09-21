@@ -147,25 +147,25 @@
     · rule: Nomen-Signal "ZUM" → Großschreibung
 ── hypernym_flash (4)
   Motorrad
-      Pflanze
-      Kommunikation
-      Frucht
+      Mahlzeit
+      Fleisch
     ✓ Fahrzeug
-  Spatz
-      Pflanze
       Frucht
-    ✓ Vogel
-      Kommunikation
   Abendessen
-      Frucht
-      Pflanze
-      Kommunikation
+      Buch
+      Fleisch
     ✓ Mahlzeit
-  Klassenfahrt
-      Pflanze
-      Kommunikation
       Frucht
-    ✓ Fahrt
+  nicken
+      Fleisch
+      Mahlzeit
+    ✓ ausdrücken
+      Frucht
+  Bibel
+      Fleisch
+      Mahlzeit
+      Frucht
+    ✓ Buch
 ── proverb_cloze (4)
   lieber den ___ in der Hand als die Taube auf dem Dach
       Ordnung

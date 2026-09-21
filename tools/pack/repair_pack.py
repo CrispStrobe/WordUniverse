@@ -242,6 +242,51 @@ def leading_unusable(definitions, rules):
     return 0  # nothing usable anywhere; leave the row alone
 
 
+# Rows a model read and found plainly wrong, which nothing in the pack can be
+# used to detect: the linkage is right, the examples are right, only the gloss
+# is somebody else's. Each entry names the text it expects to replace, so this
+# fails loudly rather than silently if the upstream data is ever corrected.
+#
+#   "know about" was glossed "like something because you have good feelings
+#   about it" — the meaning of "be keen on" — while its own examples read
+#   "I know about toys" and "You never know about that family."
+PHRASAL_CORRECTIONS = {
+    'know about': (
+        'like something because you have good feelings about it',
+        'be informed about something',
+        'To be informed about (someone or something); to have knowledge of.',
+    ),
+}
+
+
+def fix_phrasal_glosses(db, report):
+    """Applies PHRASAL_CORRECTIONS. Returns the phrasals it changed."""
+    try:
+        rows = db.execute(
+            'SELECT id, phrasal, meaning FROM phrasal_verbs').fetchall()
+    except sqlite3.OperationalError:
+        return []                      # the German pack has no phrasal verbs
+    fixed = []
+    for row in rows:
+        correction = PHRASAL_CORRECTIONS.get(row['phrasal'])
+        if correction is None:
+            continue
+        wrong, meaning, sense = correction
+        if row['meaning'] != wrong:
+            print(f'  phrasal "{row["phrasal"]}" no longer reads '
+                  f'"{wrong}" — leaving it alone')
+            continue
+        fixed.append(row['phrasal'])
+        if not report:
+            db.execute(
+                'UPDATE phrasal_verbs SET meaning = ?, senses_json = ? '
+                'WHERE id = ?',
+                (meaning, json.dumps([sense], ensure_ascii=False), row['id']))
+    if fixed and not report:
+        db.commit()
+    return fixed
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('pack', type=pathlib.Path)
@@ -259,6 +304,7 @@ def main():
 
     db = sqlite3.connect(out)
     db.row_factory = sqlite3.Row
+    phrasals_fixed = fix_phrasal_glosses(db, args.report)
     weak = weak_masculine_forms(db)
     weak_patterns = weak_noun_patterns(weak)
     reasons = Counter()
@@ -395,6 +441,9 @@ def main():
                    'leading glosses dropped': 'resensed',
                    'weak nouns declined': 'declined'}[label]
             print(f'  {count:6d}  {label:28s} {", ".join(samples[key][:6])}')
+    if phrasals_fixed:
+        print(f'  {len(phrasals_fixed):6d}  {"phrasal glosses corrected":28s} '
+              f'{", ".join(phrasals_fixed)}')
     if not args.report:
         print(f'  wrote   {out}')
 

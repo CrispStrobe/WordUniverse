@@ -266,17 +266,20 @@ const Map<String, LanguagePack> kLanguagePacks = {
     assetPath: 'assets/grundwortschatz_en.db.gz',
     // Slimmed 2026-09-18: enrichment no code path reads was stripped from the
     // artifact (tools/pack/slim_pack.py), 93.9 MB -> 58.3 MB decompressed.
-    // Repaired 2026-09-20 (tools/pack/repair_pack.py): 853 recorded
-    // misspellings marked as such, 620 names typed proper_noun — London,
-    // Texas, Canada and Isaac all arrived as ordinary nouns — and 141
-    // entries whose leading gloss was a parse or a label had it dropped so a
-    // real meaning leads, and carries the feature index the app would
+    // Repaired 2026-09-21 (tools/pack/repair_pack.py): 853 recorded
+    // misspellings marked as such, 627 names typed proper_noun — London,
+    // Texas, Canada and Isaac all arrived as ordinary nouns, and so did
+    // "eddie", "fred" and "kirby" — 141 entries whose leading gloss was a
+    // parse or a label had it dropped so a real meaning leads, and one
+    // phrasal verb's gloss corrected: "know about" was glossed "like
+    // something because you have good feelings about it". It carries the
+    // feature index the app would
     // otherwise derive on first launch (tools/pack/index_pack.sh): 94 KB of
     // download for three seconds of work on every install. The digest
     // qualifies the storage slot, so this selects a fresh one and the
     // previous slots are listed below rather than silently reused.
     expectedDecompressedSha256:
-        'ca0032b7431790fdbc8c23ebad860e4e473f6d4ef0b4a9b9a89ac247572626c7',
+        '4b3eff4552a6b72c9c0d6d0a34093f0e62d34f301100d945b655ef331eb30b47',
     previousDatabaseNames: [
       'grundwortschatz_en-53365e2ae71884bad1e53b5e34c2cdc543f0f9ba8ba578eca7eb5050235c76d9.db',
       'grundwortschatz_en-cbbdef45fb1b2da6726ada0f98071c5ff622f4fa3903bf13fdf9d5f4f8d2f365.db',
@@ -284,6 +287,7 @@ const Map<String, LanguagePack> kLanguagePacks = {
       'grundwortschatz_en-49e65596954cb7f8a0268e214e3e26c866f593ad781c567481993f08dc8471db.db',
       'grundwortschatz_en-367021742f6c3ae6a3c347a9ef25f162683fb40c8e983f290c6e9667b6216893.db',
       'grundwortschatz_en-3d2201f21098d96af2864961cb21b065d41f0171022aa53abeea81a96ccc5a1d.db',
+      'grundwortschatz_en-ca0032b7431790fdbc8c23ebad860e4e473f6d4ef0b4a9b9a89ac247572626c7.db',
     ],
     licenseLabel: 'CC BY-SA 4.0',
     datasetUrl: 'https://huggingface.co/datasets/cstr/grundwortschatz-voc-en',
