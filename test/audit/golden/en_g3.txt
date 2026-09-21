@@ -1,26 +1,26 @@
 ── antonym_flash (4)
-  asset
-      efficiency
-      preparation
-    ✓ liability
-      beauty
-    · grade: 3
-  preparation
+  enter
+    ✓ exit
+      depression
+      income
       intelligence
-      construction
-      asset
-    ✓ resolution
     · grade: 3
-  incredibly
+  cheap
+      actual
+    ✓ expensive
+      classical
       downstairs
-      enter
-      intelligence
-    ✓ credibly
     · grade: 3
-  traditional
-      digital
+  admit
+      defence
       joint
-    ✓ nontraditional
+      disappear
+    ✓ deny
+    · grade: 3
+  disappear
+    ✓ appear
+      joint
+      intelligence
       actual
     · grade: 3
 ── cloze_flash (4)
@@ -116,26 +116,26 @@
     ✓ male
     · group: mail/male
 ── hypernym_flash (4)
-  attempt
-      drive
-      advance
-      anticipate
-    ✓ activity
-  emotion
-      drive
-      anticipate
-    ✓ feeling
-      advance
   basket
-      anticipate
-      drive
-    ✓ container
-      advance
-  arab
-      drive
-    ✓ Semite
-      advance
-      anticipate
+      discussion
+      assembly
+    ✓ goal
+      gift
+  butt
+      discussion
+      assembly
+    ✓ barrel
+      gift
+  donation
+    ✓ gift
+      barrel
+      discussion
+      assembly
+  lab
+    ✓ workplace
+      gift
+      discussion
+      assembly
 ── phrasal_verb_match (4)
   What does "stop up" mean?
       to wait and not give up
@@ -345,18 +345,18 @@
     ✓ similarly
     · grade: 3  gloss: In a like style or manner.
 ── word_memory (4)
-  Match the pair for "centuries"
-    ✓ centuries
-    · grade: 3
   Match the pair for "fix"
-    ✓ fix
-    · grade: 3  gloss: To pierce; now generally replaced by transfix.
-  Match the pair for "well-balanced"
-    ✓ well-balanced
-    · grade: 3  gloss: properly balanced; in equilibrium
-  Match the pair for "similarly"
-    ✓ similarly
-    · grade: 3  gloss: In a like style or manner.
+    ✓ To pierce; now generally replaced by transfix.
+    · grade: 3  partner: definition
+  Match the pair for "peak"
+    ✓ A point; the sharp end or top of anything that termi…
+    · grade: 3  partner: definition
+  Match the pair for "appears"
+    ✓ appears
+    · grade: 3  partner: same word, other font
+  Match the pair for "harder"
+    ✓ harder
+    · grade: 3  partner: same word, other font
 ── word_of_the_day (4)
   2026-01-01: archive
     ✓ A place for storing earlier, and often historical, material. An archive usually contains documents (letters, records, newspapers, etc.) or other types of media kept for historical interest.

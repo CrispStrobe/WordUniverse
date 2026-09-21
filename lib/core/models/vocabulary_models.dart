@@ -59,7 +59,14 @@ class ApiSemanticTerm {
   final String? word;
   final String? senseIndex;
 
-  ApiSemanticTerm({this.word, this.senseIndex});
+  /// Which extraction contributed the relation. Three quarters of the English
+  /// pack's hypernyms say `OEWN` — Open English WordNet, curated — and the
+  /// rest carry nothing. The unsourced quarter is where "a frost is a kind of
+  /// poet" comes from, so a game that has both to choose between should ask
+  /// the curated one.
+  final String? source;
+
+  ApiSemanticTerm({this.word, this.senseIndex, this.source});
 
   factory ApiSemanticTerm.fromJson(Map<String, dynamic> json) {
     return ApiSemanticTerm(
@@ -70,6 +77,7 @@ class ApiSemanticTerm {
           json['coordinate_word'] ??
           json['word'],
       senseIndex: json['sense_index'],
+      source: json['source'] as String?,
     );
   }
 }

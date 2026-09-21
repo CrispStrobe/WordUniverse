@@ -238,21 +238,22 @@ const Map<String, LanguagePack> kLanguagePacks = {
     // work on every install. `grundwortschatz.db.gz` beside it
     // remains the complete lexical database and is unchanged.
     remoteUrl:
-        'https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/0558599d4ec267bde3be35023ce377388c8eaec2/grundwortschatz-app.db.gz',
+        'https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/2cba9fdd4bf11c56a5879a960567ac80ffd2d4a3/grundwortschatz-app.db.gz',
     // Update the immutable URL and all pins together; retain this qualified
     // databaseName in previousDatabaseNames when publishing a new artifact.
-    expectedCompressedBytes: 15077429,
+    expectedCompressedBytes: 15081318,
     expectedCompressedSha256:
-        '253dd72ab5423967c6176c2ac09dbc2518630a6cf12f12571877247c912d8df5',
-    expectedDecompressedBytes: 88059904,
+        '95454d488cec9f8a9e711c970757e39b76da99686c14b3649ef2768a3d0f3650',
+    expectedDecompressedBytes: 88072192,
     expectedDecompressedSha256:
-        '1c87cbeed45007e7d61c4f73010c79804478eebf97c61487f806a2789dd6949a',
+        '85bfe359b428cd8ccf354c589363027909fa05ca3fed5bdd45a93b68372478c1',
     previousDatabaseNames: [
       'grundwortschatz-158bea51ba1b0c0e4bcb696042dd45a03b0ddbccc132337a8ce8ef388117d9f1.db',
       'grundwortschatz-32487bb8280cc5a709abf83119482fe68c84be3ee47aa1251f1aabb494801712.db',
       'grundwortschatz-4088731ba18bb477bbf41faacc633beedc967b5e5e7108a89c75c62d87b5aca1.db',
       'grundwortschatz-2890e0c1b1dd25aacaee53bb133f4a4b3c4e69acb5827ce4c1af1813a2a7af44.db',
       'grundwortschatz-c66e3b49192694c00d7c2a171562ac8fe4f54c05d986adb0ebf276f141aa00df.db',
+      'grundwortschatz-1c87cbeed45007e7d61c4f73010c79804478eebf97c61487f806a2789dd6949a.db',
     ],
     licenseLabel: 'GPL-3.0-or-later',
     datasetUrl: 'https://huggingface.co/datasets/cstr/grundwortschatz-voc-de',

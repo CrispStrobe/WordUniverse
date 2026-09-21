@@ -27,15 +27,42 @@ class AntonymChallenge {
   final int correctIndex;
 }
 
+/// Which words each word lists as its opposite, lowercased.
+///
+/// The packs inherit Wiktionary's "Gegenwörter" and its English equivalent,
+/// which are contrast terms rather than opposites: Telefon arrives with
+/// Telegraph, Radio and Megafon, Lösung with Kolloid and Suspension. Only a
+/// tenth of the German pairs are listed from both sides, and that tenth is
+/// the part a child would recognise — alt/neu, hoch/niedrig, Berg/Tal,
+/// black/white, difficult/easy. So the game asks only for opposites both
+/// entries agree on.
+Map<String, Set<String>> antonymsByWord(Iterable<GermanWord> words) {
+  final map = <String, Set<String>>{};
+  for (final word in words) {
+    final listed = word.apiEnrichment?.antonyms ?? const [];
+    if (listed.isEmpty) continue;
+    map.putIfAbsent(word.word.toLowerCase(), () => <String>{}).addAll(
+        listed.map((a) => a.trim().toLowerCase()).where((a) => a.isNotEmpty));
+  }
+  return map;
+}
+
 /// Builds up to [maxChallenges] from [pool].
+///
+/// [partners] are the catalogue entries for the words the pool lists as
+/// opposites. They are read for the reciprocity check only — never asked, and
+/// never offered as an option — because a 200-word sample almost never holds
+/// both halves of a pair.
 List<AntonymChallenge> buildAntonymChallenges({
   required List<GermanWord> pool,
   required bool isGerman,
+  List<GermanWord> partners = const [],
   int maxChallenges = 10,
   int optionCount = 4,
   Random? rng,
 }) {
   final random = rng ?? Random();
+  final reciprocals = antonymsByWord([...pool, ...partners]);
   final challenges = <AntonymChallenge>[];
   for (final word in pool) {
     if (challenges.length >= maxChallenges) break;
@@ -44,6 +71,7 @@ List<AntonymChallenge> buildAntonymChallenges({
       allWords: pool,
       isGerman: isGerman,
       optionCount: optionCount,
+      reciprocals: reciprocals,
       rng: random,
     );
     if (challenge != null) challenges.add(challenge);
@@ -57,10 +85,13 @@ AntonymChallenge? buildAntonymChallenge({
   required List<GermanWord> allWords,
   required bool isGerman,
   int optionCount = 4,
+  Map<String, Set<String>>? reciprocals,
   Random? rng,
 }) {
   final random = rng ?? Random();
   if (namesSomething(word)) return null;
+  final agreed = reciprocals ?? antonymsByWord(allWords);
+  final self = word.word.toLowerCase();
 
   final antonyms = word.apiEnrichment?.antonyms
           .where((a) => a.trim().isNotEmpty)
@@ -75,6 +106,8 @@ AntonymChallenge? buildAntonymChallenge({
               isGerman ||
               word.word != word.word.toLowerCase() ||
               a == a.toLowerCase())
+          // Both entries have to call the other its opposite.
+          .where((a) => agreed[a.toLowerCase()]?.contains(self) ?? false)
           .toList() ??
       const [];
   if (antonyms.isEmpty) return null;

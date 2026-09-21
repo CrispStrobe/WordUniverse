@@ -54,7 +54,8 @@ ApiEnrichment testEnrichment({
     );
 
 /// A hypernym/hyponym entry, which the packs store as {word, senseIndex}.
-ApiSemanticTerm term(String word) => ApiSemanticTerm(word: word);
+ApiSemanticTerm term(String word, {String? source}) =>
+    ApiSemanticTerm(word: word, source: source);
 
 /// A catalogue word. [enrichment] is where definitions, synonyms and the rest
 /// live; the top-level lists mirror what GermanWord.fromJson fills in.

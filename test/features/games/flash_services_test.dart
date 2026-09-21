@@ -51,14 +51,20 @@ void main() {
         );
 
     test('asks one of the listed antonyms', () {
-      final challenge = build(_adj('happy', antonyms: ['sad']), filler())!;
+      final challenge = build(_adj('happy', antonyms: ['sad']), [
+        _adj('sad', antonyms: ['happy']),
+        ...filler()
+      ])!;
       expect(challenge.correctAntonym, 'sad');
       expect(challenge.options[challenge.correctIndex], 'sad');
     });
 
     test('every listed antonym is carried, since any is accepted on tap', () {
-      final challenge =
-          build(_adj('happy', antonyms: ['sad', 'unhappy']), filler())!;
+      final challenge = build(_adj('happy', antonyms: ['sad', 'unhappy']), [
+        _adj('sad', antonyms: ['happy']),
+        _adj('unhappy', antonyms: ['happy']),
+        ...filler(),
+      ])!;
       expect(challenge.antonyms, ['sad', 'unhappy']);
       final wrong = [...challenge.options]..remove(challenge.correctAntonym);
       expect(wrong, isNot(contains('sad')));
@@ -69,10 +75,31 @@ void main() {
       expect(build(_adj('latin', antonyms: ['Latin']), filler()), isNull);
     });
 
+    // The packs inherit Wiktionary's contrast lists, where Telefon is the
+    // opposite of Telegraph and Lösung of Kolloid. Only a tenth of the pairs
+    // are listed from both sides, and that tenth is the part a child would
+    // call an opposite.
+    test('an opposite only one side lists is not asked about', () {
+      expect(
+        build(_adj('happy', antonyms: ['sad']), [
+          _adj('sad', antonyms: ['cheerful']),
+          ...filler()
+        ]),
+        isNull,
+      );
+    });
+
+    test('a word the pool does not hold cannot agree, so it is not asked', () {
+      expect(build(_adj('happy', antonyms: ['sad']), filler()), isNull);
+    });
+
     test('English drops a capitalised antonym of a lowercase word', () {
       // The proper-noun sense, as in Synonym Flash.
-      final challenge =
-          build(_adj('latin', antonyms: ['Romance', 'greek']), filler())!;
+      final challenge = build(_adj('latin', antonyms: ['Romance', 'greek']), [
+        _adj('romance', antonyms: ['latin']),
+        _adj('greek', antonyms: ['latin']),
+        ...filler(),
+      ])!;
       expect(challenge.correctAntonym, 'greek');
     });
 
@@ -83,6 +110,9 @@ void main() {
       final challenge = build(
         word,
         [
+          testWord('Kälte',
+              type: GermanWordType.substantiv,
+              enrichment: testEnrichment(antonyms: ['Hitze'])),
           testWord('Haus', type: GermanWordType.substantiv),
           testWord('Weg', type: GermanWordType.substantiv),
           testWord('Baum', type: GermanWordType.substantiv),
@@ -92,12 +122,32 @@ void main() {
       expect(challenge.correctAntonym, 'Kälte');
     });
 
+    test('the other half may come from the partner list, not the pool', () {
+      // On a real pack the opposite is rarely in the same 200-word sample, so
+      // the game looks it up separately and passes it in for this check only.
+      final challenges = buildAntonymChallenges(
+        pool: [
+          _adj('happy', antonyms: ['sad']),
+          ...filler()
+        ],
+        partners: [
+          _adj('sad', antonyms: ['happy'])
+        ],
+        isGerman: false,
+        rng: Random(1),
+      );
+      expect(challenges.single.correctAntonym, 'sad');
+      // Looked up, not asked about, and never an option of its own.
+      expect(challenges.single.word.word, 'happy');
+    });
+
     test('a word with no antonyms is skipped', () {
       expect(build(_adj('happy'), filler()), isNull);
     });
 
     test('distractors prefer the prompt\'s word class', () {
       final challenge = build(_adj('happy', antonyms: ['sad']), [
+        _adj('sad', antonyms: ['happy']),
         _adj('quiet'),
         _adj('narrow'),
         _adj('sudden'),
@@ -157,6 +207,61 @@ void main() {
     test('without a catalogue the first clean hypernym is taken', () {
       final word = _noun('crowd', hypernyms: ['gathering']);
       expect(pickHypernym(word, isGerman: false), 'gathering');
+    });
+
+    test('an adjective is never asked, since WordNet has no hypernym for one',
+        () {
+      // Every hypernym listed on "deaf" was written for another word class:
+      // "desensitise" is the verb's, "people" the noun's.
+      final deaf = testWord('deaf',
+          type: GermanWordType.adjektiv,
+          enrichment:
+              testEnrichment(hypernyms: [term('desensitise'), term('people')]));
+      final words = [
+        deaf,
+        testWord('desensitise', type: GermanWordType.verb),
+        _noun('people'),
+      ];
+      expect(pickHypernym(deaf, isGerman: false, catalogue: catalogue(words)),
+          isNull);
+    });
+
+    test('a capitalised English answer to a lowercase prompt is a name sense',
+        () {
+      // "a boy is a kind of Black man", "a satyr is a kind of Greek deity".
+      final boy = _noun('boy', hypernyms: ['Black man', 'male child']);
+      final words = [boy, _noun('Black man'), _noun('male child')];
+      expect(pickHypernym(boy, isGerman: false, catalogue: catalogue(words)),
+          'male child');
+    });
+
+    test('the top of WordNet is true of everything and answers nothing', () {
+      final word =
+          _noun('curiosity', hypernyms: ['cognitive state', 'interest']);
+      final words = [word, _noun('cognitive state'), _noun('interest')];
+      expect(pickHypernym(word, isGerman: false, catalogue: catalogue(words)),
+          'interest');
+    });
+
+    test('a curated relation is preferred to an unsourced one', () {
+      // "poet" arrives unsourced, from the Robert Frost sense.
+      final frost = testWord('frost',
+          type: GermanWordType.substantiv,
+          enrichment: testEnrichment(hypernyms: [
+            term('poet'),
+            term('ice', source: 'OEWN'),
+          ]));
+      final words = [frost, _noun('poet'), _noun('ice')];
+      expect(pickHypernym(frost, isGerman: false, catalogue: catalogue(words)),
+          'ice');
+    });
+
+    test('a hypernym the catalogue cannot confirm is not asked about', () {
+      // Nothing says which sense "affirm" was listed under, so "a show is a
+      // kind of affirm" cannot be ruled out — or in.
+      final show = _noun('show', hypernyms: ['affirm']);
+      expect(pickHypernym(show, isGerman: false, catalogue: catalogue([show])),
+          isNull);
     });
 
     test('no other hypernym of the same word is ever a distractor', () {

@@ -48,6 +48,59 @@ def dart_list(source, name):
     return [literal for literal in re.findall(r"'([^']*)'", match.group(1))]
 
 
+
+ACCUSATIVE_ARTICLES = ('den', 'einen', 'jeden', 'diesen', 'keinen', 'unseren',
+                       'meinen', 'deinen', 'seinen', 'ihren', 'euren')
+DATIVE_ARTICLES = ('dem', 'einem', 'jedem', 'diesem', 'keinem', 'unserem',
+                   'meinem', 'deinem', 'seinem', 'ihrem', 'eurem')
+
+
+def weak_masculine_forms(db):
+    """Nouns the pack declines weakly: Held → Helden, Gedanke → Gedanken.
+
+    German marks these in every case but the nominative, and the packs'
+    written examples keep forgetting: "Ich habe einen Gedanke", "den Held und
+    Erzähler". The pack's own declension table says what the form should be,
+    so nothing here is invented.
+    """
+    forms = {}
+    for word, blob in db.execute(
+            "SELECT word, enrichment_json FROM words "
+            "WHERE word_type = 'substantiv' AND enrichment_json IS NOT NULL"):
+        inflections = json.loads(blob).get('inflections') or []
+        oblique = {}
+        for inflection in inflections:
+            tags = str(inflection.get('tags') or '')
+            text = str(inflection.get('form_text') or '')
+            if 'singular' not in tags or not text:
+                continue
+            for case in ('accusative', 'dative'):
+                if case in tags and case not in oblique:
+                    oblique[case] = text.split()[-1]
+        accusative = oblique.get('accusative')
+        if not accusative:
+            continue
+        if accusative.lower() in (f'{word.lower()}n', f'{word.lower()}en'):
+            forms[word] = accusative
+    return forms
+
+
+def fix_weak_nouns(sentence, forms, patterns):
+    """The sentence with weak nouns given the ending their case requires."""
+    fixed = sentence
+    for word, pattern in patterns.items():
+        fixed = pattern.sub(lambda m: f'{m.group(1)} {forms[word]}', fixed)
+    return fixed
+
+
+def weak_noun_patterns(forms):
+    articles = '|'.join(ACCUSATIVE_ARTICLES + DATIVE_ARTICLES)
+    return {
+        word: re.compile(rf'\b({articles})\s+{re.escape(word)}\b')
+        for word in forms
+    }
+
+
 def load_rules():
     # Comments first: an apostrophe in one ("The German pack's grade glosses")
     # breaks the quote pairing, and the parser then reads the ", " between two
@@ -206,11 +259,14 @@ def main():
 
     db = sqlite3.connect(out)
     db.row_factory = sqlite3.Row
+    weak = weak_masculine_forms(db)
+    weak_patterns = weak_noun_patterns(weak)
     reasons = Counter()
     samples = {}
     named = 0
     detagged = 0
     resenses = 0
+    declined = 0
     rewritten = 0
 
     updates = []
@@ -243,10 +299,38 @@ def main():
                          if not CURRICULUM_TAGS.match(str(tag))]
         word_type = 'proper_noun' if names else row['word_type']
 
+        # The pack writes its own example sentences, and they decline weak
+        # masculine nouns as if they were strong: "den Held", "einen
+        # Gedanke". The table in the same row says what the form is.
+        sentences_fixed = 0
+        for example in enrichment.get('examples') or []:
+            if not isinstance(example, dict):
+                continue
+            text = example.get('text')
+            if not isinstance(text, str):
+                continue
+            fixed = fix_weak_nouns(text, weak, weak_patterns)
+            if fixed != text:
+                example['text'] = fixed
+                sentences_fixed += 1
+        grade_examples = metadata.get('grade_examples')
+        if isinstance(grade_examples, dict):
+            for grade, sentences in grade_examples.items():
+                if not isinstance(sentences, list):
+                    continue
+                for index, text in enumerate(sentences):
+                    if not isinstance(text, str):
+                        continue
+                    fixed = fix_weak_nouns(text, weak, weak_patterns)
+                    if fixed != text:
+                        sentences[index] = fixed
+                        sentences_fixed += 1
+
         changed = (quality != metadata.get('quality')
                    or kept_tags != tags
                    or word_type != row['word_type']
-                   or drop)
+                   or drop
+                   or sentences_fixed)
         if not changed:
             continue
 
@@ -262,6 +346,9 @@ def main():
         if drop:
             resenses += 1
             samples.setdefault('resensed', []).append(row['word'])
+        if sentences_fixed:
+            declined += sentences_fixed
+            samples.setdefault('declined', []).append(row['word'])
         rewritten += 1
 
         if args.report:
@@ -276,8 +363,8 @@ def main():
         if drop:
             enrichment['definitions'] = definitions[drop:]
         updates.append((
-            json.dumps(enrichment, ensure_ascii=False) if drop
-            else row['enrichment_json'],
+            json.dumps(enrichment, ensure_ascii=False)
+            if (drop or sentences_fixed) else row['enrichment_json'],
             json.dumps(metadata, ensure_ascii=False),
             word_type,
             row['id'],
@@ -300,11 +387,13 @@ def main():
         print(f'  {count:6d}  {reason:28s} {shown}')
     for label, count in (('word_type -> proper_noun', named),
                          ('curriculum tags dropped', detagged),
-                         ('leading glosses dropped', resenses)):
+                         ('leading glosses dropped', resenses),
+                         ('weak nouns declined', declined)):
         if count:
             key = {'word_type -> proper_noun': 'named',
                    'curriculum tags dropped': 'detagged',
-                   'leading glosses dropped': 'resensed'}[label]
+                   'leading glosses dropped': 'resensed',
+                   'weak nouns declined': 'declined'}[label]
             print(f'  {count:6d}  {label:28s} {", ".join(samples[key][:6])}')
     if not args.report:
         print(f'  wrote   {out}')
