@@ -60,6 +60,10 @@ const Map<String, String> _promptMayNameTheAnswer = {
   'conjugation_drill': 'the infinitive is shown; the answer is a form of it',
   'word_of_the_day': 'the card names the word and shows what it means',
   'sri_review': 'the article challenge shows the noun it asks the article for',
+  'spelling_spotter': 'the prompt is a fixed question that names no word, so '
+      'an answer like "is" only collides with ordinary English',
+  'phrasal_verb_power': 'the answer is a particle, and prepositions recur: '
+      '"The expression ___ her face lets on her true feelings"',
 };
 
 /// Games where two options differing only in case is the question itself, so
@@ -91,7 +95,11 @@ void _checkItem(Item item, String language, int grade, List<_Violation> out) {
   if (item.prompt.trim().isEmpty) {
     fail('empty prompt', 'the learner would be asked a blank question');
   }
-  if (RegExp(r'\bnull\b').hasMatch(item.prompt)) {
+  // A Dart interpolation that printed nothing. English only: "null" is an
+  // ordinary German word, and the pack glosses "nichts" as "null, nichts,
+  // Null" — no heuristic tells that from a leak, and the leak is what a
+  // reader of the dump would spot anyway.
+  if (language == 'en' && RegExp(r'\bnull\b').hasMatch(item.prompt)) {
     fail('"null" in the prompt', _q(item.prompt));
   }
   final answer = item.answer;
