@@ -104,12 +104,16 @@ SynonymChallenge? _build(
   bool isGerman = false,
   int optionCount = 4,
   int seed = 1,
+  List<GermanWord> catalogue = const [],
 }) {
   final all = [word, ...others];
   return buildSynonymChallenge(
     word: word,
     allWords: all,
-    wordSet: all.map((w) => w.word.toLowerCase()).toSet(),
+    known: {
+      for (final w in catalogue) w.word.toLowerCase(): w,
+      for (final w in all) w.word.toLowerCase(): w,
+    },
     isGerman: isGerman,
     optionCount: optionCount,
     rng: Random(seed),
@@ -194,36 +198,53 @@ void main() {
       expect(challenge!.correctSynonym, 'commence');
     });
 
-    test('a synonym the catalogue lacks is still used when nothing else fits',
-        () {
+    test('a synonym no pack contains is not an answer', () {
+      // It used to be, as a last resort, and that is how "which word means
+      // the same as später?" came to be answered "nachmalig" — a word in
+      // neither catalogue, so one the learner cannot have met.
       final word = _word('happy', synonyms: ['felicitous']);
-      final challenge = _build(word, _filler());
-      expect(challenge!.correctSynonym, 'felicitous');
+      expect(_build(word, _filler()), isNull);
+      // With the catalogue holding it, it is a fair question again.
+      expect(
+          _build(word, _filler(), catalogue: [_word('felicitous')])!
+              .correctSynonym,
+          'felicitous');
     });
 
     test('a synonym written inside the prompt is not asked', () {
       // "Which word means the same as high-pitched?" → high.
       final word = _word('high-pitched', synonyms: ['high', 'shrill']);
-      expect(_build(word, _filler())!.correctSynonym, 'shrill');
+      expect(
+          _build(word, _filler(), catalogue: [_word('high'), _word('shrill')])!
+              .correctSynonym,
+          'shrill');
     });
 
     test('nor one the prompt is written inside', () {
       // "white" → "lily-white", "cool" → "coolheaded" reads the same way.
       final word = _word('white', synonyms: ['lily-white', 'pale']);
-      expect(_build(word, _filler())!.correctSynonym, 'pale');
+      expect(
+          _build(word, _filler(),
+                  catalogue: [_word('lily-white'), _word('pale')])!
+              .correctSynonym,
+          'pale');
     });
 
     test('a trailing parenthetical is stripped before the rules are applied',
         () {
       final word = _word('begin', synonyms: ['commence (formal)']);
-      final challenge = _build(word, _filler());
+      final challenge = _build(word, _filler(), catalogue: [_word('commence')]);
       expect(challenge!.correctSynonym, 'commence');
     });
 
     test('English skips a capitalised synonym of a lowercase word', () {
       // "Almighty" for "creator" is the proper-noun sense.
       final word = _word('creator', synonyms: ['Almighty', 'maker']);
-      expect(_build(word, _filler())!.correctSynonym, 'maker');
+      expect(
+          _build(word, _filler(),
+                  catalogue: [_word('Almighty'), _word('maker')])!
+              .correctSynonym,
+          'maker');
     });
 
     test('German does not, since every noun is capitalised', () {
@@ -236,7 +257,8 @@ void main() {
             _word('Weg', type: GermanWordType.substantiv),
             _word('Baum', type: GermanWordType.substantiv),
           ],
-          isGerman: true);
+          isGerman: true,
+          catalogue: [_word('Ausmaß', type: GermanWordType.substantiv)]);
       expect(challenge!.correctSynonym, 'Ausmaß');
     });
   });
@@ -244,14 +266,14 @@ void main() {
   group('the options', () {
     test('the keyed index points at the synonym', () {
       final word = _word('happy', synonyms: ['glad']);
-      final challenge = _build(word, _filler())!;
+      final challenge = _build(word, _filler(), catalogue: [_word('glad')])!;
       expect(challenge.correctIndex, inInclusiveRange(0, 3));
       expect(challenge.options[challenge.correctIndex], 'glad');
     });
 
     test('no distractor is another synonym of the same word', () {
       final word = _word('happy', synonyms: ['glad', 'quiet']);
-      final challenge = _build(word, _filler())!;
+      final challenge = _build(word, _filler(), catalogue: [_word('glad')])!;
       final wrong = [...challenge.options]..remove(challenge.correctSynonym);
       expect(wrong, isNot(contains('quiet')),
           reason: 'it would be keyed wrong while being right');
@@ -259,7 +281,8 @@ void main() {
 
     test('the prompt word is never offered as an answer', () {
       final word = _word('happy', synonyms: ['glad']);
-      final challenge = _build(word, [..._filler(), _word('happy')])!;
+      final challenge = _build(word, [..._filler(), _word('happy')],
+          catalogue: [_word('glad')])!;
       expect(challenge.options, isNot(contains('happy')));
     });
 
@@ -268,7 +291,7 @@ void main() {
         final word = _word('happy', synonyms: ['glad']);
         final challenge = _build(
             word, [..._filler(), _word('eager'), _word('calm')],
-            optionCount: count)!;
+            optionCount: count, catalogue: [_word('glad')])!;
         expect(challenge.options.length, count);
         expect(challenge.options.map((o) => o.toLowerCase()).toSet().length,
             count);
@@ -283,6 +306,8 @@ void main() {
         _word('sudden'),
         _word('Haus', type: GermanWordType.substantiv),
         _word('Weg', type: GermanWordType.substantiv),
+      ], catalogue: [
+        _word('glad')
       ])!;
       expect(challenge.options, isNot(contains('Haus')));
     });
@@ -297,7 +322,11 @@ void main() {
         ..._filler(),
       ];
       final challenges = buildSynonymChallenges(
-          pool: pool, isGerman: false, maxChallenges: 5, rng: Random(1));
+          pool: pool,
+          catalogue: [_word('glad'), _word('commence')],
+          isGerman: false,
+          maxChallenges: 5,
+          rng: Random(1));
       expect(challenges.map((c) => c.word.word), ['happy', 'begin']);
     });
   });

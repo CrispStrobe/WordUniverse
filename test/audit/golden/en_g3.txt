@@ -259,14 +259,14 @@
 ── synonym_flash (4)
   custom
       chart
-    ✓ usance
+    ✓ tradition
       billion
       grain
     · grade: 3
   chest
       genius
       possession
-    ✓ thorax
+    ✓ breast
       bunch
     · grade: 3
   desire
@@ -276,7 +276,7 @@
       bless
     · grade: 3
   subsequently
-    ✓ afterward
+    ✓ later
       contain
       firmly
       hardly
