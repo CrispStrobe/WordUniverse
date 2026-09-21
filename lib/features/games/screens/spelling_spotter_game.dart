@@ -33,8 +33,6 @@ class SpellingSpotterGame extends StatefulWidget {
   State<SpellingSpotterGame> createState() => _SpellingSpotterGameState();
 }
 
-
-
 enum _FeedbackState { none, correct, incorrect }
 
 class _SpellingSpotterGameState extends State<SpellingSpotterGame>
@@ -152,6 +150,9 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
     // Already grade-first, from the pool query.
     final challenges = buildSpellingChallenges(
       pool: allWords,
+      // Read only to keep a misspelling that is itself a word out of the
+      // options; the round is still played from `allWords`.
+      catalogue: _vocabularyService.getAllWords(_gameProvider),
       isGerman: _isDE,
       gradeLevel: widget.gradeLevel.index + 1,
       rounds: _totalRounds,
@@ -170,11 +171,6 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
       _isLoading = false;
     });
   }
-
-
-
-
-
 
   void _handleTap(int optionIndex) {
     if (_feedbackState != _FeedbackState.none) return;
@@ -252,16 +248,15 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
         backgroundColor: SpaceTheme.deepSpace,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(_s.gameOver, style: SpaceTheme.headlineStyle),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               '$_correct / ${_challenges.length} ${_s.correct}',
-              style: SpaceTheme.titleStyle
-                  .copyWith(color: SpaceTheme.starYellow),
+              style:
+                  SpaceTheme.titleStyle.copyWith(color: SpaceTheme.starYellow),
             ),
             const SizedBox(height: 8),
             Text('${_s.score}: $_score', style: SpaceTheme.bodyStyle),
@@ -338,8 +333,7 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
                 // Show the spelling-strategy explanation after BOTH correct and
                 // wrong answers — the pedagogical hint matters most right after
                 // a mistake.
-                if (_showContext &&
-                    _feedbackState != _FeedbackState.none) ...[
+                if (_showContext && _feedbackState != _FeedbackState.none) ...[
                   const SizedBox(height: 8),
                   SpellingStrategyBadge(word: challenge.word),
                   if (!_isDE) ...[
@@ -408,8 +402,7 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
         if (definition != null) ...[
           const SizedBox(height: 12),
           Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             decoration: BoxDecoration(
               color: SpaceTheme.deepSpace.withValues(alpha: 0.7),
               borderRadius: BorderRadius.circular(12),
@@ -430,7 +423,6 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
       ],
     );
   }
-
 
   Widget _buildOptions(SpellingChallenge challenge) {
     return Column(
@@ -577,8 +569,8 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
         decoration: BoxDecoration(
           color: SpaceTheme.nebulaPurple.withValues(alpha: 0.8),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-              color: SpaceTheme.starYellow.withValues(alpha: 0.3)),
+          border:
+              Border.all(color: SpaceTheme.starYellow.withValues(alpha: 0.3)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

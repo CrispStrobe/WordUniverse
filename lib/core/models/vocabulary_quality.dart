@@ -79,11 +79,11 @@ bool describesAName(String definition) {
 /// "Ausland: Land oder Länder außerhalb des eigenen Staatsgebiets", "Insel:
 /// vollständig von Wasser umgebenes Stück Land", "Fluss: größeres,
 /// fließendes Gewässer". None of those matches.
-final RegExp _geographyGloss = RegExp(
-    r'^(hauptstadt|stadt|fluss|insel|gebirge|ozean|provinz|bundesland'
-    r'|bundesstaat|kontinent|staat|region|gemeinde|dorf)\s*,?\s*'
-    r'(in|im|der|des|von|vom|zwischen|an|auf|nahe|bei|südlich|nördlich'
-    r'|östlich|westlich|mit)');
+final RegExp _geographyGloss =
+    RegExp(r'^(hauptstadt|stadt|fluss|insel|gebirge|ozean|provinz|bundesland'
+        r'|bundesstaat|kontinent|staat|region|gemeinde|dorf)\s*,?\s*'
+        r'(in|im|der|des|von|vom|zwischen|an|auf|nahe|bei|südlich|nördlich'
+        r'|östlich|westlich|mit)');
 
 /// Gloss openings Wiktionary uses for names. Also compiled into SQL when the
 /// feature index is built, so a light word can answer the same question.
@@ -353,6 +353,70 @@ final RegExp _unsuitableEnglish = RegExp(
     r'raped|raping|drugs|heroin|cocaine|prostitut\w*|corpse|corpses|suicide|'
     r'nazi|nazis|hitler|holocaust|massacre|tortur\w*|sexual\w*)\b',
     caseSensitive: false);
+
+/// Whether the pack contradicts itself about the word's class.
+///
+/// Every entry carries a word_type column and, in its enrichment, a
+/// primary_pos. They agree for 98% of the English pack and 99.5% of the
+/// German one, and where they do not the column is the one that is wrong:
+/// "at", "between", "by", "from", "in", "he", "his", "each" and "four" are
+/// all filed as nouns with primary_pos saying preposition, pronoun,
+/// determiner or numeral, and the German exceptions are abbreviations —
+/// CDU, FBI, GmbH, GPS, dpa. A model reading the items was asked to sort
+/// "at" into a word class and told the answer was "noun".
+///
+/// A game that asks about the class has to skip these, since it has no way
+/// to know which of the two the pack means. Games that merely use the class
+/// to pick distractors can go on using it.
+bool classIsContradicted(GermanWord word) {
+  final stated = word.apiEnrichment?.primaryPos?.trim().toLowerCase();
+  if (stated == null || stated.isEmpty) return false;
+  final normalized = _posSynonyms[stated] ?? stated;
+  final column = _posSynonyms[word.wordType.name] ?? word.wordType.name;
+  return normalized != column;
+}
+
+/// Spellings the two fields use for the same class, on both packs.
+const _posSynonyms = <String, String>{
+  'noun': 'noun',
+  'substantiv': 'noun',
+  'proper_noun': 'noun',
+  'name': 'noun',
+  'propn': 'noun',
+  'verb': 'verb',
+  'aux': 'verb',
+  'adjective': 'adj',
+  'adjektiv': 'adj',
+  'adj': 'adj',
+  'adverb': 'adv',
+  'adv': 'adv',
+  'pronoun': 'pron',
+  'pronomen': 'pron',
+  'pron': 'pron',
+  'numeral': 'num',
+  'numerale': 'num',
+  'num': 'num',
+  'preposition': 'prep',
+  'praeposition': 'prep',
+  'prep': 'prep',
+  'conjunction': 'conj',
+  'konjunktion': 'conj',
+  'conj': 'conj',
+  'article': 'det',
+  'artikel': 'det',
+  'det': 'det',
+  'determiner': 'det',
+  'interjection': 'intj',
+  'interjektion': 'intj',
+  'intj': 'intj',
+  'particle': 'part',
+  'partikel': 'part',
+  'part': 'part',
+  'abbreviation': 'abbrev',
+  'abbrev': 'abbrev',
+  'andere': 'other',
+  'other': 'other',
+};
 
 /// Whether the word itself belongs in a game for a nine-year-old.
 ///

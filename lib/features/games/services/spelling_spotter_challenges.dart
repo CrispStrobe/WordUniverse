@@ -58,7 +58,15 @@ SpellingChallenge? buildSpellingChallenge({
           !e.contains(' ') &&
           // Skip error forms that are themselves valid vocabulary words
           // (e.g. "in" is a commonMistake of "ihn" but is a real word too).
-          !validWords.contains(e.toLowerCase()))
+          !validWords.contains(e.toLowerCase()) &&
+          // The English errors come from a typo corpus that records what
+          // somebody actually typed, and some of it is noise: "base" arrives
+          // with "pare" and "pase" among its misspellings. Both are offered
+          // as wrong spellings, and "pare" is a word — so the question had
+          // two right answers. The same test the padding already had, which
+          // wants a shared first letter and a small edit distance, keeps
+          // "basse", "bates" and "bas" and drops those two.
+          isDistractorPlausible(e, displayWord, validWords: validWords))
       .toList();
 
   final distractors = <String>{};
@@ -146,10 +154,15 @@ List<GermanWord> selectSpellingWords({
 }
 
 /// Builds up to [rounds] challenges from [pool].
+/// [catalogue] is every word the learner could meet, read only so that a
+/// recorded misspelling which is itself a word is never offered as the wrong
+/// spelling. Taking it from [pool] alone asked that question of the two
+/// hundred words the round drew.
 List<SpellingChallenge> buildSpellingChallenges({
   required List<GermanWord> pool,
   required bool isGerman,
   required int gradeLevel,
+  List<GermanWord> catalogue = const [],
   int rounds = 10,
   int optionCount = 4,
   Random? rng,
@@ -164,7 +177,10 @@ List<SpellingChallenge> buildSpellingChallenges({
       .toList();
   // Error forms that are themselves real words must never be offered as the
   // wrong spelling: "in" is a recorded mistake for "ihn" and also a word.
-  final validWords = pool.map((w) => normWord(w.word).toLowerCase()).toSet();
+  final validWords = {
+    for (final w in catalogue) normWord(w.word).toLowerCase(),
+    for (final w in pool) normWord(w.word).toLowerCase(),
+  };
 
   final challenges = <SpellingChallenge>[];
   for (final word in selectSpellingWords(

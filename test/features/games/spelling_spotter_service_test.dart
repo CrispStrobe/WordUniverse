@@ -192,7 +192,9 @@ void main() {
       expect(normWord(raw), 'vorbeibringen');
     });
 
-    test('"ruksak" is too short to be a plausible distractor for "vorbeibringen"', () {
+    test(
+        '"ruksak" is too short to be a plausible distractor for "vorbeibringen"',
+        () {
       expect(
         isDistractorPlausible('ruksak', 'vorbeibringen', validWords: {}),
         isFalse,
@@ -206,13 +208,32 @@ void main() {
       );
     });
 
-    test('comma-joined entry "ihn, in" splits to ["ihn","in"] — both real words', () {
+    test('a typo corpus entry that does not look like the word is dropped', () {
+      // The English errors come from a corpus of what people actually typed,
+      // and "base" arrives with "pare" and "pase" among its misspellings.
+      // Both were offered as wrong spellings and "pare" is a word, so the
+      // question had two right answers. A shared first letter is what
+      // separates them from the real slips.
+      for (final noise in ['pare', 'pase']) {
+        expect(isDistractorPlausible(noise, 'base', validWords: {}), isFalse,
+            reason: '$noise does not start like "base"');
+      }
+      for (final slip in ['basse', 'bates', 'bas']) {
+        expect(isDistractorPlausible(slip, 'base', validWords: {}), isTrue,
+            reason: '$slip is a slip of "base"');
+      }
+    });
+
+    test(
+        'comma-joined entry "ihn, in" splits to ["ihn","in"] — both real words',
+        () {
       final validWords = {'ihn', 'in'};
       final errors = parseErrors(['ihn, in']).map(normWord).where(
             (e) => !validWords.contains(e.toLowerCase()),
           );
       expect(errors, isEmpty,
-          reason: 'Both tokens are real words; neither should survive the filter');
+          reason:
+              'Both tokens are real words; neither should survive the filter');
     });
   });
 }
