@@ -65,6 +65,10 @@ def load_rules():
 
 def describes_a_name(definition, rules):
     lower = definition.lower()
+    # Mirrors the one rule in describesAName that is code rather than a list:
+    # a capital and a city in one gloss is a place however it is phrased.
+    if 'capital' in lower and 'city' in lower:
+        return True
     return (any(lower.startswith(opening) for opening in rules['name_openings'])
             or any(phrase in lower for phrase in rules['name_phrases']))
 

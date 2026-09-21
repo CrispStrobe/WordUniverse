@@ -6,6 +6,7 @@
 import 'dart:math';
 
 import '../../../core/models/vocabulary_models.dart';
+import '../../../core/models/vocabulary_quality.dart';
 import '../models/verb_pair.dart';
 
 String? findRealExample({
@@ -16,10 +17,17 @@ String? findRealExample({
   final matches = _matcherFor(formText);
   for (final ex in apiExamples) {
     final text = ex.text;
-    if (text != null && text.isNotEmpty && matches(text)) return text;
+    if (text != null &&
+        text.isNotEmpty &&
+        matches(text) &&
+        sentenceSuitsAChild(text)) {
+      return text;
+    }
   }
   for (final text in tataoebaExamples) {
-    if (text.isNotEmpty && matches(text)) return text;
+    if (text.isNotEmpty && matches(text) && sentenceSuitsAChild(text)) {
+      return text;
+    }
   }
   // No fallback to an unrelated sentence. The tile shows the context beneath
   // the form, and falling back attached "Komm doch mal vor zu mir!" to

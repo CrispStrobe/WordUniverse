@@ -7,6 +7,7 @@
 import 'dart:math';
 
 import '../../../core/models/vocabulary_models.dart';
+import '../../../core/models/vocabulary_quality.dart';
 import 'spelling_spotter_service.dart';
 
 class SpellingChallenge {
@@ -96,10 +97,12 @@ SpellingChallenge? buildSpellingChallenge({
   if (isGerman) {
     context = word.exampleSentences
         .where((s) => _sentenceContains(s, displayWord))
+        .where(sentenceSuitsAChild)
         .firstOrNull;
   }
   context ??= word.apiEnrichment?.gutenbergExamples
       .where((s) => _sentenceContains(s, displayWord))
+      .where(sentenceSuitsAChild)
       .firstOrNull;
   if (context == null) {
     final gradeKey = '\$gradeLevel';

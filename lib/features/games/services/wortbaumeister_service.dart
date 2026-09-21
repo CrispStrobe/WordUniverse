@@ -5,6 +5,7 @@
 
 import '../../../core/models/skill_category.dart';
 import '../../../core/models/vocabulary_models.dart';
+import '../../../core/models/vocabulary_quality.dart';
 
 enum GameMode { trennbareVerben, nomenKomposita }
 
@@ -65,10 +66,13 @@ List<WordChallenge> buildCompoundChallenges(
     if (split != null) {
       String context = 'Das Wort "${noun.word}" wird so geschrieben.';
       if (noun.examples.isNotEmpty) {
-        final ex = noun.examples
-            .firstWhere((e) => e.text != null && e.text!.length < 100,
-                // --- FIX 3: Use ApiExample class, not Example ---
-                orElse: () => ApiExample(text: null));
+        final ex = noun.examples.firstWhere(
+            (e) =>
+                e.text != null &&
+                e.text!.length < 100 &&
+                sentenceSuitsAChild(e.text!),
+            // --- FIX 3: Use ApiExample class, not Example ---
+            orElse: () => ApiExample(text: null));
         if (ex.text != null) context = ex.text!;
       }
 

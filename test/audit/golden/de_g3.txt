@@ -1,123 +1,123 @@
 ── antonym_flash (4)
   blond
+      sonnig
+      flüssig
     ✓ dunkel
-      wirklich
-      still
-      kühl
+      fleißig
     · grade: 3
   vorne
-      Rakete
     ✓ hinten
-      sonnig
-      sprechen
+      auffällig
+      während
+      nachdem
     · grade: 3
   Reihe
-      Thema
-    ✓ Spalte
+    ✓ Linie
+      Fehler
+      Geburtstag
       Abendessen
-      Rakete
     · grade: 3
   Rakete
       Abendessen
-      König
-    ✓ Flugzeug
-      Geburtstag
+      Thema
+    ✓ Tischfeuerwerk
+      Reihe
     · grade: 3
 ── cloze_flash (4)
   Das ___ wird renoviert.
-      Filzstift
-      Prinzessin
     ✓ Theater
-      Lob
+      Jeans
+      Rakete
+      Schwimmbad
     · word: Theater
   Man soll ___ zwei Liter Wasser trinken.
-      Rätsel
+      etwas
       rechts
+      ehrlich
     ✓ täglich
-      Deutschland
     · word: täglich
   Der Hausmeister soll endlich die ___ im Flur reparieren.
-      Theater
+      Schuh
+      Schwimmbad
     ✓ Heizung
-      Nacht
-      Kreis
+      Motorrad
     · word: Heizung
   Ich habe die ganze ___ kein Auge zugetan.
-      Rakete
+      Kakao
+      Gebäude
     ✓ Nacht
-      Kreis
-      Prinzessin
+      Schuh
     · word: Nacht
 ── conjugation_drill (4)
   proben: er/sie/es ___
       verkleidet
-    ✓ probt
       beginnt
       öffnet
+    ✓ probt
   öffnen: du ___
+      probst
+      verkleidest
       beginnst
     ✓ öffnest
-      verkleidest
-      probst
-  beginnen: ich ___
-      verkleide
-      probe
-      öffne
-    ✓ beginne
-  verkleiden: ich ___
-      öffne
-      probe
-    ✓ verkleide
-      beginne
+  beginnen: er/sie/es ___
+      öffnet
+    ✓ beginnt
+      probt
+      verkleidet
+  verkleiden: er/sie/es ___
+      probt
+      öffnet
+    ✓ verkleidet
+      beginnt
 ── definition_quiz (4)
   etwas aufmachen; offen machen
-      brüllen
-      der Kalender
+      das Lexikon
       proben
     ✓ öffnen
+      brüllen
     · word: öffnen  grade: 3
   Organisation von Menschen mit einem gemeinsamen Ziel oder gemeinsamen Interessen
-    ✓ der Verein
       der Fußball
-      das Ohr
-      der Radiergummi
+      die Mannschaft
+      der Kalender
+    ✓ der Verein
     · word: Verein  grade: 3
   unkluge, ungereimte Aussage oder Aussagen
-      das Abendessen
+      der Fußball
     ✓ der Quatsch
-      die Mathematik
       der Radiergummi
+      das Ohr
     · word: Quatsch  grade: 3
   eine beliebte Mannschaftssportart, welche mit 22 Spielern und einem Ball gespielt wird
-    ✓ der Fußball
       der Radiergummi
       die Reihe
-      die Maschine
+      das Lexikon
+    ✓ der Fußball
     · word: Fußball  grade: 3
 ── expression_flash (4)
   kein ___ vor den Mund nehmen
-      Reh
     ✓ Blatt
+      Salat
+      Reihe
       Fleisch
-      Schuh
     · word: Blatt
   Äpfel mit Birnen ___
       kriechen
-    ✓ vergleichen
       verschwinden
-      Wand
+    ✓ vergleichen
+      Kuchen
     · word: vergleichen
   aus der ___ kommen
-      Faust
-      Kuchen
-      Reh
+      Kegel
+      Axt
     ✓ Reihe
+      Ereignis
     · word: Reihe
   wie eine ___ abgehen
-      Schuh
     ✓ Rakete
-      Reihe
-      Kreis
+      Mauer
+      Reh
+      Ereignis
     · word: Rakete
 ── grossschreib (4)
   Die [Pflaumen] blühen.
@@ -133,149 +133,151 @@
     ✓ GROSS
     · word: Tüte  rule: Nomen werden immer großgeschrieben
 ── grossstadt (4)
-  ZUM [leugnen]
+  ZUM [gesunden]
     ✓ GROSS
     · rule: Nomen-Signal "ZUM" → Großschreibung
-  DU [leugnest]
+  WIR [gesunden]
     ✓ klein
     · rule: Verben im Satz → Kleinschreibung
-  DARF [leugnen]
+  DARF [gesunden]
     ✓ klein
     · rule: Verben (Infinitiv) → Kleinschreibung
-  DAS [prügeln]
+  ZUM [spülen]
     ✓ GROSS
-    · rule: Nomen-Signal "DAS" → Großschreibung
+    · rule: Nomen-Signal "ZUM" → Großschreibung
 ── hypernym_flash (4)
   Motorrad
-      Tageszeit
+      Figur
+      Schall
       Sinnesorgan
-      Titel
     ✓ Fahrzeug
   Spatz
+      Schall
+      Sinnesorgan
+      Figur
     ✓ Singvogel
-      Sinnesorgan
-      Titel
-      Tageszeit
   Abendessen
-      Sinnesorgan
+      Schall
+      Figur
     ✓ Hauptmahlzeit
-      Titel
-      Tageszeit
-  Klassenfahrt
-      Tageszeit
-    ✓ Fahrt
-      Titel
       Sinnesorgan
+  Klassenfahrt
+      Figur
+      Schall
+      Sinnesorgan
+    ✓ Fahrt
 ── proverb_cloze (4)
   lieber den ___ in der Hand als die Taube auf dem Dach
-      Schokolade
-      Schild
+      Ordnung
+      Übung
     ✓ Spatz
-      Wurst
+      König
     · word: Spatz
   ___ macht den Meister
-      Kaiser
-      Päckchen
-      Ordnung
     ✓ Übung
+      Wurst
+      Geld
+      Kunst
     · word: Übung
   die zarteste Versuchung, seit es ___ gibt
+      Wurst
     ✓ Schokolade
-      Käfig
-      Religion
-      Kaiser
+      Übung
+      Huhn
     · word: Schokolade
   ___ ist, wer vergisst, was nicht mehr zu ändern ist
-      stark
     ✓ glücklich
-      heiß
+      stark
       stumm
+      früh
     · word: glücklich
 ── reverse_translation_flash (4)
   small packet
-      Waffe
-      Sturm
+      Ritter
     ✓ Päckchen
-      Ereignis
-  tower
-      Clown
-      Päckchen
-      verstehen
-    ✓ Turm
-  snow
-      Rätsel
-    ✓ schneien
-      Päckchen
-      blind
-  powerful
-    ✓ stark
-      Pirat
-      Planet
+      Salami
       Schatz
+  tower
+      Sturm
+    ✓ Turm
+      Rätsel
+      Waffe
+  snow
+    ✓ schneien
+      zornig
+      Päckchen
+      Biber
+  powerful
+      zornig
+      Post
+    ✓ stark
+      Ritter
 ── sentence_completion (4)
-  Mein Freund spielt Schlagzeug in einer ___.
-    ✓ Band
-      Nacht
+  Die ___ hat gestern Abend ein großes Konzert gegeben.
       Polizei
-      Beere
-  Wir backen einen Kuchen mit ___.
-      Tomate
-      Reifen
-      Ordnung
+    ✓ Band
+      Fleck
+      Kastanie
+  ___ sind lecker und gesund.
+      Astronaut
+      Kastanie
     ✓ Beere
-  Die Sterne leuchten in der ___.
-      Dreieck
+      Polizei
+  Ich höre ___ den Hund bellen.
+      Band
+      Ordnung
     ✓ Nacht
-      Bibel
-      Radiergummi
+      Bad
   Der Lehrer steht ___ im Klassenzimmer.
+      manchmal
       sogar
       hoffentlich
     ✓ vorne
-      manchmal
 ── spelling_spotter (4)
   Which spelling is correct?
-      vleißig
+    ✓ Kakao
+      k.no
+      kakau
+    · shown after answering: Wer möchte Kakao?
+  Which spelling is correct?
+      begingen
+    ✓ beginnen
+      beginen
+      beginnnen
+    · shown after answering: Beginnen wir?
+  Which spelling is correct?
     ✓ fleißig
+      vleißig
       fleach
     · shown after answering: Lerne fleißig!
   Which spelling is correct?
-      plat
-    ✓ Party
-      paty
-    · shown after answering: Die Party ist vorbei.
-  Which spelling is correct?
-    ✓ Räuber
-      reuber
-    · shown after answering: Der Räuber entging seiner Strafe.
-  Which spelling is correct?
-      kakau
-    ✓ Kakao
-      k.no
-    · shown after answering: Wer möchte Kakao?
+      glat
+    ✓ glatt
+      got
+    · shown after answering: Alles läuft glatt.
 ── sri_review (4)
   "etwas aufmachen; offen machen"
-      brüllen
-      der Kalender
+      das Lexikon
       proben
     ✓ öffnen
+      brüllen
     · type: definition
   Welcher Artikel passt?
 "___ Verein"
-      das
     ✓ der
       die
+      das
     · type: article
   "unkluge, ungereimte Aussage oder Aussagen"
-      das Motorrad
-    ✓ der Quatsch
-      die Maschine
       das Ohr
+      die Mathematik
+      die Reihe
+    ✓ der Quatsch
     · type: definition
   "eine beliebte Mannschaftssportart, welche mit 22 Spielern und einem Ball gespielt wird"
-      die Mannschaft
-      das Pfingsten
-      das Abendessen
+      das Hobby
+      das Lexikon
+      der Quatsch
     ✓ der Fußball
     · type: definition
 ── syllable_count (4)
@@ -305,74 +307,74 @@
     · hyphenation: Fuß-ball
 ── synonym_flash (4)
   Schreck
-      Stuhl
-      Sattel
-      Preis
-    ✓ Entsetzen
+    ✓ Erschrecken
+      Obst
+      Abendessen
+      Gott
     · grade: 3
   Mittagessen
-      Stuhl
-      Hals
-    ✓ Mittagbrot
-      Schreck
+    ✓ Mittagsmahl
+      Satz
+      Gott
+      Brille
     · grade: 3
   Geheimnis
-      Obst
-      Schokolade
-    ✓ Wunder
-      Brücke
+    ✓ Arkanum
+      Mittagessen
+      Turm
+      Satz
     · grade: 3
   Virus
-      Kälte
+      Geheimnis
     ✓ Viruserkrankung
-      Mittagessen
-      Brücke
+      Turm
+      Abendessen
     · grade: 3
 ── translation_flash (4)
   das Päckchen
-      angry
+      snow
     ✓ small packet
-      event
-      roe
+      storm
+      beaver
   der Turm
-      powerful
-      trust
+      blond
     ✓ tower
-      polite
-  schneien
-    ✓ snow
-      salami
       teddy
-      treasure
+      salami
+  schneien
+      blind
+    ✓ snow
+      full
+      clown
   stark
-      association
+      supper
+      mail
     ✓ powerful
-      some
-      knight
+      pirate
 ── verbtrenner (4)
-  taucht … auf
+  aus … drücken
+    ✓ ZUSAMMEN
+    · form: ausdrücken  context: Diese Tube Zahnpasta lässt sich nicht mehr ausdrücken, weil sie leer ist.
+  fährt … vor
     ✓ GETRENNT
-    · form: taucht auf  context: Seht, am Horizont taucht die Sonne auf.
-  vor … nehmen
-    ✓ ZUSAMMEN
-    · form: vornehmen  context: „Ich muß einige Abmessungen vornehmen; ich muß dieses Bauwerk in seiner ganzen Bedeutung kennenlernen“. (Quelle: Max Eyth - Der Kampf um die Cheopspyramide / 4. Kapitel)
-  auf … tauchen
-    ✓ ZUSAMMEN
-    · form: auftauchen  context: Nach einer Weile muss ich wieder auftauchen.
-  vor … schreiben
-    ✓ ZUSAMMEN
-    · form: vorschreiben  context: Du kannst mir nicht vorschreiben, welches Kleid ich zum Abschlussball anzuziehen habe.
+    · form: fährt vor  context: „Der Autosalon in Paris gehört zum Herbst wie bunte Blätter an den Bäumen. In diesem Jahr fährt man elektrisch vor. Die meisten Autobauer haben ein E-Auto am Stand.“
+  schreibt … vor
+    ✓ GETRENNT
+    · form: schreibt vor  context: Meine Mutti schreibt mir vor, bis wann die Hausaufgaben fertig sein sollen.
+  schlage … vor
+    ✓ GETRENNT
+    · form: schlage vor  context: Ich schlage vor, dass wir zuerst die Grundlagen besprechen.
 ── word_builder (4)
-  Build "das Rad" from its letters
+  Build "Rad" from its letters
     ✓ Rad
     · grade: 3  gloss: rundes Bauteil, das um seine Achse rotiert
-  Build "der Verein" from its letters
+  Build "Verein" from its letters
     ✓ Verein
     · grade: 3  gloss: Organisation von Menschen mit einem gemeinsamen Ziel oder gemeinsamen Interessen
   Build "küssen" from its letters
     ✓ küssen
     · grade: 3  gloss: mit den Lippen eine andere Person oder einen Gegenstand berühren, zum Zeichen der Liebe oder Verehrung; einen Kuss geben
-  Build "die Glocke" from its letters
+  Build "Glocke" from its letters
     ✓ Glocke
     · grade: 3  gloss: nach unten hin geöffneter kelchartiger Metallgegenstand, der durch Schlagen mit einem Klöppel zum Klingen gebracht wird
 ── word_class_flash (4)
@@ -393,29 +395,29 @@
       verb
       adjektiv
 ── word_find (4)
-  Find "das Rad" in the grid
+  Find "Rad" in the grid
     ✓ Rad
     · grade: 3  gloss: rundes Bauteil, das um seine Achse rotiert
-  Find "der Verein" in the grid
+  Find "Verein" in the grid
     ✓ Verein
     · grade: 3  gloss: Organisation von Menschen mit einem gemeinsamen Ziel oder gemeinsamen Interessen
   Find "küssen" in the grid
     ✓ küssen
     · grade: 3  gloss: mit den Lippen eine andere Person oder einen Gegenstand berühren, zum Zeichen der Liebe oder Verehrung; einen Kuss geben
-  Find "die Glocke" in the grid
+  Find "Glocke" in the grid
     ✓ Glocke
     · grade: 3  gloss: nach unten hin geöffneter kelchartiger Metallgegenstand, der durch Schlagen mit einem Klöppel zum Klingen gebracht wird
 ── word_memory (4)
-  Match the pair for "das Rad"
+  Match the pair for "Rad"
     ✓ Rad
     · grade: 3  gloss: rundes Bauteil, das um seine Achse rotiert
-  Match the pair for "der Verein"
+  Match the pair for "Verein"
     ✓ Verein
     · grade: 3  gloss: Organisation von Menschen mit einem gemeinsamen Ziel oder gemeinsamen Interessen
   Match the pair for "küssen"
     ✓ küssen
     · grade: 3  gloss: mit den Lippen eine andere Person oder einen Gegenstand berühren, zum Zeichen der Liebe oder Verehrung; einen Kuss geben
-  Match the pair for "die Glocke"
+  Match the pair for "Glocke"
     ✓ Glocke
     · grade: 3  gloss: nach unten hin geöffneter kelchartiger Metallgegenstand, der durch Schlagen mit einem Klöppel zum Klingen gebracht wird
 ── word_of_the_day (4)
@@ -432,29 +434,29 @@
     ✓ selbstgewählte, bewusste, schöpferische Handlung
     · grade: 4  cefr: —
 ── word_snake (4)
-  Trace "das Rad"
+  Trace "Rad"
     ✓ Rad
     · grade: 3  gloss: rundes Bauteil, das um seine Achse rotiert
-  Trace "der Verein"
+  Trace "Verein"
     ✓ Verein
     · grade: 3  gloss: Organisation von Menschen mit einem gemeinsamen Ziel oder gemeinsamen Interessen
   Trace "küssen"
     ✓ küssen
     · grade: 3  gloss: mit den Lippen eine andere Person oder einen Gegenstand berühren, zum Zeichen der Liebe oder Verehrung; einen Kuss geben
-  Trace "die Glocke"
+  Trace "Glocke"
     ✓ Glocke
     · grade: 3  gloss: nach unten hin geöffneter kelchartiger Metallgegenstand, der durch Schlagen mit einem Klöppel zum Klingen gebracht wird
 ── word_sort (4)
-  Sort "das Rad" into its word class
+  Sort "Rad" into its word class
     ✓ substantiv
     · grade: 3  gloss: rundes Bauteil, das um seine Achse rotiert
-  Sort "der Verein" into its word class
+  Sort "Verein" into its word class
     ✓ substantiv
     · grade: 3  gloss: Organisation von Menschen mit einem gemeinsamen Ziel oder gemeinsamen Interessen
   Sort "küssen" into its word class
     ✓ verb
     · grade: 3  gloss: mit den Lippen eine andere Person oder einen Gegenstand berühren, zum Zeichen der Liebe oder Verehrung; einen Kuss geben
-  Sort "die Glocke" into its word class
+  Sort "Glocke" into its word class
     ✓ substantiv
     · grade: 3  gloss: nach unten hin geöffneter kelchartiger Metallgegenstand, der durch Schlagen mit einem Klöppel zum Klingen gebracht wird
 ── word_type_whirl (4)

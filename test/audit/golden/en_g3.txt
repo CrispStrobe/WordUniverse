@@ -1,78 +1,78 @@
 ── antonym_flash (4)
-  divide
-      recall
-      lean
-    ✓ unite
-      float
+  asset
+      efficiency
+      preparation
+    ✓ liability
+      beauty
     · grade: 3
-  authorized
-      continuous
-      alert
-    ✓ unauthorized
-      unforgettable
+  preparation
+      intelligence
+      construction
+      asset
+    ✓ resolution
     · grade: 3
-  relevant
-      alert
-      acceptable
-      senior
-    ✓ irrelevant
+  incredibly
+      downstairs
+      enter
+      intelligence
+    ✓ credibly
     · grade: 3
-  lean
-      divide
-    ✓ rich
-      recall
-      concentrate
+  traditional
+      digital
+      joint
+    ✓ nontraditional
+      actual
     · grade: 3
 ── cloze_flash (4)
-  Men that I knew around Wapatomac didn't wear high, shiny plug hats, nor yeller spring overcoats, nor carry canes with ivory heads as big as a catboat's ___, as you might say.
-      miracle
-    ✓ anchor
-      walker
-      coaches
-    · word: anchor
-  He wants to ___ at 55.
-      fascinating
-      committed
-    ✓ retire
-      dragged
-    · word: retire
-  The sisters dressed ___.
-      politically
-      possess
-    ✓ similarly
-      difficulty
-    · word: similarly
-  He does not even ___ a working telephone.
-    ✓ possess
-      dragged
-      blessed
-      retire
-    · word: possess
+  As they turned into Hertford Street they startled a ___ from the poet's head on a barren fountain, and he fled away with a cameo note.
+    ✓ robin
+      shadow
+      cargo
+      reign
+    · word: robin
+  It came to me, like a ___ on the door / Erasing all that had gone before / Broken wings can be mended / But this love of ours, we've got to defend it
+    ✓ knock
+      fashion
+      shadow
+      eh
+    · word: knock
+  His mother prepared ___ for him and his friends for dessert.
+      eh
+      robin
+      fashion
+    ✓ jelly
+    · word: jelly
+  “I had a difficult session with my ___ last evening and the slightest thing is apt to set me off.”
+    ✓ analyst
+      journalists
+      gun
+      fuckin
+    · word: analyst
 ── definition_quiz (4)
-  A feeling of desire for new and exciting things.
-      cash
-    ✓ adventure
-      lane
-      cigarette
-    · word: adventure  grade: 3
-  Just before it is too late; in the nick of time.
-    ✓ last-minute
-      controversial
-      worried
-      extra
-    · word: last-minute  grade: 3
-  A person with authority; authority, ordinance.; A courier; someone delivering mail or post.
-      pattern
-      contribution
-      merchant
-    ✓ ordinary
-    · word: ordinary  grade: 3
-  Something given or offered that adds to a larger whole.
-      merchant
-    ✓ contribution
-      ordinary
-      monster
-    · word: contribution  grade: 3
+  A suit in certain playing card decks, particularly those used in Spain and Italy, or those used for divination.
+    ✓ sword
+      usage
+      surgery
+      membership
+    · word: sword  grade: 3
+  Free from attack or danger; protected.
+      religious
+      brief
+      selfish
+    ✓ secure
+    · word: secure  grade: 3
+  A procedure involving major incisions to remove, repair, or replace a part of a body.
+      funeral
+    ✓ surgery
+      loyalty
+      sword
+    · word: surgery  grade: 3
+  The art or science of making and flying aircraft.
+      mood
+      inn
+    ✓ aviation
+      loyalty
+    · word: aviation  grade: 3
 ── false_friends (4)
   What does "ordinary" really mean?
       ordinär
@@ -116,26 +116,26 @@
     ✓ male
     · group: mail/male
 ── hypernym_flash (4)
-  criminal
-      include
-    ✓ principal
-      say
-      advise
-  encourage
-    ✓ back up
-      advise
-      say
-      include
-  claim
-      advise
-    ✓ assertion
-      include
-      say
-  ambition
-    ✓ desire
-      say
-      include
-      advise
+  attempt
+      drive
+      advance
+      anticipate
+    ✓ activity
+  emotion
+      drive
+      anticipate
+    ✓ feeling
+      advance
+  basket
+      anticipate
+      drive
+    ✓ container
+      advance
+  arab
+      drive
+    ✓ Semite
+      advance
+      anticipate
 ── phrasal_verb_match (4)
   What does "stop up" mean?
       to wait and not give up
@@ -183,181 +183,180 @@
       up
     · phrasal: drive out  means: to make someone or something leave a place
 ── sentence_completion (4)
-  She found the ___ seashell on the beach.
-      creepy
-    ✓ attractive
-      playful
-      unlike
-  The company operates ___ now.
-    ✓ worldwide
-      unlike
-      solar
-      substantial
-  We're doing an ___ of the library books.
-      lighting
-    ✓ inventory
-      classification
-      headteacher
-  Our ___ teaches well.
-      inventory
-      influence
-    ✓ headteacher
-      trunk
+  The ___ in the sink is clogged.
+      pile
+    ✓ drain
+      clown
+      creativity
+  The ___ feels very strong.
+      competition
+      behavior
+      drain
+    ✓ emotion
+  ___ people often have more free time.
+      amused
+    ✓ retired
+      immune
+      naked
+  ___ a contract has consequences.
+      pile
+      status
+      essence
+    ✓ breach
 ── spelling_spotter (4)
   Which spelling is correct?
-      intrulectual
-      intelliatenal
-    ✓ intellectual
-      intelectual
-    · shown after answering: But perhaps he will be more intellectual-looking when he grows up.
+      travic
+    ✓ traffic
+      tacter
+      trafic
+    · shown after answering: Freight and passenger way-traffic remains to the steamers.
   Which spelling is correct?
-      maxanlatic
-    ✓ mathematics
-      mathamatics
-      mathematicas
-    · shown after answering: Then he displays to you his great skill in architecture and improvement in the mathematics.
+      chalenge
+      challange
+    ✓ challenge
+      challege
+    · shown after answering: There was no sound of challenge outside.
   Which spelling is correct?
-    ✓ criticise
-      critizing
-      critisize
-      critized
-    · shown after answering: I criticise you.
+      vicillilies
+    ✓ facilities
+      facilites
+      vacilities
+    · shown after answering: Remember we are given all facilities—and Name of God!—they give them to us too!
   Which spelling is correct?
-      permenant
-    ✓ permanent
-      permanant
-      permernent
-    · shown after answering: This my son is mad; but it is not permanent.
+    ✓ harassment
+      harassement
+      harasment
+      harasments
 ── sri_review (4)
-  Correct spelling for:
-"A feeling of desire for new and exciting things."
-      aventure
-    ✓ adventure
-    · type: spelling
-  "Just before it is too late; in the nick of time."
-      worried
-      extra
-      facial
-    ✓ last-minute
+  "A suit in certain playing card decks, particularly those used in Spain and Italy, or those used for divination."
+    ✓ sword
+      usage
+      surgery
+      membership
     · type: definition
-  "A person with authority; authority, ordinance.; A courier; someone delivering mail or post."
-      warrior
-    ✓ ordinary
-      merchant
-      pattern
+  "Free from attack or danger; protected."
+      religious
+      brief
+      selfish
+    ✓ secure
+    · type: definition
+  "A procedure involving major incisions to remove, repair, or replace a part of a body."
+      funeral
+    ✓ surgery
+      loyalty
+      sword
     · type: definition
   Correct spelling for:
-"Something given or offered that adds to a larger whole."
-      conibation
-    ✓ contribution
-      contritutions
+"The art or science of making and flying aircraft."
+    ✓ aviation
+      avation
     · type: spelling
 ── syllable_count (4)
-  identify
-      1
-      2
-    ✓ 3
-      4+
-    · hyphenation: iden-ti-fy
-  aviation
-      1
-      2
-      3
-    ✓ 4+
-    · hyphenation: a-vi-a-tion
-  comparative
-      1
-      2
-      3
-    ✓ 4+
-    · hyphenation: com-par-a-tive
-  robbery
+  fortune
       1
     ✓ 2
       3
       4+
-    · hyphenation: rob-bery
+    · hyphenation: for-tune
+  downtown
+      1
+    ✓ 2
+      3
+      4+
+    · hyphenation: down-town
+  granny
+      1
+    ✓ 2
+      3
+      4+
+    · hyphenation: gran-ny
+  sacrifice
+      1
+      2
+    ✓ 3
+      4+
+    · hyphenation: sac-ri-fice
 ── synonym_flash (4)
-  executive
-      extensive
-    ✓ administrator
-      empty
-      direct
+  quick
+    ✓ immediate
+      impossible
+      naughty
+      auto
     · grade: 3
-  commercial
-      brazilian
-    ✓ moneymaking
-      explanation
-      commander
+  diagnosis
+      formation
+      carpet
+    ✓ diagnosing
+      formula
     · grade: 3
-  surely
-    ✓ certainly
-      anonymous
-      anyway
-      hunt
+  lifetime
+      chick
+    ✓ life
+      administration
+      helicopter
     · grade: 3
-  direct
-    ✓ manoeuvre
-      extensive
-      anonymous
-      apparent
+  exist
+      delete
+    ✓ be
+      count
+      separate
     · grade: 3
 ── word_builder (4)
-  Build "revolutionary" from its letters
-    ✓ revolutionary
-    · grade: 3  gloss: Of or pertaining to a revolution in government; tending to, or promoting, revolution
-  Build "christianity" from its letters
-    ✓ christianity
-    · grade: 3  gloss: An Abrahamic religion originating from the community of the followers of Jesus Christ.
-  Build "complexity" from its letters
-    ✓ complexity
-    · grade: 3  gloss: The state of being complex; intricacy; entanglement.
-  Build "sexual" from its letters
-    ✓ sexual
-    · grade: 3  gloss: Arising from the fact of being male or female; pertaining to sex or gender, or to the social relations between the sexes.
+  Build "centuries" from its letters
+    ✓ centuries
+    · grade: 3
+  Build "fix" from its letters
+    ✓ fix
+    · grade: 3  gloss: To pierce; now generally replaced by transfix.
+  Build "well-balanced" from its letters
+    ✓ well-balanced
+    · grade: 3  gloss: properly balanced; in equilibrium
+  Build "similarly" from its letters
+    ✓ similarly
+    · grade: 3  gloss: In a like style or manner.
 ── word_class_flash (4)
-  estate
+  object
     ✓ substantiv
       verb
       adjektiv
-  ridiculous
+  legendary
       substantiv
       verb
     ✓ adjektiv
-  retain
+  explain
       substantiv
     ✓ verb
       adjektiv
-  fog
+  excitement
     ✓ substantiv
       verb
       adjektiv
 ── word_find (4)
-  Find "revolutionary" in the grid
-    ✓ revolutionary
-    · grade: 3  gloss: Of or pertaining to a revolution in government; tending to, or promoting, revolution
-  Find "christianity" in the grid
-    ✓ christianity
-    · grade: 3  gloss: An Abrahamic religion originating from the community of the followers of Jesus Christ.
-  Find "complexity" in the grid
-    ✓ complexity
-    · grade: 3  gloss: The state of being complex; intricacy; entanglement.
-  Find "sexual" in the grid
-    ✓ sexual
-    · grade: 3  gloss: Arising from the fact of being male or female; pertaining to sex or gender, or to the social relations between the sexes.
+  Find "centuries" in the grid
+    ✓ centuries
+    · grade: 3
+  Find "fix" in the grid
+    ✓ fix
+    · grade: 3  gloss: To pierce; now generally replaced by transfix.
+  Find "well-balanced" in the grid
+    ✓ well-balanced
+    · grade: 3  gloss: properly balanced; in equilibrium
+  Find "similarly" in the grid
+    ✓ similarly
+    · grade: 3  gloss: In a like style or manner.
 ── word_memory (4)
-  Match the pair for "revolutionary"
-    ✓ revolutionary
-    · grade: 3  gloss: Of or pertaining to a revolution in government; tending to, or promoting, revolution
-  Match the pair for "christianity"
-    ✓ christianity
-    · grade: 3  gloss: An Abrahamic religion originating from the community of the followers of Jesus Christ.
-  Match the pair for "complexity"
-    ✓ complexity
-    · grade: 3  gloss: The state of being complex; intricacy; entanglement.
-  Match the pair for "sexual"
-    ✓ sexual
-    · grade: 3  gloss: Arising from the fact of being male or female; pertaining to sex or gender, or to the social relations between the sexes.
+  Match the pair for "centuries"
+    ✓ centuries
+    · grade: 3
+  Match the pair for "fix"
+    ✓ fix
+    · grade: 3  gloss: To pierce; now generally replaced by transfix.
+  Match the pair for "well-balanced"
+    ✓ well-balanced
+    · grade: 3  gloss: properly balanced; in equilibrium
+  Match the pair for "similarly"
+    ✓ similarly
+    · grade: 3  gloss: In a like style or manner.
 ── word_of_the_day (4)
   2026-01-01: archive
     ✓ A place for storing earlier, and often historical, material. An archive usually contains documents (letters, records, newspapers, etc.) or other types of media kept for historical interest.
@@ -372,41 +371,41 @@
     ✓ A small, open, wheeled vehicle, drawn or pushed by a person or animal, often with two wheels on one axle, more often used for transporting goods than passengers.
     · grade: 4  cefr: —
 ── word_snake (4)
-  Trace "revolutionary"
-    ✓ revolutionary
-    · grade: 3  gloss: Of or pertaining to a revolution in government; tending to, or promoting, revolution
-  Trace "christianity"
-    ✓ christianity
-    · grade: 3  gloss: An Abrahamic religion originating from the community of the followers of Jesus Christ.
-  Trace "complexity"
-    ✓ complexity
-    · grade: 3  gloss: The state of being complex; intricacy; entanglement.
-  Trace "sexual"
-    ✓ sexual
-    · grade: 3  gloss: Arising from the fact of being male or female; pertaining to sex or gender, or to the social relations between the sexes.
+  Trace "centuries"
+    ✓ centuries
+    · grade: 3
+  Trace "fix"
+    ✓ fix
+    · grade: 3  gloss: To pierce; now generally replaced by transfix.
+  Trace "well-balanced"
+    ✓ well-balanced
+    · grade: 3  gloss: properly balanced; in equilibrium
+  Trace "similarly"
+    ✓ similarly
+    · grade: 3  gloss: In a like style or manner.
 ── word_sort (4)
-  Sort "revolutionary" into its word class
-    ✓ adjektiv
-    · grade: 3  gloss: Of or pertaining to a revolution in government; tending to, or promoting, revolution
-  Sort "christianity" into its word class
+  Sort "centuries" into its word class
     ✓ substantiv
-    · grade: 3  gloss: An Abrahamic religion originating from the community of the followers of Jesus Christ.
-  Sort "complexity" into its word class
-    ✓ substantiv
-    · grade: 3  gloss: The state of being complex; intricacy; entanglement.
-  Sort "sexual" into its word class
+    · grade: 3
+  Sort "fix" into its word class
+    ✓ verb
+    · grade: 3  gloss: To pierce; now generally replaced by transfix.
+  Sort "well-balanced" into its word class
     ✓ adjektiv
-    · grade: 3  gloss: Arising from the fact of being male or female; pertaining to sex or gender, or to the social relations between the sexes.
+    · grade: 3  gloss: properly balanced; in equilibrium
+  Sort "similarly" into its word class
+    ✓ adverb
+    · grade: 3  gloss: In a like style or manner.
 ── word_type_whirl (4)
-  Catch "revolutionary" in the right bin
-    ✓ adjektiv
-    · grade: 3  gloss: Of or pertaining to a revolution in government; tending to, or promoting, revolution
-  Catch "christianity" in the right bin
+  Catch "centuries" in the right bin
     ✓ substantiv
-    · grade: 3  gloss: An Abrahamic religion originating from the community of the followers of Jesus Christ.
-  Catch "complexity" in the right bin
-    ✓ substantiv
-    · grade: 3  gloss: The state of being complex; intricacy; entanglement.
-  Catch "sexual" in the right bin
+    · grade: 3
+  Catch "fix" in the right bin
+    ✓ verb
+    · grade: 3  gloss: To pierce; now generally replaced by transfix.
+  Catch "well-balanced" in the right bin
     ✓ adjektiv
-    · grade: 3  gloss: Arising from the fact of being male or female; pertaining to sex or gender, or to the social relations between the sexes.
+    · grade: 3  gloss: properly balanced; in equilibrium
+  Catch "similarly" in the right bin
+    ✓ adverb
+    · grade: 3  gloss: In a like style or manner.

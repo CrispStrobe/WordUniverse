@@ -59,6 +59,7 @@ SentenceChallenge? buildSentenceChallenge({
   // Try each sentence until we find one containing the word
   final shuffledSents = List<String>.from(sents)..shuffle(random);
   for (final sent in shuffledSents) {
+    if (!sentenceSuitsAChild(sent)) continue;
     final result = blankWord(sent, word.word);
     if (result == null) continue;
     final (before, after) = result;

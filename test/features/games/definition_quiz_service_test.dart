@@ -120,6 +120,20 @@ void main() {
     expect(challenge!.definition, 'The larger part of an organism.');
   });
 
+  test('a long primary sense is cut at its clause, not skipped', () {
+    // "enable" shipped with a 130-character first sense; skipping it keyed
+    // the archaic second one, "To affirm; to make firm and strong".
+    final word = _word('enable', const [
+      // Verbatim from the English pack, 135 characters.
+      'To make somebody able (to do, or to be, something); to give sufficient '
+          'ability or power to do or to be; to give strength or ability to.',
+      'To affirm; to make firm and strong.',
+    ]);
+    final challenge = _build(word, _distractors());
+    expect(challenge!.definition,
+        'To make somebody able (to do, or to be, something)');
+  });
+
   test('refersToAnotherSense spots demonstratives in both languages', () {
     expect(refersToAnotherSense('One who does this.'), isTrue);
     expect(refersToAnotherSense('Eine Person, die solches tut.'), isTrue);

@@ -67,7 +67,10 @@ enum WordFeature {
 }
 
 /// Bump when a bit's meaning changes, so cached indexes are discarded.
-const int kWordFeatureIndexFormat = 7;
+// 8: the rules behind nameLike and usableDefinition changed — a capital and
+// a city in one gloss is a place, a long sense is cut at its clause — and the
+// bits are computed from those rules, including in the index a pack ships.
+const int kWordFeatureIndexFormat = 8;
 
 extension WordFeatureMask on int {
   bool hasFeature(WordFeature feature) => this & feature.mask != 0;
