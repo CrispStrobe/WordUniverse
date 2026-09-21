@@ -106,6 +106,16 @@ jobs:
           WU_PACK_DE: ${{ github.workspace }}/.cache/packs/grundwortschatz.db
         run: flutter test --reporter expanded test/audit/challenge_golden_test.dart
 
+      # Every string a game shows, back against the pack it came from: a
+      # blanked sentence has to put itself together again, a definition
+      # prompt has to be a pack gloss with the headword redacted. The app
+      # composes almost no English, so this is what there is to check of it.
+      - name: Item provenance
+        env:
+          WU_PACK: '1'
+          WU_PACK_DE: ${{ github.workspace }}/.cache/packs/grundwortschatz.db
+        run: flutter test --reporter expanded test/live/item_provenance_live_test.dart
+
       # Every German form the games compose, against the pack's own tables.
       # A structural check cannot tell "du sprichst" from "du sprechst".
       - name: German forms

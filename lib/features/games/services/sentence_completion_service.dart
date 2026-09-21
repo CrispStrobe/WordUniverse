@@ -13,6 +13,11 @@ class SentenceChallenge {
   final GermanWord word;
   final String before; // sentence text before the blank
   final String after; // sentence text after the blank
+
+  /// The text that was blanked out, which may be an inflected form. Carried
+  /// so a check can put the sentence back together and compare it with what
+  /// the pack ships — see test/live/item_provenance_live_test.dart.
+  final String matchedForm;
   final String correctOption;
   final List<String> options;
   final int correctIndex;
@@ -21,6 +26,7 @@ class SentenceChallenge {
     required this.word,
     required this.before,
     required this.after,
+    required this.matchedForm,
     required this.correctOption,
     required this.options,
     required this.correctIndex,
@@ -76,6 +82,7 @@ SentenceChallenge? buildSentenceChallenge({
       word: word,
       before: before,
       after: after,
+      matchedForm: sent.substring(before.length, sent.length - after.length),
       correctOption: correctOption,
       options: options,
       correctIndex: correctIndex,

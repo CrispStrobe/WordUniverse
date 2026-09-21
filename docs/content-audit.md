@@ -143,6 +143,36 @@ wrong — "The book has a pair of pages." is the English pack's sentence for
 *pair*, and the Homophone Drill can only blank a word out of what it is
 given.
 
+## English, and the other half of the question
+
+The German check asks whether a form the app *composed* is one the pack
+knows. English needs a different question, because the app composes almost no
+English: it blanks a word out of a sentence the pack wrote, redacts a headword
+out of a gloss, offers a translation the pack lists. The sentence was
+grammatical when the pack shipped it. What can go wrong is the transformation.
+
+`test/live/item_provenance_live_test.dart` undoes each one and compares:
+
+| | |
+|---|---|
+| cloze, expression, proverb | `before + the blanked form + after` is the source text, character for character |
+| sentence completion | the same, against one of the pack's own grade examples |
+| homophone drill | filling the gap back in gives a sentence the pack ships |
+| definition quiz | the prompt is a pack gloss with the headword redacted |
+| syllable count | the keyed bucket is the pack's hyphenation, counted |
+| phrasal verbs | the keyed option is one of the phrasal's particles, and it is in what the learner reads |
+| translation flash | the answer is one the pack lists for that word |
+
+Mutation-checked: moving the end of a blank by one character fails it with
+*"He wants to retireat 55." ≠ "He wants to retire at 55."*
+
+Two of these were written stricter and then relaxed for a reason worth
+recording. Requiring the phrasal *verb* to appear fails on every conjugated
+sentence — "carry out" is taught and the sentence says "carries out" — and
+nothing here can lemmatise English. And the keyed particle is not the last
+word of the phrasal: "get on with" is keyed on *on*. A check that has to be
+weakened is worth weakening precisely, not deleting.
+
 ## Having a model read them
 
 `tools/audit/review.py` asks a model the four questions a teacher would ask of
@@ -185,6 +215,7 @@ resumed run skips what it already judged.
 | structural rules, every push | 1,260 English items; German too, since CI fetches the pack |
 | structural rules, nightly | 500 per game per grade, sharded twelve ways |
 | German the app composes itself | 3,240 Großstadt frames, 3,531 drill forms, 328 verb tiles, 359 compounds — every one against the pack's own tables |
+| every string a game shows, back against its source | ~3,700 items across both packs: blanked sentences, definition prompts, syllable keys, homophone gaps, phrasal particles, translations |
 | the frozen sample | four items per game, both packs, as a diff |
 | meaning | nothing automated; read by hand |
 
