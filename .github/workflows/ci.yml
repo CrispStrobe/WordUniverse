@@ -178,4 +178,18 @@ jobs:
           fi
           # build/web is already the built output; tell Vercel not to build it.
           node ../../tools/prepare-vercel.mjs vercel.json
-          vercel --token "$VERCEL_TOKEN" --prod --yes
+          set +e
+          vercel --token "$VERCEL_TOKEN" --prod --yes 2>&1 | tee vercel.log
+          status=${PIPESTATUS[0]}
+          set -e
+          if [ "$status" -ne 0 ] &&
+             grep -q 'api-deployments-free-per-day' vercel.log; then
+            # The plan allows 100 deployments a day and a busy day reaches it.
+            # The commit is fine, the build is fine, and the next deploy will
+            # carry it — failing the run for this teaches everyone to ignore a
+            # red CI.
+            echo "::warning::Vercel's daily deployment limit is reached; " \
+                 "this build was not deployed."
+            exit 0
+          fi
+          exit "$status"

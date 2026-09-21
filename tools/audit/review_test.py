@@ -114,6 +114,30 @@ class ReviewTest(unittest.TestCase):
             [review.Lane(angry, 'busy-model', 'busy', 0.0)], patience=0.2)
         self.assertEqual(review.judge(pool, ITEMS, 0.0, attempts=3), [])
 
+    def test_an_answer_with_no_choices_parks_the_lane_and_moves_on(self):
+        # OpenRouter answers 200 with an error body when a free model is out
+        # of capacity; the SDK leaves choices None and indexing it threw,
+        # which retired a lane that was only busy.
+        empty = _EmptyChoicesClient(
+            {'message': 'upstream provider returned no response'})
+        calm = _FixedClient({'verdicts': [{'n': 1}, {'n': 2}]})
+        lanes = [
+            review.Lane(empty, 'nemotron', 'nemotron', 0.0),
+            review.Lane(calm, 'free-model', 'free', 0.0),
+        ]
+        pool = review.Pool(lanes, patience=5.0)
+        self.assertEqual(len(review.judge(pool, ITEMS, 0.0, attempts=4)), 2)
+        self.assertFalse(lanes[0].retired,
+                         'one empty answer is not a reason to retire a lane')
+        self.assertGreater(lanes[0].failures, 0)
+
+    def test_a_lane_that_keeps_answering_with_nothing_is_retired(self):
+        empty = _EmptyChoicesClient(None)
+        lane = review.Lane(empty, 'nemotron', 'nemotron', 0.0)
+        pool = review.Pool([lane], patience=30.0)
+        review.judge(pool, ITEMS, 0.0, attempts=8)
+        self.assertTrue(lane.retired)
+
     def test_json_in_a_fence_is_still_json(self):
         fenced = '```json\n{"verdicts": [{"n": 1, "keyed": false}]}\n```'
         self.assertEqual(review.parse_verdicts(fenced),
@@ -162,6 +186,18 @@ class _FixedClient:
         content = json.dumps(self._payload)
         return type('R', (), {'choices': [type('C', (), {
             'message': type('M', (), {'content': content})()})()]})()
+
+
+class _EmptyChoicesClient:
+    """A 200 with no choices, the way OpenRouter reports an upstream fault."""
+
+    def __init__(self, error):
+        self.chat = self
+        self.completions = self
+        self._error = error
+
+    def create(self, **_):
+        return type('R', (), {'choices': None, 'error': self._error})()
 
 
 if __name__ == '__main__':
