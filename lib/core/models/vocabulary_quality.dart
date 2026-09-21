@@ -79,6 +79,19 @@ const List<String> kNameGlossOpenings = [
   'an appellation',
   'a diminutive of the male',
   'a diminutive of the female',
+  // Three entries in the English pack word it differently and arrived as
+  // ordinary vocabulary: "eddie" (A diminutive of Edward, Edgar, Edwin),
+  // "fred" (A short version of Frederick, Alfred, or Wilfred) and "kirby"
+  // (An English placename.). Only three, so the shipped index is left alone
+  // rather than bumping its format and making every device rebuild: light
+  // words keep the old answer for those three until the next republish, and
+  // every hydrated path reads this list directly.
+  'a diminutive of',
+  'a short version of',
+  'a short form of',
+  'a shortened form of',
+  'a nickname for',
+  'an english placename',
 ];
 
 /// Gloss phrases that name a place or person wherever they appear.
@@ -271,7 +284,26 @@ bool sentenceSuitsAChild(String sentence) =>
     !_unsuitableGerman.hasMatch(sentence) &&
     !_unsuitableGermanAnyCase.hasMatch(sentence) &&
     !_unsuitableEnglish.hasMatch(sentence) &&
-    !_adultSetting.hasMatch(sentence);
+    !_adultSetting.hasMatch(sentence) &&
+    !_archaicWords.hasMatch(sentence) &&
+    !_archaicSpelling.hasMatch(sentence);
+
+/// Early Modern English and Fraktur-era German. The packs' example sentences
+/// are quarried from public-domain books, so a cloze gap arrives built on
+/// "He that feareth oblatration must not travel", on Shakespeare quartos
+/// still spelt with a long s ("pleaſeth your Lordſhip") and on the King James
+/// Bible. Six per cent of the English sentences and a tenth of a per cent of
+/// the German ones read like this.
+final RegExp _archaicWords = RegExp(
+    r'\b(thou|thee|thy|thine|hath|doth|dost|saith|shalt|shouldst|wilt'
+    r'|wouldst|unto|verily|whosoever|whomsoever|hither|thither|whence'
+    r'|thence)\b',
+    caseSensitive: false);
+
+/// The long s, and "-eth" written lowercase. The long s alone settles most of
+/// them, in either language. Case-sensitive on purpose: a case-insensitive
+/// "-eth" reads Elisabeth, Sabeth and Lambeth as archaic.
+final RegExp _archaicSpelling = RegExp(r'[ſ]|\b[a-zäöüß]{3,}eth\b');
 
 /// Settings a school exercise does not put a nine-year-old in. A model reading
 /// the English cloze items found one built on "a beer commercial … two aliens

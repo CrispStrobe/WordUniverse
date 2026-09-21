@@ -187,6 +187,20 @@ void main() {
           isTrue);
     });
 
+    test('catches the shorter ways Wiktionary says "this is a name"', () {
+      // Three English entries word it this way and came through as ordinary
+      // vocabulary while the other 63 were typed proper_noun in the pack.
+      expect(
+          describesAName('A diminutive of Edward, Edgar, Edwin, or other '
+              'male given names beginning with Ed-.'),
+          isTrue);
+      expect(
+          describesAName('A short version of Frederick, Alfred, or Wilfred, '
+              'also used as a formal given name.'),
+          isTrue);
+      expect(describesAName('An English placename.'), isTrue);
+    });
+
     test('catches peoples and languages', () {
       expect(
           describesAName('Any of the languages of these aboriginal peoples.'),
@@ -209,6 +223,34 @@ void main() {
               'which is the whole reason this half of the rule is '
               'case-sensitive');
       expect(sentenceSuitsAChild('She was warm and well.'), isTrue);
+    });
+
+    test('drops a sentence written four centuries ago', () {
+      // 6% of the English example sentences are Early Modern English: a cloze
+      // gap arrived built on "He that feareth oblatration must not travel".
+      expect(
+          sentenceSuitsAChild('He that feareth oblatration must not '
+              'travel.'),
+          isFalse);
+      expect(sentenceSuitsAChild('Thou shalt be a father of many nations.'),
+          isFalse);
+      // The long s settles the scanned quartos, in either language.
+      expect(
+          sentenceSuitsAChild('The prince is here at hand, pleaſeth your '
+              'Lordſhip.'),
+          isFalse);
+      expect(
+          sentenceSuitsAChild('„Manchmal ſieht man Berlinerinnen auf ihren '
+              'Balkons ſitzen."'),
+          isFalse);
+    });
+
+    test('a name that ends in -eth is not archaic', () {
+      // The reason that half of the rule is case-sensitive: Elisabeth,
+      // Sabeth and Lambeth are all in the German pack's sentences.
+      expect(sentenceSuitsAChild('Elisabeth wohnt nicht mehr auf dem Schloss.'),
+          isTrue);
+      expect(sentenceSuitsAChild('He works in Lambeth.'), isTrue);
     });
 
     test('drops the ones a model flagged', () {
