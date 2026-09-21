@@ -192,8 +192,27 @@ wrong, so the output is a triage list for a person, never a gate. `--dry-run`
 prints the rubric and one batch without calling anything; the run is
 resumable, so a long sweep can be stopped and continued.
 
-Any OpenAI-compatible endpoint works (`--endpoint`), which includes a local
-server. It is worth saying plainly that a small local model is not good enough
+Any OpenAI-compatible endpoint works. Free tiers rate-limit per key *and* per
+model, and they say so with a 429 rather than with a budget, so the tool
+spreads the work over lanes — a lane being one key on one model — and sends
+each batch to whichever lane comes free first:
+
+```sh
+python3 tools/audit/review.py items.jsonl \
+  --lane "https://api.groq.com/openai/v1|GROQ_KEY|openai/gpt-oss-120b" \
+  --lane "https://openrouter.ai/api/v1|OR_KEY|z-ai/glm-5.2:free" \
+  --lane "https://openrouter.ai/api/v1|OR_KEY|qwen/qwen3.8-27b:free"
+```
+
+A 429 parks its lane for the time the provider asks for (`Retry-After`) or an
+exponential backoff; a refusal — a gated model, a wrong name, no credit —
+retires the lane for the run rather than being retried into the ground; and
+`--pace` keeps a minimum gap between two requests on the same lane. When every
+lane is parked the batch is given up rather than hung on, and those items
+simply stay unjudged: a resumed run picks them up.
+
+`--model a,b,c` with a single `--endpoint` is the short form of the same
+thing. A local server works too. It is worth saying plainly that a small local model is not good enough
 for this: judging whether *du sprichst* is right takes a model that knows
 German well. Run it where a capable one is, on the JSONL — that is the whole
 reason the dump speaks JSON.
