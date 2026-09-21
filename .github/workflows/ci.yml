@@ -3,6 +3,7 @@ name: CI / CD
 on:
   push:
     branches: [main]
+    tags: ['v*']
   pull_request:
     branches: [main]
 
@@ -160,11 +161,11 @@ jobs:
           fi
 
       - name: Install Vercel CLI
-        if: steps.shipped.outputs.changed == 'true'
+        if: startsWith(github.ref, 'refs/tags/v')
         run: npm install --global vercel@latest
 
       - name: Deploy
-        if: steps.shipped.outputs.changed == 'true'
+        if: startsWith(github.ref, 'refs/tags/v')
         working-directory: build/web
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
