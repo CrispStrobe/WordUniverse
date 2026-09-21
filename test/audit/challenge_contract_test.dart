@@ -64,6 +64,12 @@ const Map<String, String> _promptMayNameTheAnswer = {
       'an answer like "is" only collides with ordinary English',
   'phrasal_verb_power': 'the answer is a particle, and prepositions recur: '
       '"The expression ___ her face lets on her true feelings"',
+  // The same reasoning, and worth stating once for the whole family: a game
+  // whose answer is a function word cannot be held to "the prompt must not
+  // contain it". "I need ___ finish my homework to go outside." keys "to",
+  // and which of to/too/two fits the gap is exactly what is being asked.
+  'homophone_drill': 'the answer is a function word, which recurs',
+  'wortfalle': 'the same: das/dass, wie/wir, wer/Wehr',
 };
 
 /// Games where two options differing only in case is the question itself, so
