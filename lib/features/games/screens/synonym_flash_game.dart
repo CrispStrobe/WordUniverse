@@ -67,7 +67,6 @@ class _SynonymFlashGameState extends State<SynonymFlashGame>
 
   final _rng = Random();
 
-
   @override
   void initState() {
     super.initState();
@@ -146,8 +145,16 @@ class _SynonymFlashGameState extends State<SynonymFlashGame>
     // Already grade-first and shuffled by the pool query.
     final pool = allWords;
 
+    // The catalogue entries for the synonyms themselves, so "does the learner
+    // have this word?" is a question about the catalogue and not about the
+    // two hundred words this round happens to hold.
+    final catalogue = await _vocabService.hydrateBySpelling(
+        pool.expand((w) => w.apiEnrichment?.synonyms ?? const <String>[]));
+    if (!mounted) return;
+
     final challenges = buildSynonymChallenges(
       pool: pool,
+      catalogue: catalogue,
       isGerman: _vocabService.learningLanguage == 'de',
       maxChallenges: _maxRounds,
       optionCount: _optionCount,
@@ -533,9 +540,7 @@ class _SynonymFlashGameState extends State<SynonymFlashGame>
     return AnimatedBuilder(
       animation: _pulseCtrl,
       builder: (_, child) => Transform.scale(
-        scale: hasAnswered && isCorrect
-            ? 1.0 + (_pulseCtrl.value * 0.04)
-            : 1.0,
+        scale: hasAnswered && isCorrect ? 1.0 + (_pulseCtrl.value * 0.04) : 1.0,
         child: child,
       ),
       child: Semantics(

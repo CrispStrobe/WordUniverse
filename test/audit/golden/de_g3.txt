@@ -313,22 +313,22 @@
       Gott
     · grade: 3
   Mittagessen
-    ✓ Mittagsmahl
+    ✓ Mittag
       Satz
       Gott
       Brille
     · grade: 3
   Geheimnis
-    ✓ Arkanum
+    ✓ Rätsel
       Mittagessen
       Turm
       Satz
     · grade: 3
-  Virus
+  Schokolade
       Geheimnis
-    ✓ Viruserkrankung
+    ✓ Kakao
       Turm
-      Abendessen
+      Virus
     · grade: 3
 ── translation_flash (4)
   das Päckchen

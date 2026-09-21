@@ -24,10 +24,14 @@ class SynonymChallenge {
 }
 
 /// One challenge, or null when [word] has no synonym that makes a fair one.
+/// [allWords] is the round's own sample: the prompts and the distractors come
+/// from it. [known] is every entry whose spelling the game could look up —
+/// the sample plus the catalogue entries for the synonyms themselves — and is
+/// read only to judge how familiar a candidate answer is.
 SynonymChallenge? buildSynonymChallenge({
   required GermanWord word,
   required List<GermanWord> allWords,
-  required Set<String> wordSet,
+  required Map<String, GermanWord> known,
   required bool isGerman,
   int optionCount = 4,
   Random? rng,
@@ -45,14 +49,11 @@ SynonymChallenge? buildSynonymChallenge({
   // commonest. Preference: a curriculum word at or below the prompt's band,
   // then any catalogue word near it, then anything else in the catalogue, then
   // synonyms the catalogue does not contain at all.
-  final bySpelling = {
-    for (final candidate in allWords) candidate.word.toLowerCase(): candidate,
-  };
+  final bySpelling = known;
   final curriculumTier = <String>[];
   final nearTier = <String>[];
   final inVocab = <String>[];
   final farTier = <String>[];
-  final outOfVocab = <String>[];
   for (final syn in synonyms) {
     final clean = syn.replaceAll(RegExp(r'\s*\(.*?\)\s*$'), '').trim();
     if (!isCleanSynonym(clean)) continue;
@@ -72,14 +73,7 @@ SynonymChallenge? buildSynonymChallenge({
       continue;
     }
     final entry = bySpelling[clean.toLowerCase()];
-    if (entry == null) {
-      if (wordSet.contains(clean.toLowerCase())) {
-        inVocab.add(clean);
-      } else {
-        outOfVocab.add(clean);
-      }
-      continue;
-    }
+    if (entry == null) continue;
     if (entry.has(WordFeature.curriculum) &&
         entry.gradeLevel <= word.gradeLevel) {
       curriculumTier.add(clean);
@@ -95,7 +89,14 @@ SynonymChallenge? buildSynonymChallenge({
   }
   // Randomize which valid synonym is the answer (rather than always the
   // first), from the best tier that has one.
-  final candidates = [curriculumTier, nearTier, inVocab, farTier, outOfVocab]
+  //
+  // A synonym the catalogue does not hold at all is never collected. It is a
+  // word the learner has never met and never will here, so "which word means
+  // the same as später?" was answered "nachmalig", "ziehen" with
+  // "umherstreichen" and "conspirator" with "machinator" — none of the three
+  // is in either pack. Requiring the answer to be a catalogue word keeps four
+  // fifths of the prompts at every grade in both languages.
+  final candidates = [curriculumTier, nearTier, inVocab, farTier]
       .firstWhere((tier) => tier.isNotEmpty, orElse: () => const []);
   if (candidates.isEmpty) return null;
   final correctWord = candidates[random.nextInt(candidates.length)];
@@ -175,22 +176,30 @@ bool isCleanSynonym(String s) {
 }
 
 /// Builds up to [maxChallenges] from [pool].
+/// [catalogue] are the entries for the synonyms the pool lists, looked up by
+/// spelling. Without them "is this word in the catalogue?" could only mean
+/// "is it in these 200 words?", which it almost never was, and the answer fell
+/// through to a synonym no pack contains.
 List<SynonymChallenge> buildSynonymChallenges({
   required List<GermanWord> pool,
   required bool isGerman,
+  List<GermanWord> catalogue = const [],
   int maxChallenges = 10,
   int optionCount = 4,
   Random? rng,
 }) {
   final random = rng ?? Random();
-  final wordSet = pool.map((w) => w.word.toLowerCase()).toSet();
+  final known = <String, GermanWord>{
+    for (final w in catalogue) w.word.toLowerCase(): w,
+    for (final w in pool) w.word.toLowerCase(): w,
+  };
   final challenges = <SynonymChallenge>[];
   for (final word in pool) {
     if (challenges.length >= maxChallenges) break;
     final challenge = buildSynonymChallenge(
       word: word,
       allWords: pool,
-      wordSet: wordSet,
+      known: known,
       isGerman: isGerman,
       optionCount: optionCount,
       rng: random,

@@ -627,26 +627,31 @@ final Map<String, Generator> generators = {
             ))
         .toList();
   },
-  'synonym_flash': (c) async => buildSynonymChallenges(
-        pool: await c.pool(WordFeature.synonyms,
-            where: (w) =>
-                !w.isProperNoun &&
-                w.isHeadword &&
-                w.word.length >= 3 &&
-                !w.word.contains('_') &&
-                !w.word.contains(' ')),
-        isGerman: c.isGerman,
-        maxChallenges: c.count,
-        rng: c.rng,
-      )
-          .map((ch) => Item(
-                game: 'synonym_flash',
-                prompt: ch.word.word,
-                options: ch.options,
-                answer: ch.options[ch.correctIndex],
-                notes: {'grade': ch.word.gradeLevel},
-              ))
-          .toList(),
+  'synonym_flash': (c) async {
+    final pool = await c.pool(WordFeature.synonyms,
+        where: (w) =>
+            !w.isProperNoun &&
+            w.isHeadword &&
+            w.word.length >= 3 &&
+            !w.word.contains('_') &&
+            !w.word.contains(' '));
+    return buildSynonymChallenges(
+      pool: pool,
+      catalogue: await c.vocabulary.hydrateBySpelling(
+          pool.expand((w) => w.apiEnrichment?.synonyms ?? const <String>[])),
+      isGerman: c.isGerman,
+      maxChallenges: c.count,
+      rng: c.rng,
+    )
+        .map((ch) => Item(
+              game: 'synonym_flash',
+              prompt: ch.word.word,
+              options: ch.options,
+              answer: ch.options[ch.correctIndex],
+              notes: {'grade': ch.word.gradeLevel},
+            ))
+        .toList();
+  },
   'definition_quiz': (c) async => buildDefinitionChallenges(
         pool: await c.pool(WordFeature.definitions,
             where: (w) => !w.isProperNoun && w.isHeadword),
