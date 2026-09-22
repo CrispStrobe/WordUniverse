@@ -110,8 +110,17 @@ TranslationChallenge? buildTranslationChallenge({
   final translation = primaryEnglishTranslation(word);
   if (translation == null) return null;
   // A cognate answers itself in either direction — "What is 'das Hobby' in
-  // English?", "Which word means 'info'?" — so it is not a question.
-  if (translation.toLowerCase() == word.word.toLowerCase()) return null;
+  // English?", "Which word means 'info'?" — so it is not a question. Nor is
+  // one written inside the other: the nightly sweep found "Which word means
+  // 'tube top'?" keyed "Top", and the same for "barbecue grill" → "Grill"
+  // and "father-in-law" → "father".
+  final lowerWord = word.word.toLowerCase();
+  final lowerTranslation = translation.toLowerCase();
+  if (lowerTranslation == lowerWord) return null;
+  if (lowerTranslation.contains(lowerWord) ||
+      lowerWord.contains(lowerTranslation)) {
+    return null;
+  }
 
   // When the English is the prompt, the answer is the catalogue word itself.
   final correct = reversed ? word.word : translation;

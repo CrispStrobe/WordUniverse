@@ -144,11 +144,37 @@ void _checkItem(Item item, String language, int grade, List<_Violation> out) {
   if (answer != null &&
       item.options.isNotEmpty &&
       !_promptMayNameTheAnswer.containsKey(item.game) &&
-      RegExp('\\b${RegExp.escape(answer.trim())}\\b', caseSensitive: false)
-          .hasMatch(item.prompt)) {
+      _promptShowsTheAnswer(item.prompt, answer.trim())) {
     fail('the prompt gives the answer away',
         'answer ${_q(answer)} appears in ${_q(item.prompt)}');
   }
+}
+
+/// Whether a learner would see the answer written in the prompt.
+///
+/// Two readings, because a one-word prompt and a sentence are read
+/// differently. In a sentence the eye goes word by word, so "und" inside
+/// "Hund" gives nothing away and only a whole word counts. A one-word prompt
+/// is read as a word, and German writes its compounds without a separator, so
+/// "Schließfach" shows "Fach" and "hinüber" shows "hin". A prompt with a space
+/// in it — "tube top", which was keyed "Top" — is a sentence for this purpose
+/// and the word-level rule already catches it.
+///
+/// Dart's `\b` is ASCII, which is why this was ever in doubt. It treats ß and
+/// ü as non-word characters, so it invented a boundary inside "Schließfach"
+/// and caught that compound by accident while a plain one like "Handtuch"
+/// would have slipped past. Whichever rule applies should apply on purpose.
+bool _promptShowsTheAnswer(String prompt, String answer) {
+  if (answer.isEmpty) return false;
+  final lowerPrompt = prompt.toLowerCase();
+  final lowerAnswer = answer.toLowerCase();
+  if (!prompt.trim().contains(RegExp(r'\s'))) {
+    // Short answers turn up inside longer words by coincidence rather than by
+    // showing through, so they are still held to the word-level rule.
+    if (lowerAnswer.length >= 3) return lowerPrompt.contains(lowerAnswer);
+  }
+  return RegExp('\\b${RegExp.escape(answer)}\\b', caseSensitive: false)
+      .hasMatch(prompt);
 }
 
 /// Violations grouped by game and rule: a broken generator produces hundreds

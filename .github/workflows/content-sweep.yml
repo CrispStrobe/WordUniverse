@@ -23,6 +23,10 @@ concurrency:
   group: content-sweep
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  issues: write
+
 jobs:
   sweep:
     name: ${{ matrix.language }} grade ${{ matrix.grade }}
@@ -85,3 +89,43 @@ jobs:
           WU_CONTRACT_LANGUAGES: ${{ matrix.language }}
           WU_PACK_DE: ${{ matrix.language == 'de' && format('{0}/.cache/packs/grundwortschatz.db', github.workspace) || '' }}
         run: flutter test --reporter expanded test/audit/challenge_contract_test.dart
+
+  # A nightly net nobody looks at is not a net. This one went red and stayed
+  # red for a day, and the only reason it was noticed is that somebody asked.
+  # A failure now files an issue, and a later green closes it, so the state is
+  # visible where the work is rather than in a tab nobody has open.
+  report:
+    name: Report
+    needs: sweep
+    if: always() && github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Open or close the standing issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RESULT: ${{ needs.sweep.result }}
+          RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          title='Content sweep is failing'
+          existing=$(gh issue list --state open --search "$title in:title" \
+                       --json number --jq '.[0].number // empty')
+          if [ "$RESULT" = 'success' ]; then
+            if [ -n "$existing" ]; then
+              gh issue close "$existing" \
+                --comment "The sweep is green again: $RUN"
+            fi
+            exit 0
+          fi
+          body="The nightly content sweep failed: $RUN
+
+          Each shard runs the per-push contract over 500 items per game per
+          grade, so what it catches is the long tail the 40-item check at
+          push time cannot see. Open the failing shard and read the
+          \`_Violation\` lines: they name the game, the grade and the rule."
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
+          else
+            gh issue create --title "$title" --body "$body"
+          fi

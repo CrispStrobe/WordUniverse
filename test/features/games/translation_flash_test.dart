@@ -370,6 +370,22 @@ void main() {
       }
     });
 
+    test('a translation written inside the word is not a question', () {
+      // The nightly sweep found "Which word means 'tube top'?" keyed "Top",
+      // and the same shape for "barbecue grill" and "father-in-law".
+      for (final pair in [('Top', 'tube top'), ('Grill', 'barbecue grill')]) {
+        expect(
+          service.buildTranslationChallenge(
+            word: _word(pair.$1, translations: [_en(pair.$2)]),
+            optionTexts: distractors(),
+            rng: Random(1),
+          ),
+          isNull,
+          reason: '${pair.$2} shows ${pair.$1}',
+        );
+      }
+    });
+
     test('a cognate differing only in case is still a cognate', () {
       expect(
         service.buildTranslationChallenge(
