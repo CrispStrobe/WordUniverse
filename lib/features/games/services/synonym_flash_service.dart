@@ -159,6 +159,21 @@ bool sharesAWrittenPart(String a, String b) {
       .toList();
   final first = parts(a);
   final second = parts(b);
+  // German writes its compounds without a separator, so splitting sees one
+  // part on each side and the intersection is empty however plainly the
+  // answer is written in the prompt. The nightly sweep found "Schließfach"
+  // answered "Fach", "hinüber" answered "hin" and "selbständig" answered
+  // "selbst". Containment is what catches those; it is checked first because
+  // it subsumes the equal case as well.
+  final plainA = a.toLowerCase();
+  final plainB = b.toLowerCase();
+  // Only when the shorter one is a word in its own right: "an" and "in" turn
+  // up inside plenty of longer words without being visible as the answer.
+  if (plainA.length >= 3 &&
+      plainB.length >= 3 &&
+      (plainA.contains(plainB) || plainB.contains(plainA))) {
+    return true;
+  }
   // Two plain words share nothing but themselves, and that case is handled
   // before this. "bye-bye" splits into two parts that are the same word, so
   // the count has to be taken before deduplicating.

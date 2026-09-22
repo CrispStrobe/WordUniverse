@@ -136,6 +136,39 @@ void main() {
     });
   });
 
+  group('spelling options', () {
+    test('the same misspelling is never offered twice', () {
+      // The packs list a misspelling twice for some words, and two spellings
+      // can normalise to one. Collected without deduplicating, the review
+      // offered the same wrong spelling twice and one of the two was keyed
+      // wrong whichever the learner picked. The nightly sweep found it twice
+      // in 22,000 items; the per-push check at forty never did.
+      final word = _noun('bicycle',
+          definitions: ['A vehicle with two wheels.'],
+          learnerErrors: ['bycicle', 'bycicle', 'bicicle']);
+      final challenge =
+          build(word, LanguageSkillType.spelling, isGerman: false)!;
+      final lowered = challenge.options.map((o) => o.toLowerCase()).toList();
+      expect(lowered.toSet().length, lowered.length,
+          reason: 'options were ${challenge.options}');
+    });
+
+    test('a typo corpus entry that does not look like the word is dropped', () {
+      // The same rule Spelling Spotter applies: "base" arrives from the typo
+      // corpus with "pare" and "pase" among its misspellings, and "pare" is a
+      // word, so the question would have had two right answers.
+      final word = _noun('base',
+          definitions: ['The bottom of something.'],
+          learnerErrors: ['pare', 'pase', 'basse']);
+      final challenge =
+          build(word, LanguageSkillType.spelling, isGerman: false);
+      if (challenge != null) {
+        expect(challenge.options, isNot(contains('pare')));
+        expect(challenge.options, isNot(contains('pase')));
+      }
+    });
+  });
+
   group('definition challenge', () {
     test('inherits the quiz\'s rules: the headword is redacted', () {
       final word = _noun('Alter',

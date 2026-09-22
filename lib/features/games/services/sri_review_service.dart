@@ -96,15 +96,29 @@ ReviewChallenge? _spellingChallenge(
   final rawErrors = isGerman
       ? (word.commonMistakes ?? <String>[])
       : (word.apiEnrichment?.commonLearnerErrors ?? <String>[]);
-  final errors = parseErrors(rawErrors)
-      .map(normWord)
-      .where((e) =>
-          e.toLowerCase() != displayWord.toLowerCase() &&
-          e.isNotEmpty &&
-          !e.contains(' ') &&
-          !validWords.contains(e.toLowerCase()))
-      .take(optionCount - 1)
-      .toList();
+  // A set, and deduplicated case-insensitively: the packs list the same
+  // misspelling twice for some words, and two spellings can normalise to one.
+  // Collected into a list without that, the review offered the same wrong
+  // spelling twice and one of the two was keyed wrong whichever the learner
+  // picked. The nightly sweep found it twice in 22,000 items, which is why
+  // the per-push check at forty never did.
+  final seen = <String>{displayWord.toLowerCase()};
+  final errors = <String>[];
+  for (final candidate in parseErrors(rawErrors).map(normWord)) {
+    if (errors.length >= optionCount - 1) break;
+    final lower = candidate.toLowerCase();
+    if (candidate.isEmpty || candidate.contains(' ')) continue;
+    if (!seen.add(lower)) continue;
+    if (validWords.contains(lower)) continue;
+    // The same test Spelling Spotter applies: the English errors come from a
+    // typo corpus, and "base" arrives with "pare" and "pase" among its
+    // misspellings. This is a spelling question too.
+    if (!isDistractorPlausible(candidate, displayWord,
+        validWords: validWords)) {
+      continue;
+    }
+    errors.add(candidate);
+  }
 
   if (errors.isEmpty) return null;
 

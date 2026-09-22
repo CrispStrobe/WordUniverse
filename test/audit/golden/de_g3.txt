@@ -310,7 +310,7 @@
 ── synonym_flash (4)
   Schreck
       Geheimnis
-    ✓ Erschrecken
+    ✓ Entsetzen
       Pause
       Sattel
     · grade: 3
@@ -318,7 +318,7 @@
       Schreck
       Pause
       Virus
-    ✓ Mittag
+    ✓ Dinner
     · grade: 3
   Geheimnis
       Hals

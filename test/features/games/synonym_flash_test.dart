@@ -198,6 +198,21 @@ void main() {
       expect(challenge!.correctSynonym, 'commence');
     });
 
+    test('a German compound does not show its own answer', () {
+      // Splitting on separators sees one part on each side, so the
+      // intersection is empty however plainly the answer is written in the
+      // prompt. The nightly sweep found "Schließfach" answered "Fach",
+      // "hinüber" answered "hin" and "selbständig" answered "selbst".
+      expect(sharesAWrittenPart('Fach', 'Schließfach'), isTrue);
+      expect(sharesAWrittenPart('hin', 'hinüber'), isTrue);
+      expect(sharesAWrittenPart('selbst', 'selbständig'), isTrue);
+      // Two unrelated words still share nothing.
+      expect(sharesAWrittenPart('Treppe', 'Stiege'), isFalse);
+      expect(sharesAWrittenPart('brave', 'courageous'), isFalse);
+      // And a two-letter string inside a longer word is coincidence.
+      expect(sharesAWrittenPart('an', 'Banane'), isFalse);
+    });
+
     test('a synonym no pack contains is not an answer', () {
       // It used to be, as a last resort, and that is how "which word means
       // the same as später?" came to be answered "nachmalig" — a word in
