@@ -53,6 +53,10 @@ const Map<String, String> _promptMayNameTheAnswer = {
   'word_memory': 'the task is to find the named word\'s pair',
   'word_sort': 'the word is shown; the answer is its word class',
   'word_type_whirl': 'the word is shown; the answer is its word class',
+  // The same shape, and it needed saying only once the rule below learned to
+  // read inside a word: the answer is the label "Verb", and "verbieten" and
+  // "verbrennen" happen to start with those letters.
+  'word_class_flash': 'the word is shown; the answer is its word class',
   'syllable_count': 'the word is shown; the answer is a number of syllables',
   'grossstadt': 'the word is shown; the answer is whether to capitalise it',
   'grossschreib': 'the word is shown in a sentence; the answer is GROSS/klein',
@@ -70,6 +74,18 @@ const Map<String, String> _promptMayNameTheAnswer = {
   // and which of to/too/two fits the gap is exactly what is being asked.
   'homophone_drill': 'the answer is a function word, which recurs',
   'wortfalle': 'the same: das/dass, wie/wir, wer/Wehr',
+};
+
+/// Games where the answer being written inside the prompt is the lesson, not
+/// a leak, so only a whole-word collision counts.
+///
+/// Negation prefixes make the commonest antonyms there are — balance and
+/// unbalance, national and international, appear and disappear, adequate and
+/// inadequate — and a child learning that un- turns a word around is learning
+/// exactly what the game is for. Reading inside the word would throw away
+/// nineteen of them in a single sweep and leave the arbitrary pairs behind.
+const Map<String, String> _answerMayBeWrittenInside = {
+  'antonym_flash': 'un-, dis-, in- and ir- are how most antonyms are built',
 };
 
 /// Games where two options differing only in case is the question itself, so
@@ -144,7 +160,7 @@ void _checkItem(Item item, String language, int grade, List<_Violation> out) {
   if (answer != null &&
       item.options.isNotEmpty &&
       !_promptMayNameTheAnswer.containsKey(item.game) &&
-      _promptShowsTheAnswer(item.prompt, answer.trim())) {
+      _promptShowsTheAnswer(item.prompt, answer.trim(), item.game)) {
     fail('the prompt gives the answer away',
         'answer ${_q(answer)} appears in ${_q(item.prompt)}');
   }
@@ -164,11 +180,12 @@ void _checkItem(Item item, String language, int grade, List<_Violation> out) {
 /// ü as non-word characters, so it invented a boundary inside "Schließfach"
 /// and caught that compound by accident while a plain one like "Handtuch"
 /// would have slipped past. Whichever rule applies should apply on purpose.
-bool _promptShowsTheAnswer(String prompt, String answer) {
+bool _promptShowsTheAnswer(String prompt, String answer, String game) {
   if (answer.isEmpty) return false;
   final lowerPrompt = prompt.toLowerCase();
   final lowerAnswer = answer.toLowerCase();
-  if (!prompt.trim().contains(RegExp(r'\s'))) {
+  if (!_answerMayBeWrittenInside.containsKey(game) &&
+      !prompt.trim().contains(RegExp(r'\s'))) {
     // Short answers turn up inside longer words by coincidence rather than by
     // showing through, so they are still held to the word-level rule.
     if (lowerAnswer.length >= 3) return lowerPrompt.contains(lowerAnswer);
