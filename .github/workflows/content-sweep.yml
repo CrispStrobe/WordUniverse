@@ -165,13 +165,70 @@ jobs:
           WU_PACK_DE: ${{ matrix.language == 'de' && format('{0}/.cache/packs/grundwortschatz.db', github.workspace) || '' }}
         run: flutter test --reporter expanded test/audit/challenge_contract_test.dart
 
+  # The provenance oracle asks a different question from the contract: not
+  # "is this item well formed" but "did this sentence, gloss or translation
+  # come from the pack at all, or did a generator make it up". It was seeded
+  # Random(1) in eight places, so it re-checked the same ~3,700 items on every
+  # run since it was written. Per push it still does, which is what makes a
+  # regression there unmistakable; here it moves.
+  provenance:
+    name: provenance
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.2'
+          channel: 'stable'
+          cache: true
+
+      - name: Resolve dependencies
+        run: flutter pub get
+
+      - name: Read the German pack pin
+        id: depack
+        run: |
+          python3 - <<'PIN' >> "$GITHUB_OUTPUT"
+          import re, pathlib
+          source = pathlib.Path('lib/core/models/language_pack.dart').read_text()
+          url = re.search(r"remoteUrl:\s*\n?\s*'([^']+)'", source).group(1)
+          sha = re.search(r"expectedCompressedSha256:\s*\n?\s*'([0-9a-f]+)'",
+                          source).group(1)
+          print(f'url={url}')
+          print(f'sha={sha}')
+          PIN
+
+      - name: Cache the German pack
+        id: depack-cache
+        uses: actions/cache@v5
+        with:
+          path: .cache/packs/grundwortschatz.db
+          key: de-pack-${{ steps.depack.outputs.sha }}
+
+      - name: Fetch the German pack
+        if: steps.depack-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p .cache/packs
+          curl -fsSL "${{ steps.depack.outputs.url }}" -o /tmp/de.db.gz
+          echo "${{ steps.depack.outputs.sha }}  /tmp/de.db.gz" | sha256sum -c -
+          gunzip -c /tmp/de.db.gz > .cache/packs/grundwortschatz.db
+
+      - name: Somewhere the oracle has not looked
+        env:
+          WU_PACK: '1'
+          WU_PROVENANCE_SEED: ${{ github.event.inputs.seed || github.run_number }}
+          WU_PACK_DE: ${{ github.workspace }}/.cache/packs/grundwortschatz.db
+        run: flutter test --reporter expanded test/live/item_provenance_live_test.dart
+
   # A nightly net nobody looks at is not a net. This one went red and stayed
   # red for a day, and the only reason it was noticed is that somebody asked.
   # A failure now files an issue, and a later green closes it, so the state is
   # visible where the work is rather than in a tab nobody has open.
   report:
     name: Report
-    needs: [sweep, exhaustive]
+    needs: [sweep, exhaustive, provenance]
     if: always() && github.event_name == 'schedule'
     runs-on: ubuntu-latest
     steps:
@@ -180,7 +237,7 @@ jobs:
       - name: Open or close the standing issue
         env:
           GH_TOKEN: ${{ github.token }}
-          RESULT: ${{ (needs.sweep.result == 'success' && needs.exhaustive.result == 'success') && 'success' || 'failure' }}
+          RESULT: ${{ (needs.sweep.result == 'success' && needs.exhaustive.result == 'success' && needs.provenance.result == 'success') && 'success' || 'failure' }}
           RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           title='Content sweep is failing'
