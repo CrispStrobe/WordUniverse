@@ -18,6 +18,9 @@ on:
       count:
         description: 'Items per game per grade'
         default: '500'
+      seed:
+        description: 'WU_CONTRACT_SEED, to reproduce a run (blank = run number)'
+        required: false
 
 concurrency:
   group: content-sweep
@@ -85,7 +88,79 @@ jobs:
       - name: Sweep
         env:
           WU_CONTRACT_COUNT: ${{ github.event.inputs.count || '500' }}
+          # A different slice of the item space every night. The number is
+          # printed with the result, so a red sweep is reproduced exactly by
+          # re-running with WU_CONTRACT_SEED set to what it printed.
+          WU_CONTRACT_SEED: ${{ github.event.inputs.seed || github.run_number }}
           WU_CONTRACT_GRADES: ${{ matrix.grade }}
+          WU_CONTRACT_LANGUAGES: ${{ matrix.language }}
+          WU_PACK_DE: ${{ matrix.language == 'de' && format('{0}/.cache/packs/grundwortschatz.db', github.workspace) || '' }}
+        run: flutter test --reporter expanded test/audit/challenge_contract_test.dart
+
+  # Games whose item space ends. Asked for more than the table holds, the
+  # generator runs out and what comes back is every item the game can ever
+  # produce: 62 false friends, 400 phrasal verbs. For these, "checked" and
+  # "all of them checked" are the same sentence, so they do not need a sample
+  # and do not need a seed.
+  exhaustive:
+    name: exhaustive ${{ matrix.language }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: en
+            games: false_friends,phrasal_verb_match,phrasal_verb_power,homophone_drill,antonym_flash
+          - language: de
+            games: wortfalle,verbtrenner,antonym_flash
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.2'
+          channel: 'stable'
+          cache: true
+
+      - name: Resolve dependencies
+        run: flutter pub get
+
+      - name: Read the German pack pin
+        id: depack
+        if: matrix.language == 'de'
+        run: |
+          python3 - <<'PIN' >> "$GITHUB_OUTPUT"
+          import re, pathlib
+          source = pathlib.Path('lib/core/models/language_pack.dart').read_text()
+          url = re.search(r"remoteUrl:\s*\n?\s*'([^']+)'", source).group(1)
+          sha = re.search(r"expectedCompressedSha256:\s*\n?\s*'([0-9a-f]+)'",
+                          source).group(1)
+          print(f'url={url}')
+          print(f'sha={sha}')
+          PIN
+
+      - name: Cache the German pack
+        id: depack-cache
+        if: matrix.language == 'de'
+        uses: actions/cache@v5
+        with:
+          path: .cache/packs/grundwortschatz.db
+          key: de-pack-${{ steps.depack.outputs.sha }}
+
+      - name: Fetch the German pack
+        if: matrix.language == 'de' && steps.depack-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p .cache/packs
+          curl -fsSL "${{ steps.depack.outputs.url }}" -o /tmp/de.db.gz
+          echo "${{ steps.depack.outputs.sha }}  /tmp/de.db.gz" | sha256sum -c -
+          gunzip -c /tmp/de.db.gz > .cache/packs/grundwortschatz.db
+
+      - name: Every item these games can produce
+        env:
+          WU_CONTRACT_COUNT: '3000'
+          WU_CONTRACT_GAMES: ${{ matrix.games }}
           WU_CONTRACT_LANGUAGES: ${{ matrix.language }}
           WU_PACK_DE: ${{ matrix.language == 'de' && format('{0}/.cache/packs/grundwortschatz.db', github.workspace) || '' }}
         run: flutter test --reporter expanded test/audit/challenge_contract_test.dart
@@ -96,7 +171,7 @@ jobs:
   # visible where the work is rather than in a tab nobody has open.
   report:
     name: Report
-    needs: sweep
+    needs: [sweep, exhaustive]
     if: always() && github.event_name == 'schedule'
     runs-on: ubuntu-latest
     steps:
@@ -105,7 +180,7 @@ jobs:
       - name: Open or close the standing issue
         env:
           GH_TOKEN: ${{ github.token }}
-          RESULT: ${{ needs.sweep.result }}
+          RESULT: ${{ (needs.sweep.result == 'success' && needs.exhaustive.result == 'success') && 'success' || 'failure' }}
           RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           title='Content sweep is failing'
