@@ -50,7 +50,24 @@ import 'package:WortUniversum/features/games/services/syllable_count_service.dar
 import 'package:WortUniversum/features/games/services/translation_flash_service.dart';
 
 const _grade = 3;
-const _pool = 400;
+
+/// How many words each check draws on, and where in the catalogue it starts.
+///
+/// Every generator here was seeded `Random(_seed)`, so the oracle re-derived the
+/// same ~3,700 items on every run and had never looked past them — the same
+/// blindness the nightly sweep had. The forms oracle beside it does not
+/// sample at all: it walks every verb the pack carries a table for, which is
+/// the better shape where the space allows it. This one cannot, because its
+/// pool is the whole catalogue, so it explores instead.
+///
+/// WU_PROVENANCE_SEED moves the window and is printed with the result, so a
+/// failure is reproduced exactly. The default is 1, which is what every run
+/// until now used, to the item.
+int get _seed =>
+    int.tryParse(Platform.environment['WU_PROVENANCE_SEED'] ?? '') ?? 1;
+
+int get _pool =>
+    int.tryParse(Platform.environment['WU_PROVENANCE_POOL'] ?? '') ?? 400;
 
 void main() {
   final enabled = Platform.environment['WU_PACK'] == '1';
@@ -101,7 +118,7 @@ void main() {
         gradeLevel: _grade,
         limit: _pool,
         where: where,
-        random: Random(1),
+        random: Random(_seed),
       );
 
   void provenanceContract(String label, Future<void> Function() installPack,
@@ -118,7 +135,7 @@ void main() {
               if (example.text case final text?) text,
           ],
           maxChallenges: 400,
-          rng: Random(1),
+          rng: Random(_seed),
         );
         final wrong = <String>[];
         for (final challenge in challenges) {
@@ -130,7 +147,7 @@ void main() {
           }
         }
         // ignore: avoid_print
-        print('$label cloze: ${challenges.length} sentences');
+        print('$label cloze: ${challenges.length} sentences (seed $_seed)');
         expect(challenges.length, greaterThan(20));
         expect(wrong, isEmpty, reason: wrong.take(10).join('\n  '));
       }, skip: skipReason, timeout: const Timeout(Duration(minutes: 10)));
@@ -143,7 +160,7 @@ void main() {
             pool: words,
             gradeIndex: _grade,
             maxChallenges: 400,
-            rng: Random(1));
+            rng: Random(_seed));
         final wrong = <String>[];
         for (final challenge in challenges) {
           final rebuilt =
@@ -158,7 +175,8 @@ void main() {
           }
         }
         // ignore: avoid_print
-        print('$label sentence completion: ${challenges.length} sentences');
+        print(
+            '$label sentence completion: ${challenges.length} sentences (seed $_seed)');
         expect(challenges.length, greaterThan(20));
         expect(wrong, isEmpty, reason: wrong.take(10).join('\n  '));
       }, skip: skipReason, timeout: const Timeout(Duration(minutes: 10)));
@@ -172,7 +190,7 @@ void main() {
         var checked = 0;
         for (final word in words) {
           final challenge = buildDefinitionChallenge(
-              word: word, pool: words, isGerman: isGerman, rng: Random(1));
+              word: word, pool: words, isGerman: isGerman, rng: Random(_seed));
           if (challenge == null) continue;
           checked++;
           // The two transformations the quiz makes, undone: a long sense is
@@ -191,7 +209,7 @@ void main() {
           }
         }
         // ignore: avoid_print
-        print('$label definition quiz: $checked prompts');
+        print('$label definition quiz: $checked prompts (seed $_seed)');
         expect(checked, greaterThan(20));
         expect(wrong, isEmpty, reason: wrong.take(10).join('\n  '));
       }, skip: skipReason, timeout: const Timeout(Duration(minutes: 10)));
@@ -215,7 +233,8 @@ void main() {
           }
         }
         // ignore: avoid_print
-        print('$label syllable count: ${challenges.length} items');
+        print(
+            '$label syllable count: ${challenges.length} items (seed $_seed)');
         expect(challenges.length, greaterThan(20));
         expect(wrong, isEmpty, reason: wrong.take(10).join('\n  '));
       }, skip: skipReason, timeout: const Timeout(Duration(minutes: 10)));
@@ -268,7 +287,7 @@ void main() {
           allWords: words,
           gradeLevel: _grade,
           maxChallenges: 200,
-          rng: Random(1),
+          rng: Random(_seed),
           groups: groups);
       final wrong = <String>[];
       for (final challenge in challenges) {
@@ -288,7 +307,7 @@ void main() {
         }
       }
       // ignore: avoid_print
-      print('homophone drill: ${challenges.length} items');
+      print('homophone drill: ${challenges.length} items (seed $_seed)');
       expect(challenges.length, greaterThan(20));
       expect(wrong, isEmpty, reason: wrong.take(10).join('\n  '));
     }, skip: skipReason, timeout: const Timeout(Duration(minutes: 10)));
@@ -297,7 +316,10 @@ void main() {
       await installEnglish();
       final verbs = await vocabulary.getPhrasalVerbs();
       final challenges = buildPhrasalChallenges(
-          verbs: verbs, gradeLevel: _grade, maxChallenges: 400, rng: Random(1));
+          verbs: verbs,
+          gradeLevel: _grade,
+          maxChallenges: 400,
+          rng: Random(_seed));
       final wrong = <String>[];
       for (final challenge in challenges) {
         final keyed = challenge.options[challenge.correctIndex];
@@ -321,7 +343,7 @@ void main() {
         }
       }
       // ignore: avoid_print
-      print('phrasal verbs: ${challenges.length} items');
+      print('phrasal verbs: ${challenges.length} items (seed $_seed)');
       expect(challenges.length, greaterThan(20));
       expect(wrong, isEmpty, reason: wrong.take(10).join('\n  '));
     }, skip: skipReason, timeout: const Timeout(Duration(minutes: 10)));
@@ -340,7 +362,7 @@ void main() {
       final words = await pool(WordFeature.translations,
           where: (w) => !w.isProperNoun && w.isHeadword);
       final challenges = buildTranslationChallenges(
-          pool: words, maxChallenges: 400, rng: Random(1));
+          pool: words, maxChallenges: 400, rng: Random(_seed));
       final wrong = <String>[];
       for (final challenge in challenges) {
         final listed = englishTranslations(challenge.word);
@@ -349,7 +371,7 @@ void main() {
         }
       }
       // ignore: avoid_print
-      print('translation flash: ${challenges.length} items');
+      print('translation flash: ${challenges.length} items (seed $_seed)');
       expect(challenges.length, greaterThan(20));
       expect(wrong, isEmpty, reason: wrong.take(10).join('\n  '));
     }, skip: skipReason, timeout: const Timeout(Duration(minutes: 10)));
