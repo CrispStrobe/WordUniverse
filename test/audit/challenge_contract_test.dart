@@ -44,6 +44,37 @@ List<int> get _grades {
 int get _perGrade =>
     int.tryParse(Platform.environment['WU_CONTRACT_COUNT'] ?? '') ?? 10;
 
+/// The games to check, or all of them.
+///
+/// Several games draw on a table small enough to finish: 400 phrasal verbs,
+/// 62 false friends, a few hundred mutual antonym pairs. For those, sampling
+/// is the wrong shape of check — asked for more items than the table holds,
+/// the generator simply runs out, and what comes back is every item the game
+/// can ever produce. Naming them lets one job do that while the sweep keeps
+/// sampling the games whose space has no end.
+List<String>? get _games {
+  final requested = Platform.environment['WU_CONTRACT_GAMES'];
+  if (requested == null || requested.isEmpty) return null;
+  return [
+    for (final part in requested.split(','))
+      if (part.trim().isNotEmpty) part.trim(),
+  ];
+}
+
+/// What the generators are seeded with, offset per grade.
+///
+/// It used to be the grade alone, which made every run check the same items —
+/// a fine regression detector and a useless explorer. The nightly sweep had
+/// re-derived the identical 54,000 items every night since it was written and
+/// had never looked at a 54,001st.
+///
+/// The reason for pinning it was real, so it is kept: a failure has to be
+/// reproducible. The seed is printed with the result and can be set, so a red
+/// sweep is re-run with WU_CONTRACT_SEED=<the number it printed> and generates
+/// exactly the same items again.
+int get _seed =>
+    int.tryParse(Platform.environment['WU_CONTRACT_SEED'] ?? '') ?? 0;
+
 /// Games whose prompt names the word on purpose, so "the prompt must not
 /// contain the answer" does not apply to them.
 const Map<String, String> _promptMayNameTheAnswer = {
@@ -248,17 +279,19 @@ void main() {
       /// the same items rather than generating them twice.
       Future<Map<String, List<({int grade, Item item})>>> generateAll() async {
         final byGame = <String, List<({int grade, Item item})>>{};
+        final only = _games;
         for (final entry in generators.entries) {
           final supported = generatorLanguages[entry.key] ?? const ['en', 'de'];
           if (!supported.contains(language)) continue;
+          if (only != null && !only.contains(entry.key)) continue;
           final items = <({int grade, Item item})>[];
           for (final grade in _grades) {
             final generated = await entry.value(pack.context(
               grade: grade,
               count: _perGrade,
-              // A fixed seed per grade: a failure here has to be reproducible
-              // from the dump with the same WU_DUMP_SEED.
-              rng: Random(grade),
+              // Seeded per grade so a shard is independent, and offset by
+              // WU_CONTRACT_SEED so successive runs explore new items.
+              rng: Random(_seed + grade),
             ));
             items.addAll(generated.map((item) => (grade: grade, item: item)));
           }
@@ -308,7 +341,23 @@ void main() {
         // ignore: avoid_print
         print('$language: $checked items checked across '
             '${byGame.length} games, grade(s) ${_grades.join(',')}, '
-            '$_perGrade per game per grade');
+            '$_perGrade per game per grade, WU_CONTRACT_SEED=$_seed');
+        // How much of each game was actually seen. Asked for more than the
+        // game can produce, distinct stops short of the request and that
+        // number is the whole of it — which is the difference between "500
+        // checked" and "all of them checked".
+        for (final game in byGame.keys.toList()..sort()) {
+          final items = byGame[game]!;
+          final distinct = items
+              .map((e) => '${e.item.prompt}\u0000${e.item.answer}')
+              .toSet()
+              .length;
+          final asked = _perGrade * _grades.length;
+          // ignore: avoid_print
+          print('  $language $game: $distinct distinct of ${items.length} '
+              'generated, $asked asked for'
+              '${items.length < asked ? " — exhausted" : ""}');
+        }
         expect(checked, greaterThan(100),
             reason: 'the sweep itself produced almost nothing to check');
         expect(
