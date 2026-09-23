@@ -133,13 +133,20 @@ class Pool:
         self._lock = threading.Lock()
         self._patience = patience
 
-    def take(self):
+    def take(self, exclude=frozenset()):
+        """The next free lane, skipping any whose label is in [exclude].
+
+        Excluding is what lets one batch be judged by two different models:
+        the second call cannot be handed the lane that answered the first.
+        """
         deadline = time.monotonic() + self._patience
         while True:
             with self._lock:
-                if all(lane.retired for lane in self._lanes):
+                usable = [lane for lane in self._lanes
+                          if lane.label not in exclude]
+                if not usable or all(lane.retired for lane in usable):
                     return None
-                lane = min(self._lanes, key=lambda candidate: candidate.ready_at)
+                lane = min(usable, key=lambda candidate: candidate.ready_at)
                 wait = lane.ready_at - time.monotonic()
                 if wait <= 0:
                     lane.ready_at = time.monotonic() + lane.min_interval
@@ -159,10 +166,30 @@ def retry_after(error):
     return int(match.group(1)) if match else None
 
 
-def judge(pool, batch, temperature, attempts=6):
+def judge_repeatedly(pool, batch, temperature, replicas):
+    """The same batch judged by [replicas] different lanes.
+
+    One model's verdict is an opinion. Two models agreeing is evidence, and
+    where they disagree is a far smaller pile than the whole review and the
+    only part worth a person's time. Four rounds judged every batch once, by
+    whichever lane happened to be free, so nothing could be compared with
+    anything.
+    """
+    rows = []
+    seen = set()
+    for _ in range(max(1, replicas)):
+        verdicts = judge(pool, batch, temperature, exclude=frozenset(seen))
+        if not verdicts:
+            break
+        rows.extend(verdicts)
+        seen.update(row['lane'] for row in verdicts if row.get('lane'))
+    return rows
+
+
+def judge(pool, batch, temperature, attempts=6, exclude=frozenset()):
     prompt = '\n\n'.join(render(item, i + 1) for i, item in enumerate(batch))
     for _ in range(attempts):
-        lane = pool.take()
+        lane = pool.take(exclude)
         if lane is None:
             print('\n  every lane is rate-limited; giving these up')
             return []
@@ -201,7 +228,7 @@ def judge(pool, batch, temperature, attempts=6):
                 continue
             lane.used()
             lane.judged += len(batch)
-            return stitch(batch, verdicts)
+            return stitch(batch, verdicts, lane.label)
         except Exception as error:  # noqa: BLE001 - any transport problem
             text = str(error)
             transient = any(code in text for code in
@@ -241,12 +268,19 @@ def parse_verdicts(text):
         return None
 
 
-def stitch(batch, verdicts):
-    """Verdicts back onto the items they judged, defaulting to unflagged."""
+def stitch(batch, verdicts, lane=''):
+    """Verdicts back onto the items they judged, defaulting to unflagged.
+
+    [lane] is recorded on every row. Without it the file says an item was
+    flagged but not who flagged it, and "which of these models is worth
+    listening to" cannot be asked of the data at all — which is the state
+    four rounds of review left us in.
+    """
     by_number = {int(v.get('n', 0)): v for v in verdicts if isinstance(v, dict)}
     return [
         {
             'item': item,
+            'lane': lane,
             **{field: bool(by_number.get(index, {}).get(field, True))
                for field in FIELDS},
             'note': str(by_number.get(index, {}).get('note') or ''),
@@ -286,6 +320,92 @@ def report(path, samples):
                 print(f'      {verdict["note"]}')
 
 
+def agreement(path, samples):
+    """What each lane flagged, and whether any two of them ever agreed.
+
+    A single model's flag is an opinion, and roughly half of them have turned
+    out to be the model's own error rather than the game's. Two models
+    flagging the same field of the same item is worth acting on; one flagging
+    what another passed is worth a person's eye, and there are far fewer of
+    those than there are flags.
+    """
+    by_item = defaultdict(dict)
+    lanes = Counter()
+    flags = Counter()
+    for line in pathlib.Path(path).read_text().splitlines():
+        if not line.strip():
+            continue
+        verdict = json.loads(line)
+        lane = verdict.get('lane') or '(unrecorded)'
+        lanes[lane] += 1
+        by_item[key_of(verdict['item'])][lane] = verdict
+        for field in FIELDS:
+            if not verdict.get(field, True):
+                flags[(lane, field)] += 1
+
+    print(f'{path}\n')
+    print('judged per lane:')
+    for lane, count in lanes.most_common():
+        flagged = sum(n for (who, _), n in flags.items() if who == lane)
+        rate = f'{100 * flagged / count:.1f}%' if count else '—'
+        print(f'  {lane:52} {count:5d} items, {flagged:4d} flags ({rate})')
+
+    doubled = {k: v for k, v in by_item.items() if len(v) > 1}
+    if not doubled:
+        print('\nNo item was judged twice, so nothing can be compared. '
+              'Re-run with --replicas 2.')
+        return
+
+    # What two opinions buy. A single lane flags about one item in seven, and
+    # roughly half of those have turned out to be the lane's own error. Where
+    # two lanes flag the same field, that is worth acting on; where one flags
+    # what the other passed, that is the only pile a person needs to read, and
+    # it is small.
+    both_same = both_any = one_only = clean = 0
+    for verdicts in doubled.values():
+        sets = [{f for f in FIELDS if not v.get(f, True)}
+                for v in verdicts.values()]
+        if set.intersection(*sets):
+            both_same += 1
+        if all(sets):
+            both_any += 1
+        elif set.union(*sets):
+            one_only += 1
+        else:
+            clean += 1
+    n = len(doubled)
+    print(f'\nof {n} items judged twice:')
+    for label, count in (('both passed', clean),
+                         ('only one lane flagged — read these', one_only),
+                         ('both flagged something', both_any),
+                         ('both flagged the same field — act on these',
+                          both_same)):
+        print(f'  {count:4d} ({100 * count / n:4.1f}%)  {label}')
+
+    agree = disagree = 0
+    disputes = []
+    for key, verdicts in doubled.items():
+        for field in FIELDS:
+            calls = {lane: bool(v.get(field, True)) for lane, v in verdicts.items()}
+            if len(set(calls.values())) == 1:
+                agree += 1
+            else:
+                disagree += 1
+                disputes.append((field, calls, next(iter(verdicts.values()))))
+    total = agree + disagree
+    print(f'\n{len(doubled)} items judged more than once; on {total} '
+          f'judgements the lanes agreed {agree} times '
+          f'({100 * agree / total:.1f}%)')
+    both = [(f, c, v) for f, c, v in disputes if not all(c.values())]
+    print(f'{len(both)} disagreements — one lane flagged what another passed:')
+    for field, calls, verdict in both[:samples]:
+        item = verdict['item']
+        print(f'  {item.get("game")} / not {field}: '
+              f'{item.get("prompt")!r} → {item.get("answer")!r}')
+        for lane, ok in calls.items():
+            print(f'      {"passed" if ok else "FLAGGED"}  {lane}')
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('items', type=pathlib.Path,
@@ -311,8 +431,15 @@ def main():
     parser.add_argument('--out', type=pathlib.Path)
     parser.add_argument('--report', type=pathlib.Path,
                         help='summarise an existing verdict file and stop')
+    parser.add_argument('--agreement', type=pathlib.Path,
+                        help='compare the lanes in an existing verdict file: '
+                             'what each judged, what they agreed on, and the '
+                             'items where one flagged what another passed')
     parser.add_argument('--batch', type=int, default=10)
     parser.add_argument('--concurrency', type=int, default=4)
+    parser.add_argument('--replicas', type=int, default=1, metavar='N',
+                        help='judge every batch with N different lanes, so '
+                             'their verdicts can be compared (default 1)')
     parser.add_argument('--limit', type=int)
     parser.add_argument('--temperature', type=float, default=0.0)
     parser.add_argument('--samples', type=int, default=4)
@@ -326,6 +453,10 @@ def main():
         report(args.report, args.samples)
         return 0
 
+    if args.agreement:
+        agreement(args.agreement, args.samples)
+        return 0
+
     items = []
     for line in args.items.read_text().splitlines():
         line = line.strip()
@@ -337,13 +468,17 @@ def main():
     if args.limit:
         items = items[:args.limit]
 
-    done = set()
     if args.out and args.out.exists():
+        # Counted, not just seen: asked for two verdicts an item is only
+        # finished when it has two, so a resumed run tops up the ones that
+        # got a single opinion before the lanes ran dry.
+        seen = Counter()
         for line in args.out.read_text().splitlines():
             if line.strip():
-                done.add(key_of(json.loads(line)['item']))
-        items = [item for item in items if key_of(item) not in done]
-        print(f'{len(done)} already reviewed; {len(items)} to go')
+                seen[key_of(json.loads(line)['item'])] += 1
+        wanted = max(1, args.replicas)
+        items = [item for item in items if seen[key_of(item)] < wanted]
+        print(f'{len(seen)} already reviewed; {len(items)} to go')
 
     if args.sheet:
         # A person reads faster with the games kept together and the items
@@ -420,7 +555,8 @@ def main():
     with out.open('a') as handle:
         with ThreadPoolExecutor(max_workers=args.concurrency) as workers:
             for verdicts in workers.map(
-                    lambda batch: judge(pool, batch, args.temperature),
+                    lambda batch: judge_repeatedly(
+                        pool, batch, args.temperature, args.replicas),
                     list(batches(items, args.batch))):
                 for verdict in verdicts:
                     handle.write(json.dumps(verdict, ensure_ascii=False) + '\n')
