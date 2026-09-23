@@ -203,6 +203,35 @@ void main() {
       expect(describesAName('An English placename.'), isTrue);
     });
 
+    test('catches the German pack\'s "kind of place, then where it is"', () {
+      // This rule shipped dead: its trailing \b had been written as a
+      // literal backspace byte, so it asked for a control character after
+      // the preposition and matched nothing at all. Nobody noticed because
+      // repair_pack.py carries its own correct copy, and that is what typed
+      // the 70 places in the pack. Asserting the rule *fires* is what a test
+      // for it is for; asserting it exists would have passed throughout.
+      expect(describesAName('Stadt im US-Bundesstaat Pennsylvania'), isTrue);
+      expect(describesAName('Staat in Ostasien'), isTrue);
+      expect(describesAName('Bundesstaat im Südosten der USA'), isTrue);
+      expect(
+          describesAName('Kontinent, der das Festland des Staats Australien '
+              'umfasst'),
+          isTrue);
+    });
+
+    test('but not the ordinary words that share those openings', () {
+      // The locating word right after the noun is the whole of the rule's
+      // safety: without it these four are places too.
+      expect(
+          describesAName('Land oder Länder außerhalb des eigenen '
+              'Staatsgebiets'),
+          isFalse);
+      expect(describesAName('vollständig von Wasser umgebenes Stück Land'),
+          isFalse);
+      expect(describesAName('größeres, fließendes Gewässer'), isFalse);
+      expect(describesAName('Bereich um einen Ort'), isFalse);
+    });
+
     test('catches peoples and languages', () {
       expect(
           describesAName('Any of the languages of these aboriginal peoples.'),
@@ -286,6 +315,24 @@ void main() {
           sentenceSuitsAChild('„Manchmal ſieht man Berlinerinnen auf ihren '
               'Balkons ſitzen."'),
           isFalse);
+    });
+
+    test('drops a clinical sentence about ordinary words', () {
+      // Labelling a review sheet turned up this as a gap exercise on the
+      // verb "convey". Nothing in it is a banned word, which is why every
+      // other rule passed it.
+      expect(
+          sentenceSuitsAChild('The Fallopian Tubes, or oviducts, convey the '
+              'ova from the ovaries to the cavity of the uterus.'),
+          isFalse);
+      expect(
+          sentenceSuitsAChild('Normalerweise schützt die Plazenta den Fötus '
+              'vor dem Stresshormon Cortisol.'),
+          isFalse);
+      // Words that are ordinary in another sense are deliberately not in it.
+      expect(sentenceSuitsAChild('Wir säen die Samen im Frühling.'), isTrue);
+      expect(sentenceSuitsAChild('Das Schwert steckt in der Scheide.'), isTrue);
+      expect(sentenceSuitsAChild('She hurt her cervical spine.'), isTrue);
     });
 
     test('a name that ends in -eth is not archaic', () {
