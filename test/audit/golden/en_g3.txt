@@ -25,53 +25,53 @@
     · grade: 3
 ── cloze_flash (4)
   I was not carrying cash, so I wrote a ___ for the amount.
-    ✓ cheque
-      craft
-      adjective
       spite
+      harper
+      craft
+    ✓ cheque
     · word: cheque
   Well, nobody knows about the little things / Nobody knows what they really mean / Nobody ever wants to take the time / To ___ what's on your mind
-    ✓ examine
-      expressed
       divide
-      apologise
+      formed
+      expressed
+    ✓ examine
     · word: examine
   Patients with ___ become highly susceptible to infection by intracellular microbes normally contained by T cells (Fig. 4.8).
-      harper
-      appearances
     ✓ AIDS
+      cheque
+      teenager
       goods
     · word: aids
   This summer, I'm going to the ___ at Weymouth - I'm very excited about it!
-      bottles
-      goods
-    ✓ seaside
       appearances
+      theory
+      craft
+    ✓ seaside
     · word: seaside
 ── definition_quiz (4)
   An advisement providing more up-to-date information than currently known.
     ✓ update
-      weapon
       powder
-      teaching
+      tournament
+      comparison
     · word: update  grade: 3
   To recite numbers in sequence.
     ✓ count
-      swear
-      discount
       launch
+      discount
+      swear
     · word: count  grade: 3
   Not possible; not able to be done or happen.
       mysterious
     ✓ impossible
+      competitive
       pleasing
-      solid
     · word: impossible  grade: 3
   A fixed amount of money paid to a worker, usually calculated on a monthly or annual basis, not hourly, as wages
-    ✓ salary
       hedge
-      expansion
       verse
+      recipe
+    ✓ salary
     · word: salary  grade: 3
 ── false_friends (4)
   What does "ordinary" really mean?
@@ -183,75 +183,75 @@
       up
     · phrasal: drive out  means: to make someone or something leave a place
 ── sentence_completion (4)
-  The ___ wears fancy clothes.
-      glove
-      province
-      expression
+  The ___ has a big castle.
+      anchor
+      input
+      pipe
     ✓ emperor
-  The teacher will ___ us daily.
-      harassment
-    ✓ guide
-      wisdom
-      province
-  We need good ___.
-      eastern
-      executive
-      electrical
-    ✓ material
-  ___ have different flags.
-    ✓ province
-      pasta
-      guide
+  We need a good tour ___.
       award
+      pipe
+    ✓ guide
+      minority
+  We need good ___.
+      efficient
+    ✓ material
+      comfortable
+      fake
+  ___ have different flags.
+      input
+      pipe
+      anchor
+    ✓ province
 ── spelling_spotter (4)
   Which spelling is correct?
-      cout
-      cargt
-      couth
-    ✓ caught
-    · shown after answering: And how glad he was when at last he caught the glimmer of a light!
+      analisys
+      annaliscis
+    ✓ analysis
+      analyzise
+    · shown after answering: Marilla was not given to subjective analysis of her thoughts and feelings.
   Which spelling is correct?
-      dilvered
-    ✓ delivered
-      dilered
-      dilved
-    · shown after answering: He presently encountered her and delivered a stinging remark as he passed.
+      misterious
+      mysterous
+      misteryous
+    ✓ mysterious
+    · shown after answering: Rivera's ways and times were truly mysterious.
   Which spelling is correct?
-      fundial
-      fundametal
-    ✓ fundamental
       fundametals
+      fundametal
+      fundial
+    ✓ fundamental
     · shown after answering: It is fundamental.
   Which spelling is correct?
-      unforetunately
-    ✓ unfortunately
-      unfortunatley
-      unfourtunately
-    · shown after answering: The place will unfortunately have enough of you after my death.
+      dilvered
+      dilered
+    ✓ delivered
+      dilved
+    · shown after answering: He presently encountered her and delivered a stinging remark as he passed.
 ── sri_review (4)
   "An advisement providing more up-to-date information than currently known."
     ✓ update
-      weapon
       powder
-      teaching
+      tournament
+      comparison
     · type: definition
   "To recite numbers in sequence."
     ✓ count
-      swear
-      discount
       launch
+      discount
+      swear
     · type: definition
   "Not possible; not able to be done or happen."
       mysterious
     ✓ impossible
+      competitive
       pleasing
-      solid
     · type: definition
   Correct spelling for:
 "A fixed amount of money paid to a worker, usually calculated on a monthly or annual basis, not hourly, as wages. Implies a degree of professionalism and/or autonomy."
-    ✓ salary
-      salarys
       salery
+      salarys
+    ✓ salary
     · type: spelling
 ── syllable_count (4)
   envelope

@@ -394,7 +394,12 @@ final RegExp _adultSetting = RegExp(
     r'\b(beer|beers|pint|pints|pub|pubs|ale|lager|whisky|whiskey|vodka|'
     r'brandy|liquor|cocktail|cocktails|booze|drunk|drunken|tipsy|cigarette|'
     r'cigarettes|cigar|cigars|tobacco|casino|casinos|gambling|betting|'
+    // Wine was missing, and a gold-set reading found the compound game
+    // serving it: "Zum Abendessen gibt es heute einen besonders guten Wein."
+    // A quarter of one per cent of the sentences in each pack.
+    r'wine|wines|champagne|prosecco|'
     r'Bier|Biere|Kneipe|Kneipen|Schnaps|Wodka|Whisky|Likör|Alkohol|'
+    r'Wein|Weine|Weins|Weines|Rotwein|Weißwein|Sekt|Champagner|'
     r'betrunken|besoffen|Zigarette|Zigaretten|Zigarre|Zigarren|Tabak|'
     r'Kasino|Casino|Glücksspiel)\b',
     caseSensitive: false);
@@ -495,7 +500,8 @@ bool wordSuitsAChild(String word) => !_unsuitableWords.hasMatch(word.trim());
 final RegExp _unsuitableWords = RegExp(
     r'^(sex|sexes|sexual\w*|sexuality|erotic\w*|porn\w*|orgasm\w*|'
     r'masturbat\w*|condom|condoms|brothel|brothels|prostitute|prostitutes|'
-    r'rape|raped|rapist|penis|vagina|vulva|testicle|testicles|ejaculat\w*|'
+    r'rape|raped|rapist|penis|vagina|vulva|testicle|testicles|testicular|'
+    r'ejaculat\w*|'
     r'sexuell\w*|Sexualität|Erotik|Porno\w*|Orgasmus|Kondom|Kondome|Bordell|'
     r'Hure|Huren|Nutte|Nutten|ficken|Fotze|Penis|Vagina|'
     r'kacken|Kacke|furzen|Furz|pissen|Pisse|Scheiße|scheißen|Kotze|kotzen|'
