@@ -72,6 +72,15 @@ enum WordFeature {
 // bits are computed from those rules, including in the index a pack ships.
 // 9: presentable now drops a three-letter English entry that no word list and
 // no CEFR level attests — "aii", "aww", "bbc", "abe".
+//
+// Not bumped for the geography rule in describesAName coming alive — it had
+// shipped with a literal backspace where its \b belonged and matched nothing
+// until 2026-09-23. A freshly derived index would set nameLike on 78 German
+// rows where the shipped one does not, and all 78 are typed proper_noun in
+// the pack, which every pool filters on before nameLike is ever consulted.
+// So the two indexes cannot produce a different item between them, and a
+// bump would make every device rebuild for no change. The next republish
+// closes the gap on its own.
 const int kWordFeatureIndexFormat = 9;
 
 extension WordFeatureMask on int {
