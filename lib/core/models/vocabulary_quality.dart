@@ -83,7 +83,7 @@ final RegExp _geographyGloss =
     RegExp(r'^(hauptstadt|stadt|fluss|insel|gebirge|ozean|provinz|bundesland'
         r'|bundesstaat|kontinent|staat|region|gemeinde|dorf)\s*,?\s*'
         r'(in|im|der|des|von|vom|zwischen|an|auf|nahe|bei|südlich|nördlich'
-        r'|östlich|westlich|mit)');
+        r'|östlich|westlich|mit)\b');
 
 /// Gloss openings Wiktionary uses for names. Also compiled into SQL when the
 /// feature index is built, so a light word can answer the same question.
@@ -303,7 +303,36 @@ bool sentenceSuitsAChild(String sentence) =>
     !_unsuitableEnglish.hasMatch(sentence) &&
     !_adultSetting.hasMatch(sentence) &&
     !_archaicWords.hasMatch(sentence) &&
-    !_archaicSpelling.hasMatch(sentence);
+    !_archaicSpelling.hasMatch(sentence) &&
+    !_clinicalAnatomy.hasMatch(sentence);
+
+/// Reproductive anatomy, in the register a textbook uses.
+///
+/// Labelling a review sheet turned up a gap exercise asking a ten-year-old to
+/// complete "The Fallopian Tubes, or oviducts, ___ the ova from the ovaries
+/// to the cavity of the uterus." Nothing in it is a banned word — it is a
+/// clinical sentence about a perfectly ordinary verb, "convey" — which is
+/// why every rule above let it through.
+///
+/// Forty-five English sentences and ten German ones match, a quarter of one
+/// per cent and a twenty-fifth of one, so nothing is lost by skipping them.
+///
+/// Words that are ordinary in another sense are left out on purpose: German
+/// Samen is also seeds and Scheide a sheath or a scabbard, and English
+/// "cervical" belongs to the neck as much as anywhere. A rule that took those
+/// would cost more than it saves.
+final RegExp _clinicalAnatomy = RegExp(
+    r'\b(fallopian|oviducts?|ova|ovum|ovar(?:y|ies|ian)|uter(?:us|ine)'
+    r'|vulva|vagina\w*|penis|penile|testis|testes|testicle\w*|scrotum'
+    r'|semen|sperm\w*|ejaculat\w*|menstruat\w*|menses|cervix'
+    r'|placenta\w*|womb|foreskin|genital\w*|gonad\w*|prostate'
+    r'|copulat\w*|coitus|inseminat\w*|orgasm\w*'
+    r'|Eierstock\w*|Eileiter\w*|Gebärmutter\w*|Eizelle\w*'
+    r'|Spermium|Spermien|Samenzelle\w*|Hoden\w*|Hodensack'
+    r'|Schamlippen|Vorhaut|Menstruation\w*|Plazenta|Mutterkuchen'
+    r'|Geschlechtsorgan\w*|Genitalien|Samenerguss|Ejakulation\w*'
+    r'|Begattung\w*|Koitus)\b',
+    caseSensitive: false);
 
 /// Early Modern English and Fraktur-era German. The packs' example sentences
 /// are quarried from public-domain books, so a cloze gap arrives built on
