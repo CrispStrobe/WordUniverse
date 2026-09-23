@@ -161,6 +161,13 @@ bool _isCleanHypernym(String w, bool isDE) {
 /// are under the line, at every grade, so the game keeps enough to play.
 const int _sensesAWordCanCarry = 8;
 
+/// How many senses of its own class an entry may have before its leading one
+/// stops being the one a child means. Measured against the items a model
+/// judged: every one it called right came from an entry with one or two
+/// senses of its class, bar four; every one it called wrong came from an
+/// entry with four or more.
+const int _sensesWorthTrusting = 3;
+
 /// Whether the word can be asked "is a kind of what?" at all.
 ///
 /// WordNet has no hypernymy for adjectives or adverbs, so every hypernym on
@@ -184,13 +191,23 @@ String? pickHypernym(
 }) {
   final isDE = isGerman;
   if (!_hasHypernymy(word.wordType)) return null;
+  // Which sense to read depends on which class the word is, so an entry the
+  // pack contradicts itself about cannot be asked this. It is the same rule
+  // the word-class games use, and it is the same words: "at" is filed as a
+  // noun and is astatine, "in" indium, "or" an operating room, "it"
+  // information technology, "two" a playing card.
+  if (classIsContradicted(word)) return null;
 
   // Where the pack says which sense a hypernym belongs to, there is nothing
-  // to infer. Everything below this line is the heuristic that stood in for
-  // it while the data was being stripped out of the pack: German still needs
-  // all of it, and so do the English entries WordNet does not cover.
-  final sensed = _fromSenses(word, isDE: isDE, catalogue: catalogue);
-  if (sensed != null) return sensed;
+  // to infer, and the pooled list below — every sense poured together — is
+  // exactly what that data replaces. So for an entry that has senses, the
+  // senses are the whole answer: they give one or the word is not asked.
+  // Everything after this is for German, which has no sense-linked
+  // hypernyms at all, and for the English entries WordNet does not cover.
+  final senses = word.apiEnrichment?.wordnetSenses ?? const <WordNetSense>[];
+  if (senses.isNotEmpty) {
+    return _fromSenses(word, isDE: isDE, catalogue: catalogue);
+  }
 
   final all = word.apiEnrichment?.hypernyms ?? [];
   if (all.length > _sensesAWordCanCarry) return null;
@@ -254,6 +271,24 @@ String? _fromSenses(
 }) {
   final senses = word.apiEnrichment?.wordnetSenses ?? const <WordNetSense>[];
   if (senses.isEmpty) return null;
+
+  // WordNet orders senses by how common they are in general writing, which
+  // is not the same as what a seven-year-old means: "plant" leads with the
+  // factory, "program" with "a series of steps" rather than the thing on
+  // television. Where an entry has many senses of its own class the leading
+  // one is not reliably the one meant, and no signal in the pack says which
+  // is — matching the entry's own gloss against the senses was measured and
+  // rescues "plant" while breaking "deal", "need" and "process", and
+  // "water"'s own leading gloss is a hamlet in Devon.
+  //
+  // So the same shape of rule as the hypernym count below: ask only where
+  // the entry is unambiguous enough for the leading sense to be trusted.
+  // It keeps 63% of entries overall and prunes where the polysemy is —
+  // 41% kept at grade 2, 97% at grade 6, which is the right way round.
+  final ofItsClass =
+      senses.where((s) => _posMatches(s.pos, word.wordType)).length;
+  if (ofItsClass > _sensesWorthTrusting) return null;
+
   final promptIsLowercase = word.word == word.word.toLowerCase();
   final lowerPrompt = word.word.toLowerCase();
 
