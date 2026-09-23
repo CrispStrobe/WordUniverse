@@ -116,26 +116,26 @@
     ✓ male
     · group: mail/male
 ── hypernym_flash (4)
-  craft
-    ✓ job
-      propriety
-      field game
-      unconscious process
-  gun
-    ✓ arm
-      unconscious process
-      job
-      field game
   ally
+      emotion
     ✓ associate
-      unconscious process
-      field game
-      job
+      goosefoot family
+      copper-base alloy
   bronze
-      field game
-      job
-      unconscious process
+      emotion
+      goosefoot family
     ✓ copper-base alloy
+      associate
+  laughter
+      associate
+      goosefoot family
+      copper-base alloy
+    ✓ utterance
+  dominant
+      copper-base alloy
+    ✓ note
+      associate
+      goosefoot family
 ── phrasal_verb_match (4)
   What does "stop up" mean?
       to wait and not give up
