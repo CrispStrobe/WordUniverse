@@ -121,6 +121,54 @@ class WordNetSense {
       };
 }
 
+/// One openThesaurus synset: German's answer to [WordNetSense].
+///
+/// The thesaurus groups synonyms by sense — "Zug" is {Durchzug, Luftzug,
+/// Zugluft} in one group and {Bahn, Eisenbahn} in another — and the pack's
+/// flat `synonyms` is every group poured together, which is how "Spielzeug"
+/// came to be answered "Werkzeug".
+///
+/// Entries carry their register in brackets: 18,610 are marked
+/// `(umgangssprachlich)`, 4,750 `(gehoben)`, 773 `(derb)`. That is worth
+/// reading rather than stripping — see [ThesaurusSense.plainSynonyms].
+class ThesaurusSense {
+  const ThesaurusSense({
+    this.categories = const [],
+    this.synonyms = const [],
+    this.hypernyms = const [],
+  });
+
+  final List<String> categories;
+  final List<String> synonyms;
+  final List<String> hypernyms;
+
+  factory ThesaurusSense.fromJson(Map<String, dynamic> json) => ThesaurusSense(
+        categories: List<String>.from(json['categories'] ?? const []),
+        synonyms: List<String>.from(json['synonyms'] ?? const []),
+        hypernyms: List<String>.from(json['hypernyms'] ?? const []),
+      );
+
+  /// The synonyms in plain standard German, bracketed register stripped.
+  ///
+  /// Coarse ones are dropped outright rather than ranked: `(derb)` is what
+  /// the thesaurus says when a word is not for a classroom. Colloquial and
+  /// elevated ones are kept but come last, because a seven-year-old is being
+  /// taught the ordinary word.
+  List<String> get plainSynonyms {
+    final plain = <String>[];
+    final marked = <String>[];
+    for (final entry in synonyms) {
+      final register = RegExp(r'\(([^)]*)\)').allMatches(entry.toLowerCase());
+      final labels = register.map((m) => m.group(1) ?? '').join(' ');
+      if (labels.contains('derb') || labels.contains('vulgär')) continue;
+      final bare = entry.replaceAll(RegExp(r'\s*\([^)]*\)'), '').trim();
+      if (bare.isEmpty) continue;
+      (labels.isEmpty ? plain : marked).add(bare);
+    }
+    return [...plain, ...marked];
+  }
+}
+
 class ApiEnrichment {
   final String enrichmentStatus;
   final String? primaryPos;
@@ -147,6 +195,9 @@ class ApiEnrichment {
 
   /// Sense-linked relations, where the pack carries them. See [WordNetSense].
   final List<WordNetSense> wordnetSenses;
+
+  /// The German equivalent. See [ThesaurusSense].
+  final List<ThesaurusSense> thesaurusSenses;
   final List<ApiSemanticTerm> hyponyms;
   final List<ApiSemanticTerm> holonyms;
   final List<ApiSemanticTerm> meronyms;
@@ -197,6 +248,7 @@ class ApiEnrichment {
     required this.entryNotes,
     required this.hypernyms,
     this.wordnetSenses = const [],
+    this.thesaurusSenses = const [],
     required this.hyponyms,
     required this.holonyms,
     required this.meronyms,
@@ -293,6 +345,10 @@ class ApiEnrichment {
       wordnetSenses: listOf('wordnetSenses')
           .whereType<Map<String, dynamic>>()
           .map(WordNetSense.fromJson)
+          .toList(),
+      thesaurusSenses: listOf('openThesaurus')
+          .whereType<Map<String, dynamic>>()
+          .map(ThesaurusSense.fromJson)
           .toList(),
       hyponyms: parseTerms('hyponyms'),
       holonyms: parseTerms('holonyms'),

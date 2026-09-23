@@ -195,6 +195,16 @@ bool sharesAWrittenPart(String a, String b) {
 /// word whose leading sense happens to have none is not a word without
 /// synonyms.
 List<String>? _synonymsOfItsOwnSense(GermanWord word) {
+  // German first: openThesaurus groups by sense the way WordNet does, and the
+  // groups are ordered with the commonest reading first. A synset with no
+  // usable synonyms is skipped rather than ending the search — "Schere" has
+  // one of those and a real one after it.
+  for (final sense
+      in word.apiEnrichment?.thesaurusSenses ?? const <ThesaurusSense>[]) {
+    final plain = sense.plainSynonyms;
+    if (plain.isNotEmpty) return plain;
+  }
+
   final senses = word.apiEnrichment?.wordnetSenses ?? const <WordNetSense>[];
   if (senses.isEmpty) return null;
   for (final sense in senses) {
