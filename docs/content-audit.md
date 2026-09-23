@@ -371,3 +371,72 @@ and proverb; `adaptive_word_selection.dart` backs six practice games; the SRI
 review game reuses `definition_quiz_service.dart` so both inherit the same
 fairness rules (headword redaction, no name glosses, article-labelled options).
 A fix in one is a fix in all of them, which is the point.
+
+## Senses, and the data the slimmer had thrown away
+
+Almost every content rule above was written to guess which *sense* of a word a
+relation belongs to. "Chicken" arrives with "competition" beside "poultry",
+"hand" with "ability" beside "extremity", and nothing said which. So the games
+grew heuristics: is the hypernym repeated in the word's own gloss, does the
+entry list more than eight, does the catalogue hold it with the prompt's word
+class.
+
+They were standing in for data that had been in the pack and was removed.
+`tools/pack/slim_pack.py` dropped `wordnetSenses` and `openThesaurus` as "not
+in the Dart model at all", which was true when it was written. Both are
+sense-grouped:
+
+| | carries | entries | senses |
+|---|---|---:|---:|
+| English | `wordnetSenses` | 7,367 | 32,534 |
+| German | `openThesaurus` | 6,225 | 15,517 |
+
+Reduced to what the games read they cost about a megabyte compressed each.
+English gets sense-linked synonyms *and* hypernyms; German gets synonyms only,
+because `openThesaurus` carries an empty `hypernyms` on all 15,517 of its
+synsets. German hypernyms therefore keep every heuristic; the English
+heuristics remain for the 4,000 entries WordNet does not cover.
+
+Three things still have to be true of a sense before it is used.
+
+**It must be about the word, not a name.** WordNet often lists the name sense
+first: "frost" leads with Robert Frost, which is where "a frost is a kind of
+poet" came from. Three signals, each measured against the 32,534 — the gloss
+says so, the synonyms are capitalised while the headword is not (4.1%, which
+also catches "add" carrying ADHD), or it is scripture or myth (17 senses).
+
+**There must be a leading sense worth trusting.** WordNet orders senses by
+frequency in general writing, which is not what a seven-year-old means:
+"plant" leads with the factory. An entry with more than three senses of its own
+class is not asked. That keeps 63% of entries and prunes where the polysemy is
+— 41% at grade 2, 97% at grade 6.
+
+**The register markers are read, not stripped.** openThesaurus marks 18,610
+synonyms `(umgangssprachlich)`, 4,750 `(gehoben)` and 773 `(derb)`. The coarse
+ones are dropped outright and the rest come last.
+
+### Glosses
+
+A gloss is shown as the hint beside a word to find, trace, build or sort, and
+as the card a memory pair matches. `glossSuitsAChild` rejects two kinds: over
+180 characters, which is past the 95th percentile in both packs, and the
+taxonomic register — a rank followed by a Latin name, a Latin binomial, or the
+hedges Wiktionary writes when it is being careful rather than clear. 4.8% of
+English leading glosses and 1.9% of German.
+
+A rejected gloss means **no hint**, not the next definition. Filtering the list
+promotes a different *sense* into first place, and doing that explained a
+helicopter as "A powered troweling machine with spinning blades used to spread
+concrete" across 506 entries before anybody read one.
+
+The one exception is an entry with exactly one WordNet sense of its class,
+where there is no sense to choose: 105 entries take WordNet's plainer wording
+instead. The other 226 that could are left alone because of "dog", whose first
+noun sense is a name sense and whose second is "a dull unattractive unpleasant
+girl or woman".
+
+What none of this catches is a gloss that is merely above its reader —
+"honest" explained with "scrupulous" and "swindling". Counting a gloss's words
+that are missing from the catalogue works in English and reads German
+compounds and inflections as unknown, scoring "Muttertier des Hausrinds" as
+the hardest gloss in the pack.
