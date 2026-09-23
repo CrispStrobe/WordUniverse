@@ -24,55 +24,55 @@
       sufficient
     · grade: 3
 ── cloze_flash (4)
-  A micro-___ is defined as a company or business having 5 or fewer employees and a low seed capital.
-      arrangements
-      intel
-    ✓ enterprise
-      bullshit
-    · word: enterprise
-  Some ___ boys at school hid the teacher's lesson notes.
-      secure
-      earlier
-      automatic
-    ✓ naughty
-    · word: naughty
-  Thanks to its sonar, the narwhal can remain active even at ___, unhindered by the darkness.
-      complaint
-    ✓ midnight
-      fridge
-      independence
-    · word: midnight
-  That best portion of a good man's life, / His little, nameless, unremembered ___ / Of kindness and of love.
-    ✓ acts
-      enterprise
-      lap
-      bodies
-    · word: acts
+  I was not carrying cash, so I wrote a ___ for the amount.
+    ✓ cheque
+      craft
+      adjective
+      spite
+    · word: cheque
+  Well, nobody knows about the little things / Nobody knows what they really mean / Nobody ever wants to take the time / To ___ what's on your mind
+    ✓ examine
+      expressed
+      divide
+      apologise
+    · word: examine
+  Patients with ___ become highly susceptible to infection by intracellular microbes normally contained by T cells (Fig. 4.8).
+      harper
+      appearances
+    ✓ AIDS
+      goods
+    · word: aids
+  This summer, I'm going to the ___ at Weymouth - I'm very excited about it!
+      bottles
+      goods
+    ✓ seaside
+      appearances
+    · word: seaside
 ── definition_quiz (4)
-  Dealing with the practical management of patients, in practice at the point of care
-    ✓ clinical
-      worthy
-      universal
-      awful
-    · word: clinical  grade: 3
-  A rural habitation of size between a hamlet and a town.
-      host
-      kilometer
-      award
-    ✓ village
-    · word: village  grade: 3
-  To pierce; now generally replaced by transfix.
-    ✓ fix
-      deliver
-      gently
-      disposal
-    · word: fix  grade: 3
-  The act of involving, or the state of being involved.
-    ✓ involvement
-      commander
-      patch
-      theme
-    · word: involvement  grade: 3
+  An advisement providing more up-to-date information than currently known.
+    ✓ update
+      weapon
+      powder
+      teaching
+    · word: update  grade: 3
+  To recite numbers in sequence.
+    ✓ count
+      swear
+      discount
+      launch
+    · word: count  grade: 3
+  Not possible; not able to be done or happen.
+      mysterious
+    ✓ impossible
+      pleasing
+      solid
+    · word: impossible  grade: 3
+  A fixed amount of money paid to a worker, usually calculated on a monthly or annual basis, not hourly, as wages
+    ✓ salary
+      hedge
+      expansion
+      verse
+    · word: salary  grade: 3
 ── false_friends (4)
   What does "ordinary" really mean?
       ordinär
@@ -115,7 +115,27 @@
       mail
     ✓ male
     · group: mail/male
-── hypernym_flash (0)
+── hypernym_flash (4)
+  craft
+    ✓ job
+      propriety
+      field game
+      unconscious process
+  gun
+    ✓ arm
+      unconscious process
+      job
+      field game
+  ally
+    ✓ associate
+      unconscious process
+      field game
+      job
+  bronze
+      field game
+      job
+      unconscious process
+    ✓ copper-base alloy
 ── phrasal_verb_match (4)
   What does "stop up" mean?
       to wait and not give up
@@ -163,73 +183,75 @@
       up
     · phrasal: drive out  means: to make someone or something leave a place
 ── sentence_completion (4)
-  ___ members are experts in their fields.
-      limit
-    ✓ faculty
-      van
-      feet
-  I can see the ___ from my window.
-      defender
-    ✓ pole
-      battery
-      maintenance
-  We ___ our leather by the fire.
-    ✓ tan
-      pole
-      dominant
-      van
-  The thief ___ the store by breaking the window.
-      dominant
-      bay
-    ✓ assault
-      maintenance
+  The ___ wears fancy clothes.
+      glove
+      province
+      expression
+    ✓ emperor
+  The teacher will ___ us daily.
+      harassment
+    ✓ guide
+      wisdom
+      province
+  We need good ___.
+      eastern
+      executive
+      electrical
+    ✓ material
+  ___ have different flags.
+    ✓ province
+      pasta
+      guide
+      award
 ── spelling_spotter (4)
   Which spelling is correct?
-    ✓ majority
-      marjority
-      majoroty
-      majoraly
-    · shown after answering: In the eyes of the majority Baptists of Waco he was an infidel.
+      cout
+      cargt
+      couth
+    ✓ caught
+    · shown after answering: And how glad he was when at last he caught the glimmer of a light!
   Which spelling is correct?
-      containte
-    ✓ contents
-      contence
-      contense
-    · shown after answering: Other men were continually lifting out boxes whose contents had become hard frozen.
+      dilvered
+    ✓ delivered
+      dilered
+      dilved
+    · shown after answering: He presently encountered her and delivered a stinging remark as he passed.
   Which spelling is correct?
-      excented
-      exstended
-    ✓ extended
-      extened
-    · shown after answering: It was a policy which extended--and extends--from New Orleans to St. Paul.
+      fundial
+      fundametal
+    ✓ fundamental
+      fundametals
+    · shown after answering: It is fundamental.
   Which spelling is correct?
-    ✓ injured
-      injur
-      injore
-      inger
-    · shown after answering: No organ was fatally injured.
+      unforetunately
+    ✓ unfortunately
+      unfortunatley
+      unfourtunately
+    · shown after answering: The place will unfortunately have enough of you after my death.
 ── sri_review (4)
-  Correct spelling for:
-"Dealing with the practical management of patients, in practice at the point of care; as contrasted with other health care venues (see clinical medicine for more explanation)."
-    ✓ clinical
-      clincial
-    · type: spelling
-  "A rural habitation of size between a hamlet and a town."
-    ✓ village
-      kilometer
-      challenge
-      award
+  "An advisement providing more up-to-date information than currently known."
+    ✓ update
+      weapon
+      powder
+      teaching
     · type: definition
-  "To pierce; now generally replaced by transfix."
-    ✓ fix
-      last-minute
-      variety
-      deliver
+  "To recite numbers in sequence."
+    ✓ count
+      swear
+      discount
+      launch
+    · type: definition
+  "Not possible; not able to be done or happen."
+      mysterious
+    ✓ impossible
+      pleasing
+      solid
     · type: definition
   Correct spelling for:
-"The act of involving, or the state of being involved."
-    ✓ involvement
-      involvment
+"A fixed amount of money paid to a worker, usually calculated on a monthly or annual basis, not hourly, as wages. Implies a degree of professionalism and/or autonomy."
+    ✓ salary
+      salarys
+      salery
     · type: spelling
 ── syllable_count (4)
   envelope
@@ -257,85 +279,85 @@
     ✓ 4+
     · hyphenation: pho-to-gra-phy
 ── synonym_flash (4)
-  custom
-      chart
-    ✓ tradition
-      billion
-      grain
+  equation
+      absence
+      congress
+    ✓ equality
+      apology
     · grade: 3
-  chest
-      genius
+  devil
+      anchor
+      hammer
       possession
-    ✓ breast
-      bunch
+    ✓ demon
     · grade: 3
-  desire
-    ✓ trust
-      contain
-      bust
-      bless
+  location
+      commander
+      damage
+      drain
+    ✓ position
     · grade: 3
-  subsequently
-    ✓ later
-      contain
-      firmly
-      hardly
+  sensitive
+    ✓ sensible
+      expert
+      aesthetic
+      feminist
     · grade: 3
 ── word_builder (4)
-  Build "essential" from its letters
-    ✓ essential
-    · grade: 3  gloss: Very important; of high importance.
-  Build "populations" from its letters
-    ✓ populations
+  Build "attacked" from its letters
+    ✓ attacked
     · grade: 3
-  Build "disco" from its letters
-    ✓ disco
-    · grade: 3  gloss: Clipping of discotheque (“nightclub for dancing”).
-  Build "junk" from its letters
-    ✓ junk
-    · grade: 3  gloss: Miscellaneous items of little value, especially discarded or unwanted items.
+  Build "salary" from its letters
+    ✓ salary
+    · grade: 3  gloss: A fixed amount of money paid to a worker, usually calculated on a monthly or annual basis, not hourly, as wages. Implies a degree of professionalism and/or autonomy.
+  Build "chapel" from its letters
+    ✓ chapel
+    · grade: 3  gloss: A place of worship, smaller than or subordinate to a church.
+  Build "middle-aged" from its letters
+    ✓ middle-aged
+    · grade: 3  gloss: Of or relating to middle age or a middle-ager; neither old nor young.
 ── word_class_flash (4)
-  diagnosis
-    ✓ Noun
-      Verb
-      Adjective
-  visual
+  prominent
       Noun
       Verb
     ✓ Adjective
-  bless
-      Noun
-    ✓ Verb
-      Adjective
-  mention
+  rental
     ✓ Noun
       Verb
       Adjective
+  suck
+      Noun
+    ✓ Verb
+      Adjective
+  material
+      Noun
+      Verb
+    ✓ Adjective
 ── word_find (4)
-  Find "essential" in the grid
-    ✓ essential
-    · grade: 3  gloss: Very important; of high importance.
-  Find "populations" in the grid
-    ✓ populations
+  Find "attacked" in the grid
+    ✓ attacked
     · grade: 3
-  Find "disco" in the grid
-    ✓ disco
-    · grade: 3  gloss: Clipping of discotheque (“nightclub for dancing”).
-  Find "junk" in the grid
-    ✓ junk
-    · grade: 3  gloss: Miscellaneous items of little value, especially discarded or unwanted items.
+  Find "salary" in the grid
+    ✓ salary
+    · grade: 3  gloss: A fixed amount of money paid to a worker, usually calculated on a monthly or annual basis, not hourly, as wages. Implies a degree of professionalism and/or autonomy.
+  Find "chapel" in the grid
+    ✓ chapel
+    · grade: 3  gloss: A place of worship, smaller than or subordinate to a church.
+  Find "middle-aged" in the grid
+    ✓ middle-aged
+    · grade: 3  gloss: Of or relating to middle age or a middle-ager; neither old nor young.
 ── word_memory (4)
-  Match the pair for "disco"
-    ✓ Clipping of discotheque (“nightclub for dancing”).
+  Match the pair for "attacked"
+    ✓ attacked
+    · grade: 3  partner: same word, other font
+  Match the pair for "salary"
+    ✓ A fixed amount of money paid to a worker, usually ca…
     · grade: 3  partner: definition
-  Match the pair for "junk"
-    ✓ Miscellaneous items of little value, especially disc…
+  Match the pair for "chapel"
+    ✓ A place of worship, smaller than or subordinate to a…
     · grade: 3  partner: definition
-  Match the pair for "stamp"
-    ✓ An act of stamping the foot, paw or hoof.
-    · grade: 3  partner: definition
-  Match the pair for "garage"
-    ✓ A building (or section of a building) used to store …
+  Match the pair for "legacy"
+    ✓ Money or property bequeathed to someone in a will.
     · grade: 3  partner: definition
 ── word_of_the_day (4)
   2026-01-01: archive
@@ -351,41 +373,41 @@
     ✓ A small, open, wheeled vehicle, drawn or pushed by a person or animal, often with two wheels on one axle, more often used for transporting goods than passengers.
     · grade: 4  cefr: —
 ── word_snake (4)
-  Trace "essential"
-    ✓ essential
-    · grade: 3  gloss: Very important; of high importance.
-  Trace "populations"
-    ✓ populations
+  Trace "attacked"
+    ✓ attacked
     · grade: 3
-  Trace "disco"
-    ✓ disco
-    · grade: 3  gloss: Clipping of discotheque (“nightclub for dancing”).
-  Trace "junk"
-    ✓ junk
-    · grade: 3  gloss: Miscellaneous items of little value, especially discarded or unwanted items.
+  Trace "salary"
+    ✓ salary
+    · grade: 3  gloss: A fixed amount of money paid to a worker, usually calculated on a monthly or annual basis, not hourly, as wages. Implies a degree of professionalism and/or autonomy.
+  Trace "chapel"
+    ✓ chapel
+    · grade: 3  gloss: A place of worship, smaller than or subordinate to a church.
+  Trace "middle-aged"
+    ✓ middle-aged
+    · grade: 3  gloss: Of or relating to middle age or a middle-ager; neither old nor young.
 ── word_sort (4)
-  Sort "essential" into its word class
-    ✓ Adjectives
-    · grade: 3  gloss: Very important; of high importance.
-  Sort "populations" into its word class
-    ✓ Nouns
+  Sort "attacked" into its word class
+    ✓ Verbs
     · grade: 3
-  Sort "disco" into its word class
+  Sort "salary" into its word class
     ✓ Nouns
-    · grade: 3  gloss: Clipping of discotheque (“nightclub for dancing”).
-  Sort "junk" into its word class
+    · grade: 3  gloss: A fixed amount of money paid to a worker, usually calculated on a monthly or annual basis, not hourly, as wages. Implies a degree of professionalism and/or autonomy.
+  Sort "chapel" into its word class
     ✓ Nouns
-    · grade: 3  gloss: Miscellaneous items of little value, especially discarded or unwanted items.
+    · grade: 3  gloss: A place of worship, smaller than or subordinate to a church.
+  Sort "middle-aged" into its word class
+    ✓ Adjectives
+    · grade: 3  gloss: Of or relating to middle age or a middle-ager; neither old nor young.
 ── word_type_whirl (4)
-  Catch "essential" in the right bin
-    ✓ Adjectives
-    · grade: 3  gloss: Very important; of high importance.
-  Catch "populations" in the right bin
-    ✓ Nouns
+  Catch "attacked" in the right bin
+    ✓ Verbs
     · grade: 3
-  Catch "disco" in the right bin
+  Catch "salary" in the right bin
     ✓ Nouns
-    · grade: 3  gloss: Clipping of discotheque (“nightclub for dancing”).
-  Catch "junk" in the right bin
+    · grade: 3  gloss: A fixed amount of money paid to a worker, usually calculated on a monthly or annual basis, not hourly, as wages. Implies a degree of professionalism and/or autonomy.
+  Catch "chapel" in the right bin
     ✓ Nouns
-    · grade: 3  gloss: Miscellaneous items of little value, especially discarded or unwanted items.
+    · grade: 3  gloss: A place of worship, smaller than or subordinate to a church.
+  Catch "middle-aged" in the right bin
+    ✓ Adjectives
+    · grade: 3  gloss: Of or relating to middle age or a middle-ager; neither old nor young.

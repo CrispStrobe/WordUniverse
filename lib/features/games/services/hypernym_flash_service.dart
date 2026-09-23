@@ -163,6 +163,14 @@ String? pickHypernym(
 }) {
   final isDE = isGerman;
   if (!_hasHypernymy(word.wordType)) return null;
+
+  // Where the pack says which sense a hypernym belongs to, there is nothing
+  // to infer. Everything below this line is the heuristic that stood in for
+  // it while the data was being stripped out of the pack: German still needs
+  // all of it, and so do the English entries WordNet does not cover.
+  final sensed = _fromSenses(word, isDE: isDE, catalogue: catalogue);
+  if (sensed != null) return sensed;
+
   final all = word.apiEnrichment?.hypernyms ?? [];
   if (all.length > _sensesAWordCanCarry) return null;
   // Curated relations first; the unsourced remainder only when the curated
@@ -210,6 +218,54 @@ List<String> _saidInItsOwnDefinition(GermanWord word, List<String> candidates) {
       .toList();
   return mentioned;
 }
+
+/// The answer taken from the word's own sense, or null when it has none.
+///
+/// The first sense of the word's own part of speech that is not a name — the
+/// leading sense of "frost" is Robert Frost the poet, which is where "a frost
+/// is a kind of poet" came from, and the leading sense of "chicken" after
+/// reduction is the adjective. Its hypernyms belong to that sense and to no
+/// other, so "chicken" is poultry, "hand" an extremity, "boat" a vessel.
+String? _fromSenses(
+  GermanWord word, {
+  required bool isDE,
+  Map<String, GermanWord>? catalogue,
+}) {
+  final senses = word.apiEnrichment?.wordnetSenses ?? const <WordNetSense>[];
+  if (senses.isEmpty) return null;
+  final promptIsLowercase = word.word == word.word.toLowerCase();
+  final lowerPrompt = word.word.toLowerCase();
+
+  for (final sense in senses) {
+    if (!_posMatches(sense.pos, word.wordType)) continue;
+    if (senseNamesSomething(sense, promptIsLowercase: promptIsLowercase)) {
+      continue;
+    }
+    final usable = <String>[];
+    for (final candidate in sense.hypernyms) {
+      final w = candidate.trim();
+      if (!_isCleanHypernym(w, isDE)) continue;
+      if (!isDE && promptIsLowercase && w != w.toLowerCase()) continue;
+      final lower = w.toLowerCase();
+      // "show" lists itself among its own sense's hypernyms.
+      if (lower == lowerPrompt) continue;
+      if (lowerPrompt.contains(lower) || lower.contains(lowerPrompt)) continue;
+      usable.add(w);
+    }
+    if (usable.isNotEmpty) return _mostFamiliar(usable, catalogue);
+  }
+  return null;
+}
+
+/// Whether a WordNet part of speech is the one the catalogue filed the word
+/// under. WordNet writes English names; the catalogue writes German ones.
+bool _posMatches(String? pos, GermanWordType type) => switch (pos) {
+      'noun' => type == GermanWordType.substantiv,
+      'verb' => type == GermanWordType.verb,
+      'adjective' || 'adjective satellite' => type == GermanWordType.adjektiv,
+      'adverb' => type == GermanWordType.adverb,
+      _ => false,
+    };
 
 /// The hypernyms in [tier] that could fairly be the answer.
 List<String> _confirmed(

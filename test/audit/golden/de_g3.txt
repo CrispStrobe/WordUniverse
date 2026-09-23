@@ -218,45 +218,44 @@
       Pirat
 ── sentence_completion (4)
   Die ___ hat gestern Abend ein großes Konzert gegeben.
-      Post
     ✓ Band
       Kreis
-      Bad
+      Nacht
+      Thermometer
   Wir backen einen Kuchen mit ___.
-      Fleck
-      Tomate
     ✓ Beere
+      Orkan
+      Astronaut
       Dreieck
   Ich höre ___ den Hund bellen.
-      Astronaut
-      Richtung
+      Beere
     ✓ Nacht
-      Radiergummi
-  Die Schüler sitzen ___ in der ersten Reihe.
+      Fleck
+      Schuh
+  Der Lehrer steht ___ im Klassenzimmer.
+      sogar
       manchmal
       hoffentlich
-      sogar
     ✓ vorne
 ── spelling_spotter (4)
   Which spelling is correct?
-    ✓ Kakao
-      k.no
-      kakau
-    · shown after answering: Wer möchte Kakao?
-  Which spelling is correct?
-      begingen
-    ✓ beginnen
-      beginen
-      beginnnen
-    · shown after answering: Beginnen wir?
+      prinsesin
+    ✓ Prinzessin
+    · shown after answering: Die Prinzessin döste.
   Which spelling is correct?
       fleach
     ✓ fleißig
     · shown after answering: Lerne fleißig!
   Which spelling is correct?
-    ✓ glatt
-      glat
-    · shown after answering: Alles läuft glatt.
+    ✓ frieren
+      fülen
+      frirt
+    · shown after answering: Sie frieren.
+  Which spelling is correct?
+      plat
+    ✓ Party
+      paty
+    · shown after answering: Die Party ist vorbei.
 ── sri_review (4)
   "etwas aufmachen; offen machen"
     ✓ öffnen

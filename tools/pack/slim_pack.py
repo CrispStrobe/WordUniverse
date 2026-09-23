@@ -23,7 +23,6 @@ import sys
 
 # json key -> why it goes. Keyed on enrichment_json unless noted.
 DEAD_ENRICHMENT = {
-    'wordnetSenses': 'not in the Dart model at all',
     'openThesaurus': 'not in the Dart model at all',
     'conceptnet': 'parsed into the model, rendered nowhere',
     'alternative_analyses': 'parsed into the model, rendered nowhere',
@@ -36,6 +35,41 @@ DEAD_ENRICHMENT = {
     'hyponyms': '.hyponyms is read only by its own feature bit; no game uses it',
     'graphemeVariants': 'not the field games use — that is graphematicVariants',
 }
+
+# json key -> what to keep of it. Stripping is a blunt instrument: the whole
+# of `wordnetSenses` was 12.5 MB and went, and with it the only thing in either
+# pack that says which *sense* a synonym or a hypernym belongs to. Everything
+# the games did afterwards about senses was a heuristic standing in for data
+# that had been thrown away — asking whether a hypernym is repeated in the
+# word's own gloss, capping how many an entry may list, requiring the
+# catalogue to confirm it.
+#
+# The sense-linked version answers those directly: chicken is poultry, not
+# competition; hand is an extremity, not an ability; boat is a vessel, not a
+# dish; charge is an attack, not a point.
+#
+# Reduced rather than restored. Senses carry hyponyms, holonyms, meronyms and
+# a full hypernym chain that no game reads, and a sense with neither synonyms
+# nor hypernyms says nothing either. What is left is 5.3 MB of 12.5, about
+# 1.2 MB on the compressed artifact.
+def reduce_wordnet_senses(senses):
+    if not isinstance(senses, list):
+        return None
+    kept = [
+        {
+            'pos': sense.get('pos'),
+            'definition': sense.get('definition'),
+            'synonyms': sense.get('synonyms') or [],
+            'hypernyms': sense.get('hypernyms') or [],
+        }
+        for sense in senses
+        if isinstance(sense, dict) and (sense.get('synonyms')
+                                        or sense.get('hypernyms'))
+    ]
+    return kept or None
+
+
+REDUCE_ENRICHMENT = {'wordnetSenses': reduce_wordnet_senses}
 
 DEAD_METADATA = {
     'inflectionData': 'duplicate; the model reads enrichment_json.inflections',
@@ -89,6 +123,28 @@ def main():
             f'UPDATE words SET {column} = json_remove({column}, {paths}) '
             f'WHERE {column} IS NOT NULL AND EXISTS ('
             f'  SELECT 1 FROM json_each(words.{column}) WHERE key IN ({keys}))')
+    # Reductions are per row, in Python: the shape is nested deeply enough
+    # that doing it in SQL would be less readable than the thing it saves.
+    for key, reduce in REDUCE_ENRICHMENT.items():
+        updates = []
+        for row_id, blob in db.execute(
+                'SELECT id, enrichment_json FROM words '
+                'WHERE enrichment_json IS NOT NULL '
+                f"AND json_extract(enrichment_json, '$.{key}') IS NOT NULL"):
+            enrichment = json.loads(blob)
+            reduced = reduce(enrichment.get(key))
+            if reduced == enrichment.get(key):
+                continue          # already reduced; a second run is a no-op
+            if reduced is None:
+                enrichment.pop(key, None)
+            else:
+                enrichment[key] = reduced
+            updates.append((json.dumps(enrichment, ensure_ascii=False), row_id))
+        if updates:
+            db.executemany(
+                'UPDATE words SET enrichment_json = ? WHERE id = ?', updates)
+            print(f'  reduced {key} on {len(updates)} rows')
+
     # total_changes, not cursor.rowcount: SQLite reports -1 for these.
     changed = db.total_changes - before_changes
     db.commit()
