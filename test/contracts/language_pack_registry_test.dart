@@ -10,17 +10,27 @@ import 'package:flutter/foundation.dart';
 import 'package:WortUniversum/core/models/language_pack.dart';
 
 void main() {
-  test('installation budget covers platform promotion plus download reserve', () {
+  test('installation budget covers platform promotion plus download reserve',
+      () {
     final pack = kLanguagePacks['de']!;
     final databaseCopies = kIsWeb ? 2 : 1;
-    expect(pack.requiredFreeBytes,
+    expect(
+        pack.requiredFreeBytes,
         databaseCopies * pack.expectedDecompressedBytes! +
             pack.expectedCompressedBytes!);
-    // Down from 325/175 MiB: the published artifact now carries only the
-    // enrichment the app reads (tools/pack/slim_pack.py), and the megabyte
-    // back on top of that is the feature index it also ships
-    // (tools/pack/index_pack.sh), which the device no longer has to derive.
-    expect(pack.requiredFreeSizeLabel, kIsWeb ? '182 MiB' : '98 MiB');
+    // Down from 325/175 MiB: the published artifact carries only the
+    // enrichment the app reads (tools/pack/slim_pack.py), and a megabyte of
+    // that is the feature index it also ships (tools/pack/index_pack.sh),
+    // which the device no longer has to derive.
+    //
+    // Up from 182/98 by five megabytes on 2026-09-23, deliberately. The
+    // slimmer had also dropped openThesaurus, which is the only thing in the
+    // pack that says which *sense* a synonym belongs to — without it the
+    // synonym list is every sense poured together, and Spielzeug was
+    // answered Werkzeug. Reduced to the synsets the games read it costs
+    // about a megabyte compressed, and the number here is why that trade is
+    // stated rather than slipped in.
+    expect(pack.requiredFreeSizeLabel, kIsWeb ? '193 MiB' : '104 MiB');
     expect(kLanguagePacks['en']!.requiredFreeBytes, isNull);
     expect(kLanguagePacks['en']!.requiredFreeSizeLabel, isNull);
   });
