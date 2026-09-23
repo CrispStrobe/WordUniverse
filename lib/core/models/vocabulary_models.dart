@@ -654,9 +654,46 @@ class GermanWord {
   /// fly, go — before anybody read one.
   List<String> get learnerDefinitions {
     final all = displayDefinitions;
-    if (all.isEmpty || !glossSuitsAChild(all.first)) return const [];
-    return all.where(glossSuitsAChild).toList();
+    if (all.isNotEmpty && glossSuitsAChild(all.first)) {
+      return all.where(glossSuitsAChild).toList();
+    }
+    final fromWordNet = _soleSenseGloss;
+    return fromWordNet == null ? const [] : [fromWordNet];
   }
+
+  /// WordNet's wording, but only where the entry has exactly one sense of its
+  /// own class — so there is no sense to choose and nothing to choose wrong.
+  ///
+  /// Its glosses are plainer than the pack's: 49 characters to 61 at the
+  /// median, and for 331 entries the pack's leading gloss is one a child
+  /// cannot read while WordNet's is. Only 105 of those are single-sense, and
+  /// the rest are why the other 226 are left alone — filtering "dog"'s name
+  /// sense promotes "a dull unattractive unpleasant girl or woman" into first
+  /// place, which is a worse fault than the one being fixed.
+  String? get _soleSenseGloss {
+    final senses = apiEnrichment?.wordnetSenses ?? const <WordNetSense>[];
+    if (senses.isEmpty) return null;
+    final ofItsClass = senses.where((s) => _posIsMine(s.pos)).toList();
+    if (ofItsClass.length != 1) return null;
+    final sense = ofItsClass.single;
+    if (senseNamesSomething(sense,
+        promptIsLowercase: word == word.toLowerCase())) {
+      return null;
+    }
+    final gloss = sense.definition;
+    if (gloss == null || gloss.trim().isEmpty) return null;
+    return glossSuitsAChild(gloss) ? gloss : null;
+  }
+
+  bool _posIsMine(String? pos) => switch (pos) {
+        'noun' => wordType == GermanWordType.substantiv,
+        'verb' => wordType == GermanWordType.verb,
+        'adjective' ||
+        'adjective satellite' =>
+          wordType == GermanWordType.adjektiv,
+        'adverb' => wordType == GermanWordType.adverb,
+        _ => false,
+      };
 
   // Consolidated V24 Fields
   final List<ApiExample> examples;

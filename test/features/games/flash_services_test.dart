@@ -170,6 +170,47 @@ void main() {
       expect(giraffe.learnerDefinitions, isEmpty);
     });
 
+    test('a single-sense entry falls back to WordNet\'s plainer wording', () {
+      final chimney = testWord('chimney',
+          type: GermanWordType.substantiv,
+          enrichment: testEnrichment(
+            definitions: [
+              'A vertical tube or hollow column used to emit '
+                  'environmentally polluting gaseous and solid matter '
+                  '(including but not limited to by-products of burning carbon- '
+                  'or hydrocarbon-based fuels); a flue.'
+            ],
+            wordnetSenses: const [
+              WordNetSense(
+                  pos: 'noun',
+                  definition: 'a vertical flue that carries smoke from a fire '
+                      'up through a roof'),
+            ],
+          ));
+      expect(chimney.learnerDefinitions.single, startsWith('a vertical flue'));
+    });
+
+    test('an entry with several senses is left alone', () {
+      // Choosing among them is how "dog" came to be "a dull unattractive
+      // unpleasant girl or woman": its own first sense is a name sense, and
+      // skipping that promotes the insult.
+      final dog = testWord('dog',
+          type: GermanWordType.substantiv,
+          enrichment: testEnrichment(
+            definitions: ['A mammal of the family Canidae.'],
+            wordnetSenses: const [
+              WordNetSense(
+                  pos: 'noun',
+                  definition: 'a member of the genus Canis',
+                  synonyms: ['Canis familiaris']),
+              WordNetSense(
+                  pos: 'noun',
+                  definition: 'a dull unattractive unpleasant girl or woman'),
+            ],
+          ));
+      expect(dog.learnerDefinitions, isEmpty);
+    });
+
     test('a readable leading gloss keeps its own sense first', () {
       final rain = _noun('rainfall', definitions: [
         'The amount of rain that falls on a single occasion',
