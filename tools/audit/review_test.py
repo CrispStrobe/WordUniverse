@@ -138,6 +138,38 @@ class ReviewTest(unittest.TestCase):
         review.judge(pool, ITEMS, 0.0, attempts=8)
         self.assertTrue(lane.retired)
 
+    def test_two_replicas_use_two_different_lanes(self):
+        # One model's verdict is an opinion; the same batch judged twice by
+        # two models is something that can be compared. Four rounds of review
+        # could not be, because each batch went to whichever lane was free.
+        a = _FixedClient({'verdicts': [{'n': 1}, {'n': 2}]})
+        b = _FixedClient({'verdicts': [{'n': 1, 'keyed': False}, {'n': 2}]})
+        pool = review.Pool([
+            review.Lane(a, 'model-a', 'lane-a', 0.0),
+            review.Lane(b, 'model-b', 'lane-b', 0.0),
+        ], patience=5.0)
+        rows = review.judge_repeatedly(pool, ITEMS, 0.0, replicas=2)
+        self.assertEqual(len(rows), 4, 'two items judged twice')
+        self.assertEqual({row['lane'] for row in rows}, {'lane-a', 'lane-b'})
+
+    def test_a_verdict_records_which_lane_made_it(self):
+        pool = review.Pool([
+            review.Lane(_FixedClient({'verdicts': [{'n': 1}, {'n': 2}]}),
+                        'model-a', 'lane-a', 0.0),
+        ], patience=5.0)
+        rows = review.judge(pool, ITEMS, 0.0)
+        self.assertTrue(all(row['lane'] == 'lane-a' for row in rows))
+
+    def test_one_lane_cannot_supply_two_replicas(self):
+        # Asked for two opinions with only one lane, it gives the one it has
+        # rather than asking the same model twice and calling that agreement.
+        pool = review.Pool([
+            review.Lane(_FixedClient({'verdicts': [{'n': 1}, {'n': 2}]}),
+                        'model-a', 'lane-a', 0.0),
+        ], patience=0.2)
+        rows = review.judge_repeatedly(pool, ITEMS, 0.0, replicas=2)
+        self.assertEqual(len(rows), 2)
+
     def test_json_in_a_fence_is_still_json(self):
         fenced = '```json\n{"verdicts": [{"n": 1, "keyed": false}]}\n```'
         self.assertEqual(review.parse_verdicts(fenced),
