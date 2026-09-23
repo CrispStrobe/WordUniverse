@@ -80,7 +80,7 @@ class _WordOfTheDayCardState extends State<WordOfTheDayCard> {
     for (final candidate in candidates) {
       final word = await vocabulary.hydrateOne(candidate);
       first ??= word;
-      final definition = word.displayDefinitions.firstOrNull;
+      final definition = word.learnerDefinitions.firstOrNull;
       if (definition != null && isUsableDefinition(definition)) return word;
     }
     return first!;
@@ -103,7 +103,7 @@ class _WordOfTheDayContent extends StatelessWidget {
   const _WordOfTheDayContent({required this.word, required this.isVerySmall});
 
   String? get _definition {
-    final defs = word.displayDefinitions;
+    final defs = word.learnerDefinitions;
     if (defs.isNotEmpty) return defs.first;
     final ex = word.exampleSentences;
     if (ex.isNotEmpty) return ex.first;
@@ -341,7 +341,7 @@ class _WordDetailSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = S.of(context)!;
     final audioService = context.read<AudioService>();
-    final defs = word.displayDefinitions;
+    final defs = word.learnerDefinitions;
     final synonyms = word.apiEnrichment?.synonyms ?? [];
     final antonyms = word.apiEnrichment?.antonyms ?? [];
     final entryNotes = word.entryNotes;

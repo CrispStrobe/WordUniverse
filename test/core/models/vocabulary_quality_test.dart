@@ -285,6 +285,45 @@ void main() {
     });
   });
 
+  group('glossSuitsAChild', () {
+    test('drops the ones written for a naturalist', () {
+      // All five games that show a hint gloss were showing this one.
+      expect(
+          glossSuitsAChild('A ruminant, of the genus Giraffa, of the African '
+              'savannah with long legs and highly elongated neck, making them '
+              'the tallest living animal; yellow fur patterned with dark '
+              'spots; strictly speaking the horn-like projections are '
+              'ossicones.'),
+          isFalse);
+      expect(glossSuitsAChild('A mammal of the family Canidae.'), isFalse);
+      expect(glossSuitsAChild('An adult female of the species Bos taurus.'),
+          isFalse);
+    });
+
+    test('keeps a gloss a child can read', () {
+      expect(
+          glossSuitsAChild('The amount of rain that falls on a single '
+              'occasion'),
+          isTrue);
+      expect(glossSuitsAChild('Harsh and rough-sounding.'), isTrue);
+      expect(glossSuitsAChild('Muttertier des Hausrinds'), isTrue);
+      expect(glossSuitsAChild('erneutes Treffen von Personen'), isTrue);
+    });
+
+    test('a gloss merely above the reader is not caught, and that is known',
+        () {
+      // "honest" is explained with "scrupulous" and "swindling". Telling that
+      // apart from an ordinary gloss needs to know which words the reader
+      // has, and counting the ones missing from the catalogue reads German
+      // compounds as unknown and calls "Muttertier des Hausrinds" the hardest
+      // gloss in the pack.
+      expect(
+          glossSuitsAChild('Scrupulous with regard to telling the truth; not '
+              'given to swindling, lying, or fraud; upright.'),
+          isTrue);
+    });
+  });
+
   group('sentenceSuitsAChild', () {
     test('keeps ordinary sentences', () {
       expect(

@@ -221,7 +221,6 @@ class _WordFindGameState extends State<WordFindGame> {
 
   /// Extracts the base word (e.g., "haus") from an SRI ID (e.g., "SPELL_haus").
 
-
   /// Checks if a word is valid for this specific game.
   bool _isWordValidForGame(GermanWord word) {
     return !word.word.contains(" ") &&
@@ -247,8 +246,8 @@ class _WordFindGameState extends State<WordFindGame> {
 
     for (var placedWord in _placedWords) {
       if (!_foundWords.contains(placedWord.word) &&
-          (placedWord.word == selectedWord || placedWord.word == reversedWord)) {
-        
+          (placedWord.word == selectedWord ||
+              placedWord.word == reversedWord)) {
         // --- SUCCESS! ---
         _audioService.playSound('success');
         _gameProvider.hapticLight();
@@ -302,12 +301,13 @@ class _WordFindGameState extends State<WordFindGame> {
 
     // Article prefix for nouns
     if (word.wordType == GermanWordType.substantiv &&
-        word.article != null && word.article!.isNotEmpty) {
+        word.article != null &&
+        word.article!.isNotEmpty) {
       infoParts.add(word.article!);
     }
 
     // Primary: definition
-    final def = word.displayDefinitions.firstOrNull;
+    final def = word.learnerDefinitions.firstOrNull;
     if (def != null && def.isNotEmpty) {
       final truncated = def.length > 50 ? '${def.substring(0, 47)}…' : def;
       infoParts.add('"$truncated"');
@@ -323,7 +323,9 @@ class _WordFindGameState extends State<WordFindGame> {
     // Fallback: morphological info by type
     switch (word.wordType) {
       case GermanWordType.substantiv:
-        if (word.plural != null && word.plural!.isNotEmpty && word.plural != '-') {
+        if (word.plural != null &&
+            word.plural!.isNotEmpty &&
+            word.plural != '-') {
           infoParts.add('${s.wordFindPluralLabel}: ${word.plural}');
         }
         if (word.genus != null && word.genus!.isNotEmpty) {
@@ -344,7 +346,9 @@ class _WordFindGameState extends State<WordFindGame> {
           } catch (_) {}
         }
         // Fall back to legacy inflectionData
-        if (conjugation == null && word.inflectionData != null && word.inflectionData!.isNotEmpty) {
+        if (conjugation == null &&
+            word.inflectionData != null &&
+            word.inflectionData!.isNotEmpty) {
           conjugation = _getRandomVerbConjugation(word.inflectionData!);
         }
         if (conjugation != null) {
@@ -377,7 +381,7 @@ class _WordFindGameState extends State<WordFindGame> {
         if (sup != null && sup.isNotEmpty && sup != '-') infoParts.add(sup);
         if (infoParts.isEmpty) infoParts.add(s.wordTypeAdjective);
         break;
-        
+
       case GermanWordType.pronomen:
         // Show case if available
         if (word.caseSpacy != null && word.caseSpacy!.isNotEmpty) {
@@ -399,7 +403,7 @@ class _WordFindGameState extends State<WordFindGame> {
           infoParts.add(s.wordTypePronoun);
         }
         break;
-        
+
       case GermanWordType.artikel:
         // Show case and gender info
         if (word.caseSpacy != null && word.caseSpacy!.isNotEmpty) {
@@ -418,7 +422,7 @@ class _WordFindGameState extends State<WordFindGame> {
           infoParts.add(s.wordSnakeArticle);
         }
         break;
-        
+
       case GermanWordType.adverb:
         infoParts.add(s.wordTypeAdverb);
         break;
@@ -442,7 +446,7 @@ class _WordFindGameState extends State<WordFindGame> {
           infoParts.add(typeLabel);
         }
     }
-    
+
     if (infoParts.isEmpty) {
       if (word.cefrLevel != null) return ' • ${word.cefrLevel}';
       return '';
@@ -454,17 +458,17 @@ class _WordFindGameState extends State<WordFindGame> {
   /// Gets a random verb conjugation from inflectionData
   String? _getRandomVerbConjugation(Map<String, dynamic> inflectionData) {
     final random = Random();
-    
+
     // Define tense-person combinations to try
     final options = [
       ('Präsens', ['ich', 'du', 'er', 'sie', 'es', 'wir', 'ihr']),
       ('Präteritum', ['ich', 'du', 'er', 'sie', 'es']),
       ('Perfekt', ['ich', 'du', 'er']),
     ];
-    
+
     // Shuffle and try to find a valid conjugation
     options.shuffle(random);
-    
+
     for (final (tense, persons) in options) {
       // Try different field names for the tense
       final tenseKeys = [
@@ -475,14 +479,14 @@ class _WordFindGameState extends State<WordFindGame> {
         'past',
         'perfect',
       ];
-      
+
       for (final tenseKey in tenseKeys) {
         if (inflectionData.containsKey(tenseKey)) {
           final tenseData = inflectionData[tenseKey];
           if (tenseData is Map) {
             // Shuffle persons
             final shuffledPersons = List<String>.from(persons)..shuffle(random);
-            
+
             for (final person in shuffledPersons) {
               // Try different formats
               if (tenseData.containsKey(person)) {
@@ -496,7 +500,7 @@ class _WordFindGameState extends State<WordFindGame> {
         }
       }
     }
-    
+
     return null;
   }
 
@@ -550,7 +554,8 @@ class _WordFindGameState extends State<WordFindGame> {
   Widget build(BuildContext context) {
     final s = S.of(context)!;
 
-    final String selectedFontFamily = context.watch<GameProvider>().selectedFontFamily;
+    final String selectedFontFamily =
+        context.watch<GameProvider>().selectedFontFamily;
 
     return Scaffold(
       body: SpaceBackground(
@@ -575,10 +580,12 @@ class _WordFindGameState extends State<WordFindGame> {
                       Widget gridWidget;
                       if (constraints.maxWidth < breakpoint) {
                         // Portrait/narrow: grid should fit width and leave space for word list
-                        final availableHeight = constraints.maxHeight * 0.5; // 50% for grid
-                        final availableWidth = constraints.maxWidth - 32; // padding
+                        final availableHeight =
+                            constraints.maxHeight * 0.5; // 50% for grid
+                        final availableWidth =
+                            constraints.maxWidth - 32; // padding
                         final gridSize = min(availableHeight, availableWidth);
-                        
+
                         gridWidget = Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: Center(
@@ -592,9 +599,10 @@ class _WordFindGameState extends State<WordFindGame> {
                       } else {
                         // Landscape/wide: grid should fit in 60% of width
                         final availableHeight = constraints.maxHeight - 32;
-                        final availableWidth = (constraints.maxWidth * 0.6) - 32;
+                        final availableWidth =
+                            (constraints.maxWidth * 0.6) - 32;
                         final gridSize = min(availableHeight, availableWidth);
-                        
+
                         gridWidget = Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: Center(
@@ -607,7 +615,8 @@ class _WordFindGameState extends State<WordFindGame> {
                         );
                       }
 
-                      final wordListWidget = _buildWordsToFindList(selectedFontFamily);
+                      final wordListWidget =
+                          _buildWordsToFindList(selectedFontFamily);
 
                       if (constraints.maxWidth < breakpoint) {
                         // Small screen: Column layout
@@ -649,22 +658,22 @@ class _WordFindGameState extends State<WordFindGame> {
         onPanUpdate: _onPanUpdate,
         onPanEnd: _onPanEnd,
         child: Container(
-        decoration: BoxDecoration(
-          color: SpaceTheme.deepSpace.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: GridView.builder(
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: _gridSize,
+          decoration: BoxDecoration(
+            color: SpaceTheme.deepSpace.withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(12),
           ),
-          itemCount: _gridSize * _gridSize,
-          itemBuilder: (context, index) {
-            final row = index ~/ _gridSize;
-            final col = index % _gridSize;
-            return _buildCell(row, col, selectedFontFamily);
-          },
-        ),
+          child: GridView.builder(
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: _gridSize,
+            ),
+            itemCount: _gridSize * _gridSize,
+            itemBuilder: (context, index) {
+              final row = index ~/ _gridSize;
+              final col = index % _gridSize;
+              return _buildCell(row, col, selectedFontFamily);
+            },
+          ),
         ),
       ),
     );
@@ -727,13 +736,13 @@ class _WordFindGameState extends State<WordFindGame> {
 
   Widget _buildWordsToFindList(String selectedFontFamily) {
     final s = S.of(context)!;
-    
+
     // Only show words that were actually placed in the grid
     final wordsInGrid = _wordsToFind.where((word) {
       final wordUpper = word.word.toUpperCase().replaceAll(' ', '');
       return _placedWords.any((placed) => placed.word == wordUpper);
     }).toList();
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       margin: const EdgeInsets.only(top: 16, right: 16, bottom: 16),
@@ -753,10 +762,10 @@ class _WordFindGameState extends State<WordFindGame> {
                 final word = wordsInGrid[index];
                 final wordUpper = word.word.toUpperCase().replaceAll(' ', '');
                 final isFound = _foundWords.contains(wordUpper);
-                
+
                 // Get educational info when word is found
                 final eduInfo = isFound ? _getEducationalInfo(word) : '';
-                
+
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4.0),
                   child: Semantics(
@@ -764,36 +773,39 @@ class _WordFindGameState extends State<WordFindGame> {
                         ? s.wordFindWordFound(word.word)
                         : s.wordFindWordPending(word.word),
                     child: RichText(
-                    text: TextSpan(
-                      children: [
-                        // The main word
-                        TextSpan(
-                          text: word.word,
-                          style: SpaceTheme.bodyStyle.copyWith(
-                            fontFamily: selectedFontFamily,
-                            fontSize: 16,
-                            color: isFound ? SpaceTheme.alienGreen : Colors.white70,
-                            decoration: isFound
-                                ? TextDecoration.lineThrough
-                                : TextDecoration.none,
-                            decorationColor: SpaceTheme.rocketRed,
-                            decorationThickness: 2.0,
-                          ),
-                        ),
-                        // Educational info (only when found)
-                        if (eduInfo.isNotEmpty)
+                      text: TextSpan(
+                        children: [
+                          // The main word
                           TextSpan(
-                            text: eduInfo,
+                            text: word.word,
                             style: SpaceTheme.bodyStyle.copyWith(
                               fontFamily: selectedFontFamily,
-                              fontSize: 13,
-                              color: SpaceTheme.starYellow.withValues(alpha: 0.9),
-                              fontStyle: FontStyle.italic,
+                              fontSize: 16,
+                              color: isFound
+                                  ? SpaceTheme.alienGreen
+                                  : Colors.white70,
+                              decoration: isFound
+                                  ? TextDecoration.lineThrough
+                                  : TextDecoration.none,
+                              decorationColor: SpaceTheme.rocketRed,
+                              decorationThickness: 2.0,
                             ),
                           ),
-                      ],
+                          // Educational info (only when found)
+                          if (eduInfo.isNotEmpty)
+                            TextSpan(
+                              text: eduInfo,
+                              style: SpaceTheme.bodyStyle.copyWith(
+                                fontFamily: selectedFontFamily,
+                                fontSize: 13,
+                                color: SpaceTheme.starYellow
+                                    .withValues(alpha: 0.9),
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
-                  ),
                   ),
                 );
               },
@@ -803,5 +815,4 @@ class _WordFindGameState extends State<WordFindGame> {
       ),
     );
   }
-
 }

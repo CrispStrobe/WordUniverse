@@ -258,8 +258,8 @@ Generator _wordPractice(
                     : w.word,
                 notes: {
                   'grade': w.gradeLevel,
-                  if (w.displayDefinitions.isNotEmpty)
-                    'gloss': w.displayDefinitions.first,
+                  if (w.learnerDefinitions.isNotEmpty)
+                    'gloss': w.learnerDefinitions.first,
                 },
               ))
           .toList();
@@ -451,7 +451,7 @@ final Map<String, Generator> generators = {
     final withDefinitions =
         skills.GradeLevel.values[(c.grade - 1).clamp(0, 5)].index >= 2;
     return words.map((w) {
-      final gloss = withDefinitions ? w.displayDefinitions.firstOrNull : null;
+      final gloss = withDefinitions ? w.learnerDefinitions.firstOrNull : null;
       final partner = gloss == null || gloss.isEmpty
           ? w.word
           : (gloss.length > 55 ? '${gloss.substring(0, 52)}…' : gloss);
@@ -836,7 +836,7 @@ final Map<String, Generator> generators = {
       for (final candidate in candidates) {
         final hydrated = await c.vocabulary.hydrateOne(candidate);
         word ??= hydrated;
-        final definition = hydrated.displayDefinitions.firstOrNull;
+        final definition = hydrated.learnerDefinitions.firstOrNull;
         if (definition != null && isUsableDefinition(definition)) {
           word = hydrated;
           break;
@@ -846,7 +846,7 @@ final Map<String, Generator> generators = {
         game: 'word_of_the_day',
         prompt:
             '${date.toIso8601String().substring(0, 10)}: ${word!.displayName}',
-        answer: word.displayDefinitions.firstOrNull,
+        answer: word.learnerDefinitions.firstOrNull,
         notes: {'grade': word.gradeLevel, 'cefr': word.cefrLevel ?? '—'},
       ));
     }

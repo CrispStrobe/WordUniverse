@@ -361,10 +361,10 @@
     · grade: 3  partner: definition
 ── word_of_the_day (4)
   2026-01-01: archive
-    ✓ A place for storing earlier, and often historical, material. An archive usually contains documents (letters, records, newspapers, etc.) or other types of media kept for historical interest.
+    ✓ The material so kept, considered as a whole (compare archives).
     · grade: 4  cefr: —
   2026-01-02: chimney
-    ✓ A vertical tube or hollow column used to emit environmentally polluting gaseous and solid matter (including but not limited to by-products of burning carbon- or hydrocarbon-based fuels); a flue.
+    ✓ The glass flue surrounding the flame of an oil lamp.
     · grade: 4  cefr: B2
   2026-01-03: faq
     ✓ A list of questions said to be frequently asked, and their answers.

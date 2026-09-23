@@ -667,7 +667,7 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
         ? s.whirlCorrectFeedback(displayWord)
         : s.whirlWrongFeedback(displayWord, typeLabel);
 
-    final def = word.displayDefinitions.firstOrNull;
+    final def = word.learnerDefinitions.firstOrNull;
     if (def != null && def.isNotEmpty) {
       final truncated = def.length > 60 ? '${def.substring(0, 57)}…' : def;
       return '$base\n$truncated';
