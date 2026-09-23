@@ -13,6 +13,7 @@
 
 import 'dart:math';
 
+import '../../../core/models/vocabulary_quality.dart';
 import '../models/phrasal_verb.dart';
 
 class PhrasalChallenge {
@@ -47,9 +48,13 @@ List<PhrasalChallenge> buildPhrasalChallenges({
 
   // Order entries: grade-band closeness first, then shuffle within bands so
   // repeated plays vary. Stable for a fixed rng (tests pass a seeded Random).
-  final pool = List<PhrasalVerb>.from(verbs)..shuffle(r);
-  pool.sort((a, b) =>
-      (a.gradeBand - gradeLevel).abs().compareTo((b.gradeBand - gradeLevel).abs()));
+  // "lie by" is glossed "be intimate with someone" — a real archaic sense,
+  // so there is nothing to correct and the entry simply is not taught.
+  final pool = verbs.where((v) => phrasalMeaningSuitsAChild(v.meaning)).toList()
+    ..shuffle(r);
+  pool.sort((a, b) => (a.gradeBand - gradeLevel)
+      .abs()
+      .compareTo((b.gradeBand - gradeLevel).abs()));
 
   final challenges = <PhrasalChallenge>[];
   for (final pv in pool) {
@@ -172,7 +177,10 @@ List<PhrasalMatchChallenge> buildPhrasalMatchChallenges({
 }) {
   final r = rng ?? Random();
 
-  final usable = verbs.where((v) => v.meaning.trim().isNotEmpty).toList();
+  final usable = verbs
+      .where((v) =>
+          v.meaning.trim().isNotEmpty && phrasalMeaningSuitsAChild(v.meaning))
+      .toList();
   if (usable.length < 2) return [];
 
   // Global meaning pool for distractors: (meaning, baseVerb), deduped by
@@ -187,8 +195,9 @@ List<PhrasalMatchChallenge> buildPhrasalMatchChallenges({
   }
 
   final ordered = List<PhrasalVerb>.from(usable)..shuffle(r);
-  ordered.sort((a, b) =>
-      (a.gradeBand - gradeLevel).abs().compareTo((b.gradeBand - gradeLevel).abs()));
+  ordered.sort((a, b) => (a.gradeBand - gradeLevel)
+      .abs()
+      .compareTo((b.gradeBand - gradeLevel).abs()));
 
   final challenges = <PhrasalMatchChallenge>[];
   for (final pv in ordered) {

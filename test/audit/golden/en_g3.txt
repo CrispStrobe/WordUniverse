@@ -137,51 +137,51 @@
       associate
       goosefoot family
 ── phrasal_verb_match (4)
-  What does "stop up" mean?
-      to wait and not give up
-    ✓ fill a hole or block with something
-      join a group or team
-      ask someone to come back
-  What does "ring up" mean?
-      get used to batting
-      to annoy or bother someone
-    ✓ to call someone on the phone
-      learn by reading books
-  What does "get on with" mean?
-      something that happens
-    ✓ to continue doing something
-      arrive or appear somewhere
-      to busy oneself with something
-  What does "drive out" mean?
-    ✓ to make someone or something leave a place
-      to form or create something
-      move upwards, stand up
-      let some food stay uneaten
+  What does "pay out" mean?
+    ✓ give money to people
+      move down to a lower place
+      to buy something that someone else was planning to buy
+      do nothing in particular
+  What does "go down" mean?
+      to break into small pieces
+      say items from a list
+      when a plan doesn't work
+    ✓ to move from high to low
+  What does "go over" mean?
+      to show someone inside a place
+      make something higher
+      to give money to someone so they do what you want
+    ✓ look at something carefully
+  What does "pass on" mean?
+    ✓ to move forward or go ahead
+      to attract or pull someone in
+      choose for a special job
+      get up from lying down to sit
 ── phrasal_verb_power (4)
-  I stop ___ the hole quickly.
+  The bank pays ___ money.
       off
-      down
-    ✓ up
-      out
-    · phrasal: stop up  means: fill a hole or block with something
-  My dad rings ___ his office.
-    ✓ up
-      in
-      off
-      out
-    · phrasal: ring up  means: to call someone on the phone
-  We get ___ with project now
-    ✓ on
-      in
-      down
-      up
-    · phrasal: get on with  means: to continue doing something
-  The strong wind will drive ___ the rain.
-      down
     ✓ out
+      back
+      up
+    · phrasal: pay out  means: give money to people
+  The ball goes ___ slowly.
+    ✓ down
       in
       up
-    · phrasal: drive out  means: to make someone or something leave a place
+      out
+    · phrasal: go down  means: to move from high to low
+  Dad goes ___ my work.
+      down
+      up
+    ✓ over
+      in
+    · phrasal: go over  means: look at something carefully
+  The hikers will pass ___ to the next trail.
+    ✓ on
+      down
+      up
+      out
+    · phrasal: pass on  means: to move forward or go ahead
 ── sentence_completion (4)
   The ___ has a big castle.
       anchor

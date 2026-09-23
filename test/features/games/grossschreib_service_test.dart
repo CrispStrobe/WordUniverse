@@ -49,9 +49,14 @@ void main() {
   });
 
   test('takes the inflected form the sentence actually uses', () {
-    final challenge = _build(_word('amerikanisch',
-        type: GermanWordType.adjektiv,
-        examples: ['Das amerikanische Auto fährt schnell.']))!;
+    // lowercase because it is an adjective: the helper's default says
+    // capitalized, and the sentence writes it small, which the rule below
+    // now reads as a disagreement and refuses to ask about.
+    final challenge = _build(
+        _word('amerikanisch',
+            type: GermanWordType.adjektiv,
+            examples: ['Das amerikanische Auto fährt schnell.']),
+        correctCase: WordCase.lowercase)!;
     expect(challenge.targetWord, 'amerikanische');
     expect(challenge.fullSentence, 'Das amerikanische Auto fährt schnell.');
   });
@@ -128,6 +133,42 @@ void main() {
         _build(_word('flaume', examples: ['Die Pflaumen blühen.'])),
         isNull,
       );
+    });
+  });
+
+  group('the sentence in front of the learner wins', () {
+    test('an adjective inside a proper name is not asked as an adjective', () {
+      // "Der Europäische Gerichtshof spricht Recht für ganz Europa" was
+      // asked about "Europäische" and keyed klein: an adjective everywhere
+      // except in the name of a court. Keying it would teach that the
+      // sentence being read is misspelled.
+      expect(
+        _build(
+          _word('europäisch', examples: [
+            'Der Europäische Gerichtshof spricht Recht für ganz Europa.'
+          ]),
+          correctCase: WordCase.lowercase,
+        ),
+        isNull,
+      );
+    });
+
+    test('an ordinary adjective in mid-sentence is still asked', () {
+      final challenge = _build(
+        _word('traurig', examples: ['Warum bist Du heute so traurig?']),
+        correctCase: WordCase.lowercase,
+      )!;
+      expect(challenge.targetWord, 'traurig');
+    });
+
+    test('at the start of a sentence the capital proves nothing', () {
+      // Every word is capitalised there whatever its class, and the game
+      // asks about that separately.
+      final challenge = _build(
+        _word('traurig', examples: ['Traurig war der Tag.']),
+        correctCase: WordCase.lowercase,
+      )!;
+      expect(challenge.isAtSentenceStart, isTrue);
     });
   });
 
