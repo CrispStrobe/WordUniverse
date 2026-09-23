@@ -30,7 +30,7 @@ void main() {
     // answered Werkzeug. Reduced to the synsets the games read it costs
     // about a megabyte compressed, and the number here is why that trade is
     // stated rather than slipped in.
-    expect(pack.requiredFreeSizeLabel, kIsWeb ? '193 MiB' : '104 MiB');
+    expect(pack.requiredFreeSizeLabel, kIsWeb ? '192 MiB' : '104 MiB');
     expect(kLanguagePacks['en']!.requiredFreeBytes, isNull);
     expect(kLanguagePacks['en']!.requiredFreeSizeLabel, isNull);
   });

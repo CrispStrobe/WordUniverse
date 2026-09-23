@@ -131,21 +131,21 @@ class WordNetSense {
 /// Entries carry their register in brackets: 18,610 are marked
 /// `(umgangssprachlich)`, 4,750 `(gehoben)`, 773 `(derb)`. That is worth
 /// reading rather than stripping — see [ThesaurusSense.plainSynonyms].
+///
+/// Synonyms only. Every synset carries an empty `hypernyms`, all 15,517 of
+/// them, so German hypernyms stay on the heuristics they had.
 class ThesaurusSense {
   const ThesaurusSense({
     this.categories = const [],
     this.synonyms = const [],
-    this.hypernyms = const [],
   });
 
   final List<String> categories;
   final List<String> synonyms;
-  final List<String> hypernyms;
 
   factory ThesaurusSense.fromJson(Map<String, dynamic> json) => ThesaurusSense(
         categories: List<String>.from(json['categories'] ?? const []),
         synonyms: List<String>.from(json['synonyms'] ?? const []),
-        hypernyms: List<String>.from(json['hypernyms'] ?? const []),
       );
 
   /// The synonyms in plain standard German, bracketed register stripped.
