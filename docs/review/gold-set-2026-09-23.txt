@@ -1,3 +1,12 @@
+PROVISIONAL — labelled by the assistant that wrote the content rules, not by
+an independent reader. Every rule in this repository was written against
+examples the same judgement picked, so this measures how consistent that
+judgement is, not whether it was right. Treat the numbers it produces as a
+first reading to be replaced, and keep the file when somebody relabels it so
+the two can be compared.
+
+Labelled 2026-09-23. 155 items, 33 called wrong.
+
 
 ══ antonym_flash ════════════════════════════════════════
 
@@ -5,31 +14,31 @@
    options: ride | living | set | pull
    marked correct: ride
    (data: grade=2)
-     verdict: 
+     verdict: ok
 
 [2]  prompt: cheerful
    options: fortunate | homemade | sincere | depressing
    marked correct: depressing
    (data: grade=4)
-     verdict: 
+     verdict: ok
 
 [3]  prompt: repentant
    options: unrepentant | equal | inaudible | formal
    marked correct: unrepentant
    (data: grade=6)
-     verdict: 
+     verdict: ok
 
 [4]  prompt: zusammen
    options: also | zurück | auseinander | auch
    marked correct: auseinander
    (data: grade=2)
-     verdict: 
+     verdict: ok
 
 [5]  prompt: müde
    options: normal | selbständig | willkommen | wach
    marked correct: wach
    (data: grade=4)
-     verdict: 
+     verdict: ok
 
 ══ cloze_flash ════════════════════════════════════════
 
@@ -37,58 +46,58 @@
    options: sock | towel | land | model
    marked correct: model
    (data: word=model)
-     verdict: 
+     verdict: ok
 
 [7]  prompt: She removed Stranleigh’s coat with a dexterity that aroused his imagination. The elder woman returned with dressings and a ___, which she placed on a chair.
    options: ivory | pullover | sponge | arithmetic
    marked correct: sponge
    (data: word=sponge)
-     verdict: 
+     verdict: appropriate — adult literary register, and "aroused his imagination" with it
 
 [8]  prompt: Many of Thomas Hardy's works were considered ___ in his day.
    options: testicular | sistine | reformist | iconoclastic
    marked correct: iconoclastic
    (data: word=iconoclastic)
-     verdict: 
+     verdict: appropriate — "testicular" offered as a distractor
 
 [9]  prompt: Die Erdbeertörtchen waren ___ alle.
    options: nirgendwo | vorbei | nämlich | zuerst
    marked correct: zuerst
    (data: word=zuerst)
-     verdict: 
+     verdict: ok
 
 [10]  prompt: Ich habe keine Zeit, ich muss dringend ___, weil ich nichts mehr anzuziehen habe.
    options: aufstehen | mieten | waschen | anrufen
    marked correct: waschen
    (data: word=waschen)
-     verdict: 
+     verdict: ok
 
 ══ conjugation_drill ════════════════════════════════════════
 
 [11]  prompt: kämpfen: er/sie/es ___
    options: fährt | stellt | klettert | kämpft
    marked correct: kämpft
-     verdict: 
+     verdict: ok
 
 [12]  prompt: sehen: du ___
    options: vergisst | siehst | bekommst | reitest
    marked correct: siehst
-     verdict: 
+     verdict: ok
 
 [13]  prompt: wandern: er/sie/es ___
    options: wandert | zahlt | besucht | hört auf
    marked correct: wandert
-     verdict: 
+     verdict: ok
 
 [14]  prompt: zahlen: er/sie/es ___
    options: hört auf | raucht | zahlt | besucht
    marked correct: zahlt
-     verdict: 
+     verdict: ok
 
 [15]  prompt: trennen: du ___
    options: fällst auf | brichst ein | trennst | biegst ab
    marked correct: trennst
-     verdict: 
+     verdict: ok
 
 ══ definition_quiz ════════════════════════════════════════
 
@@ -96,31 +105,31 @@
    options: leader | above | list | eleven
    marked correct: list
    (data: word=list, grade=2)
-     verdict: 
+     verdict: appropriate — "list" as a strip of cloth is an archaic sense, not what a year-2 reader means by the word
 
 [17]  prompt: A position at the side of one's bed.
    options: bedside | whistle | oppression | sundial
    marked correct: bedside
    (data: word=bedside, grade=4)
-     verdict: 
+     verdict: ok
 
 [18]  prompt: Having a diet which is neither exclusively carnivorous nor exclusively herbivorous.
    options: omnivorous | aesthetical | unchangeable | laparoscopic
    marked correct: omnivorous
    (data: word=omnivorous, grade=6)
-     verdict: 
+     verdict: ok
 
 [19]  prompt: Muttertier des Hausrinds
    options: das Ungeheuer | der Chor | die Kuh | die Mappe
    marked correct: die Kuh
    (data: word=Kuh, grade=2)
-     verdict: 
+     verdict: ok
 
 [20]  prompt: Strecke, die von einem Körper in einer vorgeschriebenen Richtung durchmessen wird
    options: das Praktikum | der Kindergarten | die Bahn | das Ausland
    marked correct: die Bahn
    (data: word=Bahn, grade=4)
-     verdict: 
+     verdict: appropriate — a physics definition of a path, at grade 4
 
 ══ expression_flash ════════════════════════════════════════
 
@@ -128,31 +137,31 @@
    options: Bett | Rauch | Schloss | Platz
    marked correct: Platz
    (data: word=Platz)
-     verdict: 
+     verdict: ok
 
 [22]  prompt: ___ und nöcher
    options: noch | draußen | befiehlt | freuen
    marked correct: noch
    (data: word=noch)
-     verdict: 
+     verdict: ok
 
 [23]  prompt: jemanden zur ___ bitten
    options: Grad | Laden | Bahnhof | Kasse
    marked correct: Kasse
    (data: word=Kasse)
-     verdict: 
+     verdict: ok
 
 [24]  prompt: nur ___ verstehen
    options: Bahnhof | Stelle | Adresse | Anschluss
    marked correct: Bahnhof
    (data: word=Bahnhof)
-     verdict: 
+     verdict: ok
 
 [25]  prompt: ___ an Haupt und Gliedern
    options: Geschmack | Reform | Nagel | Konkurrenz
    marked correct: Reform
    (data: word=Reform)
-     verdict: 
+     verdict: ok
 
 ══ false_friends ════════════════════════════════════════
 
@@ -160,58 +169,58 @@
    options: tatsächlich, eigentlich | Koch / Köchin | Chef | Nebel, Dunst
    marked correct: Koch / Köchin
    (data: trap=Chef = boss)
-     verdict: 
+     verdict: ok
 
 [27]  prompt: What does "art" really mean?
    options: kahl, glatzköpfig | Art | Kunst | Modus, Art
    marked correct: Kunst
    (data: trap=Art = type, kind, manner)
-     verdict: 
+     verdict: ok
 
 [28]  prompt: What does "chef" really mean?
    options: tatsächlich, eigentlich | Koch / Köchin | Chef | Nebel, Dunst
    marked correct: Koch / Köchin
    (data: trap=Chef = boss)
-     verdict: 
+     verdict: ok
 
 [29]  prompt: What does "art" really mean?
    options: kahl, glatzköpfig | Art | Kunst | Modus, Art
    marked correct: Kunst
    (data: trap=Art = type, kind, manner)
-     verdict: 
+     verdict: ok
 
 [30]  prompt: What does "chef" really mean?
    options: tatsächlich, eigentlich | Koch / Köchin | Chef | Nebel, Dunst
    marked correct: Koch / Köchin
    (data: trap=Chef = boss)
-     verdict: 
+     verdict: ok
 
 ══ grossschreib ════════════════════════════════════════
 
 [31]  prompt: Das ist [sehr] nett.
    marked correct: klein
    (data: word=sehr, rule=Verben und Adjektive werden kleingeschrieben)
-     verdict: 
+     verdict: ok
 
 [32]  prompt: Ich habe mir gestern [dein] Auto ausgeliehen.
    marked correct: klein
    (data: word=dein, rule=Verben und Adjektive werden kleingeschrieben)
-     verdict: 
+     verdict: ok
 
 [33]  prompt: Der [Europäische] Gerichtshof spricht Recht für ganz Europa.
    marked correct: klein
    (data: word=Europäische, rule=Verben und Adjektive werden kleingeschrieben)
-     verdict: 
+     verdict: keyed — "Der Europäische Gerichtshof" is a proper name and is capitalised; klein is wrong
 
 [34]  prompt: Ich habe keine Zeit, ich muss dringend [waschen], weil ich nichts mehr anzuziehen habe.
    marked correct: klein
    (data: word=waschen, rule=Verben und Adjektive werden kleingeschrieben)
-     verdict: 
+     verdict: ok
 
 [35]  prompt: Bitte teilen Sie dem Hotel Ihre [voraussichtliche] Abfahrtszeit mit.
    marked correct: klein
    (data: word=voraussichtliche, rule=Verben und Adjektive werden kleingeschrieben)
-     verdict: 
+     verdict: ok
 
 ══ grossstadt ════════════════════════════════════════
 
@@ -219,31 +228,31 @@
    options: GROSS | klein
    marked correct: GROSS
    (data: rule=Nomen-Signal "ZUM" → Großschreibung)
-     verdict: 
+     verdict: ok
 
 [37]  prompt: Groß oder klein? ZUM [aufhören]
    options: GROSS | klein
    marked correct: GROSS
    (data: rule=Nomen-Signal "ZUM" → Großschreibung)
-     verdict: 
+     verdict: ok
 
 [38]  prompt: Groß oder klein? BEIM [fernhalten]
    options: GROSS | klein
    marked correct: GROSS
    (data: rule=Nomen-Signal "BEIM" → Großschreibung)
-     verdict: 
+     verdict: ok
 
 [39]  prompt: Groß oder klein? BEIM [beobachten]
    options: GROSS | klein
    marked correct: GROSS
    (data: rule=Nomen-Signal "BEIM" → Großschreibung)
-     verdict: 
+     verdict: ok
 
 [40]  prompt: Groß oder klein? BEIM [fernhalten]
    options: GROSS | klein
    marked correct: GROSS
    (data: rule=Nomen-Signal "BEIM" → Großschreibung)
-     verdict: 
+     verdict: ok
 
 ══ homophone_drill ════════════════════════════════════════
 
@@ -251,85 +260,85 @@
    options: no | know
    marked correct: no
    (data: group=know/no)
-     verdict: 
+     verdict: ok
 
 [42]  prompt: The store has a ___.
    options: sail | sale
    marked correct: sale
    (data: group=sail/sale)
-     verdict: 
+     verdict: ok
 
 [43]  prompt: The sign clearly says ___ dogs.
    options: no | know
    marked correct: no
    (data: group=know/no)
-     verdict: 
+     verdict: ok
 
 [44]  prompt: The company is having a huge ___.
    options: sail | sale
    marked correct: sale
    (data: group=sail/sale)
-     verdict: 
+     verdict: ok
 
 [45]  prompt: The doctor said ___ to eating sweets.
    options: no | know
    marked correct: no
    (data: group=know/no)
-     verdict: 
+     verdict: ok
 
 ══ hypernym_flash ════════════════════════════════════════
 
 [46]  prompt: table
    options: emblem | vessel | array | cause
    marked correct: array
-     verdict: 
+     verdict: appropriate — "array" is the spreadsheet sense of table, not the furniture a child means
 
 [47]  prompt: wardrobe
    options: young mammal | conflict | view | furniture
    marked correct: furniture
-     verdict: 
+     verdict: ok
 
 [48]  prompt: cartographer
    options: sulfur | structure | offer | geographer
    marked correct: geographer
-     verdict: 
+     verdict: ok
 
 [49]  prompt: Computer
    options: lösen | verlieren | Gerät | Haustier
    marked correct: Gerät
-     verdict: 
+     verdict: ok
 
 [50]  prompt: Hilfe
    options: Wohnung | Steuer | Unterstützung | Getränk
    marked correct: Unterstützung
-     verdict: 
+     verdict: ok
 
 ══ phrasal_verb_match ════════════════════════════════════════
 
 [51]  prompt: What does "stop by" mean?
    options: visit someone for a short time | wash something onto the shore | try to find something | to include someone in a game or activity
    marked correct: visit someone for a short time
-     verdict: 
+     verdict: ok
 
 [52]  prompt: What does "lie by" mean?
    options: to waste time doing nothing important | cut something off with a saw | hang up the phone | be intimate with someone
    marked correct: be intimate with someone
-     verdict: 
+     verdict: appropriate — "lie by" glossed "be intimate with someone"
 
 [53]  prompt: What does "stop by" mean?
    options: visit someone for a short time | wash something onto the shore | try to find something | to include someone in a game or activity
    marked correct: visit someone for a short time
-     verdict: 
+     verdict: ok
 
 [54]  prompt: What does "lie by" mean?
    options: to waste time doing nothing important | cut something off with a saw | hang up the phone | be intimate with someone
    marked correct: be intimate with someone
-     verdict: 
+     verdict: appropriate — "lie by" glossed "be intimate with someone"
 
 [55]  prompt: What does "stop by" mean?
    options: visit someone for a short time | wash something onto the shore | try to find something | to include someone in a game or activity
    marked correct: visit someone for a short time
-     verdict: 
+     verdict: ok
 
 ══ phrasal_verb_power ════════════════════════════════════════
 
@@ -337,31 +346,31 @@
    options: up | by | out | off
    marked correct: by
    (data: phrasal=stop by, means=visit someone for a short time)
-     verdict: 
+     verdict: ok
 
 [57]  prompt: They lie ___ each other.
    options: by | down | in | back
    marked correct: by
    (data: phrasal=lie by, means=be intimate with someone)
-     verdict: 
+     verdict: appropriate — same gloss, now in a sentence a child completes
 
 [58]  prompt: My friend stops ___ my house daily.
    options: up | by | out | off
    marked correct: by
    (data: phrasal=stop by, means=visit someone for a short time)
-     verdict: 
+     verdict: ok
 
 [59]  prompt: Some people lie ___ others.
    options: by | down | in | back
    marked correct: by
    (data: phrasal=lie by, means=be intimate with someone)
-     verdict: 
+     verdict: appropriate — same gloss, and "Some people lie by others" barely parses
 
 [60]  prompt: Before the party, I will stop ___ the store to buy snacks.
    options: up | by | out | off
    marked correct: by
    (data: phrasal=stop by, means=visit someone for a short time)
-     verdict: 
+     verdict: ok
 
 ══ proverb_cloze ════════════════════════════════════════
 
@@ -369,85 +378,85 @@
    options: Abend | Schule | Sport | Beispiel
    marked correct: Abend
    (data: word=Abend)
-     verdict: 
+     verdict: ok
 
 [62]  prompt: Es ___ noch Zeichen und Wunder
    options: gewinnen | geschehen | werden | fressen
    marked correct: geschehen
    (data: word=geschehen)
-     verdict: 
+     verdict: ok
 
 [63]  prompt: Die Gelegenheit ist ___
    options: schönste | grüne | gesunde | günstig
    marked correct: günstig
    (data: word=günstig)
-     verdict: 
+     verdict: ok
 
 [64]  prompt: die Feste ___, wie sie fallen
    options: geschlossen | verschieben | gewinnt | feiern
    marked correct: feiern
    (data: word=feiern)
-     verdict: 
+     verdict: ok
 
 [65]  prompt: die ___ schläft nicht
    options: Gewissen | Friede | Konkurrenz | Hoffnung
    marked correct: Konkurrenz
    (data: word=Konkurrenz)
-     verdict: 
+     verdict: ok
 
 ══ reverse_translation_flash ════════════════════════════════════════
 
 [66]  prompt: mouse
    options: Maus | Nachmittag | fehlen | Chor
    marked correct: Maus
-     verdict: 
+     verdict: ok
 
 [67]  prompt: bad
    options: schlimm | Maus | fahren | durch
    marked correct: schlimm
-     verdict: 
+     verdict: ok
 
 [68]  prompt: belong
    options: gehören | Schalter | kennenlernen | wiederholen
    marked correct: gehören
-     verdict: 
+     verdict: ok
 
 [69]  prompt: colleague
    options: vierzig | bitter | Erwachsene | Kollege
    marked correct: Kollege
-     verdict: 
+     verdict: ok
 
 [70]  prompt: fuse
    options: Zünder | Spezialistin | Koch | Flur
    marked correct: Zünder
-     verdict: 
+     verdict: ok
 
 ══ sentence_completion ════════════════════════════════════════
 
 [71]  prompt: The ___ is very strong.
    options: catch | link | love | smile
    marked correct: link
-     verdict: 
+     verdict: keyed — "The love is very strong" fits the gap as well as "link" does
 
 [72]  prompt: ___ is a mineral.
    options: greenhouse | jade | conscience | devotion
    marked correct: jade
-     verdict: 
+     verdict: ok
 
 [73]  prompt: The ___ civilization was ancient.
    options: rabbinical | reformist | carthaginian | aggrieved
    marked correct: carthaginian
-     verdict: 
+     verdict: ok
 
 [74]  prompt: ___ spielen wir Fußball.
    options: endlich | heute | doch | also
    marked correct: heute
-     verdict: 
+     verdict: keyed — endlich, doch and also all fit "___ spielen wir Fußball"
 
 [75]  prompt: Der ___ ist die schönste Zeit des Tages.
    options: Formular | Anzeige | Feierabend | Heimat
    marked correct: Feierabend
-     verdict: 
+     verdict: ok
 
 ══ spelling_spotter ════════════════════════════════════════
 
@@ -455,30 +464,30 @@
    options: chese | chosse | choose | choosen
    marked correct: choose
    (data: shown after answering=It is for you to choose.)
-     verdict: 
+     verdict: ok
 
 [77]  prompt: Which spelling is correct?
    options: appetite | appaite | appatites | appetiat
    marked correct: appetite
    (data: shown after answering=Joe had a healthy appetite.)
-     verdict: 
+     verdict: ok
 
 [78]  prompt: Which spelling is correct?
    options: symmetrically | symmetricaly | symetrically
    marked correct: symmetrically
-     verdict: 
+     verdict: ok
 
 [79]  prompt: Which spelling is correct?
    options: kabelt | krabeld | krabbeln | krabeln
    marked correct: krabbeln
    (data: shown after answering="Was wollen Sie," schrie Zinnober, "was wollen Sie von mir, was krabbeln Sie mir herum auf meinem Kopfe!)
-     verdict: 
+     verdict: ok
 
 [80]  prompt: Which spelling is correct?
    options: spete | speler | Stelle
    marked correct: Stelle
    (data: shown after answering=Stelle es dahin.)
-     verdict: 
+     verdict: ok
 
 ══ sri_review ════════════════════════════════════════
 
@@ -487,33 +496,33 @@
    options: lits | list
    marked correct: list
    (data: type=spelling)
-     verdict: 
+     verdict: appropriate — the archaic sense of "list" again
 
 [82]  prompt: "A position at the side of one's bed."
    options: environmentalist | bedside | dishwasher | chariot
    marked correct: bedside
    (data: type=definition)
-     verdict: 
+     verdict: ok
 
 [83]  prompt: "Having a diet which is neither exclusively carnivorous nor exclusively herbivorous."
    options: unsurprised | mithraic | pseudonymous | omnivorous
    marked correct: omnivorous
    (data: type=definition)
-     verdict: 
+     verdict: ok
 
 [84]  prompt: Richtige Schreibweise für:
 "Muttertier des Hausrinds"
    options: kuch | Kuh
    marked correct: Kuh
    (data: type=spelling)
-     verdict: 
+     verdict: ok
 
 [85]  prompt: Welcher Artikel passt?
 "___ Bahn"
    options: die | der | das
    marked correct: die
    (data: type=article)
-     verdict: 
+     verdict: ok
 
 ══ syllable_count ════════════════════════════════════════
 
@@ -521,31 +530,31 @@
    options: 1 | 2 | 3 | 4+
    marked correct: 2
    (data: hyphenation=cof-fee)
-     verdict: 
+     verdict: ok
 
 [87]  prompt: jogging
    options: 1 | 2 | 3 | 4+
    marked correct: 2
    (data: hyphenation=jog-ging)
-     verdict: 
+     verdict: ok
 
 [88]  prompt: hydrophobic
    options: 1 | 2 | 3 | 4+
    marked correct: 4+
    (data: hyphenation=hy-dro-pho-bic)
-     verdict: 
+     verdict: ok
 
 [89]  prompt: zurück
    options: 1 | 2 | 3 | 4+
    marked correct: 2
    (data: hyphenation=zu-rück)
-     verdict: 
+     verdict: ok
 
 [90]  prompt: Wiederhören
    options: 1 | 2 | 3 | 4+
    marked correct: 4+
    (data: hyphenation=Wie-der-hö-ren)
-     verdict: 
+     verdict: ok
 
 ══ synonym_flash ════════════════════════════════════════
 
@@ -553,58 +562,58 @@
    options: believe | bury | tell | hear
    marked correct: bury
    (data: grade=2)
-     verdict: 
+     verdict: keyed — "bury" is the bury-the-hatchet sense; not a synonym of forget for a seven-year-old
 
 [92]  prompt: diaper
    options: napkin | fuss | grill | forehead
    marked correct: napkin
    (data: grade=4)
-     verdict: 
+     verdict: ok
 
 [93]  prompt: exonerate
    options: clear | recuperate | unbalance | besiege
    marked correct: clear
    (data: grade=6)
-     verdict: 
+     verdict: ok
 
 [94]  prompt: spielen
    options: stehen | vermissen | sehen | tippen
    marked correct: tippen
    (data: grade=2)
-     verdict: 
+     verdict: keyed — "tippen" is to type or to bet, not to play
 
 [95]  prompt: Sofa
    options: Partnerin | Unterschrift | Couch | Hausmann
    marked correct: Couch
    (data: grade=4)
-     verdict: 
+     verdict: ok
 
 ══ translation_flash ════════════════════════════════════════
 
 [96]  prompt: die Maus
    options: mouse | choir | look | frighten
    marked correct: mouse
-     verdict: 
+     verdict: ok
 
 [97]  prompt: schlimm
    options: bad | rather | not | banana
    marked correct: bad
-     verdict: 
+     verdict: ok
 
 [98]  prompt: gehören
    options: belong | congratulate | quarter | deliver
    marked correct: belong
-     verdict: 
+     verdict: ok
 
 [99]  prompt: der Kollege
    options: belong | cigarette | European | colleague
    marked correct: colleague
-     verdict: 
+     verdict: ok
 
 [100]  prompt: der Zünder
    options: fuse | corridor | stray | waitress
    marked correct: fuse
-     verdict: 
+     verdict: ok
 
 ══ verbtrenner ════════════════════════════════════════
 
@@ -614,7 +623,7 @@ Der Schneider passte den Anzug an.
    options: GETRENNT | ZUSAMMEN
    marked correct: GETRENNT
    (data: form=passte an)
-     verdict: 
+     verdict: ok
 
 [102]  prompt: Steht das Verb in diesem Satz getrennt oder zusammen?
 mit … nehmen
@@ -622,7 +631,7 @@ Kannst du meinen Bruder zum Bahnhof mitnehmen?
    options: GETRENNT | ZUSAMMEN
    marked correct: ZUSAMMEN
    (data: form=mitnehmen)
-     verdict: 
+     verdict: ok
 
 [103]  prompt: Steht das Verb in diesem Satz getrennt oder zusammen?
 mache … an
@@ -630,7 +639,7 @@ Du holst Steine, ich mache derweil schon den Mörtel an.
    options: GETRENNT | ZUSAMMEN
    marked correct: GETRENNT
    (data: form=mache an)
-     verdict: 
+     verdict: ok
 
 [104]  prompt: Steht das Verb in diesem Satz getrennt oder zusammen?
 ab … holen
@@ -638,7 +647,7 @@ Ich muss noch ein Paket von der Post abholen.
    options: GETRENNT | ZUSAMMEN
    marked correct: ZUSAMMEN
    (data: form=abholen)
-     verdict: 
+     verdict: ok
 
 [105]  prompt: Steht das Verb in diesem Satz getrennt oder zusammen?
 zu … bereiten
@@ -646,250 +655,250 @@ Würdest Du noch das Essen zubereiten?
    options: GETRENNT | ZUSAMMEN
    marked correct: ZUSAMMEN
    (data: form=zubereiten)
-     verdict: 
+     verdict: ok
 
 ══ word_builder ════════════════════════════════════════
 
 [106]  prompt: Build "giraffe" from its letters
    marked correct: giraffe
    (data: grade=2, gloss=A ruminant, of the genus Giraffa, of the African savannah with long legs and highly elongated neck, making them the tallest living animal; yellow fur patterned with dark spots, often in the form of a network; and two or more short, skin-covered horns, so-called; strictly speaking the horn-like projections are ossicones.)
-     verdict: 
+     verdict: appropriate — the gloss says ruminant, genus Giraffa and ossicones, at grade 2
 
 [107]  prompt: Build "rainfall" from its letters
    marked correct: rainfall
    (data: grade=4, gloss=The amount of rain that falls on a single occasion)
-     verdict: 
+     verdict: ok
 
 [108]  prompt: Build "futhark" from its letters
    marked correct: futhark
    (data: grade=6, gloss=The Germanic runic alphabet; especially specifically the Elder or Younger futhark alphabet (of Scandinavia and the European mainland), as contrasted with the Anglo-Saxon futhorc.)
-     verdict: 
+     verdict: appropriate — futhark, the Germanic runic alphabet, is not year-6 vocabulary
 
 [109]  prompt: Build "passieren" from its letters
    marked correct: passieren
    (data: grade=2, gloss=etwas durchqueren, an etwas vorbeigehen oder -fahren, einen Ort überschreiten)
-     verdict: 
+     verdict: ok
 
 [110]  prompt: Build "Kasse" from its letters
    marked correct: Kasse
    (data: grade=4, gloss=ein abschließbarer Behälter zur Aufbewahrung von Geld (Geldscheine, Münzen))
-     verdict: 
+     verdict: ok
 
 ══ word_class_flash ════════════════════════════════════════
 
 [111]  prompt: answer
    options: Noun | Verb | Adjective
    marked correct: Noun
-     verdict: 
+     verdict: keyed — "answer" is as much a verb as a noun; a learner choosing Verb is not wrong
 
 [112]  prompt: destructive
    options: Noun | Verb | Adjective
    marked correct: Adjective
-     verdict: 
+     verdict: ok
 
 [113]  prompt: probabilistic
    options: Noun | Verb | Adjective
    marked correct: Adjective
-     verdict: 
+     verdict: ok
 
 [114]  prompt: das Kreuz
    options: Nomen | Verb | Adjektiv
    marked correct: Nomen
-     verdict: 
+     verdict: ok
 
 [115]  prompt: die Zigarette
    options: Nomen | Verb | Adjektiv
    marked correct: Nomen
-     verdict: 
+     verdict: ok
 
 ══ word_find ════════════════════════════════════════
 
 [116]  prompt: Find "giraffe" in the grid
    marked correct: giraffe
    (data: grade=2, gloss=A ruminant, of the genus Giraffa, of the African savannah with long legs and highly elongated neck, making them the tallest living animal; yellow fur patterned with dark spots, often in the form of a network; and two or more short, skin-covered horns, so-called; strictly speaking the horn-like projections are ossicones.)
-     verdict: 
+     verdict: appropriate — the giraffe gloss again
 
 [117]  prompt: Find "rainfall" in the grid
    marked correct: rainfall
    (data: grade=4, gloss=The amount of rain that falls on a single occasion)
-     verdict: 
+     verdict: ok
 
 [118]  prompt: Find "futhark" in the grid
    marked correct: futhark
    (data: grade=6, gloss=The Germanic runic alphabet; especially specifically the Elder or Younger futhark alphabet (of Scandinavia and the European mainland), as contrasted with the Anglo-Saxon futhorc.)
-     verdict: 
+     verdict: appropriate — futhark again
 
 [119]  prompt: Find "passieren" in the grid
    marked correct: passieren
    (data: grade=2, gloss=etwas durchqueren, an etwas vorbeigehen oder -fahren, einen Ort überschreiten)
-     verdict: 
+     verdict: ok
 
 [120]  prompt: Find "Kasse" in the grid
    marked correct: Kasse
    (data: grade=4, gloss=ein abschließbarer Behälter zur Aufbewahrung von Geld (Geldscheine, Münzen))
-     verdict: 
+     verdict: ok
 
 ══ word_memory ════════════════════════════════════════
 
 [121]  prompt: Match the pair for "giraffe"
    marked correct: giraffe
    (data: grade=2, partner=same word, other font)
-     verdict: 
+     verdict: ok
 
 [122]  prompt: Match the pair for "rainfall"
    marked correct: The amount of rain that falls on a single occasion
    (data: grade=4, partner=definition)
-     verdict: 
+     verdict: ok
 
 [123]  prompt: Match the pair for "futhark"
    marked correct: The Germanic runic alphabet; especially specifically…
    (data: grade=6, partner=definition)
-     verdict: 
+     verdict: appropriate — futhark, and the definition is the pair card
 
 [124]  prompt: Match the pair for "fahren"
    marked correct: fahren
    (data: grade=2, partner=same word, other font)
-     verdict: 
+     verdict: ok
 
 [125]  prompt: Match the pair for "Kasse"
    marked correct: ein abschließbarer Behälter zur Aufbewahrung von Gel…
    (data: grade=4, partner=definition)
-     verdict: 
+     verdict: ok
 
 ══ word_of_the_day ════════════════════════════════════════
 
 [126]  prompt: 2026-01-01: honest
    marked correct: Scrupulous with regard to telling the truth; not given to swindling, lying, or fraud; upright.
    (data: grade=3, cefr=B1)
-     verdict: 
+     verdict: appropriate — "scrupulous" and "swindling" to explain "honest", at grade 3
 
 [127]  prompt: 2026-01-02: chimney
    marked correct: A vertical tube or hollow column used to emit environmentally polluting gaseous and solid matter (including but not limited to by-products of burning carbon- or hydrocarbon-based fuels); a flue.
    (data: grade=4, cefr=B2)
-     verdict: 
+     verdict: appropriate — a chimney as a tube emitting environmentally polluting matter, at grade 4
 
 [128]  prompt: 2026-01-03: faq
    marked correct: A list of questions said to be frequently asked, and their answers.
    (data: grade=4, cefr=—)
-     verdict: 
+     verdict: ok
 
 [129]  prompt: 2026-01-04: die Kugel
    marked correct: Volumen, das von einem Rand umgeben wird, dessen Punkte alle den gleichen Abstand von einem Punkt (Mittelpunkt) besitzen
    (data: grade=3, cefr=—)
-     verdict: 
+     verdict: appropriate — the mathematical definition of a sphere, at grade 3
 
 [130]  prompt: 2026-01-05: formen
    marked correct: etwas eine Form oder Gestalt geben
    (data: grade=5, cefr=—)
-     verdict: 
+     verdict: ok
 
 ══ word_snake ════════════════════════════════════════
 
 [131]  prompt: Trace "giraffe"
    marked correct: giraffe
    (data: grade=2, gloss=A ruminant, of the genus Giraffa, of the African savannah with long legs and highly elongated neck, making them the tallest living animal; yellow fur patterned with dark spots, often in the form of a network; and two or more short, skin-covered horns, so-called; strictly speaking the horn-like projections are ossicones.)
-     verdict: 
+     verdict: appropriate — the giraffe gloss again
 
 [132]  prompt: Trace "rainfall"
    marked correct: rainfall
    (data: grade=4, gloss=The amount of rain that falls on a single occasion)
-     verdict: 
+     verdict: ok
 
 [133]  prompt: Trace "futhark"
    marked correct: futhark
    (data: grade=6, gloss=The Germanic runic alphabet; especially specifically the Elder or Younger futhark alphabet (of Scandinavia and the European mainland), as contrasted with the Anglo-Saxon futhorc.)
-     verdict: 
+     verdict: appropriate — futhark again
 
 [134]  prompt: Trace "passieren"
    marked correct: passieren
    (data: grade=2, gloss=etwas durchqueren, an etwas vorbeigehen oder -fahren, einen Ort überschreiten)
-     verdict: 
+     verdict: ok
 
 [135]  prompt: Trace "Kasse"
    marked correct: Kasse
    (data: grade=4, gloss=ein abschließbarer Behälter zur Aufbewahrung von Geld (Geldscheine, Münzen))
-     verdict: 
+     verdict: ok
 
 ══ word_sort ════════════════════════════════════════
 
 [136]  prompt: Sort "giraffe" into its word class
    marked correct: Nouns
    (data: grade=2, gloss=A ruminant, of the genus Giraffa, of the African savannah with long legs and highly elongated neck, making them the tallest living animal; yellow fur patterned with dark spots, often in the form of a network; and two or more short, skin-covered horns, so-called; strictly speaking the horn-like projections are ossicones.)
-     verdict: 
+     verdict: appropriate — the giraffe gloss again
 
 [137]  prompt: Sort "annoyed" into its word class
    marked correct: Verbs
    (data: grade=4)
-     verdict: 
+     verdict: keyed — "annoyed" is a participle used as an adjective; Verbs is at best contestable
 
 [138]  prompt: Sort "raucous" into its word class
    marked correct: Adjectives
    (data: grade=6, gloss=Harsh and rough-sounding.)
-     verdict: 
+     verdict: ok
 
 [139]  prompt: Sort "fahren" into its word class
    marked correct: Verb
    (data: grade=2, gloss=sich mit einem Fahrzeug zu Lande fortbewegen)
-     verdict: 
+     verdict: ok
 
 [140]  prompt: Sort "Wiedersehen" into its word class
    marked correct: Nomen
    (data: grade=4, gloss=erneutes Treffen von Personen)
-     verdict: 
+     verdict: ok
 
 ══ word_type_whirl ════════════════════════════════════════
 
 [141]  prompt: Catch "giraffe" in the right bin
    marked correct: Nouns
    (data: grade=2, gloss=A ruminant, of the genus Giraffa, of the African savannah with long legs and highly elongated neck, making them the tallest living animal; yellow fur patterned with dark spots, often in the form of a network; and two or more short, skin-covered horns, so-called; strictly speaking the horn-like projections are ossicones.)
-     verdict: 
+     verdict: appropriate — the giraffe gloss again
 
 [142]  prompt: Catch "annoyed" in the right bin
    marked correct: Verbs
    (data: grade=4)
-     verdict: 
+     verdict: keyed — "annoyed" again
 
 [143]  prompt: Catch "raucous" in the right bin
    marked correct: Adjectives
    (data: grade=6, gloss=Harsh and rough-sounding.)
-     verdict: 
+     verdict: ok
 
 [144]  prompt: Catch "fahren" in the right bin
    marked correct: Verb
    (data: grade=2, gloss=sich mit einem Fahrzeug zu Lande fortbewegen)
-     verdict: 
+     verdict: ok
 
 [145]  prompt: Catch "das Wiedersehen" in the right bin
    marked correct: Nomen
    (data: grade=4, gloss=erneutes Treffen von Personen)
-     verdict: 
+     verdict: ok
 
 ══ wortbaumeister ════════════════════════════════════════
 
 [146]  prompt: Build the compound: Abend + essen
    marked correct: Abendessen
    (data: context=Zum Abendessen gibt es heute einen besonders guten Wein.)
-     verdict: 
+     verdict: appropriate — the example sentence serves wine
 
 [147]  prompt: Build the compound: Alters + heim
    marked correct: Altersheim
    (data: context=Sonntags besuchen wir meist Uroma im Altersheim.)
-     verdict: 
+     verdict: ok
 
 [148]  prompt: Build the compound: Abend + essen
    marked correct: Abendessen
    (data: context=Zum Abendessen gibt es heute einen besonders guten Wein.)
-     verdict: 
+     verdict: appropriate — the wine sentence again
 
 [149]  prompt: Build the compound: Alters + heim
    marked correct: Altersheim
    (data: context=Sonntags besuchen wir meist Uroma im Altersheim.)
-     verdict: 
+     verdict: ok
 
 [150]  prompt: Build the compound: Abend + essen
    marked correct: Abendessen
    (data: context=Zum Abendessen gibt es heute einen besonders guten Wein.)
-     verdict: 
+     verdict: appropriate — the wine sentence again
 
 ══ wortfalle ════════════════════════════════════════
 
@@ -897,31 +906,31 @@ Würdest Du noch das Essen zubereiten?
    options: Rat | Rad
    marked correct: Rat
    (data: pair=Rad/Rat)
-     verdict: 
+     verdict: ok
 
 [152]  prompt: Sie kauft einen ___ frische Möhren.
    options: bunt | Bund
    marked correct: Bund
    (data: pair=bunt/Bund)
-     verdict: 
+     verdict: ok
 
 [153]  prompt: Gib mir bitte einen guten ___.
    options: Rat | Rad
    marked correct: Rat
    (data: pair=Rad/Rat)
-     verdict: 
+     verdict: ok
 
 [154]  prompt: Sie kauft einen ___ frische Möhren.
    options: bunt | Bund
    marked correct: Bund
    (data: pair=bunt/Bund)
-     verdict: 
+     verdict: ok
 
 [155]  prompt: Gib mir bitte einen guten ___.
    options: Rat | Rad
    marked correct: Rat
    (data: pair=Rad/Rat)
-     verdict: 
+     verdict: ok
 
 155 items. On the verdict line write ok, or the names of whatever is wrong:
 answerable / keyed / grammatical / appropriate — then why, after a dash.

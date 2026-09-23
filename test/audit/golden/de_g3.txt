@@ -488,7 +488,7 @@ Ich schlage vor, dass wir zuerst die Grundlagen besprechen.
 ── wortbaumeister (4)
   Build the compound: Abend + essen
     ✓ Abendessen
-    · context: Zum Abendessen gibt es heute einen besonders guten Wein.
+    · context: Während des Abendessens möchten wir nicht gestört werden.
   Build the compound: Abfall + eimer
     ✓ Abfalleimer
     · context: „Die Abfalleimer aus Aluminium standen überquellend von Müll auf der Straße neben den Treppen.“
