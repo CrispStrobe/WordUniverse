@@ -94,7 +94,11 @@ void main() {
           _pv(
             phrasal: 'take off',
             particle: 'off',
-            distractors: const ['off', 'up', 'down'], // 'off' dup must be dropped
+            distractors: const [
+              'off',
+              'up',
+              'down'
+            ], // 'off' dup must be dropped
             examples: const {
               '3': ['The plane will take off soon.']
             },
@@ -172,7 +176,8 @@ void main() {
   });
 
   group('buildPhrasalMatchChallenges', () {
-    PhrasalVerb m(String phrasal, String meaning, {String? base}) => PhrasalVerb(
+    PhrasalVerb m(String phrasal, String meaning, {String? base}) =>
+        PhrasalVerb(
           phrasal: phrasal,
           baseVerb: base ?? phrasal.split(' ').first,
           particle: phrasal.split(' ').last,
@@ -217,8 +222,7 @@ void main() {
     });
 
     test('distractor meanings are real meanings of other phrasal verbs', () {
-      final allMeanings =
-          sample.map((v) => v.meaning.toLowerCase()).toSet();
+      final allMeanings = sample.map((v) => v.meaning.toLowerCase()).toSet();
       final c = buildPhrasalMatchChallenges(
         verbs: sample,
         gradeLevel: 3,
@@ -241,9 +245,49 @@ void main() {
     test('returns empty when fewer than two usable verbs', () {
       expect(
         buildPhrasalMatchChallenges(
-            verbs: [m('give up', 'stop trying')], gradeLevel: 3, rng: Random(5)),
+            verbs: [m('give up', 'stop trying')],
+            gradeLevel: 3,
+            rng: Random(5)),
         isEmpty,
       );
+    });
+  });
+  group('what is not taught', () {
+    test('a phrasal verb glossed as sex is not offered', () {
+      // "lie by" really does mean "be intimate with someone" — an accurate
+      // archaic sense, so there is nothing a correction could fix. All 400
+      // entries were read; it is the only one that matters.
+      final verbs = [
+        PhrasalVerb(
+          phrasal: 'lie by',
+          baseVerb: 'lie',
+          particle: 'by',
+          meaning: 'be intimate with someone',
+          senses: const [],
+          distractors: const [],
+          examples: const {},
+          wiktionaryExamples: const [],
+          gradeBand: 4,
+          baseZipf: 5.0,
+        ),
+        PhrasalVerb(
+          phrasal: 'stop by',
+          baseVerb: 'stop',
+          particle: 'by',
+          meaning: 'visit someone for a short time',
+          senses: const [],
+          distractors: const [],
+          examples: const {},
+          wiktionaryExamples: const [],
+          gradeBand: 4,
+          baseZipf: 5.0,
+        ),
+      ];
+      final matches = buildPhrasalMatchChallenges(
+          verbs: verbs, gradeLevel: 4, rng: Random(1));
+      expect(matches.every((c) => c.phrasal != 'lie by'), isTrue);
+      expect(matches.expand((c) => c.options),
+          isNot(contains('be intimate with someone')));
     });
   });
 }

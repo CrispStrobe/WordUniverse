@@ -213,6 +213,26 @@ final RegExp _scriptureOrMyth = RegExp(
     r'|in the bible|biblical|legendary|mythical)\b',
     caseSensitive: false);
 
+/// Whether a phrasal verb is one to teach a child, judged by its meaning.
+///
+/// All 400 in the English pack were read. Two carry a meaning that is not for
+/// a primary classroom, and only one of them matters: "lie by" is glossed "be
+/// intimate with someone", which is a real archaic sense and therefore
+/// nothing a correction could fix — the entry is accurate and should not be
+/// taught. ("pass away — die or stop living" also matches and is kept: it is
+/// the gentle expression a child is most likely to meet.)
+///
+/// A rule rather than a named exclusion because the list is somebody else's
+/// and will grow. Deliberately narrow: "intimate" is barred in the phrasal
+/// glosses only, where it means one thing, and not in ordinary sentences,
+/// where an intimate friend is just a close one.
+bool phrasalMeaningSuitsAChild(String meaning) => !_adultAct.hasMatch(meaning);
+
+final RegExp _adultAct = RegExp(
+    r'\b(be intimate|intimacy|sexual\w*|sleep with|make love|seduc\w*'
+    r'|naked|aroused|fondle|molest\w*)\b',
+    caseSensitive: false);
+
 /// Whether a gloss is one a child can read, as opposed to one written for a
 /// naturalist.
 ///

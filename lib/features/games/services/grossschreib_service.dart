@@ -119,6 +119,22 @@ SentenceChallenge? challengeFromWord(
     final before = sentence.substring(0, wordIndex);
     final after = wordEnd < sentence.length ? sentence.substring(wordEnd) : '';
 
+    // The sentence is real German from the pack, and it is in front of the
+    // learner. If it spells the word the other way from what the rule is
+    // about to key, the rule does not govern this occurrence and teaching it
+    // here teaches that the sentence is wrong: "Der Europäische Gerichtshof
+    // spricht Recht für ganz Europa" was asked as an adjective and keyed
+    // klein, because Europäische is an adjective everywhere except in the
+    // name of a court. At the start of a sentence every word is capitalised
+    // whatever its class, which the game asks about separately.
+    if (!isAtStart) {
+      final writtenCapitalised = actualWordInSentence.isNotEmpty &&
+          actualWordInSentence[0].toUpperCase() == actualWordInSentence[0] &&
+          actualWordInSentence[0].toLowerCase() != actualWordInSentence[0];
+      final expectedCapitalised = correctCase == WordCase.capitalized;
+      if (writtenCapitalised != expectedCapitalised) continue;
+    }
+
     final challenge = SentenceChallenge(
       beforeWord: before,
       targetWord: actualWordInSentence,
