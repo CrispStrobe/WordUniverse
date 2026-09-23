@@ -69,6 +69,17 @@ const Set<String> _abstractEnglishVerbs = {
   'begin',
   'appear',
   'happen',
+  // The commonest hypernyms in the English pack, counted: move 875, change
+  // 515, go 316, alter 286, modify 265, travel 252. WordNet climbs to these
+  // from almost any verb, so they answer "is a kind of what?" for almost any
+  // verb, which is the same as answering it for none.
+  'alter',
+  'modify',
+  'travel',
+  'locomote',
+  'pass',
+  'displace',
+  'create',
 };
 
 /// WordNet's upper ontology. Every noun climbs to these, so they are true of
@@ -112,6 +123,16 @@ const Set<String> _wordNetAbstractions = {
   'part',
   'region',
   'location',
+  // "a discomfort is a kind of status" — both lanes of a two-model review
+  // agreed on that one. WordNet's person nodes belong here too: "actor",
+  // "doer" and "worker" mean *one who acts*, not a performer, which is how
+  // "a forerunner is a kind of actor" happened. A performer can still be
+  // reached through "performer".
+  'status',
+  'position',
+  'actor',
+  'doer',
+  'worker',
 };
 
 bool _isCleanHypernym(String w, bool isDE) {
