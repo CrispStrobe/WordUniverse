@@ -406,6 +406,88 @@ def agreement(path, samples):
             print(f'      {"passed" if ok else "FLAGGED"}  {lane}')
 
 
+def read_labels(sheet):
+    """A labelled sheet as {item key: set of fields a person called wrong}.
+
+    The sheet is written for reading, so the syntax is as close to nothing as
+    it can be: on each verdict line, `ok` or nothing means the item is fine,
+    and anything else is read for the field names. A reason after a dash is
+    for the next person, not for this parser.
+    """
+    sidecar = sheet.with_suffix(sheet.suffix + '.items.jsonl')
+    if not sidecar.exists():
+        sys.exit(f'{sidecar} is missing — it is written beside the sheet and '
+                 'says which item each number is')
+    items = [json.loads(line) for line in sidecar.read_text().splitlines()
+             if line.strip()]
+
+    labels = {}
+    current = None
+    for line in sheet.read_text().splitlines():
+        heading = re.match(r'\s*\[(\d+)\]', line)
+        if heading:
+            current = int(heading.group(1))
+            continue
+        verdict = re.match(r'\s*verdict:\s*(.*)$', line)
+        if verdict is None or current is None:
+            continue
+        said = verdict.group(1).split('—')[0].split(' - ')[0].strip().lower()
+        # An empty line is an item nobody got to, not an item somebody
+        # passed. Reading it as "fine" scored every lane against 53 items
+        # no one had looked at and called each of their flags a false
+        # alarm — which is precisely backwards.
+        if said and 1 <= current <= len(items):
+            labels[key_of(items[current - 1])] = set() if said == 'ok' else {
+                field for field in FIELDS if field in said
+            }
+        current = None
+    return labels
+
+
+def score(sheet, verdicts_path, samples):
+    """Each lane against what a person said, on the items they both saw."""
+    labels = read_labels(sheet)
+    marked = {k: v for k, v in labels.items()}
+    if not marked:
+        sys.exit('no verdict lines filled in on that sheet')
+
+    by_lane = defaultdict(dict)
+    for line in pathlib.Path(verdicts_path).read_text().splitlines():
+        if not line.strip():
+            continue
+        verdict = json.loads(line)
+        key = key_of(verdict['item'])
+        if key in marked:
+            by_lane[verdict.get('lane') or '(unrecorded)'][key] = verdict
+
+    truth_flags = sum(1 for fields in marked.values() if fields)
+    print(f'{len(marked)} items labelled by hand, {truth_flags} of them '
+          f'called wrong\n')
+    if not by_lane:
+        print('no verdicts cover those items yet')
+        return
+
+    print(f'{"lane":52} {"seen":>5} {"prec":>6} {"recall":>7}')
+    for lane, verdicts in sorted(by_lane.items()):
+        hit = false_alarm = missed = 0
+        for key, verdict in verdicts.items():
+            said = {f for f in FIELDS if not verdict.get(f, True)}
+            truth = marked[key]
+            if said and truth:
+                hit += 1
+            elif said and not truth:
+                false_alarm += 1
+            elif truth and not said:
+                missed += 1
+        precision = hit / (hit + false_alarm) if hit + false_alarm else None
+        recall = hit / (hit + missed) if hit + missed else None
+        fmt = lambda v: f'{100 * v:5.1f}%' if v is not None else '     —'
+        print(f'  {lane:50} {len(verdicts):5d} {fmt(precision)} {fmt(recall)}')
+    print('\nprecision: of what the lane flagged, how much a person agreed '
+          'was wrong.\nrecall: of what a person called wrong, how much the '
+          'lane caught.')
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('items', type=pathlib.Path,
@@ -431,6 +513,11 @@ def main():
     parser.add_argument('--out', type=pathlib.Path)
     parser.add_argument('--report', type=pathlib.Path,
                         help='summarise an existing verdict file and stop')
+    parser.add_argument('--score', type=pathlib.Path, metavar='SHEET',
+                        help='a sheet somebody has filled in; scores each '
+                             'lane in --against on the items it covers')
+    parser.add_argument('--against', type=pathlib.Path, metavar='VERDICTS',
+                        help='the verdict file to score against --score')
     parser.add_argument('--agreement', type=pathlib.Path,
                         help='compare the lanes in an existing verdict file: '
                              'what each judged, what they agreed on, and the '
@@ -455,6 +542,12 @@ def main():
 
     if args.agreement:
         agreement(args.agreement, args.samples)
+        return 0
+
+    if args.score:
+        if not args.against:
+            sys.exit('--score needs --against <verdicts.jsonl>')
+        score(args.score, args.against, args.samples)
         return 0
 
     items = []
@@ -488,22 +581,33 @@ def main():
             by_game[item.get('game')].append(item)
         written = 0
         lines = []
+        order = []
         for game in sorted(by_game):
             chosen = by_game[game]
             step = max(1, len(chosen) // args.sheet)
             lines.append(f'\n══ {game} ' + '═' * 40)
+            picked = []
             for item in chosen[::step][:args.sheet]:
                 written += 1
+                picked.append(item)
                 lines.append(f'\n[{written}]  ' + render(item, written)
                              .split('\n', 1)[1].strip())
                 lines.append('     verdict: ')
-        lines.append(f'\n{written} items. Mark a verdict on anything wrong: '
-                     'not answerable / wrongly keyed / bad grammar /\n'
-                     'not for a child — and say why in a few words.')
+            order.extend(picked)
+        lines.append(f'\n{written} items. On the verdict line write ok, or '
+                     'the names of whatever is wrong:\n'
+                     f'{" / ".join(FIELDS)} — then why, after a dash.')
         text = '\n'.join(lines)
         if args.out:
             args.out.write_text(text)
+            # The sheet shows the item; this says exactly which item it was,
+            # in the same order, so what a person writes can be scored
+            # against what the models said rather than only read.
+            sidecar = args.out.with_suffix(args.out.suffix + '.items.jsonl')
+            sidecar.write_text(''.join(
+                json.dumps(item, ensure_ascii=False) + '\n' for item in order))
             print(f'wrote {written} items to {args.out}')
+            print(f'       and their identities to {sidecar}')
         else:
             print(text)
         return 0

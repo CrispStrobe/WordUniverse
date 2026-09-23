@@ -198,11 +198,51 @@ spreads the work over lanes — a lane being one key on one model — and sends
 each batch to whichever lane comes free first:
 
 ```sh
-python3 tools/audit/review.py items.jsonl \
+python3 tools/audit/review.py items.jsonl --replicas 2 \
+  --lane "https://openrouter.ai/api/v1|OR_KEY|nvidia/nemotron-3-ultra-550b-a55b:free" \
   --lane "https://api.groq.com/openai/v1|GROQ_KEY|openai/gpt-oss-120b" \
-  --lane "https://openrouter.ai/api/v1|OR_KEY|z-ai/glm-5.2:free" \
-  --lane "https://openrouter.ai/api/v1|OR_KEY|qwen/qwen3.8-27b:free"
+  --lane "https://openrouter.ai/api/v1|OR_KEY|z-ai/glm-5.2:free"
 ```
+
+Which lanes are worth opening, measured over a 120-item run rather than
+guessed. Nemotron judged all 120 and gpt-oss-120b 104, so those two carry a
+run between them. `z-ai/glm-5.2:free` finished 16: it spends most of a run
+rate-limited, which makes it a third opinion rather than a workhorse.
+`thinkingmachines/inkling:free` answered 403 to every request across four
+rounds and has never judged a single item — it is not in the list above, and
+that is deliberate.
+
+Their flag rates — 13.3% and 16.3% — are too close to say which is the better
+judge. Answering that needs a set of items somebody has labelled by hand to
+score them against, and until that exists no claim about one model being
+better than another is coming from evidence.
+
+### Two opinions, not one
+
+`--replicas 2` sends each batch to two *different* lanes. A lane that has
+already answered is excluded from the second draw, so the same model is never
+asked twice and its own echo counted as agreement; asked for two opinions
+where only one lane exists, it returns the one it has.
+
+`--agreement <verdicts.jsonl>` then reports what that bought. Over 120 items
+judged twice:
+
+| | |
+|---|---:|
+| both lanes passed | 80.3% |
+| only one lane flagged — the pile worth reading | 12.0% |
+| both flagged something | 7.7% |
+| both flagged the same field — act on these | 6.0% |
+
+Agreement halves the actionable set, from a single lane's one item in seven to
+one in sixteen, and the part needing a person's eye becomes fourteen items
+rather than all of them. That matches what triage kept finding by hand: about
+half of a single model's flags were the model's own error. The lanes agree on
+95.7% of individual judgements, so disagreement is rare enough to read.
+
+One caution worth stating: two models agreeing is still a flag, not a defect.
+Every fix this file describes came from a model *finding* something and a
+measured rule fixing it. Agreement is a better filter, not an authority.
 
 A 429 parks its lane for the time the provider asks for (`Retry-After`) or an
 exponential backoff; a refusal — a gated model, a wrong name, no credit —
@@ -217,10 +257,32 @@ for this: judging whether *du sprichst* is right takes a model that knows
 German well. Run it where a capable one is, on the JSONL — that is the whole
 reason the dump speaks JSON.
 
+### Scoring the judges
+
 `--sheet N` writes the same items as a numbered sheet for a person instead,
 N per game, spread across the file rather than taken from the front. An hour
 of a teacher's time on what the machine flagged is worth more than a day of
 unguided reading.
+
+Beside the sheet it writes `<sheet>.items.jsonl`, which says which item each
+number is. That is what turns a read sheet into a measurement: on the verdict
+line write `ok`, or the names of whatever is wrong — `answerable`, `keyed`,
+`grammatical`, `appropriate` — and a reason after a dash for the next person.
+A line left blank means nobody got to that item, which is not the same as
+passing it and is not counted.
+
+```sh
+python3 tools/audit/review.py items.jsonl --sheet 3 --out sheet.txt
+# ... somebody fills in the verdict lines ...
+python3 tools/audit/review.py x --score sheet.txt --against verdicts.jsonl
+```
+
+That prints, per lane, precision — of what it flagged, how much a person
+agreed was wrong — and recall — of what a person called wrong, how much it
+caught. Until a sheet exists with enough items on it, no claim that one model
+judges better than another is coming from evidence, however plausible it
+sounds. Two lanes' flag rates being 13.3% and 16.3% says nothing about which
+is right more often.
 
 `tools/audit/review_test.py` checks the plumbing against a stub endpoint: that
 a flag survives the round trip with its reason, that a model answering about

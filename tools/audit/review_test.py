@@ -170,6 +170,28 @@ class ReviewTest(unittest.TestCase):
         rows = review.judge_repeatedly(pool, ITEMS, 0.0, replicas=2)
         self.assertEqual(len(rows), 2)
 
+    def test_a_blank_verdict_line_is_unlabelled_not_approved(self):
+        # The difference matters more than it looks: read as "a person said
+        # this is fine", every item nobody got to counts each lane's flag on
+        # it as a false alarm, and precision comes out at a third of what it
+        # is.
+        with tempfile.TemporaryDirectory() as tmp:
+            sheet = pathlib.Path(tmp) / 'sheet.txt'
+            sheet.write_text(
+                '[1]  prompt: a\n     verdict: \n'
+                '[2]  prompt: b\n     verdict: ok\n'
+                '[3]  prompt: c\n     verdict: keyed — wrong answer\n')
+            items = [{'game': 'g', 'prompt': p, 'answer': p}
+                     for p in ('a', 'b', 'c')]
+            sheet.with_suffix('.txt.items.jsonl').write_text(
+                ''.join(json.dumps(i) + '\n' for i in items))
+
+            labels = review.read_labels(sheet)
+            self.assertEqual(len(labels), 2, 'the blank one is not a label')
+            self.assertNotIn(review.key_of(items[0]), labels)
+            self.assertEqual(labels[review.key_of(items[1])], set())
+            self.assertEqual(labels[review.key_of(items[2])], {'keyed'})
+
     def test_json_in_a_fence_is_still_json(self):
         fenced = '```json\n{"verdicts": [{"n": 1, "keyed": false}]}\n```'
         self.assertEqual(review.parse_verdicts(fenced),
