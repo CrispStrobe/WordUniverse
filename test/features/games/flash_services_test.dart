@@ -157,6 +157,29 @@ void main() {
     });
   });
 
+  group('learnerDefinitions', () {
+    test('a gloss written for a naturalist leaves no hint at all', () {
+      final giraffe = _noun('giraffe', definitions: [
+        'A ruminant, of the genus Giraffa, of the African savannah with long '
+            'legs and highly elongated neck; strictly speaking the horn-like '
+            'projections are ossicones.',
+        'A tall person.',
+      ]);
+      // Not "A tall person": a later definition is a different sense, not a
+      // plainer wording of the same one.
+      expect(giraffe.learnerDefinitions, isEmpty);
+    });
+
+    test('a readable leading gloss keeps its own sense first', () {
+      final rain = _noun('rainfall', definitions: [
+        'The amount of rain that falls on a single occasion',
+        'A downpour.',
+      ]);
+      expect(rain.learnerDefinitions.first,
+          'The amount of rain that falls on a single occasion');
+    });
+  });
+
   group('Hypernym Flash', () {
     Map<String, GermanWord> catalogue(List<GermanWord> words) =>
         {for (final w in words) w.word.toLowerCase(): w};

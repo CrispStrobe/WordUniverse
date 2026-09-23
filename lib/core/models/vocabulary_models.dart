@@ -638,12 +638,25 @@ class GermanWord {
   List<String> get displayDefinitions =>
       isHeadword ? (apiEnrichment?.definitions ?? const []) : const [];
 
-  /// [displayDefinitions] minus the ones written for a naturalist rather
-  /// than for a learner. Empty is a real answer: a word whose only gloss is
-  /// "A ruminant, of the genus Giraffa …" has no hint to show, and showing
-  /// none is better than showing that.
-  List<String> get learnerDefinitions =>
-      displayDefinitions.where(glossSuitsAChild).toList();
+  /// [displayDefinitions] when the leading one is a gloss a learner can
+  /// read, and empty when it is not.
+  ///
+  /// Empty is a real answer: a word whose leading gloss is "A ruminant, of
+  /// the genus Giraffa …" has no hint to show, and showing none is better
+  /// than showing that.
+  ///
+  /// Deliberately not "the first gloss that passes". Filtering the list that
+  /// way promotes a *different sense* into first place, which is worse than
+  /// the problem: the word of the day explained a helicopter as "A powered
+  /// troweling machine with spinning blades used to spread concrete",
+  /// because its aircraft sense runs to 234 characters and the troweling
+  /// machine is next in the list. It did that to 506 entries — car, data,
+  /// fly, go — before anybody read one.
+  List<String> get learnerDefinitions {
+    final all = displayDefinitions;
+    if (all.isEmpty || !glossSuitsAChild(all.first)) return const [];
+    return all.where(glossSuitsAChild).toList();
+  }
 
   // Consolidated V24 Fields
   final List<ApiExample> examples;
