@@ -179,6 +179,40 @@ bool namesSomething(GermanWord word) {
   return definition != null && describesAName(definition);
 }
 
+/// Whether a WordNet sense is about a name rather than about the word.
+///
+/// Three signals, each measured against the English pack's 32,534 senses.
+///
+/// Its own gloss says so — [describesAName] already reads those. Its
+/// synonyms are capitalised while the headword is not, which is 4.1% of
+/// senses and catches both "frost" carrying Robert Frost and "add" carrying
+/// ADHD, "a kind of syndrome". Or it is scripture or myth: seventeen senses,
+/// exactly the ones that made "job" a hero, "john" a Gospel and "james" an
+/// Apostle.
+///
+/// The name sense is often the *first* one WordNet lists, so skipping it is
+/// what stands between a child and "a frost is a kind of poet".
+bool senseNamesSomething(WordNetSense sense,
+    {required bool promptIsLowercase}) {
+  final definition = sense.definition;
+  if (definition != null) {
+    if (describesAName(definition)) return true;
+    if (_scriptureOrMyth.hasMatch(definition)) return true;
+  }
+  return promptIsLowercase && sense.synonyms.any(_startsCapitalised);
+}
+
+bool _startsCapitalised(String word) {
+  if (word.isEmpty) return false;
+  final first = word[0];
+  return first != first.toLowerCase() && first == first.toUpperCase();
+}
+
+final RegExp _scriptureOrMyth = RegExp(
+    r'\b(in the (old|new) testament|in (greek|roman|norse|egyptian) mythology'
+    r'|in the bible|biblical|legendary|mythical)\b',
+    caseSensitive: false);
+
 /// Whether a gloss describes a grammatical form rather than a meaning.
 ///
 /// The packs carry inflected and derived entries whose "definition" is a
@@ -471,5 +505,21 @@ final RegExp _unsuitableWords = RegExp(
     // "der Holocaust" as the answer and three ordinary nouns beside it. These
     // are already barred from the example sentences; a multiple-choice prompt
     // is no better a place for them.
-    r'Holocaust|Holokaust|holocaust|Völkermord|Genozid|genocide)$',
+    r'Holocaust|Holokaust|holocaust|Völkermord|Genozid|genocide|'
+    // Plain profanity. The list above grew from a model finding "sexual"
+    // offered as a word to trace and to build from letters; this half grew
+    // from sense-linked hypernyms reaching "fuck" at English grade 2 and
+    // answering "a kind of pair". Twenty-four such entries are in the English
+    // catalogue and nineteen of them are attested by nothing at all — they
+    // carry `source:hermit` and no word list, which is how they arrived.
+    // Words that earn their place stay: "prick" is on the curriculum list and
+    // means to pierce, "hell" and "damn" are CEFR-J and ordinary enough.
+    // Not "dick": it is German for thick, a grade-3 adjective, and this list
+    // is matched case-insensitively against both packs. The golden sample
+    // caught it. The English noun of the same spelling stays in the
+    // catalogue as a result — unattested, and the price of not breaking a
+    // word a seven-year-old is taught.
+    r'fuck\w*|cunt|cock|asshole|arsehole|arse|bollocks|bugger|'
+    r'faggot|nigger|slut|whore|twat|wank\w*|shit\w*|turd|crap|crappy|'
+    r'bitch|bastard)$',
     caseSensitive: false);

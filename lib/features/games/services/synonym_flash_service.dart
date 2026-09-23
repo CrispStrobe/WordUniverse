@@ -5,6 +5,7 @@
 
 import 'dart:math';
 
+import '../../../core/models/skill_category.dart';
 import '../../../core/models/vocabulary_models.dart';
 import '../../../core/models/vocabulary_quality.dart';
 import '../../../core/models/word_features.dart';
@@ -37,7 +38,13 @@ SynonymChallenge? buildSynonymChallenge({
   Random? rng,
 }) {
   final random = rng ?? Random();
-  final synonyms = word.apiEnrichment?.synonyms ?? const [];
+  // Where the pack says which sense a synonym belongs to, use that sense and
+  // nothing else: "charge" is an attack, not a point, and "world" is the
+  // cosmos, not a man. Pooling every sense together is what put those
+  // answers on the card. German carries no senses, and nor do a third of the
+  // English entries, so the tiers below still do the work for them.
+  final sensed = _synonymsOfItsOwnSense(word);
+  final synonyms = sensed ?? word.apiEnrichment?.synonyms ?? const [];
   if (synonyms.isEmpty) return null;
   // "atlantic" glossed as an ocean is a name, not vocabulary.
   if (namesSomething(word)) return null;
@@ -180,6 +187,36 @@ bool sharesAWrittenPart(String a, String b) {
   if (first.length == 1 && second.length == 1) return false;
   return first.toSet().intersection(second.toSet()).isNotEmpty;
 }
+
+/// The synonyms of the word's own leading sense, or null when it has none.
+///
+/// The first sense of its part of speech whose definition is not a name's.
+/// A sense listing no synonyms is skipped rather than ending the search: a
+/// word whose leading sense happens to have none is not a word without
+/// synonyms.
+List<String>? _synonymsOfItsOwnSense(GermanWord word) {
+  final senses = word.apiEnrichment?.wordnetSenses ?? const <WordNetSense>[];
+  if (senses.isEmpty) return null;
+  for (final sense in senses) {
+    if (!_posMatches(sense.pos, word.wordType)) continue;
+    if (senseNamesSomething(sense,
+        promptIsLowercase: word.word == word.word.toLowerCase())) {
+      continue;
+    }
+    if (sense.synonyms.isNotEmpty) return sense.synonyms;
+  }
+  return null;
+}
+
+/// Whether a WordNet part of speech is the one the catalogue filed the word
+/// under. WordNet writes English names; the catalogue writes German ones.
+bool _posMatches(String? pos, GermanWordType type) => switch (pos) {
+      'noun' => type == GermanWordType.substantiv,
+      'verb' => type == GermanWordType.verb,
+      'adjective' || 'adjective satellite' => type == GermanWordType.adjektiv,
+      'adverb' => type == GermanWordType.adverb,
+      _ => false,
+    };
 
 /// Whether a listed synonym is usable as a one-word answer. Letters (any
 /// script, so German diacritics pass), hyphen and apostrophe only.

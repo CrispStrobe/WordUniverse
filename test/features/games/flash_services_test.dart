@@ -329,6 +329,73 @@ void main() {
           'Sportgerät');
     });
 
+    test('a sense-linked pack answers from the right sense', () {
+      // The pooled list puts "competition" beside "poultry" with no note of
+      // which sense either belongs to; the sense says.
+      final chicken = testWord('chicken',
+          type: GermanWordType.substantiv,
+          enrichment: testEnrichment(
+            hypernyms: [term('competition'), term('poultry')],
+            wordnetSenses: const [
+              WordNetSense(
+                  pos: 'noun',
+                  definition: 'the flesh of a chicken used for food',
+                  hypernyms: ['poultry']),
+            ],
+          ));
+      expect(
+          pickHypernym(chicken,
+              isGerman: false, catalogue: catalogue([chicken])),
+          'poultry');
+    });
+
+    test('a name sense is skipped even when WordNet lists it first', () {
+      // "frost" leads with Robert Frost, which is where "a frost is a kind
+      // of poet" came from. Its synonyms are capitalised and the headword is
+      // not, which is the tell.
+      final frost = testWord('frost',
+          type: GermanWordType.substantiv,
+          enrichment: testEnrichment(
+            wordnetSenses: const [
+              WordNetSense(
+                  pos: 'noun',
+                  definition: 'United States poet famous for his lyrical '
+                      'poems on country life',
+                  synonyms: ['Robert Frost', 'Robert Lee Frost'],
+                  hypernyms: ['poet']),
+              WordNetSense(
+                  pos: 'noun',
+                  definition: 'ice crystals forming a white deposit',
+                  synonyms: ['hoar', 'rime'],
+                  hypernyms: ['ice', 'water ice']),
+            ],
+          ));
+      expect(
+          pickHypernym(frost, isGerman: false, catalogue: catalogue([frost])),
+          'ice');
+    });
+
+    test('a sense of the wrong word class is not the word\'s sense', () {
+      final chicken = testWord('chicken',
+          type: GermanWordType.substantiv,
+          enrichment: testEnrichment(
+            wordnetSenses: const [
+              WordNetSense(
+                  pos: 'adjective',
+                  definition: 'easily frightened',
+                  hypernyms: ['cowardly']),
+              WordNetSense(
+                  pos: 'noun',
+                  definition: 'a domestic fowl bred for flesh',
+                  hypernyms: ['poultry']),
+            ],
+          ));
+      expect(
+          pickHypernym(chicken,
+              isGerman: false, catalogue: catalogue([chicken])),
+          'poultry');
+    });
+
     test('no other hypernym of the same word is ever a distractor', () {
       // Any of them would be right, so keying one wrong is unfair.
       final word = _noun('crowd', hypernyms: ['gathering', 'group', 'set']);

@@ -82,6 +82,45 @@ class ApiSemanticTerm {
   }
 }
 
+/// One WordNet sense of a word, with the relations that belong to *it*.
+///
+/// The packs' top-level `synonyms` and `hypernyms` are every sense's pooled
+/// together with no note of which, which is why "chicken" arrives with
+/// "competition" beside "poultry" and "hand" with "ability" beside
+/// "extremity". Every rule the games grew about senses — is the hypernym
+/// repeated in the word's own gloss, does the entry list too many, does the
+/// catalogue confirm it — was a heuristic standing in for this.
+///
+/// English only, and not all of it: 7,367 of the 11,539 entries carry senses.
+/// German has none, WordNet being what it is, so the heuristics stay for it.
+class WordNetSense {
+  const WordNetSense({
+    this.pos,
+    this.definition,
+    this.synonyms = const [],
+    this.hypernyms = const [],
+  });
+
+  final String? pos;
+  final String? definition;
+  final List<String> synonyms;
+  final List<String> hypernyms;
+
+  factory WordNetSense.fromJson(Map<String, dynamic> json) => WordNetSense(
+        pos: json['pos'] as String?,
+        definition: json['definition'] as String?,
+        synonyms: List<String>.from(json['synonyms'] ?? const []),
+        hypernyms: List<String>.from(json['hypernyms'] ?? const []),
+      );
+
+  Map<String, dynamic> toJson() => {
+        'pos': pos,
+        'definition': definition,
+        'synonyms': synonyms,
+        'hypernyms': hypernyms,
+      };
+}
+
 class ApiEnrichment {
   final String enrichmentStatus;
   final String? primaryPos;
@@ -105,6 +144,9 @@ class ApiEnrichment {
   final List<ApiProverb> proverbs;
   final List<String> entryNotes;
   final List<ApiSemanticTerm> hypernyms;
+
+  /// Sense-linked relations, where the pack carries them. See [WordNetSense].
+  final List<WordNetSense> wordnetSenses;
   final List<ApiSemanticTerm> hyponyms;
   final List<ApiSemanticTerm> holonyms;
   final List<ApiSemanticTerm> meronyms;
@@ -154,6 +196,7 @@ class ApiEnrichment {
     required this.proverbs,
     required this.entryNotes,
     required this.hypernyms,
+    this.wordnetSenses = const [],
     required this.hyponyms,
     required this.holonyms,
     required this.meronyms,
@@ -247,6 +290,10 @@ class ApiEnrichment {
           .toList(),
       entryNotes: listOf('entry_notes').whereType<String>().toList(),
       hypernyms: parseTerms('hypernyms'),
+      wordnetSenses: listOf('wordnetSenses')
+          .whereType<Map<String, dynamic>>()
+          .map(WordNetSense.fromJson)
+          .toList(),
       hyponyms: parseTerms('hyponyms'),
       holonyms: parseTerms('holonyms'),
       meronyms: parseTerms('meronyms'),

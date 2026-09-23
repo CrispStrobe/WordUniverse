@@ -11,6 +11,7 @@ import 'package:WortUniversum/core/models/vocabulary_models.dart';
 
 ApiEnrichment testEnrichment({
   String? primaryPos,
+  List<WordNetSense> wordnetSenses = const [],
   List<String> definitions = const [],
   List<String> synonyms = const [],
   List<String> antonyms = const [],
@@ -28,6 +29,7 @@ ApiEnrichment testEnrichment({
 }) =>
     ApiEnrichment(
       primaryPos: primaryPos,
+      wordnetSenses: wordnetSenses,
       enrichmentStatus: enrichmentStatus,
       definitions: definitions,
       pronunciation: const [],
