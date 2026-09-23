@@ -213,6 +213,43 @@ final RegExp _scriptureOrMyth = RegExp(
     r'|in the bible|biblical|legendary|mythical)\b',
     caseSensitive: false);
 
+/// Whether a gloss is one a child can read, as opposed to one written for a
+/// naturalist.
+///
+/// Labelling a gold set found the same fault in five games at once: a giraffe
+/// explained as "A ruminant, of the genus Giraffa ... strictly speaking the
+/// horn-like projections are ossicones", a chimney as "a tube used to emit
+/// environmentally polluting gaseous and solid matter (including but not
+/// limited to by-products of burning carbon- or hydrocarbon-based fuels)", a
+/// dog as "A mammal of the family Canidae". They are shown as the hint beside
+/// a word to find, trace or build, and as the card a memory pair matches.
+///
+/// Two signals, both measured. Length: over 180 characters is past the 95th
+/// percentile in both packs and is not a hint any more. And the taxonomic
+/// register — a rank followed by a Latin name, a Latin binomial, or the
+/// hedges Wiktionary writes when it is being careful rather than clear.
+/// Together they take 4.8% of English leading glosses and 1.9% of German.
+///
+/// What it does not catch is a gloss that is merely above the reader:
+/// "honest" is explained with "scrupulous" and "swindling", which is out of
+/// reach of a nine-year-old and of this rule. Telling those apart needs to
+/// know which words the reader has, and the obvious way — count the gloss's
+/// words that are not in the catalogue at the learner's grade — reads German
+/// compounds and inflections as unknown and calls "Muttertier des Hausrinds"
+/// the hardest gloss in the pack.
+bool glossSuitsAChild(String gloss) =>
+    gloss.trim().length <= _longestUsefulGloss &&
+    !_taxonomicRegister.hasMatch(gloss);
+
+/// Past the 95th percentile of leading glosses in both packs.
+const int _longestUsefulGloss = 180;
+
+final RegExp _taxonomicRegister =
+    RegExp(r'\b(genus|species|subspecies|family|order|phylum|class)\s+[A-Z]'
+        r'|\b[A-Z][a-z]+\s+[a-z]+ae\b'
+        r'|\bstrictly speaking\b|\bso-called\b|\bincluding but not limited to\b'
+        r'|\bder (Gattung|Familie|Ordnung)\b');
+
 /// Whether a gloss describes a grammatical form rather than a meaning.
 ///
 /// The packs carry inflected and derived entries whose "definition" is a

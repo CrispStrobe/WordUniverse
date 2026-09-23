@@ -29,14 +29,18 @@ String generateEducationalHint(
         if (word.article != null && word.article!.isNotEmpty) {
           hints.add('✓ ${word.article} ${word.word}');
         }
-        if (word.plural != null && word.plural!.isNotEmpty && word.plural != '-') {
+        if (word.plural != null &&
+            word.plural!.isNotEmpty &&
+            word.plural != '-') {
           hints.add('Plural: ${word.plural}');
         }
         // Try new inflectionsPattern first, fall back to old inflectionData
         final pattern = api?.inflectionsPattern;
         if (pattern != null) {
           final plural = pattern['plural'];
-          if (plural is String && plural.isNotEmpty && plural != '-' &&
+          if (plural is String &&
+              plural.isNotEmpty &&
+              plural != '-' &&
               (word.plural == null || word.plural!.isEmpty)) {
             hints.add('Plural: $plural');
           }
@@ -111,7 +115,7 @@ String generateEducationalHint(
     }
 
     // Add definition if we have room
-    final def = word.displayDefinitions.firstOrNull;
+    final def = word.learnerDefinitions.firstOrNull;
     if (def != null && def.isNotEmpty && hints.length < 2) {
       final truncated = def.length > 70 ? '${def.substring(0, 67)}…' : def;
       hints.add('"$truncated"');
@@ -121,7 +125,6 @@ String generateEducationalHint(
     if ((api?.synonyms.isNotEmpty ?? false) && hints.length < 3) {
       hints.add('= ${api!.synonyms.take(2).join(', ')}');
     }
-
   } else if (isCommonMistake) {
     hints.add(s.rescueHintCommonMistake(word.word));
     // Show actual misspellings so learner knows what to avoid
@@ -132,7 +135,6 @@ String generateEducationalHint(
     } else if (word.graphematicVariants.isNotEmpty) {
       hints.add(s.rescueHintCorrectSpelling(word.word));
     }
-
   } else if (isIncorrect) {
     hints.add(s.rescueHintLearn(word.displayName));
     final typeMap = {
@@ -144,7 +146,7 @@ String generateEducationalHint(
     if (type != null) hints.add(type);
 
     // Add definition to help the learner remember
-    final def = word.displayDefinitions.firstOrNull;
+    final def = word.learnerDefinitions.firstOrNull;
     if (def != null && def.isNotEmpty) {
       final truncated = def.length > 70 ? '${def.substring(0, 67)}…' : def;
       hints.add('"$truncated"');

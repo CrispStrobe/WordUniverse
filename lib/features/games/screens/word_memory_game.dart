@@ -47,7 +47,8 @@ class MemoryCard {
   }) : displayText = displayText ?? word;
 }
 
-class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStateMixin {
+class _WordMemoryGameState extends State<WordMemoryGame>
+    with TickerProviderStateMixin {
   late VocabularyService _vocabularyService;
   late SriService _sriService;
   late AudioService _audioService;
@@ -55,7 +56,7 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
 
   bool _isLoading = true;
   List<MemoryCard> _cards = [];
-  
+
   // Game Stats
   int _score = 0;
   int _moves = 0;
@@ -82,12 +83,12 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
   @override
   void initState() {
     super.initState();
-    
+
     _flipController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-    
+
     _matchController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
@@ -125,10 +126,10 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
     await _loadLevel();
   }
 
-
-
   bool _isWordValidForGame(GermanWord word) {
-    return word.word.length >= 3 && word.word.length <= 8 && !word.word.contains(" ");
+    return word.word.length >= 3 &&
+        word.word.length <= 8 &&
+        !word.word.contains(" ");
   }
 
   Future<void> _loadLevel() async {
@@ -139,14 +140,14 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
     switch (widget.gradeLevel) {
       case GradeLevel.grade1:
       case GradeLevel.grade2:
-        _totalPairs = 4; 
+        _totalPairs = 4;
         break;
       case GradeLevel.grade3:
       case GradeLevel.grade4:
-        _totalPairs = 6; 
+        _totalPairs = 6;
         break;
       default:
-        _totalPairs = 8; 
+        _totalPairs = 8;
     }
 
     final wordsForGame = selectAdaptiveWords(
@@ -169,15 +170,27 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
     for (int i = 0; i < playable.length && i < _totalPairs; i++) {
       final word = playable[i];
       final shuffledFonts = List<String>.from(_availableFonts)..shuffle(random);
-      final def = definitionMode ? word.displayDefinitions.firstOrNull : null;
+      final def = definitionMode ? word.learnerDefinitions.firstOrNull : null;
       if (def != null && def.isNotEmpty) {
         final pairId = 'pair_$i';
         final truncDef = def.length > 55 ? '${def.substring(0, 52)}…' : def;
-        cards.add(MemoryCard(word: word.word, fontFamily: shuffledFonts[0], id: i * 2, matchId: pairId));
-        cards.add(MemoryCard(word: word.word, displayText: truncDef, fontFamily: 'SpaceGrotesk', id: i * 2 + 1, matchId: pairId, isDefinitionCard: true));
+        cards.add(MemoryCard(
+            word: word.word,
+            fontFamily: shuffledFonts[0],
+            id: i * 2,
+            matchId: pairId));
+        cards.add(MemoryCard(
+            word: word.word,
+            displayText: truncDef,
+            fontFamily: 'SpaceGrotesk',
+            id: i * 2 + 1,
+            matchId: pairId,
+            isDefinitionCard: true));
       } else {
-        cards.add(MemoryCard(word: word.word, fontFamily: shuffledFonts[0], id: i * 2));
-        cards.add(MemoryCard(word: word.word, fontFamily: shuffledFonts[1], id: i * 2 + 1));
+        cards.add(MemoryCard(
+            word: word.word, fontFamily: shuffledFonts[0], id: i * 2));
+        cards.add(MemoryCard(
+            word: word.word, fontFamily: shuffledFonts[1], id: i * 2 + 1));
       }
     }
 
@@ -254,7 +267,7 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
       _gameProvider.hapticHeavy();
       await _shakeController.forward(from: 0);
       await Future.delayed(const Duration(milliseconds: 300));
-      
+
       if (mounted) {
         setState(() {
           _firstSelected!.isFlipped = false;
@@ -304,7 +317,8 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
-            const Icon(Icons.emoji_events, color: SpaceTheme.starYellow, size: 32),
+            const Icon(Icons.emoji_events,
+                color: SpaceTheme.starYellow, size: 32),
             const SizedBox(width: 12),
             Text(s.wordMemoryComplete, style: SpaceTheme.titleStyle),
           ],
@@ -314,15 +328,19 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(3, (index) => Icon(
-                index < stars ? Icons.star : Icons.star_border,
-                color: SpaceTheme.starYellow,
-                size: 40,
-              )),
+              children: List.generate(
+                  3,
+                  (index) => Icon(
+                        index < stars ? Icons.star : Icons.star_border,
+                        color: SpaceTheme.starYellow,
+                        size: 40,
+                      )),
             ),
             const SizedBox(height: 20),
-            Text('${s.wordMemoryScore}: $_score', style: SpaceTheme.bodyStyle.copyWith(fontSize: 18)),
-            Text('${s.wordMemoryMoves}: $_moves', style: SpaceTheme.bodyStyle.copyWith(fontSize: 18)),
+            Text('${s.wordMemoryScore}: $_score',
+                style: SpaceTheme.bodyStyle.copyWith(fontSize: 18)),
+            Text('${s.wordMemoryMoves}: $_moves',
+                style: SpaceTheme.bodyStyle.copyWith(fontSize: 18)),
           ],
         ),
         actions: [
@@ -332,15 +350,19 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
               Navigator.of(context).pop();
               _loadLevel();
             },
-            child: Text(s.gameReplay, style: SpaceTheme.bodyStyle.copyWith(color: SpaceTheme.alienGreen)),
+            child: Text(s.gameReplay,
+                style: SpaceTheme.bodyStyle
+                    .copyWith(color: SpaceTheme.alienGreen)),
           ),
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
               Navigator.of(context).pop();
             },
-            style: ElevatedButton.styleFrom(backgroundColor: SpaceTheme.planetOrange),
-            child: Text(s.gameDone, style: SpaceTheme.bodyStyle.copyWith(color: Colors.white)),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: SpaceTheme.planetOrange),
+            child: Text(s.gameDone,
+                style: SpaceTheme.bodyStyle.copyWith(color: Colors.white)),
           ),
         ],
       ),
@@ -356,7 +378,8 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
             children: [
               if (!_isLoading) _buildAllInOneHeader(context),
               if (_isLoading)
-                const Expanded(child: Center(child: CircularProgressIndicator()))
+                const Expanded(
+                    child: Center(child: CircularProgressIndicator()))
               else
                 Expanded(
                   child: _buildGameGrid(),
@@ -379,8 +402,13 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
       padding: const EdgeInsets.fromLTRB(8, 8, 12, 8),
       decoration: BoxDecoration(
         color: SpaceTheme.deepSpace.withValues(alpha: 0.95),
-        border: Border(bottom: BorderSide(color: SpaceTheme.nebulaPurple.withValues(alpha: 0.5), width: 2)),
-        boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 12, offset: Offset(0, 4))],
+        border: Border(
+            bottom: BorderSide(
+                color: SpaceTheme.nebulaPurple.withValues(alpha: 0.5),
+                width: 2)),
+        boxShadow: const [
+          BoxShadow(color: Colors.black45, blurRadius: 12, offset: Offset(0, 4))
+        ],
       ),
       child: SafeArea(
         bottom: false,
@@ -418,11 +446,13 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
               child: FittedBox(
                 fit: BoxFit.scaleDown,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
+                    border:
+                        Border.all(color: Colors.white.withValues(alpha: 0.15)),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -430,19 +460,22 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
                       // Local Score (Current Game)
                       Semantics(
                         label: s.wordMemoryScoreLabel(_score),
-                        child: _buildStatItem(Icons.star_rounded, '$_score', SpaceTheme.starYellow),
+                        child: _buildStatItem(Icons.star_rounded, '$_score',
+                            SpaceTheme.starYellow),
                       ),
                       _buildVerticalDivider(),
                       // Moves
                       Semantics(
                         label: s.wordMemoryMovesLabel(_moves),
-                        child: _buildStatItem(Icons.touch_app_rounded, '$_moves', SpaceTheme.alienGreen),
+                        child: _buildStatItem(Icons.touch_app_rounded,
+                            '$_moves', SpaceTheme.alienGreen),
                       ),
                       _buildVerticalDivider(),
                       // Pairs Found
                       Semantics(
                         label: s.wordMemoryPairsLabel(_pairsFound, _totalPairs),
-                        child: _buildStatItem(Icons.check_circle_rounded, '$_pairsFound/$_totalPairs', SpaceTheme.cosmicPink),
+                        child: _buildStatItem(Icons.check_circle_rounded,
+                            '$_pairsFound/$_totalPairs', SpaceTheme.cosmicPink),
                       ),
                     ],
                   ),
@@ -489,7 +522,11 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
         children: [
           Icon(icon, size: 16, color: color),
           const SizedBox(width: 4),
-          Text(text, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+          Text(text,
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14)),
         ],
       ),
     );
@@ -500,7 +537,11 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
       children: [
         Icon(icon, size: 18, color: color),
         const SizedBox(width: 4),
-        Text(text, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+        Text(text,
+            style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 16)),
       ],
     );
   }
@@ -518,33 +559,37 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
     return LayoutBuilder(
       builder: (context, constraints) {
         final isLandscape = constraints.maxWidth > constraints.maxHeight;
-        
+
         // Determine Grid Dimensions
         int columns;
         int rows;
 
-        if (_totalPairs <= 4) { // 8 cards
+        if (_totalPairs <= 4) {
+          // 8 cards
           columns = isLandscape ? 4 : 2;
           rows = isLandscape ? 2 : 4;
-        } else if (_totalPairs <= 6) { // 12 cards
+        } else if (_totalPairs <= 6) {
+          // 12 cards
           columns = isLandscape ? 4 : 3;
           rows = isLandscape ? 3 : 4;
-        } else { // 16 cards
+        } else {
+          // 16 cards
           columns = 4;
           rows = 4;
         }
 
         const double padding = 16.0;
         const double spacing = 12.0;
-        
+
         final availableWidth = constraints.maxWidth - (padding * 2);
         final availableHeight = constraints.maxHeight - (padding * 2);
-        
-        final widthPerCard = (availableWidth - (spacing * (columns - 1))) / columns;
+
+        final widthPerCard =
+            (availableWidth - (spacing * (columns - 1))) / columns;
         final heightPerCard = (availableHeight - (spacing * (rows - 1))) / rows;
-        
+
         final cardSize = min(widthPerCard, heightPerCard);
-        
+
         final gridWidth = (cardSize * columns) + (spacing * (columns - 1));
         final gridHeight = (cardSize * rows) + (spacing * (rows - 1));
 
@@ -573,10 +618,12 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
 
   Widget _buildMemoryCard(MemoryCard card, double size) {
     final isSelected = card == _firstSelected || card == _secondSelected;
-    final shouldShake = isSelected && _shakeController.isAnimating && !card.isMatched;
-    
+    final shouldShake =
+        isSelected && _shakeController.isAnimating && !card.isMatched;
+
     return AnimatedBuilder(
-      animation: Listenable.merge([_flipController, _matchController, _shakeController]),
+      animation: Listenable.merge(
+          [_flipController, _matchController, _shakeController]),
       builder: (context, child) {
         double shakeOffset = 0;
         if (shouldShake) shakeOffset = sin(_shakeController.value * pi * 4) * 8;
@@ -609,20 +656,37 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
                   decoration: BoxDecoration(
                     gradient: isFlipped
                         ? (card.isMatched
-                            ? LinearGradient(colors: [SpaceTheme.alienGreen, SpaceTheme.alienGreen.withValues(alpha: 0.7)])
-                            : LinearGradient(colors: [SpaceTheme.planetOrange, SpaceTheme.planetOrange.withValues(alpha: 0.7)]))
-                        : LinearGradient(colors: [SpaceTheme.deepSpace.withValues(alpha: 0.9), SpaceTheme.nebulaPurple.withValues(alpha: 0.7)]),
+                            ? LinearGradient(colors: [
+                                SpaceTheme.alienGreen,
+                                SpaceTheme.alienGreen.withValues(alpha: 0.7)
+                              ])
+                            : LinearGradient(colors: [
+                                SpaceTheme.planetOrange,
+                                SpaceTheme.planetOrange.withValues(alpha: 0.7)
+                              ]))
+                        : LinearGradient(colors: [
+                            SpaceTheme.deepSpace.withValues(alpha: 0.9),
+                            SpaceTheme.nebulaPurple.withValues(alpha: 0.7)
+                          ]),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: card.isMatched
                           ? SpaceTheme.alienGreen
-                          : (isSelected ? SpaceTheme.starYellow : SpaceTheme.nebulaPurple.withValues(alpha: 0.5)),
+                          : (isSelected
+                              ? SpaceTheme.starYellow
+                              : SpaceTheme.nebulaPurple.withValues(alpha: 0.5)),
                       width: card.isMatched || isSelected ? 3 : 2,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: (card.isMatched ? SpaceTheme.alienGreen : (isSelected ? SpaceTheme.starYellow : SpaceTheme.nebulaPurple))
-                            .withValues(alpha: card.isMatched || isSelected ? 0.6 : 0.2),
+                        color: (card.isMatched
+                                ? SpaceTheme.alienGreen
+                                : (isSelected
+                                    ? SpaceTheme.starYellow
+                                    : SpaceTheme.nebulaPurple))
+                            .withValues(
+                                alpha:
+                                    card.isMatched || isSelected ? 0.6 : 0.2),
                         blurRadius: card.isMatched || isSelected ? 15 : 8,
                       ),
                     ],
@@ -640,7 +704,9 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
                                           fontFamily: 'SpaceGrotesk',
                                           fontSize: size * 0.16,
                                           fontStyle: FontStyle.italic,
-                                          color: card.isMatched ? SpaceTheme.deepSpace : Colors.white,
+                                          color: card.isMatched
+                                              ? SpaceTheme.deepSpace
+                                              : Colors.white,
                                         ),
                                         textAlign: TextAlign.center,
                                         maxLines: 4,
@@ -654,7 +720,9 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
                                             fontFamily: card.fontFamily,
                                             fontSize: size * 0.3,
                                             fontWeight: FontWeight.bold,
-                                            color: card.isMatched ? SpaceTheme.deepSpace : Colors.white,
+                                            color: card.isMatched
+                                                ? SpaceTheme.deepSpace
+                                                : Colors.white,
                                           ),
                                           textAlign: TextAlign.center,
                                         ),
@@ -677,8 +745,16 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
                         )
                       : Stack(
                           children: [
-                            Positioned.fill(child: ExcludeSemantics(child: CustomPaint(painter: _CardBackPainter(animation: _flipController.view)))),
-                            Center(child: Icon(Icons.psychology, size: size * 0.4, color: SpaceTheme.cosmicPink.withValues(alpha: 0.8))),
+                            Positioned.fill(
+                                child: ExcludeSemantics(
+                                    child: CustomPaint(
+                                        painter: _CardBackPainter(
+                                            animation: _flipController.view)))),
+                            Center(
+                                child: Icon(Icons.psychology,
+                                    size: size * 0.4,
+                                    color: SpaceTheme.cosmicPink
+                                        .withValues(alpha: 0.8))),
                           ],
                         ),
                 ),
@@ -694,10 +770,12 @@ class _WordMemoryGameState extends State<WordMemoryGame> with TickerProviderStat
 class _CardBackPainter extends CustomPainter {
   final Animation<double> animation;
   _CardBackPainter({required this.animation}) : super(repaint: animation);
-  
+
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..style = PaintingStyle.stroke..strokeWidth = 2;
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
     for (int i = 0; i < 3; i++) {
       final radius = (size.width / 2) * (0.3 + i * 0.2);
       final opacity = 0.3 + (sin(animation.value * 2 * pi + i) * 0.2);
@@ -705,6 +783,7 @@ class _CardBackPainter extends CustomPainter {
       canvas.drawCircle(Offset(size.width / 2, size.height / 2), radius, paint);
     }
   }
+
   @override
   bool shouldRepaint(_CardBackPainter oldDelegate) =>
       oldDelegate.animation.value != animation.value;

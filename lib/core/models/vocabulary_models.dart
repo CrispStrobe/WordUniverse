@@ -3,6 +3,7 @@
 import 'package:flutter/foundation.dart';
 
 import 'skill_category.dart'; // SINGLE Source of Truth for Enums
+import 'vocabulary_quality.dart';
 import 'word_features.dart';
 
 // --- HELPER FOR ROBUST PARSING ---
@@ -636,6 +637,13 @@ class GermanWord {
   /// `apiEnrichment.definitions`.
   List<String> get displayDefinitions =>
       isHeadword ? (apiEnrichment?.definitions ?? const []) : const [];
+
+  /// [displayDefinitions] minus the ones written for a naturalist rather
+  /// than for a learner. Empty is a real answer: a word whose only gloss is
+  /// "A ruminant, of the genus Giraffa …" has no hint to show, and showing
+  /// none is better than showing that.
+  List<String> get learnerDefinitions =>
+      displayDefinitions.where(glossSuitsAChild).toList();
 
   // Consolidated V24 Fields
   final List<ApiExample> examples;

@@ -408,8 +408,8 @@ class _WordSortGameState extends State<WordSortGame>
       hints.add(_s.wordSortHintNounWithArticle(word.article!, word.word));
     }
 
-    if (word.displayDefinitions.isNotEmpty) {
-      hints.add(_s.wordSortHintDefinition(word.displayDefinitions.first));
+    if (word.learnerDefinitions.isNotEmpty) {
+      hints.add(_s.wordSortHintDefinition(word.learnerDefinitions.first));
     }
 
     hints.add(_s.wordSortHintNounNaming(word.word));
@@ -462,8 +462,8 @@ class _WordSortGameState extends State<WordSortGame>
       } catch (e) {}
     }
 
-    if (word.displayDefinitions.isNotEmpty) {
-      hints.add(_s.wordSortHintDefinition(word.displayDefinitions.first));
+    if (word.learnerDefinitions.isNotEmpty) {
+      hints.add(_s.wordSortHintDefinition(word.learnerDefinitions.first));
     }
 
     hints.add(_s.wordSortHintVerbAction(word.word));
@@ -505,8 +505,8 @@ class _WordSortGameState extends State<WordSortGame>
       } catch (e) {}
     }
 
-    if (word.displayDefinitions.isNotEmpty) {
-      hints.add(_s.wordSortHintDefinition(word.displayDefinitions.first));
+    if (word.learnerDefinitions.isNotEmpty) {
+      hints.add(_s.wordSortHintDefinition(word.learnerDefinitions.first));
     }
 
     hints.add(_s.wordSortHintAdjQuality(word.word));
@@ -533,8 +533,8 @@ class _WordSortGameState extends State<WordSortGame>
       _s.wordSortHintAdverbQuestion(word.word),
     ];
 
-    if (advanced && (word.displayDefinitions.isNotEmpty)) {
-      hints.add(_s.wordSortHintDefinition(word.displayDefinitions.first));
+    if (advanced && (word.learnerDefinitions.isNotEmpty)) {
+      hints.add(_s.wordSortHintDefinition(word.learnerDefinitions.first));
     }
 
     return _selectHintFromList(hints);
@@ -547,8 +547,8 @@ class _WordSortGameState extends State<WordSortGame>
       _s.wordSortHintPronounStands(word.word),
     ];
 
-    if (advanced && (word.displayDefinitions.isNotEmpty)) {
-      hints.add(_s.wordSortHintDefinition(word.displayDefinitions.first));
+    if (advanced && (word.learnerDefinitions.isNotEmpty)) {
+      hints.add(_s.wordSortHintDefinition(word.learnerDefinitions.first));
     }
 
     return _selectHintFromList(hints);
@@ -583,9 +583,9 @@ class _WordSortGameState extends State<WordSortGame>
         return _getAdjectiveCorrectExplanation(
             word, apiData, patternData, guessedType);
       default:
-        if (word.displayDefinitions.isNotEmpty) {
+        if (word.learnerDefinitions.isNotEmpty) {
           return _s.wordSortExplainCategoryDefinition(
-              _getCategoryName(word.wordType), word.displayDefinitions.first);
+              _getCategoryName(word.wordType), word.learnerDefinitions.first);
         }
         return _s.wordSortExplainCategory(
             word.word, _getCategoryName(word.wordType));
@@ -655,8 +655,8 @@ class _WordSortGameState extends State<WordSortGame>
       if (reasons.isEmpty) return _s.wordSortExplainVerbAction(word.word);
       return _s.wordSortExplainVerbReasons(reasons.join(' • '));
     } else {
-      if (word.displayDefinitions.isNotEmpty) {
-        return _s.wordSortExplainVerbDefinition(word.displayDefinitions.first);
+      if (word.learnerDefinitions.isNotEmpty) {
+        return _s.wordSortExplainVerbDefinition(word.learnerDefinitions.first);
       }
       return _s.wordSortExplainVerbAction(word.word);
     }
@@ -688,8 +688,8 @@ class _WordSortGameState extends State<WordSortGame>
         }
       } catch (e) {}
       if (reasons.isEmpty) {
-        if (word.displayDefinitions.isNotEmpty) {
-          return _s.wordSortExplainAdjDefinition(word.displayDefinitions.first);
+        if (word.learnerDefinitions.isNotEmpty) {
+          return _s.wordSortExplainAdjDefinition(word.learnerDefinitions.first);
         }
         return _s.wordSortExplainAdjQuality(word.word);
       }
