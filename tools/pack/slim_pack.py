@@ -80,15 +80,16 @@ def reduce_wordnet_senses(senses):
 def reduce_open_thesaurus(synsets):
     if not isinstance(synsets, list):
         return None
+    # No hypernyms: the field exists on every synset and is empty on all
+    # 15,517 of them, so carrying it would ship bytes that claim data the
+    # thesaurus does not have. German hypernyms stay on the heuristics.
     kept = [
         {
             'categories': synset.get('categories') or [],
             'synonyms': synset.get('synonyms') or [],
-            'hypernyms': synset.get('hypernyms') or [],
         }
         for synset in synsets
-        if isinstance(synset, dict) and (synset.get('synonyms')
-                                         or synset.get('hypernyms'))
+        if isinstance(synset, dict) and synset.get('synonyms')
     ]
     return kept or None
 
