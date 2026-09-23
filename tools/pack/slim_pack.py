@@ -23,7 +23,6 @@ import sys
 
 # json key -> why it goes. Keyed on enrichment_json unless noted.
 DEAD_ENRICHMENT = {
-    'openThesaurus': 'not in the Dart model at all',
     'conceptnet': 'parsed into the model, rendered nowhere',
     'alternative_analyses': 'parsed into the model, rendered nowhere',
     'semantic_relations': 'parsed into the model, rendered nowhere',
@@ -69,7 +68,35 @@ def reduce_wordnet_senses(senses):
     return kept or None
 
 
-REDUCE_ENRICHMENT = {'wordnetSenses': reduce_wordnet_senses}
+# The German half of the same story. openThesaurus groups synonyms by sense —
+# "Zug" is {Durchzug, Luftzug, Zugluft} in one synset and {Bahn, Eisenbahn} in
+# another — and it went for the same reason wordnetSenses did. Without it the
+# German pack's flat `synonyms` is every sense pooled, which is how Spielzeug
+# came to be answered Werkzeug and Eingang answered Schalter.
+#
+# Associations and hyponyms are dropped: an association is a related word, not
+# a synonym, and offering one as the answer would be the same fault by another
+# route. 3.0 MB of 7.9, about 0.7 MB compressed, for 6,225 entries.
+def reduce_open_thesaurus(synsets):
+    if not isinstance(synsets, list):
+        return None
+    kept = [
+        {
+            'categories': synset.get('categories') or [],
+            'synonyms': synset.get('synonyms') or [],
+            'hypernyms': synset.get('hypernyms') or [],
+        }
+        for synset in synsets
+        if isinstance(synset, dict) and (synset.get('synonyms')
+                                         or synset.get('hypernyms'))
+    ]
+    return kept or None
+
+
+REDUCE_ENRICHMENT = {
+    'wordnetSenses': reduce_wordnet_senses,
+    'openThesaurus': reduce_open_thesaurus,
+}
 
 DEAD_METADATA = {
     'inflectionData': 'duplicate; the model reads enrichment_json.inflections',
