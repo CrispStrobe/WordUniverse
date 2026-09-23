@@ -24,7 +24,11 @@ on:
 
 concurrency:
   group: content-sweep
-  cancel-in-progress: true
+  # Not cancel-in-progress. For the per-push check superseding is right — only
+  # the newest commit matters. This one exists to look at items nothing has
+  # looked at yet, so cancelling a half-finished sweep throws away the single
+  # thing it produces. A dispatch waits for the nightly instead of killing it.
+  cancel-in-progress: false
 
 permissions:
   contents: read
@@ -37,6 +41,11 @@ jobs:
     timeout-minutes: 60
     strategy:
       fail-fast: false
+      # A free public repo runs twenty jobs at once. This workflow is fifteen
+      # of them, so a sweep and a push together saturate the pool and the
+      # push waits — twenty-five minutes, measured. The sweep has all night
+      # and nothing waits on it; the push has somebody watching.
+      max-parallel: 5
       matrix:
         language: [en, de]
         grade: [1, 2, 3, 4, 5, 6]
