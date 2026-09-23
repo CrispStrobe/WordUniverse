@@ -18,6 +18,12 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  # One run per pull request: a branch pushed to twice does not need
+  # the first browser run finished.
+  group: web-e2e-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   e2e:
     runs-on: ubuntu-latest

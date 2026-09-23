@@ -12,6 +12,17 @@ name: GitHub Pages
 on:
   push:
     branches: [main]
+    # The site is Flutter web: lib, web, assets and the manifests reach it.
+    # Nothing else does, and this workflow was the heaviest thing running —
+    # 21 runs and 270 wall-minutes, many of them rebuilding the whole app for
+    # a commit that touched only docs, a python tool or a test.
+    paths:
+      - 'lib/**'
+      - 'web/**'
+      - 'assets/**'
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
+      - '.github/workflows/pages.yml'
   workflow_dispatch:
 
 permissions:
