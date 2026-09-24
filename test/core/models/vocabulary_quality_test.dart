@@ -324,6 +324,62 @@ void main() {
     });
   });
 
+  group('classIsSettled', () {
+    test('a word whose senses span two classes is not asked', () {
+      // "answer" is filed as a noun and its primary_pos agrees; WordNet gives
+      // it five noun senses and ten verb ones. A learner answering Verb is
+      // not wrong, so the question is not fair to ask.
+      expect(
+          classIsSettled(testWord('answer',
+              type: GermanWordType.substantiv,
+              enrichment:
+                  testEnrichment(primaryPos: 'noun', wordnetSenses: const [
+                WordNetSense(pos: 'noun', definition: 'a reply'),
+                WordNetSense(pos: 'verb', definition: 'to reply'),
+              ]))),
+          isFalse);
+    });
+
+    test('a word whose senses all name another class is not asked', () {
+      // "annoyed" is filed as a verb and primary_pos agrees; every sense it
+      // has is an adjective. Two opinions out of three were wrong together.
+      expect(
+          classIsSettled(testWord('annoyed',
+              type: GermanWordType.verb,
+              enrichment:
+                  testEnrichment(primaryPos: 'verb', wordnetSenses: const [
+                WordNetSense(pos: 'adjective', definition: 'troubled'),
+                WordNetSense(pos: 'adjective', definition: 'irritated'),
+              ]))),
+          isFalse);
+    });
+
+    test('agreement on all three is settled', () {
+      expect(
+          classIsSettled(testWord('raucous',
+              type: GermanWordType.adjektiv,
+              enrichment:
+                  testEnrichment(primaryPos: 'adjective', wordnetSenses: const [
+                WordNetSense(pos: 'adjective', definition: 'harsh'),
+              ]))),
+          isTrue);
+    });
+
+    test('no senses means the other two opinions decide', () {
+      // Four thousand English entries and every German one carry none.
+      expect(
+          classIsSettled(testWord('giraffe',
+              type: GermanWordType.substantiv,
+              enrichment: testEnrichment(primaryPos: 'noun'))),
+          isTrue);
+      expect(
+          classIsSettled(testWord('at',
+              type: GermanWordType.substantiv,
+              enrichment: testEnrichment(primaryPos: 'preposition'))),
+          isFalse);
+    });
+  });
+
   group('sentenceSuitsAChild', () {
     test('keeps ordinary sentences', () {
       expect(

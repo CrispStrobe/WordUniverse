@@ -213,8 +213,8 @@ class _WordSortGameState extends State<WordSortGame>
     // Smart hints read the enrichment, so decode it for the words in play.
     // It also settles the word class: the pack files "at" as a noun while its
     // own primary_pos says preposition, and this game asks for the class.
-    _wordQueue = Queue.from((await _vocabularyService.hydrate(wordsForGame))
-        .where((w) => !classIsContradicted(w)));
+    _wordQueue = Queue.from(
+        (await _vocabularyService.hydrate(wordsForGame)).where(classIsSettled));
     if (!mounted) return;
 
     if (_wordQueue.isEmpty) {
