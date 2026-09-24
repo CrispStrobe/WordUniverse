@@ -289,7 +289,7 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
     // Hydration also settles the word class: the pack files "at" as a noun
     // while its own primary_pos says preposition, and the bins ask for it.
     _wordPool = (await _vocabularyService.hydrate(wordsForGame))
-        .where((w) => !classIsContradicted(w))
+        .where(classIsSettled)
         .toList();
     _wordPoolIndex = 0;
   }

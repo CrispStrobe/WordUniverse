@@ -93,7 +93,7 @@ List<WordClassChallenge> buildWordClassChallenges({
         // The pack files "at" as a noun while its own primary_pos says
         // preposition. A game whose whole question is the word class cannot
         // ask about a word the pack disagrees with itself about.
-        .where((w) => !classIsContradicted(w))
+        .where(classIsSettled)
         .take(maxChallenges)
         .map((w) => WordClassChallenge(word: w, correctType: w.wordType))
         .toList();

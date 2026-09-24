@@ -200,7 +200,7 @@ bool _hasABin(GermanWord word) =>
 /// Both games drop a word whose class the pack contradicts itself about,
 /// once hydration has made that visible. Light words cannot answer it.
 List<GermanWord> _withASettledClass(List<GermanWord> words) =>
-    words.where((w) => !classIsContradicted(w)).toList();
+    words.where(classIsSettled).toList();
 
 /// What the games call a word class on screen.
 ///

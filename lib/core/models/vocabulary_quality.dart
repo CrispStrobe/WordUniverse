@@ -501,6 +501,38 @@ bool classIsContradicted(GermanWord word) {
   return normalized != column;
 }
 
+/// Whether the word's class is settled well enough to be the question.
+///
+/// Three opinions where the pack has them: the `word_type` column, the
+/// entry's own `primary_pos`, and the classes its WordNet senses fall under.
+/// A word-class game asks which class a word is, so it may only ask where
+/// they agree.
+///
+/// The senses add what the other two cannot see. "answer" is filed as a noun
+/// and its primary_pos agrees, and WordNet gives it five noun senses and ten
+/// verb ones — a learner answering Verb is not wrong. "annoyed" is filed as a
+/// verb, primary_pos agrees, and every one of its senses is an adjective.
+/// Both were keyed against the learner in a 155-item sheet.
+///
+/// Measured on the English pack: of 11,511 entries in a binned class, 4,240
+/// are settled, 2,554 span more than one class, 567 name a single class that
+/// is not the column's, and 4,150 carry no senses and so are judged by the
+/// first two opinions alone.
+bool classIsSettled(GermanWord word) {
+  if (classIsContradicted(word)) return false;
+  final classes = <String>{};
+  for (final sense
+      in word.apiEnrichment?.wordnetSenses ?? const <WordNetSense>[]) {
+    final pos = sense.pos?.trim().toLowerCase();
+    if (pos == null || pos.isEmpty) continue;
+    classes.add(_posSynonyms[pos] ?? pos);
+  }
+  if (classes.isEmpty) return true; // nothing more to go on
+  if (classes.length > 1) return false; // "answer" is noun and verb
+  final column = _posSynonyms[word.wordType.name] ?? word.wordType.name;
+  return classes.single == column; // "annoyed" is only an adjective
+}
+
 /// Spellings the two fields use for the same class, on both packs.
 const _posSynonyms = <String, String>{
   'noun': 'noun',

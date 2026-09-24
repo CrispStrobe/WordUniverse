@@ -316,7 +316,7 @@
   Build "middle-aged" from its letters
     ✓ middle-aged
     · grade: 3  gloss: Of or relating to middle age or a middle-ager; neither old nor young.
-── word_class_flash (4)
+── word_class_flash (2)
   prominent
       Noun
       Verb
@@ -325,14 +325,6 @@
     ✓ Noun
       Verb
       Adjective
-  suck
-      Noun
-    ✓ Verb
-      Adjective
-  material
-      Noun
-      Verb
-    ✓ Adjective
 ── word_find (4)
   Find "attacked" in the grid
     ✓ attacked
