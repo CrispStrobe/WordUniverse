@@ -638,6 +638,16 @@ class GermanWord {
   List<String> get displayDefinitions =>
       isHeadword ? (apiEnrichment?.definitions ?? const []) : const [];
 
+  /// Everything the pack writes about this word in prose: its glosses, its
+  /// graded examples and its book quotations. Read to judge whether the
+  /// entry's own spelling can be trusted — see [spellingIsTrustworthy].
+  Iterable<String> get evidenceForItsOwnSpelling => [
+        ...displayDefinitions.take(3),
+        ...?apiEnrichment?.gradeExamples?.values
+            .expand((sentences) => sentences.take(2)),
+        ...?apiEnrichment?.gutenbergExamples.take(3),
+      ];
+
   /// [displayDefinitions] when the leading one is a gloss a learner can
   /// read, and empty when it is not.
   ///

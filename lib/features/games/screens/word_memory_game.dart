@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/models/skill_category.dart';
 import '../../../core/models/vocabulary_models.dart';
+import '../../../core/models/vocabulary_quality.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart';
 import '../../../core/theme/space_theme.dart';
@@ -160,7 +161,11 @@ class _WordMemoryGameState extends State<WordMemoryGame>
     );
 
     // Definition cards read the enrichment, so decode it for the chosen words.
-    final playable = await _vocabularyService.hydrate(wordsForGame);
+    // Below year 3 both cards show the word itself, so the spelling has to
+    // be one the pack does not contradict.
+    final playable = (await _vocabularyService.hydrate(wordsForGame))
+        .where(spellingIsTrustworthy)
+        .toList();
     if (!mounted) return;
 
     final List<MemoryCard> cards = [];

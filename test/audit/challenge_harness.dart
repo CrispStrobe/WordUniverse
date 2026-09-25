@@ -241,9 +241,19 @@ Generator _wordPractice(
         skillFilter: skill,
         rng: c.rng,
       ));
-      final playableWords = game == 'word_sort' || game == 'word_type_whirl'
+      const asksForTheClass = {'word_sort', 'word_type_whirl'};
+      // The games that ask a child to reproduce a spelling. Each shows the
+      // word to be found, traced or built, so it may not show one the pack's
+      // own prose contradicts: "carthaginian" and "january" are stored
+      // lowercase and written capitalised everywhere the pack uses them.
+      // Not word_builder: it uppercases every letter tile, so the stored
+      // case never reaches the screen and cannot mislead.
+      const asksForTheSpelling = {'word_find', 'word_snake', 'word_memory'};
+      final playableWords = asksForTheClass.contains(game)
           ? _withASettledClass(words)
-          : words;
+          : asksForTheSpelling.contains(game)
+              ? words.where(spellingIsTrustworthy).toList()
+              : words;
       return playableWords
           .map((w) => Item(
                 game: game,
@@ -320,6 +330,17 @@ final Map<String, Generator> generators = {
     final items = <Item>[];
     for (final word in pool) {
       if (items.length >= c.count) break;
+      // The screen draws nouns, verbs and adjectives, each with its own
+      // explanation. The dump drew anything and told a learner that "sehr"
+      // and "dein" are lowercase because verbs and adjectives are — which an
+      // independent reader caught, and which is a game nobody plays.
+      final explanation = switch (word.wordType) {
+        GermanWordType.substantiv => 'Nomen werden immer großgeschrieben',
+        GermanWordType.verb => 'Verben werden kleingeschrieben',
+        GermanWordType.adjektiv => 'Adjektive werden kleingeschrieben',
+        _ => null,
+      };
+      if (explanation == null) continue;
       final isNoun = word.wordType == GermanWordType.substantiv;
       final challenge = challengeFromWord(
         word,
@@ -327,9 +348,7 @@ final Map<String, Generator> generators = {
         rule: isNoun
             ? CapitalizationRule.noun
             : CapitalizationRule.verbOrAdjective,
-        explanation: isNoun
-            ? 'Nomen werden immer großgeschrieben'
-            : 'Verben und Adjektive werden kleingeschrieben',
+        explanation: explanation,
         forceMiddlePosition: true,
       );
       if (challenge == null) continue;

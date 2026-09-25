@@ -324,6 +324,53 @@ void main() {
     });
   });
 
+  group('spellingIsTrustworthy', () {
+    GermanWord lower(String word, List<String> prose) =>
+        testWord(word, enrichment: testEnrichment(definitions: prose));
+
+    test('a lowercase entry the pack always capitalises is not shown', () {
+      // An independent reader found "carthaginian" offered as an answer,
+      // lowercase. 169 English entries read like that: january, english,
+      // christmas, chinese.
+      expect(
+          spellingIsTrustworthy(lower('january', [
+            'We met in January that year.',
+            'By January the river froze.',
+            'Every January the same thing.',
+          ])),
+          isFalse);
+    });
+
+    test('an ordinary lowercase word is fine', () {
+      expect(
+          spellingIsTrustworthy(lower('rain', [
+            'The rain fell all day.',
+            'We walked in the rain.',
+            'After the rain it was cold.',
+          ])),
+          isTrue);
+    });
+
+    test('a capital at the start of a sentence proves nothing', () {
+      expect(
+          spellingIsTrustworthy(lower('rain', [
+            'Rain fell all day.',
+            'Rain is wet.',
+            'Rain came again.',
+          ])),
+          isTrue);
+    });
+
+    test('one or two occurrences are not evidence', () {
+      expect(
+          spellingIsTrustworthy(lower('mould', ['The Mould grew.'])), isTrue);
+    });
+
+    test('an already-capitalised entry is not second-guessed', () {
+      expect(spellingIsTrustworthy(testWord('Haus')), isTrue);
+    });
+  });
+
   group('classIsSettled', () {
     test('a word whose senses span two classes is not asked', () {
       // "answer" is filed as a noun and its primary_pos agrees; WordNet gives

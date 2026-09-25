@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
 import '../../../core/models/vocabulary_models.dart';
+import '../../../core/models/vocabulary_quality.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart';
@@ -51,7 +52,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
   final GlobalKey _gridKey = GlobalKey();
   Point? _dragStart;
   Point? _dragCurrent;
-  
+
   // Feedback State
   FeedbackState _feedbackState = FeedbackState.none;
   Timer? _feedbackTimer;
@@ -59,7 +60,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
   bool _showConfetti = false;
   String _educationalInfo = '';
   String _feedbackMessage = '';
-  
+
   // Instruction hint
   String _instructionHint = '';
   Timer? _instructionTimer;
@@ -109,8 +110,6 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
     await _loadLevel();
   }
 
-
-
   bool _isWordValidForGame(GermanWord word) {
     return word.word.length >= 4 &&
         word.word.length <= 8 &&
@@ -123,18 +122,19 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
     await _loadNextPuzzle();
   }
 
-  SnakeDifficulty _getAdjustedDifficulty(String word, SnakeDifficulty baseDifficulty) {
+  SnakeDifficulty _getAdjustedDifficulty(
+      String word, SnakeDifficulty baseDifficulty) {
     final length = word.length;
 
     if (length > 7) {
-        return SnakeDifficulty.hard;
+      return SnakeDifficulty.hard;
     }
     if (length > 5) {
-        return (baseDifficulty == SnakeDifficulty.hard) 
-            ? SnakeDifficulty.hard 
-            : SnakeDifficulty.medium;
+      return (baseDifficulty == SnakeDifficulty.hard)
+          ? SnakeDifficulty.hard
+          : SnakeDifficulty.medium;
     }
-    
+
     return baseDifficulty;
   }
 
@@ -160,23 +160,30 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
     )..shuffle();
     wordsForGame.shuffle();
     // Example sentences come from the enrichment, so decode it for these words.
-    final playable = await _vocabularyService.hydrate(wordsForGame);
+    // The snake spells the word out, so it may not spell one the pack's own
+    // prose contradicts.
+    final playable = (await _vocabularyService.hydrate(wordsForGame))
+        .where(spellingIsTrustworthy)
+        .toList();
     if (!mounted) return;
     WordSnakeGrid? puzzle;
     GermanWord? selectedWord;
 
     final baseDifficulty = _getDifficultyForGrade();
-    
+
     for (final word in playable) {
-      final adjustedDifficulty = _getAdjustedDifficulty(word.word, baseDifficulty);
-      
+      final adjustedDifficulty =
+          _getAdjustedDifficulty(word.word, baseDifficulty);
+
       puzzle = WordSnakeGenerator().generate(word.word, adjustedDifficulty);
-      
+
       if (puzzle != null && (puzzle.rows < 2 || puzzle.cols < 2)) {
-        if (kDebugMode) debugPrint("WordSnakeGenerator created an invalid 1-D grid. Discarding.");
+        if (kDebugMode)
+          debugPrint(
+              "WordSnakeGenerator created an invalid 1-D grid. Discarding.");
         puzzle = null;
       }
-      
+
       if (puzzle != null) {
         selectedWord = word;
         break;
@@ -212,7 +219,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
       // Show instruction hint
       _instructionHint = s.wordSnakeConnectLetters(puzzle!.word.length);
     });
-    
+
     // Auto-hide instruction after 3 seconds
     _instructionTimer?.cancel();
     _instructionTimer = Timer(const Duration(seconds: 3), () {
@@ -246,7 +253,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
 
     final cellWidth = box.size.width / puzzle.cols;
     final cellHeight = box.size.height / puzzle.rows;
-    
+
     if (cellWidth <= 0 || cellHeight <= 0) return null;
 
     final col = (localPos.dx / cellWidth).floor();
@@ -274,7 +281,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
 
   void _onPanUpdate(DragUpdateDetails details) {
     if (_dragStart == null || _currentPuzzle == null) return;
-    
+
     final pos = _getGridPositionFromOffset(details.localPosition);
     if (pos != null && pos != _dragCurrent) {
       if (_selectedPath.isNotEmpty) {
@@ -287,7 +294,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
           setState(() {
             _dragCurrent = pos;
             _selectedPath.add(pos);
-            
+
             if (_selectedPath.length == _currentPuzzle!.word.length) {
               _checkPath();
             }
@@ -320,7 +327,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
 
         if (isAdjacent && !_selectedPath.contains(tappedPoint)) {
           _selectedPath.add(tappedPoint);
-          
+
           if (_selectedPath.length == _currentPuzzle!.word.length) {
             _checkPath();
           }
@@ -374,7 +381,9 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
 
       Timer(const Duration(milliseconds: 500), () {
         if (mounted && generation == _puzzleGeneration) {
-          setState(() { _showConfetti = false; });
+          setState(() {
+            _showConfetti = false;
+          });
         }
       });
 
@@ -389,7 +398,6 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
         });
         _loadNextPuzzle();
       });
-
     } else {
       _audioService.playSound('failure');
       _gameProvider.hapticHeavy();
@@ -453,7 +461,9 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
           infoParts.add(s.wordSnakeGenus(word.genus!));
         }
 
-        if (word.plural != null && word.plural!.isNotEmpty && word.plural != '-') {
+        if (word.plural != null &&
+            word.plural!.isNotEmpty &&
+            word.plural != '-') {
           infoParts.add(s.wordSnakePlural(word.plural!));
         }
         break;
@@ -464,21 +474,23 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
 
         if (word.inflectionData != null) {
           try {
-            final conjugations = word.inflectionData!['analyses']?['verb']?['conjugation']?['Präsens'] as Map<String, dynamic>?;
+            final conjugations = word.inflectionData!['analyses']?['verb']
+                ?['conjugation']?['Präsens'] as Map<String, dynamic>?;
             if (conjugations != null) {
               ichForm = conjugations['ich'] as String?;
               duForm = conjugations['du'] as String?;
               erForm = conjugations['er/sie/es'] as String?;
             }
           } catch (e) {
-            if (kDebugMode) debugPrint('Error parsing verb inflectionData for ${word.word}: $e');
+            if (kDebugMode)
+              debugPrint(
+                  'Error parsing verb inflectionData for ${word.word}: $e');
           }
         }
 
         if (ichForm != null && duForm != null && erForm != null) {
           infoParts.add(s.wordSnakeVerbForms(ichForm, duForm, erForm));
-        }
-        else if (word.forms != null && word.forms!.isNotEmpty) {
+        } else if (word.forms != null && word.forms!.isNotEmpty) {
           infoParts.add(s.wordSnakeForms(word.forms!));
         }
         break;
@@ -493,21 +505,27 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
         String? komparativ, superlativ;
 
         if (word.inflectionData != null) {
-           try {
-              final comparison = word.inflectionData!['analyses']?['adjektiv']?['comparison'] as Map<String, dynamic>?;
-              if (comparison != null) {
-                komparativ = comparison['Komparativ'] as String?;
-                superlativ = comparison['Superlativ'] as String?;
-              }
-            } catch (e) {
-               if (kDebugMode) debugPrint('Error parsing adj inflectionData for ${word.word}: $e');
+          try {
+            final comparison = word.inflectionData!['analyses']?['adjektiv']
+                ?['comparison'] as Map<String, dynamic>?;
+            if (comparison != null) {
+              komparativ = comparison['Komparativ'] as String?;
+              superlativ = comparison['Superlativ'] as String?;
             }
+          } catch (e) {
+            if (kDebugMode)
+              debugPrint(
+                  'Error parsing adj inflectionData for ${word.word}: $e');
+          }
         }
 
-        if (komparativ != null && superlativ != null && komparativ.isNotEmpty && superlativ.isNotEmpty) {
-          infoParts.add(s.wordSnakeComparison('${word.word}, $komparativ, $superlativ'));
-        }
-        else if (word.forms != null && word.forms!.isNotEmpty) {
+        if (komparativ != null &&
+            superlativ != null &&
+            komparativ.isNotEmpty &&
+            superlativ.isNotEmpty) {
+          infoParts.add(
+              s.wordSnakeComparison('${word.word}, $komparativ, $superlativ'));
+        } else if (word.forms != null && word.forms!.isNotEmpty) {
           infoParts.add(s.wordSnakeComparison(word.forms!));
         }
         break;
@@ -596,7 +614,8 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
           children: [
             Text(
               '${s.score}: $_score',
-              style: SpaceTheme.titleStyle.copyWith(color: SpaceTheme.starYellow),
+              style:
+                  SpaceTheme.titleStyle.copyWith(color: SpaceTheme.starYellow),
             ),
             const SizedBox(height: 16),
             Text(
@@ -632,7 +651,8 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
   @override
   Widget build(BuildContext context) {
     final s = S.of(context)!;
-    final String selectedFontFamily = context.watch<GameProvider>().selectedFontFamily;
+    final String selectedFontFamily =
+        context.watch<GameProvider>().selectedFontFamily;
 
     return Scaffold(
       body: SpaceBackground(
@@ -641,7 +661,8 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
             children: [
               _buildTopBar(s),
               if (_isLoading)
-                const Expanded(child: Center(child: CircularProgressIndicator()))
+                const Expanded(
+                    child: Center(child: CircularProgressIndicator()))
               else if (_loadFailed)
                 Expanded(child: _buildLoadFailed(s))
               else
@@ -649,7 +670,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
                   child: Stack(
                     children: [
                       _buildGameContent(selectedFontFamily),
-                      
+
                       // Feedback toast
                       AnimatedPositioned(
                         duration: const Duration(milliseconds: 300),
@@ -659,7 +680,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
                         left: 20.0,
                         child: _buildFeedbackToast(s),
                       ),
-                      
+
                       // Instruction hint toast
                       AnimatedPositioned(
                         duration: const Duration(milliseconds: 300),
@@ -682,7 +703,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
   Widget _buildTopBar(S s) {
     final isLandscape = _isLandscapeMode(context);
     final totalScore = context.watch<GameProvider>().score;
-    
+
     return Container(
       margin: EdgeInsets.symmetric(
         horizontal: isLandscape ? 12 : 16,
@@ -710,15 +731,16 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
             label: S.of(context)!.semanticsBack,
             button: true,
             child: IconButton(
-              icon: Icon(Icons.arrow_back, color: Colors.white, size: isLandscape ? 20 : 24),
+              icon: Icon(Icons.arrow_back,
+                  color: Colors.white, size: isLandscape ? 20 : 24),
               onPressed: () => Navigator.of(context).pop(),
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
             ),
           ),
-          
+
           const SizedBox(width: 12),
-          
+
           // Title
           Expanded(
             child: Text(
@@ -728,7 +750,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
               ),
             ),
           ),
-          
+
           // Progress indicator
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -749,9 +771,9 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
               ),
             ),
           ),
-          
+
           const SizedBox(width: 8),
-          
+
           // Reset button
           Semantics(
             label: s.wordSnakeResetSelection,
@@ -774,9 +796,9 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
               ),
             ),
           ),
-          
+
           const SizedBox(width: 8),
-          
+
           // Score
           Semantics(
             label: s.wordSnakeScoreLabel(totalScore),
@@ -790,7 +812,8 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.star, color: Colors.white, size: isLandscape ? 14 : 16),
+                  Icon(Icons.star,
+                      color: Colors.white, size: isLandscape ? 14 : 16),
                   const SizedBox(width: 4),
                   FittedBox(
                     fit: BoxFit.scaleDown,
@@ -846,7 +869,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
 
   Widget _buildGameContent(String selectedFontFamily) {
     if (_currentPuzzle == null) return const SizedBox.shrink();
-    
+
     return Center(
       child: Padding(
         padding: EdgeInsets.symmetric(
@@ -860,71 +883,70 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
 
   Widget _buildGrid(String selectedFontFamily) {
     final puzzle = _currentPuzzle!;
-    
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        // Calculate maximum available space
-        final double availableWidth = constraints.maxWidth;
-        final double availableHeight = constraints.maxHeight;
-        
-        // Calculate cell size based on both dimensions
-        double cellSizeByWidth = (availableWidth / puzzle.cols) - 6;
-        double cellSizeByHeight = (availableHeight / puzzle.rows) - 6;
-        
-        // Use the smaller dimension to ensure grid fits
-        double cellSize = min(cellSizeByWidth, cellSizeByHeight);
-        
-        // Apply reasonable limits. Floor of 48dp keeps tap targets accessible.
-        cellSize = cellSize.clamp(48.0, 100.0);
-        
-        // Calculate actual grid dimensions
-        final gridWidth = (puzzle.cols * cellSize) + ((puzzle.cols - 1) * 6);
-        final gridHeight = (puzzle.rows * cellSize) + ((puzzle.rows - 1) * 6);
 
-        return Center(
-          child: GestureDetector(
-            key: _gridKey,
-            onPanStart: _onPanStart,
-            onPanUpdate: _onPanUpdate,
-            onPanEnd: _onPanEnd,
-            child: SizedBox(
-              width: gridWidth,
-              height: gridHeight,
-              child: GridView.builder(
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: puzzle.cols,
-                  mainAxisSpacing: 6,
-                  crossAxisSpacing: 6,
-                  childAspectRatio: 1.0,
-                ),
-                itemCount: puzzle.rows * puzzle.cols,
-                itemBuilder: (context, index) {
-                  final row = index ~/ puzzle.cols;
-                  final col = index % puzzle.cols;
-                  return _buildCell(row, col, cellSize, selectedFontFamily);
-                },
+    return LayoutBuilder(builder: (context, constraints) {
+      // Calculate maximum available space
+      final double availableWidth = constraints.maxWidth;
+      final double availableHeight = constraints.maxHeight;
+
+      // Calculate cell size based on both dimensions
+      double cellSizeByWidth = (availableWidth / puzzle.cols) - 6;
+      double cellSizeByHeight = (availableHeight / puzzle.rows) - 6;
+
+      // Use the smaller dimension to ensure grid fits
+      double cellSize = min(cellSizeByWidth, cellSizeByHeight);
+
+      // Apply reasonable limits. Floor of 48dp keeps tap targets accessible.
+      cellSize = cellSize.clamp(48.0, 100.0);
+
+      // Calculate actual grid dimensions
+      final gridWidth = (puzzle.cols * cellSize) + ((puzzle.cols - 1) * 6);
+      final gridHeight = (puzzle.rows * cellSize) + ((puzzle.rows - 1) * 6);
+
+      return Center(
+        child: GestureDetector(
+          key: _gridKey,
+          onPanStart: _onPanStart,
+          onPanUpdate: _onPanUpdate,
+          onPanEnd: _onPanEnd,
+          child: SizedBox(
+            width: gridWidth,
+            height: gridHeight,
+            child: GridView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: puzzle.cols,
+                mainAxisSpacing: 6,
+                crossAxisSpacing: 6,
+                childAspectRatio: 1.0,
               ),
+              itemCount: puzzle.rows * puzzle.cols,
+              itemBuilder: (context, index) {
+                final row = index ~/ puzzle.cols;
+                final col = index % puzzle.cols;
+                return _buildCell(row, col, cellSize, selectedFontFamily);
+              },
             ),
           ),
-        );
-      }
-    );
+        ),
+      );
+    });
   }
 
-  Widget _buildCell(int row, int col, double cellSize, String selectedFontFamily) {
+  Widget _buildCell(
+      int row, int col, double cellSize, String selectedFontFamily) {
     final puzzle = _currentPuzzle!;
     final letter = puzzle.grid[row][col];
 
     final point = Point(col, row);
-    
+
     final isSelected = _selectedPath.contains(point);
     final selectionIndex = _selectedPath.indexOf(point);
 
     Color bgColor;
     Color textColor = Colors.white;
     String? orderText;
-    
+
     final fontSize = cellSize * 0.45;
     final orderCircleSize = cellSize * 0.28;
     final orderFontSize = cellSize * 0.16;
@@ -1040,12 +1062,12 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
   }
 
   Widget _buildFeedbackToast(S s) {
-    if (_feedbackMessage.isEmpty) { 
+    if (_feedbackMessage.isEmpty) {
       return const SizedBox.shrink();
     }
-    
+
     final isSuccess = _feedbackState == FeedbackState.correct;
-    
+
     final color = isSuccess ? Colors.green : SpaceTheme.rocketRed;
     final icon = isSuccess ? Icons.check_circle : Icons.cancel;
 
@@ -1081,22 +1103,22 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-            if (_educationalInfo.isNotEmpty) ...[
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 8.0),
-                child: Divider(color: Colors.white24),
-              ),
-              Text(
-                _educationalInfo,
-                style: SpaceTheme.bodyStyle.copyWith(
-                  fontSize: 13,
-                  fontStyle: FontStyle.italic,
-                  color: Colors.white70,
+              if (_educationalInfo.isNotEmpty) ...[
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8.0),
+                  child: Divider(color: Colors.white24),
                 ),
-                textAlign: TextAlign.center,
-                maxLines: 5,
-                overflow: TextOverflow.ellipsis,
-              ),
+                Text(
+                  _educationalInfo,
+                  style: SpaceTheme.bodyStyle.copyWith(
+                    fontSize: 13,
+                    fontStyle: FontStyle.italic,
+                    color: Colors.white70,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 5,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ]
             ],
           ),
@@ -1109,7 +1131,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
     if (_instructionHint.isEmpty) {
       return const SizedBox.shrink();
     }
-    
+
     return Material(
       color: Colors.transparent,
       child: Container(
