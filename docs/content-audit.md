@@ -440,3 +440,53 @@ What none of this catches is a gloss that is merely above its reader —
 that are missing from the catalogue works in English and reads German
 compounds and inflections as unknown, scoring "Muttertier des Hausrinds" as
 the hardest gloss in the pack.
+
+
+## A second reader
+
+`docs/review/gold-set-2026-09-23.txt` was labelled by the assistant that wrote
+the rules in this file, which measures how consistent one judgement is rather
+than whether it was right. `…second-reader.txt` is the same 155 items labelled
+from a blank copy by a separate agent that was told nothing about these rules
+and given no access to the first labels.
+
+They agree on **93%** of items — 29 both called wrong, 4 only the first, 7 only
+the second. That is close enough to trust either as a rough rate and far enough
+apart to be worth the second pass, because the disagreements were not noise.
+
+Three of the seven were faults the first reader had passed:
+
+- **"am falschen ___ sparen" keyed "Platz".** The fixed idiom is *am falschen
+  Ende sparen*. The pack lists the Platz version among that word's expressions
+  and does not list the correct one under Ende, so this is left recorded rather
+  than deleted: one reader's judgement against a Wiktionary-sourced expression
+  is not a measured rule.
+- **The Großschreibung rule text.** "sehr" and "dein" were keyed lowercase and
+  explained with "Verben und Adjektive werden kleingeschrieben" — one is an
+  adverb, the other a possessive determiner. The screen has always drawn only
+  nouns, verbs and adjectives and given each its own explanation; the dump drew
+  anything, so this was a game nobody plays being reviewed. Fixed.
+- **"carthaginian" offered lowercase.** It is a proper adjective. That turned
+  out to be a class: **169 English entries are stored lowercase while every
+  mid-sentence occurrence in the pack's own prose is capitalised** — january,
+  english, christmas, july, friday, chinese, dutch, usa, europe.
+
+### Spellings the pack contradicts
+
+`spellingIsTrustworthy` reads the pack's own glosses, graded examples and book
+quotations. Three or more mid-sentence occurrences, all capitalised, and the
+lowercase headword is wrong. Sentence-initial occurrences are ignored, because
+a capital there proves nothing.
+
+The games that ask a child to find, trace or match a spelling skip those
+entries. Word Builder does not need to: it uppercases every letter tile, so the
+stored case never reaches the screen.
+
+This **excludes rather than corrects**, and that is deliberate. Correcting
+means capitalising the headword, and a handful of these have a legitimate
+lowercase reading whose examples are about the other word — "august" is an
+adjective meaning venerable, "york" a verb — and nothing available here
+separates those from the months and the languages. The list is worth a pack fix
+somebody reads: 126 of the 169 are typed noun and are months, days, acronyms
+(DVD, UK, USA, FAQ, URL) and place names, and the remaining 43 are mostly
+demonym adjectives that English capitalises too.

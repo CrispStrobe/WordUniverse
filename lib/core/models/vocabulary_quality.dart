@@ -213,6 +213,52 @@ final RegExp _scriptureOrMyth = RegExp(
     r'|in the bible|biblical|legendary|mythical)\b',
     caseSensitive: false);
 
+/// Whether the entry's own spelling can be trusted enough to teach it.
+///
+/// An independent reader found "carthaginian" offered as the answer to "The
+/// ___ civilization was ancient", lowercase. It is a proper adjective and
+/// must be capitalised, and the pack's own prose knows: 169 English entries
+/// are stored lowercase while every mid-sentence occurrence the pack writes
+/// of them is capitalised — january, english, christmas, july, usa, europe,
+/// friday, chinese, dutch.
+///
+/// The pack's prose is the better evidence, the same way the example sentence
+/// outranks the capitalisation rule in Großschreibung. A game that asks a
+/// child to find, trace, build or spell a word must not hand them a spelling
+/// its own corpus contradicts.
+///
+/// This excludes rather than corrects. Correcting would mean capitalising the
+/// headword, and a handful of these have a legitimate lowercase reading whose
+/// examples are about the other word — "august" is an adjective meaning
+/// venerable, "york" a verb — and nothing here separates those from the
+/// months and languages reliably. The entries are listed in
+/// docs/content-audit.md for a pack fix somebody can read.
+///
+/// Sentence-initial occurrences are ignored: a capital there proves nothing.
+bool spellingIsTrustworthy(GermanWord word) {
+  final spelling = word.word;
+  if (spelling.isEmpty) return true;
+  final first = spelling[0];
+  if (first != first.toLowerCase()) return true; // already capitalised
+  final pattern = RegExp(
+      r'(^|[^\p{L}])(' + RegExp.escape(spelling) + r')(?![\p{L}])',
+      unicode: true,
+      caseSensitive: false);
+  var seen = 0;
+  var capitalised = 0;
+  for (final text in word.evidenceForItsOwnSpelling) {
+    for (final match in pattern.allMatches(text)) {
+      final before = text.substring(0, match.start).trimRight();
+      if (before.isEmpty || '.!?'.contains(before[before.length - 1])) continue;
+      seen++;
+      final token = match.group(2)!;
+      if (token[0] != token[0].toLowerCase()) capitalised++;
+    }
+  }
+  // Three is where the evidence stops being an accident of one sentence.
+  return seen < 3 || capitalised < seen;
+}
+
 /// Whether a phrasal verb is one to teach a child, judged by its meaning.
 ///
 /// All 400 in the English pack were read. Two carry a meaning that is not for

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
 import '../../../core/models/vocabulary_models.dart';
+import '../../../core/models/vocabulary_quality.dart';
 
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
@@ -114,7 +115,12 @@ class _WordFindGameState extends State<WordFindGame> {
 
     // The words in play get their enrichment (definitions, CEFR, hints); the
     // rest of the catalogue stays light.
-    _wordsToFind = await _vocabularyService.hydrate(wordsForGame);
+    // Hydration brings the pack's own prose with it, which is what says
+    // whether the entry's spelling can be shown: "january" is stored
+    // lowercase and written capitalised everywhere the pack uses it.
+    _wordsToFind = (await _vocabularyService.hydrate(wordsForGame))
+        .where(spellingIsTrustworthy)
+        .toList();
     if (!mounted) return;
 
     // Generate the grid
