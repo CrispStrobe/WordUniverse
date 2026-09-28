@@ -71,28 +71,28 @@
       probe
 ── definition_quiz (4)
   etwas aufmachen; offen machen
-    ✓ öffnen
-      proben
       brüllen
-      der Radiergummi
+      proben
+    ✓ öffnen
+      das Pfingsten
     · word: öffnen  grade: 3
   Organisation von Menschen mit einem gemeinsamen Ziel oder gemeinsamen Interessen
     ✓ der Verein
-      die Maschine
-      das Pfingsten
-      das Hobby
+      der Fußball
+      das Abendessen
+      die Mathematik
     · word: Verein  grade: 3
   unkluge, ungereimte Aussage oder Aussagen
-      das Motorrad
+      der Radiergummi
+      die Paprika
+      das Lexikon
     ✓ der Quatsch
-      der Fußball
-      der Kalender
     · word: Quatsch  grade: 3
   eine beliebte Mannschaftssportart, welche mit 22 Spielern und einem Ball gespielt wird
+      die Reihe
       die Mannschaft
-      der Kalender
+      die Paprika
     ✓ der Fußball
-      das Lexikon
     · word: Fußball  grade: 3
 ── expression_flash (4)
   kein ___ vor den Mund nehmen
@@ -219,24 +219,24 @@
 ── sentence_completion (4)
   Die ___ hat gestern Abend ein großes Konzert gegeben.
     ✓ Band
-      Kreis
-      Nacht
-      Thermometer
-  Wir backen einen Kuchen mit ___.
-    ✓ Beere
-      Orkan
-      Astronaut
-      Dreieck
-  Ich höre ___ den Hund bellen.
       Beere
-    ✓ Nacht
       Fleck
       Schuh
-  Der Lehrer steht ___ im Klassenzimmer.
-      sogar
-      manchmal
+  Wir backen einen Kuchen mit ___.
+      Orkan
+      Astronaut
+    ✓ Beere
+      Ordnung
+  Ich höre ___ den Hund bellen.
+      Polizei
+      Orkan
+      Bad
+    ✓ Nacht
+  Die Schüler sitzen ___ in der ersten Reihe.
       hoffentlich
     ✓ vorne
+      sogar
+      manchmal
 ── spelling_spotter (4)
   Which spelling is correct?
       prinsesin
@@ -258,28 +258,28 @@
     · shown after answering: Die Party ist vorbei.
 ── sri_review (4)
   "etwas aufmachen; offen machen"
-    ✓ öffnen
-      proben
       brüllen
-      der Radiergummi
+      proben
+    ✓ öffnen
+      das Pfingsten
     · type: definition
   Welcher Artikel passt?
 "___ Verein"
-      die
       das
+      die
     ✓ der
     · type: article
   "unkluge, ungereimte Aussage oder Aussagen"
-      das Motorrad
     ✓ der Quatsch
       die Maschine
-      der Verein
+      das Pfingsten
+      das Hobby
     · type: definition
   "eine beliebte Mannschaftssportart, welche mit 22 Spielern und einem Ball gespielt wird"
-      die Reihe
-      die Paprika
       der Radiergummi
     ✓ der Fußball
+      die Mannschaft
+      die Reihe
     · type: definition
 ── syllable_count (4)
   öffnen
