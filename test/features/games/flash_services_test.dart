@@ -190,10 +190,11 @@ void main() {
       expect(chimney.learnerDefinitions.single, startsWith('a vertical flue'));
     });
 
-    test('an entry with several senses is left alone', () {
-      // Choosing among them is how "dog" came to be "a dull unattractive
+    test('several senses sharing nothing with the pack are left alone', () {
+      // Choosing by position is how "dog" came to be "a dull unattractive
       // unpleasant girl or woman": its own first sense is a name sense, and
-      // skipping that promotes the insult.
+      // skipping that promotes the insult. Nothing here shares two words with
+      // "A mammal of the family Canidae.", so nothing is chosen.
       final dog = testWord('dog',
           type: GermanWordType.substantiv,
           enrichment: testEnrichment(
@@ -209,6 +210,77 @@ void main() {
             ],
           ));
       expect(dog.learnerDefinitions, isEmpty);
+    });
+
+    test('several senses pick the one the pack is about, not the first', () {
+      // WordNet's first noun sense of "bank" is the riverbank, and of "table"
+      // a set of data. Frequency in a general corpus is not this entry.
+      final bank = testWord('bank',
+          type: GermanWordType.substantiv,
+          enrichment: testEnrichment(
+            definitions: [
+              'An institution where one can place and borrow money and take '
+                  'care of financial transactions of many descriptions, '
+                  'including deposits and withdrawals.'
+            ],
+            wordnetSenses: const [
+              WordNetSense(
+                  pos: 'noun',
+                  definition:
+                      'sloping land (especially the slope beside a body of '
+                      'water)'),
+              WordNetSense(
+                  pos: 'noun',
+                  definition: 'a financial institution that accepts deposits '
+                      'and channels the money into lending'),
+              WordNetSense(pos: 'noun', definition: 'a long ridge or pile'),
+            ],
+          ));
+      expect(bank.learnerDefinitions.single, startsWith('a financial'));
+    });
+
+    test('a single shared word is not enough to pick a sense', () {
+      // One word is a coincidence. "fly" sharing only "insect" is the price.
+      final tie = testWord('pitch',
+          type: GermanWordType.substantiv,
+          enrichment: testEnrichment(
+            definitions: [
+              'A sticky, gummy substance secreted by trees, of a kind that is '
+                  'used in the caulking of ships and in other work requiring '
+                  'a waterproof adhesive material.'
+            ],
+            wordnetSenses: const [
+              WordNetSense(
+                  pos: 'noun',
+                  definition:
+                      'a vendor who sells sticky goods on the street'),
+              WordNetSense(
+                  pos: 'noun',
+                  definition: 'the action or manner of throwing something'),
+            ],
+          ));
+      expect(tie.learnerDefinitions, isEmpty);
+    });
+
+    test('two senses sharing equally are a choice this does not make', () {
+      final ambiguous = testWord('post',
+          type: GermanWordType.substantiv,
+          enrichment: testEnrichment(
+            definitions: [
+              'A long dowel or plank protruding from the ground, used as a '
+                  'fence post or a support for a sign or a wire.'
+            ],
+            wordnetSenses: const [
+              WordNetSense(
+                  pos: 'noun',
+                  definition: 'a long plank used as a fence support'),
+              WordNetSense(
+                  pos: 'noun',
+                  definition:
+                      'an upright long plank inside a fence support'),
+            ],
+          ));
+      expect(ambiguous.learnerDefinitions, isEmpty);
     });
 
     test('a readable leading gloss keeps its own sense first', () {

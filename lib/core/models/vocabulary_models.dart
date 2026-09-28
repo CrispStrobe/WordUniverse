@@ -667,19 +667,96 @@ class GermanWord {
     if (all.isNotEmpty && glossSuitsAChild(all.first)) {
       return all.where(glossSuitsAChild).toList();
     }
-    final fromWordNet = _soleSenseGloss;
+    final fromWordNet = _soleSenseGloss ?? _alignedSenseGloss;
     return fromWordNet == null ? const [] : [fromWordNet];
   }
+
+  /// WordNet's wording for the sense *this entry means*, chosen by how much
+  /// its gloss shares with the pack's own.
+  ///
+  /// This is what the 226 multi-sense entries needed. Sense order cannot
+  /// supply it: WordNet ranks by frequency in a general corpus, so the first
+  /// noun sense of "bank" is "sloping land beside a body of water", of "table"
+  /// "a set of data arranged in rows and columns", of "light" "a divine
+  /// presence believed by Quakers", and of "crane" "United States writer
+  /// (1871-1900)" — none of them the sense the pack is about.
+  ///
+  /// Overlap supplies it, and it does not need the pack's gloss to be a gloss
+  /// a child can read — only to be about the same thing. "An institution where
+  /// one can place and borrow money" shares institution and money with "a
+  /// financial institution that accepts deposits and channels the money into
+  /// lending", and nothing with the riverbank.
+  ///
+  /// Two shared words, and strictly more than any other sense of the class.
+  /// One word is enough to be a coincidence, and a tie is a choice this cannot
+  /// make: "spring" is glossed "An act of springing: a leap, a jump.", which
+  /// shares nothing with any of WordNet's eleven senses, so it is left alone
+  /// rather than explained as the season. 1,759 entries align under that rule;
+  /// 1,270 share nothing, 1,734 share one word, and 153 tie.
+  String? get _alignedSenseGloss {
+    final senses = apiEnrichment?.wordnetSenses ?? const <WordNetSense>[];
+    if (senses.length < 2) return null;
+    final ours = displayDefinitions;
+    if (ours.isEmpty) return null;
+    final target = _contentWords(ours.first);
+    if (target.isEmpty) return null;
+
+    WordNetSense? best;
+    var bestShared = 0;
+    var tied = false;
+    for (final sense in senses) {
+      if (!_posIsMine(sense.pos)) continue;
+      final shared = _contentWords(sense.definition).intersection(target).length;
+      if (shared > bestShared) {
+        best = sense;
+        bestShared = shared;
+        tied = false;
+      } else if (shared == bestShared && best != null) {
+        tied = true;
+      }
+    }
+    if (best == null || tied || bestShared < 2) return null;
+    if (senseNamesSomething(best,
+        promptIsLowercase: word == word.toLowerCase())) {
+      return null;
+    }
+    final gloss = best.definition;
+    if (gloss == null || gloss.trim().isEmpty) return null;
+    return glossSuitsAChild(gloss) ? gloss : null;
+  }
+
+  /// Words that carry meaning, for comparing two glosses of the same word.
+  /// The stop list is what two unrelated dictionary definitions share anyway —
+  /// without it "used" and "something" alone align a sense.
+  static Set<String> _contentWords(String? text) {
+    if (text == null) return const <String>{};
+    return RegExp(r'[a-z]+')
+        .allMatches(text.toLowerCase())
+        .map((m) => m.group(0)!)
+        .where((w) => w.length > 2 && !_glossStopWords.contains(w))
+        .toSet();
+  }
+
+  static const Set<String> _glossStopWords = {
+    'the', 'and', 'that', 'which', 'are', 'been', 'being', 'for', 'with',
+    'from', 'its', 'something', 'someone', 'any', 'each', 'one', 'two',
+    'who', 'whom', 'whose', 'not', 'other', 'others', 'such', 'this',
+    'these', 'those', 'used', 'use', 'using', 'especially', 'typically',
+    'usually', 'often', 'more', 'most', 'very', 'can', 'may', 'having',
+    'have', 'has', 'made', 'make', 'makes', 'also', 'into', 'out', 'off',
+    'over', 'under',
+  };
 
   /// WordNet's wording, but only where the entry has exactly one sense of its
   /// own class — so there is no sense to choose and nothing to choose wrong.
   ///
   /// Its glosses are plainer than the pack's: 49 characters to 61 at the
   /// median, and for 331 entries the pack's leading gloss is one a child
-  /// cannot read while WordNet's is. Only 105 of those are single-sense, and
-  /// the rest are why the other 226 are left alone — filtering "dog"'s name
-  /// sense promotes "a dull unattractive unpleasant girl or woman" into first
-  /// place, which is a worse fault than the one being fixed.
+  /// cannot read while WordNet's is. 105 of those are single-sense and are
+  /// answered here; the multi-sense rest are answered by _alignedSenseGloss,
+  /// which picks a sense rather than a position — filtering "dog"'s name sense
+  /// promotes "a dull unattractive unpleasant girl or woman" into first place,
+  /// which is a worse fault than the one being fixed.
   String? get _soleSenseGloss {
     final senses = apiEnrichment?.wordnetSenses ?? const <WordNetSense>[];
     if (senses.isEmpty) return null;
