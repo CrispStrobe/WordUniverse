@@ -81,14 +81,20 @@ def cmd_status(args):
     print(f"app: {a.get('name')}  bundle {a.get('bundleId')}  sku {a.get('sku')}")
 
     print('\nbuilds (newest first):')
-    builds = paged(f'/v1/builds?filter[app]={app_id()}&limit=10'
-                   '&sort=-version&include=preReleaseVersion')
-    included = {}
-    for build in builds[:10]:
+    page = call('GET', f'/v1/builds?filter[app]={app_id()}&limit=20'
+                       '&sort=-version&include=preReleaseVersion')
+    # The platform matters: iOS and macOS number their builds independently, so
+    # "build 5" appears twice and means two different binaries.
+    pre = {i['id']: i['attributes'] for i in page.get('included', [])
+           if i['type'] == 'preReleaseVersions'}
+    for build in page.get('data', [])[:12]:
         b = build['attributes']
-        print(f"  build {b.get('version'):>4}  {b.get('processingState'):12} "
-              f"expired={b.get('expired')}  uploaded {b.get('uploadedDate')}")
-        included[b.get('version')] = build['id']
+        rel = ((build.get('relationships') or {}).get('preReleaseVersion')
+               or {}).get('data') or {}
+        info = pre.get(rel.get('id'), {})
+        print(f"  {info.get('platform', '?'):7} {info.get('version', '?'):8} "
+              f"build {b.get('version'):>4}  {b.get('processingState'):10} "
+              f"expired={str(b.get('expired')):5} {b.get('uploadedDate')}")
 
     print('\nbeta groups:')
     for group in paged(f'/v1/apps/{app_id()}/betaGroups?limit=50'):
@@ -98,7 +104,7 @@ def cmd_status(args):
               f"publicLink={g.get('publicLinkEnabled')}")
 
     print('\napp store versions:')
-    for version in paged(f'/v1/apps/{app_id()}/appStoreVersions?limit=10'):
+    for version in paged(f'/v1/apps/{app_id()}/appStoreVersions?limit=20'):
         v = version['attributes']
         print(f"  {v.get('versionString'):8} {v.get('appStoreState')}  "
               f"platform={v.get('platform')}  id={version['id']}")
@@ -164,7 +170,9 @@ def cmd_metadata(args):
                     problems.append(f'{locale}: {field} is empty')
 
     # ── version-level: description, what's new, screenshots ─────────────────
-    versions = paged(f'/v1/apps/{app_id()}/appStoreVersions?limit=10')
+    versions = [v for v in paged(f'/v1/apps/{app_id()}/appStoreVersions'
+                                 '?limit=20')
+                if v['attributes'].get('platform') == args.platform]
     editable = {'PREPARE_FOR_SUBMISSION', 'DEVELOPER_REJECTED', 'REJECTED',
                 'METADATA_REJECTED', 'INVALID_BINARY'}
     target = None
@@ -178,8 +186,18 @@ def cmd_metadata(args):
     if target is None:
         target = next((v for v in versions
                        if v['attributes'].get('appStoreState') in editable), None)
+    if target is None and args.live:
+        # Nothing editable, so read the version that is on sale instead: a new
+        # version inherits its metadata, so this is what 1.4.2 would start from.
+        target = next((v for v in versions if v['attributes'].get(
+            'appStoreState') == 'READY_FOR_SALE'), None)
+        if target:
+            print(f"\nno editable {args.platform} version; reading the live "
+                  f"{target['attributes'].get('versionString')} instead, which "
+                  "is what a new one inherits from")
     if target is None:
-        print('\nno editable version. Nothing to submit until one is created.')
+        print(f'\nno editable {args.platform} version. Nothing to submit '
+              'until one is created.')
         print(f"\n{len(problems)} problem(s): " + ('none' if not problems else ''))
         for p in problems:
             print(f'  - {p}')
@@ -308,7 +326,9 @@ def cmd_testflight(args):
 # ── App Store ───────────────────────────────────────────────────────────────
 def cmd_appstore(args):
     build = wait_for_processing(args.build, args.wait)
-    versions = paged(f'/v1/apps/{app_id()}/appStoreVersions?limit=20')
+    versions = [v for v in paged(f'/v1/apps/{app_id()}/appStoreVersions'
+                                 '?limit=20')
+                if v['attributes'].get('platform') == 'IOS']
     editable = {'PREPARE_FOR_SUBMISSION', 'DEVELOPER_REJECTED',
                 'REJECTED', 'METADATA_REJECTED', 'INVALID_BINARY'}
     version = next((v for v in versions
@@ -373,6 +393,10 @@ def main():
                         help='what Apple would block a submission on')
     md.add_argument('--version', help='which version to check; default is the '
                                       'editable one')
+    md.add_argument('--platform', default='IOS', choices=['IOS', 'MAC_OS'])
+    md.add_argument('--live', action='store_true',
+                    help='when nothing is editable, read the version on sale, '
+                         'which is what a new one inherits from')
 
     tf = sub.add_parser('testflight', help='distribute a build to testers')
     tf.add_argument('--build', required=True)
