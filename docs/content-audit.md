@@ -507,6 +507,76 @@ known in full. Reading the round's sample instead is the bug this codebase has
 shipped five times.
 
 
+### A gloss that points somewhere else
+
+"Clipping of bicycle." is what a lexicographer writes so a reader can look the
+word up elsewhere. Shown to a child as a meaning it says nothing at all, and 60
+English entries led with one — `bike`, `math`, `maths`, `auto`, `bio`,
+`congrats`, `disco`, `non`, `chilli` at grades 2 and 3.
+
+`kCrossReferenceMarkers` is **anchored at the start**, unlike every other marker
+list in `vocabulary_quality.dart`, and that is the whole design: "synonym of"
+and "clipping of" are ordinary English that appears inside real definitions, so
+*"A synonym of happiness is joy"* has to survive.
+
+Five of the sixty were worse than useless. `hasnt` and `isnt` are grade 1,
+`didnt` and `doesnt` grade 2, each glossed "Misspelling of …" and carrying no
+misspelling tag — so the tag machinery passed them and a child was taught the
+spelling without the apostrophe as a word. A gloss that calls the entry a
+misspelling is evidence about the *entry*. `wasnt` is named rather than
+detected: it is glossed "Contraction of was not.", which is true of "wasn't" and
+not of this spelling.
+
+Two needed the opposite. `airplane` and `aeroplane` are glossed "Synonym of
+airplane. A powered heavier-than-air aircraft with fixed wings." — a pointer at
+itself, then the definition. Rejecting the gloss for its opening would cost a
+grade 2 word its meaning and promoting the next gloss would change the sense, so
+the sentence goes and the rest stays.
+
+Reading the outcome caught one bad promotion before it shipped: once `co` lost
+"Clipping of company.", the sense promoted was carbon monoxide — "an odorless
+very poisonous gas" — at grade 2. It is now listed as a symbol rather than a
+word, and the code says it got there by measurement rather than by reading,
+because that distinction matters to anyone auditing those lists later.
+
+### 2,062 German given names
+
+The largest single defect found, and it was not found by looking for a bug. Asked
+what German leading glosses actually *start* with, the two commonest openings in
+the whole pack are "männlicher Vorname" (1,031) and "weiblicher Vorname" (1,022).
+
+`kNameGlossOpenings` has had the English phrasings since it was written — "a
+male given name", "a surname", "a placename". Nobody had written the German
+ones. So every one of those entries was ordinary vocabulary: Aaron, Alice,
+Alexander and Andrea at grade 5, August at grade 1. 16% of the German pack, and
+2,056 of the 2,062 have no other sense at all — they are people's names and
+nothing else.
+
+Three checks before believing it:
+
+- **"August" is the one that could have gone wrong**, being a month. Its only
+  German gloss is the given name, so typing it costs nothing that exists. The
+  conflict was assumed and turned out not to be there.
+- **Anchoring is what makes it safe.** "Vorname" and "Familienname" are the
+  German words *for* a first name and a surname; their own glosses open "ein von
+  den Eltern individuell ausgesuchter Name" and "der den Mitgliedern einer
+  Familie gemeinsame Teil …", so neither types itself.
+- **No grade band collapses.** 1,806 of the loss is the ungraded bucket and 255
+  is grade 5 (4%). Grades 1, 2, 3, 4 and 6 lose one entry between them.
+
+German writes the same pointer glosses English does — `Ex` is "Kurzform für
+Exfreund oder Exmann", `Mami` "Koseform von Mama" — so that list is not
+English-only either. And 19 entries offered the literal string "No definition
+available." as the meaning of Amurtiger, Ciao and Hi; it reads as an ordinary
+sentence to every other rule here, so it needed its own.
+
+**How far this reaches without a pack rebuild.** `namesSomething` reads the
+gloss for a hydrated word and the feature index for a light one, so the typing
+takes effect for hydrated German words against the pack already installed. The
+light-word path needs a rebuilt German pack, and that pack is published on
+Hugging Face, for which there is no token in the repository secrets — so this
+fix is delivered in part and will stay that way until one exists.
+
 ## A second reader
 
 `docs/review/gold-set-2026-09-23.txt` was labelled by the assistant that wrote
