@@ -111,6 +111,144 @@ def cmd_status(args):
     return 0
 
 
+# ── metadata readiness ──────────────────────────────────────────────────────
+# What Apple blocks a submission on. Read-only, and the point of it is to say
+# "this is missing" here rather than have a submission rejected for it.
+
+# Apple accepts one iPhone size and one iPad size as the source for the rest.
+# 6.9"/6.7" covers iPhone; 13"/12.9" covers iPad, and is only needed when the
+# app actually ships for iPad.
+IPHONE_SETS = ('APP_IPHONE_69', 'APP_IPHONE_67', 'APP_IPHONE_65')
+IPAD_SETS = ('APP_IPAD_PRO_3GEN_129', 'APP_IPAD_PRO_129', 'APP_IPAD_113',
+             'APP_IPAD_109')
+
+
+def _ok(flag):
+    return 'ok  ' if flag else 'MISSING'
+
+
+def cmd_metadata(args):
+    problems = []
+    app = call('GET', f'/v1/apps/{app_id()}')['data']
+    a = app['attributes']
+    print(f"app: {a.get('name')}  bundle {a.get('bundleId')}")
+    rights = a.get('contentRightsDeclaration')
+    print(f"  {_ok(rights)}  content rights declaration: {rights}")
+    if not rights:
+        problems.append('content rights declaration is unset')
+
+    # ── app-level: name, subtitle, privacy policy, categories ───────────────
+    infos = paged(f'/v1/apps/{app_id()}/appInfos?limit=10')
+    for info in infos:
+        state = info['attributes'].get('appStoreState')
+        if state in ('READY_FOR_DISTRIBUTION', 'REPLACED_WITH_NEW_VERSION'):
+            continue
+        print(f"\napp info ({state}):")
+        for rel, label in (('primaryCategory', 'primary category'),
+                           ('secondaryCategory', 'secondary category')):
+            got = call('GET', f"/v1/appInfos/{info['id']}/{rel}").get('data')
+            name = (got or {}).get('id')
+            print(f"  {_ok(name or rel == 'secondaryCategory')}  {label}: {name}")
+            if not name and rel == 'primaryCategory':
+                problems.append('primary category is unset')
+        for loc in paged(f"/v1/appInfos/{info['id']}/appInfoLocalizations"
+                         '?limit=50'):
+            la = loc['attributes']
+            locale = la.get('locale')
+            for field in ('name', 'subtitle', 'privacyPolicyUrl'):
+                value = la.get(field)
+                required = field in ('name', 'privacyPolicyUrl')
+                print(f"  {_ok(value or not required)}  {locale} {field}: "
+                      f"{(value or '')[:58]}")
+                if required and not value:
+                    problems.append(f'{locale}: {field} is empty')
+
+    # ── version-level: description, what's new, screenshots ─────────────────
+    versions = paged(f'/v1/apps/{app_id()}/appStoreVersions?limit=10')
+    editable = {'PREPARE_FOR_SUBMISSION', 'DEVELOPER_REJECTED', 'REJECTED',
+                'METADATA_REJECTED', 'INVALID_BINARY'}
+    target = None
+    if args.version:
+        target = next((v for v in versions
+                       if v['attributes'].get('versionString') == args.version),
+                      None)
+        if target is None:
+            print(f"\nno version {args.version} exists yet; it would be created "
+                  "on submit, inheriting the metadata above")
+    if target is None:
+        target = next((v for v in versions
+                       if v['attributes'].get('appStoreState') in editable), None)
+    if target is None:
+        print('\nno editable version. Nothing to submit until one is created.')
+        print(f"\n{len(problems)} problem(s): " + ('none' if not problems else ''))
+        for p in problems:
+            print(f'  - {p}')
+        return 1 if problems else 0
+
+    va = target['attributes']
+    print(f"\nversion {va.get('versionString')} ({va.get('appStoreState')}):")
+    print(f"  release type: {va.get('releaseType')}")
+    build = call('GET', f"/v1/appStoreVersions/{target['id']}/build").get('data')
+    print(f"  {_ok(build)}  build attached: "
+          f"{(build or {}).get('attributes', {}).get('version')}")
+    if not build:
+        problems.append('no build attached to the version')
+
+    for loc in paged(f"/v1/appStoreVersions/{target['id']}"
+                     '/appStoreVersionLocalizations?limit=50'):
+        la = loc['attributes']
+        locale = la.get('locale')
+        description = la.get('description') or ''
+        whats_new = la.get('whatsNew') or ''
+        keywords = la.get('keywords') or ''
+        print(f"  {locale}:")
+        print(f"    {_ok(description)}  description ({len(description)} chars)")
+        if not description:
+            problems.append(f'{locale}: description is empty')
+        print(f"    {_ok(whats_new)}  what's new ({len(whats_new)} chars)")
+        if not whats_new:
+            problems.append(f"{locale}: what's new is empty")
+        print(f"    {'ok  ' if keywords else 'none'}  keywords: {keywords[:48]}")
+        sets = paged(f"/v1/appStoreVersionLocalizations/{loc['id']}"
+                     '/appScreenshotSets?limit=50')
+        shots = {}
+        for s in sets:
+            kind = s['attributes'].get('screenshotDisplayType')
+            got = paged(f"/v1/appScreenshotSets/{s['id']}/appScreenshots"
+                        '?limit=20')
+            shots[kind] = len(got)
+        iphone = sum(n for k, n in shots.items() if k in IPHONE_SETS)
+        ipad = sum(n for k, n in shots.items() if k in IPAD_SETS)
+        print(f"    {_ok(iphone)}  iPhone screenshots: {iphone}"
+              f"   iPad: {ipad}   sets: {shots or 'none'}")
+        if not iphone:
+            problems.append(f'{locale}: no iPhone screenshots')
+
+    rating = call('GET', f"/v1/appStoreVersions/{target['id']}"
+                         '/ageRatingDeclaration').get('data')
+    print(f"  {_ok(rating)}  age rating declaration present")
+    if not rating:
+        problems.append('age rating declaration is unset')
+
+    review = call('GET', f"/v1/appStoreVersions/{target['id']}"
+                         '/appStoreReviewDetail').get('data')
+    if review:
+        r = review['attributes']
+        need_demo = r.get('demoAccountRequired')
+        print(f"  ok    review contact: {r.get('contactFirstName')} "
+              f"{r.get('contactLastName')} <{r.get('contactEmail')}>")
+        print(f"  ok    demo account required: {need_demo}")
+        if not r.get('contactEmail'):
+            problems.append('review contact email is empty')
+    else:
+        print('  MISSING  app store review detail (contact information)')
+        problems.append('app store review detail is unset')
+
+    print(f"\n{len(problems)} problem(s)" + (':' if problems else ''))
+    for p in problems:
+        print(f'  - {p}')
+    return 1 if problems else 0
+
 def find_build(number):
     builds = paged(f'/v1/builds?filter[app]={app_id()}'
                    f'&filter[version]={number}&limit=5')
@@ -231,6 +369,11 @@ def main():
 
     sub.add_parser('status', help='read the app, builds, groups and versions')
 
+    md = sub.add_parser('metadata',
+                        help='what Apple would block a submission on')
+    md.add_argument('--version', help='which version to check; default is the '
+                                      'editable one')
+
     tf = sub.add_parser('testflight', help='distribute a build to testers')
     tf.add_argument('--build', required=True)
     tf.add_argument('--internal', action='store_true')
@@ -252,7 +395,8 @@ def main():
     st.add_argument('--wait', type=int, default=45)
 
     args = parser.parse_args()
-    return {'status': cmd_status, 'testflight': cmd_testflight,
+    return {'status': cmd_status, 'metadata': cmd_metadata,
+            'testflight': cmd_testflight,
             'appstore': cmd_appstore}[args.command](args)
 
 

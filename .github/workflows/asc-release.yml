@@ -6,6 +6,10 @@
 #
 #   status       read the app, its builds, its beta groups and its versions.
 #                Changes nothing. Run this first.
+#   metadata     what Apple would block a submission on: categories, privacy
+#                policy, description, what's new, screenshots per locale, age
+#                rating, review contact. Changes nothing, and exits non-zero
+#                when something is missing.
 #   testflight   add a build to the internal and/or external groups, and
 #                optionally submit it for beta app review, which external
 #                testers cannot install without.
@@ -21,7 +25,7 @@ on:
       action:
         description: 'What to do'
         type: choice
-        options: [status, testflight, appstore]
+        options: [status, metadata, testflight, appstore]
         default: status
       build:
         description: 'Build number (the +N in pubspec version). Blank = read it from pubspec.'
@@ -92,6 +96,10 @@ jobs:
           case '${{ inputs.action }}' in
             status)
               python3 tools/release/asc.py status
+              ;;
+            metadata)
+              python3 tools/release/asc.py metadata \
+                --version '${{ steps.v.outputs.version }}'
               ;;
             testflight)
               args=(--build '${{ steps.v.outputs.build }}')
