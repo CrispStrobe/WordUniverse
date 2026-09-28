@@ -385,6 +385,49 @@ const kAbbreviationMarkers = <String>[
   'kurzform von',
 ];
 
+/// Whether a gloss points at another entry instead of explaining this one.
+///
+/// "Clipping of bicycle.", "Synonym of rib.", "Obsolete form of none.",
+/// "Misspelling of didn't." A lexicographer writes these so a reader can look
+/// elsewhere; a child shown one as a meaning is told nothing. Sixty English
+/// entries led with one, among them "bike", "math", "maths", "auto", "bio",
+/// "congrats" and "disco" at grades 2 and 3, and none in German.
+///
+/// Separate from [describesAGrammaticalForm] because the entry is not an
+/// inflection of anything — "bike" is a word, and only its gloss is a pointer.
+/// The word keeps its place in the catalogue and its spelling games; it is the
+/// gloss that cannot carry a meaning question.
+bool describesACrossReference(String definition) {
+  final lower = definition.toLowerCase();
+  return kCrossReferenceMarkers.any(lower.startsWith);
+}
+
+/// Anchored at the start, unlike the other marker lists, and that is the whole
+/// design: "synonym of" and "clipping of" are ordinary English that can appear
+/// inside a real definition, while a gloss that *opens* with one is a pointer
+/// and nothing else. Also compiled into SQL when the feature index is built.
+const kCrossReferenceMarkers = <String>[
+  'clipping of',
+  'contraction of',
+  'synonym of',
+  'alternative spelling of',
+  'obsolete form of',
+  'obsolete spelling of',
+  'archaic form of',
+  'archaic spelling of',
+  'dated form of',
+  'dated spelling of',
+  'nonstandard form of',
+  'nonstandard spelling of',
+  'rare form of',
+  'rare spelling of',
+  'superseded form of',
+  'eye dialect of',
+  'informal spelling of',
+  'misspelling of',
+  'common misspelling of',
+];
+
 /// Whether a gloss can carry a question on its own.
 ///
 /// A one-word gloss is a synonym, not an explanation — and when the pack is
@@ -399,6 +442,7 @@ bool isUsableDefinition(String definition) {
   if (!trimmed.contains(' ')) return false;
   if (describesAGrammaticalForm(trimmed)) return false;
   if (describesAnAbbreviation(trimmed)) return false;
+  if (describesACrossReference(trimmed)) return false;
   if (describesAName(trimmed)) return false;
   if (_endsMidSentence(trimmed)) return false;
   return true;
