@@ -56,6 +56,9 @@ on:
       whats_new:
         description: "appstore: what's new text, applied to every locale"
         required: false
+      what_to_test:
+        description: 'testflight: tester-facing note on the build (external testing needs one)'
+        required: false
 
 concurrency:
   group: asc-release
@@ -116,6 +119,9 @@ jobs:
               fi
               if [ '${{ inputs.external }}' = 'true' ]; then
                 args+=(--external)
+              fi
+              if [ -n '${{ inputs.what_to_test }}' ]; then
+                args+=(--what-to-test '${{ inputs.what_to_test }}')
               fi
               if [ '${{ inputs.submit_beta_review }}' = 'true' ]; then
                 args+=(--submit-beta-review)
