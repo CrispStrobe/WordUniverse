@@ -376,9 +376,30 @@ def wait_for_processing(number, minutes):
 
 
 # ── TestFlight ──────────────────────────────────────────────────────────────
+def set_what_to_test(build_id, text):
+    """The tester-facing note on the build. External testing is blocked without
+    it; internal testing is not, which is why it goes unnoticed."""
+    locales = paged(f'/v1/builds/{build_id}/betaBuildLocalizations?limit=50')
+    if not locales:
+        call('POST', '/v1/betaBuildLocalizations', {
+            'data': {'type': 'betaBuildLocalizations',
+                     'attributes': {'locale': 'en-US', 'whatsNew': text},
+                     'relationships': {'build': {'data': {
+                         'type': 'builds', 'id': build_id}}}}})
+        print('  what to test: created for en-US')
+        return
+    for loc in locales:
+        call('PATCH', f"/v1/betaBuildLocalizations/{loc['id']}",
+             {'data': {'type': 'betaBuildLocalizations', 'id': loc['id'],
+                       'attributes': {'whatsNew': text}}})
+        print(f"  what to test: set for {loc['attributes'].get('locale')}")
+
+
 def cmd_testflight(args):
     build = wait_for_processing(args.build, args.wait)
     build_id = build['id']
+    if args.what_to_test:
+        set_what_to_test(build_id, args.what_to_test)
     groups = paged(f'/v1/apps/{app_id()}/betaGroups?limit=50')
     wanted = []
     for group in groups:
@@ -493,6 +514,9 @@ def main():
     tf.add_argument('--external', action='store_true')
     tf.add_argument('--group', action='append',
                     help='an exact group name; repeatable')
+    tf.add_argument('--what-to-test',
+                    help='the tester-facing note on the build; external '
+                         'testing is blocked without one')
     tf.add_argument('--submit-beta-review', action='store_true',
                     help='required before external testers can install')
     tf.add_argument('--wait', type=int, default=45,
