@@ -14,13 +14,16 @@ import 'package:WortUniversum/features/games/services/cloze_service.dart';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-ApiEnrichment _enrichment({List<ApiExample> examples = const []}) =>
+ApiEnrichment _enrichment({
+  List<ApiExample> examples = const [],
+  List<String> synonyms = const [],
+}) =>
     ApiEnrichment(
       enrichmentStatus: 'ok',
       definitions: const [],
       pronunciation: const [],
       examples: examples,
-      synonyms: const [],
+      synonyms: synonyms,
       antonyms: const [],
       conceptnet: const [],
       alternativeAnalyses: const [],
@@ -47,6 +50,7 @@ ApiExample _ex(String text) => ApiExample(text: text);
 GermanWord _word(
   String word, {
   List<ApiExample> examples = const [],
+  List<String> synonyms = const [],
   GermanWordType type = GermanWordType.substantiv,
 }) =>
     GermanWord(
@@ -63,7 +67,7 @@ GermanWord _word(
       exampleSentences: const [],
       spellingDifficulty: SpellingDifficulty.easy,
       isProperNoun: false,
-      apiEnrichment: _enrichment(examples: examples),
+      apiEnrichment: _enrichment(examples: examples, synonyms: synonyms),
       examples: const [],
       hyphenation: const [],
       wiktionaryInflections: const [],
@@ -280,6 +284,49 @@ void main() {
 
   // ── DB-pinned realistic examples ─────────────────────────────────────────────
   // All sentences verified against pipeline/voc-de/grundwortschatz.db 2026-05-26.
+  group('buildChallenge — synonyms of the answer', () {
+    test('a synonym of the answer is never offered as a distractor', () {
+      // "Haus" and "Gebäude" both fit "Das ___ ist sehr schön"; offering both
+      // marks a child wrong for reading the sentence properly.
+      final w = _word('Haus',
+          examples: [_ex('Das Haus ist sehr schön und gemütlich heute.')],
+          synonyms: ['Gebäude', 'Wohnhaus']);
+      final pool = ['Gebäude', 'Wohnhaus', 'Hund', 'Kind', 'Tier', 'Baum'];
+      for (var seed = 0; seed < 12; seed++) {
+        final c = buildChallenge(w, pool, rng: Random(seed));
+        expect(c, isNotNull, reason: 'seed $seed');
+        final offered = c!.options.map((o) => o.toLowerCase()).toList();
+        expect(offered, isNot(contains('gebäude')), reason: 'seed $seed');
+        expect(offered, isNot(contains('wohnhaus')), reason: 'seed $seed');
+        expect(offered, contains('haus'), reason: 'seed $seed');
+      }
+    });
+
+    test('a register marker does not hide a synonym', () {
+      // The packs write "Bude (umgangssprachlich)"; the bare spelling is what
+      // reaches an option slot.
+      final w = _word('Haus',
+          examples: [_ex('Das Haus ist sehr schön und gemütlich heute.')],
+          synonyms: ['Bude (umgangssprachlich)']);
+      final pool = ['Bude', 'Hund', 'Kind', 'Tier'];
+      final c = buildChallenge(w, pool, rng: Random(3));
+      expect(c, isNotNull);
+      expect(c!.options.map((o) => o.toLowerCase()), isNot(contains('bude')));
+    });
+
+    test('a word that is not a synonym is still offered', () {
+      // The exclusion must not empty the pool: without this the test above
+      // would pass on a service that rejected every distractor.
+      final w = _word('Haus',
+          examples: [_ex('Das Haus ist sehr schön und gemütlich heute.')],
+          synonyms: ['Gebäude']);
+      final pool = ['Gebäude', 'Hund'];
+      final c = buildChallenge(w, pool, optionCount: 2, rng: Random(4));
+      expect(c, isNotNull);
+      expect(c!.options.map((o) => o.toLowerCase()), contains('hund'));
+    });
+  });
+
   group('DB-pinned DE cloze examples', () {
     test('ab in "Der Zug fährt erst ab Stuttgart."', () {
       final r = tryBlank('Der Zug fährt erst ab Stuttgart.', 'ab');

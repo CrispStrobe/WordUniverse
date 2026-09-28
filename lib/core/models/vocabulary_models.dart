@@ -638,6 +638,38 @@ class GermanWord {
   List<String> get displayDefinitions =>
       isHeadword ? (apiEnrichment?.definitions ?? const []) : const [];
 
+  /// Every synonym the pack records for this entry, from every sense, folded
+  /// to lower case.
+  ///
+  /// Deliberately the pooled list rather than one sense's: this exists to keep
+  /// a synonym out of a distractor slot, and there the two errors cost very
+  /// different amounts. Excluding a word that was not really a synonym costs
+  /// one more draw from the pool. Admitting one that was puts a second correct
+  /// answer on the screen and marks the child wrong for choosing it.
+  Set<String> get everySynonym {
+    final enrichment = apiEnrichment;
+    if (enrichment == null) return const <String>{};
+    final all = <String>{};
+    void take(Iterable<String> synonyms) {
+      for (final synonym in synonyms) {
+        final clean = synonym
+            .replaceAll(RegExp(r'\s*\(.*?\)'), '')
+            .trim()
+            .toLowerCase();
+        if (clean.isNotEmpty) all.add(clean);
+      }
+    }
+
+    take(enrichment.synonyms);
+    for (final sense in enrichment.wordnetSenses) {
+      take(sense.synonyms);
+    }
+    for (final sense in enrichment.thesaurusSenses) {
+      take(sense.synonyms);
+    }
+    return all;
+  }
+
   /// Everything the pack writes about this word in prose: its glosses, its
   /// graded examples and its book quotations. Read to judge whether the
   /// entry's own spelling can be trusted — see [spellingIsTrustworthy].
