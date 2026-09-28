@@ -1,0 +1,51 @@
+# Regenerates the frozen sample of what the games ask.
+#
+# test/audit/challenge_golden_test.dart fails when a content change makes the
+# games ask different questions, which is the point of it — but reading the
+# difference means regenerating the file, and that needs the Flutter VM and the
+# packs. This produces the new file as an artifact so the diff can be read and
+# committed deliberately.
+#
+#     gh workflow run golden-refresh.yml
+#     gh run download <id> -n challenge-golden
+name: Refresh the challenge golden
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: golden-refresh
+  cancel-in-progress: true
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+
+      - name: Regenerate the golden
+        env:
+          WU_GOLDEN_UPDATE: '1'
+        run: flutter test test/audit/challenge_golden_test.dart
+
+      - name: Show what changed
+        run: |
+          git --no-pager diff --stat -- test/audit/ || true
+          {
+            echo '## Golden diff'
+            echo '```diff'
+            git --no-pager diff -- test/audit/ | head -400
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: challenge-golden
+          path: test/audit/golden/
+          retention-days: 7
