@@ -117,6 +117,12 @@ def load_rules():
     }
 
 
+# Mirrors _placeholderGloss in vocabulary_quality.dart. Keep the two together.
+PLACEHOLDER_GLOSS = re.compile(
+    r'^(no definition|keine definition|definition not available'
+    r'|not available|n/a|unknown|unbekannt)\b', re.IGNORECASE)
+
+
 # Mirrors _geographyGloss in vocabulary_quality.dart. Keep the two together.
 GEOGRAPHY_GLOSS = re.compile(
     r'^(hauptstadt|stadt|fluss|insel|gebirge|ozean|provinz|bundesland'
@@ -185,6 +191,8 @@ def gloss_verdict(definition, rules):
     lower = trimmed.lower()
     if len(trimmed) < 4:
         return 'gloss too short'
+    if PLACEHOLDER_GLOSS.match(trimmed):
+        return 'gloss is a placeholder'
     if trimmed.endswith(':'):
         return 'gloss is a bare label'
     if ' ' not in trimmed:
