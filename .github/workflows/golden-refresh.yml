@@ -29,9 +29,42 @@ jobs:
           cache: true
       - run: flutter pub get
 
+      # Both goldens or neither. Without the German pack the test skips German
+      # and writes only the English file, leaving the German one stale and CI
+      # red for a reason the refresh cannot fix. Mirrors the same three steps
+      # in ci.yml.
+      - name: Read the German pack pin
+        id: depack
+        run: |
+          python3 - <<'PIN' >> "$GITHUB_OUTPUT"
+          import re, pathlib
+          source = pathlib.Path('lib/core/models/language_pack.dart').read_text()
+          url = re.search(r"remoteUrl:\s*\n?\s*'([^']+)'", source).group(1)
+          sha = re.search(r"expectedCompressedSha256:\s*\n?\s*'([0-9a-f]+)'",
+                          source).group(1)
+          print(f'url={url}')
+          print(f'sha={sha}')
+          PIN
+
+      - name: Cache the German pack
+        id: depack-cache
+        uses: actions/cache@v5
+        with:
+          path: .cache/packs/grundwortschatz.db
+          key: de-pack-${{ steps.depack.outputs.sha }}
+
+      - name: Fetch the German pack
+        if: steps.depack-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p .cache/packs
+          curl -fsSL "${{ steps.depack.outputs.url }}" -o /tmp/de.db.gz
+          echo "${{ steps.depack.outputs.sha }}  /tmp/de.db.gz" | sha256sum -c -
+          gunzip -c /tmp/de.db.gz > .cache/packs/grundwortschatz.db
+
       - name: Regenerate the golden
         env:
           WU_GOLDEN_UPDATE: '1'
+          WU_PACK_DE: ${{ github.workspace }}/.cache/packs/grundwortschatz.db
         run: flutter test test/audit/challenge_golden_test.dart
 
       - name: Show what changed
