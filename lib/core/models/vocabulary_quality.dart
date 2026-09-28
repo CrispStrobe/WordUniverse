@@ -109,6 +109,24 @@ const List<String> kNameGlossOpenings = [
   'a shortened form of',
   'a nickname for',
   'an english placename',
+  // German. The English phrasings above have covered English names since the
+  // list was written; nobody had written the German ones, and 2,062 entries
+  // glossed "männlicher Vorname" or "weiblicher Vorname" were ordinary
+  // vocabulary in consequence — Aaron, Alice, Alexander and Andrea at grade 5,
+  // August at grade 1. That is 16% of the German pack, and 2,056 of them have
+  // no other sense at all: they are people's names and nothing else.
+  //
+  // Anchored, like every opening here, which is what makes them safe: the word
+  // "Vorname" is glossed "ein von den Eltern individuell ausgesuchter Name"
+  // and "Familienname" "der den Mitgliedern einer Familie gemeinsame Teil …",
+  // so neither types itself.
+  'männlicher vorname',
+  'weiblicher vorname',
+  'männlicher oder weiblicher vorname',
+  'weiblicher oder männlicher vorname',
+  'vorname',
+  'familienname',
+  'nachname',
 ];
 
 /// Gloss phrases that name a place or person wherever they appear.
@@ -426,7 +444,25 @@ const kCrossReferenceMarkers = <String>[
   'informal spelling of',
   'misspelling of',
   'common misspelling of',
+  // German writes the same pointer: "Ex" is "Kurzform für Exfreund oder
+  // Exmann", "Mami" is "Koseform von Mama". kAbbreviationMarkers already has
+  // "kurzform von", with the other preposition.
+  'kurzform für',
+  'koseform von',
+  'koseform für',
 ];
+
+/// The packs carry a literal stand-in where a gloss is missing, and it reads
+/// as an ordinary sentence to every other rule here: 19 German entries were
+/// offering "No definition available." as the meaning of Amurtiger, Ciao and
+/// Hi.
+final RegExp _placeholderGloss = RegExp(
+    r'^(no definition|keine definition|definition not available|'
+    r'not available|n/a|unknown|unbekannt)\b',
+    caseSensitive: false);
+
+bool _isAPlaceholder(String definition) =>
+    _placeholderGloss.hasMatch(definition.trim());
 
 /// Whether a gloss can carry a question on its own.
 ///
@@ -440,6 +476,7 @@ bool isUsableDefinition(String definition) {
   if (trimmed.length < 4) return false;
   if (trimmed.endsWith(':')) return false;
   if (!trimmed.contains(' ')) return false;
+  if (_isAPlaceholder(trimmed)) return false;
   if (describesAGrammaticalForm(trimmed)) return false;
   if (describesAnAbbreviation(trimmed)) return false;
   if (describesACrossReference(trimmed)) return false;

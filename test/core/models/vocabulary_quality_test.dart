@@ -268,6 +268,41 @@ void main() {
       expect(describesAName('A member of the crew of a ship.'), isFalse);
     });
 
+    test('catches a German given name, which nobody had written down', () {
+      // The English phrasings have been here since the list was written. The
+      // German ones had not, and 2,062 entries glossed this way were ordinary
+      // vocabulary — Aaron, Alice, Alexander and Andrea at grade 5, August at
+      // grade 1, which is 16% of the German pack. 2,056 of them have no other
+      // sense: they are people's names and nothing else.
+      expect(describesAName('männlicher Vorname'), isTrue);
+      expect(describesAName('weiblicher Vorname'), isTrue);
+      expect(describesAName('männlicher oder weiblicher Vorname'), isTrue);
+      expect(describesAName('Vorname'), isTrue);
+      expect(describesAName('Familienname'), isTrue);
+    });
+
+    test('does not type the words for a name as names', () {
+      // Anchoring is what makes the entries above safe: these two are the
+      // German words *for* a first name and a surname, and their own glosses
+      // open elsewhere.
+      expect(
+          describesAName('ein von den Eltern individuell ausgesuchter Name'),
+          isFalse);
+      expect(
+          describesAName('der den Mitgliedern einer Familie gemeinsame Teil '
+              'des vollständigen Namens'),
+          isFalse);
+    });
+
+    test('a placeholder is not a meaning', () {
+      // Nineteen German entries offered this as the meaning of Amurtiger,
+      // Ciao and Hi. It reads as an ordinary sentence to every other rule.
+      expect(isUsableDefinition('No definition available.'), isFalse);
+      expect(isUsableDefinition('Keine Definition verfügbar.'), isFalse);
+      expect(isUsableDefinition('A large wild cat from eastern Russia.'),
+          isTrue);
+    });
+
     test('catches the German pack\'s "kind of place, then where it is"', () {
       // This rule shipped dead: its trailing \b had been written as a
       // literal backspace byte, so it asked for a control character after
