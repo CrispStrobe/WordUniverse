@@ -570,12 +570,18 @@ English-only either. And 19 entries offered the literal string "No definition
 available." as the meaning of Amurtiger, Ciao and Hi; it reads as an ordinary
 sentence to every other rule here, so it needed its own.
 
-**How far this reaches without a pack rebuild.** `namesSomething` reads the
-gloss for a hydrated word and the feature index for a light one, so the typing
-takes effect for hydrated German words against the pack already installed. The
-light-word path needs a rebuilt German pack, and that pack is published on
-Hugging Face, for which there is no token in the repository secrets — so this
-fix is delivered in part and will stay that way until one exists.
+**Delivered in full.** `namesSomething` reads the gloss for a hydrated word and
+the feature index for a light one, so the app-side rules reach hydrated words
+against any pack; the light-word path needed the feature index rebuilt, and the
+German artifact was rebuilt on CI and published. Both canonical datasets carry
+the repairs too, so a rebuild from the dataset no longer reintroduces them —
+which had been true of every repair in this file until now.
+
+What it cost, measured against the pack it replaces rather than asserted: of the
+twenty-odd German games the contract fills at grade 3, exactly one lost anything.
+`spelling_spotter` went from 59 distinct items of 60 asked to 57, and it was
+already exhausted at 59 before. Every other game generates the same number it
+did. Removing 2,452 entries cost two items.
 
 ## A second reader
 

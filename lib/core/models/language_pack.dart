@@ -235,19 +235,27 @@ const Map<String, LanguagePack> kLanguagePacks = {
     // with a meaning rather than a parse, and it carries the feature index
     // the app would otherwise derive on first launch
     // (tools/pack/index_pack.sh): 146 KB of download for three seconds of
-    // work on every install. `grundwortschatz.db.gz` beside it
-    // remains the complete lexical database and is unchanged.
+    // work on every install.
+    //
+    // Rebuilt 2026-09-28 on CI: 2,452 entries glossed "männlicher Vorname" or
+    // "weiblicher Vorname" were typed as ordinary vocabulary — Aaron, Alice,
+    // Alexander at grade 5, August at grade 1, 16% of the pack and 2,056 of
+    // them with no other sense at all. 478 leading glosses are marked as
+    // written above the reader they are for. `grundwortschatz.db.gz` beside it
+    // is the complete lexical database and now carries the same repairs, so a
+    // rebuild from the dataset no longer reintroduces them.
     remoteUrl:
-        'https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/4ef84240c98394915a78d3c66ccf4577a76ab1e0/grundwortschatz-app.db.gz',
+        'https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/c3a5df9a2ee686edde091bba918cf5c8a1ec82f4/grundwortschatz-app.db.gz',
     // Update the immutable URL and all pins together; retain this qualified
     // databaseName in previousDatabaseNames when publishing a new artifact.
-    expectedCompressedBytes: 16141143,
+    expectedCompressedBytes: 16184681,
     expectedCompressedSha256:
-        '3c4e4b5fa62aa734209edab876c2c963532adc404d5320e015cd3d08fbba97bb',
-    expectedDecompressedBytes: 92692480,
+        '948a4004ed9ef4adeb21181d8471535468cdb5b5e38058b3f392f07ecf60fec9',
+    expectedDecompressedBytes: 92770304,
     expectedDecompressedSha256:
-        '64366f6f7edfe35c6e0c9dbd041d2a32746351cefa6d7b39c4b76070768afcd0',
+        'b050d7d25f1a0ed373ae2b9f8d079a4c459c9536f3c2081fbc3cc9017e22f8f3',
     previousDatabaseNames: [
+      'grundwortschatz-64366f6f7edfe35c6e0c9dbd041d2a32746351cefa6d7b39c4b76070768afcd0.db',
       'grundwortschatz-158bea51ba1b0c0e4bcb696042dd45a03b0ddbccc132337a8ce8ef388117d9f1.db',
       'grundwortschatz-32487bb8280cc5a709abf83119482fe68c84be3ee47aa1251f1aabb494801712.db',
       'grundwortschatz-4088731ba18bb477bbf41faacc633beedc967b5e5e7108a89c75c62d87b5aca1.db',
