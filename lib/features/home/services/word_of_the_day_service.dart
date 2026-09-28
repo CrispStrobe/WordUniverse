@@ -241,8 +241,14 @@ bool _hasDefinition(GermanWord word) => word.isHydrated
     ? _hasUsableGloss(word)
     : word.has(WordFeature.usableDefinition);
 
+// learnerDefinitions, not displayDefinitions: the latter says the gloss belongs
+// to this spelling, which is a question of provenance, not of whether a child
+// can read it. The pack marks a gloss written above its reader
+// (gloss_above_reader) and learnerDefinitions is where that verdict is applied
+// — reading past it left Definition Quiz asking "unique" with "unequaled,
+// unparalleled or unmatched" at grade 3, in a pack that had flagged it.
 bool _hasUsableGloss(GermanWord word) {
-  final definition = word.displayDefinitions.firstOrNull;
+  final definition = word.learnerDefinitions.firstOrNull;
   return definition != null && isUsableDefinition(definition);
 }
 

@@ -142,18 +142,29 @@ bool _usableAsOption(GermanWord word) =>
 bool _usableAsPrompt(GermanWord word) =>
     _usableAsOption(word) && (!word.isHydrated || _hasUsableGloss(word));
 
+// learnerDefinitions, not displayDefinitions: the latter says the gloss belongs
+// to this spelling, which is a question of provenance, not of whether a child
+// can read it. The pack marks a gloss written above its reader
+// (gloss_above_reader) and learnerDefinitions is where that verdict is applied
+// — reading past it left Definition Quiz asking "unique" with "unequaled,
+// unparalleled or unmatched" at grade 3, in a pack that had flagged it.
 bool _hasUnusableGloss(GermanWord word) {
-  final definition = word.displayDefinitions.firstOrNull;
+  final definition = word.learnerDefinitions.firstOrNull;
   return definition != null && !isUsableDefinition(definition);
 }
 
 bool _hasUsableGloss(GermanWord word) {
-  final definition = word.displayDefinitions.firstOrNull;
+  final definition = word.learnerDefinitions.firstOrNull;
   return definition != null && isUsableDefinition(definition);
 }
 
+/// A synonym of the answer fits the sentence too, so it is not a distractor.
+/// See the same rule in cloze_service and definition_quiz_service.
 List<String> _pickDistractors(GermanWord target, String correctOption,
     List<GermanWord> pool, int gradeIndex, int optionCount, Random random) {
+  final targetSynonyms = target.everySynonym;
+  bool usable(String opt) =>
+      opt != correctOption && !targetSynonyms.contains(opt.toLowerCase());
   pool = pool.where(_usableAsOption).toList();
   final distractors = <String>{};
 
@@ -168,7 +179,7 @@ List<String> _pickDistractors(GermanWord target, String correctOption,
 
   for (final w in sameTypeSameGrade) {
     final opt = _sentenceOption(w);
-    if (opt != correctOption) distractors.add(opt);
+    if (usable(opt)) distractors.add(opt);
     if (distractors.length >= optionCount - 1) break;
   }
 
@@ -180,7 +191,7 @@ List<String> _pickDistractors(GermanWord target, String correctOption,
       ..shuffle(random);
     for (final w in sameType) {
       final opt = _sentenceOption(w);
-      if (opt != correctOption && !distractors.contains(opt)) {
+      if (usable(opt) && !distractors.contains(opt)) {
         distractors.add(opt);
       }
       if (distractors.length >= optionCount - 1) break;
@@ -195,7 +206,7 @@ List<String> _pickDistractors(GermanWord target, String correctOption,
       ..shuffle(random);
     for (final w in sameGrade) {
       final opt = _sentenceOption(w);
-      if (opt != correctOption && !distractors.contains(opt)) {
+      if (usable(opt) && !distractors.contains(opt)) {
         distractors.add(opt);
       }
       if (distractors.length >= optionCount - 1) break;

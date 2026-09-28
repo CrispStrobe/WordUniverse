@@ -11,12 +11,14 @@ import 'package:WortUniversum/core/models/skill_category.dart';
 import 'package:WortUniversum/core/models/vocabulary_models.dart';
 import 'package:WortUniversum/features/games/services/definition_quiz_service.dart';
 
-ApiEnrichment _enrichment(List<String> definitions) => ApiEnrichment(
+ApiEnrichment _enrichment(List<String> definitions,
+        {List<String> synonyms = const []}) =>
+    ApiEnrichment(
       enrichmentStatus: 'ok',
       definitions: definitions,
       pronunciation: const [],
       examples: const [],
-      synonyms: const [],
+      synonyms: synonyms,
       antonyms: const [],
       conceptnet: const [],
       alternativeAnalyses: const [],
@@ -38,7 +40,9 @@ ApiEnrichment _enrichment(List<String> definitions) => ApiEnrichment(
       commonLearnerErrors: const [],
     );
 
-GermanWord _word(String word, List<String> definitions) => GermanWord(
+GermanWord _word(String word, List<String> definitions,
+        {List<String> synonyms = const []}) =>
+    GermanWord(
       id: 'test_$word',
       word: word,
       wordType: GermanWordType.substantiv,
@@ -52,7 +56,7 @@ GermanWord _word(String word, List<String> definitions) => GermanWord(
       exampleSentences: const [],
       spellingDifficulty: SpellingDifficulty.easy,
       isProperNoun: false,
-      apiEnrichment: _enrichment(definitions),
+      apiEnrichment: _enrichment(definitions, synonyms: synonyms),
       examples: const [],
       hyphenation: const [],
       wiktionaryInflections: const [],
@@ -132,6 +136,40 @@ void main() {
     final challenge = _build(word, _distractors());
     expect(challenge!.definition,
         'To make somebody able (to do, or to be, something)');
+  });
+
+  test('a synonym of the answer is never offered as an option', () {
+    // The prompt is a meaning and the options are words, so a synonym answers
+    // it too — offering both marks a child wrong for knowing that. Only an
+    // exact label match was rejected before.
+    final word = _word('sofa', const ['A long upholstered seat for sitting.'],
+        synonyms: ['couch', 'settee']);
+    final pool = [
+      _word('couch', const ['A long upholstered seat.']),
+      _word('settee', const ['A seat for two or more people.']),
+      _word('river', const ['A large natural stream of water.']),
+      _word('candle', const ['A block of wax with a wick.']),
+      _word('table', const ['A piece of furniture.']),
+    ];
+    final challenge = _build(word, pool);
+    expect(challenge, isNotNull);
+    final offered = challenge!.options.map((o) => o.toLowerCase()).toList();
+    expect(offered, contains('sofa'));
+    expect(offered, isNot(contains('couch')));
+    expect(offered, isNot(contains('settee')));
+  });
+
+  test('a word that is not a synonym is still offered', () {
+    // Without this the test above would pass on a service that rejected every
+    // option there is.
+    final word = _word('sofa', const ['A long upholstered seat for sitting.'],
+        synonyms: ['couch']);
+    final challenge = _build(word, [
+      _word('couch', const ['A long upholstered seat.']),
+      ..._distractors(),
+    ]);
+    expect(challenge, isNotNull);
+    expect(challenge!.options.map((o) => o.toLowerCase()), contains('river'));
   });
 
   test('refersToAnotherSense spots demonstratives in both languages', () {

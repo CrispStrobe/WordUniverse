@@ -124,9 +124,15 @@ TranslationChallenge? buildTranslationChallenge({
 
   // When the English is the prompt, the answer is the catalogue word itself.
   final correct = reversed ? word.word : translation;
-  final excluded =
-      reversed ? {word.word.toLowerCase()} : englishTranslations(word)
-        ..add(correct.toLowerCase());
+  // Forward, every translation the entry records is excluded, because each of
+  // them answers "what is this in English?" too. Reversed, the answer is the
+  // catalogue word and its synonyms answer just as well — "what is *house* in
+  // German?" must not offer both Haus and Gebäude — and only its own spelling
+  // was excluded before.
+  final excluded = reversed
+      ? {word.word.toLowerCase(), ...word.everySynonym}
+      : englishTranslations(word)
+    ..add(correct.toLowerCase());
 
   // Shuffled per challenge: taking from the front of one shuffled list put
   // the same three distractors in every round.
