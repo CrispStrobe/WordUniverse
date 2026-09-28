@@ -62,8 +62,14 @@ List<DefinitionChallenge> buildDefinitionChallenges({
   return challenges;
 }
 
+// learnerDefinitions, not displayDefinitions: the latter says the gloss belongs
+// to this spelling, which is a question of provenance, not of whether a child
+// can read it. The pack marks a gloss written above its reader
+// (gloss_above_reader) and learnerDefinitions is where that verdict is applied
+// — reading past it left Definition Quiz asking "unique" with "unequaled,
+// unparalleled or unmatched" at grade 3, in a pack that had flagged it.
 bool _hasUsableGloss(GermanWord word) {
-  final definition = word.displayDefinitions.firstOrNull;
+  final definition = word.learnerDefinitions.firstOrNull;
   return definition != null && isUsableDefinition(definition);
 }
 
@@ -109,9 +115,10 @@ DefinitionChallenge? buildDefinitionChallenge({
   Random? rng,
 }) {
   final random = rng ?? Random();
-  // displayDefinitions, not apiEnrichment.definitions: an entry whose
-  // enrichment belongs to another word would be keyed to that word's meaning.
-  final definitions = word.displayDefinitions;
+  // learnerDefinitions, not apiEnrichment.definitions: an entry whose
+  // enrichment belongs to another word would be keyed to that word's meaning,
+  // and a gloss the pack marked as written above its reader is not a prompt.
+  final definitions = word.learnerDefinitions;
   if (definitions.isEmpty) return null;
 
   // Pick a definition that is reasonably short for display and — crucially —
@@ -198,6 +205,7 @@ List<String> pickDefinitionDistractors({
 }) {
   final random = rng ?? Random();
   final distractors = <String>{};
+  final targetSynonyms = target.everySynonym;
 
   void drawFrom(Iterable<GermanWord> candidates) {
     if (distractors.length >= optionCount - 1) return;
@@ -218,7 +226,17 @@ List<String> pickDefinitionDistractors({
     final shuffled = candidates.toList()..shuffle(random);
     for (final word in shuffled) {
       final option = definitionOptionLabel(word, isGerman: isGerman);
-      if (option != correctOption) distractors.add(option);
+      // Nor a synonym of the target. The prompt is a meaning and the options
+      // are words, so a synonym answers it too and marks the child wrong for
+      // knowing that. Only an exact label match was rejected before.
+      //
+      // Matched on the candidate's own spelling, not on the label: a German
+      // noun is labelled "das Gebäude" and the synonym list says "Gebäude", so
+      // comparing labels would have missed every German noun there is.
+      if (option != correctOption &&
+          !targetSynonyms.contains(word.word.toLowerCase())) {
+        distractors.add(option);
+      }
       if (distractors.length >= optionCount - 1) break;
     }
   }

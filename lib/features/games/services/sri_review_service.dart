@@ -125,7 +125,7 @@ ReviewChallenge? _spellingChallenge(
   final options = [displayWord, ...errors]..shuffle(random);
   // "Partizip Präsens des Verbs wüten" is a parse, not a meaning to spell to.
   final definition =
-      word.displayDefinitions.where(isUsableDefinition).firstOrNull;
+      word.learnerDefinitions.where(isUsableDefinition).firstOrNull;
   final prompt = definition != null
       ? strings.spellingForDefinition(definition)
       : strings.spellingSpotterPrompt;

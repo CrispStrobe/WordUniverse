@@ -248,6 +248,9 @@ String? pickHypernym(
 /// answer.
 List<String> _saidInItsOwnDefinition(GermanWord word, List<String> candidates) {
   if (candidates.isEmpty) return candidates;
+  // displayDefinitions on purpose, where every other reader wants
+  // learnerDefinitions: this is reading the entry's own prose to judge it, not
+  // showing it to anybody, and a gloss too hard for a child is still evidence.
   final senses = word.displayDefinitions.take(3).join(' ').toLowerCase();
   if (senses.isEmpty) return const [];
   final mentioned = candidates
