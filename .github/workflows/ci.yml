@@ -45,6 +45,9 @@ jobs:
           pip install --quiet openai
           python3 tools/audit/review_test.py
 
+      - name: Check the pack repair rules
+        run: python3 tools/pack/repair_pack_test.py
+
       - name: Show Flutter version
         run: flutter --version
 
