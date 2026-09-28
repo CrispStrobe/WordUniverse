@@ -1,0 +1,99 @@
+# Rebuilds a language pack artifact from its canonical Hugging Face dataset.
+#
+# The pipeline is canonical -> slim -> repair -> index -> gzip, and two of
+# those steps cannot run on a developer machine that is short of disk: the
+# canonical English database is 150 MB to download and index_pack.sh needs the
+# Flutter VM. So it runs here, and prints the pin values the registry needs.
+#
+# It deliberately commits nothing. The English artifact is a bundled repo
+# asset and its digest selects the storage slot every installed copy reads
+# from, so replacing it is a reviewed commit, not a side effect of a build.
+name: Build a language pack
+
+on:
+  workflow_dispatch:
+    inputs:
+      language:
+        description: 'Pack to rebuild'
+        type: choice
+        options: [en, de]
+        default: en
+
+concurrency:
+  group: pack-build-${{ inputs.language }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+
+      - name: Name the canonical dataset
+        id: dataset
+        run: |
+          case "${{ inputs.language }}" in
+            en) repo=cstr/grundwortschatz-voc-en; file=grundwortschatz_en.db.gz;;
+            de) repo=cstr/grundwortschatz-voc-de; file=grundwortschatz.db.gz;;
+          esac
+          echo "repo=$repo" >> "$GITHUB_OUTPUT"
+          echo "file=$file" >> "$GITHUB_OUTPUT"
+
+      - name: Fetch the canonical database
+        run: |
+          mkdir -p build/pack
+          curl -fL --retry 3 -o build/pack/canonical.db.gz \
+            "https://huggingface.co/datasets/${{ steps.dataset.outputs.repo }}/resolve/main/${{ steps.dataset.outputs.file }}"
+          gunzip -c build/pack/canonical.db.gz > build/pack/canonical.db
+          ls -l build/pack/
+
+      - name: Slim, repair and index
+        run: |
+          set -x
+          python3 tools/pack/slim_pack.py build/pack/canonical.db \
+            --out build/pack/slim.db
+          python3 tools/pack/repair_pack.py build/pack/slim.db \
+            --out build/pack/artifact.db
+          tools/pack/index_pack.sh build/pack/artifact.db
+
+      - name: Compress and pin
+        id: pins
+        run: |
+          gzip -9 -c build/pack/artifact.db > build/pack/artifact.db.gz
+          decompressed_sha=$(sha256sum build/pack/artifact.db | cut -d' ' -f1)
+          compressed_sha=$(sha256sum build/pack/artifact.db.gz | cut -d' ' -f1)
+          decompressed_bytes=$(stat -c%s build/pack/artifact.db)
+          compressed_bytes=$(stat -c%s build/pack/artifact.db.gz)
+          {
+            echo "## Pins for \`${{ inputs.language }}\`"
+            echo
+            echo '```dart'
+            echo "expectedCompressedBytes: $compressed_bytes,"
+            echo "expectedCompressedSha256:"
+            echo "    '$compressed_sha',"
+            echo "expectedDecompressedBytes: $decompressed_bytes,"
+            echo "expectedDecompressedSha256:"
+            echo "    '$decompressed_sha',"
+            echo '```'
+            echo
+            echo "Append the *previous* qualified name to previousDatabaseNames."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: What the repair changed
+        run: python3 tools/pack/repair_pack.py build/pack/artifact.db --report
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pack-${{ inputs.language }}
+          path: build/pack/artifact.db.gz
+          retention-days: 7
+          compression-level: 0
