@@ -457,10 +457,11 @@ apart to be worth the second pass, because the disagreements were not noise.
 Three of the seven were faults the first reader had passed:
 
 - **"am falschen ___ sparen" keyed "Platz".** The fixed idiom is *am falschen
-  Ende sparen*. The pack lists the Platz version among that word's expressions
-  and does not list the correct one under Ende, so this is left recorded rather
-  than deleted: one reader's judgement against a Wiktionary-sourced expression
-  is not a measured rule.
+  Ende sparen*. Closed on measurement rather than edited: the Platz version is
+  what Wiktionary lists under *Platz*, so the pack matches its source, and the
+  idiom family is not missing — "sparen" carries *an allen Ecken und Enden
+  sparen*. One reader's judgement against a sourced expression is not a rule,
+  and there was no gap to fill.
 - **The Großschreibung rule text.** "sehr" and "dein" were keyed lowercase and
   explained with "Verben und Adjektive werden kleingeschrieben" — one is an
   adverb, the other a possessive determiner. The screen has always drawn only
@@ -482,11 +483,66 @@ The games that ask a child to find, trace or match a spelling skip those
 entries. Word Builder does not need to: it uppercases every letter tile, so the
 stored case never reaches the screen.
 
-This **excludes rather than corrects**, and that is deliberate. Correcting
-means capitalising the headword, and a handful of these have a legitimate
-lowercase reading whose examples are about the other word — "august" is an
-adjective meaning venerable, "york" a verb — and nothing available here
-separates those from the months and the languages. The list is worth a pack fix
-somebody reads: 126 of the 169 are typed noun and are months, days, acronyms
-(DVD, UK, USA, FAQ, URL) and place names, and the remaining 43 are mostly
-demonym adjectives that English capitalises too.
+Exclusion was the first answer and is now the fallback. Read one at a time the
+169 turned out to be four different defects wearing the same symptom, and the
+worst of them was not about capitals at all.
+
+| | | fix |
+|---|---:|---|
+| ordinary vocabulary missing its capital | 81 | headword capitalised |
+| a name the pack called a word | 53 | typed `proper_noun` |
+| not a word at all | 21 | marked not vocabulary |
+| gloss and evidence describe different words | 11 | marked not vocabulary |
+| correct in both cases | 3 | left to the exclusion filter |
+
+**The gloss/evidence mismatch is the one worth naming.** Evidence that always
+capitalises a word says it is a name; a gloss that does not describe a name
+says it is not. Both cannot be about the same word, and what the pack has then
+stored is a rare homograph of a name carrying the name's sentences:
+
+| entry | grade | gloss |
+|---|---|---|
+| olympics | 2 | Five consecutive ducks |
+| james | 2 | The twentieth book of the New Testament |
+| george | 2 | radiotelephony clear-code word for the letter G |
+| henry | 3 | the derived unit of electrical inductance |
+| leo | 3 | Clipping of leotard |
+| joanna | 5 | A piano |
+| eric | 3 | A fine paid as compensation for violent crimes |
+
+The gloss loses, because the examples are what a child reads.
+`gloss_belongs_to_another_word` in `repair_pack.py` is that rule, and the three
+things that make it safe were each measured rather than assumed:
+
+- **Chapter headings are not sentences.** "escape" was the only false positive
+  in the 169: its three capitalised uses are Title Case headings — "The Boys
+  Escape Jim.—Tom Sawyer's …". Dropping book quotations from the evidence
+  entirely would fix it and cost "friday" plus six names; skipping Title Case
+  text fixes it alone. Counting the sentence's *own opening word* toward the
+  ratio made short sentences ("Each January brings snow.") look like headings,
+  which is how the rule got tested.
+- **A CEFR level separates the words correct in both cases** — "god", "mommy",
+  "pa", "soviet" — from the homographs, 29 times out of 30. A level is assigned
+  to a meaning a learner acquires, and there the gloss describes the
+  capitalised sense instead of contradicting it. "august" is the exception,
+  levelled A1 as the month while glossed as the adjective, and is named in
+  `GLOSS_MISMATCHES`.
+- **English only.** German capitalises every noun and every nominalised verb,
+  so "das Reisen" in an example of "reisen" is correct German and evidence of
+  nothing. Before the gate the rule flagged reisen, regeln, donnern, aussagen
+  and freie.
+
+Of the 53 names, 18 are reached by gloss shape rather than by a list — `"
+commune in "`, `" secret police of "`, `"the fictional "`, `" book of the New
+Testament"` — which is the part that will keep working on the next dataset.
+The other 35 are listed because nothing in the row can reach them: "lapd" has
+no gloss at all. Each added shape is narrower than the glosses invited, and the
+narrowing was forced: `"a fictitious "` named "pseudonym", and `" a ruler over
+"`, `"the daughter of"` and `" corporation"` would have named king, princess
+and any firm. A gloss shape an ordinary word can also wear is not evidence of a
+name.
+
+Every rename differs from the old headword only in case, and that is asserted
+in code: the pack ships a prebuilt FTS5 index over the words table that cannot
+be rebuilt here — it is declared over a `translations` column the table does
+not have — and it stays valid only because FTS5 folds case.
