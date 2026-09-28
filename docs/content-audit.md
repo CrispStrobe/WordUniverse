@@ -429,17 +429,82 @@ promotes a different *sense* into first place, and doing that explained a
 helicopter as "A powered troweling machine with spinning blades used to spread
 concrete" across 506 entries before anybody read one.
 
-The one exception is an entry with exactly one WordNet sense of its class,
-where there is no sense to choose: 105 entries take WordNet's plainer wording
-instead. The other 226 that could are left alone because of "dog", whose first
-noun sense is a name sense and whose second is "a dull unattractive unpleasant
-girl or woman".
+The exception is an entry with exactly one WordNet sense of its class, where
+there is no sense to choose: 105 entries take WordNet's plainer wording
+instead.
 
-What none of this catches is a gloss that is merely above its reader —
-"honest" explained with "scrupulous" and "swindling". Counting a gloss's words
-that are missing from the catalogue works in English and reads German
-compounds and inflections as unknown, scoring "Muttertier des Hausrinds" as
-the hardest gloss in the pack.
+The other 226 are no longer left alone. They needed a way to say *which* sense
+the entry means, and sense order is not it — that looks like the answer and is
+worth writing down as a dead end, because WordNet ranks by frequency in a
+general corpus:
+
+| word | WordNet's first sense of the class | what the pack means |
+|---|---|---|
+| bank | sloping land beside a body of water | a financial institution |
+| table | a set of data arranged in rows and columns | a piece of furniture |
+| light | a divine presence believed by Quakers | electromagnetic radiation |
+| crane | United States writer (1871-1900) | a long-necked wading bird |
+
+What does identify the sense is overlap with the pack's own gloss, and that
+works precisely because it does not need the pack's gloss to be *readable* —
+only to be about the same thing, which is the one thing known here. "An
+institution where one can place and borrow money" shares institution and money
+with "a financial institution that accepts deposits and channels the money into
+lending", and shares nothing with the riverbank.
+
+Two shared content words, strictly more than any other sense of the class, and
+then the same child-readability test. 1,759 entries align; 1,270 share nothing
+with any sense, 1,734 share a single word, 153 tie. Eighteen read at random were
+all the right sense. One word is a coincidence and a tie is a choice this cannot
+make: "spring", glossed "An act of springing: a leap, a jump.", shares nothing
+with any of its eleven senses and stays unexplained rather than becoming the
+season.
+
+### A gloss above its reader
+
+"honest" explained with "scrupulous" was the last thing here that nothing
+caught, and it was recorded as needing a frequency list that German compounds
+would break. The pack carries a better list than any external one: **its own
+graded catalogue**. A content word appearing nowhere in 11,539 English or 13,040
+German graded spellings is a word this reader has not met.
+
+The earlier attempt at this failed for two reasons, and both had fixes:
+
+- It read inflections as unknown — "standing", "relating", "consisting",
+  "survives" — and every second gloss looked too hard. Crude suffix stripping
+  answers it; the only question asked is whether the catalogue holds the word in
+  *some* form.
+- It scored "Muttertier des Hausrinds" as the hardest gloss in the pack. That
+  gloss has two content words. A four-word minimum answers it, and the case the
+  objection was built on is now the test for it.
+
+The share is per language, which is calibration rather than policy: German
+writes one compound where English writes three words, so "Körpertemperatur"
+counts once as unseen where "body temperature" contributes a seen word, and the
+same fraction is a stricter test.
+
+| | English | German |
+|---|---:|---:|
+| > 0.5 | 98 (0.9%) | 1231 (10.4%) |
+| > 0.7 | 32 | 465 (3.9%) |
+
+English takes 0.5, where 63 of the 98 have a WordNet sense ready to replace
+them. German takes 0.7, because at 0.5 it removes Frosch, Katze, Finger and
+Gemüse at grade 1 and German has no WordNet to fall back on, so those entries
+would show no meaning at all. At 0.7 it still reaches the glosses that are no
+use to anyone: "Fach: der durch das Balkengerüst beziehungsweise die tragenden
+Balken begrenzte …" and "Fliege: fliegendes Insekt der Unterordnung Fliegen
+(Brachycera)" at grade 1.
+
+It is a fault in the gloss, not the word. "sein", "among" and "ear" keep their
+place in the catalogue; the app stops handing those sentences to a learner. It
+does **not** promote the next gloss, and that was measured rather than assumed:
+promotion takes "ai" from a three-toed sloth to the branch of computer science,
+and "post" from a plank in the ground to "A stud; a two-by-four".
+
+Decided when the pack is built, because that is the only place the catalogue is
+known in full. Reading the round's sample instead is the bug this codebase has
+shipped five times.
 
 
 ## A second reader
