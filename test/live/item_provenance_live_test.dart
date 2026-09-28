@@ -195,7 +195,14 @@ void main() {
           checked++;
           // The two transformations the quiz makes, undone: a long sense is
           // cut at its first clause, and the headword is redacted out.
-          final redacted = word.displayDefinitions
+          //
+          // learnerDefinitions, which is what the quiz draws from. It is still
+          // this entry's own pack text — either its glosses, or a WordNet sense
+          // of the same row where the pack's own gloss is one a child cannot
+          // read — so the oracle still asserts the prompt was not invented. It
+          // is the narrower of the two: displayDefinitions also offers the
+          // glosses the pack has marked unusable, and the quiz may not.
+          final redacted = word.learnerDefinitions
               .expand(
                   (definition) => [definition, firstClauseIfLong(definition)])
               .map((definition) => definition.replaceAll(
