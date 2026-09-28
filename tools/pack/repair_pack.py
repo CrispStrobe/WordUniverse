@@ -489,12 +489,23 @@ def evidence_capitalises(word, definitions, metadata):
     return seen >= 3 and capitalised == seen
 
 
-# Where a CEFR level protects an entry it should not. "august" is A1 as the
-# month; the entry glosses the adjective ("Awe-inspiring, majestic, noble,
-# venerable") and carries the month's sentences, so the level is evidence for
-# a word that is not the one described. Nothing in the row distinguishes the
-# two, so it is named here.
-GLOSS_MISMATCHES = frozenset({'august'})
+# Entries a person has read and found to be glossed as another word, where no
+# rule here can see it. Always flagged, whatever else the row says.
+#
+#   august      A1 as the month; the entry glosses the adjective
+#               ("Awe-inspiring, majestic, noble, venerable") and carries the
+#               month's sentences, so the level is evidence for a word that is
+#               not the one described.
+#   olympics    grade 2, glossed "Five consecutive ducks" -- the cricket sense.
+#   englishman  grade 4, glossed "A grey partridge (in contrast with
+#               Frenchman, red-legged partridge)".
+#
+# The last two are why this list is checked before the capitalisation one and
+# not after. Capitalising a headword says how to spell it and nothing at all
+# about whether its gloss is the right one, and exempting the capitalised
+# entries from the mismatch rule left "Olympics" reading "Five consecutive
+# ducks" at grade 2 -- the example this rule is documented with.
+GLOSS_MISMATCHES = frozenset({'august', 'olympics', 'englishman'})
 
 
 def pack_language(db):
@@ -528,7 +539,13 @@ def gloss_belongs_to_another_word(word, word_type, definitions, metadata,
     """
     if language != 'en':
         return False
-    if word in CAPITALISED_HEADWORDS or word in NOT_VOCABULARY:
+    if word in NOT_VOCABULARY:
+        return False
+    # Lower-cased because the headword may already have been capitalised by an
+    # earlier run, and a named entry has to stay named across one.
+    if word.lower() in GLOSS_MISMATCHES:
+        return True
+    if word in CAPITALISED_HEADWORDS:
         return False
     if names or word_type == 'proper_noun':
         return False    # the pack already says it is a name; nothing to add
@@ -540,7 +557,7 @@ def gloss_belongs_to_another_word(word, word_type, definitions, metadata,
     # A level is assigned to a meaning a learner acquires, and "god", "mommy",
     # "pa" and "soviet" are levelled and correct in both cases -- there the
     # gloss describes the capitalised sense rather than contradicting it.
-    if is_attested_vocabulary(metadata) and word not in GLOSS_MISMATCHES:
+    if is_attested_vocabulary(metadata):
         return False
     return evidence_capitalises(word, described, metadata)
 

@@ -557,7 +557,7 @@ worst of them was not about capitals at all.
 | ordinary vocabulary missing its capital | 81 | headword capitalised |
 | a name the pack called a word | 53 | typed `proper_noun` |
 | not a word at all | 21 | marked not vocabulary |
-| gloss and evidence describe different words | 11 | marked not vocabulary |
+| gloss and evidence describe different words | 13 | marked not vocabulary |
 | correct in both cases | 3 | left to the exclusion filter |
 
 **The gloss/evidence mismatch is the one worth naming.** Evidence that always
@@ -576,8 +576,25 @@ stored is a rare homograph of a name carrying the name's sentences:
 | eric | 3 | A fine paid as compensation for violent crimes |
 
 The gloss loses, because the examples are what a child reads.
-`gloss_belongs_to_another_word` in `repair_pack.py` is that rule, and the three
-things that make it safe were each measured rather than assumed:
+`gloss_belongs_to_another_word` in `repair_pack.py` is that rule.
+
+Two of the seven above were *not* caught by it at first, and the reason is worth
+keeping. "olympics" and "englishman" are on the capitalisation list, and the
+rule exempted every entry on that list — so the pack shipped with "Olympics"
+spelled correctly at grade 2 and still glossed "Five consecutive ducks", which
+is the line this section opens with. Capitalising a headword says how to spell
+it and nothing whatever about whether its gloss is the right one. The exemption
+now comes after the named list rather than before it.
+
+Reading all 81 capitalised entries found exactly those two. The rest are months,
+days, festivals, nationalities and acronyms whose glosses are sound, and the one
+signal that looked like it would separate them mechanically does not: overlap
+between an entry's gloss and its own examples scores zero for British, English,
+Europe, Mr, DVD and Spanish, because a definition of a nationality shares no
+words with a sentence using it.
+
+The three things that make the rule safe were each measured rather than
+assumed:
 
 - **Chapter headings are not sentences.** "escape" was the only false positive
   in the 169: its three capitalised uses are Title Case headings — "The Boys
