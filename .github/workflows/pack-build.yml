@@ -63,7 +63,7 @@ jobs:
             --out build/pack/slim.db
           python3 tools/pack/repair_pack.py build/pack/slim.db \
             --out build/pack/artifact.db
-          tools/pack/index_pack.sh build/pack/artifact.db
+          bash tools/pack/index_pack.sh build/pack/artifact.db
 
       - name: Compress and pin
         id: pins

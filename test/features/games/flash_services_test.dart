@@ -215,13 +215,20 @@ void main() {
     test('several senses pick the one the pack is about, not the first', () {
       // WordNet's first noun sense of "bank" is the riverbank, and of "table"
       // a set of data. Frequency in a general corpus is not this entry.
+      //
+      // Every leading gloss in these four tests is over 180 characters on
+      // purpose. learnerDefinitions reaches for a sense only when the pack's
+      // own gloss is one a child cannot read; with a shorter one it hands that
+      // back and the alignment never runs, which is how the first draft of
+      // these tests passed nothing at all.
       final bank = testWord('bank',
           type: GermanWordType.substantiv,
           enrichment: testEnrichment(
             definitions: [
               'An institution where one can place and borrow money and take '
                   'care of financial transactions of many descriptions, '
-                  'including deposits and withdrawals.'
+                  'including deposits, withdrawals, currency exchange and the '
+                  'safekeeping of valuables in a secure vault.'
             ],
             wordnetSenses: const [
               WordNetSense(
@@ -247,7 +254,8 @@ void main() {
             definitions: [
               'A sticky, gummy substance secreted by trees, of a kind that is '
                   'used in the caulking of ships and in other work requiring '
-                  'a waterproof adhesive material.'
+                  'a waterproof adhesive material of considerable durability '
+                  'and strength.'
             ],
             wordnetSenses: const [
               WordNetSense(
@@ -268,7 +276,9 @@ void main() {
           enrichment: testEnrichment(
             definitions: [
               'A long dowel or plank protruding from the ground, used as a '
-                  'fence post or a support for a sign or a wire.'
+                  'fence post or a support for a sign or a wire, or otherwise '
+                  'fixed there in order to carry a load in ordinary building '
+                  'work.'
             ],
             wordnetSenses: const [
               WordNetSense(
