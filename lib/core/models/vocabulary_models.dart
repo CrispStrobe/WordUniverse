@@ -664,7 +664,9 @@ class GermanWord {
   /// fly, go — before anybody read one.
   List<String> get learnerDefinitions {
     final all = displayDefinitions;
-    if (all.isNotEmpty && glossSuitsAChild(all.first)) {
+    if (all.isNotEmpty &&
+        !glossIsAboveItsReader &&
+        glossSuitsAChild(all.first)) {
       return all.where(glossSuitsAChild).toList();
     }
     final fromWordNet = _soleSenseGloss ?? _alignedSenseGloss;
@@ -706,7 +708,8 @@ class GermanWord {
     var tied = false;
     for (final sense in senses) {
       if (!_posIsMine(sense.pos)) continue;
-      final shared = _contentWords(sense.definition).intersection(target).length;
+      final shared =
+          _contentWords(sense.definition).intersection(target).length;
       if (shared > bestShared) {
         best = sense;
         bestShared = shared;
@@ -817,6 +820,22 @@ class GermanWord {
   // filter proper nouns out where they'd produce odd challenges.
   final bool isProperNoun;
 
+  /// True when the pack found this entry's leading gloss to be written above
+  /// the reader it is for: more than half its content words appear nowhere in
+  /// the catalogue this pack teaches.
+  ///
+  /// Decided when the pack is built, because that is where the catalogue is
+  /// known in full — see gloss_is_above_its_reader in repair_pack.py. Reading
+  /// a sample of the round's words instead is the mistake this codebase has
+  /// made five times.
+  ///
+  /// It is a gloss fault, not a word fault: "sein" is glossed "Kopula, die dem
+  /// Subjekt ein logisches Prädikat zuordnet" at grade 2, "among" is "Denotes
+  /// a mingling or intermixing with distinct or separable objects", "ear" runs
+  /// through the pinna, auricle, malleus and incus. All three are words a
+  /// seven-year-old needs; none of those sentences is for one.
+  final bool glossIsAboveItsReader;
+
   GermanWord({
     required this.id,
     required this.word,
@@ -871,6 +890,7 @@ class GermanWord {
     required this.meronyms,
     required this.coordinateTerms,
     this.isProperNoun = false,
+    this.glossIsAboveItsReader = false,
   }) : _apiEnrichment = apiEnrichment;
 
   factory GermanWord.fromJson(Map<String, dynamic> json) {
@@ -992,6 +1012,7 @@ class GermanWord {
       article: json['article'],
       wordType: parseWordType(json['wordType']),
       isProperNoun: isProperNoun,
+      glossIsAboveItsReader: json['gloss_above_reader'] == true,
       gradeLevel: _parseInt(json['gradeLevel'], 1), // SAFE PARSE
       lemma: apiData?.primaryLemma ?? json['lemma'] ?? json['word'],
       forms: json['forms'],

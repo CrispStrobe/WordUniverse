@@ -163,6 +163,48 @@ class GlossBelongsToAnotherWord(unittest.TestCase):
                      'By January it was cold.', 'Each January brings snow.')))
 
 
+class AboveItsReader(unittest.TestCase):
+    # A small catalogue standing in for the pack's graded spellings.
+    TAUGHT = frozenset('''
+        organ hearing ear head listen sound word thing part body small animal
+        water live tree green jump leg long stand fence wood ground hold
+    '''.split())
+
+    def above(self, gloss, language='en'):
+        return repair.gloss_is_above_its_reader(gloss, self.TAUGHT, language)
+
+    def test_a_gloss_made_of_words_the_pack_never_teaches(self):
+        self.assertTrue(self.above(
+            'The organ of hearing, consisting of the pinna or auricle, '
+            'auditory canal and eardrum.'))
+
+    def test_a_gloss_in_words_the_pack_teaches(self):
+        self.assertFalse(self.above(
+            'The part of the head you listen with.'))
+
+    def test_one_new_word_is_what_a_gloss_is_for(self):
+        self.assertFalse(self.above(
+            'A small green animal that can jump and lives near water.'))
+
+    def test_inflections_of_taught_words_count_as_taught(self):
+        # Without the suffix stripping, "standing", "holding" and "jumped" all
+        # read as words a child has never met.
+        self.assertFalse(self.above(
+            'A long piece of wood standing in the ground, holding a fence.'))
+
+    def test_a_short_gloss_is_not_judged(self):
+        self.assertFalse(self.above('Impudence; temerity.'))
+
+    def test_german_is_held_to_a_higher_share(self):
+        # Compounds count once as unseen where English contributes a seen word
+        # per part, so the same fraction is a stricter test. This gloss is 60%
+        # untaught: German keeps it, English would not.
+        gloss = 'ein bewegliches Glied der Hand höherer Primaten'
+        taught = frozenset('hand glied'.split())
+        self.assertTrue(repair.gloss_is_above_its_reader(gloss, taught, 'en'))
+        self.assertFalse(repair.gloss_is_above_its_reader(gloss, taught, 'de'))
+
+
 class RowVerdict(unittest.TestCase):
     def test_a_misspelling_of_a_name_is_not_vocabulary(self):
         reasons, names = repair.row_verdict(
