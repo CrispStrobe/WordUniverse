@@ -1,0 +1,120 @@
+# App Store Connect: distribute an uploaded build, and submit a version.
+#
+# ios-release.yml ends where Apple's copy of the build begins — it uploads and
+# stops. Everything after that (letting testers see it, asking for review) is
+# App Store Connect API work, which is what this runs.
+#
+#   status       read the app, its builds, its beta groups and its versions.
+#                Changes nothing. Run this first.
+#   testflight   add a build to the internal and/or external groups, and
+#                optionally submit it for beta app review, which external
+#                testers cannot install without.
+#   appstore     attach a build to a version and optionally submit that version
+#                for App Store review.
+#
+# Uses the same three App Store Connect secrets ios-release.yml already has.
+name: App Store Connect
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'What to do'
+        type: choice
+        options: [status, testflight, appstore]
+        default: status
+      build:
+        description: 'Build number (the +N in pubspec version). Blank = read it from pubspec.'
+        required: false
+      version:
+        description: 'Marketing version for the appstore action. Blank = read it from pubspec.'
+        required: false
+      internal:
+        description: 'testflight: internal groups'
+        type: boolean
+        default: true
+      external:
+        description: 'testflight: external groups'
+        type: boolean
+        default: false
+      submit_beta_review:
+        description: 'testflight: submit for beta app review (needed by external testers)'
+        type: boolean
+        default: false
+      submit_for_review:
+        description: 'appstore: submit the version to Apple for review'
+        type: boolean
+        default: false
+      whats_new:
+        description: "appstore: what's new text, applied to every locale"
+        required: false
+
+concurrency:
+  group: asc-release
+  cancel-in-progress: false
+
+jobs:
+  asc:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install --quiet 'pyjwt[crypto]'
+
+      - name: Read the version out of pubspec
+        id: v
+        run: |
+          set -euo pipefail
+          line=$(grep -m1 '^version:' pubspec.yaml | sed 's/version:[[:space:]]*//')
+          echo "version=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
+          echo "build=${{ inputs.build }}" >> "$GITHUB_OUTPUT"
+          [ -n "${{ inputs.version }}" ] || \
+            echo "version=${line%%+*}" >> "$GITHUB_OUTPUT"
+          [ -n "${{ inputs.build }}" ] || \
+            echo "build=${line##*+}" >> "$GITHUB_OUTPUT"
+
+      - name: Run
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_APP_ID: ${{ secrets.ASC_APP_ID }}
+          P8_B64: ${{ secrets.ASC_API_KEY_P8_BASE64 }}
+        run: |
+          set -euo pipefail
+          ASC_API_KEY_P8="$(echo "$P8_B64" | base64 --decode)"
+          export ASC_API_KEY_P8
+          # Each flag is appended with an `if`, not with `&&`. Under `set -e`
+          # a bare `false && args+=(...)` ends the job, so an unticked checkbox
+          # would have looked like a failed release.
+          case '${{ inputs.action }}' in
+            status)
+              python3 tools/release/asc.py status
+              ;;
+            testflight)
+              args=(--build '${{ steps.v.outputs.build }}')
+              if [ '${{ inputs.internal }}' = 'true' ]; then
+                args+=(--internal)
+              fi
+              if [ '${{ inputs.external }}' = 'true' ]; then
+                args+=(--external)
+              fi
+              if [ '${{ inputs.submit_beta_review }}' = 'true' ]; then
+                args+=(--submit-beta-review)
+              fi
+              python3 tools/release/asc.py testflight "${args[@]}"
+              ;;
+            appstore)
+              args=(--build '${{ steps.v.outputs.build }}'
+                    --version '${{ steps.v.outputs.version }}')
+              if [ -n '${{ inputs.whats_new }}' ]; then
+                args+=(--whats-new '${{ inputs.whats_new }}')
+              fi
+              if [ '${{ inputs.submit_for_review }}' = 'true' ]; then
+                args+=(--submit)
+              fi
+              python3 tools/release/asc.py appstore "${args[@]}"
+              ;;
+          esac
