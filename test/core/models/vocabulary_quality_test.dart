@@ -203,6 +203,46 @@ void main() {
       expect(describesAName('An English placename.'), isTrue);
     });
 
+    test('catches the gloss shapes the capitalisation audit turned up', () {
+      expect(describesAName('An urban area in west London, on the north '
+          'bank of the river Thames.'), isTrue);
+      expect(describesAName("A commune in Val-d'Oise department, France."),
+          isTrue);
+      expect(describesAName('A borough of New York City, New York.'), isTrue);
+      expect(describesAName('A village and civil parish in Shropshire.'),
+          isTrue);
+      expect(describesAName('A neighbourhood of Los Angeles, California.'),
+          isTrue);
+      expect(describesAName('The secret police of Nazi Germany.'), isTrue);
+      expect(describesAName('A member of the Order of the Brothers of Our '
+          'Lady of Mount Carmel.'), isTrue);
+      expect(describesAName('The fictional vampire in the novel of the same '
+          'name by Bram Stoker.'), isTrue);
+      expect(describesAName('a fictitious detective in stories by A. Conan '
+          'Doyle'), isTrue);
+      expect(describesAName('The twentieth book of the New Testament of the '
+          'Bible.'), isTrue);
+      expect(describesAName('The sixth book of the Old Testament of the '
+          'Bible.'), isTrue);
+      expect(describesAName('The Roman name for the Greek divine hero '
+          'Heracles.'), isTrue);
+      expect(describesAName('czar of Russia (1551-1605)'), isTrue);
+      expect(describesAName('A national of Finland.'), isTrue);
+    });
+
+    test('leaves the ordinary words those shapes nearly reach', () {
+      // Each of these was a real casualty of a wider phrasing, or would have
+      // been. "a fictitious " named "pseudonym"; " a ruler over " would have
+      // named "king", "the daughter of" "princess", " corporation" any firm.
+      expect(describesAName('A fictitious name (more literally, a false '
+          'name), as those used by writers.'), isFalse);
+      expect(describesAName('A male ruler over a country or territory.'),
+          isFalse);
+      expect(describesAName('The daughter of a monarch.'), isFalse);
+      expect(describesAName('A large business corporation.'), isFalse);
+      expect(describesAName('A member of the crew of a ship.'), isFalse);
+    });
+
     test('catches the German pack\'s "kind of place, then where it is"', () {
       // This rule shipped dead: its trailing \b had been written as a
       // literal backspace byte, so it asked for a control character after

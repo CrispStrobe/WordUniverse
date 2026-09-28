@@ -158,6 +158,31 @@ const List<String> kNameGlossPhrases = [
   // keyed against "batman" and "cam".
   'the messiah', 'son of god', 'in christianity', 'in islam', 'in judaism',
   'in the bible', 'in the quran', 'biblical figure', 'a prophet',
+  // Shapes found by the capitalisation audit, where the gloss names a place,
+  // an institution or a figure and none of the phrases above reached it:
+  // "chelsea" (An urban area in west London), "persan" (A commune in
+  // Val-d'Oise), "hollywood" (A neighbourhood of Los Angeles), "harley" (A
+  // village and civil parish), "brooklyn" (A borough of New York City),
+  // "gestapo" (The secret police of Nazi Germany), "dracula" (The fictional
+  // vampire in the novel of the same name), "holmes" (a fictitious detective
+  // in stories by A. Conan Doyle), "james" and "galatians" (The twentieth
+  // book of the New Testament), "carmelite" (A member of the Order of the
+  // Brothers of Our Lady of Mount Carmel), "hercules" (The Roman name for the
+  // Greek divine hero Heracles), "godunov" (czar of Russia), "finn" (A
+  // national of Finland).
+  //
+  // Each is narrower than it could be on purpose. " a ruler over " would
+  // have named "king", "the daughter of" would have named "princess", and
+  // " corporation" without the stop would have named any firm — a gloss shape
+  // that an ordinary word can also wear is not evidence of a name.
+  ' urban area in ', ' commune in ', ' borough of ', ' civil parish',
+  ' neighbourhood of ', ' neighborhood of ',
+  ' secret police of ', ' member of the order of ',
+  // "a fictitious " is deliberately absent: it named "pseudonym" (A fictitious
+  // name), which is vocabulary. " in stories by " reaches Holmes instead.
+  'the fictional ', ' in stories by ',
+  ' book of the new testament', ' book of the old testament',
+  ' roman name for ', 'czar of ', 'a national of ',
 ];
 
 /// Whether the entry's own gloss says it is a name or a place.

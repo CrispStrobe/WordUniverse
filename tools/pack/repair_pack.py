@@ -219,9 +219,12 @@ def names_something(definitions, metadata, rules):
                for definition in described[:2])
 
 
-def row_verdict(word, definitions, metadata, rules):
+def row_verdict(word, word_type, definitions, metadata, rules, language):
     """(reasons, names_something) for one row."""
     reasons = []
+    not_a_word = NOT_VOCABULARY.get(word) if language == 'en' else None
+    if not_a_word:
+        reasons.append(not_a_word)
     tags = [str(tag).lower() for tag in metadata.get('tags') or []]
     sources = [str(source).upper() for source in metadata.get('sources') or []]
     if (any(marker in tag for tag in tags for marker in MISSPELLING_TAGS)
@@ -238,9 +241,13 @@ def row_verdict(word, definitions, metadata, rules):
         # Not a reason to call it non-vocabulary: a word with no gloss is
         # still a word to spell. It cannot carry a *question*, and the app
         # already knows that from WordFeature.usableDefinition.
-        return reasons, False
+        return reasons, word in PROPER_NOUN_HEADWORDS
 
-    names = names_something(described, metadata, rules)
+    names = (names_something(described, metadata, rules)
+             or (language == 'en' and word in PROPER_NOUN_HEADWORDS))
+    if gloss_belongs_to_another_word(word, word_type, described, metadata,
+                                     rules, names, language):
+        reasons.append('gloss belongs to another word')
     return reasons, names
 
 
@@ -253,6 +260,181 @@ def leading_unusable(definitions, rules):
         else:
             return dropped
     return 0  # nothing usable anywhere; leave the row alone
+
+
+# Entries whose headword is simply missing its capital.
+#
+# Found by spellingIsTrustworthy: an entry whose own glosses and examples
+# capitalise it three or more times mid-sentence, without a single exception,
+# is not spelled the way the pack spells it. 169 English entries qualified.
+# These are the ones that are ordinary vocabulary and only want the capital --
+# a child learning "January" or "English" at grade 2 should be able to spell
+# it, and until this ran the app excluded all 169 from spelling games rather
+# than teach the wrong form.
+#
+# Written out rather than title-cased, because the acronyms are not title-case
+# and because a closed list is the only honest way to say "lowercase is never
+# correct here". "august" is deliberately absent: the adjective ("venerable")
+# is lowercase, which is also why "march" and "may" never reached the list. So
+# are "god", "mommy", "pa", "republican", "soviet" and "escape", where both
+# cases are correct English and only the context decides.
+def _capitals(*groups):
+    out = {}
+    for group in groups:
+        for word in group.split():
+            out[word] = word[0].upper() + word[1:]
+    return out
+
+
+CAPITALISED_HEADWORDS = {
+    **_capitals(
+        'january february april june july september october november december',
+        'monday tuesday wednesday thursday friday saturday sunday',
+        'christmas easter halloween olympics olympic olympia',
+        # Nationality, language and belief.
+        'african buddhist canadian caribbean carthaginian chinese dutch '
+        'english european fahrenheit flemish greek hebrew hungarian indian '
+        'italian japanese jewish korean linnaean mediterranean palestinian '
+        'philippine russian shakespearean sistine spanish yemeni',
+        'british brazilian catholicism christian christianity cuban danish '
+        'englishman french irish israeli judaism jew moroccan',
+        # Continents and countries a geography lesson names.
+        'asia europe germany atlantic',
+        'mr mrs',
+    ),
+    # Acronyms, which are not title-case.
+    **{word: word.upper() for word in
+       'ceo dj dna dvd faq fbi hiv hq uk url usa'.split()},
+}
+
+# See the search_index note in main(): a rename that changed more than case
+# would leave the shipped full-text index unable to find the row.
+assert all(word.lower() == fixed.lower()
+           for word, fixed in CAPITALISED_HEADWORDS.items())
+
+# Entries that are names. Kept, so a reading question can still use them, but
+# typed proper_noun so they leave spelling, synonym and word-class games.
+# describes_a_name does not reach these: it keys on how a gloss opens, and
+# "Siddhartha Gautama, the Nepali prince ...", "The fictional vampire in the
+# novel ..." and "The strait connecting ..." each open some other way.
+PROPER_NOUN_HEADWORDS = frozenset(
+    'aborigine amazon bailey barbie beatles benjamin buddha caesar chet '
+    'columbia daphne dardanelles diana doris eric franco george gloria hector '
+    'henry hulk joanna jonathan joseph judas khan kleenex lapd leo likud '
+    'linux lothringen mccarthyist microsoft skagerrak sony yahoo'.split())
+
+# Entries that are not words at all. Marked rather than deleted, which is what
+# the pack already does with a misspelling, so the row stays auditable.
+NOT_VOCABULARY = {
+    **{word: 'misspelling of a capitalised name' for word in
+       'brittish conneticut creedence portugese maltesian youtube gya'.split()},
+    **{word: 'a symbol, not a word' for word in
+       'au aug beng iv ms dr cd-rom'.split()},
+    **{word: 'a plural surface of an entry the pack already has' for word in
+       'greeks indians zionists saturdays'.split()},
+    **{word: 'an obsolete form' for word in 'offred joan'.split()},
+    'fritz': 'a slur',
+}
+
+
+# Text that capitalises most of its words is a heading, not a sentence, and
+# says nothing about how the word is spelled inside one. Without this,
+# "escape" looks like a name: its three capitalised uses are all chapter
+# titles -- "The Boys Escape Jim.-Tom Sawyer's ...".
+def _is_a_heading(text):
+    # The opening word is dropped before counting: a sentence capitalises it
+    # too, and in a short sentence that one capital was enough to make "Each
+    # January brings snow." look like a heading and be thrown away.
+    words = re.findall(r"[A-Za-z][A-Za-z'’-]*", text)[1:]
+    words = [w for w in words if len(w) > 2]
+    if len(words) < 4:
+        return False
+    return sum(1 for w in words if w[0].isupper()) / len(words) > 0.4
+
+
+def evidence_capitalises(word, definitions, metadata):
+    """Whether every mid-sentence use of the word in its own evidence is
+    capitalised, over at least three uses. Mirrors spellingIsTrustworthy."""
+    if not word[:1].isalpha() or word[0] != word[0].lower():
+        return False
+    texts = [d for d in definitions[:3] if isinstance(d, str)]
+    grade_examples = metadata.get('grade_examples')
+    if isinstance(grade_examples, dict):
+        for sentences in grade_examples.values():
+            if isinstance(sentences, list):
+                texts += [s for s in sentences[:2] if isinstance(s, str)]
+    texts += [s for s in (metadata.get('gutenberg_examples') or [])[:3]
+              if isinstance(s, str)]
+    pattern = re.compile(r'\b' + re.escape(word) + r'\b', re.IGNORECASE)
+    seen = 0
+    capitalised = 0
+    for text in texts:
+        if _is_a_heading(text):
+            continue
+        for match in pattern.finditer(text):
+            before = text[:match.start()].rstrip()
+            if not before or before[-1] in '.!?':
+                continue          # a sentence start says nothing about case
+            seen += 1
+            if text[match.start()].isupper():
+                capitalised += 1
+    return seen >= 3 and capitalised == seen
+
+
+# Where a CEFR level protects an entry it should not. "august" is A1 as the
+# month; the entry glosses the adjective ("Awe-inspiring, majestic, noble,
+# venerable") and carries the month's sentences, so the level is evidence for
+# a word that is not the one described. Nothing in the row distinguishes the
+# two, so it is named here.
+GLOSS_MISMATCHES = frozenset({'august'})
+
+
+def pack_language(db):
+    """The language the pack teaches.
+
+    Read from the translations it carries, which name the *other* language:
+    the English pack translates into de, the German pack into en.
+    """
+    row = db.execute('SELECT lang_code, COUNT(*) c FROM translations '
+                     'GROUP BY lang_code ORDER BY c DESC LIMIT 1').fetchone()
+    into = (row[0] if row else '') or ''
+    return 'de' if into.startswith('en') else 'en'
+
+
+def gloss_belongs_to_another_word(word, word_type, definitions, metadata,
+                                  rules, names, language):
+    """Whether the gloss and the evidence describe different words.
+
+    Evidence that always capitalises the word says it is a name; a gloss that
+    does not describe a name says it is not. Both cannot be about the same
+    word, and it is the gloss that loses -- the examples are what a child
+    reads. This is how "olympics" came to be glossed "Five consecutive ducks"
+    at grade 2, "henry" the unit of inductance at grade 3, and "joanna" a
+    piano: a rare homograph of a name, carrying the name's sentences.
+
+    English only. The rule reads a capital as evidence of a name, which holds
+    only where nothing else is capitalised. German capitalises every noun and
+    every nominalised verb, so "das Reisen" in an example of "reisen" is
+    correct German and says nothing at all -- it flagged "aussagen",
+    "donnern", "regeln", "reisen" and "freie" before this line existed.
+    """
+    if language != 'en':
+        return False
+    if word in CAPITALISED_HEADWORDS or word in NOT_VOCABULARY:
+        return False
+    if names or word_type == 'proper_noun':
+        return False    # the pack already says it is a name; nothing to add
+    described = [d for d in definitions if isinstance(d, str) and d.strip()]
+    if not described:
+        return False
+    if describes_a_name(described[0], rules):
+        return False              # gloss and evidence agree: it is a name
+    # A level is assigned to a meaning a learner acquires, and "god", "mommy",
+    # "pa" and "soviet" are levelled and correct in both cases -- there the
+    # gloss describes the capitalised sense rather than contradicting it.
+    if is_attested_vocabulary(metadata) and word not in GLOSS_MISMATCHES:
+        return False
+    return evidence_capitalises(word, described, metadata)
 
 
 # Rows a model read and found plainly wrong, which nothing in the pack can be
@@ -317,6 +499,7 @@ def main():
 
     db = sqlite3.connect(out)
     db.row_factory = sqlite3.Row
+    language = pack_language(db)
     phrasals_fixed = fix_phrasal_glosses(db, args.report)
     weak = weak_masculine_forms(db)
     weak_patterns = weak_noun_patterns(weak)
@@ -326,17 +509,19 @@ def main():
     detagged = 0
     resenses = 0
     declined = 0
+    capitalised = 0
     rewritten = 0
 
     updates = []
     for row in db.execute(
-            'SELECT id, word, word_type, enrichment_json, metadata_json '
-            'FROM words'):
+            'SELECT id, word, lemma, word_type, enrichment_json, '
+            'metadata_json FROM words'):
         enrichment = json.loads(row['enrichment_json'] or '{}')
         metadata = json.loads(row['metadata_json'] or '{}')
         definitions = enrichment.get('definitions') or []
 
-        verdict, names = row_verdict(row['word'], definitions, metadata, rules)
+        verdict, names = row_verdict(row['word'], row['word_type'],
+                                     definitions, metadata, rules, language)
         # Never for a name: its leading gloss is *why* it is a name, and
         # dropping it left "london" reading "A former administrative county of
         # England" and looking like ordinary vocabulary again.
@@ -357,6 +542,15 @@ def main():
             kept_tags = [tag for tag in tags
                          if not CURRICULUM_TAGS.match(str(tag))]
         word_type = 'proper_noun' if names else row['word_type']
+
+        # The headword itself, where the entry's own evidence spells it with a
+        # capital and nothing else does. Games compare what a child types
+        # against this column, so until it is right the word cannot be taught.
+        word = (CAPITALISED_HEADWORDS.get(row['word'], row['word'])
+                if language == 'en' else row['word'])
+        lemma = row['lemma']
+        if word != row['word'] and lemma == row['word']:
+            lemma = word
 
         # The pack writes its own example sentences, and they decline weak
         # masculine nouns as if they were strong: "den Held", "einen
@@ -388,6 +582,7 @@ def main():
         changed = (quality != metadata.get('quality')
                    or kept_tags != tags
                    or word_type != row['word_type']
+                   or word != row['word']
                    or drop
                    or sentences_fixed)
         if not changed:
@@ -408,6 +603,9 @@ def main():
         if sentences_fixed:
             declined += sentences_fixed
             samples.setdefault('declined', []).append(row['word'])
+        if word != row['word']:
+            capitalised += 1
+            samples.setdefault('capitalised', []).append(word)
         rewritten += 1
 
         if args.report:
@@ -426,13 +624,21 @@ def main():
             if (drop or sentences_fixed) else row['enrichment_json'],
             json.dumps(metadata, ensure_ascii=False),
             word_type,
+            word,
+            lemma,
             row['id'],
         ))
 
     if updates:
         db.executemany(
             'UPDATE words SET enrichment_json = ?, metadata_json = ?, '
-            'word_type = ? WHERE id = ?', updates)
+            'word_type = ?, word = ?, lemma = ? WHERE id = ?', updates)
+        # The pack ships a prebuilt FTS5 search_index over the words table,
+        # which nothing here can rebuild -- it is declared over a translations
+        # column the words table does not have, so 'rebuild' fails. It does not
+        # need rebuilding: every rename below differs from the old headword
+        # only in case, and FTS5 folds case, so the index still matches. The
+        # assertion is what keeps that true.
         db.commit()
         db.execute('VACUUM')
 
@@ -444,12 +650,14 @@ def main():
     for reason, count in reasons.most_common():
         shown = ', '.join(samples[reason][:6])
         print(f'  {count:6d}  {reason:28s} {shown}')
-    for label, count in (('word_type -> proper_noun', named),
+    for label, count in (('headwords capitalised', capitalised),
+                         ('word_type -> proper_noun', named),
                          ('curriculum tags dropped', detagged),
                          ('leading glosses dropped', resenses),
                          ('weak nouns declined', declined)):
         if count:
-            key = {'word_type -> proper_noun': 'named',
+            key = {'headwords capitalised': 'capitalised',
+                   'word_type -> proper_noun': 'named',
                    'curriculum tags dropped': 'detagged',
                    'leading glosses dropped': 'resensed',
                    'weak nouns declined': 'declined'}[label]
