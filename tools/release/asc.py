@@ -456,14 +456,38 @@ def cmd_appstore(args):
     call('PATCH', f"/v1/appStoreVersions/{version['id']}/relationships/build",
          {'data': {'type': 'builds', 'id': build['id']}})
 
-    if args.whats_new:
-        for loc in paged(f"/v1/appStoreVersions/{version['id']}"
-                         '/appStoreVersionLocalizations?limit=50'):
+    # Per locale, and that matters: the listing is en-US and de-DE, so one
+    # text for all of them puts German on the English page or the reverse.
+    # `--whats-new de-DE=…` targets one; a bare value applies to every locale,
+    # which is only right for a single-locale app.
+    texts = {}
+    default = None
+    for entry in args.whats_new or []:
+        locale, _, text = entry.partition('=')
+        if text and '-' in locale and len(locale) <= 8:
+            texts[locale] = text
+        else:
+            default = entry
+    if texts or default:
+        localizations = paged(f"/v1/appStoreVersions/{version['id']}"
+                              '/appStoreVersionLocalizations?limit=50')
+        known = {l['attributes'].get('locale') for l in localizations}
+        for locale in texts:
+            if locale not in known:
+                raise SystemExit(
+                    f'no {locale} localization on this version; it has '
+                    f'{sorted(known)}')
+        for loc in localizations:
+            locale = loc['attributes'].get('locale')
+            text = texts.get(locale, default)
+            if text is None:
+                print(f"  what's new left alone for {locale}")
+                continue
             call('PATCH', f"/v1/appStoreVersionLocalizations/{loc['id']}",
                  {'data': {'type': 'appStoreVersionLocalizations',
                            'id': loc['id'],
-                           'attributes': {'whatsNew': args.whats_new}}})
-            print(f"  what's new set for {loc['attributes'].get('locale')}")
+                           'attributes': {'whatsNew': text}}})
+            print(f"  what's new set for {locale} ({len(text)} chars)")
 
     if not args.submit:
         print('\nnot submitted. Pass --submit to ask Apple to review it.')
@@ -525,7 +549,9 @@ def main():
     st = sub.add_parser('appstore', help='attach a build and optionally submit')
     st.add_argument('--build', required=True)
     st.add_argument('--version', required=True)
-    st.add_argument('--whats-new')
+    st.add_argument('--whats-new', action='append',
+                    help='"locale=text" for one locale, repeatable; a bare '
+                         'value applies to every locale')
     st.add_argument('--submit', action='store_true',
                     help='ask Apple to review it. This is not reversible '
                          'without a developer rejection.')
