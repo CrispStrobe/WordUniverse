@@ -43,7 +43,10 @@ def token():
     )
 
 
-def call(method, path, body=None, _token=[]):
+def call(method, path, body=None, optional=False, _token=[]):
+    """One request. With optional=True a 404 returns None instead of ending
+    the run: Apple moves relationships between resources between API versions,
+    and a report that dies on the first one it cannot find reports nothing."""
     if not _token:
         _token.append(token())
     url = path if path.startswith('http') else f'{API}{path}'
@@ -58,6 +61,8 @@ def call(method, path, body=None, _token=[]):
             return json.loads(raw) if raw else {}
     except urllib.error.HTTPError as error:
         detail = error.read().decode(errors='replace')
+        if optional and error.code == 404:
+            return None
         raise SystemExit(f'{method} {url}\n  HTTP {error.code}\n  {detail}')
 
 
@@ -223,8 +228,11 @@ def cmd_metadata(args):
         print(f"    {_ok(description)}  description ({len(description)} chars)")
         if not description:
             problems.append(f'{locale}: description is empty')
-        print(f"    {_ok(whats_new)}  what's new ({len(whats_new)} chars)")
-        if not whats_new:
+        live = va.get('appStoreState') == 'READY_FOR_SALE'
+        print(f"    {'n/a ' if live and not whats_new else _ok(whats_new)}  "
+              f"what's new ({len(whats_new)} chars)"
+              f"{'  — a released version carries none' if live else ''}")
+        if not whats_new and not live:
             problems.append(f"{locale}: what's new is empty")
         print(f"    {'ok  ' if keywords else 'none'}  keywords: {keywords[:48]}")
         sets = paged(f"/v1/appStoreVersionLocalizations/{loc['id']}"
@@ -242,14 +250,26 @@ def cmd_metadata(args):
         if not iphone:
             problems.append(f'{locale}: no iPhone screenshots')
 
-    rating = call('GET', f"/v1/appStoreVersions/{target['id']}"
-                         '/ageRatingDeclaration').get('data')
+    # Apple moved this off appStoreVersions and onto appInfos; ask both, in
+    # that order, because the old path 404s with "The relationship
+    # 'ageRatingDeclaration' does not exist" rather than an empty answer.
+    rating = None
+    for path in (f"/v1/appInfos/{infos[0]['id']}/ageRatingDeclaration"
+                 if infos else None,
+                 f"/v1/appStoreVersions/{target['id']}/ageRatingDeclaration"):
+        if not path:
+            continue
+        got = call('GET', path, optional=True)
+        if got and got.get('data'):
+            rating = got['data']
+            break
     print(f"  {_ok(rating)}  age rating declaration present")
     if not rating:
         problems.append('age rating declaration is unset')
 
-    review = call('GET', f"/v1/appStoreVersions/{target['id']}"
-                         '/appStoreReviewDetail').get('data')
+    got = call('GET', f"/v1/appStoreVersions/{target['id']}"
+                      '/appStoreReviewDetail', optional=True)
+    review = (got or {}).get('data')
     if review:
         r = review['attributes']
         need_demo = r.get('demoAccountRequired')
