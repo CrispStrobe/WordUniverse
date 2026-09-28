@@ -230,6 +230,31 @@ void main() {
       expect(describesAName('A national of Finland.'), isTrue);
     });
 
+    test('a gloss that only points at another entry is not usable', () {
+      // A lexicographer writes these so a reader can look elsewhere; a child
+      // shown one as a meaning is told nothing. Sixty English entries led with
+      // one, "bike", "math", "auto", "bio", "congrats" and "disco" among them.
+      expect(describesACrossReference('Clipping of bicycle.'), isTrue);
+      expect(describesACrossReference('Synonym of rib.'), isTrue);
+      expect(describesACrossReference('Obsolete form of none.'), isTrue);
+      expect(describesACrossReference("Misspelling of didn't."), isTrue);
+      expect(describesACrossReference('Alternative spelling of chili'), isTrue);
+      expect(isUsableDefinition('Clipping of mathematics.'), isFalse);
+    });
+
+    test('the marker has to open the gloss, not merely appear in it', () {
+      // "synonym of" and "clipping of" are ordinary English. Matching them
+      // anywhere would reject real definitions.
+      expect(
+          describesACrossReference(
+              'A synonym of happiness is joy and it is used widely.'),
+          isFalse);
+      expect(
+          isUsableDefinition(
+              'A powered heavier-than-air aircraft with fixed wings.'),
+          isTrue);
+    });
+
     test('leaves the ordinary words those shapes nearly reach', () {
       // Each of these was a real casualty of a wider phrasing, or would have
       // been. "a fictitious " named "pseudonym"; " a ruler over " would have

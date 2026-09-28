@@ -250,5 +250,58 @@ class RowVerdict(unittest.TestCase):
         self.assertFalse(names)
 
 
+class CrossReferences(unittest.TestCase):
+    def test_a_gloss_that_only_points_elsewhere_cannot_carry_a_question(self):
+        for gloss in ('Clipping of bicycle.', 'Synonym of rib.',
+                      'Obsolete form of none.', "Misspelling of didn't.",
+                      'Alternative spelling of chili'):
+            self.assertEqual(repair.gloss_verdict(gloss, RULES),
+                             'gloss points at another entry', gloss)
+
+    def test_the_marker_must_open_the_gloss(self):
+        # Anchored on purpose: "synonym of" and "clipping of" are ordinary
+        # English and appear inside real definitions.
+        self.assertIsNone(repair.gloss_verdict(
+            'A synonym of happiness is joy and it is used widely.', RULES))
+
+    def test_a_pointer_in_front_of_a_definition_is_dropped_not_the_gloss(self):
+        # "airplane" is glossed "Synonym of airplane. A powered ..." -- a
+        # pointer at itself, then the definition. Grade 2.
+        self.assertEqual(
+            repair.strip_leading_cross_reference(
+                'Synonym of airplane. A powered heavier-than-air aircraft '
+                'with fixed wings.', RULES),
+            'A powered heavier-than-air aircraft with fixed wings.')
+
+    def test_a_gloss_that_is_only_a_pointer_is_left_whole(self):
+        # Nothing follows, so there is nothing to keep; it is rejected instead.
+        for gloss in ('Clipping of bicycle.', 'Synonym of rib.'):
+            self.assertEqual(
+                repair.strip_leading_cross_reference(gloss, RULES), gloss)
+
+    def test_a_short_tail_is_not_a_definition(self):
+        self.assertEqual(
+            repair.strip_leading_cross_reference(
+                'Clipping of bicycle. See also.', RULES),
+            'Clipping of bicycle. See also.')
+
+    def test_a_gloss_calling_the_entry_a_misspelling_condemns_the_entry(self):
+        # "hasnt" is grade 1 and carries no misspelling tag, so the entry was
+        # vocabulary a child was taught.
+        reasons, _ = repair.row_verdict(
+            'hasnt', 'verb', ["Misspelling of hasn't."], {}, RULES, 'en')
+        self.assertIn('its own gloss calls it a misspelling', reasons)
+
+    def test_a_real_word_with_a_pointer_gloss_stays_a_word(self):
+        # "bike" is a word; only its gloss points elsewhere.
+        reasons, _ = repair.row_verdict(
+            'bike', 'noun', ['Clipping of bicycle.'], {}, RULES, 'en')
+        self.assertEqual(reasons, [])
+
+    def test_german_glosses_are_untouched_by_an_english_marker_list(self):
+        self.assertIsNone(repair.gloss_verdict(
+            'ein Fahrzeug mit zwei Raedern zum Fahren', RULES))
+
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)

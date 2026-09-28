@@ -112,6 +112,7 @@ def load_rules():
         'form_markers': dart_list(source, 'kGrammaticalFormMarkers'),
         'abbreviation_markers': dart_list(source, 'kAbbreviationMarkers'),
         'misspelling_markers': dart_list(source, '_invalidSpellingMarkers'),
+        'cross_reference': dart_list(source, 'kCrossReferenceMarkers'),
         'dangling': dart_list(source, '_danglingWords'),
     }
 
@@ -153,6 +154,31 @@ def ends_mid_sentence(definition, rules):
     return stripped.split()[-1].lower() in rules['dangling']
 
 
+def strip_leading_cross_reference(definition, rules):
+    """Drops an opening pointer sentence when a real definition follows it.
+
+    "airplane" is glossed "Synonym of airplane. A powered heavier-than-air
+    aircraft with fixed wings ..." -- a pointer at itself, and then the
+    definition. Rejecting the gloss for its opening would cost a grade 2 word
+    its meaning, and promoting the next gloss would change the sense, so the
+    sentence goes and the rest stays.
+
+    Only where something substantial follows: "Clipping of bicycle." is the
+    whole gloss and is left alone to be rejected.
+    """
+    trimmed = (definition or '').strip()
+    lower = trimmed.lower()
+    if not any(lower.startswith(marker) for marker in rules['cross_reference']):
+        return definition
+    stop = trimmed.find('. ')
+    if stop < 0:
+        return definition
+    rest = trimmed[stop + 2:].strip()
+    if len(rest.split()) < 4:
+        return definition
+    return rest
+
+
 def gloss_verdict(definition, rules):
     """Why this gloss cannot carry a question, or None when it can."""
     trimmed = (definition or '').strip()
@@ -167,6 +193,9 @@ def gloss_verdict(definition, rules):
         return 'gloss is a grammatical parse'
     if any(marker in lower for marker in rules['abbreviation_markers']):
         return 'gloss is an abbreviation'
+    # Anchored, unlike the others: see kCrossReferenceMarkers.
+    if any(lower.startswith(marker) for marker in rules['cross_reference']):
+        return 'gloss points at another entry'
     if describes_a_name(trimmed, rules):
         return 'gloss names something'
     if ends_mid_sentence(trimmed, rules):
@@ -282,6 +311,20 @@ def gloss_is_above_its_reader(definition, vocabulary, language='en'):
     return unknown / len(words) > _MOSTLY_UNTAUGHT[language]
 
 
+# A leading gloss that calls the entry a misspelling is evidence about the
+# *entry*, not just about the gloss, and stronger than the tags: "hasnt" and
+# "isnt" are grade 1, "didnt" and "doesnt" grade 2, and none of the four
+# carries a misspelling tag, so all four were vocabulary a child was taught.
+SAYS_IT_IS_A_MISSPELLING = re.compile(
+    r'^(misspelling|common misspelling|eye dialect|informal spelling)\s+of\b',
+    re.IGNORECASE)
+
+# "wasnt" is glossed "Contraction of was not.", which is true of "wasn't" and
+# not of this spelling, so no rule here can reach it. Its four siblings are
+# caught by their own glosses; it is named so that the five stay together.
+NOT_A_WORD_BY_READING = frozenset({'wasnt'})
+
+
 CURRICULUM_TAGS = re.compile(
     r'^source:(dolch|fry|de_curriculum_en|cambridge_yle_.*|uk_y.*)$')
 
@@ -333,6 +376,12 @@ def row_verdict(word, word_type, definitions, metadata, rules, language):
     not_a_word = NOT_VOCABULARY.get(word) if language == 'en' else None
     if not_a_word:
         reasons.append(not_a_word)
+    if language == 'en':
+        leading = next((d for d in definitions
+                        if isinstance(d, str) and d.strip()), '')
+        if (SAYS_IT_IS_A_MISSPELLING.match(leading.strip())
+                or word.lower() in NOT_A_WORD_BY_READING):
+            reasons.append('its own gloss calls it a misspelling')
     tags = [str(tag).lower() for tag in metadata.get('tags') or []]
     sources = [str(source).upper() for source in metadata.get('sources') or []]
     if (any(marker in tag for tag in tags for marker in MISSPELLING_TAGS)
@@ -436,8 +485,11 @@ PROPER_NOUN_HEADWORDS = frozenset(
 NOT_VOCABULARY = {
     **{word: 'misspelling of a capitalised name' for word in
        'brittish conneticut creedence portugese maltesian youtube gya'.split()},
+    # "co" joins them by measurement rather than by reading: once its
+    # "Clipping of company." gloss was rejected, the next sense promoted was
+    # carbon monoxide -- "an odorless very poisonous gas" at grade 2.
     **{word: 'a symbol, not a word' for word in
-       'au aug beng iv ms dr cd-rom'.split()},
+       'au aug beng iv ms dr cd-rom co'.split()},
     **{word: 'a plural surface of an entry the pack already has' for word in
        'greeks indians zionists saturdays'.split()},
     **{word: 'an obsolete form' for word in 'offred joan'.split()},
@@ -631,6 +683,7 @@ def main():
     weak_patterns = weak_noun_patterns(weak)
     reasons = Counter()
     above = 0
+    pointers = 0
     samples = {}
     named = 0
     detagged = 0
@@ -646,6 +699,18 @@ def main():
         enrichment = json.loads(row['enrichment_json'] or '{}')
         metadata = json.loads(row['metadata_json'] or '{}')
         definitions = enrichment.get('definitions') or []
+
+        # A pointer sentence in front of a real definition goes before
+        # anything judges the gloss.
+        stripped = 0
+        if language == 'en':
+            for index, definition in enumerate(definitions):
+                if not isinstance(definition, str):
+                    continue
+                shorter = strip_leading_cross_reference(definition, rules)
+                if shorter != definition:
+                    definitions[index] = shorter
+                    stripped += 1
 
         verdict, names = row_verdict(row['word'], row['word_type'],
                                      definitions, metadata, rules, language)
@@ -712,7 +777,8 @@ def main():
                         sentences[index] = fixed
                         sentences_fixed += 1
 
-        changed = (quality != metadata.get('quality')
+        changed = (stripped
+                   or quality != metadata.get('quality')
                    or hard_gloss != bool(metadata.get('gloss_above_reader'))
                    or kept_tags != tags
                    or word_type != row['word_type']
@@ -743,6 +809,9 @@ def main():
         if hard_gloss != bool(metadata.get('gloss_above_reader')):
             above += 1
             samples.setdefault('above', []).append(row['word'])
+        if stripped:
+            pointers += 1
+            samples.setdefault('pointers', []).append(row['word'])
         rewritten += 1
 
         if args.report:
@@ -762,7 +831,8 @@ def main():
             enrichment['definitions'] = definitions[drop:]
         updates.append((
             json.dumps(enrichment, ensure_ascii=False)
-            if (drop or sentences_fixed) else row['enrichment_json'],
+            if (drop or sentences_fixed or stripped)
+            else row['enrichment_json'],
             json.dumps(metadata, ensure_ascii=False),
             word_type,
             word,
@@ -791,14 +861,16 @@ def main():
     for reason, count in reasons.most_common():
         shown = ', '.join(samples[reason][:6])
         print(f'  {count:6d}  {reason:28s} {shown}')
-    for label, count in (('glosses above their reader', above),
+    for label, count in (('pointer sentences dropped', pointers),
+                         ('glosses above their reader', above),
                          ('headwords capitalised', capitalised),
                          ('word_type -> proper_noun', named),
                          ('curriculum tags dropped', detagged),
                          ('leading glosses dropped', resenses),
                          ('weak nouns declined', declined)):
         if count:
-            key = {'glosses above their reader': 'above',
+            key = {'pointer sentences dropped': 'pointers',
+                   'glosses above their reader': 'above',
                    'headwords capitalised': 'capitalised',
                    'word_type -> proper_noun': 'named',
                    'curriculum tags dropped': 'detagged',
