@@ -287,6 +287,71 @@ def cmd_metadata(args):
         print(f'  - {p}')
     return 1 if problems else 0
 
+def cmd_beta(args):
+    """What external TestFlight needs, which is not what the App Store needs.
+
+    Apple gates external testing on its own three things, and a missing one
+    fails the beta submission rather than the release: the app's beta review
+    contact, a beta description and feedback email per locale, and "What to
+    Test" on the build itself. Internal testing needs none of them.
+    """
+    problems = []
+    detail = call('GET', f'/v1/apps/{app_id()}/betaAppReviewDetail',
+                  optional=True)
+    d = ((detail or {}).get('data') or {}).get('attributes') or {}
+    if d:
+        print(f"ok    beta review contact: {d.get('contactFirstName')} "
+              f"{d.get('contactLastName')} <{d.get('contactEmail')}>")
+        print(f"ok    demo account required: {d.get('demoAccountRequired')}")
+        if not d.get('contactEmail'):
+            problems.append('beta review contact email is empty')
+        if d.get('demoAccountRequired') and not d.get('demoAccountName'):
+            problems.append('a demo account is required but not given')
+    else:
+        print('MISSING  beta app review detail')
+        problems.append('beta app review detail is unset')
+
+    print('\nbeta app localizations:')
+    locales = paged(f'/v1/apps/{app_id()}/betaAppLocalizations?limit=50')
+    if not locales:
+        print('  MISSING  none at all')
+        problems.append('no beta app localizations')
+    for loc in locales:
+        la = loc['attributes']
+        locale = la.get('locale')
+        description = la.get('description') or ''
+        feedback = la.get('feedbackEmail') or ''
+        print(f"  {locale}: {_ok(description)} description "
+              f"({len(description)} chars)   {_ok(feedback)} feedback email: "
+              f"{feedback}")
+        if not description:
+            problems.append(f'{locale}: beta description is empty')
+        if not feedback:
+            problems.append(f'{locale}: beta feedback email is empty')
+
+    if args.build:
+        build = find_build(args.build)
+        print(f"\nbuild {args.build} — what to test:")
+        notes = paged(f"/v1/builds/{build['id']}/betaBuildLocalizations"
+                      '?limit=50')
+        if not notes:
+            print('  MISSING  none set')
+            problems.append(f'build {args.build}: no "what to test" text')
+        for note in notes:
+            na = note['attributes']
+            text = na.get('whatsNew') or ''
+            print(f"  {na.get('locale')}: {_ok(text)} ({len(text)} chars)")
+            if not text:
+                problems.append(
+                    f"build {args.build}: \"what to test\" empty for "
+                    f"{na.get('locale')}")
+
+    print(f"\n{len(problems)} problem(s)" + (':' if problems else ''))
+    for p in problems:
+        print(f'  - {p}')
+    return 1 if problems else 0
+
+
 def find_build(number):
     builds = paged(f'/v1/builds?filter[app]={app_id()}'
                    f'&filter[version]={number}&limit=5')
@@ -414,6 +479,10 @@ def main():
     md.add_argument('--version', help='which version to check; default is the '
                                       'editable one')
     md.add_argument('--platform', default='IOS', choices=['IOS', 'MAC_OS'])
+    bt = sub.add_parser('beta',
+                        help='what external TestFlight would block on')
+    bt.add_argument('--build', help='also check "what to test" on this build')
+
     md.add_argument('--live', action='store_true',
                     help='when nothing is editable, read the version on sale, '
                          'which is what a new one inherits from')
@@ -440,7 +509,7 @@ def main():
 
     args = parser.parse_args()
     return {'status': cmd_status, 'metadata': cmd_metadata,
-            'testflight': cmd_testflight,
+            'beta': cmd_beta, 'testflight': cmd_testflight,
             'appstore': cmd_appstore}[args.command](args)
 
 

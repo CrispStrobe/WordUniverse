@@ -10,6 +10,10 @@
 #                policy, description, what's new, screenshots per locale, age
 #                rating, review contact. Changes nothing, and exits non-zero
 #                when something is missing.
+#   beta         what external TestFlight would block on, which is not the
+#                same list as the App Store: the beta review contact, a beta
+#                description and feedback email per locale, and "What to Test"
+#                on the build. Internal testing needs none of it.
 #   testflight   add a build to the internal and/or external groups, and
 #                optionally submit it for beta app review, which external
 #                testers cannot install without.
@@ -25,7 +29,7 @@ on:
       action:
         description: 'What to do'
         type: choice
-        options: [status, metadata, testflight, appstore]
+        options: [status, metadata, beta, testflight, appstore]
         default: status
       build:
         description: 'Build number (the +N in pubspec version). Blank = read it from pubspec.'
@@ -96,6 +100,10 @@ jobs:
           case '${{ inputs.action }}' in
             status)
               python3 tools/release/asc.py status
+              ;;
+            beta)
+              python3 tools/release/asc.py beta \
+                --build '${{ steps.v.outputs.build }}'
               ;;
             metadata)
               python3 tools/release/asc.py metadata --live \
