@@ -98,7 +98,7 @@ jobs:
               python3 tools/release/asc.py status
               ;;
             metadata)
-              python3 tools/release/asc.py metadata \
+              python3 tools/release/asc.py metadata --live \
                 --version '${{ steps.v.outputs.version }}'
               ;;
             testflight)
