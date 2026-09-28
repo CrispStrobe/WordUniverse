@@ -192,6 +192,12 @@ ClozeChallenge? buildClozeChallenge({
   // answer, the lemma and each other, and never a word the learner can
   // already read beside the gap. (Expression Flash had that last rule before
   // the three games were unified; it belongs to all of them.)
+  //
+  // Nor a synonym of the answer, which is a second correct answer and marks
+  // the child wrong for reading the sentence properly. Nothing here checked
+  // that: a distractor was rejected only for matching the answer's spelling,
+  // its lemma, another distractor, or text beside the gap.
+  final synonyms = word.everySynonym;
   final visibleText = '${cloze.before}${cloze.after}'.toLowerCase();
   final distractors = <String>[];
   // Shuffled per challenge: taking from the front of one list put the same
@@ -204,6 +210,7 @@ ClozeChallenge? buildClozeChallenge({
     if (distractors.length >= optionCount - 1) break;
     if (candidate.toLowerCase() == correctForm.toLowerCase()) continue;
     if (candidate.toLowerCase() == word.word.toLowerCase()) continue;
+    if (synonyms.contains(candidate.toLowerCase())) continue;
     if (visibleText.contains(candidate.toLowerCase())) continue;
     if (distractors.any((d) => d.toLowerCase() == candidate.toLowerCase())) {
       continue;
