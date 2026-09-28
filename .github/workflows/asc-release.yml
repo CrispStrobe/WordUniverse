@@ -80,22 +80,36 @@ jobs:
 
       - name: Read the version out of pubspec
         id: v
+        env:
+          IN_VERSION: ${{ inputs.version }}
+          IN_BUILD: ${{ inputs.build }}
         run: |
           set -euo pipefail
           line=$(grep -m1 '^version:' pubspec.yaml | sed 's/version:[[:space:]]*//')
-          echo "version=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
-          echo "build=${{ inputs.build }}" >> "$GITHUB_OUTPUT"
-          [ -n "${{ inputs.version }}" ] || \
-            echo "version=${line%%+*}" >> "$GITHUB_OUTPUT"
-          [ -n "${{ inputs.build }}" ] || \
-            echo "build=${line##*+}" >> "$GITHUB_OUTPUT"
+          echo "version=${IN_VERSION:-${line%%+*}}" >> "$GITHUB_OUTPUT"
+          echo "build=${IN_BUILD:-${line##*+}}" >> "$GITHUB_OUTPUT"
 
+      # Every input reaches the script as an environment variable, never as
+      # ${{ }} interpolated into the shell. An apostrophe was enough to break
+      # the old form: "a child's reading level" inside '...' closed the quote,
+      # and the en-US release notes were silently not set while de-DE was. The
+      # same pattern is how a text input becomes a command.
       - name: Run
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
           ASC_APP_ID: ${{ secrets.ASC_APP_ID }}
           P8_B64: ${{ secrets.ASC_API_KEY_P8_BASE64 }}
+          ACTION: ${{ inputs.action }}
+          BUILD: ${{ steps.v.outputs.build }}
+          VERSION: ${{ steps.v.outputs.version }}
+          INTERNAL: ${{ inputs.internal }}
+          EXTERNAL: ${{ inputs.external }}
+          SUBMIT_BETA: ${{ inputs.submit_beta_review }}
+          SUBMIT_REVIEW: ${{ inputs.submit_for_review }}
+          WHATS_NEW_EN: ${{ inputs.whats_new_en }}
+          WHATS_NEW_DE: ${{ inputs.whats_new_de }}
+          WHAT_TO_TEST: ${{ inputs.what_to_test }}
         run: |
           set -euo pipefail
           ASC_API_KEY_P8="$(echo "$P8_B64" | base64 --decode)"
@@ -103,46 +117,33 @@ jobs:
           # Each flag is appended with an `if`, not with `&&`. Under `set -e`
           # a bare `false && args+=(...)` ends the job, so an unticked checkbox
           # would have looked like a failed release.
-          case '${{ inputs.action }}' in
+          case "$ACTION" in
             status)
               python3 tools/release/asc.py status
               ;;
             beta)
-              python3 tools/release/asc.py beta \
-                --build '${{ steps.v.outputs.build }}'
+              python3 tools/release/asc.py beta --build "$BUILD"
               ;;
             metadata)
-              python3 tools/release/asc.py metadata --live \
-                --version '${{ steps.v.outputs.version }}'
+              python3 tools/release/asc.py metadata --live --version "$VERSION"
               ;;
             testflight)
-              args=(--build '${{ steps.v.outputs.build }}')
-              if [ '${{ inputs.internal }}' = 'true' ]; then
-                args+=(--internal)
-              fi
-              if [ '${{ inputs.external }}' = 'true' ]; then
-                args+=(--external)
-              fi
-              if [ -n '${{ inputs.what_to_test }}' ]; then
-                args+=(--what-to-test '${{ inputs.what_to_test }}')
-              fi
-              if [ '${{ inputs.submit_beta_review }}' = 'true' ]; then
-                args+=(--submit-beta-review)
-              fi
+              args=(--build "$BUILD")
+              [ "$INTERNAL" = 'true' ] && args+=(--internal) || true
+              [ "$EXTERNAL" = 'true' ] && args+=(--external) || true
+              [ -n "$WHAT_TO_TEST" ] && \
+                args+=(--what-to-test "$WHAT_TO_TEST") || true
+              [ "$SUBMIT_BETA" = 'true' ] && \
+                args+=(--submit-beta-review) || true
               python3 tools/release/asc.py testflight "${args[@]}"
               ;;
             appstore)
-              args=(--build '${{ steps.v.outputs.build }}'
-                    --version '${{ steps.v.outputs.version }}')
-              if [ -n '${{ inputs.whats_new_en }}' ]; then
-                args+=(--whats-new 'en-US=${{ inputs.whats_new_en }}')
-              fi
-              if [ -n '${{ inputs.whats_new_de }}' ]; then
-                args+=(--whats-new 'de-DE=${{ inputs.whats_new_de }}')
-              fi
-              if [ '${{ inputs.submit_for_review }}' = 'true' ]; then
-                args+=(--submit)
-              fi
+              args=(--build "$BUILD" --version "$VERSION")
+              [ -n "$WHATS_NEW_EN" ] && \
+                args+=(--whats-new "en-US=$WHATS_NEW_EN") || true
+              [ -n "$WHATS_NEW_DE" ] && \
+                args+=(--whats-new "de-DE=$WHATS_NEW_DE") || true
+              [ "$SUBMIT_REVIEW" = 'true' ] && args+=(--submit) || true
               python3 tools/release/asc.py appstore "${args[@]}"
               ;;
           esac
