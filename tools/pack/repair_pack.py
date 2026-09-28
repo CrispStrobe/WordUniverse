@@ -174,6 +174,114 @@ def gloss_verdict(definition, rules):
     return None
 
 
+# Words two unrelated dictionary definitions share anyway. Without them
+# "used" and "something" alone make a gloss look like its reader's own.
+_GLOSS_STOP_WORDS = frozenset('''
+    the and that which are been being for with from its something someone any
+    each one two who whom whose not other others such this these those used
+    use using especially typically usually often more most very can may having
+    have has made make makes also into out off over under was were his her
+    their they you she
+    der die das ein eine einer eines einem einen und oder von mit auf für als
+    dem den des ist sind wird werden sich nicht man etwas jemand jemanden
+    jemandem wie durch bei aus zum zur über unter nach dass auch nur sehr beim
+    ohne vor wenn
+'''.split())
+
+# Crude, and crude on purpose: a real lemmatiser is not available here and the
+# only question asked is "does the catalogue contain this word in some form".
+# Without it "standing", "relating", "consisting" and "survives" all read as
+# words a child has never met, and every second gloss looks too hard.
+_SUFFIXES = (('ies', 'y'), ('es', ''), ('s', ''), ('ed', ''), ('ed', 'e'),
+             ('ing', ''), ('ing', 'e'), ('ly', ''), ('er', ''), ('er', 'e'),
+             ('est', ''), ('est', 'e'), ('ness', ''), ('ment', ''),
+             ('en', ''), ('e', ''), ('n', ''))
+
+
+def graded_surfaces(db):
+    """Every spelling the pack grades, lowercased: the catalogue a child of
+    this pack is taught, and the only frequency list needed."""
+    return {row[0] for row in db.execute(
+        'SELECT DISTINCT lower(word) FROM words WHERE grade_level IS NOT NULL')}
+
+
+def _is_taught(word, vocabulary):
+    if word in vocabulary:
+        return True
+    for suffix, replacement in _SUFFIXES:
+        if word.endswith(suffix) and len(word) - len(suffix) >= 3:
+            if word[:-len(suffix)] + replacement in vocabulary:
+                return True
+    if len(word) > 4 and word[-1] == word[-2] and word[:-1] in vocabulary:
+        return True
+    return False
+
+
+# How much of a gloss may be words the pack never teaches, before the gloss
+# stops explaining anything. Per language, and that is calibration rather than
+# policy: German writes a compound where English writes three words, so
+# "Körpertemperatur" and "Pflanzenteile" each count once as unseen where "body
+# temperature" and "plant parts" contribute a seen word apiece. The same
+# fraction is therefore a stricter test in German, and at 0.5 it took 1,231 of
+# 11,806 German glosses -- 10% -- including Frosch, Katze, Finger and Gemüse at
+# grade 1, where nothing replaces what it removes: German has no WordNet senses
+# to fall back on, so the entry would show no meaning at all.
+#
+#         English         German
+#  > 0.5      98 (0.9%)     1231 (10.4%)
+#  > 0.6      41            753  (6.4%)
+#  > 0.7      32            465  (3.9%)
+#  > 0.8       5             88  (0.7%)
+#
+# English keeps 0.5, where the cost is 98 glosses and 63 of those have a
+# WordNet sense ready. German takes 0.7, which still reaches the glosses that
+# are no use to anyone -- "Fach: der durch das Balkengerüst beziehungsweise die
+# tragenden Balken begrenzte ...", "Fliege: fliegendes Insekt der Unterordnung
+# Fliegen (Brachycera)", "Spiegel: polierte Glas- oder Metallfläche, die
+# Lichtstrahlen ..." at grade 1 -- and leaves the ones whose hard gloss is
+# still the best there is.
+_MOSTLY_UNTAUGHT = {'en': 0.5, 'de': 0.7}
+
+
+def gloss_is_above_its_reader(definition, vocabulary, language='en'):
+    """Whether a gloss is written in words the pack never teaches.
+
+    The pack's own graded catalogue is the frequency list. A content word that
+    appears nowhere in 11,539 English or 13,040 German graded spellings is a
+    word this reader has not met, and a gloss made mostly of those explains
+    nothing however short and plain its grammar is:
+
+        sein     grade 2   Kopula, die dem Subjekt ein logisches Prädikat
+                           zuordnet
+        among    grade 2   Denotes a mingling or intermixing with distinct or
+                           separable objects
+        grüßen   grade 2   Worte oder Gebärden als Höflichkeitsgeste beim
+                           Zusammentreffen entbieten
+        gall     grade 4   Impudence or brazenness; temerity; chutzpah
+        nervous  grade 3   Of sinews and tendons.; Full of sinews.
+
+    Over at least four content words, and past the share in _MOSTLY_UNTAUGHT.
+    The threshold is high because a gloss is allowed to teach one new word --
+    that is what a gloss is for -- and only past it does the sentence stop
+    being one the reader can repair from context.
+
+    This is a fault in the gloss, not in the word: "sein", "among" and "ear"
+    are words a seven-year-old needs. The entry keeps its place in the
+    catalogue and the app stops handing that sentence to a learner -- it does
+    *not* promote the next gloss, which changes the sense. Promotion here would
+    take "ai" from a three-toed sloth to the branch of computer science, and
+    "post" from a plank in the ground to "A stud; a two-by-four".
+    """
+    if not definition:
+        return False
+    words = [w for w in re.findall(r'[a-zäöüß]+', definition.lower())
+             if len(w) > 2 and w not in _GLOSS_STOP_WORDS]
+    if len(words) < 4:
+        return False
+    unknown = sum(1 for w in words if not _is_taught(w, vocabulary))
+    return unknown / len(words) > _MOSTLY_UNTAUGHT[language]
+
+
 CURRICULUM_TAGS = re.compile(
     r'^source:(dolch|fry|de_curriculum_en|cambridge_yle_.*|uk_y.*)$')
 
@@ -500,10 +608,12 @@ def main():
     db = sqlite3.connect(out)
     db.row_factory = sqlite3.Row
     language = pack_language(db)
+    vocabulary = graded_surfaces(db)
     phrasals_fixed = fix_phrasal_glosses(db, args.report)
     weak = weak_masculine_forms(db)
     weak_patterns = weak_noun_patterns(weak)
     reasons = Counter()
+    above = 0
     samples = {}
     named = 0
     detagged = 0
@@ -543,6 +653,12 @@ def main():
                          if not CURRICULUM_TAGS.match(str(tag))]
         word_type = 'proper_noun' if names else row['word_type']
 
+        # A gloss written above the reader it is for. Recorded rather than
+        # replaced: the next gloss is a different sense.
+        leading = next((d for d in definitions[drop:]
+                        if isinstance(d, str) and d.strip()), None)
+        hard_gloss = gloss_is_above_its_reader(leading, vocabulary, language)
+
         # The headword itself, where the entry's own evidence spells it with a
         # capital and nothing else does. Games compare what a child types
         # against this column, so until it is right the word cannot be taught.
@@ -580,6 +696,7 @@ def main():
                         sentences_fixed += 1
 
         changed = (quality != metadata.get('quality')
+                   or hard_gloss != bool(metadata.get('gloss_above_reader'))
                    or kept_tags != tags
                    or word_type != row['word_type']
                    or word != row['word']
@@ -606,6 +723,9 @@ def main():
         if word != row['word']:
             capitalised += 1
             samples.setdefault('capitalised', []).append(word)
+        if hard_gloss != bool(metadata.get('gloss_above_reader')):
+            above += 1
+            samples.setdefault('above', []).append(row['word'])
         rewritten += 1
 
         if args.report:
@@ -617,6 +737,10 @@ def main():
             metadata['quality'] = quality
         if kept_tags != tags:
             metadata['tags'] = kept_tags
+        if hard_gloss:
+            metadata['gloss_above_reader'] = True
+        else:
+            metadata.pop('gloss_above_reader', None)
         if drop:
             enrichment['definitions'] = definitions[drop:]
         updates.append((
@@ -650,13 +774,15 @@ def main():
     for reason, count in reasons.most_common():
         shown = ', '.join(samples[reason][:6])
         print(f'  {count:6d}  {reason:28s} {shown}')
-    for label, count in (('headwords capitalised', capitalised),
+    for label, count in (('glosses above their reader', above),
+                         ('headwords capitalised', capitalised),
                          ('word_type -> proper_noun', named),
                          ('curriculum tags dropped', detagged),
                          ('leading glosses dropped', resenses),
                          ('weak nouns declined', declined)):
         if count:
-            key = {'headwords capitalised': 'capitalised',
+            key = {'glosses above their reader': 'above',
+                   'headwords capitalised': 'capitalised',
                    'word_type -> proper_noun': 'named',
                    'curriculum tags dropped': 'detagged',
                    'leading glosses dropped': 'resensed',
