@@ -24,55 +24,55 @@
       sufficient
     · grade: 3
 ── cloze_flash (4)
-  I was not carrying cash, so I wrote a ___ for the amount.
-      spite
-      harper
-      craft
-    ✓ cheque
-    · word: cheque
-  Well, nobody knows about the little things / Nobody knows what they really mean / Nobody ever wants to take the time / To ___ what's on your mind
-      divide
-      formed
-      expressed
-    ✓ examine
-    · word: examine
-  Patients with ___ become highly susceptible to infection by intracellular microbes normally contained by T cells (Fig. 4.8).
-    ✓ AIDS
-      cheque
-      teenager
-      goods
-    · word: aids
-  This summer, I'm going to the ___ at Weymouth - I'm very excited about it!
-      appearances
-      theory
-      craft
-    ✓ seaside
-    · word: seaside
+  The window was protected by steel ___.
+      slight
+    ✓ bars
+      lack
+      task
+    · word: bars
+  He has a ___ hung on his bag.
+      suspect
+      rubber
+      childhood
+    ✓ tag
+    · word: tag
+  More ___ and closer to life, slangs help build an instant intimacy and informality.
+    ✓ importantly
+      fallen
+      calling
+      replacement
+    · word: importantly
+  The ___ of that broken light-bulb will have to wait until I can buy a new one.
+    ✓ replacement
+      delivery
+      bars
+      supper
+    · word: replacement
 ── definition_quiz (4)
-  An advisement providing more up-to-date information than currently known.
-    ✓ update
-      powder
-      tournament
-      comparison
-    · word: update  grade: 3
-  To recite numbers in sequence.
-    ✓ count
-      launch
-      discount
-      swear
-    · word: count  grade: 3
-  Not possible; not able to be done or happen.
-      mysterious
-    ✓ impossible
-      competitive
-      pleasing
-    · word: impossible  grade: 3
-  A fixed amount of money paid to a worker, usually calculated on a monthly or annual basis, not hourly, as wages
-      hedge
-      verse
-      recipe
-    ✓ salary
-    · word: salary  grade: 3
+  The imagination.
+      shell
+    ✓ fancy
+      lunchtime
+      hardworking
+    · word: fancy  grade: 3
+  A lover of something.
+      beta
+    ✓ amateur
+      shell
+      temperature
+    · word: amateur  grade: 3
+  A written work edited and published, as by a certain editor or in a certain manner, or at a certain time.
+      dude
+      teen
+    ✓ edition
+      laboratory
+    · word: edition  grade: 3
+  Exhibiting unsoundness or disorder of mind; not sane; utterly mad.
+      corporate
+      relaxed
+      mutual
+    ✓ insane
+    · word: insane  grade: 3
 ── false_friends (4)
   What does "ordinary" really mean?
       ordinär
@@ -116,26 +116,26 @@
     ✓ male
     · group: mail/male
 ── hypernym_flash (4)
-  ally
-      emotion
-    ✓ associate
-      goosefoot family
-      copper-base alloy
-  bronze
-      emotion
-      goosefoot family
-    ✓ copper-base alloy
-      associate
-  laughter
-      associate
-      goosefoot family
-      copper-base alloy
-    ✓ utterance
-  dominant
-      copper-base alloy
-    ✓ note
-      associate
-      goosefoot family
+  graduate
+      ceramic
+      gift
+    ✓ scholar
+      camp
+  batch
+      gift
+      camp
+      scholar
+    ✓ collection
+  earn
+    ✓ acquire
+      camp
+      scholar
+      gift
+  keyboard
+      scholar
+      gift
+    ✓ device
+      camp
 ── phrasal_verb_match (4)
   What does "pay out" mean?
     ✓ give money to people
@@ -183,125 +183,124 @@
       out
     · phrasal: pass on  means: to move forward or go ahead
 ── sentence_completion (4)
-  The ___ has a big castle.
-      anchor
-      input
-      pipe
-    ✓ emperor
-  We need a good tour ___.
-      award
-      pipe
-    ✓ guide
-      minority
-  We need good ___.
-      efficient
-    ✓ material
-      comfortable
-      fake
-  ___ have different flags.
-      input
-      pipe
-      anchor
-    ✓ province
+  The town has a special ___.
+      destination
+      cheek
+    ✓ tradition
+      customs
+  I need the ___ same one.
+    ✓ exact
+      accomplished
+      cheap
+      shocking
+  Some people have an ___ to playing video games.
+      strip
+    ✓ addiction
+      tablet
+      tale
+  The boy got a scratch on his ___.
+      tablet
+    ✓ cheek
+      comfort
+      strip
 ── spelling_spotter (4)
   Which spelling is correct?
-      analisys
-      annaliscis
-    ✓ analysis
-      analyzise
-    · shown after answering: Marilla was not given to subjective analysis of her thoughts and feelings.
+      approxiately
+      approxamately
+    ✓ approximately
+      approximitely
+    · shown after answering: How soon can he become approximately effeecient chain-man?
   Which spelling is correct?
-      misterious
-      mysterous
-      misteryous
-    ✓ mysterious
-    · shown after answering: Rivera's ways and times were truly mysterious.
+    ✓ guarantee
+      garantee
+      garantees
+      gaurantees
+    · shown after answering: I have a guarantee.
   Which spelling is correct?
-      fundametals
-      fundametal
-      fundial
-    ✓ fundamental
-    · shown after answering: It is fundamental.
+      tempertaure
+      temperture
+    ✓ temperature
+      temerature
+    · shown after answering: In the case of milk he found it to be a question of temperature.
   Which spelling is correct?
-      dilvered
-      dilered
-    ✓ delivered
-      dilved
-    · shown after answering: He presently encountered her and delivered a stinging remark as he passed.
+      politishon
+      polation
+      politican
+    ✓ politician
+    · shown after answering: Culberson is a politician who enjoyed excellent health before he entered the public service.
 ── sri_review (4)
-  "An advisement providing more up-to-date information than currently known."
-    ✓ update
-      powder
-      tournament
-      comparison
-    · type: definition
-  "To recite numbers in sequence."
-    ✓ count
-      launch
-      discount
-      swear
-    · type: definition
-  "Not possible; not able to be done or happen."
-      mysterious
-    ✓ impossible
-      competitive
-      pleasing
-    · type: definition
   Correct spelling for:
-"A fixed amount of money paid to a worker, usually calculated on a monthly or annual basis, not hourly, as wages. Implies a degree of professionalism and/or autonomy."
-      salery
-      salarys
-    ✓ salary
+"The imagination."
+    ✓ fancy
+      fance
     · type: spelling
+  "A lover of something."
+      beta
+    ✓ amateur
+      distinction
+      artist
+    · type: definition
+  "A written work edited and published, as by a certain editor or in a certain manner, or at a certain time."
+      laboratory
+      dude
+    ✓ edition
+      objective
+    · type: definition
+  "Exhibiting unsoundness or disorder of mind; not sane; utterly mad."
+      corporate
+      mutual
+    ✓ insane
+      Italian
+    · type: definition
 ── syllable_count (4)
-  envelope
+  confirm
       1
-      2
-    ✓ 3
-      4+
-    · hyphenation: en-vel-ope
-  exclusive
-      1
-      2
-    ✓ 3
-      4+
-    · hyphenation: ex-clu-sive
-  maximum
-      1
-      2
-    ✓ 3
-      4+
-    · hyphenation: max-i-mum
-  photography
-      1
-      2
+    ✓ 2
       3
-    ✓ 4+
-    · hyphenation: pho-to-gra-phy
+      4+
+    · hyphenation: con-firm
+  darling
+      1
+    ✓ 2
+      3
+      4+
+    · hyphenation: dar-ling
+  numerous
+      1
+      2
+    ✓ 3
+      4+
+    · hyphenation: nu-mer-ous|num-erous
+  ignore
+      1
+    ✓ 2
+      3
+      4+
+    · hyphenation: ig-nore
 ── synonym_flash (4)
-  equation
-      absence
-      congress
-    ✓ equality
-      apology
-    · grade: 3
-  devil
-      anchor
-      hammer
-      possession
-    ✓ demon
-    · grade: 3
-  location
-      commander
-      damage
-      drain
-    ✓ position
-    · grade: 3
-  sensitive
-    ✓ sensible
-      expert
+  incredible
+    ✓ unbelievable
+      external
+      contrary
       aesthetic
-      feminist
+    · grade: 3
+  surface
+      execution
+      connection
+      incident
+    ✓ open
+    · grade: 3
+  besides
+    ✓ also
+      category
+      incident
+      disappointment
+    · grade: 3
+  category
+      disappointment
+      connection
+      besides
+    ✓ class
     · grade: 3
 ── word_builder (4)
   Build "attacked" from its letters
@@ -316,15 +315,23 @@
   Build "middle-aged" from its letters
     ✓ middle-aged
     · grade: 3  gloss: Of or relating to middle age or a middle-ager; neither old nor young.
-── word_class_flash (2)
-  prominent
+── word_class_flash (4)
+  lasting
       Noun
       Verb
     ✓ Adjective
-  rental
+  wildlife
     ✓ Noun
       Verb
       Adjective
+  disagree
+      Noun
+    ✓ Verb
+      Adjective
+  aware
+      Noun
+      Verb
+    ✓ Adjective
 ── word_find (4)
   Find "attacked" in the grid
     ✓ attacked
@@ -355,10 +362,10 @@
   2026-01-01: archive
     ✓ a depository containing historical records and documents
     · grade: 4  cefr: —
-  2026-01-02: ballet
-    ✓ A classical form of dance.
+  2026-01-02: chimney
+    ✓ a vertical flue that provides a path through which smoke from a fire is carried away through the wall or roof of a building
     · grade: 4  cefr: B2
-  2026-01-03: faq
+  2026-01-03: FAQ
     ✓ A list of questions said to be frequently asked, and their answers.
     · grade: 4  cefr: —
   2026-01-04: cart
