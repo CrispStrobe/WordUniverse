@@ -24,100 +24,100 @@
       trotzdem
     · grade: 3
 ── cloze_flash (4)
-  Das ___ wird renoviert.
-    ✓ Theater
-      Gebäude
-      Schuh
-      Kakao
-    · word: Theater
-  Man soll ___ zwei Liter Wasser trinken.
-      Heizung
-    ✓ täglich
-      Filzstift
-      rechts
-    · word: täglich
-  Der Hausmeister soll endlich die ___ im Flur reparieren.
-      Kreis
-      Schuh
-      Filzstift
-    ✓ Heizung
-    · word: Heizung
-  Ich habe die ganze ___ kein Auge zugetan.
-      Filzstift
-      Theater
-    ✓ Nacht
+  Nimm doch wieder mal ein ___.
+      Prinzessin
+      Tornister
+    ✓ Bad
+      Bart
+    · word: Bad
+  Ja, ___ fahre ich bei ihr vorbei.
+      Bart
+      Paprika
+      vorne
+    ✓ manchmal
+    · word: manchmal
+  Ich lasse mir einen ___ stehen.
       Schwimmbad
-    · word: Nacht
+      Tornister
+    ✓ Bart
+      Bad
+    · word: Bart
+  Nach dem Regen ist das Gras ___.
+      fleißig
+      deutsch
+      herzlich
+    ✓ nass
+    · word: nass
 ── conjugation_drill (4)
-  proben: ich ___
-      beginne
-    ✓ probe
-      verkleide
-      öffne
-  öffnen: ich ___
-    ✓ öffne
-      probe
-      verkleide
-      beginne
-  beginnen: er/sie/es ___
-      verkleidet
-      öffnet
-      probt
-    ✓ beginnt
-  verkleiden: ich ___
-      öffne
-      beginne
-    ✓ verkleide
-      probe
+  retten: ich ___
+      brülle
+      krieche
+      spreche
+    ✓ rette
+  kriechen: er/sie/es ___
+      schwitzt
+      spricht
+      brüllt
+    ✓ kriecht
+  brüllen: er/sie/es ___
+    ✓ brüllt
+      schwitzt
+      spricht
+      kriecht
+  sprechen: ich ___
+    ✓ spreche
+      krieche
+      brülle
+      rette
 ── definition_quiz (4)
-  etwas aufmachen; offen machen
-      brüllen
-      proben
-    ✓ öffnen
-      das Pfingsten
-    · word: öffnen  grade: 3
-  Organisation von Menschen mit einem gemeinsamen Ziel oder gemeinsamen Interessen
-    ✓ der Verein
-      der Fußball
-      das Abendessen
-      die Mathematik
-    · word: Verein  grade: 3
-  unkluge, ungereimte Aussage oder Aussagen
-      der Radiergummi
-      die Paprika
-      das Lexikon
-    ✓ der Quatsch
-    · word: Quatsch  grade: 3
-  eine beliebte Mannschaftssportart, welche mit 22 Spielern und einem Ball gespielt wird
-      die Reihe
-      die Mannschaft
-      die Paprika
-    ✓ der Fußball
-    · word: Fußball  grade: 3
+  dem Kalender entsprechende Angabe des Tages (nebst Monat und Jahr), an dem eine Person geboren wird
+      der Sturm
+    ✓ der Geburtstag
+      der Sattel
+      der Kaiser
+    · word: Geburtstag  grade: 3
+  jemandem Vorschriften machen; jemandem sagen, was er tun soll
+      donnern
+      verkaufen
+      ändern
+    ✓ vorschreiben
+    · word: vorschreiben  grade: 3
+  wurzellose Sporenpflanze mit Generationswechsel, die in ihrem Aufbau simpel und kaum gegliedert ist
+      die Band
+    ✓ das Moos
+      die Klassenfahrt
+      das Rätsel
+    · word: Moos  grade: 3
+  der Wahrheit und Wirklichkeit entsprechend, nicht gelogen oder vorgetäuscht; wahr
+      bewölkt
+      neugierig
+    ✓ ehrlich
+      pünktlich
+    · word: ehrlich  grade: 3
 ── expression_flash (4)
   kein ___ vor den Mund nehmen
-      Ereignis
-      Abendessen
     ✓ Blatt
-      Salat
+      Reihe
+      Wand
+      Abendessen
     · word: Blatt
   Äpfel mit Birnen ___
-    ✓ vergleichen
-      verschwinden
-      Blatt
       kriechen
+      verschwinden
+      Mühe
+    ✓ vergleichen
     · word: vergleichen
   aus der ___ kommen
-      Mühe
-      Reh
-      Party
+      Vertrauen
     ✓ Reihe
+      Faust
+      Kreis
     · word: Reihe
   wie eine ___ abgehen
-      Vertrauen
-    ✓ Rakete
-      Sohn
       Salat
+      Wand
+    ✓ Rakete
+      Kreis
     · word: Rakete
 ── grossschreib (4)
   Die [Pflaumen] blühen.
@@ -133,43 +133,43 @@
     ✓ GROSS
     · word: Tüte  rule: Nomen werden immer großgeschrieben
 ── grossstadt (4)
-  Groß oder klein? DAS [gesunden]
+  Groß oder klein? BEIM [gesunden]
     ✓ GROSS
       klein
-    · rule: Nomen-Signal "DAS" → Großschreibung
-  Groß oder klein? DU [gesundest]
+    · rule: Nomen-Signal "BEIM" → Großschreibung
+  Groß oder klein? WIR [gesunden]
       GROSS
     ✓ klein
     · rule: Verben im Satz → Kleinschreibung
-  Groß oder klein? MUSS [gesunden]
+  Groß oder klein? KANN [gesunden]
       GROSS
     ✓ klein
     · rule: Verben (Infinitiv) → Kleinschreibung
-  Groß oder klein? ZUM [spülen]
+  Groß oder klein? BEIM [spülen]
     ✓ GROSS
       klein
-    · rule: Nomen-Signal "ZUM" → Großschreibung
+    · rule: Nomen-Signal "BEIM" → Großschreibung
 ── hypernym_flash (4)
   Motorrad
-      Person
-      Fleisch
-      Buch
+      bewegen
+      Frucht
     ✓ Fahrzeug
+      Person
   Abendessen
       Fahrzeug
-      Buch
       Person
+      Frucht
     ✓ Mahlzeit
   nicken
-      Buch
     ✓ ausdrücken
+      Frucht
       Person
       Fahrzeug
   Bibel
-      Person
     ✓ Buch
-      Fleisch
+      Person
       Fahrzeug
+      Frucht
 ── proverb_cloze (4)
   lieber den ___ in der Hand als die Taube auf dem Dach
       Ordnung
@@ -197,161 +197,156 @@
     · word: glücklich
 ── reverse_translation_flash (4)
   small packet
-      Salami
-      Biber
-      Quelle
+      Ritter
     ✓ Päckchen
-  tower
-    ✓ Turm
+      Post
       Vertrauen
-      Abendessen
+  tower
       Waffe
+    ✓ Turm
+      Klassenfahrt
+      Salami
   snow
-      blind
-      Kugel
-      Abendessen
+      satt
+      Turm
     ✓ schneien
+      Reh
   powerful
-      Schatz
-      Punkt
+      Clown
+      Kugel
     ✓ stark
-      Pirat
+      Abendessen
 ── sentence_completion (4)
-  Die ___ hat gestern Abend ein großes Konzert gegeben.
-    ✓ Band
-      Beere
-      Fleck
-      Schuh
-  Wir backen einen Kuchen mit ___.
-      Orkan
-      Astronaut
-    ✓ Beere
-      Ordnung
-  Ich höre ___ den Hund bellen.
-      Polizei
-      Orkan
-      Bad
-    ✓ Nacht
-  Die Schüler sitzen ___ in der ersten Reihe.
-      hoffentlich
-    ✓ vorne
+  Meine Schwester dekoriert ihr ___.
+      Fußball
+      Ostern
+      Lippe
+    ✓ Regal
+  Die ___ ist sauber.
+      Kegel
+      Pirat
+    ✓ Quelle
+      Rechnung
+  Die ___ helfen dem Lehrer.
+      Filzstift
+    ✓ Schüler
+      Träne
+      Kegel
+  Der Lehrer steht ___ im Klassenzimmer.
       sogar
-      manchmal
-── spelling_spotter (4)
-  Which spelling is correct?
-      prinsesin
-    ✓ Prinzessin
-    · shown after answering: Die Prinzessin döste.
+      Süßigkeit
+    ✓ vorne
+      Freiheit
+── spelling_spotter (3)
   Which spelling is correct?
       fleach
-    ✓ fleißig
-    · shown after answering: Lerne fleißig!
+    ✓ Fleisch
+    · shown after answering: Fleisch, bitte.
   Which spelling is correct?
-    ✓ frieren
-      fülen
-      frirt
-    · shown after answering: Sie frieren.
-  Which spelling is correct?
-      plat
-    ✓ Party
       paty
+    ✓ Party
+      plat
     · shown after answering: Die Party ist vorbei.
+  Which spelling is correct?
+      rrtter
+      reuber
+    ✓ Räuber
+    · shown after answering: Der Räuber entging seiner Strafe.
 ── sri_review (4)
-  "etwas aufmachen; offen machen"
-      brüllen
-      proben
-    ✓ öffnen
-      das Pfingsten
-    · type: definition
+  Richtige Schreibweise für:
+"dem Kalender entsprechende Angabe des Tages (nebst Monat und Jahr), an dem eine Person geboren wird; Tag von jemandes Geburt"
+      geburstag
+      gebutstag
+    ✓ Geburtstag
+    · type: spelling
   Welcher Artikel passt?
-"___ Verein"
-      das
+"___ Rechteck"
+      der
       die
-    ✓ der
+    ✓ das
     · type: article
-  "unkluge, ungereimte Aussage oder Aussagen"
-    ✓ der Quatsch
-      die Maschine
-      das Pfingsten
-      das Hobby
+  "jemandem Vorschriften machen; jemandem sagen, was er tun soll"
+      donnern
+    ✓ vorschreiben
+      nicken
+      vorfahren
     · type: definition
-  "eine beliebte Mannschaftssportart, welche mit 22 Spielern und einem Ball gespielt wird"
-      der Radiergummi
-    ✓ der Fußball
-      die Mannschaft
-      die Reihe
-    · type: definition
+  Richtige Schreibweise für:
+"wurzellose Sporenpflanze mit Generationswechsel, die in ihrem Aufbau simpel und kaum gegliedert ist"
+      mos
+    ✓ Moos
+    · type: spelling
 ── syllable_count (4)
-  öffnen
+  Religion
       1
-    ✓ 2
-      3
-      4+
-    · hyphenation: öff-nen
-  Verein
-      1
-    ✓ 2
-      3
-      4+
-    · hyphenation: Ver-ein
-  Quatsch
-    ✓ 1
       2
       3
+    ✓ 4+
+    · hyphenation: Re-li-gi-on
+  Geburtstag
+      1
+      2
+    ✓ 3
       4+
-    · hyphenation: Quatsch
-  Fußball
+    · hyphenation: Ge-burts-tag
+  Rechteck
       1
     ✓ 2
       3
       4+
-    · hyphenation: Fuß-ball
+    · hyphenation: Recht-eck
+  vorschreiben
+      1
+      2
+    ✓ 3
+      4+
+    · hyphenation: vor-schrei-ben
 ── synonym_flash (4)
-  Schreck
-      Geheimnis
-    ✓ Entsetzen
-      Pause
-      Sattel
+  sprechen
+      streichen
+    ✓ sagen
+      kämmen
+      Schild
     · grade: 3
-  Geheimnis
-      Schreck
-      Pause
-      Virus
-    ✓ Rätsel
+  Päckchen
+    ✓ Box
+      Deutschland
+      Tiger
+      Pilz
     · grade: 3
-  Schokolade
-      Hals
-      Pause
-      Schreck
-    ✓ Kakao
+  glücklich
+      kalt
+      herzlich
+      wirklich
+    ✓ froh
     · grade: 3
-  Preis
-    ✓ Treffer
-      Text
-      Palme
-      Gott
+  Lärm
+      Sprache
+      Strumpf
+    ✓ Krach
+      Orkan
     · grade: 3
 ── translation_flash (4)
   das Päckchen
-      treasure
-    ✓ small packet
-      puzzle
+      supper
       trust
+      puzzle
+    ✓ small packet
   der Turm
+      clown
     ✓ tower
-      sphere
-      planet
-      school trip
-  schneien
-      pirate
-      roe
-      sphere
-    ✓ snow
-  stark
-      roe
+      powerful
       blind
+  schneien
+      event
+    ✓ snow
+      storm
+      knight
+  stark
+      mail
+      polite
+      clown
     ✓ powerful
-      beaver
 ── verbtrenner (4)
   Steht das Verb in diesem Satz getrennt oder zusammen?
 aus … drücken
@@ -391,19 +386,19 @@ Ich schlage vor, dass wir zuerst die Grundlagen besprechen.
     ✓ Glocke
     · grade: 3  gloss: nach unten hin geöffneter kelchartiger Metallgegenstand, der durch Schlagen mit einem Klöppel zum Klingen gebracht wird
 ── word_class_flash (4)
-  die Klassenfahrt
+  der Leoplaner
     ✓ Nomen
       Verb
       Adjektiv
-  nebelig
+  früh
       Nomen
       Verb
     ✓ Adjektiv
-  blühen
+  sprechen
       Nomen
     ✓ Verb
       Adjektiv
-  das Mittagessen
+  das Gebäude
     ✓ Nomen
       Verb
       Adjektiv
