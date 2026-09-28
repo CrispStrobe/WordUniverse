@@ -286,9 +286,21 @@ const Map<String, LanguagePack> kLanguagePacks = {
     // download for three seconds of work on every install. The digest
     // qualifies the storage slot, so this selects a fresh one and the
     // previous slots are listed below rather than silently reused.
+    //
+    // Rebuilt 2026-09-28 on CI (.github/workflows/pack-build.yml), the first
+    // build this repository can reproduce: 81 headwords given the capital the
+    // entry's own sentences always use, so a grade-2 child can be asked to
+    // spell January, Monday and English at last; 53 names typed proper_noun,
+    // 18 of them by gloss shape rather than by a list; 21 rows marked not a
+    // word; 11 whose gloss described a different word than their examples
+    // ("olympics" was "Five consecutive ducks" at grade 2, "henry" the unit of
+    // inductance); and 118 glosses marked as written above the reader they are
+    // for, which the app now declines to hand a learner. Slightly *smaller*
+    // than the artifact it replaces, compressed and decompressed both.
     expectedDecompressedSha256:
-        'daa9c6ae32d0ac20ba9eec811aa5bc86544ea4257192eabeeb819dabb72717e9',
+        '6d24a142b921529fada4326127d66bbfab5bdcbf729ed7b4b8e87c9af241364c',
     previousDatabaseNames: [
+      'grundwortschatz_en-daa9c6ae32d0ac20ba9eec811aa5bc86544ea4257192eabeeb819dabb72717e9.db',
       'grundwortschatz_en-53365e2ae71884bad1e53b5e34c2cdc543f0f9ba8ba578eca7eb5050235c76d9.db',
       'grundwortschatz_en-cbbdef45fb1b2da6726ada0f98071c5ff622f4fa3903bf13fdf9d5f4f8d2f365.db',
       'grundwortschatz_en-7c810a70430f5e2218e8ef15b91cdf52bb20224afad4963ea6c200e47c0b840d.db',
