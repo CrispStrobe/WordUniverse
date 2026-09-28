@@ -134,6 +134,25 @@ class GlossBelongsToAnotherWord(unittest.TestCase):
         self.assertFalse(self.flagged(
             'god', 'A deity or supreme being.', levelled))
 
+    def test_a_named_entry_is_flagged_even_when_capitalised(self):
+        # "Olympics" is on the capitalise list and glossed "Five consecutive
+        # ducks" at grade 2. Capitalising a headword says how to spell it and
+        # nothing about whether its gloss is the right one.
+        self.assertIn('olympics', repair.CAPITALISED_HEADWORDS)
+        self.assertTrue(self.flagged(
+            'olympics', 'Five consecutive ducks.',
+            evidence('We watched the olympics on television last night.',
+                     'Every four years the olympics come round again.',
+                     'She trained hard for the olympics.')))
+        # And still flagged once an earlier run has capitalised it.
+        self.assertTrue(self.flagged('Olympics', 'Five consecutive ducks.', {}))
+
+    def test_a_capitalised_entry_with_a_sound_gloss_is_left_alone(self):
+        self.assertFalse(self.flagged(
+            'january', 'The first month of the Gregorian calendar.',
+            evidence('We swim in January every year.',
+                     'By January it was cold.', 'Each January brings snow.')))
+
     def test_the_named_exception_survives_its_level(self):
         # "august" is A1 as the month; the gloss is the adjective's.
         levelled = dict(evidence('It rained all August long.',
