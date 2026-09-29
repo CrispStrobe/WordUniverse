@@ -4,7 +4,7 @@
 # stops. Everything after that (letting testers see it, asking for review) is
 # App Store Connect API work, which is what this runs.
 #
-#   submissions  list review submissions and delete the ones never sent. App
+#   submissions  list review submissions and cancel the ones never sent. App
 #                Store Connect allows one open submission per platform, so an
 #                abandoned one blocks the next release for that platform with
 #                an error that does not mention it.
@@ -43,8 +43,8 @@ on:
         type: choice
         options: [IOS, MAC_OS]
         default: IOS
-      delete_stale:
-        description: 'submissions: delete the review submissions that were never sent'
+      cancel_stale:
+        description: 'submissions: cancel the review submissions that were never sent'
         type: boolean
         default: false
       version:
@@ -115,7 +115,7 @@ jobs:
           P8_B64: ${{ secrets.ASC_API_KEY_P8_BASE64 }}
           ACTION: ${{ inputs.action }}
           PLATFORM: ${{ inputs.platform }}
-          DELETE_STALE: ${{ inputs.delete_stale }}
+          CANCEL_STALE: ${{ inputs.cancel_stale }}
           BUILD: ${{ steps.v.outputs.build }}
           VERSION: ${{ steps.v.outputs.version }}
           INTERNAL: ${{ inputs.internal }}
@@ -146,7 +146,7 @@ jobs:
               ;;
             submissions)
               args=()
-              [ "$DELETE_STALE" = 'true' ] && args+=(--delete-stale) || true
+              [ "$CANCEL_STALE" = 'true' ] && args+=(--cancel-stale) || true
               python3 tools/release/asc.py submissions \
                 --platform "$PLATFORM" "${args[@]}"
               ;;

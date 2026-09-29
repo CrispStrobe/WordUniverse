@@ -413,15 +413,21 @@ def cmd_submissions(args):
                            or a.get('platform') == args.platform):
             stale.append(sub)
 
-    if not args.delete_stale:
+    if not args.cancel_stale:
         print(f"\n{len(stale)} never sent"
               + (f" on {args.platform}" if args.platform else '')
-              + '. Pass --delete-stale to remove them.')
+              + '. Pass --cancel-stale to cancel them.')
         return 0
 
     if not stale:
-        print('\nnothing to delete.')
+        print('\nnothing to cancel.')
         return 0
+    # Cancelled, not deleted. The API is explicit about it:
+    #   The resource 'reviewSubmissions' does not allow 'DELETE'.
+    #   Allowed operations are: CREATE, GET_COLLECTION, GET_INSTANCE, UPDATE
+    # so the operation is an update setting canceled, which is what App Store
+    # Connect itself does when you cancel a submission.
+    failed = 0
     for sub in stale:
         a = sub['attributes']
         # Refuse anything that has been sent, whatever its state says.
@@ -429,9 +435,19 @@ def cmd_submissions(args):
             print(f"  refusing {sub['id']}: it was sent on "
                   f"{a.get('submittedDate')}")
             continue
-        call('DELETE', f"/v1/reviewSubmissions/{sub['id']}")
-        print(f"  deleted {a.get('platform')} {sub['id']}")
-    return 0
+        try:
+            call('PATCH', f"/v1/reviewSubmissions/{sub['id']}",
+                 {'data': {'type': 'reviewSubmissions', 'id': sub['id'],
+                           'attributes': {'canceled': True}}})
+            print(f"  cancelled {a.get('platform')} {sub['id']}")
+        except SystemExit as error:
+            # Keep going: one submission Apple will not let go of should not
+            # hide whether the others were cleared.
+            failed += 1
+            print(f"  could not cancel {sub['id']}:")
+            for line in str(error).splitlines():
+                print(f"      {line}")
+    return 1 if failed else 0
 
 
 def find_build(number, platform=None):
@@ -643,8 +659,8 @@ def main():
                         help='list review submissions; delete unsent ones')
     sm.add_argument('--platform', choices=['IOS', 'MAC_OS'],
                     help='only consider this platform')
-    sm.add_argument('--delete-stale', action='store_true',
-                    help='delete the submissions that were never sent')
+    sm.add_argument('--cancel-stale', action='store_true',
+                    help='cancel the submissions that were never sent')
 
     bt = sub.add_parser('beta',
                         help='what external TestFlight would block on')
