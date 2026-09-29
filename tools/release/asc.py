@@ -389,14 +389,23 @@ def _submission_items(submission_id):
 
 
 def cmd_submissions(args):
-    """List review submissions, and delete the ones that were never sent.
+    """List review submissions, and try to cancel the ones never sent.
 
-    App Store Connect allows one open review submission per platform, so an
-    abandoned one blocks the next release for that platform with an error that
-    does not say why. A submission with no submittedDate was started and never
-    sent — four macOS ones had accumulated here, none of them from this
-    repository: nothing in it creates a submission, so they came from the web
-    interface.
+    A submission with no submittedDate was started and never sent. Four macOS
+    ones had accumulated here, none from this repository — nothing in it creates
+    a submission, so they came from the web interface.
+
+    They cannot be removed. DELETE is forbidden on the resource, and
+    canceled=true is refused with "Resource is not in cancellable state",
+    because cancelling applies to a submission actually in review. The cancel
+    path stays because a *sent* submission can be cancelled, which is a real
+    need; for an unsent one it will report the refusal per submission.
+
+    That four coexist is also evidence against the thing that made them look
+    urgent: App Store Connect plainly allowed each to be created while the
+    previous was open, so they are clutter rather than a block. The fix that
+    matters is in cmd_appstore, which now reuses an empty one instead of adding
+    a fifth.
     """
     submissions = paged(f'/v1/reviewSubmissions?filter[app]={app_id()}'
                         '&limit=50')
@@ -612,12 +621,33 @@ def cmd_appstore(args):
         print('\nnot submitted. Pass --submit to ask Apple to review it.')
         return 0
 
-    print('creating a review submission')
-    submission = call('POST', '/v1/reviewSubmissions', {
-        'data': {'type': 'reviewSubmissions',
-                 'attributes': {'platform': args.platform},
-                 'relationships': {'app': {'data': {
-                     'type': 'apps', 'id': app_id()}}}}})['data']
+    # Reuse an open, empty submission for this platform before making another.
+    # Four unsent macOS ones had accumulated here, and the API has no way to
+    # remove them: DELETE is forbidden on the resource, and canceled=true is
+    # refused with "Resource is not in cancellable state" because cancelling
+    # applies to a submission actually in review. An empty one is a usable
+    # container, so use it rather than leave a fifth behind.
+    reusable = None
+    for open_submission in paged(f'/v1/reviewSubmissions'
+                                 f'?filter[app]={app_id()}&limit=50'):
+        a = open_submission['attributes']
+        if (a.get('platform') == args.platform
+                and not a.get('submittedDate')
+                and a.get('state') == 'READY_FOR_REVIEW'
+                and _submission_items(open_submission['id'])
+                == ['(nothing attached)']):
+            reusable = open_submission
+            break
+    if reusable is not None:
+        submission = reusable
+        print(f"reusing the empty submission {submission['id']}")
+    else:
+        print('creating a review submission')
+        submission = call('POST', '/v1/reviewSubmissions', {
+            'data': {'type': 'reviewSubmissions',
+                     'attributes': {'platform': args.platform},
+                     'relationships': {'app': {'data': {
+                         'type': 'apps', 'id': app_id()}}}}})['data']
     # Roll it back if anything after this fails. A created-but-unsent
     # submission is not harmless: App Store Connect allows one open submission
     # per platform, so an orphan blocks the next release for that platform with
@@ -636,9 +666,13 @@ def cmd_appstore(args):
              {'data': {'type': 'reviewSubmissions', 'id': submission['id'],
                        'attributes': {'submitted': True}}})
     except SystemExit:
-        call('DELETE', f"/v1/reviewSubmissions/{submission['id']}",
-             optional=True)
-        print(f"rolled back the empty submission {submission['id']}")
+        # Nothing to roll back to: the resource allows neither DELETE nor a
+        # cancel from this state, so an orphan cannot be cleaned up after the
+        # fact. Which is why the reuse above matters more than a rollback would.
+        if reusable is None:
+            print(f"left an empty submission behind: {submission['id']}. It "
+                  'cannot be deleted or cancelled through the API; the next '
+                  'run of this command will reuse it.')
         raise
     print(f"submitted for review: {submission['id']}")
     return 0
