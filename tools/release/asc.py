@@ -330,7 +330,7 @@ def cmd_beta(args):
             problems.append(f'{locale}: beta feedback email is empty')
 
     if args.build:
-        build = find_build(args.build)
+        build = find_build(args.build, args.platform)
         print(f"\nbuild {args.build} — what to test:")
         notes = paged(f"/v1/builds/{build['id']}/betaBuildLocalizations"
                       '?limit=50')
@@ -352,18 +352,106 @@ def cmd_beta(args):
     return 1 if problems else 0
 
 
-def find_build(number):
-    builds = paged(f'/v1/builds?filter[app]={app_id()}'
-                   f'&filter[version]={number}&limit=5')
+def _submission_items(submission_id):
+    """What a submission is actually asking Apple to look at."""
+    described = []
+    for item in paged(f'/v1/reviewSubmissions/{submission_id}/items?limit=20'):
+        rels = item.get('relationships') or {}
+        for name in ('appStoreVersion', 'appCustomProductPageVersion',
+                     'appStoreVersionExperiment', 'appEvent'):
+            ref = (rels.get(name) or {}).get('data')
+            if not ref:
+                continue
+            label = name
+            if name == 'appStoreVersion':
+                got = call('GET', f"/v1/appStoreVersions/{ref['id']}",
+                           optional=True)
+                a = ((got or {}).get('data') or {}).get('attributes') or {}
+                label = (f"version {a.get('versionString')} "
+                         f"({a.get('platform')}, {a.get('appStoreState')})")
+            described.append(label)
+    return described or ['(no items)']
+
+
+def cmd_submissions(args):
+    """List review submissions, and delete the ones that were never sent.
+
+    App Store Connect allows one open review submission per platform, so an
+    abandoned one blocks the next release for that platform with an error that
+    does not say why. A submission with no submittedDate was started and never
+    sent — four macOS ones had accumulated here, none of them from this
+    repository: nothing in it creates a submission, so they came from the web
+    interface.
+    """
+    submissions = paged(f'/v1/reviewSubmissions?filter[app]={app_id()}'
+                        '&limit=50')
+    stale = []
+    for sub in submissions:
+        a = sub['attributes']
+        never_sent = not a.get('submittedDate')
+        mark = 'NEVER SENT' if never_sent else 'sent'
+        print(f"  {a.get('state'):20} {a.get('platform'):7} {mark:10} "
+              f"{a.get('submittedDate') or '':24} {sub['id']}")
+        for item in _submission_items(sub['id']):
+            print(f"      {item}")
+        if never_sent and (not args.platform
+                           or a.get('platform') == args.platform):
+            stale.append(sub)
+
+    if not args.delete_stale:
+        print(f"\n{len(stale)} never sent"
+              + (f" on {args.platform}" if args.platform else '')
+              + '. Pass --delete-stale to remove them.')
+        return 0
+
+    if not stale:
+        print('\nnothing to delete.')
+        return 0
+    for sub in stale:
+        a = sub['attributes']
+        # Refuse anything that has been sent, whatever its state says.
+        if a.get('submittedDate'):
+            print(f"  refusing {sub['id']}: it was sent on "
+                  f"{a.get('submittedDate')}")
+            continue
+        call('DELETE', f"/v1/reviewSubmissions/{sub['id']}")
+        print(f"  deleted {a.get('platform')} {sub['id']}")
+    return 0
+
+
+def find_build(number, platform=None):
+    """The build with this number, on this platform.
+
+    The platform is not optional in practice: iOS and macOS number builds
+    independently, so "build 5" names two different binaries here, and a macOS
+    release that filtered only by number would attach the iOS one.
+    """
+    page = call('GET', f'/v1/builds?filter[app]={app_id()}'
+                       f'&filter[version]={number}&limit=10'
+                       '&include=preReleaseVersion')
+    pre = {i['id']: i['attributes'] for i in page.get('included', [])
+           if i['type'] == 'preReleaseVersions'}
+    builds = page.get('data', [])
+    if platform:
+        matching = []
+        for build in builds:
+            ref = ((build.get('relationships') or {})
+                   .get('preReleaseVersion') or {}).get('data') or {}
+            if pre.get(ref.get('id'), {}).get('platform') == platform:
+                matching.append(build)
+        builds = matching
     if not builds:
-        raise SystemExit(f'no build {number} for app {app_id()}')
+        raise SystemExit(
+            f'no build {number}'
+            + (f' on {platform}' if platform else '')
+            + f' for app {app_id()}')
     return builds[0]
 
 
-def wait_for_processing(number, minutes):
+def wait_for_processing(number, minutes, platform=None):
     deadline = time.time() + minutes * 60
     while True:
-        build = find_build(number)
+        build = find_build(number, platform)
         state = build['attributes']['processingState']
         print(f'  build {number}: {state}')
         if state == 'VALID':
@@ -396,7 +484,7 @@ def set_what_to_test(build_id, text):
 
 
 def cmd_testflight(args):
-    build = wait_for_processing(args.build, args.wait)
+    build = wait_for_processing(args.build, args.wait, args.platform)
     build_id = build['id']
     if args.what_to_test:
         set_what_to_test(build_id, args.what_to_test)
@@ -431,10 +519,10 @@ def cmd_testflight(args):
 
 # ── App Store ───────────────────────────────────────────────────────────────
 def cmd_appstore(args):
-    build = wait_for_processing(args.build, args.wait)
+    build = wait_for_processing(args.build, args.wait, args.platform)
     versions = [v for v in paged(f'/v1/apps/{app_id()}/appStoreVersions'
                                  '?limit=20')
-                if v['attributes'].get('platform') == 'IOS']
+                if v['attributes'].get('platform') == args.platform]
     editable = {'PREPARE_FOR_SUBMISSION', 'DEVELOPER_REJECTED',
                 'REJECTED', 'METADATA_REJECTED', 'INVALID_BINARY'}
     version = next((v for v in versions
@@ -443,7 +531,7 @@ def cmd_appstore(args):
         print(f'creating version {args.version}')
         version = call('POST', '/v1/appStoreVersions', {
             'data': {'type': 'appStoreVersions',
-                     'attributes': {'platform': 'IOS',
+                     'attributes': {'platform': args.platform,
                                     'versionString': args.version},
                      'relationships': {'app': {'data': {
                          'type': 'apps', 'id': app_id()}}}}})['data']
@@ -496,19 +584,31 @@ def cmd_appstore(args):
     print('creating a review submission')
     submission = call('POST', '/v1/reviewSubmissions', {
         'data': {'type': 'reviewSubmissions',
-                 'attributes': {'platform': 'IOS'},
+                 'attributes': {'platform': args.platform},
                  'relationships': {'app': {'data': {
                      'type': 'apps', 'id': app_id()}}}}})['data']
-    call('POST', '/v1/reviewSubmissionItems', {
-        'data': {'type': 'reviewSubmissionItems',
-                 'relationships': {
-                     'reviewSubmission': {'data': {
-                         'type': 'reviewSubmissions', 'id': submission['id']}},
-                     'appStoreVersion': {'data': {
-                         'type': 'appStoreVersions', 'id': version['id']}}}}})
-    call('PATCH', f"/v1/reviewSubmissions/{submission['id']}",
-         {'data': {'type': 'reviewSubmissions', 'id': submission['id'],
-                   'attributes': {'submitted': True}}})
+    # Roll it back if anything after this fails. A created-but-unsent
+    # submission is not harmless: App Store Connect allows one open submission
+    # per platform, so an orphan blocks the next release for that platform with
+    # an error that never mentions it. Four macOS ones had accumulated here.
+    try:
+        call('POST', '/v1/reviewSubmissionItems', {
+            'data': {'type': 'reviewSubmissionItems',
+                     'relationships': {
+                         'reviewSubmission': {'data': {
+                             'type': 'reviewSubmissions',
+                             'id': submission['id']}},
+                         'appStoreVersion': {'data': {
+                             'type': 'appStoreVersions',
+                             'id': version['id']}}}}})
+        call('PATCH', f"/v1/reviewSubmissions/{submission['id']}",
+             {'data': {'type': 'reviewSubmissions', 'id': submission['id'],
+                       'attributes': {'submitted': True}}})
+    except SystemExit:
+        call('DELETE', f"/v1/reviewSubmissions/{submission['id']}",
+             optional=True)
+        print(f"rolled back the empty submission {submission['id']}")
+        raise
     print(f"submitted for review: {submission['id']}")
     return 0
 
@@ -524,9 +624,19 @@ def main():
     md.add_argument('--version', help='which version to check; default is the '
                                       'editable one')
     md.add_argument('--platform', default='IOS', choices=['IOS', 'MAC_OS'])
+    sm = sub.add_parser('submissions',
+                        help='list review submissions; delete unsent ones')
+    sm.add_argument('--platform', choices=['IOS', 'MAC_OS'],
+                    help='only consider this platform')
+    sm.add_argument('--delete-stale', action='store_true',
+                    help='delete the submissions that were never sent')
+
     bt = sub.add_parser('beta',
                         help='what external TestFlight would block on')
     bt.add_argument('--build', help='also check "what to test" on this build')
+    bt.add_argument('--platform', default='IOS', choices=['IOS', 'MAC_OS'],
+                    help='iOS and macOS number builds independently, so the '
+                         'number alone names two binaries')
 
     md.add_argument('--live', action='store_true',
                     help='when nothing is editable, read the version on sale, '
@@ -534,6 +644,7 @@ def main():
 
     tf = sub.add_parser('testflight', help='distribute a build to testers')
     tf.add_argument('--build', required=True)
+    tf.add_argument('--platform', default='IOS', choices=['IOS', 'MAC_OS'])
     tf.add_argument('--internal', action='store_true')
     tf.add_argument('--external', action='store_true')
     tf.add_argument('--group', action='append',
@@ -549,6 +660,7 @@ def main():
     st = sub.add_parser('appstore', help='attach a build and optionally submit')
     st.add_argument('--build', required=True)
     st.add_argument('--version', required=True)
+    st.add_argument('--platform', default='IOS', choices=['IOS', 'MAC_OS'])
     st.add_argument('--whats-new', action='append',
                     help='"locale=text" for one locale, repeatable; a bare '
                          'value applies to every locale')
@@ -559,6 +671,7 @@ def main():
 
     args = parser.parse_args()
     return {'status': cmd_status, 'metadata': cmd_metadata,
+            'submissions': cmd_submissions,
             'beta': cmd_beta, 'testflight': cmd_testflight,
             'appstore': cmd_appstore}[args.command](args)
 

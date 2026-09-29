@@ -4,6 +4,10 @@
 # stops. Everything after that (letting testers see it, asking for review) is
 # App Store Connect API work, which is what this runs.
 #
+#   submissions  list review submissions and delete the ones never sent. App
+#                Store Connect allows one open submission per platform, so an
+#                abandoned one blocks the next release for that platform with
+#                an error that does not mention it.
 #   status       read the app, its builds, its beta groups and its versions.
 #                Changes nothing. Run this first.
 #   metadata     what Apple would block a submission on: categories, privacy
@@ -29,11 +33,20 @@ on:
       action:
         description: 'What to do'
         type: choice
-        options: [status, metadata, beta, testflight, appstore]
+        options: [status, metadata, submissions, beta, testflight, appstore]
         default: status
       build:
         description: 'Build number (the +N in pubspec version). Blank = read it from pubspec.'
         required: false
+      platform:
+        description: 'Which platform. iOS and macOS number builds independently.'
+        type: choice
+        options: [IOS, MAC_OS]
+        default: IOS
+      delete_stale:
+        description: 'submissions: delete the review submissions that were never sent'
+        type: boolean
+        default: false
       version:
         description: 'Marketing version for the appstore action. Blank = read it from pubspec.'
         required: false
@@ -101,6 +114,8 @@ jobs:
           ASC_APP_ID: ${{ secrets.ASC_APP_ID }}
           P8_B64: ${{ secrets.ASC_API_KEY_P8_BASE64 }}
           ACTION: ${{ inputs.action }}
+          PLATFORM: ${{ inputs.platform }}
+          DELETE_STALE: ${{ inputs.delete_stale }}
           BUILD: ${{ steps.v.outputs.build }}
           VERSION: ${{ steps.v.outputs.version }}
           INTERNAL: ${{ inputs.internal }}
@@ -122,13 +137,21 @@ jobs:
               python3 tools/release/asc.py status
               ;;
             beta)
-              python3 tools/release/asc.py beta --build "$BUILD"
+              python3 tools/release/asc.py beta --build "$BUILD" \
+                --platform "$PLATFORM"
               ;;
             metadata)
-              python3 tools/release/asc.py metadata --live --version "$VERSION"
+              python3 tools/release/asc.py metadata --live \
+                --version "$VERSION" --platform "$PLATFORM"
+              ;;
+            submissions)
+              args=()
+              [ "$DELETE_STALE" = 'true' ] && args+=(--delete-stale) || true
+              python3 tools/release/asc.py submissions \
+                --platform "$PLATFORM" "${args[@]}"
               ;;
             testflight)
-              args=(--build "$BUILD")
+              args=(--build "$BUILD" --platform "$PLATFORM")
               [ "$INTERNAL" = 'true' ] && args+=(--internal) || true
               [ "$EXTERNAL" = 'true' ] && args+=(--external) || true
               [ -n "$WHAT_TO_TEST" ] && \
@@ -138,7 +161,8 @@ jobs:
               python3 tools/release/asc.py testflight "${args[@]}"
               ;;
             appstore)
-              args=(--build "$BUILD" --version "$VERSION")
+              args=(--build "$BUILD" --version "$VERSION"
+                    --platform "$PLATFORM")
               [ -n "$WHATS_NEW_EN" ] && \
                 args+=(--whats-new "en-US=$WHATS_NEW_EN") || true
               [ -n "$WHATS_NEW_DE" ] && \
