@@ -389,10 +389,18 @@ def cmd_beta(args):
             problems.append(f'internal build state is {internal_state}')
         if external_state not in testable:
             problems.append(f'external build state is {external_state}')
-        for group in paged(f"/v1/builds/{build['id']}/betaGroups?limit=50"):
+        # Asked from the group side. A build cannot be asked which groups it
+        # is in: "The relationship 'betaGroups' does not allow 'GET_RELATED'.
+        # Allowed operations are: CREATE, DELETE" — the relationship exists to
+        # be written, not read.
+        for group in paged(f'/v1/apps/{app_id()}/betaGroups?limit=50'):
             ga = group['attributes']
             kind = 'internal' if ga.get('isInternalGroup') else 'external'
-            print(f"  on {kind} group {ga.get('name')!r}")
+            member = call('GET', f"/v1/builds?filter[betaGroups]={group['id']}"
+                                 f"&filter[id]={build['id']}&limit=1",
+                          optional=True) or {}
+            if member.get('data'):
+                print(f"  on {kind} group {ga.get('name')!r}")
 
         print(f"\nbuild {args.build} — what to test:")
         notes = paged(f"/v1/builds/{build['id']}/betaBuildLocalizations"
