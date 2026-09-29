@@ -370,6 +370,30 @@ def cmd_beta(args):
 
     if args.build:
         build = find_build(args.build, args.platform)
+        # Assigned to a group is not the same as testable. buildBetaDetail is
+        # what says whether a tester can actually install: internalBuildState
+        # and externalBuildState. The playbook records externalBuildState going
+        # straight to IN_BETA_TESTING for a later build of an approved app,
+        # rather than waiting on another beta review.
+        got = call('GET', f"/v1/builds/{build['id']}/buildBetaDetail",
+                   optional=True)
+        detail = ((got or {}).get('data') or {}).get('attributes') or {}
+        internal_state = detail.get('internalBuildState')
+        external_state = detail.get('externalBuildState')
+        print(f"\nbuild {args.build} distribution:")
+        print(f"  internal: {internal_state}")
+        print(f"  external: {external_state}")
+        testable = ('IN_BETA_TESTING', 'READY_FOR_BETA_TESTING',
+                    'IN_BETA_REVIEW', 'WAITING_FOR_BETA_REVIEW')
+        if internal_state not in testable:
+            problems.append(f'internal build state is {internal_state}')
+        if external_state not in testable:
+            problems.append(f'external build state is {external_state}')
+        for group in paged(f"/v1/builds/{build['id']}/betaGroups?limit=50"):
+            ga = group['attributes']
+            kind = 'internal' if ga.get('isInternalGroup') else 'external'
+            print(f"  on {kind} group {ga.get('name')!r}")
+
         print(f"\nbuild {args.build} — what to test:")
         notes = paged(f"/v1/builds/{build['id']}/betaBuildLocalizations"
                       '?limit=50')
