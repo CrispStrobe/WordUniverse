@@ -352,25 +352,40 @@ def cmd_beta(args):
     return 1 if problems else 0
 
 
+# Relationship names a review submission item can carry. Apple returns the
+# relationships only when they are asked for by name, which is why reading
+# item['relationships'] off a plain listing shows nothing at all — including for
+# a submission that demonstrably has an item.
+_ITEM_RELATIONSHIPS = ('appStoreVersion', 'appCustomProductPageVersion',
+                       'appStoreVersionExperiment', 'appEvent')
+
+
 def _submission_items(submission_id):
     """What a submission is actually asking Apple to look at."""
+    page = call('GET', f'/v1/reviewSubmissions/{submission_id}/items'
+                       '?limit=20&include=' + ','.join(_ITEM_RELATIONSHIPS),
+                optional=True) or {}
+    included = {(i['type'], i['id']): i.get('attributes') or {}
+                for i in page.get('included', [])}
     described = []
-    for item in paged(f'/v1/reviewSubmissions/{submission_id}/items?limit=20'):
+    for item in page.get('data', []):
         rels = item.get('relationships') or {}
-        for name in ('appStoreVersion', 'appCustomProductPageVersion',
-                     'appStoreVersionExperiment', 'appEvent'):
+        for name in _ITEM_RELATIONSHIPS:
             ref = (rels.get(name) or {}).get('data')
             if not ref:
                 continue
-            label = name
-            if name == 'appStoreVersion':
-                got = call('GET', f"/v1/appStoreVersions/{ref['id']}",
+            a = included.get((ref['type'], ref['id']))
+            if a is None:
+                got = call('GET', f"/v1/{ref['type']}/{ref['id']}",
                            optional=True)
                 a = ((got or {}).get('data') or {}).get('attributes') or {}
-                label = (f"version {a.get('versionString')} "
-                         f"({a.get('platform')}, {a.get('appStoreState')})")
-            described.append(label)
-    return described or ['(no items)']
+            if name == 'appStoreVersion':
+                described.append(f"version {a.get('versionString')} "
+                                 f"({a.get('platform')}, "
+                                 f"{a.get('appStoreState')})")
+            else:
+                described.append(f"{name} {ref['id']}")
+    return described or ['(nothing attached)']
 
 
 def cmd_submissions(args):
