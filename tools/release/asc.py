@@ -459,6 +459,50 @@ def cmd_submissions(args):
     return 1 if failed else 0
 
 
+def cmd_withdraw(args):
+    """Pull a version out of review so a new build can be attached.
+
+    Not a reviewSubmissions operation: that resource allows no DELETE. The
+    documented path (see /mnt/volume1/appstore.md, Step 12) is to DELETE the
+    version's appStoreVersionSubmission, whose id equals the version id.
+
+    The version then goes WAITING_FOR_REVIEW -> DEVELOPER_REJECTED ->
+    PREPARE_FOR_SUBMISSION, and may lag a few seconds. DEVELOPER_REJECTED is
+    the expected intermediate state when you cancel your own review, not a
+    rejection by Apple.
+    """
+    versions = [v for v in paged(f'/v1/apps/{app_id()}/appStoreVersions'
+                                 '?limit=20')
+                if v['attributes'].get('platform') == args.platform]
+    version = next((v for v in versions
+                    if v['attributes'].get('versionString') == args.version),
+                   None)
+    if version is None:
+        raise SystemExit(f'no {args.platform} version {args.version}')
+    state = version['attributes'].get('appStoreState')
+    print(f'version {args.version} is {state}')
+    if state not in ('WAITING_FOR_REVIEW', 'IN_REVIEW', 'PENDING_DEVELOPER_RELEASE'):
+        raise SystemExit(f'{state} is not in review; nothing to withdraw')
+
+    got = call('GET', f"/v1/appStoreVersions/{version['id']}"
+                      '/appStoreVersionSubmission', optional=True)
+    submission = (got or {}).get('data')
+    if not submission:
+        raise SystemExit('no appStoreVersionSubmission on that version')
+    call('DELETE', f"/v1/appStoreVersionSubmissions/{submission['id']}")
+    print(f"withdrawn: deleted appStoreVersionSubmission {submission['id']}")
+
+    for _ in range(12):
+        time.sleep(5)
+        now = call('GET', f"/v1/appStoreVersions/{version['id']}")
+        state = now['data']['attributes'].get('appStoreState')
+        print(f'  {state}')
+        if state == 'PREPARE_FOR_SUBMISSION':
+            return 0
+    print('still settling; poll appStoreState if it matters')
+    return 0
+
+
 def find_build(number, platform=None):
     """The build with this number, on this platform.
 
@@ -689,6 +733,12 @@ def main():
     md.add_argument('--version', help='which version to check; default is the '
                                       'editable one')
     md.add_argument('--platform', default='IOS', choices=['IOS', 'MAC_OS'])
+    wd = sub.add_parser('withdraw',
+                        help='pull a version out of review (the documented '
+                             'appStoreVersionSubmission DELETE)')
+    wd.add_argument('--version', required=True)
+    wd.add_argument('--platform', default='IOS', choices=['IOS', 'MAC_OS'])
+
     sm = sub.add_parser('submissions',
                         help='list review submissions; delete unsent ones')
     sm.add_argument('--platform', choices=['IOS', 'MAC_OS'],
@@ -736,7 +786,7 @@ def main():
 
     args = parser.parse_args()
     return {'status': cmd_status, 'metadata': cmd_metadata,
-            'submissions': cmd_submissions,
+            'submissions': cmd_submissions, 'withdraw': cmd_withdraw,
             'beta': cmd_beta, 'testflight': cmd_testflight,
             'appstore': cmd_appstore}[args.command](args)
 

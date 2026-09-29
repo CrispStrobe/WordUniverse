@@ -8,6 +8,9 @@
 #                Store Connect allows one open submission per platform, so an
 #                abandoned one blocks the next release for that platform with
 #                an error that does not mention it.
+#   withdraw     pull a version out of review, so a new build can replace it.
+#                DELETEs the version's appStoreVersionSubmission, which is the
+#                documented path — reviewSubmissions allows no DELETE.
 #   status       read the app, its builds, its beta groups and its versions.
 #                Changes nothing. Run this first.
 #   metadata     what Apple would block a submission on: categories, privacy
@@ -33,7 +36,7 @@ on:
       action:
         description: 'What to do'
         type: choice
-        options: [status, metadata, submissions, beta, testflight, appstore]
+        options: [status, metadata, submissions, beta, testflight, appstore, withdraw]
         default: status
       build:
         description: 'Build number (the +N in pubspec version). Blank = read it from pubspec.'
@@ -142,6 +145,10 @@ jobs:
               ;;
             metadata)
               python3 tools/release/asc.py metadata --live \
+                --version "$VERSION" --platform "$PLATFORM"
+              ;;
+            withdraw)
+              python3 tools/release/asc.py withdraw \
                 --version "$VERSION" --platform "$PLATFORM"
               ;;
             submissions)
