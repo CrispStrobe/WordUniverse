@@ -238,17 +238,36 @@ def cmd_metadata(args):
         sets = paged(f"/v1/appStoreVersionLocalizations/{loc['id']}"
                      '/appScreenshotSets?limit=50')
         shots = {}
-        for s in sets:
-            kind = s['attributes'].get('screenshotDisplayType')
-            got = paged(f"/v1/appScreenshotSets/{s['id']}/appScreenshots"
-                        '?limit=20')
-            shots[kind] = len(got)
-        iphone = sum(n for k, n in shots.items() if k in IPHONE_SETS)
-        ipad = sum(n for k, n in shots.items() if k in IPAD_SETS)
-        print(f"    {_ok(iphone)}  iPhone screenshots: {iphone}"
-              f"   iPad: {ipad}   sets: {shots or 'none'}")
+        for shot_set in sets:
+            kind = shot_set['attributes'].get('screenshotDisplayType')
+            got = paged(f"/v1/appScreenshotSets/{shot_set['id']}"
+                        '/appScreenshots?limit=20')
+            # A screenshot row exists as soon as it is reserved. What matters
+            # is whether the bytes arrived: assetDeliveryState.state is
+            # COMPLETE only then, and a version with an UPLOAD_INCOMPLETE or
+            # FAILED screenshot cannot be submitted.
+            states = {}
+            for shot in got:
+                delivery = shot['attributes'].get('assetDeliveryState') or {}
+                state = delivery.get('state', 'UNKNOWN')
+                states[state] = states.get(state, 0) + 1
+                for error in delivery.get('errors') or []:
+                    problems.append(f'{locale} {kind}: screenshot '
+                                    f"{error.get('code')} {error.get('description')}")
+            shots[kind] = states
+            bad = {st: n for st, n in states.items() if st != 'COMPLETE'}
+            if bad:
+                problems.append(f'{locale} {kind}: screenshots not delivered: '
+                                f'{bad}')
+        complete = {k: v.get('COMPLETE', 0) for k, v in shots.items()}
+        iphone = sum(n for k, n in complete.items() if k in IPHONE_SETS)
+        ipad = sum(n for k, n in complete.items() if k in IPAD_SETS)
+        print(f"    {_ok(iphone)}  iPhone screenshots delivered: {iphone}"
+              f"   iPad: {ipad}")
+        for kind, states in sorted(shots.items()):
+            print(f"        {kind}: {states}")
         if not iphone:
-            problems.append(f'{locale}: no iPhone screenshots')
+            problems.append(f'{locale}: no delivered iPhone screenshots')
 
     # Apple moved this off appStoreVersions and onto appInfos; ask both, in
     # that order, because the old path 404s with "The relationship
@@ -311,6 +330,17 @@ def cmd_beta(args):
         print('MISSING  beta app review detail')
         problems.append('beta app review detail is unset')
 
+    if d and not d.get('contactPhone'):
+        # Not derivable from anything: it is an account constant that has to be
+        # set per app, and Beta App Review needs it.
+        problems.append('beta review contact phone is empty')
+    elif d:
+        print(f"ok    beta review contact phone: set")
+
+    app = call('GET', f'/v1/apps/{app_id()}')['data']
+    primary = app['attributes'].get('primaryLocale')
+    print(f"\nprimary locale: {primary}")
+
     print('\nbeta app localizations:')
     locales = paged(f'/v1/apps/{app_id()}/betaAppLocalizations?limit=50')
     if not locales:
@@ -328,6 +358,15 @@ def cmd_beta(args):
             problems.append(f'{locale}: beta description is empty')
         if not feedback:
             problems.append(f'{locale}: beta feedback email is empty')
+    # The primary locale is the one Beta App Review insists on: it 422s with
+    # "betaAppLocalizations not found for this app" when the description is
+    # missing there, even for an otherwise English submission.
+    have = {loc['attributes'].get('locale') for loc in locales}
+    if primary and primary not in have:
+        problems.append(f'no beta app localization in the primary locale '
+                        f'{primary}; has {sorted(have)}')
+    else:
+        print(f"ok    the primary locale {primary} is covered")
 
     if args.build:
         build = find_build(args.build, args.platform)
