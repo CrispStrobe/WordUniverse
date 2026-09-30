@@ -132,6 +132,10 @@ def cmd_status(args):
 IPHONE_SETS = ('APP_IPHONE_69', 'APP_IPHONE_67', 'APP_IPHONE_65')
 IPAD_SETS = ('APP_IPAD_PRO_3GEN_129', 'APP_IPAD_PRO_129', 'APP_IPAD_113',
              'APP_IPAD_109')
+# macOS wants its own, and an iPhone set does not substitute. Reporting a Mac
+# version as having "0 iPhone screenshots" is true and useless.
+DESKTOP_SETS = ('APP_DESKTOP',)
+REQUIRED_SETS = {'IOS': IPHONE_SETS, 'MAC_OS': DESKTOP_SETS}
 
 
 def _ok(flag):
@@ -209,7 +213,13 @@ def cmd_metadata(args):
         return 1 if problems else 0
 
     va = target['attributes']
-    print(f"\nversion {va.get('versionString')} ({va.get('appStoreState')}):")
+    released = {'READY_FOR_SALE', 'PENDING_DEVELOPER_RELEASE',
+                'PROCESSING_FOR_APP_STORE', 'REPLACED_WITH_NEW_VERSION',
+                'PENDING_APPLE_RELEASE'}
+    first_release = not any(v['attributes'].get('appStoreState') in released
+                            for v in versions)
+    print(f"\nversion {va.get('versionString')} ({va.get('appStoreState')})"
+          f"{'  — first release on ' + args.platform if first_release else ''}:")
     print(f"  release type: {va.get('releaseType')}")
     build = call('GET', f"/v1/appStoreVersions/{target['id']}/build").get('data')
     print(f"  {_ok(build)}  build attached: "
@@ -229,10 +239,18 @@ def cmd_metadata(args):
         if not description:
             problems.append(f'{locale}: description is empty')
         live = va.get('appStoreState') == 'READY_FOR_SALE'
-        print(f"    {'n/a ' if live and not whats_new else _ok(whats_new)}  "
-              f"what's new ({len(whats_new)} chars)"
-              f"{'  — a released version carries none' if live else ''}")
-        if not whats_new and not live:
+        # Apple asks for "What's New in This Version" on an update. A first
+        # release on a platform has nothing to be new against, and this app has
+        # never shipped on macOS, so requiring it there invents a blocker.
+        needed = not live and not first_release
+        why = ''
+        if live and not whats_new:
+            why = '  — a released version carries none'
+        elif first_release and not whats_new:
+            why = '  — not required for a first release on this platform'
+        print(f"    {'n/a ' if not needed and not whats_new else _ok(whats_new)}"
+              f"  what's new ({len(whats_new)} chars){why}")
+        if needed and not whats_new:
             problems.append(f"{locale}: what's new is empty")
         print(f"    {'ok  ' if keywords else 'none'}  keywords: {keywords[:48]}")
         sets = paged(f"/v1/appStoreVersionLocalizations/{loc['id']}"
@@ -260,14 +278,16 @@ def cmd_metadata(args):
                 problems.append(f'{locale} {kind}: screenshots not delivered: '
                                 f'{bad}')
         complete = {k: v.get('COMPLETE', 0) for k, v in shots.items()}
-        iphone = sum(n for k, n in complete.items() if k in IPHONE_SETS)
-        ipad = sum(n for k, n in complete.items() if k in IPAD_SETS)
-        print(f"    {_ok(iphone)}  iPhone screenshots delivered: {iphone}"
-              f"   iPad: {ipad}")
+        required = REQUIRED_SETS[args.platform]
+        delivered = sum(n for k, n in complete.items() if k in required)
+        extra = sum(n for k, n in complete.items() if k not in required)
+        label = 'desktop' if args.platform == 'MAC_OS' else 'iPhone'
+        print(f"    {_ok(delivered)}  {label} screenshots delivered: "
+              f"{delivered}   other sizes: {extra}")
         for kind, states in sorted(shots.items()):
             print(f"        {kind}: {states}")
-        if not iphone:
-            problems.append(f'{locale}: no delivered iPhone screenshots')
+        if not delivered:
+            problems.append(f'{locale}: no delivered {label} screenshots')
 
     # Apple moved this off appStoreVersions and onto appInfos; ask both, in
     # that order, because the old path 404s with "The relationship
