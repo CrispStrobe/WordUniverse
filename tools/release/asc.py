@@ -721,6 +721,26 @@ def cmd_appstore(args):
                 'REJECTED', 'METADATA_REJECTED', 'INVALID_BINARY'}
     version = next((v for v in versions
                     if v['attributes'].get('versionString') == args.version), None)
+    if version is None and args.reuse_editable:
+        # Point an existing editable, never-released record at this version
+        # string instead of adding another. A UNIVERSAL bundle ID makes App
+        # Store Connect create a MAC_OS appStoreVersion of its own accord, so
+        # this app has a macOS 1.0 that nothing ever shipped; creating 1.4.2
+        # beside it would leave two macOS versions and the stray one first in
+        # an arbitrarily ordered list.
+        candidate = next((v for v in versions
+                          if v['attributes'].get('appStoreState') in editable),
+                         None)
+        if candidate is not None:
+            was = candidate['attributes'].get('versionString')
+            print(f'renaming the editable {args.platform} version '
+                  f'{was} -> {args.version}')
+            version = call('PATCH', f"/v1/appStoreVersions/{candidate['id']}",
+                           {'data': {'type': 'appStoreVersions',
+                                     'id': candidate['id'],
+                                     'attributes': {
+                                         'versionString': args.version}}}
+                           )['data']
     if version is None:
         print(f'creating version {args.version}')
         version = call('POST', '/v1/appStoreVersions', {
@@ -886,6 +906,9 @@ def main():
     st.add_argument('--build', required=True)
     st.add_argument('--version', required=True)
     st.add_argument('--platform', default='IOS', choices=['IOS', 'MAC_OS'])
+    st.add_argument('--reuse-editable', action='store_true',
+                    help='rename an existing editable, never-released version '
+                         'to this version string rather than creating another')
     st.add_argument('--whats-new', action='append',
                     help='"locale=text" for one locale, repeatable; a bare '
                          'value applies to every locale')

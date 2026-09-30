@@ -65,6 +65,10 @@ on:
         description: 'testflight: submit for beta app review (needed by external testers)'
         type: boolean
         default: false
+      reuse_editable:
+        description: 'appstore: rename an existing editable version instead of creating another'
+        type: boolean
+        default: false
       submit_for_review:
         description: 'appstore: submit the version to Apple for review'
         type: boolean
@@ -125,6 +129,7 @@ jobs:
           EXTERNAL: ${{ inputs.external }}
           SUBMIT_BETA: ${{ inputs.submit_beta_review }}
           SUBMIT_REVIEW: ${{ inputs.submit_for_review }}
+          REUSE_EDITABLE: ${{ inputs.reuse_editable }}
           WHATS_NEW_EN: ${{ inputs.whats_new_en }}
           WHATS_NEW_DE: ${{ inputs.whats_new_de }}
           WHAT_TO_TEST: ${{ inputs.what_to_test }}
@@ -174,6 +179,8 @@ jobs:
                 args+=(--whats-new "en-US=$WHATS_NEW_EN") || true
               [ -n "$WHATS_NEW_DE" ] && \
                 args+=(--whats-new "de-DE=$WHATS_NEW_DE") || true
+              [ "$REUSE_EDITABLE" = 'true' ] && \
+                args+=(--reuse-editable) || true
               [ "$SUBMIT_REVIEW" = 'true' ] && args+=(--submit) || true
               python3 tools/release/asc.py appstore "${args[@]}"
               ;;
