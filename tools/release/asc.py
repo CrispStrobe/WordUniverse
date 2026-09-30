@@ -658,9 +658,28 @@ def set_what_to_test(build_id, text):
         print(f"  what to test: set for {loc['attributes'].get('locale')}")
 
 
+def answer_export_compliance(build):
+    """Answer export compliance if the build arrived without it.
+
+    A build whose Info.plist lacks ITSAppUsesNonExemptEncryption processes with
+    usesNonExemptEncryption null, and TestFlight then refuses it to *any*
+    tester, internal included: adding it to a group fails with
+    "422 ENTITY_UNPROCESSABLE — Build is not assignable. Build is not in an
+    internally testable state." false is correct for an app that uses nothing
+    beyond standard HTTPS/TLS.
+    """
+    if build['attributes'].get('usesNonExemptEncryption') is not None:
+        return
+    print('  answering export compliance (usesNonExemptEncryption=false)')
+    call('PATCH', f"/v1/builds/{build['id']}",
+         {'data': {'type': 'builds', 'id': build['id'],
+                   'attributes': {'usesNonExemptEncryption': False}}})
+
+
 def cmd_testflight(args):
     build = wait_for_processing(args.build, args.wait, args.platform)
     build_id = build['id']
+    answer_export_compliance(build)
     if args.what_to_test:
         set_what_to_test(build_id, args.what_to_test)
     groups = paged(f'/v1/apps/{app_id()}/betaGroups?limit=50')
