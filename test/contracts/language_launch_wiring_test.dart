@@ -29,9 +29,16 @@ void main() {
   });
   test('daily game and review factories run only after readiness gate', () {
     final daily = File('lib/features/home/screens/daily_session_screen.dart').readAsStringSync();
-    expect(daily, contains('WidgetBuilder builder'));
-    expect(daily, contains('await ensureLanguagePackReady(context)'));
-    expect(daily, contains('_play(2, (_) => _goalGame(profile.goal))'));
+    expect(daily, contains('FutureOr<Widget> Function() builder'));
+    final play = daily.substring(daily.indexOf('Future<void> _play('),
+        daily.indexOf('Future<Widget> _warmupGame('));
+    final gate = play.indexOf('if (!await ensureLanguagePackReady(context)');
+    final construct = play.indexOf('await builder()');
+    expect(gate, greaterThanOrEqualTo(0));
+    expect(construct, greaterThan(gate),
+        reason: 'asynchronous review preparation must still wait for the pack');
+    expect(daily, contains('_play(1, _warmupGame)'));
+    expect(daily, contains('_play(2, () => _goalGame(profile.goal))'));
   });
   test('settings expose paused status and do not demand locale restart', () {
     final settings = File('lib/features/settings/screens/settings_screen.dart').readAsStringSync();

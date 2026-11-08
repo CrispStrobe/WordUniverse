@@ -18,9 +18,37 @@ The core of the app is a **Spaced Repetition (SRI) service** that tracks perform
   * **Guided Daily Practice:** Goal-based sessions combine review, a focused exercise, and words in context.
   * **Game Discovery:** Search, skill filters, recommendations, favourites, and recent games make the larger catalogue easier to navigate.
   * **Focus Mode:** Reduces decorative motion and keeps learning actions prominent.
-  * **Rich Vocabulary:** Loads a comprehensive vocabulary list (`grundwortschatz.json`) into a `VocabularyService`, complete with word types, articles, and common misspellings.
+  * **Rich Vocabulary:** Loads verified SQLite language packs through `VocabularyService`, with word types, articles, definitions and common misspellings.
+  * **Kompass 4 · BW Deutsch:** A bundled course with reading, spelling strategies, sentence work, instruction practice and printable companions.
   * **Monetization Deferred:** Purchase infrastructure remains in the codebase, but IAP is disabled while the core learning experience is refined.
   * **Developer Debug Panel:** A hidden debug menu (activated by tapping the app title 7 times) allows for forcing IAP unlocks and testing.
+
+### Kompass 4 · BW Deutsch
+
+Choose **Kompass 4 · BW Deutsch** during onboarding or in Settings, or open the
+course from Home or the game menu. Its 113 tasks include all 96 German tasks
+from the project's four kompass4 practice papers, eight instruction activities
+and nine transfer tasks. The course has 27 project competency IDs, 264 scored
+response parts and eight printable task/solution booklets.
+
+| Practice mode | What learners practise |
+| --- | --- |
+| Lesedetektiv | Reading passages and tables, selecting evidence, explaining meaning |
+| Wörter prüfen | Producing spellings, applying strategies, correcting errors |
+| Satzwerkstatt | Word forms, sentence parts and punctuation |
+| Auftragspilot | Understanding instructions, quantities and operation order |
+
+The dashboard offers 5/10/15/20-minute plans, an optional start check and
+independent practice with fresh tasks. Hints, repeated passages and rubric
+reviews retain their own evidence; unresolved free responses remain pending.
+The course supports phone portrait and desktop layouts and runs without the
+general dictionary download. Optional word games use the existing pack gate
+and can use the corrected BW1/BW3 vocabulary preset.
+
+The digital annotations and new activities are drafts for teacher review.
+App observations and time estimates are not official Kompass levels or school
+recommendations. See [implementation and validation notes](docs/kompass-implementation.md)
+and the [BW source audit](docs/bw-vocabulary-coverage.md).
 
 ### Mini-Games Included:
 
@@ -58,7 +86,8 @@ The core of the app is a **Spaced Repetition (SRI) service** that tracks perform
   * **Core Services:**
       * `GameProvider`: Manages the overall game state (score, level, achievements).
       * `SriService`: Manages the spaced repetition logic.
-      * `VocabularyService`: Loads and provides all vocabulary data from JSON.
+      * `VocabularyService`: Provides language-pack vocabulary and verified BW corrections.
+      * `KompassCourseService` / `KompassProgressService`: Load the bundled course and preserve task-level learning evidence.
       * `ProgressService`: Handles saving/loading state to storage.
       * `PurchaseService`: Manages in-app purchases.
       * `AudioService`: A wrapper for sound and music playback (placeholder).
@@ -71,8 +100,8 @@ To run this project locally, follow these steps:
 
 1.  **Clone the repository:**
     ```sh
-    git clone [your-repo-url]
-    cd voc
+    git clone https://github.com/CrispStrobe/WordUniverse.git
+    cd WordUniverse
     ```
 2.  **Install dependencies:**
     ```sh
@@ -89,7 +118,7 @@ To run this project locally, follow these steps:
     ```sh
     flutter run
     ```
-    *Note: The app is configured to force landscape mode via `main.dart`.*
+    *Note: Legacy games use landscape mode. The Kompass course also supports portrait.*
 
 ## 📁 Project Structure
 
@@ -114,6 +143,7 @@ lib/
 │   │   ├── screens/        # The game UI files
 │   │   └── widgets/
 │   ├── home/               # The main dashboard/home screen
+│   ├── kompass/            # BW Deutsch course, scoring, planning and reports
 │   └── settings/           # The settings screen
 │
 ├── generated/              # Auto-generated l10n files (S.dart)
@@ -146,7 +176,7 @@ A pack is delivered one of two ways:
 Sizes, space and resumption:
 
 - **Both sizes are disclosed.** A pack is stored *decompressed*, so the German
-  pack is a ~25 MB download that occupies ~150 MB once installed. The consent
+  pinned pack is a ~16.2 MB download that occupies ~92.8 MB once installed. The consent
   dialog and Settings state both figures, and Remove names what it frees.
 - **A download that cannot fit is refused before it starts** where the platform
   reports a quota (browsers, via `navigator.storage.estimate()`). Native has no
@@ -154,7 +184,7 @@ Sizes, space and resumption:
   the same message instead of a generic failure — an underestimate that blocked
   a workable install would be worse than no pre-check.
 - **A partly downloaded pack says so.** Bytes are checkpointed as the transfer
-  runs, so Settings shows "12.4 of 25 MB downloaded" and offers Resume; the
+  runs, so Settings shows downloaded and total bytes and offers Resume; the
   transfer continues from disk with an HTTP `Range` request.
 - **The registry pins are guarded in CI.** `expectedCompressedBytes` is a hard
   gate, so rebuilding a pack without bumping the registry would break every new

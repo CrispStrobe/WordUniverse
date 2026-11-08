@@ -124,6 +124,14 @@ class LearnerProfileService extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> resetProgress() async {
+    _sessionsCompleted = 0;
+    _recentGameIds.clear();
+    await _prefs.setInt(_sessionsKey, 0);
+    await _prefs.setStringList(_recentsKey, const []);
+    await resetDailySession();
+  }
+
   void _resetDailyIfNeeded() {
     final today = _todayKey();
     if (_prefs.getString(_dailyDateKey) == today) {
