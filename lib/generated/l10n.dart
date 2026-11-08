@@ -4510,28 +4510,34 @@ abstract class S {
   /// **'From vocabulary level 5, a language note appears after a correct answer.'**
   String get definitionQuizOnboardingBody3;
 
+  /// No description provided for @sentenceCompletionMeaningCue.
+  ///
+  /// In en, this message translates to:
+  /// **'The missing word can mean: {definition}'**
+  String sentenceCompletionMeaningCue(String definition);
+
   /// No description provided for @sentenceCompletionPrompt.
   ///
   /// In en, this message translates to:
-  /// **'Which word completes the sentence?'**
+  /// **'Which word matches the clue and completes the sentence?'**
   String get sentenceCompletionPrompt;
 
   /// No description provided for @sentenceCompletionOnboardingBody1.
   ///
   /// In en, this message translates to:
-  /// **'A sentence with a gap is shown — pick the word that fits.'**
+  /// **'Read the sentence with a gap and the clue about the meaning to look for.'**
   String get sentenceCompletionOnboardingBody1;
 
   /// No description provided for @sentenceCompletionOnboardingBody2.
   ///
   /// In en, this message translates to:
-  /// **'Only nouns, verbs, and adjectives are tested — they are uniquely identifiable in context.'**
+  /// **'Practise vocabulary in context. A word can have several meanings. Use both clues.'**
   String get sentenceCompletionOnboardingBody2;
 
   /// No description provided for @sentenceCompletionOnboardingBody3.
   ///
   /// In en, this message translates to:
-  /// **'A meaning hint appears after each correct answer.'**
+  /// **'After you choose, the sentence shows the intended word.'**
   String get sentenceCompletionOnboardingBody3;
 
   /// No description provided for @spellingSpotterPrompt.

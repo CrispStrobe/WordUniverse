@@ -23,11 +23,8 @@ class SentenceCompletionGame extends StatefulWidget {
   const SentenceCompletionGame({super.key, required this.gradeLevel});
 
   @override
-  State<SentenceCompletionGame> createState() =>
-      _SentenceCompletionGameState();
+  State<SentenceCompletionGame> createState() => _SentenceCompletionGameState();
 }
-
-
 
 enum _FeedbackState { none, correct, incorrect }
 
@@ -78,14 +75,18 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
   }
 
   Future<void> _init() async {
+    if (!mounted) return;
     setState(() => _isLoading = true);
     _s = S.of(context)!;
     _vocabularyService = context.read<VocabularyService>();
     _sriService = context.read<SriService>();
     _audioService = context.read<AudioService>();
     _gameProvider = context.read<GameProvider>();
-    if (!_vocabularyService.isInitialized) await _vocabularyService.initialize();
+    if (!_vocabularyService.isInitialized)
+      await _vocabularyService.initialize();
+    if (!mounted) return;
     await _buildChallenges();
+    if (!mounted) return;
     if (!_onboardingScheduled) {
       _onboardingScheduled = true;
       OnboardingOverlay.maybeShow(
@@ -110,9 +111,8 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
     }
   }
 
-  // Only blank content words — nouns, verbs, adjectives are uniquely
-  // identifiable from sentence context. Adverbs, prepositions, and other
-  // function words are too substitutable (multiple fillers are valid).
+  // This vocabulary exercise uses content words. The meaning clue is part
+  // of every question: sentence context alone rarely determines one word.
   static const _contentTypes = {
     GermanWordType.substantiv,
     GermanWordType.verb,
@@ -155,6 +155,7 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
       gradeIndex: gradeIndex,
       maxChallenges: _totalRounds,
       optionCount: _optionCount,
+      isGerman: _vocabularyService.learningLanguage == 'de',
       rng: _rng,
     );
 
@@ -168,18 +169,6 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
       _isLoading = false;
     });
   }
-
-
-
-
-
-  // Returns (before, after) splitting the sentence at the found word token,
-  // or null if the word cannot be found in the sentence.
-
-
-
-
-
 
   void _handleTap(int optionIndex) {
     if (_feedbackState != _FeedbackState.none) return;
@@ -199,23 +188,18 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
       _pulseController.forward(from: 0);
       _score += 10;
       _correct++;
-      _sriService.recordResponse(
-        skillType: LanguageSkillType.sentenceStructure,
-        baseWord: challenge.word.word,
-        wasCorrect: true,
-      );
     } else {
       _gameProvider.hapticMedium();
       _audioService.playSound('error');
-      _shakeController
-          .forward(from: 0)
-          .then((_) => _shakeController.reverse());
-      _sriService.recordResponse(
-        skillType: LanguageSkillType.sentenceStructure,
-        baseWord: challenge.word.word,
-        wasCorrect: false,
-      );
+      _shakeController.forward(from: 0).then((_) => _shakeController.reverse());
     }
+
+    _sriService.recordResponse(
+      skillType: challenge.skillType,
+      baseWord: challenge.word.word,
+      wordId: challenge.word.id,
+      wasCorrect: isCorrect,
+    );
 
     Future.delayed(const Duration(milliseconds: 2200), () {
       if (!mounted) return;
@@ -248,8 +232,7 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
         backgroundColor: SpaceTheme.deepSpace,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(_s.gameOver, style: SpaceTheme.headlineStyle),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -344,6 +327,8 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
                 ],
                 const SizedBox(height: 20),
                 _buildSentenceCard(challenge),
+                const SizedBox(height: 16),
+                _buildMeaningCue(challenge),
                 const SizedBox(height: 24),
                 _buildOptions(challenge),
                 if (_feedbackState == _FeedbackState.incorrect) ...[
@@ -382,8 +367,7 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
                 ),
                 Text(
                   '${_currentIndex + 1} / ${_challenges.length}',
-                  style:
-                      SpaceTheme.bodyStyle.copyWith(color: Colors.white60),
+                  style: SpaceTheme.bodyStyle.copyWith(color: Colors.white60),
                 ),
               ],
             ),
@@ -466,6 +450,26 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
     );
   }
 
+  Widget _buildMeaningCue(SentenceChallenge challenge) {
+    return Container(
+      key: const ValueKey('sentence-completion-meaning-cue'),
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: SpaceTheme.nebulaPurple.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        _s.sentenceCompletionMeaningCue(challenge.meaningCue),
+        style: SpaceTheme.bodyStyle.copyWith(
+          color: Colors.white,
+          fontSize: 16,
+          height: 1.5,
+        ),
+      ),
+    );
+  }
+
   Widget _buildOptions(SentenceChallenge challenge) {
     return Column(
       children: List.generate(challenge.options.length, (i) {
@@ -521,8 +525,7 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
             width: double.infinity,
             // Enforce the 48dp minimum touch target for accessibility.
             constraints: const BoxConstraints(minHeight: 48),
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
               color: bgColor,
               borderRadius: BorderRadius.circular(12),
@@ -560,8 +563,7 @@ class _SentenceCompletionGameState extends State<SentenceCompletionGame>
       decoration: BoxDecoration(
         color: SpaceTheme.alienGreen.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-            color: SpaceTheme.alienGreen.withValues(alpha: 0.4)),
+        border: Border.all(color: SpaceTheme.alienGreen.withValues(alpha: 0.4)),
       ),
       child: Text(
         hint,
