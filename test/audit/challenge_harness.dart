@@ -592,12 +592,14 @@ final Map<String, Generator> generators = {
             .where((w) => hasGradeExamples(w, c.grade))
             .toList(),
         gradeIndex: c.grade,
+        isGerman: c.isGerman,
         maxChallenges: c.count,
         rng: c.rng,
       )
           .map((ch) => Item(
                 game: 'sentence_completion',
-                prompt: '${ch.before}___${ch.after}',
+                prompt: '${ch.before}___${ch.after}\n'
+                    '${c.strings.sentenceCompletionMeaningCue(ch.meaningCue)}',
                 options: ch.options,
                 answer: ch.options[ch.correctIndex],
               ))

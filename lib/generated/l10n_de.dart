@@ -2556,19 +2556,25 @@ class SDe extends S {
       'Ab Wortschatzstufe 5 erscheint nach einer richtigen Antwort ein Sprach-Tipp zum Wort.';
 
   @override
-  String get sentenceCompletionPrompt => 'Welches Wort passt in die Lücke?';
+  String sentenceCompletionMeaningCue(String definition) {
+    return 'Das gesuchte Wort kann bedeuten: $definition';
+  }
+
+  @override
+  String get sentenceCompletionPrompt =>
+      'Welches Wort passt zum Hinweis und in den Satz?';
 
   @override
   String get sentenceCompletionOnboardingBody1 =>
-      'Ein Satz mit einer Lücke wird gezeigt — wähle das passende Wort.';
+      'Lies den Satz mit der Lücke und den Hinweis zur gesuchten Bedeutung.';
 
   @override
   String get sentenceCompletionOnboardingBody2 =>
-      'Es werden nur Nomen, Verben und Adjektive abgefragt, da diese eindeutig im Satz erkennbar sind.';
+      'Du übst Wortschatz im Satz. Ein Wort kann mehrere Bedeutungen haben. Nutze beide Hinweise.';
 
   @override
   String get sentenceCompletionOnboardingBody3 =>
-      'Bei richtiger Antwort siehst du einen Hinweis auf die Wortbedeutung.';
+      'Nach deiner Wahl siehst du den Satz mit dem gesuchten Wort.';
 
   @override
   String get spellingSpotterPrompt => 'Welches Wort ist richtig geschrieben?';

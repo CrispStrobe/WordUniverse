@@ -1,215 +1,444 @@
-// test/features/games/sentence_completion_service_test.dart
-//
-// Sentence Completion blanks a word out of one of the pack's grade-levelled
-// example sentences. Which occurrence it blanks, and what it offers instead,
-// is the game.
-
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:WortUniversum/core/models/skill_category.dart';
 import 'package:WortUniversum/core/models/vocabulary_models.dart';
-import 'package:WortUniversum/features/games/services/adaptive_word_selection.dart';
 import 'package:WortUniversum/features/games/services/sentence_completion_service.dart';
+import 'package:WortUniversum/features/games/services/adaptive_word_selection.dart';
 
 import 'word_fixture.dart';
 
-/// Every pack entry a game may use carries a meaning; one that does not is
-/// filtered out, so the fixtures carry one too.
-const _def = ['Ein Ding, das man benutzt.'];
+const _meanings = {
+  'Tisch': 'Ein Möbelstück mit einer Platte und Beinen.',
+  'Stuhl': 'Ein Sitzmöbel für eine Person.',
+  'Lampe': 'Ein Gerät, das Licht erzeugt.',
+  'Teppich': 'Ein weicher Belag für den Fußboden.',
+  'sonnig': 'Von der Sonne beschienen.',
+  'wichtig': 'Von großer Bedeutung.',
+  'still': 'Ohne Lärm oder Bewegung.',
+  'dreckig': 'Mit Schmutz bedeckt.',
+  'Haus': 'Ein Gebäude zum Wohnen.',
+  'Buch': 'Zusammengebundene Seiten zum Lesen.',
+  'Baum': 'Eine große Pflanze mit einem Stamm.',
+  'Hund': 'Ein Haustier, das bellt.',
+  'laufen': 'Sich auf den Beinen fortbewegen.',
+  'fahren': 'Sich mit einem Fahrzeug fortbewegen.',
+  'springen': 'Sich vom Boden in die Luft abstoßen.',
+};
 
 GermanWord _word(
   String word, {
   Map<String, List<String>>? examples,
   int grade = 4,
   GermanWordType type = GermanWordType.substantiv,
-  List<String> definitions = const [],
+  List<String>? definitions,
+  List<String> synonyms = const [],
+  List<Map<String, dynamic>> inflections = const [],
+  String? article,
 }) =>
     testWord(
       word,
       type: type,
       grade: grade,
-      enrichment:
-          testEnrichment(gradeExamples: examples, definitions: definitions),
+      article: article,
+      enrichment: testEnrichment(
+          gradeExamples: examples,
+          definitions: definitions ?? [_meanings[word] ?? 'Ein anderes Ding.'],
+          synonyms: synonyms,
+          inflections: inflections),
     );
 
 List<GermanWord> _pool() => [
-      _word('Tisch', definitions: _def),
-      _word('Stuhl', definitions: _def),
-      _word('Lampe', definitions: _def),
-      _word('Teppich', definitions: _def),
+      _word('Tisch'),
+      _word('Stuhl'),
+      _word('Lampe'),
+      _word('Teppich'),
     ];
+
+Map<String, dynamic> _form(String text, String tags) =>
+    {'form_text': text, 'tags': tags};
+
+SentenceChallenge? _build(GermanWord word,
+        {List<GermanWord>? pool, bool isGerman = true}) =>
+    buildSentenceChallenge(
+        word: word,
+        gradeIndex: 4,
+        pool: pool ?? _pool(),
+        isGerman: isGerman,
+        rng: Random(1));
 
 void main() {
   group('blankWord', () {
-    test('cuts the word out on a word boundary', () {
+    test('cuts an exact token and preserves Unicode boundaries', () {
       expect(blankWord('Der Hund bellt.', 'Hund'), ('Der ', ' bellt.'));
-    });
-
-    test('is case-insensitive', () {
+      expect(blankWord('Öl schwimmt oben.', 'Öl'), ('', ' schwimmt oben.'));
+      expect(blankWord('Ich höre Übungen.', 'Übungen'), ('Ich höre ', '.'));
       expect(blankWord('Hund bellt.', 'hund'), ('', ' bellt.'));
+      expect(blankWord('Ölflaschen sind leer.', 'Öl'), isNull);
+      expect(blankWord('Die Haustür ist zu.', 'Tür'), isNull);
     });
 
-    test('takes an inflected form with a short ending', () {
-      expect(blankWord('Die Hunde bellen.', 'Hund'), ('Die ', ' bellen.'));
+    test('an inflected form needs explicit evidence', () {
+      expect(blankWord('Die Hunde bellen.', 'Hund'), isNull);
+      expect(blankWord('Die Hunde bellen.', 'Hund', forms: ['Hunde']),
+          ('Die ', ' bellen.'));
     });
 
-    test('refuses a longer word that merely starts the same', () {
-      // "Hunderte" is not an inflection of "Hund".
+    test('does not infer an inflection from a short shared prefix', () {
+      expect(blankWord('Hundert Menschen kamen.', 'Hund'), isNull);
       expect(blankWord('Hunderte kamen.', 'Hund'), isNull);
+      expect(blankWord('Die Armee zieht weiter.', 'arm'), isNull);
+      expect(blankWord('Das ist eine Haus-Tür.', 'Haus'), isNull);
     });
 
-    test('returns nothing when the word is absent', () {
+    test('returns nothing for an empty or absent word', () {
       expect(blankWord('Die Katze schläft.', 'Hund'), isNull);
+      expect(blankWord('Die Katze schläft.', ''), isNull);
     });
   });
 
   group('hasGradeExamples', () {
-    test('true for the asked grade', () {
+    test('uses the requested grade, or an existing example band', () {
       final word = _word('Tisch', examples: {
         '4': ['Der Tisch ist rund.']
       });
       expect(hasGradeExamples(word, 4), isTrue);
-    });
-
-    test('falls back to any grade the pack does have', () {
-      final word = _word('Tisch', examples: {
-        '2': ['Der Tisch ist rund.']
-      });
       expect(hasGradeExamples(word, 6), isTrue);
-    });
-
-    test('false without grade examples', () {
       expect(hasGradeExamples(_word('Tisch'), 4), isFalse);
     });
   });
 
   group('buildSentenceChallenge', () {
-    test('blanks the word and keeps the rest of the sentence', () {
+    test('the accepted answer restores the source and carries a meaning clue',
+        () {
+      const source = 'Der Tisch steht im Zimmer.';
       final word = _word('Tisch', examples: {
-        '4': ['Der Tisch steht im Zimmer.']
+        '4': [source]
       });
-      final challenge = buildSentenceChallenge(
-          word: word, gradeIndex: 4, pool: _pool(), rng: Random(1))!;
+      final challenge = _build(word)!;
       expect(challenge.before, 'Der ');
       expect(challenge.after, ' steht im Zimmer.');
       expect(challenge.correctOption, 'Tisch');
       expect(challenge.options[challenge.correctIndex], 'Tisch');
+      expect('${challenge.before}${challenge.correctOption}${challenge.after}',
+          source);
+      expect(challenge.source, source);
+      expect(challenge.meaningCue, _meanings['Tisch']);
+      expect(challenge.skillType, LanguageSkillType.vocabulary);
     });
 
-    test('the bare noun is offered, never with an article', () {
-      // The sentence supplies the article in its own case: "Ich sehe den ___".
-      final word = testWord('Tisch',
-          type: GermanWordType.substantiv,
-          article: 'der',
-          enrichment: testEnrichment(gradeExamples: {
-            '4': ['Ich sehe den Tisch.']
-          }));
-      final challenge = buildSentenceChallenge(
-          word: word, gradeIndex: 4, pool: _pool(), rng: Random(1))!;
+    test('the source article remains outside the accepted noun', () {
+      final word = _word('Tisch', article: 'der', examples: {
+        '4': ['Ich sehe den Tisch.']
+      });
+      final challenge = _build(word)!;
+      expect(challenge.before, 'Ich sehe den ');
       expect(challenge.correctOption, 'Tisch');
       expect(challenge.options, isNot(contains('der Tisch')));
     });
 
-    test('skips a sentence that says the word again beside the gap', () {
-      final word = _word('Tisch', examples: {
-        '4': [
-          'Der Tisch ist ein Tisch.',
-          'Der Tisch steht im Zimmer.',
-        ]
+    test('rejects the pack\'s malformed attributive adjective, without repair',
+        () {
+      final word = _word('sonnig', type: GermanWordType.adjektiv, examples: {
+        '4': ['Ein sonnig Tag am Meer ist immer schön.']
+      }, inflections: [
+        _form('sonniger', 'masculine, nominative, singular, positive, strong')
+      ]);
+      expect(
+          _build(word, pool: [
+            word,
+            _word('wichtig', type: GermanWordType.adjektiv),
+          ]),
+          isNull);
+    });
+
+    test('accepts the exact inflected adjective and uses only attested options',
+        () {
+      const tags = 'masculine, nominative, singular, positive, strong';
+      const source = 'Ein sonniger Tag am Meer ist immer schön.';
+      final word = _word('sonnig', type: GermanWordType.adjektiv, examples: {
+        '4': [source]
+      }, inflections: [
+        _form('sonniger', tags)
+      ]);
+      final challenge = _build(word, pool: [
+        word,
+        _word('wichtig',
+            type: GermanWordType.adjektiv,
+            inflections: [_form('wichtiger', tags)]),
+        _word('still',
+            type: GermanWordType.adjektiv,
+            inflections: [_form('stiller', tags)]),
+        _word('dreckig',
+            type: GermanWordType.adjektiv,
+            inflections: [_form('dreckiger', tags)]),
+      ])!;
+      expect(challenge.correctOption, 'sonniger');
+      expect(challenge.options,
+          unorderedEquals(['sonniger', 'wichtiger', 'stiller', 'dreckiger']));
+      expect('${challenge.before}${challenge.correctOption}${challenge.after}',
+          source);
+    });
+
+    test('keeps a valid predicative adjective instead of the malformed example',
+        () {
+      final word = _word('sonnig', type: GermanWordType.adjektiv, examples: {
+        '4': ['Ein sonnig Tag ist schön.', 'Das Wetter ist sonnig.']
       });
-      final challenge = buildSentenceChallenge(
-          word: word, gradeIndex: 4, pool: _pool(), rng: Random(1))!;
+      final challenge = _build(word, pool: [
+        word,
+        _word('still', type: GermanWordType.adjektiv),
+      ])!;
+      expect(challenge.source, 'Das Wetter ist sonnig.');
+      expect(challenge.correctOption, 'sonnig');
+    });
+
+    test('preserves an attested umlaut plural and the existing article', () {
+      const source = 'Die Häuser sind alt.';
+      final word = _word('Haus', examples: {
+        '4': [source]
+      }, inflections: [
+        _form('die Häuser', 'nominative, plural')
+      ]);
+      final challenge = _build(word, pool: [
+        word,
+        _word('Buch', inflections: [_form('die Bücher', 'nominative, plural')]),
+        _word('Baum', inflections: [_form('die Bäume', 'nominative, plural')]),
+      ])!;
+      expect(challenge.before, 'Die ');
+      expect(challenge.correctOption, 'Häuser');
+      expect(challenge.options, unorderedEquals(['Häuser', 'Bücher', 'Bäume']));
+      expect('${challenge.before}${challenge.correctOption}${challenge.after}',
+          source);
+    });
+
+    test('can use an explicitly attested irregular verb', () {
+      const tags = 'present, third-person, singular, indicative, active';
+      final word = _word('laufen', type: GermanWordType.verb, examples: {
+        '4': ['Sie läuft zur Schule.']
+      }, inflections: [
+        _form('läuft', tags)
+      ]);
+      final challenge = _build(word, pool: [
+        word,
+        _word('fahren',
+            type: GermanWordType.verb, inflections: [_form('fährt', tags)]),
+      ])!;
+      expect(challenge.correctOption, 'läuft');
+      expect(challenge.options, unorderedEquals(['läuft', 'fährt']));
+    });
+
+    test('does not guess person agreement from vague present-tense tags', () {
+      final word = _word('laufen', type: GermanWordType.verb, examples: {
+        '4': ['Sie läuft zur Schule.']
+      }, inflections: [
+        _form('läuft', 'present')
+      ]);
+      expect(
+          _build(word, pool: [
+            word,
+            _word('fahren', type: GermanWordType.verb, inflections: [
+              _form('fahre', 'present'),
+              _form('fährst', 'present'),
+              _form('fährt', 'present'),
+            ]),
+          ]),
+          isNull);
+    });
+
+    test('does not treat an auxiliary as a form of the target verb', () {
+      final word = _word('laufen', type: GermanWordType.verb, examples: {
+        '4': ['Wir haben Zeit.']
+      }, inflections: [
+        _form('haben', 'perfect, auxiliary')
+      ]);
+      expect(
+          _build(word, pool: [
+            word,
+            _word('fahren', type: GermanWordType.verb),
+          ]),
+          isNull);
+    });
+
+    test('preserves initial capitalization in the accepted source span', () {
+      final word = _word('tradition', definitions: [
+        'A custom passed between generations.'
+      ], examples: {
+        '4': ['Tradition connects people.']
+      });
+      final challenge = _build(word, isGerman: false, pool: [
+        word,
+        _word('destination', definitions: ['The final place of a journey.']),
+        _word('cheek', definitions: ['The side of a face.']),
+      ])!;
+      expect(challenge.correctOption, 'Tradition');
+      expect(challenge.options, containsAll(['Destination', 'Cheek']));
+    });
+
+    test('a meaning cue resolves a sentence with several plausible fillers',
+        () {
+      final word = _word('tradition', definitions: [
+        'A custom passed between generations.'
+      ], examples: {
+        '4': ['The town has a special tradition.']
+      });
+      final challenge = _build(word, isGerman: false, pool: [
+        word,
+        _word('destination', definitions: ['The final place of a journey.']),
+        _word('cheek', definitions: ['The side of a face.']),
+      ])!;
+      expect(challenge.options, contains('destination'));
+      expect(challenge.meaningCue, 'A custom passed between generations.');
+      expect(challenge.skillType, isNot(LanguageSkillType.sentenceStructure));
+    });
+
+    test('skips a prompt without a legitimate readable meaning cue', () {
+      final word = _word('Tisch', definitions: [], examples: {
+        '4': ['Der Tisch steht im Zimmer.']
+      });
+      expect(_build(word), isNull);
+    });
+
+    test('does not reveal the target or switch senses to obtain a clue', () {
+      final word = _word('Tisch', definitions: [
+        'Ein Tisch ist ein Möbelstück.',
+        'Eine Gruppe von Personen beim Essen.',
+      ], examples: {
+        '4': ['Der Tisch steht im Zimmer.']
+      });
+      expect(_build(word), isNull);
+    });
+
+    test('excludes synonyms in either direction and identical meanings', () {
+      final word = _word('Tisch', synonyms: [
+        'Schreibtisch'
+      ], examples: {
+        '4': ['Der Tisch steht im Zimmer.']
+      });
+      final challenge = _build(word, pool: [
+        word,
+        _word('Schreibtisch', definitions: ['Ein Möbel zum Schreiben.']),
+        _word('Pult',
+            synonyms: ['Tisch'], definitions: ['Ein erhöhtes Möbel.']),
+        _word('Möbel', definitions: [_meanings['Tisch']!]),
+        _word('Stuhl'),
+      ])!;
+      expect(challenge.options, unorderedEquals(['Tisch', 'Stuhl']));
+    });
+
+    test('rejects a noun entry whose own analysis says determiner', () {
+      final word = testWord('sufficient',
+          type: GermanWordType.substantiv,
+          enrichment: testEnrichment(primaryPos: 'determiner', definitions: [
+            'An adequate quantity of; enough.'
+          ], gradeExamples: {
+            '4': ['The teacher thinks we have sufficient time.']
+          }));
+      expect(_build(word, isGerman: false), isNull);
+    });
+
+    test('does not credit an adjective entry for a finite-verb use', () {
+      final word =
+          _word('accomplished', type: GermanWordType.adjektiv, definitions: [
+        'Completed; effected; established.'
+      ], examples: {
+        '4': ['They accomplished their goal by working together.']
+      });
+      expect(
+          _build(word, isGerman: false, pool: [
+            word,
+            _word('wichtig', type: GermanWordType.adjektiv),
+          ]),
+          isNull);
+    });
+
+    test('keeps a valid adjective question with a pronoun before the gap', () {
+      final word = _word('happy', type: GermanWordType.adjektiv, definitions: [
+        'Feeling pleasure or joy.'
+      ], examples: {
+        '4': ['Is she happy?']
+      });
+      final challenge = _build(word, isGerman: false, pool: [
+        word,
+        _word('sad',
+            type: GermanWordType.adjektiv,
+            definitions: ['Feeling sorrow or unhappiness.']),
+      ])!;
+      expect(challenge.correctOption, 'happy');
+    });
+
+    test('skips repeated target forms beside the gap', () {
+      final word = _word('Hund', examples: {
+        '4': ['Der Hund sieht viele Hunde.']
+      }, inflections: [
+        _form('die Hunde', 'nominative, plural')
+      ]);
+      expect(_build(word), isNull);
+    });
+
+    test('uses another source when one repeats the answer', () {
+      final word = _word('Tisch', examples: {
+        '4': ['Der Tisch ist ein Tisch.', 'Der Tisch steht im Zimmer.']
+      });
+      final challenge = _build(word)!;
       expect('${challenge.before}${challenge.after}', isNot(contains('Tisch')));
     });
 
-    test('nothing is built when no sentence contains the word', () {
-      final word = _word('Tisch', examples: {
+    test('requires both a matching source and a usable distractor', () {
+      final absent = _word('Tisch', examples: {
         '4': ['Die Lampe leuchtet hell.']
       });
-      expect(
-          buildSentenceChallenge(
-              word: word, gradeIndex: 4, pool: _pool(), rng: Random(1)),
-          isNull);
+      expect(_build(absent), isNull);
+      final isolated = _word('Tisch', examples: {
+        '4': ['Der Tisch steht im Zimmer.']
+      });
+      expect(_build(isolated, pool: [isolated]), isNull);
     });
 
-    test('nothing is built without a pool to draw distractors from', () {
+    test('keeps fewer valid options instead of adding unrelated word classes',
+        () {
       final word = _word('Tisch', examples: {
         '4': ['Der Tisch steht im Zimmer.']
       });
-      expect(
-          buildSentenceChallenge(
-              word: word, gradeIndex: 4, pool: [word], rng: Random(1)),
-          isNull);
-    });
-
-    test('distractors share the prompt\'s word class', () {
-      final word = _word('Tisch', examples: {
-        '4': ['Der Tisch steht im Zimmer.']
-      });
-      final pool = [
-        word,
-        _word('Stuhl'),
-        _word('Lampe'),
-        _word('Teppich'),
-        _word('laufen', type: GermanWordType.verb),
-      ];
-      final challenge = buildSentenceChallenge(
-          word: word, gradeIndex: 4, pool: pool, rng: Random(1))!;
-      expect(challenge.options, isNot(contains('laufen')));
-    });
-
-    test('another word class fills in rather than leave the round short', () {
-      final word = _word('Tisch', examples: {
-        '4': ['Der Tisch steht im Zimmer.']
-      });
-      final pool = [
+      final challenge = _build(word, pool: [
         word,
         _word('Stuhl'),
         _word('laufen', type: GermanWordType.verb),
         _word('springen', type: GermanWordType.verb),
-      ];
-      final challenge = buildSentenceChallenge(
-          word: word, gradeIndex: 4, pool: pool, rng: Random(1))!;
-      expect(challenge.options.length, 4);
-      expect(challenge.options, contains('Stuhl'));
+      ])!;
+      expect(challenge.options, unorderedEquals(['Tisch', 'Stuhl']));
     });
   });
 
-  group('buildSentenceChallenges', () {
-    test('skips names and stops at maxChallenges', () {
-      final pool = [
-        _word('Tisch', definitions: _def, examples: {
-          '4': ['Der Tisch steht im Zimmer.']
-        }),
-        _word('columbia', definitions: [
-          'A city in South Carolina, United States.'
-        ], examples: {
-          '4': ['Wir fahren nach columbia.']
-        }),
-        // No meaning at all: "iot" was asked as "___ has practical uses."
-        _word('iot', examples: {
-          '4': ['Das iot hat viele Anwendungen.']
-        }),
-        _word('Stuhl', definitions: _def, examples: {
-          '4': ['Der Stuhl ist bequem und alt.']
-        }),
-        ..._pool(),
-      ];
-      final challenges = buildSentenceChallenges(
-          pool: pool, gradeIndex: 4, maxChallenges: 1, rng: Random(1));
-      expect(challenges.single.word.word, 'Tisch');
-
-      final all = buildSentenceChallenges(
-          pool: pool, gradeIndex: 4, maxChallenges: 10, rng: Random(1));
-      expect(all.map((c) => c.word.word), ['Tisch', 'Stuhl'],
-          reason: 'a name and a word with no meaning are both skipped');
-    });
+  test(
+      'buildSentenceChallenges skips names, missing meanings, and limits rounds',
+      () {
+    final pool = [
+      _word('Tisch', examples: {
+        '4': ['Der Tisch steht im Zimmer.']
+      }),
+      _word('columbia', definitions: [
+        'A city in South Carolina, United States.'
+      ], examples: {
+        '4': ['Wir fahren nach columbia.']
+      }),
+      _word('iot', definitions: [], examples: {
+        '4': ['Das iot hat viele Anwendungen.']
+      }),
+      _word('Stuhl', examples: {
+        '4': ['Der Stuhl ist bequem und alt.']
+      }),
+      ..._pool(),
+    ];
+    final one = buildSentenceChallenges(
+        pool: pool, gradeIndex: 4, maxChallenges: 1, rng: Random(1));
+    expect(one.single.word.word, 'Tisch');
+    final all = buildSentenceChallenges(
+        pool: pool, gradeIndex: 4, maxChallenges: 10, rng: Random(1));
+    expect(all.map((c) => c.word.word), ['Tisch', 'Stuhl']);
   });
 
-  test('baseWordFromSriId strips the skill prefix the queue carries', () {
-    // Shared by the six practice games; the rest of selectAdaptiveWords needs
-    // a live catalogue, and is covered by the audit harness instead.
+  test('baseWordFromSriId preserves the shared legacy-id parsing contract', () {
     expect(baseWordFromSriId('SPELL_Tisch'), 'Tisch');
     expect(baseWordFromSriId('TYPE_laufen'), 'laufen');
     expect(baseWordFromSriId('Tisch'), 'Tisch');

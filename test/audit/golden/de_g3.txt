@@ -24,30 +24,30 @@
       trotzdem
     · grade: 3
 ── cloze_flash (4)
-  Nimm doch wieder mal ein ___.
-      Prinzessin
-      Tornister
-    ✓ Bad
-      Bart
-    · word: Bad
-  Ja, ___ fahre ich bei ihr vorbei.
-      Bart
-      Paprika
-      vorne
-    ✓ manchmal
-    · word: manchmal
-  Ich lasse mir einen ___ stehen.
-      Schwimmbad
-      Tornister
-    ✓ Bart
-      Bad
-    · word: Bart
-  Nach dem Regen ist das Gras ___.
-      fleißig
-      deutsch
-      herzlich
-    ✓ nass
-    · word: nass
+  Welches ___ haben wir heute?
+      Drachen
+    ✓ Datum
+      Rätsel
+      Waffe
+    · word: Datum
+  Das ___ wird noch vom restlichen Fell befreit.
+      Süßigkeit
+      Rätsel
+    ✓ Fleisch
+      Kunst
+    · word: Fleisch
+  Der Eingang eines Hauses befindet sich normalerweise ___.
+      Palme
+    ✓ vorne
+      manchmal
+      zuletzt
+    · word: vorne
+  Ich habe viele Küchenmaschinen, das da ist eine ___ zum Brotbacken.
+    ✓ Maschine
+      Schneemann
+      Jesus
+      Süßigkeit
+    · word: Maschine
 ── conjugation_drill (4)
   retten: ich ___
       brülle
@@ -70,30 +70,30 @@
       brülle
       rette
 ── definition_quiz (4)
-  dem Kalender entsprechende Angabe des Tages (nebst Monat und Jahr), an dem eine Person geboren wird
-      der Sturm
-    ✓ der Geburtstag
-      der Sattel
-      der Kaiser
-    · word: Geburtstag  grade: 3
-  jemandem Vorschriften machen; jemandem sagen, was er tun soll
-      donnern
-      verkaufen
-      ändern
-    ✓ vorschreiben
-    · word: vorschreiben  grade: 3
-  wurzellose Sporenpflanze mit Generationswechsel, die in ihrem Aufbau simpel und kaum gegliedert ist
-      die Band
-    ✓ das Moos
+  an allen Orten
+    ✓ überall
+      stoppen
+      der Fleck
+      rechts
+    · word: überall  grade: 3
+  nach unten hin geöffneter kelchartiger Metallgegenstand, der durch Schlagen mit einem Klöppel zum Klingen gebracht wird
+      die Heizung
       die Klassenfahrt
-      das Rätsel
-    · word: Moos  grade: 3
-  der Wahrheit und Wirklichkeit entsprechend, nicht gelogen oder vorgetäuscht; wahr
-      bewölkt
-      neugierig
-    ✓ ehrlich
-      pünktlich
-    · word: ehrlich  grade: 3
+      der Weltraum
+    ✓ die Glocke
+    · word: Glocke  grade: 3
+  Direkt folgende, ohne etwas dazwischen.
+    ✓ nächste
+      regnerisch
+      scharf
+      wild
+    · word: nächste  grade: 3
+  Seite oder Fläche, die irgendeinen Raum oder Hohlkörper begrenzt
+    ✓ die Wand
+      die Glocke
+      der Herr
+      der Räuber
+    · word: Wand  grade: 3
 ── expression_flash (4)
   kein ___ vor den Mund nehmen
     ✓ Blatt
@@ -120,35 +120,35 @@
       Kreis
     · word: Rakete
 ── grossschreib (4)
-  Die [Pflaumen] blühen.
+  Für dieses mathematische [Rätsel] gibt es mehrere Lösungen.
     ✓ GROSS
-    · word: Pflaumen  rule: Nomen werden immer großgeschrieben
-  Jedes Haus ist ein [Gebäude].
-    ✓ GROSS
-    · word: Gebäude  rule: Nomen werden immer großgeschrieben
-  „Das Fliegen mit motorisierten Gleitschirmen ist seit 1994 in [Deutschland] fest im Luftverkehrsgesetz verankert.“
-    ✓ GROSS
-    · word: Deutschland  rule: Nomen werden immer großgeschrieben
-  Ich habe vom Markt eine [Tüte] Pflaumen mitgebracht.
-    ✓ GROSS
-    · word: Tüte  rule: Nomen werden immer großgeschrieben
+    · word: Rätsel  rule: Nomen werden immer großgeschrieben
+  bildlich: „Siehst du da oben das dünne Ausläuferchen mit seinen Blattknospen im Winde [nicken]?“
+    ✓ klein
+    · word: nicken  rule: Verben werden kleingeschrieben
+  Die Frau war sehr [auffällig] und schrill gekleidet.
+    ✓ klein
+    · word: auffällig  rule: Adjektive werden kleingeschrieben
+  Der Himmel war gestern sehr [bewölkt].
+    ✓ klein
+    · word: bewölkt  rule: Adjektive werden kleingeschrieben
 ── grossstadt (4)
-  Groß oder klein? BEIM [gesunden]
+  Groß oder klein? BEIM [einsteigen]
     ✓ GROSS
       klein
     · rule: Nomen-Signal "BEIM" → Großschreibung
-  Groß oder klein? WIR [gesunden]
+  Groß oder klein? DU [steigst ein]
       GROSS
     ✓ klein
     · rule: Verben im Satz → Kleinschreibung
-  Groß oder klein? KANN [gesunden]
+  Groß oder klein? WILL [einsteigen]
       GROSS
     ✓ klein
     · rule: Verben (Infinitiv) → Kleinschreibung
-  Groß oder klein? BEIM [spülen]
+  Groß oder klein? DAS [umfassen]
     ✓ GROSS
       klein
-    · rule: Nomen-Signal "BEIM" → Großschreibung
+    · rule: Nomen-Signal "DAS" → Großschreibung
 ── hypernym_flash (4)
   Motorrad
       bewegen
@@ -217,26 +217,30 @@
     ✓ stark
       Abendessen
 ── sentence_completion (4)
-  Meine Schwester dekoriert ihr ___.
-      Fußball
-      Ostern
-      Lippe
-    ✓ Regal
-  Die ___ ist sauber.
-      Kegel
-      Pirat
-    ✓ Quelle
-      Rechnung
-  Die ___ helfen dem Lehrer.
-      Filzstift
-    ✓ Schüler
-      Träne
-      Kegel
-  Der Lehrer steht ___ im Klassenzimmer.
-      sogar
-      Süßigkeit
-    ✓ vorne
-      Freiheit
+  Die Kinder spielen gerne im ___ gelegenen Park.
+Das gesuchte Wort kann bedeuten: sich auf die Sonne beziehend, in der Art und Weise der Sonne, von der Sonne beschienen
+      wichtig
+      still
+    ✓ sonnig
+      dreckig
+  Ich mag keinen ___.
+Das gesuchte Wort kann bedeuten: subjektiv als unangenehm empfundener Schall, der unerwünschte Auswirkungen auf den Menschen hat (etwa das Gehör schädigt, krank machen kann, stört oder belästigt)
+    ✓ Lärm
+      Pause
+      Zylinder
+      Wärme
+  Die Blumen wachsen an der ___.
+Das gesuchte Wort kann bedeuten: Wand eines Gebäudes aus Stein, Beton oder auch Lehm
+      Zylinder
+    ✓ Mauer
+      Pfingsten
+      Palme
+  Wir dürfen den Müll nicht ___, das ist verboten.
+Das gesuchte Wort kann bedeuten: etwas durch Feuer vernichten
+      trösten
+      donnern
+    ✓ verbrennen
+      schlagen
 ── spelling_spotter (3)
   Which spelling is correct?
       fleach
@@ -253,79 +257,81 @@
     ✓ Räuber
     · shown after answering: Der Räuber entging seiner Strafe.
 ── sri_review (4)
+  Richtige Schreibweise für:
+"an allen Orten"
+      über-al
+      übeal
+      über-all
+    ✓ überall
+    · type: spelling  assessedSkill: spelling
   Welcher Artikel passt?
-"___ Geburtstag"
-      die
+"___ Glocke"
+      der
       das
-    ✓ der
+    ✓ die
     · type: article  assessedSkill: articleSelection
+  "Direkt folgende, ohne etwas dazwischen."
+      wild
+      dreckig
+    ✓ nächste
+      scharf
+    · type: definition  assessedSkill: vocabulary
   Welche Wortart?
-vorschreiben
-      Adverb
+Wand
+    ✓ Nomen
+      Verb
+      Pronomen
       Adjektiv
-    ✓ Verb
-      Nomen
     · type: wordType  assessedSkill: wordType
-  Großschreibung
-Bleibe ___.
-    ✓ neugierig
-      Neugierig
-    · type: capitalization  assessedSkill: capitalization
-  Wie lautet die Präsensform?
-donnern: er/sie/es ___
-      donnere
-      donnerst
-    ✓ donnert
-    · type: conjugation  assessedSkill: verbConjugation
 ── syllable_count (4)
-  Religion
-      1
-      2
-      3
-    ✓ 4+
-    · hyphenation: Re-li-gi-on
-  Geburtstag
-      1
-      2
-    ✓ 3
-      4+
-    · hyphenation: Ge-burts-tag
-  Rechteck
+  kämmen
       1
     ✓ 2
       3
       4+
-    · hyphenation: Recht-eck
-  vorschreiben
+    · hyphenation: käm-men
+  Band
+    ✓ 1
+      2
+      3
+      4+
+    · hyphenation: Band
+  neugierig
       1
       2
     ✓ 3
       4+
-    · hyphenation: vor-schrei-ben
+    · hyphenation: neu-gie-rig
+  Hausaufgabe
+      1
+      2
+      3
+    ✓ 4+
+    · hyphenation: Haus-auf-ga-be
 ── synonym_flash (4)
-  sprechen
-      streichen
-    ✓ sagen
-      kämmen
-      Schild
+  Punkt
+    ✓ Teil
+      Kunst
+      Tulpe
+      Salz
     · grade: 3
-  Päckchen
-    ✓ Box
-      Deutschland
-      Tiger
-      Pilz
+  Ereignis
+      Quadrat
+      Punkt
+      Saal
+    ✓ Geschehen
     · grade: 3
-  glücklich
-      kalt
-      herzlich
-      wirklich
-    ✓ froh
+  blond
+      rund
+      zornig
+    ✓ golden
+      scharf
     · grade: 3
-  Lärm
-      Sprache
-      Strumpf
-    ✓ Krach
-      Orkan
+  Höhle
+      Salz
+      Quadrat
+    ✓ Bau
+      Biber
     · grade: 3
 ── translation_flash (4)
   das Päckchen
@@ -374,60 +380,60 @@ Ich schlage vor, dass wir zuerst die Grundlagen besprechen.
       ZUSAMMEN
     · form: schlage vor
 ── word_builder (4)
-  Build "Rad" from its letters
-    ✓ Rad
-    · grade: 3  gloss: rundes Bauteil, das um seine Achse rotiert
-  Build "Verein" from its letters
-    ✓ Verein
-    · grade: 3  gloss: Organisation von Menschen mit einem gemeinsamen Ziel oder gemeinsamen Interessen
-  Build "küssen" from its letters
-    ✓ küssen
-    · grade: 3  gloss: mit den Lippen eine andere Person oder einen Gegenstand berühren, zum Zeichen der Liebe oder Verehrung; einen Kuss geben
-  Build "Glocke" from its letters
-    ✓ Glocke
-    · grade: 3  gloss: nach unten hin geöffneter kelchartiger Metallgegenstand, der durch Schlagen mit einem Klöppel zum Klingen gebracht wird
+  Build "Film" from its letters
+    ✓ Film
+    · grade: 3  gloss: dünne Schicht von etwas
+  Build "Impfung" from its letters
+    ✓ Impfung
+    · grade: 3
+  Build "Wand" from its letters
+    ✓ Wand
+    · grade: 3  gloss: Seite oder Fläche, die irgendeinen Raum oder Hohlkörper begrenzt
+  Build "Strom" from its letters
+    ✓ Strom
+    · grade: 3  gloss: allgemein eine Menge (Informationen, Menschen, Teilchen, Wasser), die sich fließend in eine bestimmte Richtung bewegt
 ── word_class_flash (4)
-  der Leoplaner
+  Englisch
     ✓ Nomen
       Verb
       Adjektiv
-  früh
+  fröhlich
       Nomen
       Verb
     ✓ Adjektiv
-  sprechen
+  bremsen
       Nomen
     ✓ Verb
       Adjektiv
-  das Gebäude
+  der Sattel
     ✓ Nomen
       Verb
       Adjektiv
 ── word_find (4)
-  Find "Rad" in the grid
-    ✓ Rad
-    · grade: 3  gloss: rundes Bauteil, das um seine Achse rotiert
-  Find "Verein" in the grid
-    ✓ Verein
-    · grade: 3  gloss: Organisation von Menschen mit einem gemeinsamen Ziel oder gemeinsamen Interessen
-  Find "küssen" in the grid
-    ✓ küssen
-    · grade: 3  gloss: mit den Lippen eine andere Person oder einen Gegenstand berühren, zum Zeichen der Liebe oder Verehrung; einen Kuss geben
-  Find "Glocke" in the grid
-    ✓ Glocke
-    · grade: 3  gloss: nach unten hin geöffneter kelchartiger Metallgegenstand, der durch Schlagen mit einem Klöppel zum Klingen gebracht wird
+  Find "Film" in the grid
+    ✓ Film
+    · grade: 3  gloss: dünne Schicht von etwas
+  Find "Impfung" in the grid
+    ✓ Impfung
+    · grade: 3
+  Find "Wand" in the grid
+    ✓ Wand
+    · grade: 3  gloss: Seite oder Fläche, die irgendeinen Raum oder Hohlkörper begrenzt
+  Find "Strom" in the grid
+    ✓ Strom
+    · grade: 3  gloss: allgemein eine Menge (Informationen, Menschen, Teilchen, Wasser), die sich fließend in eine bestimmte Richtung bewegt
 ── word_memory (4)
-  Match the pair for "Rad"
-    ✓ rundes Bauteil, das um seine Achse rotiert
+  Match the pair for "Film"
+    ✓ dünne Schicht von etwas
     · grade: 3  partner: definition
-  Match the pair for "Verein"
-    ✓ Organisation von Menschen mit einem gemeinsamen Ziel…
+  Match the pair for "Impfung"
+    ✓ Impfung
+    · grade: 3  partner: same word, other font
+  Match the pair for "Wand"
+    ✓ Seite oder Fläche, die irgendeinen Raum oder Hohlkör…
     · grade: 3  partner: definition
-  Match the pair for "küssen"
-    ✓ mit den Lippen eine andere Person oder einen Gegenst…
-    · grade: 3  partner: definition
-  Match the pair for "Glocke"
-    ✓ nach unten hin geöffneter kelchartiger Metallgegenst…
+  Match the pair for "Strom"
+    ✓ allgemein eine Menge (Informationen, Menschen, Teilc…
     · grade: 3  partner: definition
 ── word_of_the_day (4)
   2026-01-01: die Million
@@ -443,44 +449,44 @@ Ich schlage vor, dass wir zuerst die Grundlagen besprechen.
     ✓ selbstgewählte, bewusste, schöpferische Handlung
     · grade: 4  cefr: —
 ── word_snake (4)
-  Trace "Rad"
-    ✓ Rad
-    · grade: 3  gloss: rundes Bauteil, das um seine Achse rotiert
-  Trace "Verein"
-    ✓ Verein
-    · grade: 3  gloss: Organisation von Menschen mit einem gemeinsamen Ziel oder gemeinsamen Interessen
-  Trace "küssen"
-    ✓ küssen
-    · grade: 3  gloss: mit den Lippen eine andere Person oder einen Gegenstand berühren, zum Zeichen der Liebe oder Verehrung; einen Kuss geben
-  Trace "Glocke"
-    ✓ Glocke
-    · grade: 3  gloss: nach unten hin geöffneter kelchartiger Metallgegenstand, der durch Schlagen mit einem Klöppel zum Klingen gebracht wird
+  Trace "Film"
+    ✓ Film
+    · grade: 3  gloss: dünne Schicht von etwas
+  Trace "Impfung"
+    ✓ Impfung
+    · grade: 3
+  Trace "Wand"
+    ✓ Wand
+    · grade: 3  gloss: Seite oder Fläche, die irgendeinen Raum oder Hohlkörper begrenzt
+  Trace "Strom"
+    ✓ Strom
+    · grade: 3  gloss: allgemein eine Menge (Informationen, Menschen, Teilchen, Wasser), die sich fließend in eine bestimmte Richtung bewegt
 ── word_sort (4)
-  Sort "Rad" into its word class
+  Sort "Film" into its word class
     ✓ Nomen
-    · grade: 3  gloss: rundes Bauteil, das um seine Achse rotiert
-  Sort "Verein" into its word class
+    · grade: 3  gloss: dünne Schicht von etwas
+  Sort "Impfung" into its word class
     ✓ Nomen
-    · grade: 3  gloss: Organisation von Menschen mit einem gemeinsamen Ziel oder gemeinsamen Interessen
-  Sort "küssen" into its word class
-    ✓ Verb
-    · grade: 3  gloss: mit den Lippen eine andere Person oder einen Gegenstand berühren, zum Zeichen der Liebe oder Verehrung; einen Kuss geben
-  Sort "Glocke" into its word class
+    · grade: 3
+  Sort "Wand" into its word class
     ✓ Nomen
-    · grade: 3  gloss: nach unten hin geöffneter kelchartiger Metallgegenstand, der durch Schlagen mit einem Klöppel zum Klingen gebracht wird
+    · grade: 3  gloss: Seite oder Fläche, die irgendeinen Raum oder Hohlkörper begrenzt
+  Sort "Strom" into its word class
+    ✓ Nomen
+    · grade: 3  gloss: allgemein eine Menge (Informationen, Menschen, Teilchen, Wasser), die sich fließend in eine bestimmte Richtung bewegt
 ── word_type_whirl (4)
-  Catch "das Rad" in the right bin
+  Catch "der Film" in the right bin
     ✓ Nomen
-    · grade: 3  gloss: rundes Bauteil, das um seine Achse rotiert
-  Catch "der Verein" in the right bin
+    · grade: 3  gloss: dünne Schicht von etwas
+  Catch "die Impfung" in the right bin
     ✓ Nomen
-    · grade: 3  gloss: Organisation von Menschen mit einem gemeinsamen Ziel oder gemeinsamen Interessen
-  Catch "küssen" in the right bin
-    ✓ Verb
-    · grade: 3  gloss: mit den Lippen eine andere Person oder einen Gegenstand berühren, zum Zeichen der Liebe oder Verehrung; einen Kuss geben
-  Catch "die Glocke" in the right bin
+    · grade: 3
+  Catch "die Wand" in the right bin
     ✓ Nomen
-    · grade: 3  gloss: nach unten hin geöffneter kelchartiger Metallgegenstand, der durch Schlagen mit einem Klöppel zum Klingen gebracht wird
+    · grade: 3  gloss: Seite oder Fläche, die irgendeinen Raum oder Hohlkörper begrenzt
+  Catch "der Strom" in the right bin
+    ✓ Nomen
+    · grade: 3  gloss: allgemein eine Menge (Informationen, Menschen, Teilchen, Wasser), die sich fließend in eine bestimmte Richtung bewegt
 ── wortbaumeister (4)
   Build the compound: Abend + essen
     ✓ Abendessen

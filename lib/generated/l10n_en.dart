@@ -2520,19 +2520,25 @@ class SEn extends S {
       'From vocabulary level 5, a language note appears after a correct answer.';
 
   @override
-  String get sentenceCompletionPrompt => 'Which word completes the sentence?';
+  String sentenceCompletionMeaningCue(String definition) {
+    return 'The missing word can mean: $definition';
+  }
+
+  @override
+  String get sentenceCompletionPrompt =>
+      'Which word matches the clue and completes the sentence?';
 
   @override
   String get sentenceCompletionOnboardingBody1 =>
-      'A sentence with a gap is shown — pick the word that fits.';
+      'Read the sentence with a gap and the clue about the meaning to look for.';
 
   @override
   String get sentenceCompletionOnboardingBody2 =>
-      'Only nouns, verbs, and adjectives are tested — they are uniquely identifiable in context.';
+      'Practise vocabulary in context. A word can have several meanings. Use both clues.';
 
   @override
   String get sentenceCompletionOnboardingBody3 =>
-      'A meaning hint appears after each correct answer.';
+      'After you choose, the sentence shows the intended word.';
 
   @override
   String get spellingSpotterPrompt => 'Which one is spelled correctly?';
