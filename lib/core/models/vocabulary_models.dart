@@ -22,6 +22,26 @@ int _parseInt(dynamic value, int defaultValue) {
 double _parseDouble(dynamic value, double defaultValue) {
   return _parseNum(value)?.toDouble() ?? defaultValue;
 }
+
+double? _parseErrorRate(dynamic value) {
+  final rate = _parseNum(value)?.toDouble();
+  return rate != null && rate.isFinite && rate >= 0 && rate <= 1 ? rate : null;
+}
+
+Map<String, dynamic> _legacySpellingEvidence(double? errorRate) =>
+    errorRate == null
+        ? const {
+            'status': 'unknown',
+            'source': null,
+            'reason': 'Compatibility default; no measured spelling evidence.',
+            'calibrated': false,
+          }
+        : {
+            'status': 'corpus-derived',
+            'source': 'LiTKey',
+            'errorRate': errorRate,
+            'calibrated': false,
+          };
 // ---------------------------------
 
 // -----------------------------------------------------------------------------
@@ -566,7 +586,12 @@ class GermanWord {
   final String? plural;
   final List<WordCategory> categories;
   final List<String> exampleSentences;
+
+  /// Compatibility enum. Its default zero is not evidence that a word is easy;
+  /// consult [spellingDifficultyEvidence] before interpreting the value.
   final SpellingDifficulty spellingDifficulty;
+  final String spellingDifficultySource;
+  final Map<String, dynamic> spellingDifficultyEvidence;
   final List<String>? commonMistakes;
   final String? audioPath;
 
@@ -652,10 +677,8 @@ class GermanWord {
     final all = <String>{};
     void take(Iterable<String> synonyms) {
       for (final synonym in synonyms) {
-        final clean = synonym
-            .replaceAll(RegExp(r'\s*\(.*?\)'), '')
-            .trim()
-            .toLowerCase();
+        final clean =
+            synonym.replaceAll(RegExp(r'\s*\(.*?\)'), '').trim().toLowerCase();
         if (clean.isNotEmpty) all.add(clean);
       }
     }
@@ -773,13 +796,57 @@ class GermanWord {
   }
 
   static const Set<String> _glossStopWords = {
-    'the', 'and', 'that', 'which', 'are', 'been', 'being', 'for', 'with',
-    'from', 'its', 'something', 'someone', 'any', 'each', 'one', 'two',
-    'who', 'whom', 'whose', 'not', 'other', 'others', 'such', 'this',
-    'these', 'those', 'used', 'use', 'using', 'especially', 'typically',
-    'usually', 'often', 'more', 'most', 'very', 'can', 'may', 'having',
-    'have', 'has', 'made', 'make', 'makes', 'also', 'into', 'out', 'off',
-    'over', 'under',
+    'the',
+    'and',
+    'that',
+    'which',
+    'are',
+    'been',
+    'being',
+    'for',
+    'with',
+    'from',
+    'its',
+    'something',
+    'someone',
+    'any',
+    'each',
+    'one',
+    'two',
+    'who',
+    'whom',
+    'whose',
+    'not',
+    'other',
+    'others',
+    'such',
+    'this',
+    'these',
+    'those',
+    'used',
+    'use',
+    'using',
+    'especially',
+    'typically',
+    'usually',
+    'often',
+    'more',
+    'most',
+    'very',
+    'can',
+    'may',
+    'having',
+    'have',
+    'has',
+    'made',
+    'make',
+    'makes',
+    'also',
+    'into',
+    'out',
+    'off',
+    'over',
+    'under',
   };
 
   /// WordNet's wording, but only where the entry has exactly one sense of its
@@ -840,9 +907,11 @@ class GermanWord {
   final Map<String, dynamic>? artikelDetailsNRW;
   final Map<String, dynamic>? morphematischesPrinzip;
 
-  // Computed difficulty estimate (1=easiest … 6=hardest).
-  // Derived from curriculum membership, CEFR level, and word frequency.
+  // App estimate (1–6), not an official source band or a calibrated learner
+  // score. The evidence records whether it was inherited or actually derived.
   final int? gradeLevelEstimate;
+  final String gradeLevelEstimateSource;
+  final Map<String, dynamic> gradeLevelEstimateEvidence;
 
   // CEFR level (A1, A2, B1, B2, C1, C2) from CEFR-J profile.
   final String? cefrLevel;
@@ -894,6 +963,8 @@ class GermanWord {
     required this.categories,
     required this.exampleSentences,
     required this.spellingDifficulty,
+    String? spellingDifficultySource,
+    Map<String, dynamic>? spellingDifficultyEvidence,
     this.commonMistakes,
     this.audioPath,
     ApiEnrichment? apiEnrichment,
@@ -906,6 +977,8 @@ class GermanWord {
     this.artikelDetailsNRW,
     this.morphematischesPrinzip,
     this.gradeLevelEstimate,
+    this.gradeLevelEstimateSource = 'unknown',
+    this.gradeLevelEstimateEvidence = const {'status': 'unknown'},
     this.cefrLevel,
     required this.examples,
     required this.hyphenation,
@@ -923,7 +996,13 @@ class GermanWord {
     required this.coordinateTerms,
     this.isProperNoun = false,
     this.glossIsAboveItsReader = false,
-  }) : _apiEnrichment = apiEnrichment;
+  })  : _apiEnrichment = apiEnrichment,
+        spellingDifficultySource = spellingDifficultySource ??
+            (_parseErrorRate(litekeyErrorRate) == null ? 'unknown' : 'litkey'),
+        spellingDifficultyEvidence = Map.unmodifiable(
+          spellingDifficultyEvidence ??
+              _legacySpellingEvidence(_parseErrorRate(litekeyErrorRate)),
+        );
 
   factory GermanWord.fromJson(Map<String, dynamic> json) {
     final apiData = json['apiEnrichment'] != null
@@ -1037,6 +1116,19 @@ class GermanWord {
     final rawWordType = (json['wordType'] as String? ?? '').toLowerCase();
     final isProperNoun =
         rawWordType == 'proper_noun' || rawWordType == 'propernoun';
+    final difficultyEvidence =
+        json['spellingDifficultyEvidence'] as Map<String, dynamic>?;
+    final errorRate = _parseErrorRate(json['litkey_error_rate']) ??
+        (difficultyEvidence?['status'] == 'corpus-derived' &&
+                difficultyEvidence?['source'] == 'LiTKey'
+            ? _parseErrorRate(difficultyEvidence?['errorRate'])
+            : null);
+    final gradeEvidence =
+        json['gradeLevelEstimateEvidence'] as Map<String, dynamic>?;
+    final gradeSource = json['gradeLevelEstimateSource'] as String?;
+    // Historical pipeline code called every copied grade "nrw". Keep that
+    // original label as provenance without presenting it as verified origin.
+    final unverifiedNrw = gradeSource == 'nrw' && gradeEvidence == null;
 
     return GermanWord(
       id: json['id']?.toString() ?? '',
@@ -1081,6 +1173,8 @@ class GermanWord {
           [],
       exampleSentences: exampleStrings,
       spellingDifficulty: diff,
+      spellingDifficultySource: json['spellingDifficultySource'] as String?,
+      spellingDifficultyEvidence: difficultyEvidence,
       commonMistakes: json['commonMistakes'] != null
           ? List<String>.from(json['commonMistakes'])
           : null,
@@ -1108,16 +1202,21 @@ class GermanWord {
 
       frequencyData: json['frequencyData'] as Map<String, dynamic>?,
       averageRank: _parseDouble(json['averageRank'], 0.0), // SAFE PARSE
-      litekeyErrorRate: () {
-        final v = _parseDouble(json['litkey_error_rate'], -1.0);
-        return v < 0 ? null : v;
-      }(),
+      litekeyErrorRate: errorRate,
       artikelDetailsNRW: json['artikelDetailsNRW'] as Map<String, dynamic>?,
       morphematischesPrinzip:
           json['morphematisches Prinzip'] as Map<String, dynamic>?,
       gradeLevelEstimate: json['gradeLevelEstimate'] != null
           ? _parseInt(json['gradeLevelEstimate'], 0)
           : null,
+      gradeLevelEstimateSource:
+          unverifiedNrw ? 'unknown' : gradeSource ?? 'unknown',
+      gradeLevelEstimateEvidence: gradeEvidence ??
+          {
+            'status': 'unknown',
+            if (gradeSource != null) 'legacySource': gradeSource,
+            'reason': 'Legacy estimate has no source evidence.',
+          },
       cefrLevel: json['cefr_level'] as String?,
     );
   }
@@ -1141,6 +1240,75 @@ class GermanWord {
     }
     return word;
   }
+
+  /// Copies only curriculum metadata, retaining the pack identity, feature
+  /// state and every hydrated field. A JSON round trip would discard fields
+  /// that the custom-word persistence format deliberately does not serialize.
+  GermanWord withCurriculumSources({
+    required List<String> sources,
+    required bool isGrundwortschatzBW,
+    required int features,
+  }) =>
+      GermanWord(
+        id: id,
+        word: word,
+        article: article,
+        wordType: wordType,
+        gradeLevel: gradeLevel,
+        lemma: lemma,
+        forms: forms,
+        url: url,
+        sources: sources,
+        isGrundwortschatzBW: isGrundwortschatzBW,
+        genus: genus,
+        nurImPlural: nurImPlural,
+        inflectionData: inflectionData,
+        ipaPhoneme: ipaPhoneme,
+        sampaPhoneme: sampaPhoneme,
+        graphematicVariants: graphematicVariants,
+        caseSpacy: caseSpacy,
+        numberSpacy: numberSpacy,
+        degreeSpacy: degreeSpacy,
+        pronTypeSpacy: pronTypeSpacy,
+        verbFormSpacy: verbFormSpacy,
+        plural: plural,
+        categories: categories,
+        exampleSentences: exampleSentences,
+        spellingDifficulty: spellingDifficulty,
+        spellingDifficultySource: spellingDifficultySource,
+        spellingDifficultyEvidence: spellingDifficultyEvidence,
+        commonMistakes: commonMistakes,
+        audioPath: audioPath,
+        apiEnrichment: _apiEnrichment,
+        rowId: rowId,
+        features: features,
+        isHydrated: isHydrated,
+        frequencyData: frequencyData,
+        averageRank: averageRank,
+        litekeyErrorRate: litekeyErrorRate,
+        artikelDetailsNRW: artikelDetailsNRW,
+        morphematischesPrinzip: morphematischesPrinzip,
+        gradeLevelEstimate: gradeLevelEstimate,
+        gradeLevelEstimateSource: gradeLevelEstimateSource,
+        gradeLevelEstimateEvidence: gradeLevelEstimateEvidence,
+        cefrLevel: cefrLevel,
+        examples: examples,
+        hyphenation: hyphenation,
+        wiktionaryInflections: wiktionaryInflections,
+        translations: translations,
+        derivedTerms: derivedTerms,
+        relatedTerms: relatedTerms,
+        expressions: expressions,
+        proverbs: proverbs,
+        entryNotes: entryNotes,
+        hypernyms: hypernyms,
+        hyponyms: hyponyms,
+        holonyms: holonyms,
+        meronyms: meronyms,
+        coordinateTerms: coordinateTerms,
+        isProperNoun: isProperNoun,
+        glossIsAboveItsReader: glossIsAboveItsReader,
+      );
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -1170,15 +1338,22 @@ class GermanWord {
             categories.map((c) => c.toString().split('.').last).toList(),
         'exampleSentences': exampleSentences, // FIXED: Use class field
         'spellingDifficulty': spellingDifficulty.index,
+        'spellingDifficultySource': spellingDifficultySource,
+        'spellingDifficultyEvidence': spellingDifficultyEvidence,
         'commonMistakes': commonMistakes,
         'audioPath': audioPath,
         'frequencyData': frequencyData,
         'averageRank': averageRank,
+        if (litekeyErrorRate != null) 'litkey_error_rate': litekeyErrorRate,
         'artikelDetailsNRW': artikelDetailsNRW,
         'morphematisches Prinzip': morphematischesPrinzip,
         'hyphenation': hyphenation,
         if (gradeLevelEstimate != null)
           'gradeLevelEstimate': gradeLevelEstimate,
+        if (gradeLevelEstimate != null)
+          'gradeLevelEstimateSource': gradeLevelEstimateSource,
+        if (gradeLevelEstimate != null)
+          'gradeLevelEstimateEvidence': gradeLevelEstimateEvidence,
         if (cefrLevel != null) 'cefr_level': cefrLevel,
       };
 }

@@ -19,10 +19,14 @@ metadata_json:
 
 Additionally, spellingDifficulty (enum index 0–3) is recomputed from
 litkey_error_rate when LiTKey data is available:
-  0.00–0.25 → easy   (0)
-  0.25–0.50 → medium (1)
-  0.50–0.75 → hard   (2)
-  0.75–1.00 → expert (3)
+  below 0.25          → easy   (0)
+  0.25 to below 0.50 → medium (1)
+  0.50 to below 0.75 → hard   (2)
+  0.75 through 1.00  → expert (3)
+
+spellingDifficultySource/Evidence identify this as corpus-derived evidence,
+not a compatibility default or calibrated learner mastery. Actual token
+counts already computed by this stage are retained for future builds.
 
 LiTKey error-type columns (err_* prefix stripped in output):
   graph_comb   — grapheme combinations (ch/sch/ng/ck)
@@ -67,6 +71,7 @@ import sqlite3
 import sys
 from collections import defaultdict
 from pathlib import Path
+from spelling_difficulty_evidence import litkey_spelling_difficulty
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[1]
@@ -126,6 +131,26 @@ def error_rate_to_difficulty(rate: float) -> int:
     if rate < 0.75:
         return 2  # hard
     return 3      # expert
+
+
+def profile_metadata(metadata: dict, profile: dict) -> dict:
+    """Preserve the existing score policy and label the observed evidence."""
+    result = dict(metadata)
+    for key in ("litkey_error_rate", "litkey_error_profile", "litkey_grade_first_correct",
+                "litkey_total_tokens", "litkey_error_tokens"):
+        if key in profile:
+            result[key] = profile[key]
+    for key in ("litkey_word_features", "litkey_orth_neighbourhood"):
+        if profile.get(key):
+            result[key] = profile[key]
+    result.update(litkey_spelling_difficulty(
+        profile["litkey_error_rate"],
+        error_rate_to_difficulty(profile["litkey_error_rate"]),
+        sample_size=profile.get("litkey_total_tokens"),
+        error_tokens=profile.get("litkey_error_tokens"),
+        aggregation="target",
+    ))
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -331,18 +356,9 @@ def main() -> int:
         except (json.JSONDecodeError, TypeError):
             meta = {}
 
-        meta["litkey_error_rate"] = prof["litkey_error_rate"]
-        meta["litkey_error_profile"] = prof["litkey_error_profile"]
-        meta["litkey_grade_first_correct"] = prof["litkey_grade_first_correct"]
-        if prof["litkey_word_features"]:
-            meta["litkey_word_features"] = prof["litkey_word_features"]
-        if prof["litkey_orth_neighbourhood"]:
-            meta["litkey_orth_neighbourhood"] = prof["litkey_orth_neighbourhood"]
-
-        new_diff = error_rate_to_difficulty(prof["litkey_error_rate"])
         old_diff = meta.get("spellingDifficulty", 0)
-        if old_diff != new_diff:
-            meta["spellingDifficulty"] = new_diff
+        meta = profile_metadata(meta, prof)
+        if old_diff != meta["spellingDifficulty"]:
             difficulty_changed += 1
 
         con.execute(

@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:shared_preferences/shared_preferences.dart';
 
 // --- APP IMPORTS ---
@@ -17,6 +18,7 @@ import '../models/vocabulary_models.dart';
 import '../models/word_features.dart';
 import 'sri_service.dart';
 import 'dictionary_database_service.dart';
+import 'bw_vocabulary_overlay.dart';
 
 /// Thrown by [VocabularyService.initialize] when the requested learning
 /// language needs a downloadable language pack that is not installed on this
@@ -57,6 +59,9 @@ class VocabularyService with ChangeNotifier {
   /// `firstWhere` over the whole catalogue per item — a linear scan of tens of
   /// thousands of words, tens of times per round.
   Map<String, GermanWord>? _byWrittenForm;
+  Map<String, GermanWord>? _byExactWrittenForm;
+  Map<String, List<GermanWord>>? _byWrittenVariants;
+  BwVocabularyOverlay? _bwOverlay;
 
   // Database Service Instance
   final DictionaryDatabaseService _dbService = DictionaryDatabaseService();
@@ -131,6 +136,9 @@ class VocabularyService with ChangeNotifier {
       _vocabularySets.clear();
       _allSourcesCache = null;
       _byWrittenForm = null;
+      _byExactWrittenForm = null;
+      _byWrittenVariants = null;
+      _bwOverlay = null;
       _filteredCache.clear();
       _isInitialized = false;
     }
@@ -314,38 +322,68 @@ class VocabularyService with ChangeNotifier {
     }
   }
 
-  /// Looks a word up by its written form or lemma, case-insensitively.
+  /// Looks a word up by its exact written form or lemma first, then falls back
+  /// to a case-insensitive match. Exact case preserves Arm/arm and Paar/paar.
   ///
   /// Returns the light catalogue entry: pass it through [hydrateOne] before
   /// showing anything that lives in the enrichment.
   GermanWord? findByWrittenForm(String text) {
-    final key = text.trim().toLowerCase();
+    final key = BwVocabularyOverlay.normalize(text);
     if (key.isEmpty) return null;
-    final index = _byWrittenForm ??= () {
-      final built = <String, GermanWord>{};
+    if (_byWrittenForm == null) {
+      final folded = <String, GermanWord>{};
+      final exact = <String, GermanWord>{};
+      final variants = <String, List<GermanWord>>{};
       // Lemmas first, then spellings: a spelling always wins a collision with
       // some other word's lemma, because it is what the learner saw.
       for (final word in _vocabulary.values) {
-        built[word.lemma.toLowerCase()] = word;
+        final lemma = BwVocabularyOverlay.normalize(word.lemma);
+        exact.putIfAbsent(lemma, () => word);
+        folded.putIfAbsent(lemma.toLowerCase(), () => word);
       }
+      final seenExact = <String>{};
+      final seenFolded = <String>{};
       for (final word in _vocabulary.values) {
-        built[word.word.toLowerCase()] = word;
+        final written = BwVocabularyOverlay.normalize(word.word);
+        variants.putIfAbsent(written.toLowerCase(), () => []).add(word);
+        if (seenExact.add(written)) exact[written] = word;
+        if (seenFolded.add(written.toLowerCase())) {
+          folded[written.toLowerCase()] = word;
+        }
       }
-      return built;
-    }();
-    return index[key];
+      _byWrittenForm = folded;
+      _byExactWrittenForm = exact;
+      _byWrittenVariants = variants;
+    }
+    return _byExactWrittenForm?[key] ?? _byWrittenForm![key.toLowerCase()];
   }
 
   /// Resolves old display-name records without changing their saved ids.
   /// Try the complete spelling first so real phrases keep their identity.
   GermanWord? findByReviewItem(SriLanguageData item) {
+    final savedId = item.metadata['wordId'];
+    if (savedId is String && _vocabulary.containsKey(savedId)) {
+      return _vocabulary[savedId];
+    }
     final written = item.identity.baseWord;
     final exact = findByWrittenForm(written);
+    final folded = BwVocabularyOverlay.normalize(written).toLowerCase();
+    final candidates = _byWrittenVariants?[folded] ?? const <GermanWord>[];
+    final savedType = item.metadata['wordType']?.toString().split('.').last;
+    if (savedType != null) {
+      final matching =
+          candidates.where((word) => word.wordType.name == savedType);
+      if (matching.length == 1) return matching.single;
+    }
+    // Historic ids lowercased the word and did not record its lexical id.
+    // Do not reinterpret old Arm practice as the newly restored adjective arm.
+    if (item.metadata['baseWord'] is! String && candidates.length > 1)
+      return null;
     if (exact != null) return exact;
     if (learningLanguage != 'de') return null;
-    final article = RegExp(r'^(der|die|das|ein|eine)\s+(.+)$',
-            caseSensitive: false)
-        .firstMatch(written.trim());
+    final article =
+        RegExp(r'^(der|die|das|ein|eine)\s+(.+)$', caseSensitive: false)
+            .firstMatch(written.trim());
     if (article == null) return null;
     final noun = findByWrittenForm(article.group(2)!);
     return noun?.wordType == GermanWordType.substantiv ? noun : null;
@@ -354,10 +392,27 @@ class VocabularyService with ChangeNotifier {
   /// Loads all words from SQLite into memory for game logic performance.
   /// Errors propagate to [initialize] so they can be surfaced to the user.
   Future<void> _loadVocabularyFromDB() async {
-    final words = await _dbService.getAllWords();
+    var words = await _dbService.getAllWords();
     if (words.isNotEmpty) {
+      _bwOverlay = null;
+      if (_learningLanguage == 'de') {
+        final assets = await Future.wait([
+          rootBundle.loadString(BwVocabularyOverlay.membershipAsset),
+          rootBundle.loadString(BwVocabularyOverlay.lexicalAsset),
+        ]);
+        final overlay = BwVocabularyOverlay.fromJson(
+          Map<String, dynamic>.from(jsonDecode(assets[0]) as Map),
+          Map<String, dynamic>.from(jsonDecode(assets[1]) as Map),
+        );
+        words = overlay.applyCatalogue(words,
+            packSha256: _packs[_learningLanguage]?.expectedDecompressedSha256);
+        _bwOverlay = overlay;
+      }
       _vocabulary = {for (var w in words) w.id: w};
       _byWrittenForm = null;
+      _byExactWrittenForm = null;
+      _byWrittenVariants = null;
+      _allSourcesCache = null;
       _filteredCache.clear();
       _log('Loaded ${_vocabulary.length} words from SQLite DB');
     } else {
@@ -441,16 +496,32 @@ class VocabularyService with ChangeNotifier {
 
   /// The same words with their enrichment decoded. Words that are already
   /// hydrated, or that came from outside a pack, are returned unchanged.
-  Future<List<GermanWord>> hydrate(Iterable<GermanWord> words) =>
-      _dbService.hydrate(words);
+  Future<List<GermanWord>> hydrate(Iterable<GermanWord> words) async {
+    final overlay = _bwOverlay;
+    if (overlay == null) return _dbService.hydrate(words);
+    final prepared = words.map(overlay.hydrateOrApply).toList();
+    final hydrated = await _dbService.hydrate(prepared);
+    return hydrated.map(overlay.hydrateOrApply).toList();
+  }
 
   /// [hydrate] for a single word — the word-of-the-day card, a detail sheet.
-  Future<GermanWord> hydrateOne(GermanWord word) => _dbService.hydrateOne(word);
+  Future<GermanWord> hydrateOne(GermanWord word) async =>
+      (await hydrate([word])).first;
 
   /// FAST ASYNC SEARCH: Uses SQLite FTS5 index.
   Future<List<GermanWord>> searchWordsAsync(String query) async {
     if (query.trim().isEmpty) return [];
-    return await _dbService.searchWordsFTS(query);
+    final found = await _dbService.searchWordsFTS(query);
+    final overlay = _bwOverlay;
+    if (overlay == null) return found;
+    final result = {
+      for (final word in found) word.id: overlay.hydrateOrApply(word)
+    };
+    final written = BwVocabularyOverlay.normalize(query).toLowerCase();
+    for (final word in overlay.authoredWords) {
+      if (word.word.toLowerCase().contains(written)) result[word.id] = word;
+    }
+    return result.values.toList();
   }
 
   /// SYNCHRONOUS SEARCH: Filters the in-memory map.
@@ -704,7 +775,8 @@ class VocabularyService with ChangeNotifier {
     }
     final filteredWords = _applyVocabularyFilters(words, settingsProvider);
     final selected = filteredWords.take(limit).toList();
-    sriService.markItemsReturned(selected.map((word) => itemByWordId[word.id]!));
+    sriService
+        .markItemsReturned(selected.map((word) => itemByWordId[word.id]!));
     return selected;
   }
 

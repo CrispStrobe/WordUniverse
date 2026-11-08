@@ -1,0 +1,830 @@
+{
+  "schemaVersion": 1,
+  "id": "bw-lexical-overlay-v1",
+  "version": 1,
+  "language": "de",
+  "appliesToPackSha256": "b050d7d25f1a0ed373ae2b9f8d079a4c459c9536f3c2081fbc3cc9017e22f8f3",
+  "membershipAsset": "assets/data/bw_membership_v1.json",
+  "provenance": {
+    "checkedAt": "2026-11-08",
+    "membershipBasis": "Official ZSL pupil lists, documented separately in bw_membership_v1.json.",
+    "lexicalContent": "Definitions and example sentences in this file are newly authored for WordUniverse. They are not quotations from, or endorsed lexical definitions of, ZSL.",
+    "reviewStatus": "project-reviewed; not independently teacher-reviewed",
+    "limitations": [
+      "Adds only verified missing spellings or senses and five targeted corrections to the pinned pack.",
+      "Source patterns do not claim coverage of every inflected form.",
+      "Sense distinction for sein is explicit: BW1 verb, BW3 possessive pronoun."
+    ]
+  },
+  "senseRules": [
+    {
+      "word": "sein",
+      "sourceBand": "BW1",
+      "allowedWordTypes": [
+        "verb"
+      ]
+    },
+    {
+      "word": "sein",
+      "sourceBand": "BW3",
+      "allowedWordTypes": [
+        "pronomen"
+      ]
+    }
+  ],
+  "overrides": [
+    {
+      "target": {
+        "id": "word_00692",
+        "word": "August"
+      },
+      "reason": "The pinned row is typed as a given name; the official BW1 list names the month with article der.",
+      "record": {
+        "id": "word_00692",
+        "word": "August",
+        "lemma": "August",
+        "wordType": "noun",
+        "gradeLevel": 1,
+        "sources": [
+          "PROJECT_BW_LEXICAL_V1"
+        ],
+        "isGrundwortschatzBW": true,
+        "nurImPlural": false,
+        "spellingDifficulty": 0,
+        "apiEnrichment": {
+          "enrichment_status": "project-authored",
+          "primary_lemma": "August",
+          "primary_pos": "noun",
+          "definitions": [
+            "Der achte Monat des Jahres."
+          ],
+          "examples": [
+            {
+              "text": "Der August kommt nach dem Juli.",
+              "source": "WordUniverse BW lexical overlay, project-authored"
+            }
+          ],
+          "grade_examples": {
+            "1": [
+              "Der August kommt nach dem Juli."
+            ]
+          }
+        },
+        "article": "der",
+        "spellingDifficultySource": "unknown",
+        "spellingDifficultyEvidence": {
+          "status": "unknown",
+          "source": null,
+          "reason": "Compatibility default; no measured spelling evidence for this authored sense.",
+          "calibrated": false
+        }
+      }
+    },
+    {
+      "target": {
+        "id": "word_03407",
+        "word": "Gabel"
+      },
+      "reason": "The pinned row is typed as a surname; the official BW1 list names the cutlery noun with article die.",
+      "record": {
+        "id": "word_03407",
+        "word": "Gabel",
+        "lemma": "Gabel",
+        "wordType": "noun",
+        "gradeLevel": 1,
+        "sources": [
+          "PROJECT_BW_LEXICAL_V1"
+        ],
+        "isGrundwortschatzBW": true,
+        "nurImPlural": false,
+        "spellingDifficulty": 0,
+        "apiEnrichment": {
+          "enrichment_status": "project-authored",
+          "primary_lemma": "Gabel",
+          "primary_pos": "noun",
+          "definitions": [
+            "Ein Besteckteil mit Zinken, mit dem man Essen aufspießt."
+          ],
+          "examples": [
+            {
+              "text": "Ich esse die Nudeln mit einer Gabel.",
+              "source": "WordUniverse BW lexical overlay, project-authored"
+            }
+          ],
+          "grade_examples": {
+            "1": [
+              "Ich esse die Nudeln mit einer Gabel."
+            ]
+          }
+        },
+        "article": "die",
+        "plural": "Gabeln",
+        "spellingDifficultySource": "unknown",
+        "spellingDifficultyEvidence": {
+          "status": "unknown",
+          "source": null,
+          "reason": "Compatibility default; no measured spelling evidence for this authored sense.",
+          "calibrated": false
+        }
+      }
+    },
+    {
+      "target": {
+        "id": "word_04368",
+        "word": "Herr"
+      },
+      "reason": "The pinned row is typed as a surname; the official BW3 list names the ordinary noun with article der.",
+      "record": {
+        "id": "word_04368",
+        "word": "Herr",
+        "lemma": "Herr",
+        "wordType": "noun",
+        "gradeLevel": 3,
+        "sources": [
+          "PROJECT_BW_LEXICAL_V1"
+        ],
+        "isGrundwortschatzBW": true,
+        "nurImPlural": false,
+        "spellingDifficulty": 0,
+        "apiEnrichment": {
+          "enrichment_status": "project-authored",
+          "primary_lemma": "Herr",
+          "primary_pos": "noun",
+          "definitions": [
+            "Eine höfliche Bezeichnung oder Anrede für einen erwachsenen Mann."
+          ],
+          "examples": [
+            {
+              "text": "Der Herr trägt einen blauen Mantel.",
+              "source": "WordUniverse BW lexical overlay, project-authored"
+            }
+          ],
+          "grade_examples": {
+            "3": [
+              "Der Herr trägt einen blauen Mantel."
+            ]
+          }
+        },
+        "article": "der",
+        "plural": "Herren",
+        "spellingDifficultySource": "unknown",
+        "spellingDifficultyEvidence": {
+          "status": "unknown",
+          "source": null,
+          "reason": "Compatibility default; no measured spelling evidence for this authored sense.",
+          "calibrated": false
+        }
+      }
+    },
+    {
+      "target": {
+        "id": "word_05837",
+        "word": "Luchs"
+      },
+      "reason": "The pinned first gloss incorrectly parses Luchs as an inflection of Luch.",
+      "record": {
+        "id": "word_05837",
+        "word": "Luchs",
+        "lemma": "Luchs",
+        "wordType": "noun",
+        "gradeLevel": 1,
+        "sources": [
+          "PROJECT_BW_LEXICAL_V1"
+        ],
+        "isGrundwortschatzBW": true,
+        "nurImPlural": false,
+        "spellingDifficulty": 0,
+        "apiEnrichment": {
+          "enrichment_status": "project-authored",
+          "primary_lemma": "Luchs",
+          "primary_pos": "noun",
+          "definitions": [
+            "Eine wilde Katze mit Pinselohren und kurzem Schwanz."
+          ],
+          "examples": [
+            {
+              "text": "Der Luchs schleicht leise durch den Wald.",
+              "source": "WordUniverse BW lexical overlay, project-authored"
+            }
+          ],
+          "grade_examples": {
+            "1": [
+              "Der Luchs schleicht leise durch den Wald."
+            ]
+          }
+        },
+        "article": "der",
+        "plural": "Luchse",
+        "spellingDifficultySource": "unknown",
+        "spellingDifficultyEvidence": {
+          "status": "unknown",
+          "source": null,
+          "reason": "Compatibility default; no measured spelling evidence for this authored sense.",
+          "calibrated": false
+        }
+      }
+    },
+    {
+      "target": {
+        "id": "word_05944",
+        "word": "Mandarine"
+      },
+      "reason": "The pinned row incorrectly gives the lemma Mandarin and an inflection gloss instead of the fruit.",
+      "record": {
+        "id": "word_05944",
+        "word": "Mandarine",
+        "lemma": "Mandarine",
+        "wordType": "noun",
+        "gradeLevel": 3,
+        "sources": [
+          "PROJECT_BW_LEXICAL_V1"
+        ],
+        "isGrundwortschatzBW": true,
+        "nurImPlural": false,
+        "spellingDifficulty": 0,
+        "apiEnrichment": {
+          "enrichment_status": "project-authored",
+          "primary_lemma": "Mandarine",
+          "primary_pos": "noun",
+          "definitions": [
+            "Eine kleine orangefarbene Zitrusfrucht, die sich leicht schälen lässt."
+          ],
+          "examples": [
+            {
+              "text": "Ich schäle eine Mandarine für die Pause.",
+              "source": "WordUniverse BW lexical overlay, project-authored"
+            }
+          ],
+          "grade_examples": {
+            "3": [
+              "Ich schäle eine Mandarine für die Pause."
+            ]
+          }
+        },
+        "article": "die",
+        "plural": "Mandarinen",
+        "spellingDifficultySource": "unknown",
+        "spellingDifficultyEvidence": {
+          "status": "unknown",
+          "source": null,
+          "reason": "Compatibility default; no measured spelling evidence for this authored sense.",
+          "calibrated": false
+        }
+      }
+    }
+  ],
+  "supplements": [
+    {
+      "id": "bw_lexical_v1_arm_adj",
+      "word": "arm",
+      "lemma": "arm",
+      "wordType": "adjective",
+      "gradeLevel": 1,
+      "sources": [
+        "PROJECT_BW_LEXICAL_V1"
+      ],
+      "isGrundwortschatzBW": true,
+      "nurImPlural": false,
+      "spellingDifficulty": 0,
+      "apiEnrichment": {
+        "enrichment_status": "project-authored",
+        "primary_lemma": "arm",
+        "primary_pos": "adjective",
+        "definitions": [
+          "Wenig Geld und nur wenige Dinge zum Leben haben."
+        ],
+        "examples": [
+          {
+            "text": "Die Familie ist arm.",
+            "source": "WordUniverse BW lexical overlay, project-authored"
+          }
+        ],
+        "grade_examples": {
+          "1": [
+            "Die Familie ist arm."
+          ]
+        }
+      },
+      "spellingDifficultySource": "unknown",
+      "spellingDifficultyEvidence": {
+        "status": "unknown",
+        "source": null,
+        "reason": "Compatibility default; no measured spelling evidence for this authored sense.",
+        "calibrated": false
+      }
+    },
+    {
+      "id": "bw_lexical_v1_essen_verb",
+      "word": "essen",
+      "lemma": "essen",
+      "wordType": "verb",
+      "gradeLevel": 1,
+      "sources": [
+        "PROJECT_BW_LEXICAL_V1"
+      ],
+      "isGrundwortschatzBW": true,
+      "nurImPlural": false,
+      "spellingDifficulty": 0,
+      "apiEnrichment": {
+        "enrichment_status": "project-authored",
+        "primary_lemma": "essen",
+        "primary_pos": "verb",
+        "definitions": [
+          "Nahrung zu sich nehmen und hinunterschlucken."
+        ],
+        "examples": [
+          {
+            "text": "Wir essen heute eine Suppe.",
+            "source": "WordUniverse BW lexical overlay, project-authored"
+          }
+        ],
+        "grade_examples": {
+          "1": [
+            "Wir essen heute eine Suppe."
+          ]
+        }
+      },
+      "spellingDifficultySource": "unknown",
+      "spellingDifficultyEvidence": {
+        "status": "unknown",
+        "source": null,
+        "reason": "Compatibility default; no measured spelling evidence for this authored sense.",
+        "calibrated": false
+      }
+    },
+    {
+      "id": "bw_lexical_v1_leben_verb",
+      "word": "leben",
+      "lemma": "leben",
+      "wordType": "verb",
+      "gradeLevel": 1,
+      "sources": [
+        "PROJECT_BW_LEXICAL_V1"
+      ],
+      "isGrundwortschatzBW": true,
+      "nurImPlural": false,
+      "spellingDifficulty": 0,
+      "apiEnrichment": {
+        "enrichment_status": "project-authored",
+        "primary_lemma": "leben",
+        "primary_pos": "verb",
+        "definitions": [
+          "Am Leben sein und nicht tot sein."
+        ],
+        "examples": [
+          {
+            "text": "Viele Tiere leben im Wald.",
+            "source": "WordUniverse BW lexical overlay, project-authored"
+          }
+        ],
+        "grade_examples": {
+          "1": [
+            "Viele Tiere leben im Wald."
+          ]
+        }
+      },
+      "spellingDifficultySource": "unknown",
+      "spellingDifficultyEvidence": {
+        "status": "unknown",
+        "source": null,
+        "reason": "Compatibility default; no measured spelling evidence for this authored sense.",
+        "calibrated": false
+      }
+    },
+    {
+      "id": "bw_lexical_v1_morgen_adv",
+      "word": "morgen",
+      "lemma": "morgen",
+      "wordType": "adverb",
+      "gradeLevel": 1,
+      "sources": [
+        "PROJECT_BW_LEXICAL_V1"
+      ],
+      "isGrundwortschatzBW": true,
+      "nurImPlural": false,
+      "spellingDifficulty": 0,
+      "apiEnrichment": {
+        "enrichment_status": "project-authored",
+        "primary_lemma": "morgen",
+        "primary_pos": "adverb",
+        "definitions": [
+          "Am Tag nach heute."
+        ],
+        "examples": [
+          {
+            "text": "Wir besuchen morgen unsere Oma.",
+            "source": "WordUniverse BW lexical overlay, project-authored"
+          }
+        ],
+        "grade_examples": {
+          "1": [
+            "Wir besuchen morgen unsere Oma."
+          ]
+        }
+      },
+      "spellingDifficultySource": "unknown",
+      "spellingDifficultyEvidence": {
+        "status": "unknown",
+        "source": null,
+        "reason": "Compatibility default; no measured spelling evidence for this authored sense.",
+        "calibrated": false
+      }
+    },
+    {
+      "id": "bw_lexical_v1_sie_pron",
+      "word": "sie",
+      "lemma": "sie",
+      "wordType": "pronoun",
+      "gradeLevel": 1,
+      "sources": [
+        "PROJECT_BW_LEXICAL_V1"
+      ],
+      "isGrundwortschatzBW": true,
+      "nurImPlural": false,
+      "spellingDifficulty": 0,
+      "apiEnrichment": {
+        "enrichment_status": "project-authored",
+        "primary_lemma": "sie",
+        "primary_pos": "pronoun",
+        "definitions": [
+          "Ein Fürwort für eine weibliche Person oder für mehrere Personen oder Dinge."
+        ],
+        "examples": [
+          {
+            "text": "Mia liest. Danach malt sie ein Bild.",
+            "source": "WordUniverse BW lexical overlay, project-authored"
+          }
+        ],
+        "grade_examples": {
+          "1": [
+            "Mia liest. Danach malt sie ein Bild."
+          ]
+        }
+      },
+      "spellingDifficultySource": "unknown",
+      "spellingDifficultyEvidence": {
+        "status": "unknown",
+        "source": null,
+        "reason": "Compatibility default; no measured spelling evidence for this authored sense.",
+        "calibrated": false
+      }
+    },
+    {
+      "id": "bw_lexical_v1_naechste_adj",
+      "word": "nächste",
+      "lemma": "nächste",
+      "wordType": "adjective",
+      "gradeLevel": 3,
+      "sources": [
+        "PROJECT_BW_LEXICAL_V1"
+      ],
+      "isGrundwortschatzBW": true,
+      "nurImPlural": false,
+      "spellingDifficulty": 0,
+      "apiEnrichment": {
+        "enrichment_status": "project-authored",
+        "primary_lemma": "nächste",
+        "primary_pos": "adjective",
+        "definitions": [
+          "Direkt folgende, ohne etwas dazwischen."
+        ],
+        "examples": [
+          {
+            "text": "Die nächste Seite ist leer.",
+            "source": "WordUniverse BW lexical overlay, project-authored"
+          }
+        ],
+        "grade_examples": {
+          "3": [
+            "Die nächste Seite ist leer."
+          ]
+        }
+      },
+      "spellingDifficultySource": "unknown",
+      "spellingDifficultyEvidence": {
+        "status": "unknown",
+        "source": null,
+        "reason": "Compatibility default; no measured spelling evidence for this authored sense.",
+        "calibrated": false
+      }
+    },
+    {
+      "id": "bw_lexical_v1_paar_num",
+      "word": "paar",
+      "lemma": "paar",
+      "wordType": "numeral",
+      "gradeLevel": 3,
+      "sources": [
+        "PROJECT_BW_LEXICAL_V1"
+      ],
+      "isGrundwortschatzBW": true,
+      "nurImPlural": false,
+      "spellingDifficulty": 0,
+      "apiEnrichment": {
+        "enrichment_status": "project-authored",
+        "primary_lemma": "paar",
+        "primary_pos": "numeral",
+        "definitions": [
+          "Eine kleine, nicht genau genannte Anzahl."
+        ],
+        "examples": [
+          {
+            "text": "Auf dem Tisch liegen ein paar Stifte.",
+            "source": "WordUniverse BW lexical overlay, project-authored"
+          }
+        ],
+        "grade_examples": {
+          "3": [
+            "Auf dem Tisch liegen ein paar Stifte."
+          ]
+        }
+      },
+      "spellingDifficultySource": "unknown",
+      "spellingDifficultyEvidence": {
+        "status": "unknown",
+        "source": null,
+        "reason": "Compatibility default; no measured spelling evidence for this authored sense.",
+        "calibrated": false
+      }
+    },
+    {
+      "id": "bw_lexical_v1_vertrauen_verb",
+      "word": "vertrauen",
+      "lemma": "vertrauen",
+      "wordType": "verb",
+      "gradeLevel": 3,
+      "sources": [
+        "PROJECT_BW_LEXICAL_V1"
+      ],
+      "isGrundwortschatzBW": true,
+      "nurImPlural": false,
+      "spellingDifficulty": 0,
+      "apiEnrichment": {
+        "enrichment_status": "project-authored",
+        "primary_lemma": "vertrauen",
+        "primary_pos": "verb",
+        "definitions": [
+          "Sich auf jemanden oder etwas verlassen."
+        ],
+        "examples": [
+          {
+            "text": "Die Kinder vertrauen ihrer Lehrerin.",
+            "source": "WordUniverse BW lexical overlay, project-authored"
+          }
+        ],
+        "grade_examples": {
+          "3": [
+            "Die Kinder vertrauen ihrer Lehrerin."
+          ]
+        }
+      },
+      "spellingDifficultySource": "unknown",
+      "spellingDifficultyEvidence": {
+        "status": "unknown",
+        "source": null,
+        "reason": "Compatibility default; no measured spelling evidence for this authored sense.",
+        "calibrated": false
+      }
+    },
+    {
+      "id": "bw_lexical_v1_weg_adv",
+      "word": "weg",
+      "lemma": "weg",
+      "wordType": "adverb",
+      "gradeLevel": 3,
+      "sources": [
+        "PROJECT_BW_LEXICAL_V1"
+      ],
+      "isGrundwortschatzBW": true,
+      "nurImPlural": false,
+      "spellingDifficulty": 0,
+      "apiEnrichment": {
+        "enrichment_status": "project-authored",
+        "primary_lemma": "weg",
+        "primary_pos": "adverb",
+        "definitions": [
+          "Nicht mehr da oder an einem anderen Ort."
+        ],
+        "examples": [
+          {
+            "text": "Mein roter Stift ist weg.",
+            "source": "WordUniverse BW lexical overlay, project-authored"
+          }
+        ],
+        "grade_examples": {
+          "3": [
+            "Mein roter Stift ist weg."
+          ]
+        }
+      },
+      "spellingDifficultySource": "unknown",
+      "spellingDifficultyEvidence": {
+        "status": "unknown",
+        "source": null,
+        "reason": "Compatibility default; no measured spelling evidence for this authored sense.",
+        "calibrated": false
+      }
+    },
+    {
+      "id": "bw_lexical_v1_email_noun",
+      "word": "E-Mail",
+      "lemma": "E-Mail",
+      "wordType": "noun",
+      "gradeLevel": 3,
+      "sources": [
+        "PROJECT_BW_LEXICAL_V1"
+      ],
+      "isGrundwortschatzBW": true,
+      "nurImPlural": false,
+      "spellingDifficulty": 0,
+      "apiEnrichment": {
+        "enrichment_status": "project-authored",
+        "primary_lemma": "E-Mail",
+        "primary_pos": "noun",
+        "definitions": [
+          "Eine Nachricht, die über das Internet verschickt wird."
+        ],
+        "examples": [
+          {
+            "text": "Ich schreibe eine E-Mail an meine Tante.",
+            "source": "WordUniverse BW lexical overlay, project-authored"
+          }
+        ],
+        "grade_examples": {
+          "3": [
+            "Ich schreibe eine E-Mail an meine Tante."
+          ]
+        }
+      },
+      "article": "die",
+      "plural": "E-Mails",
+      "spellingDifficultySource": "unknown",
+      "spellingDifficultyEvidence": {
+        "status": "unknown",
+        "source": null,
+        "reason": "Compatibility default; no measured spelling evidence for this authored sense.",
+        "calibrated": false
+      }
+    },
+    {
+      "id": "bw_lexical_v1_vergesslich_adj",
+      "word": "vergesslich",
+      "lemma": "vergesslich",
+      "wordType": "adjective",
+      "gradeLevel": 3,
+      "sources": [
+        "PROJECT_BW_LEXICAL_V1"
+      ],
+      "isGrundwortschatzBW": true,
+      "nurImPlural": false,
+      "spellingDifficulty": 0,
+      "apiEnrichment": {
+        "enrichment_status": "project-authored",
+        "primary_lemma": "vergesslich",
+        "primary_pos": "adjective",
+        "definitions": [
+          "Leicht vergessen, was man sich merken wollte."
+        ],
+        "examples": [
+          {
+            "text": "Heute bin ich etwas vergesslich.",
+            "source": "WordUniverse BW lexical overlay, project-authored"
+          }
+        ],
+        "grade_examples": {
+          "3": [
+            "Heute bin ich etwas vergesslich."
+          ]
+        }
+      },
+      "spellingDifficultySource": "unknown",
+      "spellingDifficultyEvidence": {
+        "status": "unknown",
+        "source": null,
+        "reason": "Compatibility default; no measured spelling evidence for this authored sense.",
+        "calibrated": false
+      }
+    },
+    {
+      "id": "bw_lexical_v1_zeh_noun",
+      "word": "Zeh",
+      "lemma": "Zeh",
+      "wordType": "noun",
+      "gradeLevel": 3,
+      "sources": [
+        "PROJECT_BW_LEXICAL_V1"
+      ],
+      "isGrundwortschatzBW": true,
+      "nurImPlural": false,
+      "spellingDifficulty": 0,
+      "apiEnrichment": {
+        "enrichment_status": "project-authored",
+        "primary_lemma": "Zeh",
+        "primary_pos": "noun",
+        "definitions": [
+          "Einer der beweglichen Teile vorn am Fuß."
+        ],
+        "examples": [
+          {
+            "text": "Mein großer Zeh steckt im Socken.",
+            "source": "WordUniverse BW lexical overlay, project-authored"
+          }
+        ],
+        "grade_examples": {
+          "3": [
+            "Mein großer Zeh steckt im Socken."
+          ]
+        }
+      },
+      "article": "der",
+      "plural": "Zehen",
+      "spellingDifficultySource": "unknown",
+      "spellingDifficultyEvidence": {
+        "status": "unknown",
+        "source": null,
+        "reason": "Compatibility default; no measured spelling evidence for this authored sense.",
+        "calibrated": false
+      }
+    },
+    {
+      "id": "bw_lexical_v1_zylinder_noun",
+      "word": "Zylinder",
+      "lemma": "Zylinder",
+      "wordType": "noun",
+      "gradeLevel": 3,
+      "sources": [
+        "PROJECT_BW_LEXICAL_V1"
+      ],
+      "isGrundwortschatzBW": true,
+      "nurImPlural": false,
+      "spellingDifficulty": 0,
+      "apiEnrichment": {
+        "enrichment_status": "project-authored",
+        "primary_lemma": "Zylinder",
+        "primary_pos": "noun",
+        "definitions": [
+          "Ein geometrischer Körper mit zwei gleich großen Kreisflächen."
+        ],
+        "examples": [
+          {
+            "text": "Ein Zylinder hat zwei runde Flächen.",
+            "source": "WordUniverse BW lexical overlay, project-authored"
+          }
+        ],
+        "grade_examples": {
+          "3": [
+            "Ein Zylinder hat zwei runde Flächen."
+          ]
+        }
+      },
+      "article": "der",
+      "plural": "Zylinder",
+      "spellingDifficultySource": "unknown",
+      "spellingDifficultyEvidence": {
+        "status": "unknown",
+        "source": null,
+        "reason": "Compatibility default; no measured spelling evidence for this authored sense.",
+        "calibrated": false
+      }
+    },
+    {
+      "id": "bw_lexical_v1_sein_possessive",
+      "word": "sein",
+      "lemma": "sein",
+      "wordType": "pronoun",
+      "gradeLevel": 3,
+      "sources": [
+        "PROJECT_BW_LEXICAL_V1"
+      ],
+      "isGrundwortschatzBW": true,
+      "nurImPlural": false,
+      "spellingDifficulty": 0,
+      "apiEnrichment": {
+        "enrichment_status": "project-authored",
+        "primary_lemma": "sein",
+        "primary_pos": "pronoun",
+        "definitions": [
+          "Ein besitzanzeigendes Fürwort: Es zeigt, dass etwas zu ihm gehört."
+        ],
+        "examples": [
+          {
+            "text": "Ben packt sein Heft ein.",
+            "source": "WordUniverse BW lexical overlay, project-authored"
+          }
+        ],
+        "grade_examples": {
+          "3": [
+            "Ben packt sein Heft ein."
+          ]
+        }
+      },
+      "spellingDifficultySource": "unknown",
+      "spellingDifficultyEvidence": {
+        "status": "unknown",
+        "source": null,
+        "reason": "Compatibility default; no measured spelling evidence for this authored sense.",
+        "calibrated": false
+      }
+    }
+  ]
+}

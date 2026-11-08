@@ -63,6 +63,8 @@ flutter:
     - assets/images/
     - assets/sounds/
     - assets/kompass/bw_de_v1.json
+    - assets/data/bw_membership_v1.json
+    - assets/data/bw_lexical_overlay_v1.json
     - assets/kompass/print/
     # Not the whole fonts/ directory: every face is declared under `fonts:`
     # below and bundled from there. The directory entry additionally shipped

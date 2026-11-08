@@ -1,6 +1,7 @@
 import pandas as pd
 import json
 import re
+from spelling_difficulty_evidence import unknown_spelling_difficulty
 
 # --- Configuration ---
 INPUT_CSV_FILE = 'voc_de_enriched.csv'
@@ -264,7 +265,8 @@ def convert_csv_to_json(input_file, output_file):
             'plural': None, 
             'categories': [],
             'exampleSentences': [],
-            'spellingDifficulty': 0,
+            # Keep the legacy numeric default, with explicit unknown evidence.
+            **unknown_spelling_difficulty(),
             'commonMistakes': None,
             'audioPath': None,
         }
