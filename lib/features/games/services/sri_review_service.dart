@@ -8,8 +8,11 @@ import 'dart:math';
 import '../../../core/models/skill_category.dart';
 import '../../../core/models/vocabulary_models.dart';
 import '../../../core/models/vocabulary_quality.dart';
+import '../../../core/models/word_features.dart';
 import '../../../core/services/sri_service.dart';
+import '../../../core/services/vocabulary_service.dart';
 import '../../../generated/l10n.dart';
+import '../providers/game_provider.dart';
 import 'cloze_service.dart';
 import 'conjugation_drill_service.dart';
 import 'definition_quiz_service.dart';
@@ -45,6 +48,68 @@ class ReviewChallenge {
     required this.options,
     required this.correctIndex,
   });
+}
+
+/// Prepare only playable due reviews without reserving or consuming any card.
+/// The daily warm-up uses the same builder as the review screen, so unsupported
+/// or ambiguous historical cards cannot trap a learner in an empty first step.
+Future<List<ReviewChallenge>> buildDueReviewChallenges({
+  required VocabularyService vocabulary,
+  required SriService sri,
+  required GameProvider settings,
+  required S strings,
+  int limit = 10,
+  int optionCount = 4,
+  Random? rng,
+}) async {
+  final random = rng ?? Random();
+  final items = sri
+      .getItemsForReview(limit: sri.totalTrackedItems, markReturned: false)
+      .map(sri.getItemData)
+      .whereType<SriLanguageData>()
+      .toList();
+  if (items.isEmpty || limit <= 0) return [];
+
+  final catalogue = vocabulary.getAllWords(settings);
+  final allowedIds = catalogue.map((word) => word.id).toSet();
+  final validWords = catalogue.map((word) => word.word.toLowerCase()).toSet();
+  final definitions = await vocabulary.takeWordsWithFeature(
+    WordFeature.definitions,
+    settingsProvider: settings,
+    limit: 120,
+    where: (word) => !word.isProperNoun,
+    random: random,
+  );
+  final challenges = <ReviewChallenge>[];
+  const batchSize = 40;
+  for (var offset = 0;
+      offset < items.length && challenges.length < limit;
+      offset += batchSize) {
+    final found = <SriLanguageData, GermanWord>{};
+    for (final item in items.skip(offset).take(batchSize)) {
+      final word = vocabulary.findByReviewItem(item);
+      if (word != null && allowedIds.contains(word.id)) found[item] = word;
+    }
+    final hydrated = await vocabulary.hydrate(found.values);
+    var cursor = 0;
+    for (final item in found.keys) {
+      final word = hydrated[cursor++];
+      if (challenges.length >= limit) break;
+      final challenge = buildReviewChallenge(
+        word,
+        item,
+        definitions,
+        validWords,
+        strings: strings,
+        isGerman: vocabulary.learningLanguage == 'de',
+        optionCount: optionCount,
+        rng: random,
+        catalogue: catalogue,
+      );
+      if (challenge != null) challenges.add(challenge);
+    }
+  }
+  return challenges;
 }
 
 ReviewChallenge? buildReviewChallenge(
@@ -167,6 +232,12 @@ ReviewChallenge? _spellingChallenge(
   required Random random,
 }) {
   final displayWord = normWord(word.word);
+  final requestedForm = sriData.identity.additionalInfo;
+  if (requestedForm != null && normWord(requestedForm) != displayWord) {
+    // A separable/inflected form such as "schlage vor" is a different task
+    // from choosing the lemma "vorschlagen". Keep it due for its own format.
+    return null;
+  }
   if (displayWord.contains(' ')) return null;
 
   final rawErrors = isGerman
@@ -267,9 +338,7 @@ ReviewChallenge? _wordTypeChallenge(
   final correct = labels[word.wordType];
   if (correct == null || !word.isHeadword || !classIsSettled(word)) return null;
   if (catalogue.any(
-    (other) =>
-        other.word.toLowerCase() == word.word.toLowerCase() &&
-        other.wordType != word.wordType,
+    (other) => other.word == word.word && other.wordType != word.wordType,
   )) {
     return null;
   }
@@ -393,6 +462,33 @@ ReviewChallenge? _capitalizationChallenge(
   required S strings,
   required Random random,
 }) {
+  final before = item.metadata['contextBefore'];
+  final target = item.metadata['contextTarget'];
+  final after = item.metadata['contextAfter'];
+  final expected = item.metadata['expectedCapitalized'];
+  if (before is String &&
+      target is String &&
+      after is String &&
+      expected is bool &&
+      target.trim().isNotEmpty) {
+    final lower = target.toLowerCase();
+    final upper = '${lower[0].toUpperCase()}${lower.substring(1)}';
+    if (lower != upper) {
+      final options = [lower, upper]..shuffle(random);
+      return ReviewChallenge(
+        word: word,
+        sriData: item,
+        type: ReviewChallengeType.capitalization,
+        assessedSkill: LanguageSkillType.capitalization,
+        prompt: '${strings.statsCapitalization}\n${before}___$after',
+        options: options,
+        correctIndex: options.indexOf(expected ? upper : lower),
+      );
+    }
+  }
+  // A recorded context must not silently turn into a different capitalization
+  // rule when an incomplete/newer rubric cannot yet be displayed.
+  if (item.identity.additionalInfo != null) return null;
   for (final sentence in _reviewTexts(word, item)) {
     if (!sentenceSuitsAChild(sentence) || !looksLikeAWholeSentence(sentence)) {
       continue;

@@ -361,24 +361,33 @@ class VocabularyService with ChangeNotifier {
   /// Resolves old display-name records without changing their saved ids.
   /// Try the complete spelling first so real phrases keep their identity.
   GermanWord? findByReviewItem(SriLanguageData item) {
-    final savedId = item.metadata['wordId'];
-    if (savedId is String && _vocabulary.containsKey(savedId)) {
+    final savedId = item.identity.wordId;
+    if (savedId != null && _vocabulary.containsKey(savedId)) {
       return _vocabulary[savedId];
     }
+    if (item.hasBoundWordIdentity) return null;
     final written = item.identity.baseWord;
     final exact = findByWrittenForm(written);
     final folded = BwVocabularyOverlay.normalize(written).toLowerCase();
-    final candidates = _byWrittenVariants?[folded] ?? const <GermanWord>[];
+    var candidates = _byWrittenVariants?[folded] ?? const <GermanWord>[];
     final savedType = item.metadata['wordType']?.toString().split('.').last;
     if (savedType != null) {
-      final matching =
-          candidates.where((word) => word.wordType.name == savedType);
-      if (matching.length == 1) return matching.single;
+      candidates =
+          candidates.where((word) => word.wordType.name == savedType).toList();
+      if (candidates.length == 1) return candidates.single;
+      if (candidates.isEmpty && _byWrittenVariants != null) return null;
     }
     // Historic ids lowercased the word and did not record its lexical id.
     // Do not reinterpret old Arm practice as the newly restored adjective arm.
-    if (item.metadata['baseWord'] is! String && candidates.length > 1)
-      return null;
+    if (candidates.length > 1) {
+      if (item.metadata['baseWord'] is! String) return null;
+      final exactSenses = candidates.where((word) =>
+          BwVocabularyOverlay.normalize(word.word) ==
+          BwVocabularyOverlay.normalize(written));
+      // Saved case distinguishes Arm/arm. It cannot distinguish two senses
+      // that share the spelling "sein" without a part of speech or stable id.
+      return exactSenses.length == 1 ? exactSenses.single : null;
+    }
     if (exact != null) return exact;
     if (learningLanguage != 'de') return null;
     final article =
@@ -746,6 +755,28 @@ class VocabularyService with ChangeNotifier {
   // GENERATION LOGIC (Review, New Words, Random)
   // ---------------------------------------------------------------------------
 
+  SriLanguageData? _progressForWord(
+    SriService sri,
+    GermanWord word,
+    LanguageSkillType skill,
+  ) {
+    final lexical = sri.getItemData(sri.getItemId(
+      skillType: skill,
+      baseWord: word.word,
+      wordId: word.id,
+    ));
+    if (lexical != null) return lexical;
+    final legacy = sri.getItemData(sri.getItemId(
+      skillType: skill,
+      baseWord: word.word,
+    ));
+    // Old unambiguous data still counts as studied. A case-folded or
+    // same-spelling record must not count for every lexical sense.
+    return legacy != null && findByReviewItem(legacy)?.id == word.id
+        ? legacy
+        : null;
+  }
+
   List<GermanWord> getWordsForSpellingReview(
     SriService sriService,
     GameProvider settingsProvider, {
@@ -775,6 +806,14 @@ class VocabularyService with ChangeNotifier {
     }
     final filteredWords = _applyVocabularyFilters(words, settingsProvider);
     final selected = filteredWords.take(limit).toList();
+    for (final word in selected) {
+      sriService.bindWordIdentity(
+        itemId: itemByWordId[word.id]!,
+        wordId: word.id,
+        baseWord: word.word,
+        wordType: word.wordType,
+      );
+    }
     sriService
         .markItemsReturned(selected.map((word) => itemByWordId[word.id]!));
     return selected;
@@ -794,11 +833,7 @@ class VocabularyService with ChangeNotifier {
 
     final studiedWords = <String>{};
     for (final word in newWords) {
-      final spellingId = sriService.getItemId(
-        skillType: skillType,
-        baseWord: word.word,
-      );
-      if (sriService.getItemData(spellingId) != null) {
+      if (_progressForWord(sriService, word, skillType) != null) {
         studiedWords.add(word.id);
       }
     }
@@ -1109,12 +1144,8 @@ class VocabularyService with ChangeNotifier {
     };
 
     // Spelling Stats
-    final spellingData = sriService.getItemData(
-      sriService.getItemId(
-        skillType: LanguageSkillType.spelling,
-        baseWord: word.word,
-      ),
-    );
+    final spellingData =
+        _progressForWord(sriService, word, LanguageSkillType.spelling);
     if (spellingData != null) {
       stats['spellingMastery'] = spellingData.easinessFactor / 5.0;
       final spellingAttempts =
@@ -1129,12 +1160,8 @@ class VocabularyService with ChangeNotifier {
     if (word.wordType == GermanWordType.substantiv &&
         word.article != null &&
         word.article!.isNotEmpty) {
-      final articleData = sriService.getItemData(
-        sriService.getItemId(
-          skillType: LanguageSkillType.articleSelection,
-          baseWord: word.word,
-        ),
-      );
+      final articleData = _progressForWord(
+          sriService, word, LanguageSkillType.articleSelection);
       if (articleData != null) {
         stats['articleMastery'] = articleData.easinessFactor / 5.0;
       }

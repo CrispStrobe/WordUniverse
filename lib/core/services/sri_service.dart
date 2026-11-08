@@ -78,6 +78,10 @@ class SriLanguageData {
 
   SriItemIdentity get identity =>
       SriItemIdentity.fromId(itemId, skillType: skillType, metadata: metadata);
+
+  bool get hasBoundWordIdentity =>
+      SriItemIdentity.fromId(itemId).wordId != null ||
+      metadata['lexicalIdentityVersion'] == 2;
 }
 
 // Statistics for competence areas
@@ -104,6 +108,7 @@ class SriService with ChangeNotifier {
   final DateTime Function() _clock;
   Map<String, SriLanguageData> _sriDatabase = {};
   final Map<String, String> _canonicalItemIds = {};
+  final Map<String, String> _canonicalByStoredId = {};
   // A malformed or newer-format record must not erase all the valid records,
   // nor disappear when a later answer saves the database.
   final Map<String, dynamic> _unparsedRecords = {};
@@ -145,11 +150,13 @@ class SriService with ChangeNotifier {
     required LanguageSkillType skillType,
     required String baseWord,
     String? additionalInfo,
+    String? wordId,
   }) {
     return SriItemIdentity.itemId(
       skillType: skillType,
       baseWord: baseWord,
       additionalInfo: additionalInfo,
+      wordId: wordId,
     );
   }
 
@@ -319,6 +326,7 @@ class SriService with ChangeNotifier {
         final jsonMap = Map<String, dynamic>.from(json.decode(jsonString));
         _sriDatabase = {};
         _canonicalItemIds.clear();
+        _canonicalByStoredId.clear();
         _unparsedRecords.clear();
         for (final entry in jsonMap.entries) {
           try {
@@ -340,6 +348,7 @@ class SriService with ChangeNotifier {
       } else {
         _sriDatabase.clear();
         _canonicalItemIds.clear();
+        _canonicalByStoredId.clear();
         _unparsedRecords.clear();
         _log('No SRI data found. Starting with a fresh database.');
       }
@@ -385,14 +394,22 @@ class SriService with ChangeNotifier {
     required String baseWord,
     required bool wasCorrect,
     String? additionalInfo,
+    String? wordId,
     Map<String, dynamic>? metadata,
     bool wasAssisted = false,
     Iterable<String> legacyBaseWords = const [],
   }) {
+    final suppliedWordId = wordId ?? metadata?['wordId'] as String?;
+    if (wordId != null &&
+        metadata?['wordId'] != null &&
+        metadata!['wordId'] != wordId) {
+      throw ArgumentError('Conflicting lexical word ids in a response');
+    }
     final itemId = getItemId(
       skillType: skillType,
       baseWord: baseWord,
       additionalInfo: additionalInfo,
+      wordId: suppliedWordId,
     );
 
     _log(
@@ -400,17 +417,32 @@ class SriService with ChangeNotifier {
     );
 
     SriLanguageData? existing = getItemData(itemId);
-    // Older games sometimes stored displayName ("der Hund") rather than the
-    // word ("Hund"). Preserve the exact existing key and its history while
-    // adding canonical metadata, so future reviews can resolve the word.
-    for (final legacyWord in legacyBaseWords) {
-      existing ??= getItemData(
+    // Reuse a legacy key only when saved evidence identifies this exact sense.
+    // Otherwise it stays intact and due; new practice starts a lexical record.
+    // This also supports old display-name keys such as "der Hund".
+    for (final legacyWord in [baseWord, ...legacyBaseWords]) {
+      if (existing != null) break;
+      final candidate = getItemData(
         getItemId(
           skillType: skillType,
           baseWord: legacyWord,
           additionalInfo: additionalInfo,
         ),
       );
+      if (candidate == null) continue;
+      if (suppliedWordId != null &&
+          (candidate.identity.additionalInfo ?? '') != (additionalInfo ?? ''))
+        continue;
+      if (suppliedWordId == null ||
+          candidate.identity.wordId == suppliedWordId ||
+          (candidate.identity.wordId == null &&
+              candidate.metadata['baseWord'] == baseWord &&
+              candidate.metadata['wordType'] != null &&
+              metadata?['wordType'] != null &&
+              candidate.metadata['wordType'].toString().split('.').last ==
+                  metadata!['wordType'].toString().split('.').last)) {
+        existing = candidate;
+      }
     }
     final data = existing ??
         SriLanguageData(
@@ -424,6 +456,10 @@ class SriService with ChangeNotifier {
     data.metadata.addAll({
       ...?metadata,
       'baseWord': baseWord,
+      if (suppliedWordId != null) ...{
+        'wordId': suppliedWordId,
+        'lexicalIdentityVersion': 2,
+      },
       if (additionalInfo != null) 'additionalInfo': additionalInfo,
     });
     _recordResponse(data, wasCorrect: wasCorrect, wasAssisted: wasAssisted);
@@ -447,15 +483,61 @@ class SriService with ChangeNotifier {
         'Does not match the reviewed item',
       );
     }
-    data.metadata.addAll(metadata ?? const {});
+    final reviewedWordId = metadata?['wordId'];
+    if (reviewedWordId is String &&
+        _hasBoundIdentity(data) &&
+        data.identity.wordId != reviewedWordId) {
+      throw ArgumentError('A review cannot update a different lexical sense');
+    }
+    data.metadata.addAll({
+      ...?metadata,
+      if (reviewedWordId is String) 'lexicalIdentityVersion': 2,
+    });
     _recordResponse(data, wasCorrect: wasCorrect, wasAssisted: wasAssisted);
   }
 
   void _indexIdentity(SriLanguageData data) {
     final canonical = data.identity.canonicalId;
+    final previous = _canonicalByStoredId[data.itemId];
+    if (previous != null &&
+        previous != canonical &&
+        _canonicalItemIds[previous] == data.itemId) {
+      _canonicalItemIds.remove(previous);
+    }
     if (canonical != null) {
       _canonicalItemIds[canonical] = data.itemId;
+      _canonicalByStoredId[data.itemId] = canonical;
     }
+  }
+
+  bool _hasBoundIdentity(SriLanguageData data) => data.hasBoundWordIdentity;
+
+  /// Attach a stable id only after the vocabulary resolver has uniquely
+  /// identified an old item. Keep its stored key and every learning count.
+  /// Ambiguous items must never call this method and remain pending instead.
+  void bindWordIdentity({
+    required String itemId,
+    required String wordId,
+    required String baseWord,
+    required GermanWordType wordType,
+  }) {
+    if (wordId.trim().isEmpty) {
+      throw ArgumentError.value(wordId, 'wordId', 'Must identify an entry');
+    }
+    final data = getItemData(itemId);
+    if (data == null) throw StateError('Unknown review item: $itemId');
+    if (_hasBoundIdentity(data) && data.identity.wordId != wordId) {
+      throw ArgumentError('Cannot reassign an existing lexical identity');
+    }
+    final detail = data.identity.additionalInfo;
+    data.metadata.addAll({
+      'wordId': wordId,
+      'baseWord': baseWord,
+      'wordType': wordType.name,
+      'lexicalIdentityVersion': 2,
+      if (detail != null) 'additionalInfo': detail,
+    });
+    _indexIdentity(data);
   }
 
   void _recordResponse(
@@ -773,6 +855,7 @@ class SriService with ChangeNotifier {
   Future<void> clearAllData() async {
     _sriDatabase.clear();
     _canonicalItemIds.clear();
+    _canonicalByStoredId.clear();
     _unparsedRecords.clear();
     _alreadyReturnedThisSession.clear();
     final prefs = await SharedPreferences.getInstance();

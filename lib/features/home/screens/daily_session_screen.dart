@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/models/skill_category.dart';
 import '../../../core/services/learner_profile_service.dart';
 import '../../../core/services/sri_service.dart';
+import '../../../core/services/vocabulary_service.dart';
 import '../../../core/theme/space_theme.dart';
 import '../../../generated/l10n.dart';
 import '../../../shared/widgets/language_pack_dialog.dart';
@@ -14,6 +17,7 @@ import '../../games/screens/sentence_completion_game.dart';
 import '../../games/screens/spelling_spotter_game.dart';
 import '../../games/screens/sri_review_game.dart';
 import '../../games/screens/word_sort_game.dart';
+import '../../games/services/sri_review_service.dart';
 import '../../games/widgets/space_background.dart';
 import '../../kompass/screens/kompass_dashboard_screen.dart';
 
@@ -27,6 +31,7 @@ class DailySessionScreen extends StatefulWidget {
 class _DailySessionScreenState extends State<DailySessionScreen> {
   late final int _attemptsAtStart;
   late final int _masteredAtStart;
+  bool _preparing = false;
 
   @override
   void initState() {
@@ -41,13 +46,39 @@ class _DailySessionScreenState extends State<DailySessionScreen> {
     return gradeLevelFromBand(band);
   }
 
-  Future<void> _play(int step, WidgetBuilder builder) async {
-    if (!await ensureLanguagePackReady(context) || !mounted) return;
-    final game = context.read<GameProvider>();
-    final before = game.totalGamesPlayed;
-    await Navigator.of(context).push(MaterialPageRoute(builder: builder));
-    if (!mounted || game.totalGamesPlayed == before) return;
-    await context.read<LearnerProfileService>().completeDailyStep(step);
+  Future<void> _play(int step, FutureOr<Widget> Function() builder) async {
+    if (_preparing) return;
+    setState(() => _preparing = true);
+    try {
+      if (!await ensureLanguagePackReady(context) || !mounted) return;
+      final page = await builder();
+      if (!mounted) return;
+      final game = context.read<GameProvider>();
+      final before = game.totalGamesPlayed;
+      await Navigator.of(context).push(MaterialPageRoute(builder: (_) => page));
+      if (!mounted || game.totalGamesPlayed == before) return;
+      await context.read<LearnerProfileService>().completeDailyStep(step);
+    } finally {
+      if (mounted) setState(() => _preparing = false);
+    }
+  }
+
+  Future<Widget> _warmupGame() async {
+    final vocabulary = context.read<VocabularyService>();
+    final sri = context.read<SriService>();
+    final settings = context.read<GameProvider>();
+    final strings = S.of(context)!;
+    final band = _band;
+    if (!vocabulary.isInitialized) await vocabulary.initialize();
+    final challenges = await buildDueReviewChallenges(
+      vocabulary: vocabulary,
+      sri: sri,
+      settings: settings,
+      strings: strings,
+    );
+    return challenges.isEmpty
+        ? SentenceCompletionGame(gradeLevel: band)
+        : SriReviewGame(initialChallenges: challenges);
   }
 
   Widget _goalGame(LearnerGoal goal) {
@@ -108,6 +139,7 @@ class _DailySessionScreenState extends State<DailySessionScreen> {
                           .copyWith(color: SpaceTheme.starYellow)),
                 ]),
                 SizedBox(height: compact ? 8 : 18),
+                if (_preparing) const LinearProgressIndicator(),
                 if (allDone)
                   Expanded(
                     child: _Summary(
@@ -132,11 +164,7 @@ class _DailySessionScreenState extends State<DailySessionScreen> {
                           icon: Icons.refresh,
                           done: completed.contains(1),
                           compact: compact,
-                          onTap: () => _play(
-                              1,
-                              (_) => sri.getAvailableReviewCount() > 0
-                                  ? const SriReviewGame()
-                                  : SentenceCompletionGame(gradeLevel: _band)),
+                          onTap: () => _play(1, _warmupGame),
                         ),
                         _StepCard(
                           index: 2,
@@ -145,7 +173,7 @@ class _DailySessionScreenState extends State<DailySessionScreen> {
                           icon: Icons.track_changes,
                           done: completed.contains(2),
                           compact: compact,
-                          onTap: () => _play(2, (_) => _goalGame(profile.goal)),
+                          onTap: () => _play(2, () => _goalGame(profile.goal)),
                         ),
                         _StepCard(
                           index: 3,
@@ -155,7 +183,7 @@ class _DailySessionScreenState extends State<DailySessionScreen> {
                           done: completed.contains(3),
                           compact: compact,
                           onTap: () =>
-                              _play(3, (_) => ClozeFlashGame(gradeLevel: _band)),
+                              _play(3, () => ClozeFlashGame(gradeLevel: _band)),
                         ),
                       ],
                     ),

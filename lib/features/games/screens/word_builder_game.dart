@@ -351,6 +351,7 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
     _sriService.recordResponse(
       skillType: LanguageSkillType.spelling,
       baseWord: _currentWord!.word,
+      wordId: _currentWord!.id,
       wasCorrect: true,
       metadata: {
         'game': 'word_builder',
@@ -396,6 +397,7 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
     _sriService.recordResponse(
       skillType: LanguageSkillType.spelling,
       baseWord: _currentWord!.word,
+      wordId: _currentWord!.id,
       wasCorrect: false,
       metadata: {'game': 'word_builder'},
     );
@@ -429,6 +431,7 @@ class _WordBuilderGameState extends State<WordBuilderGame> with TickerProviderSt
     _sriService.recordResponse(
       skillType: LanguageSkillType.spelling,
       baseWord: _currentWord!.word,
+      wordId: _currentWord!.id,
       wasCorrect: false,
       metadata: {'game': 'word_builder', 'skipped': true},
     );

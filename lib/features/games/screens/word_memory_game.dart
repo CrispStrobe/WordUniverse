@@ -28,6 +28,7 @@ class WordMemoryGame extends StatefulWidget {
 
 class MemoryCard {
   final String word;
+  final String wordId;
   final String displayText;
   final String fontFamily;
   final int id;
@@ -38,6 +39,7 @@ class MemoryCard {
 
   MemoryCard({
     required this.word,
+    required this.wordId,
     String? displayText,
     required this.fontFamily,
     required this.id,
@@ -166,8 +168,12 @@ class _WordMemoryGameState extends State<WordMemoryGame>
     // Definition cards read the enrichment, so decode it for the chosen words.
     // Below year 3 both cards show the word itself, so the spelling has to
     // be one the pack does not contradict.
+    final seenSpellings = <String>{};
     final playable = (await _vocabularyService.hydrate(wordsForGame))
         .where(spellingIsTrustworthy)
+        // A pair of identical word faces cannot tell two lexical senses
+        // apart, even when their definitions or saved progress differ.
+        .where((word) => seenSpellings.add(word.word))
         .toList();
     if (!mounted) return;
 
@@ -184,11 +190,13 @@ class _WordMemoryGameState extends State<WordMemoryGame>
         final truncDef = def.length > 55 ? '${def.substring(0, 52)}…' : def;
         cards.add(MemoryCard(
             word: word.word,
+            wordId: word.id,
             fontFamily: shuffledFonts[0],
             id: i * 2,
             matchId: pairId));
         cards.add(MemoryCard(
             word: word.word,
+            wordId: word.id,
             displayText: truncDef,
             fontFamily: 'SpaceGrotesk',
             id: i * 2 + 1,
@@ -196,9 +204,15 @@ class _WordMemoryGameState extends State<WordMemoryGame>
             isDefinitionCard: true));
       } else {
         cards.add(MemoryCard(
-            word: word.word, fontFamily: shuffledFonts[0], id: i * 2));
+            word: word.word,
+            wordId: word.id,
+            fontFamily: shuffledFonts[0],
+            id: i * 2));
         cards.add(MemoryCard(
-            word: word.word, fontFamily: shuffledFonts[1], id: i * 2 + 1));
+            word: word.word,
+            wordId: word.id,
+            fontFamily: shuffledFonts[1],
+            id: i * 2 + 1));
       }
     }
 
@@ -247,7 +261,7 @@ class _WordMemoryGameState extends State<WordMemoryGame>
 
     final bool isMatch = _firstSelected!.matchId != null
         ? _firstSelected!.matchId == _secondSelected!.matchId
-        : _firstSelected!.word == _secondSelected!.word;
+        : _firstSelected!.wordId == _secondSelected!.wordId;
 
     if (isMatch) {
       setState(() {
@@ -268,6 +282,7 @@ class _WordMemoryGameState extends State<WordMemoryGame>
             ? LanguageSkillType.vocabulary
             : LanguageSkillType.spelling,
         baseWord: _firstSelected!.word,
+        wordId: _firstSelected!.wordId,
         wasCorrect: true,
         wasAssisted: !definitionPair,
         metadata: {

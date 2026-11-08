@@ -10,11 +10,13 @@ class SriItemIdentity {
     required this.baseWord,
     this.skillType,
     this.additionalInfo,
+    this.wordId,
   });
 
   final String baseWord;
   final LanguageSkillType? skillType;
   final String? additionalInfo;
+  final String? wordId;
 
   static const prefixes = <LanguageSkillType, String>{
     LanguageSkillType.spelling: 'SPELL_',
@@ -40,16 +42,24 @@ class SriItemIdentity {
     required LanguageSkillType skillType,
     required String baseWord,
     String? additionalInfo,
+    String? wordId,
   }) {
     final prefix = prefixes[skillType]!;
+    if (wordId != null && wordId.trim().isNotEmpty) {
+      // A catalogue id identifies a lexical sense; spelling alone cannot
+      // distinguish Arm/arm or the verb/possessive senses of "sein". Encoding
+      // each component also keeps underscores, pipes and pronoun contexts
+      // unambiguous. The visible word stays in metadata, not in the key.
+      return '$prefix@2|${Uri.encodeComponent(wordId.trim())}|'
+          '${Uri.encodeComponent(additionalInfo ?? '')}';
+    }
     if (skillType == LanguageSkillType.sentenceStructure ||
         skillType == LanguageSkillType.punctuation) {
       // Keep the historic case-sensitive contextual ids compatible.
       return '$prefix${additionalInfo ?? baseWord}';
     }
     final word = baseWord.trim().toLowerCase();
-    final hasSuffix =
-        skillType == LanguageSkillType.verbConjugation ||
+    final hasSuffix = skillType == LanguageSkillType.verbConjugation ||
         skillType == LanguageSkillType.caseUsage;
     final suffix = hasSuffix && additionalInfo?.isNotEmpty == true
         ? '_$additionalInfo'
@@ -78,8 +88,26 @@ class SriItemIdentity {
 
     final skill = skillType ?? encodedSkill;
     String? detail;
-    if (skill == LanguageSkillType.verbConjugation ||
-        skill == LanguageSkillType.caseUsage) {
+    String? lexicalId;
+    if (written.startsWith('@2|')) {
+      final components = written.split('|');
+      if (components.length == 3) {
+        try {
+          lexicalId = Uri.decodeComponent(components[1]);
+          detail = Uri.decodeComponent(components[2]);
+          if (lexicalId.isEmpty) lexicalId = null;
+          if (lexicalId != null) written = '';
+          if (detail.isEmpty) detail = null;
+        } on FormatException {
+          // An unknown/malformed future key remains readable as legacy data.
+          lexicalId = null;
+          detail = null;
+        }
+      }
+    }
+    if (lexicalId == null &&
+        (skill == LanguageSkillType.verbConjugation ||
+            skill == LanguageSkillType.caseUsage)) {
       final split = written.indexOf('_');
       if (split >= 0) {
         detail = written.substring(split + 1);
@@ -89,12 +117,19 @@ class SriItemIdentity {
 
     final savedWord = metadata['baseWord'];
     final savedDetail = metadata['additionalInfo'];
+    final savedId = metadata['wordId'];
     return SriItemIdentity(
       baseWord: savedWord is String && savedWord.trim().isNotEmpty
           ? savedWord.trim()
           : written,
       skillType: skill,
-      additionalInfo: savedDetail is String ? savedDetail : detail,
+      additionalInfo: lexicalId != null
+          ? detail
+          : savedDetail is String
+              ? savedDetail
+              : detail,
+      wordId: lexicalId ??
+          (savedId is String && savedId.trim().isNotEmpty ? savedId : null),
     );
   }
 
@@ -104,6 +139,7 @@ class SriItemIdentity {
           skillType: skillType!,
           baseWord: baseWord,
           additionalInfo: additionalInfo,
+          wordId: wordId,
         );
 }
 

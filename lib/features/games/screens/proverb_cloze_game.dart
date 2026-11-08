@@ -267,6 +267,7 @@ class _ProverbClozeGameState extends State<ProverbClozeGame>
       _sriService.recordResponse(
         skillType: LanguageSkillType.reading,
         baseWord: challenge.word.word,
+        wordId: challenge.word.id,
         wasCorrect: true,
       );
     } else {
@@ -276,6 +277,7 @@ class _ProverbClozeGameState extends State<ProverbClozeGame>
       _sriService.recordResponse(
         skillType: LanguageSkillType.reading,
         baseWord: challenge.word.word,
+        wordId: challenge.word.id,
         wasCorrect: false,
       );
     }

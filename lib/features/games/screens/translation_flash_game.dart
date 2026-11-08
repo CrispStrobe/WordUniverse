@@ -236,6 +236,7 @@ class _TranslationFlashGameState extends State<TranslationFlashGame>
       _sriService.recordResponse(
         skillType: LanguageSkillType.vocabulary,
         baseWord: challenge.word.word,
+        wordId: challenge.word.id,
         wasCorrect: true,
       );
     } else {
@@ -245,6 +246,7 @@ class _TranslationFlashGameState extends State<TranslationFlashGame>
       _sriService.recordResponse(
         skillType: LanguageSkillType.vocabulary,
         baseWord: challenge.word.word,
+        wordId: challenge.word.id,
         wasCorrect: false,
       );
     }

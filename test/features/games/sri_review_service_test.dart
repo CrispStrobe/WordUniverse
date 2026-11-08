@@ -140,6 +140,23 @@ void main() {
       expect(build(word, LanguageSkillType.spelling), isNull);
     });
 
+    test('a recorded separable form is not credited by a lemma spelling task',
+        () {
+      final word = testWord('vorschlagen',
+          type: GermanWordType.verb, commonMistakes: ['vorschlagn']);
+      expect(build(word, LanguageSkillType.spelling), isNotNull);
+      final item = SriLanguageData(
+        itemId: 'SPELL_@2|verb_vorschlagen|schlage%20vor',
+        skillType: LanguageSkillType.spelling,
+        nextReviewDate: DateTime.utc(2020),
+        metadata: {'baseWord': 'schlage vor'},
+      );
+      expect(
+          buildReviewChallenge(word, item, [word], {'vorschlagen'},
+              strings: strings, isGerman: true),
+          isNull);
+    });
+
     test('the English pack reads its own learner-error field', () {
       final word = _noun(
         'bicycle',
@@ -231,13 +248,25 @@ void main() {
       expect(challenge.prompt, contains('Hund'));
     });
 
-    test('an ambiguous word class is left for a contextual exercise', () {
+    test('written case distinguishes the noun from its lowercase adjective',
+        () {
       final noun = _noun('Laut', definitions: ['Ein hörbarer Ton.']);
       final adjective = testWord('laut', type: GermanWordType.adjektiv);
-      expect(
-        build(noun, LanguageSkillType.wordType, words: [adjective]),
-        isNull,
-      );
+      final nounQuestion =
+          build(noun, LanguageSkillType.wordType, words: [adjective])!;
+      final adjectiveQuestion =
+          build(adjective, LanguageSkillType.wordType, words: [noun])!;
+      expect(nounQuestion.options[nounQuestion.correctIndex], 'Nomen');
+      expect(adjectiveQuestion.options[adjectiveQuestion.correctIndex],
+          'Adjektiv');
+    });
+
+    test('same-spelling word classes remain pending for a contextual exercise',
+        () {
+      final verb = testWord('sein', type: GermanWordType.verb);
+      final pronoun = testWord('sein', type: GermanWordType.pronomen);
+      expect(build(verb, LanguageSkillType.wordType, words: [pronoun]), isNull);
+      expect(build(pronoun, LanguageSkillType.wordType, words: [verb]), isNull);
     });
 
     test('a conjugation suffix keeps the requested pronoun', () {
@@ -304,6 +333,38 @@ void main() {
       expect(challenge.options.toSet(), {'Hund', 'hund'});
       expect(challenge.options[challenge.correctIndex], 'Hund');
       expect(challenge.prompt, isNot(contains(' Hund ')));
+    });
+
+    test('a stored nominalization context is reviewed with its original rule',
+        () {
+      final verb = testWord('laufen',
+          type: GermanWordType.verb,
+          enrichment: testEnrichment(gradeExamples: {
+            '3': ['Wir wollen heute zusammen laufen.'],
+          }));
+      final item = SriLanguageData(
+        itemId: 'CAPITAL_legacy-context',
+        skillType: LanguageSkillType.capitalization,
+        nextReviewDate: DateTime.utc(2020),
+        metadata: {
+          'baseWord': 'laufen',
+          'additionalInfo': 'nominalization',
+          'contextBefore': 'DAS ',
+          'contextTarget': 'laufen',
+          'contextAfter': '',
+          'expectedCapitalized': true,
+        },
+      );
+      final challenge = buildReviewChallenge(verb, item, [verb], {'laufen'},
+          strings: strings, isGerman: true, rng: Random(1))!;
+      expect(challenge.prompt, contains('DAS ___'));
+      expect(challenge.options[challenge.correctIndex], 'Laufen');
+      item.metadata.remove('expectedCapitalized');
+      expect(
+          buildReviewChallenge(verb, item, [verb], {'laufen'},
+              strings: strings, isGerman: true),
+          isNull,
+          reason: 'an incomplete stored rubric cannot become a different task');
     });
 
     test('plural review uses the supplied plural form', () {

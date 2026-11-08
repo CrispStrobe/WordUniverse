@@ -220,6 +220,7 @@ class _AntonymFlashGameState extends State<AntonymFlashGame>
       _sriService.recordResponse(
         skillType: LanguageSkillType.vocabulary,
         baseWord: challenge.word.word,
+        wordId: challenge.word.id,
         wasCorrect: true,
       );
     } else {
@@ -229,6 +230,7 @@ class _AntonymFlashGameState extends State<AntonymFlashGame>
       _sriService.recordResponse(
         skillType: LanguageSkillType.vocabulary,
         baseWord: challenge.word.word,
+        wordId: challenge.word.id,
         wasCorrect: false,
       );
     }
