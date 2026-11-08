@@ -415,12 +415,21 @@ class _GrossschreibungsGalaxieGameState
     });
 
     _sriService.recordResponse(
-      skillType: LanguageSkillType.spelling,
+      skillType: LanguageSkillType.capitalization,
       baseWord: _currentChallenge!.targetWord,
+      wordId: _currentChallenge!.wordId,
+      additionalInfo: _currentChallenge!.rule.name,
       wasCorrect: true,
       metadata: {
         'game': 'grossschreibung',
         'wordId': _currentChallenge!.wordId,
+        'rule': _currentChallenge!.rule.name,
+        'sentence': _currentChallenge!.fullSentence,
+        'contextBefore': _currentChallenge!.beforeWord,
+        'contextTarget': _currentChallenge!.targetWord,
+        'contextAfter': _currentChallenge!.afterWord,
+        'expectedCapitalized':
+            _currentChallenge!.correctCase == WordCase.capitalized,
         'combo': _combo,
       },
     );
@@ -446,12 +455,21 @@ class _GrossschreibungsGalaxieGameState
     });
 
     _sriService.recordResponse(
-      skillType: LanguageSkillType.spelling,
+      skillType: LanguageSkillType.capitalization,
       baseWord: _currentChallenge!.targetWord,
+      wordId: _currentChallenge!.wordId,
+      additionalInfo: _currentChallenge!.rule.name,
       wasCorrect: false,
       metadata: {
         'game': 'grossschreibung',
         'wordId': _currentChallenge!.wordId,
+        'rule': _currentChallenge!.rule.name,
+        'sentence': _currentChallenge!.fullSentence,
+        'contextBefore': _currentChallenge!.beforeWord,
+        'contextTarget': _currentChallenge!.targetWord,
+        'contextAfter': _currentChallenge!.afterWord,
+        'expectedCapitalized':
+            _currentChallenge!.correctCase == WordCase.capitalized,
       },
     );
 

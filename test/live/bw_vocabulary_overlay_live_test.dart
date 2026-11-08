@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:WortUniversum/core/models/skill_category.dart';
 import 'package:WortUniversum/core/models/vocabulary_quality.dart';
@@ -12,6 +13,8 @@ import 'package:WortUniversum/core/models/word_features.dart';
 import 'package:WortUniversum/core/services/bw_vocabulary_overlay.dart';
 import 'package:WortUniversum/core/services/dictionary_database_service.dart';
 import 'package:WortUniversum/core/services/sri_service.dart';
+import 'package:WortUniversum/features/games/services/sri_review_service.dart';
+import 'package:WortUniversum/generated/l10n.dart';
 
 import '../audit/challenge_harness.dart';
 
@@ -116,5 +119,95 @@ void main() {
     expect(pack.vocabulary.findByReviewItem(old)!.word, 'Arm');
     old.metadata['wordId'] = 'bw_lexical_v1_arm_adj';
     expect(pack.vocabulary.findByReviewItem(old)!.word, 'arm');
+    final ambiguousSense = SriLanguageData(
+      itemId: 'VOCAB_sein',
+      skillType: LanguageSkillType.vocabulary,
+      nextReviewDate: DateTime.utc(2020),
+      metadata: {'baseWord': 'sein'},
+    );
+    expect(pack.vocabulary.findByReviewItem(ambiguousSense), isNull,
+        reason: 'exact spelling alone does not distinguish the two senses');
+    ambiguousSense.metadata['wordType'] = 'pronomen';
+    expect(pack.vocabulary.findByReviewItem(ambiguousSense)!.id,
+        'bw_lexical_v1_sein_possessive');
+    final missingEntry = SriLanguageData(
+      itemId: 'SPELL_@2|entry-from-another-pack|',
+      skillType: LanguageSkillType.spelling,
+      nextReviewDate: DateTime.utc(2020),
+      metadata: {'baseWord': 'Arm'},
+    );
+    expect(pack.vocabulary.findByReviewItem(missingEntry), isNull,
+        reason:
+            'a missing stable id cannot become another entry with that word');
+  }, skip: skip);
+
+  test('actual case and same-spelling senses record and review independently',
+      () async {
+    await pack.settings.applyBwVocabularyPreset();
+    var now = DateTime.utc(2026, 11, 8);
+    final sri = SriService(clock: () => now);
+    addTearDown(sri.dispose);
+    final contexts = [
+      ('word_00527', 'Ich hebe meinen ', 'Arm', '.', true),
+      ('bw_lexical_v1_arm_adj', 'Die Familie ist ', 'arm', '.', false),
+      ('word_08011', 'Wir wollen freundlich ', 'sein', '.', false),
+      ('bw_lexical_v1_sein_possessive', 'Das ist ', 'sein', ' Ball.', false),
+    ];
+    for (final entry in contexts) {
+      final word = pack.vocabulary.getWordById(entry.$1)!;
+      sri.recordResponse(
+        skillType: LanguageSkillType.capitalization,
+        baseWord: word.word,
+        wordId: word.id,
+        additionalInfo: '${entry.$2}|${entry.$4}',
+        wasCorrect: false,
+        metadata: {
+          'wordType': word.wordType.name,
+          'contextBefore': entry.$2,
+          'contextTarget': entry.$3,
+          'contextAfter': entry.$4,
+          'expectedCapitalized': entry.$5,
+        },
+      );
+    }
+    now = now.add(const Duration(days: 2));
+    final due = sri.getItemsForReview(markReturned: false);
+    expect(due.toSet(), hasLength(4));
+    final challenges = await buildDueReviewChallenges(
+      vocabulary: pack.vocabulary,
+      sri: sri,
+      settings: pack.settings,
+      strings: lookupS(const Locale('de')),
+      rng: Random(1),
+    );
+    expect(challenges, hasLength(4));
+    expect(challenges.map((challenge) => challenge.word.id).toSet(),
+        contexts.map((entry) => entry.$1).toSet());
+    expect(sri.getItemsForReview(markReturned: false), due,
+        reason: 'preparing a round does not consume any due card');
+    for (final challenge in challenges) {
+      final entry =
+          contexts.singleWhere((entry) => entry.$1 == challenge.word.id);
+      expect(challenge.prompt, contains('${entry.$2}___${entry.$4}'));
+      expect(challenge.options[challenge.correctIndex], entry.$3);
+      sri.recordReviewResponse(
+        itemId: challenge.sriData.itemId,
+        assessedSkill: challenge.assessedSkill,
+        wasCorrect: challenge.word.id == 'word_00527',
+        metadata: {'wordId': challenge.word.id},
+      );
+    }
+    expect(sri.totalTrackedItems, 4);
+    final histories = due.map(sri.getItemData).toList();
+    expect(
+        histories
+            .singleWhere((data) => data!.identity.wordId == 'word_00527')!
+            .successCount,
+        1);
+    for (final data
+        in histories.where((data) => data!.identity.wordId != 'word_00527')) {
+      expect(data!.successCount, 0);
+      expect(data.failureCount, 2);
+    }
   }, skip: skip);
 }

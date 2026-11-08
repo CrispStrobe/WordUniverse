@@ -229,6 +229,7 @@ class _ExpressionFlashGameState extends State<ExpressionFlashGame>
       _sriService.recordResponse(
         skillType: LanguageSkillType.reading,
         baseWord: challenge.word.word,
+        wordId: challenge.word.id,
         wasCorrect: true,
       );
     } else {
@@ -238,6 +239,7 @@ class _ExpressionFlashGameState extends State<ExpressionFlashGame>
       _sriService.recordResponse(
         skillType: LanguageSkillType.reading,
         baseWord: challenge.word.word,
+        wordId: challenge.word.id,
         wasCorrect: false,
       );
     }

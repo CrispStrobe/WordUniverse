@@ -384,6 +384,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
     _sriService.recordResponse(
       skillType: LanguageSkillType.spelling,
       baseWord: _currentWord!.word,
+      wordId: _currentWord!.id,
       legacyBaseWords: [_currentWord!.displayName],
       wasCorrect: false,
       wasAssisted: _hintsUsed > 0,
@@ -556,6 +557,7 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
     _sriService.recordResponse(
       skillType: LanguageSkillType.spelling,
       baseWord: _currentWord!.word,
+      wordId: _currentWord!.id,
       legacyBaseWords: [_currentWord!.displayName],
       wasCorrect: wasCorrectForSRI,
       wasAssisted: _hintsUsed > 0,

@@ -202,6 +202,7 @@ class _HomophoneDrillGameState extends State<HomophoneDrillGame>
     _sriService.recordResponse(
       skillType: LanguageSkillType.spelling,
       baseWord: challenge.correctWord,
+      wordId: challenge.wordId,
       wasCorrect: isCorrect,
     );
 

@@ -221,6 +221,7 @@ class _SynonymFlashGameState extends State<SynonymFlashGame>
       _sriService.recordResponse(
         skillType: LanguageSkillType.vocabulary,
         baseWord: challenge.word.word,
+        wordId: challenge.word.id,
         wasCorrect: true,
       );
     } else {
@@ -230,6 +231,7 @@ class _SynonymFlashGameState extends State<SynonymFlashGame>
       _sriService.recordResponse(
         skillType: LanguageSkillType.vocabulary,
         baseWord: challenge.word.word,
+        wordId: challenge.word.id,
         wasCorrect: false,
       );
     }

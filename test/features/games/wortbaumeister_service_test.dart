@@ -83,6 +83,15 @@ void main() {
           equalsIgnoringCase('Abendessen'));
     });
 
+    test('keeps the dictionary identity separate from the displayed compound',
+        () {
+      final word = pool().first;
+      final challenge = buildCompoundChallenges([word], map()).single;
+      expect(challenge.wordId, word.id);
+      expect(challenge.wordId, isNot(word.word));
+      expect(challenge.fullWord, word.word);
+    });
+
     test('an example sentence becomes the context when there is a short one',
         () {
       final word = testWord('Abendessen',

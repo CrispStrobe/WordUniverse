@@ -70,6 +70,12 @@ List<GermanWord> selectAdaptiveWords({
     // Indexed lookup: this used to scan the whole catalogue per review item.
     final word = vocabulary.findByReviewItem(item);
     if (word != null && word.gradeLevel == grade.index + 1 && offer(word)) {
+      sri.bindWordIdentity(
+        itemId: id,
+        wordId: word.id,
+        baseWord: word.word,
+        wordType: word.wordType,
+      );
       sri.markItemsReturned([id]);
     }
   }

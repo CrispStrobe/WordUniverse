@@ -10,8 +10,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../core/models/vocabulary_models.dart';
-import '../../../core/models/word_features.dart';
 import '../services/sri_review_service.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
@@ -29,7 +27,9 @@ import '../../../shared/widgets/onboarding_overlay.dart';
 // ─── Widget ───────────────────────────────────────────────────────────────────
 
 class SriReviewGame extends StatefulWidget {
-  const SriReviewGame({super.key});
+  const SriReviewGame({super.key, this.initialChallenges});
+
+  final List<ReviewChallenge>? initialChallenges;
 
   @override
   State<SriReviewGame> createState() => _SriReviewGameState();
@@ -51,6 +51,7 @@ class _SriReviewGameState extends State<SriReviewGame>
   bool _isLoading = true;
   bool _onboardingScheduled = false;
   bool _hasDueItems = false;
+  bool _usedInitialChallenges = false;
   Timer? _advanceTimer;
   List<ReviewChallenge> _challenges = [];
   int _index = 0;
@@ -62,8 +63,6 @@ class _SriReviewGameState extends State<SriReviewGame>
   late AnimationController _shakeCtrl;
 
   final _rng = Random();
-
-  bool get _isDE => _vocabService.learningLanguage == 'de';
 
   @override
   void initState() {
@@ -128,73 +127,21 @@ class _SriReviewGameState extends State<SriReviewGame>
 
   Future<void> _buildChallenges() async {
     _advanceTimer?.cancel();
-    final dueIds = _sriService.getItemsForReview(
-      limit: _sriService.totalTrackedItems,
-      markReturned: false,
-    );
-    final sriItems = dueIds
-        .map(_sriService.getItemData)
-        .whereType<SriLanguageData>()
-        .toList();
-    _hasDueItems = sriItems.isNotEmpty;
-    if (sriItems.isEmpty) {
-      setState(() {
-        _challenges = [];
-        _isLoading = false;
-      });
-      return;
-    }
-
-    // Spelling distractors only need the spellings, so this stays the light
-    // catalogue.
-    final catalogue = _vocabService.getAllWords(_gameProvider);
-    final validWords = catalogue.map((w) => w.word.toLowerCase()).toSet();
-
-    // Definition distractors need decoded definitions — a bounded pool of
-    // words the feature index says have them.
-    final definitionPool = await _vocabService.takeWordsWithFeature(
-      WordFeature.definitions,
-      settingsProvider: _gameProvider,
-      limit: 120,
-      where: (w) => !w.isProperNoun,
-      random: _rng,
-    );
-
+    _hasDueItems = _sriService.getAvailableReviewCount() > 0;
+    final challenges =
+        !_usedInitialChallenges && widget.initialChallenges != null
+            ? widget.initialChallenges!
+            : await buildDueReviewChallenges(
+                vocabulary: _vocabService,
+                sri: _sriService,
+                settings: _gameProvider,
+                strings: _s,
+                limit: _targetRounds,
+                optionCount: _optionCount,
+                rng: _rng,
+              );
+    _usedInitialChallenges = true;
     if (!mounted) return;
-    final challenges = <ReviewChallenge>[];
-    // Hydrate in small batches, continuing past unsupported tasks rather than
-    // intersecting two truncated queues and losing perfectly playable cards.
-    const batchSize = 40;
-    for (
-      var offset = 0;
-      offset < sriItems.length && challenges.length < _targetRounds;
-      offset += batchSize
-    ) {
-      final found = <SriLanguageData, GermanWord>{};
-      for (final item in sriItems.skip(offset).take(batchSize)) {
-        final word = _vocabService.findByReviewItem(item);
-        if (word != null) found[item] = word;
-      }
-      final hydrated = await _vocabService.hydrate(found.values);
-      if (!mounted) return;
-      var cursor = 0;
-      for (final item in found.keys) {
-        final word = hydrated[cursor++];
-        if (challenges.length >= _targetRounds) break;
-        final challenge = buildReviewChallenge(
-          word,
-          item,
-          definitionPool,
-          validWords,
-          strings: _s,
-          isGerman: _isDE,
-          optionCount: _optionCount,
-          rng: _rng,
-          catalogue: catalogue,
-        );
-        if (challenge != null) challenges.add(challenge);
-      }
-    }
 
     setState(() {
       _challenges = challenges;
@@ -239,6 +186,7 @@ class _SriReviewGameState extends State<SriReviewGame>
         'gradeLevel': challenge.word.gradeLevel,
         'responseFormat': challenge.type.name,
         'baseWord': challenge.word.word,
+        'wordId': challenge.word.id,
       },
     );
     _advanceTimer = Timer(const Duration(milliseconds: 2000), () {
@@ -326,8 +274,8 @@ class _SriReviewGameState extends State<SriReviewGame>
           child: _isLoading
               ? const Center(child: CircularProgressIndicator())
               : _challenges.isEmpty
-              ? _buildEmptyState()
-              : _buildGame(),
+                  ? _buildEmptyState()
+                  : _buildGame(),
         ),
       ),
     );
@@ -346,8 +294,8 @@ class _SriReviewGameState extends State<SriReviewGame>
               _sriService.totalTrackedItems == 0
                   ? _s.reviewNoWordsYet
                   : _hasDueItems
-                  ? _s.reviewUnsupportedItems
-                  : _s.reviewAllCaughtUp,
+                      ? _s.reviewUnsupportedItems
+                      : _s.reviewAllCaughtUp,
               style: SpaceTheme.bodyStyle.copyWith(color: Colors.white70),
               textAlign: TextAlign.center,
             ),
@@ -430,13 +378,13 @@ class _SriReviewGameState extends State<SriReviewGame>
     final label = ef < 1.5
         ? _s.difficultyVeryHard
         : ef < 2.0
-        ? _s.difficultyHard
-        : _s.difficultyPractice;
+            ? _s.difficultyHard
+            : _s.difficultyPractice;
     final color = ef < 1.5
         ? SpaceTheme.rocketRed
         : ef < 2.0
-        ? SpaceTheme.planetOrange
-        : SpaceTheme.starYellow;
+            ? SpaceTheme.planetOrange
+            : SpaceTheme.starYellow;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -504,8 +452,8 @@ class _SriReviewGameState extends State<SriReviewGame>
             color: _feedback == _Feedback.correct
                 ? SpaceTheme.alienGreen
                 : _feedback == _Feedback.incorrect
-                ? Colors.redAccent
-                : SpaceTheme.nebulaPurple.withValues(alpha: 0.5),
+                    ? Colors.redAccent
+                    : SpaceTheme.nebulaPurple.withValues(alpha: 0.5),
             width: _feedback != _Feedback.none ? 2 : 1,
           ),
         ),
@@ -574,9 +522,8 @@ class _SriReviewGameState extends State<SriReviewGame>
     Widget tile = AnimatedBuilder(
       animation: _pulseCtrl,
       builder: (_, child) => Transform.scale(
-        scale: (hasAnswered && isCorrect)
-            ? 1.0 + (_pulseCtrl.value * 0.025)
-            : 1.0,
+        scale:
+            (hasAnswered && isCorrect) ? 1.0 + (_pulseCtrl.value * 0.025) : 1.0,
         child: child,
       ),
       child: AnimatedContainer(

@@ -298,11 +298,17 @@ class _GrossstadtGameState extends State<GrossstadtGame>
     });
 
     _sriService.recordResponse(
-      skillType: LanguageSkillType.spelling,
+      skillType: LanguageSkillType.capitalization,
       baseWord: _currentItem!.lemma,
+      wordId: _currentItem!.wordId,
+      additionalInfo: _currentItem!.rule,
       wasCorrect: true,
       metadata: {
         'rule': _currentItem!.rule,
+        'contextBefore': _currentItem!.prefix,
+        'contextTarget': _currentItem!.target,
+        'contextAfter': _currentItem!.suffix,
+        'expectedCapitalized': _currentItem!.shouldBeCapitalized,
         'responseTimeMs':
             ((1.0 - _conveyorAnimation.value) * _conveyorSpeed * 1000).round(),
         'combo': _combo,
@@ -330,11 +336,17 @@ class _GrossstadtGameState extends State<GrossstadtGame>
     });
 
     _sriService.recordResponse(
-      skillType: LanguageSkillType.spelling,
+      skillType: LanguageSkillType.capitalization,
       baseWord: _currentItem!.lemma,
+      wordId: _currentItem!.wordId,
+      additionalInfo: _currentItem!.rule,
       wasCorrect: false,
       metadata: {
         'rule': _currentItem!.rule,
+        'contextBefore': _currentItem!.prefix,
+        'contextTarget': _currentItem!.target,
+        'contextAfter': _currentItem!.suffix,
+        'expectedCapitalized': _currentItem!.shouldBeCapitalized,
       },
     );
 

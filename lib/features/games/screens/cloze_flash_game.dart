@@ -264,6 +264,7 @@ class _ClozeFlashGameState extends State<ClozeFlashGame>
       _sriService.recordResponse(
         skillType: LanguageSkillType.reading,
         baseWord: challenge.word.word,
+        wordId: challenge.word.id,
         wasCorrect: true,
       );
     } else {
@@ -273,6 +274,7 @@ class _ClozeFlashGameState extends State<ClozeFlashGame>
       _sriService.recordResponse(
         skillType: LanguageSkillType.reading,
         baseWord: challenge.word.word,
+        wordId: challenge.word.id,
         wasCorrect: false,
       );
     }

@@ -24,7 +24,7 @@ class WordChallenge {
   final String context;
   final String explanation;
   final int difficulty;
-  final String wordId; // Base Lemma
+  final String wordId; // Stable dictionary entry id
   final GameMode mode;
   final String fullWord; // Specific Form
 
@@ -83,7 +83,7 @@ List<WordChallenge> buildCompoundChallenges(
         context: context,
         explanation: 'Nomen-Komposita schreibt man immer zusammen.',
         difficulty: 1,
-        wordId: noun.word,
+        wordId: noun.id,
         mode: GameMode.nomenKomposita,
         fullWord: noun.word,
       ));

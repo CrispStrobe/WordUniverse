@@ -194,6 +194,7 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
       _sriService.recordResponse(
         skillType: LanguageSkillType.spelling,
         baseWord: challenge.word.word,
+        wordId: challenge.word.id,
         wasCorrect: true,
       );
     } else {
@@ -203,6 +204,7 @@ class _SpellingSpotterGameState extends State<SpellingSpotterGame>
       _sriService.recordResponse(
         skillType: LanguageSkillType.spelling,
         baseWord: challenge.word.word,
+        wordId: challenge.word.id,
         wasCorrect: false,
       );
     }

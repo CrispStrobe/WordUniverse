@@ -236,7 +236,8 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
 
     _sriService.recordResponse(
       skillType: LanguageSkillType.spelling,
-      baseWord: _currentChallenge!.wordId,
+      baseWord: _currentChallenge!.fullWord,
+      wordId: _currentChallenge!.wordId,
       wasCorrect: true,
       metadata: {
         'game': 'wortbaumeister',
@@ -267,7 +268,8 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
 
     _sriService.recordResponse(
       skillType: LanguageSkillType.spelling,
-      baseWord: _currentChallenge!.wordId,
+      baseWord: _currentChallenge!.fullWord,
+      wordId: _currentChallenge!.wordId,
       wasCorrect: false,
       metadata: {
         'game': 'wortbaumeister',

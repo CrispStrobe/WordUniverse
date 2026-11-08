@@ -252,6 +252,7 @@ class _WordSortGameState extends State<WordSortGame>
     _sriService.recordResponse(
       skillType: LanguageSkillType.wordType,
       baseWord: _currentWord!.word,
+      wordId: _currentWord!.id,
       wasCorrect: isCorrect,
       metadata: {
         'gradeLevel': _currentWord!.gradeLevel,
