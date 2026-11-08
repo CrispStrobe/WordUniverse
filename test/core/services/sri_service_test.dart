@@ -32,16 +32,17 @@ void main() {
     int repetitions = 10,
     double easiness = 4,
     Map<String, dynamic>? metadata,
-  }) => SriLanguageData(
-    itemId: id,
-    skillType: skill,
-    successCount: successes,
-    failureCount: failures,
-    repetitions: repetitions,
-    easinessFactor: easiness,
-    nextReviewDate: now,
-    metadata: metadata,
-  );
+  }) =>
+      SriLanguageData(
+        itemId: id,
+        skillType: skill,
+        successCount: successes,
+        failureCount: failures,
+        repetitions: repetitions,
+        easinessFactor: easiness,
+        nextReviewDate: now,
+        metadata: metadata,
+      );
 
   test(
     'every emitted skill prefix resolves, including contextual suffixes',
@@ -253,6 +254,27 @@ void main() {
     final persisted = jsonDecode(prefs.getString('sri_language_database')!);
     expect(persisted['FUTURE_item'], future);
     expect(persisted[good.itemId]['s'], 13);
+  });
+
+  test('an unreadable database is retained before fresh practice saves',
+      () async {
+    const damaged = '{"SPELL_hund":';
+    SharedPreferences.setMockInitialValues({
+      'sri_language_database': damaged,
+    });
+    await service.loadSriData();
+    service.recordResponse(
+      skillType: LanguageSkillType.spelling,
+      baseWord: 'Hund',
+      wasCorrect: true,
+    );
+    await service.saveSriData();
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getString('sri_language_database_recovery'), damaged);
+    final persisted = jsonDecode(prefs.getString('sri_language_database')!);
+    expect(persisted['SPELL_hund']['s'], 1);
+    await service.clearAllData();
+    expect(prefs.containsKey('sri_language_database_recovery'), isFalse);
   });
 
   test(

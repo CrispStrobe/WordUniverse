@@ -215,7 +215,7 @@
       garantee
       garantees
       gaurantees
-    · shown after answering: I have a guarantee.
+    · shown after answering: The company offers a guarantee.
   Which spelling is correct?
       tempertaure
       temperture
@@ -233,25 +233,25 @@
 "The imagination."
     ✓ fancy
       fance
-    · type: spelling
-  "A lover of something."
-      beta
-    ✓ amateur
-      distinction
-      artist
-    · type: definition
-  "A written work edited and published, as by a certain editor or in a certain manner, or at a certain time."
-      laboratory
-      dude
-    ✓ edition
-      objective
-    · type: definition
-  "Exhibiting unsoundness or disorder of mind; not sane; utterly mad."
-      corporate
+    · type: spelling  assessedSkill: spelling
+  What word class?
+edition
+      Adjective
+      Verb
+    ✓ Noun
+      Pronoun
+    · type: wordType  assessedSkill: wordType
+  Capitalization
+The lesson had a clear ___.
+    ✓ objective
+      Objective
+    · type: capitalization  assessedSkill: capitalization
+  "of or relating to the area of Palestine and its inhabitants"
+    ✓ Palestinian
+      insane
       mutual
-    ✓ insane
       Italian
-    · type: definition
+    · type: definition  assessedSkill: vocabulary
 ── syllable_count (4)
   confirm
       1

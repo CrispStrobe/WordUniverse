@@ -110,6 +110,7 @@ class _WordFindGameState extends State<WordFindGame> {
       grade: widget.gradeLevel,
       count: wordCount,
       isPlayable: _isWordValidForGame,
+      skillFilter: LanguageSkillType.vocabulary,
     );
     // --- END ADAPTIVE SELECTION ---
 
@@ -279,9 +280,14 @@ class _WordFindGameState extends State<WordFindGame> {
             skillType: LanguageSkillType.vocabulary,
             baseWord: originalWord.word,
             wasCorrect: true,
+            // The target remains visible while the child finds it. This is
+            // useful recognition practice, not independent word recall.
+            wasAssisted: true,
             metadata: {
               'gradeLevel': originalWord.gradeLevel,
               'wordType': originalWord.wordType.toString(),
+              'responseFormat': 'wordSearch',
+              'targetShown': true,
             },
           );
         }
