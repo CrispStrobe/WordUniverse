@@ -2372,7 +2372,15 @@ class SEn extends S {
 
   @override
   String get reviewNoWordsYet =>
-      'No words to review yet.\nPlay a few rounds so the system can identify your weak spots!';
+      'No words to review yet.\nYour first exercises will start your personal review plan.';
+
+  @override
+  String get reviewAllCaughtUp =>
+      'You are caught up for now.\nYour words will return when they are due, including the ones you already know well.';
+
+  @override
+  String get reviewUnsupportedItems =>
+      'Some due tasks need their original context.\nPractise them in the matching game; they will stay in your review plan.';
 
   @override
   String get difficultyVeryHard => 'Very hard';
@@ -2558,15 +2566,15 @@ class SEn extends S {
 
   @override
   String get sriReviewOnboardingBody1 =>
-      'Practice your weakest words — selected based on your learning history.';
+      'Review due tasks from your earlier practice.';
 
   @override
   String get sriReviewOnboardingBody2 =>
-      'Each challenge adapts to the word: article, spelling, or definition.';
+      'Each question practises the same skill again, such as spelling, word classes, verb forms, or reading in a sentence.';
 
   @override
   String get sriReviewOnboardingBody3 =>
-      'Every correct answer raises the easiness factor of that word.';
+      'Your answer helps schedule the next review. Familiar words also return later to keep them fresh.';
 
   @override
   String get semanticsBack => 'Go back';
@@ -3379,4 +3387,25 @@ class SEn extends S {
   String whirlWrongFeedback(String word, String category) {
     return '✗ Wrong! $word does not belong to: $category';
   }
+
+  @override
+  String get goalKompassBw => 'Kompass 4 · BW German';
+
+  @override
+  String get kompassCourseNote =>
+      'German reading, spelling and language for early year 4 in Baden-Württemberg. Vocabulary difficulty is a separate setting. The course works without downloading a dictionary.';
+
+  @override
+  String get kompassVocabularyPreset => 'BW basic vocabulary';
+
+  @override
+  String get kompassVocabularyPresetBody =>
+      'Use BW1 and BW3 words in optional German word games. This replaces source, length and wildcard filters and clears active custom word sets. It does not change the course or language.';
+
+  @override
+  String get kompassVocabularyPresetApplied =>
+      'BW vocabulary filters are active.';
+
+  @override
+  String get kompassParentReport => 'Kompass observations and next steps';
 }

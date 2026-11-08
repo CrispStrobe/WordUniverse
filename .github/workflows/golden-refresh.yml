@@ -65,7 +65,7 @@ jobs:
         env:
           WU_GOLDEN_UPDATE: '1'
           WU_PACK_DE: ${{ github.workspace }}/.cache/packs/grundwortschatz.db
-        run: flutter test test/audit/challenge_golden_test.dart
+        run: python3 tools/ci/flutter_native_retry.py -- flutter test test/audit/challenge_golden_test.dart
 
       - name: Show what changed
         run: |

@@ -1075,7 +1075,7 @@
         }
     },
     "sriReviewHeader": "Wiederholung",
-    "reviewNoWordsYet": "Noch keine Wörter zum Wiederholen.\nSpiele ein paar Runden, damit das System deine schwachen Punkte erkennt!",
+    "reviewNoWordsYet": "Noch keine Wörter zum Wiederholen.\nMit deinen ersten Übungen entsteht dein persönlicher Wiederholungsplan.",
     "difficultyVeryHard": "Sehr schwierig",
     "difficultyHard": "Schwierig",
     "difficultyPractice": "Zum Üben",
@@ -1172,9 +1172,9 @@
     "synonymFlashOnboardingTimer": "Du hast 30 Sekunden. Je mehr richtige Antworten, desto besser dein Score.",
     "clozeFlashOnboardingBody1": "Ein Satz erscheint mit einem fehlenden Wort — tippe die richtige Antwort.",
     "clozeFlashOnboardingTimer": "Du hast 30 Sekunden. Lies den Kontext — er hilft dir!",
-    "sriReviewOnboardingBody1": "Hier übst du deine schwächsten Wörter — basierend auf deiner Lernhistorie.",
-    "sriReviewOnboardingBody2": "Jede Aufgabe passt sich dem Wort an: Artikel, Schreibweise oder Definition.",
-    "sriReviewOnboardingBody3": "Mit jeder richtigen Antwort steigt der Easiness Factor des Wortes.",
+    "sriReviewOnboardingBody1": "Hier wiederholst du fällige Aufgaben aus deinen bisherigen Übungen.",
+    "sriReviewOnboardingBody2": "Die Aufgabe übt dieselbe Fähigkeit erneut: zum Beispiel Rechtschreibung, Wortarten, Verbformen oder Lesen im Satz.",
+    "sriReviewOnboardingBody3": "Deine Antwort bestimmt die nächste Wiederholung. Auch sichere Wörter kommen später wieder dran.",
     "semanticsBack": "Zurück",
     "semanticsScore": "Punkte: {n}",
     "@semanticsScore": {
@@ -2072,5 +2072,13 @@
                 "type": "String"
             }
         }
-    }
+    },
+    "reviewAllCaughtUp": "Für jetzt ist alles wiederholt.\nDeine Wörter kommen zum passenden Zeitpunkt wieder dran — auch die, die du schon gut kannst.",
+    "reviewUnsupportedItems": "Einige fällige Aufgaben brauchen ihren ursprünglichen Zusammenhang.\nÜbe sie im passenden Spiel weiter; sie bleiben in deinem Wiederholungsplan.",
+    "goalKompassBw": "Kompass 4 · BW Deutsch",
+    "kompassCourseNote": "Lesen, Rechtschreiben und Sprache für den Beginn der Klasse 4 in Baden-Württemberg. Die Wortschatz-Schwierigkeit ist eine eigene Einstellung. Der Kurs funktioniert ohne Wörterbuch-Download.",
+    "kompassVocabularyPreset": "Grundwortschatz BW",
+    "kompassVocabularyPresetBody": "BW1- und BW3-Wörter in den ergänzenden deutschen Wortspielen nutzen. Ersetzt Quellen-, Längen- und Platzhalterfilter und hebt aktive eigene Wortlisten auf. Kurs und Sprache bleiben erhalten.",
+    "kompassVocabularyPresetApplied": "Die BW-Wortschatzfilter sind aktiv.",
+    "kompassParentReport": "Kompass: Beobachtungen und nächste Schritte"
 }
