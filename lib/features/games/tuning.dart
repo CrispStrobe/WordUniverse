@@ -21,6 +21,6 @@ const int kMinTrackedItemsForMastery = 10;
 // --- SM-2 spaced repetition constants ---
 const double kSm2InitialEasiness = 2.5;
 const double kSm2MinimumEasiness = 1.3;
-const double kSm2MasteryEasinessThreshold = 4.0;
-const int kSm2MinimumRepetitionsForMastery = 3;
-const int kSm2MaxFailuresForMastery = 1;
+const double kSm2MasteryEasinessThreshold = 3.5;
+const int kSm2MinimumRepetitionsForMastery = 5;
+const int kSm2MinimumSuccessesForMastery = 8;

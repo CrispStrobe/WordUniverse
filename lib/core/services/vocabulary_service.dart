@@ -336,6 +336,21 @@ class VocabularyService with ChangeNotifier {
     return index[key];
   }
 
+  /// Resolves old display-name records without changing their saved ids.
+  /// Try the complete spelling first so real phrases keep their identity.
+  GermanWord? findByReviewItem(SriLanguageData item) {
+    final written = item.identity.baseWord;
+    final exact = findByWrittenForm(written);
+    if (exact != null) return exact;
+    if (learningLanguage != 'de') return null;
+    final article = RegExp(r'^(der|die|das|ein|eine)\s+(.+)$',
+            caseSensitive: false)
+        .firstMatch(written.trim());
+    if (article == null) return null;
+    final noun = findByWrittenForm(article.group(2)!);
+    return noun?.wordType == GermanWordType.substantiv ? noun : null;
+  }
+
   /// Loads all words from SQLite into memory for game logic performance.
   /// Errors propagate to [initialize] so they can be surfaced to the user.
   Future<void> _loadVocabularyFromDB() async {
@@ -670,16 +685,27 @@ class VocabularyService with ChangeNotifier {
       limit: limit * 5,
       skillTypeFilter: LanguageSkillType.spelling,
       gradeLevelFilter: gradeFilter != null ? (gradeFilter.index + 1) : null,
+      markReturned: false,
     );
 
     final words = <GermanWord>[];
+    final itemByWordId = <String, String>{};
     for (final id in reviewIds) {
       // Word IDs that no longer match the current vocabulary are skipped.
-      final word = findByWrittenForm(id.replaceFirst('SPELL_', ''));
-      if (word != null) words.add(word);
+      final item = sriService.getItemData(id);
+      if (item == null) continue;
+      final word = findByReviewItem(item);
+      if (word == null || itemByWordId.containsKey(word.id)) continue;
+      if (gradeFilter != null && word.gradeLevel != gradeFilter.index + 1) {
+        continue;
+      }
+      words.add(word);
+      itemByWordId[word.id] = id;
     }
     final filteredWords = _applyVocabularyFilters(words, settingsProvider);
-    return filteredWords.take(limit).toList();
+    final selected = filteredWords.take(limit).toList();
+    sriService.markItemsReturned(selected.map((word) => itemByWordId[word.id]!));
+    return selected;
   }
 
   List<GermanWord> getNewWords({
@@ -687,6 +713,7 @@ class VocabularyService with ChangeNotifier {
     required GameProvider settingsProvider,
     required GradeLevel grade,
     int limit = 5,
+    LanguageSkillType skillType = LanguageSkillType.spelling,
     // Seeded by the audit harness so a dumped round can be reproduced; the
     // games leave it null and meet different words every session.
     Random? rng,
@@ -696,7 +723,7 @@ class VocabularyService with ChangeNotifier {
     final studiedWords = <String>{};
     for (final word in newWords) {
       final spellingId = sriService.getItemId(
-        skillType: LanguageSkillType.spelling,
+        skillType: skillType,
         baseWord: word.word,
       );
       if (sriService.getItemData(spellingId) != null) {
