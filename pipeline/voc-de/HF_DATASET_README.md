@@ -232,8 +232,16 @@ wordlists declared this lemma. Distribution across the 10,450 words:
 | `SCHLESWIG_HOLSTEIN` | 633 | Rechtschreib-Grundwortschatz SH (SH MinBuB / IQSH, 2023) | §5 UrhG amtliches Werk |
 | `A2` | 602 | DWDS Goethe-Zertifikat A2 lemma list | factual reference |
 | `NRW422`, `NRW111` | 532 | NRW Grundwortschatz (Min. f. Schule u. Bildung NRW) | public administrative |
-| `BW1`, `BW3` | 774 | Baden-Württemberg Grundwortschatz | public administrative |
+| `BW1`, `BW3` | 774 source memberships | Baden-Württemberg Grundwortschatz | public administrative |
 | `FEHLER100/200/300/400` | 932 | Common-misspelling lists from Menzel 1985 (empirical study) | facts (uncopyrightable) |
+
+The BW table value is a sum of source memberships, not a distinct-word
+count. The runtime pack pinned at `c3a5df9a2ee686edde091bba918cf5c8a1ec82f4`
+has 393 BW1 rows and 381 BW3 rows, with five rows carrying both tags: 769
+distinct rows. Source parsing and capitalization defects also mean those
+tags do not establish complete official-list coverage. The
+[BW coverage audit](../../docs/bw-vocabulary-coverage.md) distinguishes the
+historical pack, repaired CSV import, and verified membership overlay.
 
 ## Per-Bundesland orthographic categories
 
