@@ -72,10 +72,7 @@ SentenceChallenge? buildSentenceChallenge({
   final meaningCue = word.learnerDefinitions.first.trim();
   // Do not switch to a different dictionary sense to avoid a giveaway. If the
   // primary clue names the answer, leave this item for another exercise.
-  if (blankWord(meaningCue, word.word, forms: forms.map((form) => form.text)) !=
-      null) {
-    return null;
-  }
+  if (_cueNamesAnswer(meaningCue, forms)) return null;
 
   final shuffledSents = List<String>.from(sents)..shuffle(random);
   for (final sent in shuffledSents) {
@@ -274,6 +271,18 @@ bool _partOfSpeechMatches(GermanWord word) {
     _ => false,
   };
 }
+
+/// A source token cannot be cut out of a compound, but a clue such as
+/// "bulb-shaped" still writes the answer `bulb` in front of the learner.
+/// Treat hyphens as boundaries here without loosening source-span matching.
+bool _cueNamesAnswer(String cue, List<_DeclaredForm> forms) =>
+    forms.any((form) => RegExp(
+            r'(^|[^\p{L}\p{M}\p{N}_])' +
+                RegExp.escape(form.text) +
+                r'(?=$|[^\p{L}\p{M}\p{N}_])',
+            unicode: true,
+            caseSensitive: false)
+        .hasMatch(cue));
 
 bool _usableAsOption(GermanWord word) =>
     _contentTypes.contains(word.wordType) &&

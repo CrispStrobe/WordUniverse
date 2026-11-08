@@ -2557,7 +2557,7 @@ class SDe extends S {
 
   @override
   String sentenceCompletionMeaningCue(String definition) {
-    return 'Das gesuchte Wort kann bedeuten: $definition';
+    return 'Eine mögliche Bedeutung: $definition';
   }
 
   @override
@@ -3430,6 +3430,9 @@ class SDe extends S {
   @override
   String get reviewAllCaughtUp =>
       'Für jetzt ist alles wiederholt.\nDeine Wörter kommen zum passenden Zeitpunkt wieder dran — auch die, die du schon gut kannst.';
+
+  @override
+  String get reviewItemWordUnavailable => 'Wort nicht verfügbar';
 
   @override
   String get reviewUnsupportedItems =>

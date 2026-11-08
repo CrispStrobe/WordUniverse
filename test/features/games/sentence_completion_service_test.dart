@@ -309,6 +309,22 @@ void main() {
       expect(_build(word), isNull);
     });
 
+    test('rejects answer-bearing hyphen compounds in a meaning cue', () {
+      final word = _word('bulb', definitions: [
+        'The bulb-shaped underground portion of a plant.'
+      ], examples: {
+        '4': ['The flower grows from a bulb.']
+      });
+      expect(
+          _build(word, isGerman: false, pool: [
+            word,
+            _word('seed', definitions: ['The part from which a plant grows.']),
+          ]),
+          isNull);
+      // Source matching remains strict: this must not blank half a compound.
+      expect(blankWord('A bulb-shaped object is here.', 'bulb'), isNull);
+    });
+
     test('excludes synonyms in either direction and identical meanings', () {
       final word = _word('Tisch', synonyms: [
         'Schreibtisch'

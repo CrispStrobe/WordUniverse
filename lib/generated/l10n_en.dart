@@ -2521,7 +2521,7 @@ class SEn extends S {
 
   @override
   String sentenceCompletionMeaningCue(String definition) {
-    return 'The missing word can mean: $definition';
+    return 'One possible meaning: $definition';
   }
 
   @override
@@ -3389,6 +3389,9 @@ class SEn extends S {
   @override
   String get reviewAllCaughtUp =>
       'You are caught up for now.\nYour words will return when they are due, including the ones you already know well.';
+
+  @override
+  String get reviewItemWordUnavailable => 'Word unavailable';
 
   @override
   String get reviewUnsupportedItems =>

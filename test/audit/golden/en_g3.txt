@@ -184,29 +184,33 @@
     · phrasal: pass on  means: to move forward or go ahead
 ── sentence_completion (4)
   The town has a special ___.
-The missing word can mean: A part of culture that is passed from person to person or generation to generation, possibly differing in detail from family to family, such as the way to celebrate holidays.
+A part of culture that is passed from person to person or generation to generation, possibly differing in detail from family to family, such as the way to celebrate holidays.
       maintenance
       alien
       wheat
     ✓ tradition
+    · cue label: One possible meaning: …
   I need the ___ same one.
-The missing word can mean: Precisely agreeing with a standard, a fact, or the truth; perfectly conforming; neither exceeding nor falling short in any respect.
+Precisely agreeing with a standard, a fact, or the truth; perfectly conforming; neither exceeding nor falling short in any respect.
       shocking
       cheap
       complex
     ✓ exact
+    · cue label: One possible meaning: …
   Some people have an ___ to playing video games.
-The missing word can mean: A state that is characterized by compulsive drug use or compulsive engagement in rewarding behavior, despite negative consequences.
+A state that is characterized by compulsive drug use or compulsive engagement in rewarding behavior, despite negative consequences.
       strip
       killer
     ✓ addiction
       joy
+    · cue label: One possible meaning: …
   The girl blushed on her ___.
-The missing word can mean: The soft skin on each side of the face, below the eyes; the outer surface of the sides of the oral cavity.
+The soft skin on each side of the face, below the eyes; the outer surface of the sides of the oral cavity.
       destination
       addiction
       alien
     ✓ cheek
+    · cue label: One possible meaning: …
 ── spelling_spotter (4)
   Which spelling is correct?
       approxiately

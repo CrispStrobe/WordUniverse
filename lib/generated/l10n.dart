@@ -4513,7 +4513,7 @@ abstract class S {
   /// No description provided for @sentenceCompletionMeaningCue.
   ///
   /// In en, this message translates to:
-  /// **'The missing word can mean: {definition}'**
+  /// **'One possible meaning: {definition}'**
   String sentenceCompletionMeaningCue(String definition);
 
   /// No description provided for @sentenceCompletionPrompt.
@@ -5806,6 +5806,12 @@ abstract class S {
   /// In en, this message translates to:
   /// **'You are caught up for now.\nYour words will return when they are due, including the ones you already know well.'**
   String get reviewAllCaughtUp;
+
+  /// No description provided for @reviewItemWordUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Word unavailable'**
+  String get reviewItemWordUnavailable;
 
   /// No description provided for @reviewUnsupportedItems.
   ///

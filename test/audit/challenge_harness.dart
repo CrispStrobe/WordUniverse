@@ -598,10 +598,14 @@ final Map<String, Generator> generators = {
       )
           .map((ch) => Item(
                 game: 'sentence_completion',
-                prompt: '${ch.before}___${ch.after}\n'
-                    '${c.strings.sentenceCompletionMeaningCue(ch.meaningCue)}',
+                // Audit the complete dynamic clue, without static UI words
+                // such as ‘Wort’ / ‘meaning’ becoming false answer leaks.
+                prompt: '${ch.before}___${ch.after}\n${ch.meaningCue}',
                 options: ch.options,
                 answer: ch.options[ch.correctIndex],
+                notes: {
+                  'cue label': c.strings.sentenceCompletionMeaningCue('…')
+                },
               ))
           .toList(),
   'word_class_flash': (c) async {

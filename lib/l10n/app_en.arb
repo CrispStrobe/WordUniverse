@@ -1285,7 +1285,7 @@
     "definitionQuizOnboardingBody1": "A definition is shown — pick the matching word from four options.",
     "definitionQuizOnboardingBody2": "All options come from the same CEFR level so nothing is too obvious.",
     "definitionQuizOnboardingBody3": "From vocabulary level 5, a language note appears after a correct answer.",
-    "sentenceCompletionMeaningCue": "The missing word can mean: {definition}",
+    "sentenceCompletionMeaningCue": "One possible meaning: {definition}",
     "@sentenceCompletionMeaningCue": {"placeholders": {"definition": {"type": "String"}}},
     "sentenceCompletionPrompt": "Which word matches the clue and completes the sentence?",
     "sentenceCompletionOnboardingBody1": "Read the sentence with a gap and the clue about the meaning to look for.",
@@ -2199,6 +2199,7 @@
         }
     },
     "reviewAllCaughtUp": "You are caught up for now.\nYour words will return when they are due, including the ones you already know well.",
+    "reviewItemWordUnavailable": "Word unavailable",
     "reviewUnsupportedItems": "Some due tasks need their original context.\nPractise them in the matching game; they will stay in your review plan.",
     "goalKompassBw": "Kompass 4 · BW German",
     "kompassCourseNote": "German reading, spelling and language for early year 4 in Baden-Württemberg. Vocabulary difficulty is a separate setting. The course works without downloading a dictionary.",

@@ -8,6 +8,8 @@ import 'package:provider/provider.dart';
 
 import '../../../core/services/sri_service.dart';
 import '../../../core/theme/space_theme.dart';
+import '../../../generated/l10n.dart';
+import '../services/sri_item_display.dart';
 
 class SriReviewScreen extends StatelessWidget {
   const SriReviewScreen({super.key});
@@ -53,8 +55,7 @@ class SriReviewScreen extends StatelessWidget {
                 children: [
                   for (final p in hardest)
                     ListTile(
-                      title: Text(p.itemId,
-                          style: const TextStyle(fontFamily: 'monospace')),
+                      title: Text(sriItemDisplayLabel(S.of(context)!, p)),
                       subtitle: Text(
                         'EF ${p.easinessFactor.toStringAsFixed(2)} · '
                         '${p.successCount}✓ ${p.failureCount}✗ · '
