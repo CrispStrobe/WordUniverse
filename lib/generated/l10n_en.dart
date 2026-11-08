@@ -2375,14 +2375,6 @@ class SEn extends S {
       'No words to review yet.\nYour first exercises will start your personal review plan.';
 
   @override
-  String get reviewAllCaughtUp =>
-      'You are caught up for now.\nYour words will return when they are due, including the ones you already know well.';
-
-  @override
-  String get reviewUnsupportedItems =>
-      'Some due tasks need their original context.\nPractise them in the matching game; they will stay in your review plan.';
-
-  @override
   String get difficultyVeryHard => 'Very hard';
 
   @override
@@ -3387,6 +3379,14 @@ class SEn extends S {
   String whirlWrongFeedback(String word, String category) {
     return '✗ Wrong! $word does not belong to: $category';
   }
+
+  @override
+  String get reviewAllCaughtUp =>
+      'You are caught up for now.\nYour words will return when they are due, including the ones you already know well.';
+
+  @override
+  String get reviewUnsupportedItems =>
+      'Some due tasks need their original context.\nPractise them in the matching game; they will stay in your review plan.';
 
   @override
   String get goalKompassBw => 'Kompass 4 · BW German';

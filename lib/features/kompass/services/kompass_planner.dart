@@ -15,6 +15,21 @@ class KompassPlan {
 /// Content estimates are a planning aid, not a speed target. Reading a shared
 /// passage is budgeted once per session, even if it was seen on a previous day.
 class KompassPlanner {
+  static bool isFresh(
+      KompassCourse course, KompassProgressService progress, KompassTask task) {
+    if (task.kind == 'instruction' || progress.latestAttempt(task.id) != null)
+      return false;
+    if (task.competencyIds.any(progress.notTaught.contains) ||
+        task.prerequisiteCompetencyIds.any(progress.notTaught.contains))
+      return false;
+    if (task.competencyIds.any((id) =>
+        (course.competencyById(id)?.prerequisites ?? [])
+            .any(progress.notTaught.contains))) return false;
+    return task.stimulusId == null ||
+        !progress.attempts.any(
+            (a) => a.courseId == course.id && a.stimulusId == task.stimulusId);
+  }
+
   static KompassPlan build(
     KompassCourse course,
     KompassProgressService progress,
@@ -48,9 +63,7 @@ class KompassPlanner {
           progress.notTaught.contains,
         ),
       )) return false;
-      if (independent)
-        return task.kind != 'instruction' &&
-            progress.latestAttempt(task.id) == null;
+      if (independent) return isFresh(course, progress, task);
       return task.kind != 'transfer';
     }).toList();
 

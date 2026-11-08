@@ -48,6 +48,11 @@ jobs:
       - name: Check the pack repair rules
         run: python3 tools/pack/repair_pack_test.py
 
+      - name: Check BW source import and provenance
+        run: |
+          pip install --quiet pandas
+          python3 -m unittest discover -s pipeline/voc-de -p 'test_bw_source_lists.py'
+
       - name: Check the native download retry policy
         run: python3 tools/ci/flutter_native_retry_test.py
 

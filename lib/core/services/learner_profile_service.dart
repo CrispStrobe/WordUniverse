@@ -47,7 +47,8 @@ class LearnerProfileService extends ChangeNotifier {
     _onboardingComplete = _prefs.getBool(_onboardingKey) ?? false;
     final goalIndex = _prefs.getInt(_goalKey) ?? LearnerGoal.balanced.index;
     _goal = goalIndex >= 0 && goalIndex < LearnerGoal.values.length
-        ? LearnerGoal.values[goalIndex] : LearnerGoal.balanced;
+        ? LearnerGoal.values[goalIndex]
+        : LearnerGoal.balanced;
     _sessionMinutes = (_prefs.getInt(_minutesKey) ?? 10).clamp(5, 20);
     _focusMode = _prefs.getBool(_focusModeKey) ?? false;
     _favoriteGameIds = (_prefs.getStringList(_favoritesKey) ?? []).toSet();

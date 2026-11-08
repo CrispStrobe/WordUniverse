@@ -4264,18 +4264,6 @@ abstract class S {
   /// **'No words to review yet.\nYour first exercises will start your personal review plan.'**
   String get reviewNoWordsYet;
 
-  /// No description provided for @reviewAllCaughtUp.
-  ///
-  /// In en, this message translates to:
-  /// **'You are caught up for now.\nYour words will return when they are due, including the ones you already know well.'**
-  String get reviewAllCaughtUp;
-
-  /// No description provided for @reviewUnsupportedItems.
-  ///
-  /// In en, this message translates to:
-  /// **'Some due tasks need their original context.\nPractise them in the matching game; they will stay in your review plan.'**
-  String get reviewUnsupportedItems;
-
   /// No description provided for @difficultyVeryHard.
   ///
   /// In en, this message translates to:
@@ -5806,6 +5794,18 @@ abstract class S {
   /// In en, this message translates to:
   /// **'✗ Wrong! {word} does not belong to: {category}'**
   String whirlWrongFeedback(String word, String category);
+
+  /// No description provided for @reviewAllCaughtUp.
+  ///
+  /// In en, this message translates to:
+  /// **'You are caught up for now.\nYour words will return when they are due, including the ones you already know well.'**
+  String get reviewAllCaughtUp;
+
+  /// No description provided for @reviewUnsupportedItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Some due tasks need their original context.\nPractise them in the matching game; they will stay in your review plan.'**
+  String get reviewUnsupportedItems;
 
   /// No description provided for @goalKompassBw.
   ///
