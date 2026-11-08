@@ -509,6 +509,20 @@ class GameProvider extends ChangeNotifier {
   }
 
   // --- Setters for Task Customization ---
+  /// Explicit preset action. German content remains behind the ordinary pack
+  /// gate; the curriculum course has its own independent content and progress.
+  Future<void> applyBwVocabularyPreset() async {
+    _tasksCustomizationEnabled = true;
+    _taskIncludedSources = {'BW1', 'BW3'};
+    _taskWordLengthMin = 2;
+    _taskWordLengthMax = 20;
+    _taskIncludeWildcards = [];
+    _taskExcludeWildcards = [];
+    _activeVocabularySetIds.clear();
+    await _saveProgress();
+    notifyListeners();
+  }
+
   void setTasksCustomizationEnabled(bool enabled) {
     _tasksCustomizationEnabled = enabled;
     notifyListeners();

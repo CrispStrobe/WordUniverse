@@ -27,7 +27,8 @@
     "Zeit- und Schwierigkeitsangaben sind nicht empirisch kalibriert. Gezeigte Lernstände gelten nur für die bearbeiteten Aufgaben.",
     "Interaktive Antwortzuordnungen sind Entwürfe. Die Quelle dokumentiert Projektprüfungen, keine unabhängige Lehrerfreigabe dieser digitalen Fassung.",
     "Offene Antworten werden anhand einer Rubrik selbst oder gemeinsam geprüft. Das ist keine unabhängige automatische Bewertung.",
-    "Vor neuen Grammatik- oder Rechtschreibthemen den tatsächlichen Unterrichtsstand beachten."
+    "Vor neuen Grammatik- oder Rechtschreibthemen den tatsächlichen Unterrichtsstand beachten.",
+    "Für das erste Lesen in einer Runde werden 300 Sekunden je ursprünglichem Lesetext, 120 Sekunden für die kurze Transfergeschichte und 30 Sekunden für deren kleine Tabelle eingeplant. Das sind Schätzungen, keine Vorgaben für die Lesegeschwindigkeit."
   ],
   "competencies": [
     {
@@ -1516,6 +1517,7 @@
         18,
         24
       ],
+      "readingSeconds": 300,
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
@@ -1690,6 +1692,7 @@
         18,
         24
       ],
+      "readingSeconds": 300,
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
@@ -1864,6 +1867,7 @@
         18,
         24
       ],
+      "readingSeconds": 300,
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
@@ -2038,6 +2042,7 @@
         18,
         24
       ],
+      "readingSeconds": 300,
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
@@ -2110,6 +2115,7 @@
         }
       ],
       "blocks": [],
+      "readingSeconds": 120,
       "kind": "passage",
       "source": {
         "kind": "project-original",
@@ -2149,6 +2155,7 @@
         }
       ],
       "kind": "table",
+      "readingSeconds": 30,
       "source": {
         "kind": "project-original",
         "reviewStatus": "draft",
@@ -2270,7 +2277,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "a94c128a9929bfe63df0feaf47ecfaaf545349951a9da8088a7860f73f9d08b3"
+        "companionSha256": "03d9057e6ba29005dde845b70a44ede39c6c47b2c99d2acc8b5a18d54fc9cfa1"
       },
       "sourceRubric": [
         "a: 1 Punkt für Montag. Herbstferien allein beantwortet die Frage nach dem Wochentag nicht.",
@@ -2422,7 +2429,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "a94c128a9929bfe63df0feaf47ecfaaf545349951a9da8088a7860f73f9d08b3"
+        "companionSha256": "03d9057e6ba29005dde845b70a44ede39c6c47b2c99d2acc8b5a18d54fc9cfa1"
       },
       "sourceRubric": [
         "a: 1 Punkt für ausschließlich nein, sonst 0 Punkte.",
@@ -2580,7 +2587,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "a94c128a9929bfe63df0feaf47ecfaaf545349951a9da8088a7860f73f9d08b3"
+        "companionSha256": "03d9057e6ba29005dde845b70a44ede39c6c47b2c99d2acc8b5a18d54fc9cfa1"
       },
       "sourceRubric": [
         "a: 1 Punkt für ausschließlich B.",
@@ -2690,7 +2697,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "a94c128a9929bfe63df0feaf47ecfaaf545349951a9da8088a7860f73f9d08b3"
+        "companionSha256": "03d9057e6ba29005dde845b70a44ede39c6c47b2c99d2acc8b5a18d54fc9cfa1"
       },
       "sourceRubric": [
         "Je 1 Punkt für jeden der beiden verschiedenen Gründe, höchstens 2 Punkte. Die Reihenfolge und das benutzte Antwortfeld sind unerheblich.",
@@ -2853,7 +2860,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "a94c128a9929bfe63df0feaf47ecfaaf545349951a9da8088a7860f73f9d08b3"
+        "companionSha256": "03d9057e6ba29005dde845b70a44ede39c6c47b2c99d2acc8b5a18d54fc9cfa1"
       },
       "sourceRubric": [
         "a: 1 Punkt für ausschließlich A.",
@@ -3056,7 +3063,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "a94c128a9929bfe63df0feaf47ecfaaf545349951a9da8088a7860f73f9d08b3"
+        "companionSha256": "03d9057e6ba29005dde845b70a44ede39c6c47b2c99d2acc8b5a18d54fc9cfa1"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für die richtige Zahl an einer der vier abgedruckten Positionen: 3, 4, 1, 2. Insgesamt höchstens 2 Punkte.",
@@ -3234,7 +3241,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "a94c128a9929bfe63df0feaf47ecfaaf545349951a9da8088a7860f73f9d08b3"
+        "companionSha256": "03d9057e6ba29005dde845b70a44ede39c6c47b2c99d2acc8b5a18d54fc9cfa1"
       },
       "sourceRubric": [
         "a: 1 Punkt für ausschließlich B. Gleichzeitig begrenzt die Zahl der parallel ausgeliehenen Spielsachen; nach einer Rückgabe ist ein Wechsel erlaubt.",
@@ -3419,7 +3426,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "a94c128a9929bfe63df0feaf47ecfaaf545349951a9da8088a7860f73f9d08b3"
+        "companionSha256": "03d9057e6ba29005dde845b70a44ede39c6c47b2c99d2acc8b5a18d54fc9cfa1"
       },
       "sourceRubric": [
         "a: 1 Punkt für Tom, sonst 0 Punkte.",
@@ -3552,7 +3559,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "a94c128a9929bfe63df0feaf47ecfaaf545349951a9da8088a7860f73f9d08b3"
+        "companionSha256": "03d9057e6ba29005dde845b70a44ede39c6c47b2c99d2acc8b5a18d54fc9cfa1"
       },
       "sourceRubric": [
         "Je 1 Punkt für Heute und Buch mit richtigem Anfangsbuchstaben. Die Reihenfolge der beiden Wörter spielt keine Rolle. Wenn das Kind freiwillig den ganzen Satz richtig aufschreibt, ebenfalls 2 Punkte. Emil ist bereits richtig geschrieben und zählt nicht als Berichtigung. Höchstens 2 Punkte."
@@ -3679,7 +3686,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "a94c128a9929bfe63df0feaf47ecfaaf545349951a9da8088a7860f73f9d08b3"
+        "companionSha256": "03d9057e6ba29005dde845b70a44ede39c6c47b2c99d2acc8b5a18d54fc9cfa1"
       },
       "sourceRubric": [
         "a) 1 Punkt für Berg. b) 1 Punkt für Berge. Die beiden Einträge getrennt bewerten: Eine richtige Mehrzahl erhält ihren Punkt auch dann, wenn a falsch ist. Andere Wörter, die lediglich ähnlich klingen, sind keine Verlängerung. Höchstens 2 Punkte."
@@ -3807,7 +3814,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "a94c128a9929bfe63df0feaf47ecfaaf545349951a9da8088a7860f73f9d08b3"
+        "companionSha256": "03d9057e6ba29005dde845b70a44ede39c6c47b2c99d2acc8b5a18d54fc9cfa1"
       },
       "sourceRubric": [
         "a) 1 Punkt für kälter. b) 1 Punkt für kalt oder ein anderes tatsächlich verwandtes Wort mit a, das die Ableitung klärt, zum Beispiel kalte oder erkalten. Die Antworten unabhängig bewerten. Ein unverbundenes Wort mit a erhält keinen Punkt. Höchstens 2 Punkte."
@@ -3933,7 +3940,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "a94c128a9929bfe63df0feaf47ecfaaf545349951a9da8088a7860f73f9d08b3"
+        "companionSha256": "03d9057e6ba29005dde845b70a44ede39c6c47b2c99d2acc8b5a18d54fc9cfa1"
       },
       "sourceRubric": [
         "Je 1 Punkt für Puppe und Koffer. Die beiden Wörter getrennt bewerten. Ein erklärender Regelsatz ist nicht verlangt. Höchstens 2 Punkte."
@@ -4051,7 +4058,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "a94c128a9929bfe63df0feaf47ecfaaf545349951a9da8088a7860f73f9d08b3"
+        "companionSha256": "03d9057e6ba29005dde845b70a44ede39c6c47b2c99d2acc8b5a18d54fc9cfa1"
       },
       "sourceRubric": [
         "a) 1 Punkt für ß in hei____. b) 1 Punkt für ss in Ki____en. Auch die ausgeschriebenen richtigen Wörter heiß und Kissen gelten. Die beiden Lücken getrennt bewerten. Höchstens 2 Punkte."
@@ -4235,7 +4242,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "a94c128a9929bfe63df0feaf47ecfaaf545349951a9da8088a7860f73f9d08b3"
+        "companionSha256": "03d9057e6ba29005dde845b70a44ede39c6c47b2c99d2acc8b5a18d54fc9cfa1"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für die Berichtigungen Mittwoch, Brot, liegt und Tisch. Die Reihenfolge ist beliebig. Das richtige Unterstreichen allein erhält noch keinen Punkt, weil die Berichtigung geprüft wird. Eine richtige Berichtigung zählt auch dann, wenn das falsche Wort nicht zusätzlich unterstrichen wurde. Die übrigen Textwörter müssen nicht abgeschrieben werden. Höchstens 2 Punkte."
@@ -4413,7 +4420,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "a94c128a9929bfe63df0feaf47ecfaaf545349951a9da8088a7860f73f9d08b3"
+        "companionSha256": "03d9057e6ba29005dde845b70a44ede39c6c47b2c99d2acc8b5a18d54fc9cfa1"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für den Doppelpunkt nach sagt, das öffnende Anführungszeichen vor Der, das schließende Anführungszeichen am Ende der gesprochenen Wörter und den Punkt nach gleich vor dem schließenden Anführungszeichen. Die genaue Stellung des Punkts wird nur beim Punkt bewertet: Steht der Punkt fälschlich außerhalb der Anführungszeichen, bleiben die 0,5 Punkte für ein ansonsten richtig gesetztes schließendes Anführungszeichen erhalten. Übliche handschriftliche oder typografische Formen der doppelten Anführungszeichen anerkennen. Ein Ausrufezeichen erfüllt den ausdrücklich verlangten Punkt nicht. Höchstens 2 Punkte."
@@ -4430,7 +4437,8 @@
       "sourceTaskSha256": "e87802faf30f70bae382e31076258f4325db72d2320529871c180e82d1293c3f",
       "prerequisiteCompetencyIds": [],
       "requiresTaughtContent": true,
-      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde."
+      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
+      "digitalInstructions": "Schreibe den Satz unten einmal vollständig mit den verlangten Satzzeichen. Danach prüfst du vier Kriterien getrennt."
     },
     {
       "id": "d1_16",
@@ -4540,7 +4548,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "a94c128a9929bfe63df0feaf47ecfaaf545349951a9da8088a7860f73f9d08b3"
+        "companionSha256": "03d9057e6ba29005dde845b70a44ede39c6c47b2c99d2acc8b5a18d54fc9cfa1"
       },
       "sourceRubric": [
         "Wortgrenzen: 1 Punkt, wenn alle sieben Wörter richtig getrennt sind; 0,5 Punkte bei genau einer fehlenden oder zusätzlich eingefügten Wortgrenze; sonst 0 Punkte. Groß- und Kleinschreibung: 1 Punkt, wenn alle sieben Wörter richtig geschrieben sind; 0,5 Punkte bei genau einem Wort mit falscher Groß- oder Kleinschreibung; sonst 0 Punkte. Die beiden Kriterien unabhängig bewerten. Mehrere Leerzeichen zwischen zwei Wörtern zählen als eine Wortgrenze. Der bereits vorgegebene Schlusspunkt erhält keinen eigenen Punkt. Höchstens 2 Punkte."
@@ -4715,7 +4723,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "a94c128a9929bfe63df0feaf47ecfaaf545349951a9da8088a7860f73f9d08b3"
+        "companionSha256": "03d9057e6ba29005dde845b70a44ede39c6c47b2c99d2acc8b5a18d54fc9cfa1"
       },
       "sourceRubric": [
         "a) 1 Punkt für die erkennbare Zusammensetzung Regenjacke in dieser Reihenfolge. Eine eindeutige Darstellung der Verbindung mit Bindestrich ebenfalls anerkennen; zwei unverbundene Wörter sind keine gebildete Zusammensetzung. b) 0,5 Punkte für backen in der verlangten Grundform und unabhängig davon 0,5 Punkte für Verb beziehungsweise eine eindeutige gleichbedeutende Wortartbezeichnung. Back- oder back zeigt die Zerlegung, erfüllt aber den ausdrücklich verlangten Infinitiv nicht. Die Wortart wird bezogen auf den Zielbestandteil bewertet, auch wenn die Grundform fehlt oder falsch geschrieben ist. Orthografische Ungenauigkeiten nicht zusätzlich abziehen, sofern Zusammensetzung beziehungsweise grammatische Form erkennbar bleiben. Höchstens 2 Punkte."
@@ -4863,7 +4871,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "a94c128a9929bfe63df0feaf47ecfaaf545349951a9da8088a7860f73f9d08b3"
+        "companionSha256": "03d9057e6ba29005dde845b70a44ede39c6c47b2c99d2acc8b5a18d54fc9cfa1"
       },
       "sourceRubric": [
         "a) 1 Punkt für die eindeutige Auswahl ausschließlich von fand. Werden weitere Wörter mit ausgewählt, 0 Punkte für a; eindeutig zurückgenommene Markierungen nicht mitzählen. b) Unabhängig von a 1 Punkt für finden. Personalformen wie findet oder fanden erfüllen den Auftrag Grundform nicht. Rechtschreibfehler nicht zusätzlich werten, solange die beabsichtigte Grundform eindeutig erkennbar ist. Höchstens 2 Punkte."
@@ -5029,7 +5037,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "a94c128a9929bfe63df0feaf47ecfaaf545349951a9da8088a7860f73f9d08b3"
+        "companionSha256": "03d9057e6ba29005dde845b70a44ede39c6c47b2c99d2acc8b5a18d54fc9cfa1"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für den in einem Wort genau abgegrenzten Stamm bau beziehungsweise Bau, insgesamt vier unabhängige Markierungen. Werden im jeweiligen Wort zusätzlich um, en, werk oder stelle mitmarkiert oder Teile des Stamms ausgelassen, erhält nur diese Markierung 0 Punkte. Einkreisen, Einklammern oder eine eindeutig dem einzelnen Wort zugeordnete Stammangabe sind gleichwertig. Groß- und Kleinschreibung bei zusätzlich aufgeschriebenen Stammangaben nicht bewerten. Höchstens 2 Punkte."
@@ -5151,7 +5159,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "a94c128a9929bfe63df0feaf47ecfaaf545349951a9da8088a7860f73f9d08b3"
+        "companionSha256": "03d9057e6ba29005dde845b70a44ede39c6c47b2c99d2acc8b5a18d54fc9cfa1"
       },
       "sourceRubric": [
         "Je 1 Punkt für die passende Form kleinen beziehungsweise blaue. Beide Lücken unabhängig bewerten. Eine vollständig abgeschriebene richtige Satzfassung ist ebenfalls zulässig, aber nicht erforderlich. Bewertet werden das vorgegebene Adjektiv und seine passende Endung; eine grammatisch andere Endung wie kleiner oder blaues ist falsch. Sonstige Rechtschreibfehler und Großschreibung nicht zusätzlich abziehen, wenn die verlangte Form eindeutig erkennbar bleibt. Höchstens 2 Punkte."
@@ -5193,7 +5201,7 @@
         {
           "id": "a",
           "type": "text",
-          "prompt": "gut – … – am besten:",
+          "prompt": "Erste Vergleichsform zu gut:",
           "options": [],
           "answers": [
             "besser",
@@ -5220,7 +5228,7 @@
         {
           "id": "b",
           "type": "text",
-          "prompt": "gut – besser – am …:",
+          "prompt": "Zweite Vergleichsform zu gut: am …",
           "options": [],
           "answers": [
             "besten",
@@ -5267,7 +5275,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "a94c128a9929bfe63df0feaf47ecfaaf545349951a9da8088a7860f73f9d08b3"
+        "companionSha256": "03d9057e6ba29005dde845b70a44ede39c6c47b2c99d2acc8b5a18d54fc9cfa1"
       },
       "sourceRubric": [
         "1 Punkt für besser in der ersten Lücke und unabhängig davon 1 Punkt für besten beziehungsweise am besten in der zweiten Lücke. Die falschen Vergleichsformen guter oder gutesten erhalten keinen Punkt. Reine Rechtschreibfehler wie beser nicht zusätzlich abziehen, sofern die beabsichtigte Vergleichsform eindeutig ist. Eine andere Flexionsform wie beste statt besten erfüllt die vorgegebene Verbindung am nicht. Höchstens 2 Punkte."
@@ -5511,7 +5519,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "a94c128a9929bfe63df0feaf47ecfaaf545349951a9da8088a7860f73f9d08b3"
+        "companionSha256": "03d9057e6ba29005dde845b70a44ede39c6c47b2c99d2acc8b5a18d54fc9cfa1"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für jede richtige Zuordnung. Alle vier Sätze unabhängig bewerten; wiederholte Bezeichnungen sind ausdrücklich erlaubt. Eindeutige Ersatzbezeichnungen laut Lösung und reine Schreibfehler in den Begriffen anerkennen. Vergangenheit allein genügt bei b, c und d nicht, weil damit Präteritum und Perfekt nicht unterschieden werden. Zwei nicht eindeutig korrigierte konkurrierende Bezeichnungen zu einem Satz ergeben nur für diesen Satz 0 Punkte. Höchstens 2 Punkte."
@@ -5634,7 +5642,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "a94c128a9929bfe63df0feaf47ecfaaf545349951a9da8088a7860f73f9d08b3"
+        "companionSha256": "03d9057e6ba29005dde845b70a44ede39c6c47b2c99d2acc8b5a18d54fc9cfa1"
       },
       "sourceRubric": [
         "Je 1 Punkt für die passende Präteritumform mit richtiger Person und Zahl: fragtest beziehungsweise gingen. Beide Antworten unabhängig bewerten. Ein vollständig abgeschriebener Satz ist ebenfalls zulässig, aber nicht erforderlich. Perfektformen erfüllen den Auftrag nicht; auch fragte bei du beziehungsweise ging bei wir sind grammatisch andere Formen und erhalten keinen Punkt. Sonstige Rechtschreibfehler nicht zusätzlich werten, wenn die verlangte Form eindeutig erkennbar bleibt. Höchstens 2 Punkte."
@@ -5800,7 +5808,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "a94c128a9929bfe63df0feaf47ecfaaf545349951a9da8088a7860f73f9d08b3"
+        "companionSha256": "03d9057e6ba29005dde845b70a44ede39c6c47b2c99d2acc8b5a18d54fc9cfa1"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für jede vollständig und ausschließlich abgegrenzte Einheit Vor dem Haus, fegt, Leni und die Treppe. Satzanfang und Satzende gelten als äußere Grenzen; insgesamt genügen deshalb drei Trennstriche. Eine zusätzlich innerhalb einer Einheit gesetzte Grenze nimmt nur dieser Einheit ihren halben Punkt. Fehlende Grenzen betreffen die jeweils nicht vollständig abgegrenzten Einheiten. Keine Minuspunkte. Gleichwertiges Einklammern der vier Einheiten oder eine eindeutig gegliederte Abschrift anerkennen. Das Prädikat wird entsprechend dem ausdrücklichen Auftrag als eigene Einheit abgegrenzt; eine Benennung der Satzgliedarten oder eine aufgeschriebene Umstellprobe ist nicht erforderlich. Bei einer Abschrift reine Rechtschreibfehler nicht zusätzlich bewerten, sofern die Struktur eindeutig erhalten bleibt. Höchstens 2 Punkte."
@@ -5934,7 +5942,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "9b727af1154b2be1556ae8d21fc4a9120342e77af0567df1f9954590f25dd8eb"
+        "companionSha256": "b0fd86ef73c639153af5c0ba241440841df6e1e38a9299c7f4b56064caa34292"
       },
       "sourceRubric": [
         "Je 1 Punkt. Bei a genügt Dose; bei b genügt Regal. Kein vollständiger Satz und keine Zeilenangabe erforderlich. Tisch oder Vorrat ist bei b nicht richtig."
@@ -6075,7 +6083,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "9b727af1154b2be1556ae8d21fc4a9120342e77af0567df1f9954590f25dd8eb"
+        "companionSha256": "b0fd86ef73c639153af5c0ba241440841df6e1e38a9299c7f4b56064caa34292"
       },
       "sourceRubric": [
         "Je 1 Punkt für Urteil und tragenden Beleg, unabhängig voneinander. Statt der Zahl genügt die eindeutige Wiedergabe, dass die Lehrerin die Blätter in der nächsten Woche abholt. Zeile 19 allein nennt nur die Trocknungsdauer, nicht den Abholtermin. Pauschal 19-24 ohne erkennbare Auswahl genügt nicht."
@@ -6221,7 +6229,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "9b727af1154b2be1556ae8d21fc4a9120342e77af0567df1f9954590f25dd8eb"
+        "companionSha256": "b0fd86ef73c639153af5c0ba241440841df6e1e38a9299c7f4b56064caa34292"
       },
       "sourceRubric": [
         "Je 1 Punkt. a verlangt ausschließlich C. b erhält den Punkt für eine Formulierung, die die leichte Beschädigung durch Reißen nennt; reißen allein genügt im Zusammenhang ebenfalls. Beide Teile unabhängig werten."
@@ -6318,7 +6326,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "9b727af1154b2be1556ae8d21fc4a9120342e77af0567df1f9954590f25dd8eb"
+        "companionSha256": "b0fd86ef73c639153af5c0ba241440841df6e1e38a9299c7f4b56064caa34292"
       },
       "sourceRubric": [
         "Je 1 Punkt für jeden unterschiedlichen Grund; Reihenfolge beliebig. Kurzantworten wie gegenseitig helfen und nicht genug Rahmen genügen. Derselbe Grund in anderen Worten zählt nur einmal. Ein erfundener Grund wie schneller fertig werden zählt nicht."
@@ -6464,7 +6472,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "9b727af1154b2be1556ae8d21fc4a9120342e77af0567df1f9954590f25dd8eb"
+        "companionSha256": "b0fd86ef73c639153af5c0ba241440841df6e1e38a9299c7f4b56064caa34292"
       },
       "sourceRubric": [
         "a) 1 Punkt ausschließlich für B. b) 1 Punkt zum Beispiel für Trocknen im Regal, Beschriften der Tücher, nur trockenes Papier mitnehmen, fertige Blätter aus dem Vorrat oder späteres Abholen durch die Lehrerin. Bloßes Wiederholen der Überschrift genügt nicht. b unabhängig vom Kreuz werten."
@@ -6597,7 +6605,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "9b727af1154b2be1556ae8d21fc4a9120342e77af0567df1f9954590f25dd8eb"
+        "companionSha256": "b0fd86ef73c639153af5c0ba241440841df6e1e38a9299c7f4b56064caa34292"
       },
       "sourceRubric": [
         "Je 1 Punkt pro vollständig richtigem Schritt an der richtigen Position. Je 0,5 Punkte, wenn bei Schritt 2 nur Herausheben oder Abtropfen, bei Schritt 4 nur zweites Tuch auflegen oder Wasser herauspressen genannt wird. Sinngleiche Formulierungen gelten. Vertauschte Schritte zählen nicht für ihre Position."
@@ -6774,7 +6782,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "9b727af1154b2be1556ae8d21fc4a9120342e77af0567df1f9954590f25dd8eb"
+        "companionSha256": "b0fd86ef73c639153af5c0ba241440841df6e1e38a9299c7f4b56064caa34292"
       },
       "sourceRubric": [
         "Je 1 Punkt für die eindeutige Zuordnung. A bedeutet, dass niemand hetzen muss. D erhält die unterschiedlichen Arten der Gestaltung. Mehrere ungestrichene Buchstaben in einem Feld ergeben nur für dieses Feld 0 Punkte. Keine zusätzliche Begründung verlangen."
@@ -6945,7 +6953,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "9b727af1154b2be1556ae8d21fc4a9120342e77af0567df1f9954590f25dd8eb"
+        "companionSha256": "b0fd86ef73c639153af5c0ba241440841df6e1e38a9299c7f4b56064caa34292"
       },
       "sourceRubric": [
         "Je 1 Punkt. Bei a sind Raum 2 oder nur 2 eindeutig und zulässig. Bei b genügt Falten; Papier allein ist nicht eindeutig. Die Tabelle liefert alle benötigten Informationen."
@@ -7067,7 +7075,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "9b727af1154b2be1556ae8d21fc4a9120342e77af0567df1f9954590f25dd8eb"
+        "companionSha256": "b0fd86ef73c639153af5c0ba241440841df6e1e38a9299c7f4b56064caa34292"
       },
       "sourceRubric": [
         "Je 1 Punkt für die richtige Großschreibung von Morgen und Mütze; Reihenfolge beliebig. Ein vollständig korrigierter Satz ist ebenfalls zulässig. Jule ist bereits richtig geschrieben."
@@ -7194,7 +7202,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "9b727af1154b2be1556ae8d21fc4a9120342e77af0567df1f9954590f25dd8eb"
+        "companionSha256": "b0fd86ef73c639153af5c0ba241440841df6e1e38a9299c7f4b56064caa34292"
       },
       "sourceRubric": [
         "Je 1 Punkt für Korb und Körbe. Die richtige Mehrzahl erhält ihren Punkt unabhängig von a. Eine Erklärung ist nicht verlangt; beide Wörter müssen richtig geschrieben sein."
@@ -7322,7 +7330,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "9b727af1154b2be1556ae8d21fc4a9120342e77af0567df1f9954590f25dd8eb"
+        "companionSha256": "b0fd86ef73c639153af5c0ba241440841df6e1e38a9299c7f4b56064caa34292"
       },
       "sourceRubric": [
         "Je 1 Punkt, unabhängig. Das zweite Wort muss erkennbar zu Baum gehören und au enthalten. Ein anderes, unverbundenes Wort mit au genügt nicht."
@@ -7448,7 +7456,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "9b727af1154b2be1556ae8d21fc4a9120342e77af0567df1f9954590f25dd8eb"
+        "companionSha256": "b0fd86ef73c639153af5c0ba241440841df6e1e38a9299c7f4b56064caa34292"
       },
       "sourceRubric": [
         "Je 1 Punkt für das vollständig richtig geschriebene Wort. Tasse hat ss, Rose hat s. Ein erklärender Regelsatz ist nicht verlangt."
@@ -7566,7 +7574,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "9b727af1154b2be1556ae8d21fc4a9120342e77af0567df1f9954590f25dd8eb"
+        "companionSha256": "b0fd86ef73c639153af5c0ba241440841df6e1e38a9299c7f4b56064caa34292"
       },
       "sourceRubric": [
         "Je 1 Punkt. Auch das jeweils vollständig richtig geschriebene Wort anerkennen. Die beiden Lücken getrennt werten."
@@ -7750,7 +7758,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "9b727af1154b2be1556ae8d21fc4a9120342e77af0567df1f9954590f25dd8eb"
+        "companionSha256": "b0fd86ef73c639153af5c0ba241440841df6e1e38a9299c7f4b56064caa34292"
       },
       "sourceRubric": [
         "Je 0,5 Punkte pro richtiger Berichtigung; Reihenfolge beliebig. Unterstreichen allein zählt nicht. Eine richtige Berichtigung erhält ihren Punkt auch ohne Unterstreichung. Ein vollständig korrigierter Text ist ebenfalls zulässig."
@@ -7928,7 +7936,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "9b727af1154b2be1556ae8d21fc4a9120342e77af0567df1f9954590f25dd8eb"
+        "companionSha256": "b0fd86ef73c639153af5c0ba241440841df6e1e38a9299c7f4b56064caa34292"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für Doppelpunkt, öffnendes und schließendes Anführungszeichen sowie Fragezeichen nach Heft innerhalb der Anführungszeichen. Ein falsch außerhalb gesetztes Fragezeichen nimmt nur dessen Punkt, nicht zusätzlich den für ein sonst richtiges Schlusszeichen. Übliche Formen doppelter Anführungszeichen anerkennen."
@@ -7945,7 +7953,8 @@
       "sourceTaskSha256": "8a6d4196495be97c4f377277de3afae4cdadbf2bbfc8380a1e3815ab2206047c",
       "prerequisiteCompetencyIds": [],
       "requiresTaughtContent": true,
-      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde."
+      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
+      "digitalInstructions": "Schreibe den Satz unten einmal vollständig mit den verlangten Satzzeichen. Danach prüfst du vier Kriterien getrennt."
     },
     {
       "id": "d2_16",
@@ -8055,7 +8064,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "9b727af1154b2be1556ae8d21fc4a9120342e77af0567df1f9954590f25dd8eb"
+        "companionSha256": "b0fd86ef73c639153af5c0ba241440841df6e1e38a9299c7f4b56064caa34292"
       },
       "sourceRubric": [
         "Wortgrenzen: 1 Punkt bei allen richtigen Grenzen, 0,5 bei genau einer fehlenden oder zusätzlichen Grenze. Groß/Klein: 1 Punkt bei allen richtigen Formen, 0,5 bei genau einem falsch geschriebenen Wort. Sonst für das jeweilige Kriterium 0; unabhängig werten. Der vorgegebene Punkt zählt nicht extra."
@@ -8220,7 +8229,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "9b727af1154b2be1556ae8d21fc4a9120342e77af0567df1f9954590f25dd8eb"
+        "companionSha256": "b0fd86ef73c639153af5c0ba241440841df6e1e38a9299c7f4b56064caa34292"
       },
       "sourceRubric": [
         "1 Punkt für ausschließlich suchen. Je 0,5 Punkte für suche und suchst, unabhängig von der Markierung. Eindeutiges Unterstreichen oder Aufschreiben statt Einkreisen ist zulässig. Die passende Personenform muss erkennbar sein."
@@ -8434,7 +8443,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "9b727af1154b2be1556ae8d21fc4a9120342e77af0567df1f9954590f25dd8eb"
+        "companionSha256": "b0fd86ef73c639153af5c0ba241440841df6e1e38a9299c7f4b56064caa34292"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für die passende Verbform. Jede Lücke unabhängig werten. Auch eine eindeutig markierte richtige Auswahl in der Klammer zählt, wenn das Antwortfeld leer bleibt."
@@ -8562,7 +8571,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "9b727af1154b2be1556ae8d21fc4a9120342e77af0567df1f9954590f25dd8eb"
+        "companionSha256": "b0fd86ef73c639153af5c0ba241440841df6e1e38a9299c7f4b56064caa34292"
       },
       "sourceRubric": [
         "Je 1 Punkt für die richtige Grundform. Beide Antworten unabhängig werten. Gebeugte Formen wie trage oder schlief erfüllen den Auftrag nicht."
@@ -8680,7 +8689,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "9b727af1154b2be1556ae8d21fc4a9120342e77af0567df1f9954590f25dd8eb"
+        "companionSha256": "b0fd86ef73c639153af5c0ba241440841df6e1e38a9299c7f4b56064caa34292"
       },
       "sourceRubric": [
         "Je 1 Punkt für das richtige Adjektiv mit passender Endung. Andere Endungen erfüllen den Auftrag nicht. Reine Schreibfehler außerhalb der grammatisch gefragten Form nicht zusätzlich abziehen."
@@ -8722,7 +8731,7 @@
         {
           "id": "a",
           "type": "text",
-          "prompt": "hoch – … – am höchsten",
+          "prompt": "Erste Vergleichsform zu hoch:",
           "options": [],
           "answers": [
             "höher"
@@ -8748,7 +8757,7 @@
         {
           "id": "b",
           "type": "text",
-          "prompt": "hoch – höher – am …",
+          "prompt": "Zweite Vergleichsform zu hoch: am …",
           "options": [],
           "answers": [
             "höchsten",
@@ -8795,7 +8804,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "9b727af1154b2be1556ae8d21fc4a9120342e77af0567df1f9954590f25dd8eb"
+        "companionSha256": "b0fd86ef73c639153af5c0ba241440841df6e1e38a9299c7f4b56064caa34292"
       },
       "sourceRubric": [
         "Je 1 Punkt für höher und höchsten. Ein zusätzliches am in der zweiten Lücke nicht abziehen. Die veränderte Stammform und die passende Endung gehören zur grammatischen Leistung; hochst oder höchste passt nicht."
@@ -9039,7 +9048,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "9b727af1154b2be1556ae8d21fc4a9120342e77af0567df1f9954590f25dd8eb"
+        "companionSha256": "b0fd86ef73c639153af5c0ba241440841df6e1e38a9299c7f4b56064caa34292"
       },
       "sourceRubric": [
         "Je 0,5 Punkte. Eindeutige Abkürzungen sowie Gegenwart, erste Vergangenheit und zweite Vergangenheit sind zulässig. Vergangenheit allein unterscheidet die beiden Vergangenheitsformen nicht. Mehrere konkurrierende Angaben ergeben nur beim betreffenden Satz 0 Punkte."
@@ -9162,7 +9171,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "9b727af1154b2be1556ae8d21fc4a9120342e77af0567df1f9954590f25dd8eb"
+        "companionSha256": "b0fd86ef73c639153af5c0ba241440841df6e1e38a9299c7f4b56064caa34292"
       },
       "sourceRubric": [
         "Je 1 Punkt für das Präteritum in der passenden Person und Zahl. Perfektformen erfüllen den Auftrag nicht. Die Antworten unabhängig werten."
@@ -9328,7 +9337,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "9b727af1154b2be1556ae8d21fc4a9120342e77af0567df1f9954590f25dd8eb"
+        "companionSha256": "b0fd86ef73c639153af5c0ba241440841df6e1e38a9299c7f4b56064caa34292"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für jede vollständig und ausschließlich abgegrenzte Einheit. Satzanfang und Satzende sind äußere Grenzen; drei Striche genügen. Eine zusätzliche Grenze nimmt nur der betroffenen Einheit ihren Punkt. Eine fehlende Grenze betrifft die nicht vollständig abgegrenzten Einheiten. Gleichwertige Klammern oder gegliederte Abschrift zulässig."
@@ -9464,7 +9473,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "6ce6516faa1ec076ff062531b34cdc2c09cda897478b4a2fe7c185ff9e943936"
+        "companionSha256": "bdc07474d2b4c73d1328cbb39709d73cb376cb788641ce04d69247671de7734a"
       },
       "sourceRubric": [
         "Je 1 Punkt. Bei a auch die Lehrerin, wenn Frau Kern damit eindeutig gemeint ist. Bei b genügen Striche, Markierungen oder Skala. Keine vollständigen Sätze oder Zeilennummern erforderlich."
@@ -9605,7 +9614,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "6ce6516faa1ec076ff062531b34cdc2c09cda897478b4a2fe7c185ff9e943936"
+        "companionSha256": "bdc07474d2b4c73d1328cbb39709d73cb376cb788641ce04d69247671de7734a"
       },
       "sourceRubric": [
         "Je 1 Punkt für das Urteil und den Beleg, unabhängig voneinander. Statt der Zeilenzahl ist die eindeutige Wiedergabe des Inhalts zulässig. Zeile 14 ist nur Elifs Vermutung und belegt das Ergebnis nicht. Ein breiter Bereich ohne erkennbare Auswahl genügt nicht."
@@ -9751,7 +9760,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "6ce6516faa1ec076ff062531b34cdc2c09cda897478b4a2fe7c185ff9e943936"
+        "companionSha256": "bdc07474d2b4c73d1328cbb39709d73cb376cb788641ce04d69247671de7734a"
       },
       "sourceRubric": [
         "Je 1 Punkt. a verlangt ausschließlich B. b verlangt den Bezug zur unterschiedlichen Wassermenge; etwa herausfinden, warum ein Becher voller ist. Bloßes Wiederholen der Bedeutung ohne Bezug zur Geschichte genügt nicht. b unabhängig vom Kreuz bewerten."
@@ -9920,7 +9929,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "6ce6516faa1ec076ff062531b34cdc2c09cda897478b4a2fe7c185ff9e943936"
+        "companionSha256": "bdc07474d2b4c73d1328cbb39709d73cb376cb788641ce04d69247671de7734a"
       },
       "sourceRubric": [
         "Je 1 Punkt für die eindeutige Zuordnung. Alternativ zählt der richtig aufgeschriebene Grund. Mehrere ungestrichene Buchstaben im selben Feld ergeben für dieses Feld 0 Punkte."
@@ -10046,7 +10055,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "6ce6516faa1ec076ff062531b34cdc2c09cda897478b4a2fe7c185ff9e943936"
+        "companionSha256": "bdc07474d2b4c73d1328cbb39709d73cb376cb788641ce04d69247671de7734a"
       },
       "sourceRubric": [
         "a) 1 Punkt für eine Überschrift, die das Prüfen, Vergleichen oder den neuen gemeinsamen Standort als Kern erfasst. Nur Frau Kern lobt oder Ein Schild ist zu eng. b) 1 Punkt für einen konkreten im Abschnitt genannten Schritt, der zur eigenen Überschrift passt. b kann auch bei einer zu engen, aber inhaltlich richtigen Überschrift zählen. Sinngleiche Formulierungen anerkennen."
@@ -10233,7 +10242,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "6ce6516faa1ec076ff062531b34cdc2c09cda897478b4a2fe7c185ff9e943936"
+        "companionSha256": "bdc07474d2b4c73d1328cbb39709d73cb376cb788641ce04d69247671de7734a"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für die richtige Zahl bei dem betreffenden Ereignis. Jedes Feld unabhängig werten; eine falsche oder mehrfach verwendete Zahl macht andere richtige Zuordnungen nicht ungültig."
@@ -10386,7 +10395,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "6ce6516faa1ec076ff062531b34cdc2c09cda897478b4a2fe7c185ff9e943936"
+        "companionSha256": "bdc07474d2b4c73d1328cbb39709d73cb376cb788641ce04d69247671de7734a"
       },
       "sourceRubric": [
         "Je 1 Punkt. Pro Teil nur die richtige Auswahl; mehrere ungestrichene Kreuze ergeben nur für den betreffenden Teil 0 Punkte. Keine Begründung erforderlich."
@@ -10552,7 +10561,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "6ce6516faa1ec076ff062531b34cdc2c09cda897478b4a2fe7c185ff9e943936"
+        "companionSha256": "bdc07474d2b4c73d1328cbb39709d73cb376cb788641ce04d69247671de7734a"
       },
       "sourceRubric": [
         "Je 1 Punkt. Bei a müssen beide Namen stimmen; die Reihenfolge ist frei. Bei b nur Ida, nicht das ganze Paar. Schreibungen mit eindeutig erkennbarem Namen akzeptieren."
@@ -10686,7 +10695,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "6ce6516faa1ec076ff062531b34cdc2c09cda897478b4a2fe7c185ff9e943936"
+        "companionSha256": "bdc07474d2b4c73d1328cbb39709d73cb376cb788641ce04d69247671de7734a"
       },
       "sourceRubric": [
         "Je 1 Punkt für die eindeutige richtige Auswahl. Ein richtig aufgeschriebenes Wort zählt ebenfalls. Bei mehreren ungestrichenen Alternativen erhält nur der betreffende Satz 0 Punkte."
@@ -10814,7 +10823,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "6ce6516faa1ec076ff062531b34cdc2c09cda897478b4a2fe7c185ff9e943936"
+        "companionSha256": "bdc07474d2b4c73d1328cbb39709d73cb376cb788641ce04d69247671de7734a"
       },
       "sourceRubric": [
         "Je 1 Punkt. Die Grundschreibung und das geeignete richtig geschriebene Prüfwort unabhängig bewerten. Das Prüfwort muss das t vor einem hörbaren Vokal zeigen; eiskalt oder sehr kalt genügt nicht."
@@ -10935,7 +10944,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "6ce6516faa1ec076ff062531b34cdc2c09cda897478b4a2fe7c185ff9e943936"
+        "companionSha256": "bdc07474d2b4c73d1328cbb39709d73cb376cb788641ce04d69247671de7734a"
       },
       "sourceRubric": [
         "Je 1 Punkt. Für b zählt ein richtig geschriebenes Wort aus der Wortfamilie Wahl mit a, etwa Wahl, Auswahl oder Wahlzettel. Ein unverbundenes Wort mit a oder wählen ohne a erfüllt den Auftrag nicht."
@@ -11061,7 +11070,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "6ce6516faa1ec076ff062531b34cdc2c09cda897478b4a2fe7c185ff9e943936"
+        "companionSha256": "bdc07474d2b4c73d1328cbb39709d73cb376cb788641ce04d69247671de7734a"
       },
       "sourceRubric": [
         "Je 1 Punkt für das richtig geschriebene Brille bzw. Schiff. Ein richtiges Wort erhält den Punkt auch ohne Unterstreichung."
@@ -11213,7 +11222,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "6ce6516faa1ec076ff062531b34cdc2c09cda897478b4a2fe7c185ff9e943936"
+        "companionSha256": "bdc07474d2b4c73d1328cbb39709d73cb376cb788641ce04d69247671de7734a"
       },
       "sourceRubric": [
         "Je 1 Punkt für die richtige Auswahl. Die übliche deutsche Rechtschreibung wird geübt. Beide Zeilen unabhängig bewerten; eine eindeutige Berichtigung zählt."
@@ -11397,7 +11406,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "6ce6516faa1ec076ff062531b34cdc2c09cda897478b4a2fe7c185ff9e943936"
+        "companionSha256": "bdc07474d2b4c73d1328cbb39709d73cb376cb788641ce04d69247671de7734a"
       },
       "sourceRubric": [
         "Je 0,5 Punkte pro richtig berichtigtem Wort; Reihenfolge beliebig. Ein vollständig korrigierter Text ist ebenfalls zulässig. Nicht gefragte zusätzliche Änderungen ergeben keine Zusatzpunkte."
@@ -11575,7 +11584,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "6ce6516faa1ec076ff062531b34cdc2c09cda897478b4a2fe7c185ff9e943936"
+        "companionSha256": "bdc07474d2b4c73d1328cbb39709d73cb376cb788641ce04d69247671de7734a"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für Doppelpunkt, öffnendes und schließendes Anführungszeichen sowie den Punkt nach Korb innerhalb der Anführungszeichen. Ein außerhalb gesetzter Punkt betrifft nur dessen Teilpunkt. Übliche Formen doppelter Anführungszeichen anerkennen."
@@ -11592,7 +11601,8 @@
       "sourceTaskSha256": "c4d2601f285afb3e3ff3d2836f89d978bca4c85ab811383c0eba0f701a37a84b",
       "prerequisiteCompetencyIds": [],
       "requiresTaughtContent": true,
-      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde."
+      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
+      "digitalInstructions": "Schreibe den Satz unten einmal vollständig mit den verlangten Satzzeichen. Danach prüfst du vier Kriterien getrennt."
     },
     {
       "id": "d3_16",
@@ -11702,7 +11712,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "6ce6516faa1ec076ff062531b34cdc2c09cda897478b4a2fe7c185ff9e943936"
+        "companionSha256": "bdc07474d2b4c73d1328cbb39709d73cb376cb788641ce04d69247671de7734a"
       },
       "sourceRubric": [
         "Wortgrenzen: 1 Punkt bei allen richtigen Grenzen, 0,5 bei genau einer fehlenden oder zusätzlichen Grenze. Groß/Klein: 1 Punkt bei allen richtigen Wortformen, 0,5 bei genau einem falsch geschriebenen Wort. Sonst im jeweiligen Kriterium 0 Punkte. Beide Kriterien unabhängig werten; der Punkt ist vorgegeben."
@@ -11906,7 +11916,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "6ce6516faa1ec076ff062531b34cdc2c09cda897478b4a2fe7c185ff9e943936"
+        "companionSha256": "bdc07474d2b4c73d1328cbb39709d73cb376cb788641ce04d69247671de7734a"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für die richtige Zusammensetzung und je 0,5 für den passenden Artikel, unabhängig voneinander. Reine Schreibfehler, die die Wortbildung nicht verändern, nicht zusätzlich abziehen. Die Reihenfolge der vorgegebenen Bestandteile beibehalten."
@@ -12055,7 +12065,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "6ce6516faa1ec076ff062531b34cdc2c09cda897478b4a2fe7c185ff9e943936"
+        "companionSha256": "bdc07474d2b4c73d1328cbb39709d73cb376cb788641ce04d69247671de7734a"
       },
       "sourceRubric": [
         "Je 1 Punkt. a verlangt ausschließlich leise; die Länge des Wortes oder die Wortart ist nicht das Kriterium. In b genügt der erkennbare Stamm les ohne weitere Endung. Die beiden Leistungen unabhängig bewerten."
@@ -12273,7 +12283,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "6ce6516faa1ec076ff062531b34cdc2c09cda897478b4a2fe7c185ff9e943936"
+        "companionSha256": "bdc07474d2b4c73d1328cbb39709d73cb376cb788641ce04d69247671de7734a"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für das richtig markierte Bestimmungswort und je 0,5 für seine Wortart. Bei b ist Trink der zum Verb trinken gehörende erste Wortteil. Nomen ist in beiden Fällen die Wortart des ganzen Wortes, nicht des gefragten ersten Bestandteils. Teilantworten unabhängig bewerten."
@@ -12391,7 +12401,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "6ce6516faa1ec076ff062531b34cdc2c09cda897478b4a2fe7c185ff9e943936"
+        "companionSha256": "bdc07474d2b4c73d1328cbb39709d73cb376cb788641ce04d69247671de7734a"
       },
       "sourceRubric": [
         "Je 1 Punkt für die passende Adjektivform. Reine Schreibfehler außerhalb der verlangten Endung nicht zusätzlich abziehen; die grammatische Form muss eindeutig erkennbar sein."
@@ -12510,7 +12520,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "6ce6516faa1ec076ff062531b34cdc2c09cda897478b4a2fe7c185ff9e943936"
+        "companionSha256": "bdc07474d2b4c73d1328cbb39709d73cb376cb788641ce04d69247671de7734a"
       },
       "sourceRubric": [
         "Je 1 Punkt für kürzer und kürzesten. Ein zusätzliches am in der zweiten Lücke nicht abziehen. Andere Adjektive erfüllen den Auftrag nicht."
@@ -12761,7 +12771,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "6ce6516faa1ec076ff062531b34cdc2c09cda897478b4a2fe7c185ff9e943936"
+        "companionSha256": "bdc07474d2b4c73d1328cbb39709d73cb376cb788641ce04d69247671de7734a"
       },
       "sourceRubric": [
         "Je 0,5 Punkte pro eindeutig in das richtige Feld eingetragenem Buchstaben. Steht ein Buchstabe ungestrichen in mehreren Feldern, zählt nur dieser Buchstabe 0 Punkte. Die Reihenfolge von C und D ist gleichgültig."
@@ -12886,7 +12896,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "6ce6516faa1ec076ff062531b34cdc2c09cda897478b4a2fe7c185ff9e943936"
+        "companionSha256": "bdc07474d2b4c73d1328cbb39709d73cb376cb788641ce04d69247671de7734a"
       },
       "sourceRubric": [
         "1 Punkt für den vollständig vorangestellten Satzteil Nach der Pause. 1 Punkt für den grammatisch richtigen restlichen Satz mit allen Wörtern: besucht unsere Klasse die Bücherei. Groß-/Kleinschreibfehler und fehlender Schlusspunkt werden hier nicht gesondert bewertet. Die Umstellung prüft zusammengehörige Satzteile."
@@ -13056,7 +13066,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "6ce6516faa1ec076ff062531b34cdc2c09cda897478b4a2fe7c185ff9e943936"
+        "companionSha256": "bdc07474d2b4c73d1328cbb39709d73cb376cb788641ce04d69247671de7734a"
       },
       "sourceRubric": [
         "Je 0,5 Punkte pro vollständig und richtig markiertem Subjekt bzw. Prädikat. Die einfache/doppelte Markierung muss eindeutig sein; bei einer sonst klaren schriftlichen Benennung ebenfalls werten. Zusätzliche Wörter nehmen nur den Punkt des betroffenen Satzteils."
@@ -13190,7 +13200,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "2778980ad9b1ca2d9affee8f36d3a58da4f4bc09844e203b2659521bd3da5178"
+        "companionSha256": "e98840ad66ce377e447376be39268475e05900ac148c6dd14392ec1fc313a6e6"
       },
       "sourceRubric": [
         "a) 1 Punkt für Schulfest. Die Bücherei ist ein Ort und beantwortet die Frage nach der Veranstaltung nicht.",
@@ -13340,7 +13350,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "2778980ad9b1ca2d9affee8f36d3a58da4f4bc09844e203b2659521bd3da5178"
+        "companionSha256": "e98840ad66ce377e447376be39268475e05900ac148c6dd14392ec1fc313a6e6"
       },
       "sourceRubric": [
         "a) 1 Punkt für genau ein Kreuz bei nein.",
@@ -13491,7 +13501,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "2778980ad9b1ca2d9affee8f36d3a58da4f4bc09844e203b2659521bd3da5178"
+        "companionSha256": "e98840ad66ce377e447376be39268475e05900ac148c6dd14392ec1fc313a6e6"
       },
       "sourceRubric": [
         "a) 1 Punkt für genau ein Kreuz bei C.",
@@ -13603,7 +13613,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "2778980ad9b1ca2d9affee8f36d3a58da4f4bc09844e203b2659521bd3da5178"
+        "companionSha256": "e98840ad66ce377e447376be39268475e05900ac148c6dd14392ec1fc313a6e6"
       },
       "sourceRubric": [
         "Je 1 Punkt für jeden der beiden verschiedenen Vorteile: Ruhe beziehungsweise kein Schulhoflärm; vorhandenes und benutzbares Mikrofon.",
@@ -13778,7 +13788,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "2778980ad9b1ca2d9affee8f36d3a58da4f4bc09844e203b2659521bd3da5178"
+        "companionSha256": "e98840ad66ce377e447376be39268475e05900ac148c6dd14392ec1fc313a6e6"
       },
       "sourceRubric": [
         "Je 1 Punkt für die richtige Zuordnung B beziehungsweise A. Beide Felder unabhängig bewerten.",
@@ -13982,7 +13992,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "2778980ad9b1ca2d9affee8f36d3a58da4f4bc09844e203b2659521bd3da5178"
+        "companionSha256": "e98840ad66ce377e447376be39268475e05900ac148c6dd14392ec1fc313a6e6"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für jede richtig eingetragene Zahl an der richtigen Stelle, insgesamt 2 Punkte.",
@@ -14142,7 +14152,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "2778980ad9b1ca2d9affee8f36d3a58da4f4bc09844e203b2659521bd3da5178"
+        "companionSha256": "e98840ad66ce377e447376be39268475e05900ac148c6dd14392ec1fc313a6e6"
       },
       "sourceRubric": [
         "Je 1 Punkt für genau eine richtige Auswahl pro Teil: a) B, b) A.",
@@ -14311,7 +14321,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "2778980ad9b1ca2d9affee8f36d3a58da4f4bc09844e203b2659521bd3da5178"
+        "companionSha256": "e98840ad66ce377e447376be39268475e05900ac148c6dd14392ec1fc313a6e6"
       },
       "sourceRubric": [
         "a) 1 Punkt für Lena.",
@@ -14499,7 +14509,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "2778980ad9b1ca2d9affee8f36d3a58da4f4bc09844e203b2659521bd3da5178"
+        "companionSha256": "e98840ad66ce377e447376be39268475e05900ac148c6dd14392ec1fc313a6e6"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für die richtige Groß- oder Kleinschreibung jedes Zielworts: Gestern, Stein, Garten, kleiner; insgesamt 2 Punkte.",
@@ -14632,7 +14642,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "2778980ad9b1ca2d9affee8f36d3a58da4f4bc09844e203b2659521bd3da5178"
+        "companionSha256": "e98840ad66ce377e447376be39268475e05900ac148c6dd14392ec1fc313a6e6"
       },
       "sourceRubric": [
         "a) 1 Punkt für Schild mit d.",
@@ -14761,7 +14771,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "2778980ad9b1ca2d9affee8f36d3a58da4f4bc09844e203b2659521bd3da5178"
+        "companionSha256": "e98840ad66ce377e447376be39268475e05900ac148c6dd14392ec1fc313a6e6"
       },
       "sourceRubric": [
         "a) 1 Punkt für träumen mit äu.",
@@ -14886,7 +14896,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "2778980ad9b1ca2d9affee8f36d3a58da4f4bc09844e203b2659521bd3da5178"
+        "companionSha256": "e98840ad66ce377e447376be39268475e05900ac148c6dd14392ec1fc313a6e6"
       },
       "sourceRubric": [
         "Je 1 Punkt für Kamm mit mm und Name mit einfachem m. Beide Wörter unabhängig bewerten. Der vorgegebene Artikel darf mitgeschrieben werden, ist in der Antwort aber nicht erforderlich.",
@@ -15012,7 +15022,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "2778980ad9b1ca2d9affee8f36d3a58da4f4bc09844e203b2659521bd3da5178"
+        "companionSha256": "e98840ad66ce377e447376be39268475e05900ac148c6dd14392ec1fc313a6e6"
       },
       "sourceRubric": [
         "Je 1 Punkt für die richtige Einsetzung: a) ß, b) ss. Die Teile unabhängig bewerten.",
@@ -15184,7 +15194,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "2778980ad9b1ca2d9affee8f36d3a58da4f4bc09844e203b2659521bd3da5178"
+        "companionSha256": "e98840ad66ce377e447376be39268475e05900ac148c6dd14392ec1fc313a6e6"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für jedes korrekt verbesserte Zielwort: Wintter → Winter, Sokken → Socken, nemen → nehmen, schnel → schnell; insgesamt 2 Punkte.",
@@ -15366,7 +15376,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "2778980ad9b1ca2d9affee8f36d3a58da4f4bc09844e203b2659521bd3da5178"
+        "companionSha256": "e98840ad66ce377e447376be39268475e05900ac148c6dd14392ec1fc313a6e6"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für den Doppelpunkt nach ruft, das öffnende Anführungszeichen vor Warte, das Ausrufezeichen nach mich und das schließende Anführungszeichen nach dem Ausrufezeichen.",
@@ -15385,7 +15395,8 @@
       "sourceTaskSha256": "9667a36fd2421d1f18f5be50dda5fd895f092d3a799baf67d49c37e6bf3d265c",
       "prerequisiteCompetencyIds": [],
       "requiresTaughtContent": true,
-      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde."
+      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
+      "digitalInstructions": "Schreibe den Satz unten einmal vollständig mit den verlangten Satzzeichen. Danach prüfst du vier Kriterien getrennt."
     },
     {
       "id": "d4_16",
@@ -15494,7 +15505,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "2778980ad9b1ca2d9affee8f36d3a58da4f4bc09844e203b2659521bd3da5178"
+        "companionSha256": "e98840ad66ce377e447376be39268475e05900ac148c6dd14392ec1fc313a6e6"
       },
       "sourceRubric": [
         "1 Punkt für die vollständige richtige Worttrennung: Der | kleine | Fuchs | schläft | unter | der | Bank.",
@@ -15635,7 +15646,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "2778980ad9b1ca2d9affee8f36d3a58da4f4bc09844e203b2659521bd3da5178"
+        "companionSha256": "e98840ad66ce377e447376be39268475e05900ac148c6dd14392ec1fc313a6e6"
       },
       "sourceRubric": [
         "a) 1 Punkt für die eindeutige Auswahl hoffen.",
@@ -15774,7 +15785,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "2778980ad9b1ca2d9affee8f36d3a58da4f4bc09844e203b2659521bd3da5178"
+        "companionSha256": "e98840ad66ce377e447376be39268475e05900ac148c6dd14392ec1fc313a6e6"
       },
       "sourceRubric": [
         "Je 1 Punkt für die richtige Grundform geben beziehungsweise sehen. Beide Teile unabhängig bewerten.",
@@ -15947,7 +15958,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "2778980ad9b1ca2d9affee8f36d3a58da4f4bc09844e203b2659521bd3da5178"
+        "companionSha256": "e98840ad66ce377e447376be39268475e05900ac148c6dd14392ec1fc313a6e6"
       },
       "sourceRubric": [
         "a) 1 Punkt für den genau abgegrenzten gemeinsamen Wortstamm mal beziehungsweise Mal. malen oder das ganze Wort bemalen ist nicht der verlangte Stamm.",
@@ -16077,7 +16088,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "2778980ad9b1ca2d9affee8f36d3a58da4f4bc09844e203b2659521bd3da5178"
+        "companionSha256": "e98840ad66ce377e447376be39268475e05900ac148c6dd14392ec1fc313a6e6"
       },
       "sourceRubric": [
         "Je 1 Punkt für die grammatisch passende Form langen beziehungsweise dünnes. Beide Teile unabhängig bewerten.",
@@ -16214,7 +16225,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "2778980ad9b1ca2d9affee8f36d3a58da4f4bc09844e203b2659521bd3da5178"
+        "companionSha256": "e98840ad66ce377e447376be39268475e05900ac148c6dd14392ec1fc313a6e6"
       },
       "sourceRubric": [
         "1 Punkt für stark in der Grundstufe und unabhängig davon 1 Punkt für stärksten in der zweiten Vergleichsstufe.",
@@ -16476,7 +16487,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "2778980ad9b1ca2d9affee8f36d3a58da4f4bc09844e203b2659521bd3da5178"
+        "companionSha256": "e98840ad66ce377e447376be39268475e05900ac148c6dd14392ec1fc313a6e6"
       },
       "sourceRubric": [
         "a) 0,5 Punkte, wenn genau beide Verbteile haben und gedeckt markiert sind; unabhängig davon 0,5 Punkte für Perfekt.",
@@ -16610,7 +16621,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "2778980ad9b1ca2d9affee8f36d3a58da4f4bc09844e203b2659521bd3da5178"
+        "companionSha256": "e98840ad66ce377e447376be39268475e05900ac148c6dd14392ec1fc313a6e6"
       },
       "sourceRubric": [
         "Je 1 Punkt für lachtest beziehungsweise las. Beide Teile unabhängig bewerten; Person und Zahl müssen erhalten bleiben.",
@@ -16779,7 +16790,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "2778980ad9b1ca2d9affee8f36d3a58da4f4bc09844e203b2659521bd3da5178"
+        "companionSha256": "e98840ad66ce377e447376be39268475e05900ac148c6dd14392ec1fc313a6e6"
       },
       "sourceRubric": [
         "a) 1 Punkt, wenn die vollständige und ausschließlich gemeinte Wortgruppe ein müder Wanderer markiert ist. Nur Wanderer oder eine Markierung einschließlich sitzt reicht nicht.",
@@ -16888,7 +16899,7 @@
         "label": "Eigener Aufgabenentwurf; fachliche Freigabe ausstehend",
         "repository": "https://github.com/CrispStrobe/kompass4",
         "path": "content/interactive/supplement.json",
-        "sha256": "673dc1c46023c7c8c7ea31ae9bd2e873b912636e656fed09c15be179b0470d01",
+        "sha256": "f9727244cd4a20c5399bde2c1a2328d44fc79881c2317a942c446f4c0ceac614",
         "reviewStatus": "draft",
         "official": false
       },
@@ -17002,7 +17013,7 @@
         "label": "Eigener Aufgabenentwurf; fachliche Freigabe ausstehend",
         "repository": "https://github.com/CrispStrobe/kompass4",
         "path": "content/interactive/supplement.json",
-        "sha256": "673dc1c46023c7c8c7ea31ae9bd2e873b912636e656fed09c15be179b0470d01",
+        "sha256": "f9727244cd4a20c5399bde2c1a2328d44fc79881c2317a942c446f4c0ceac614",
         "reviewStatus": "draft",
         "official": false
       },
@@ -17099,7 +17110,7 @@
         "label": "Eigener Aufgabenentwurf; fachliche Freigabe ausstehend",
         "repository": "https://github.com/CrispStrobe/kompass4",
         "path": "content/interactive/supplement.json",
-        "sha256": "673dc1c46023c7c8c7ea31ae9bd2e873b912636e656fed09c15be179b0470d01",
+        "sha256": "f9727244cd4a20c5399bde2c1a2328d44fc79881c2317a942c446f4c0ceac614",
         "reviewStatus": "draft",
         "official": false
       },
@@ -17162,7 +17173,7 @@
         {
           "id": "wu_transfer_spelling_extend_b",
           "type": "text",
-          "prompt": "Bilde die Mehrzahl: ein Hund – viele …",
+          "prompt": "Schreibe die Mehrzahl als Prüfwort: viele …",
           "maxPoints": 1,
           "caseSensitive": false,
           "reviewRequired": false,
@@ -17193,7 +17204,7 @@
         "label": "Eigener Aufgabenentwurf; fachliche Freigabe ausstehend",
         "repository": "https://github.com/CrispStrobe/kompass4",
         "path": "content/interactive/supplement.json",
-        "sha256": "673dc1c46023c7c8c7ea31ae9bd2e873b912636e656fed09c15be179b0470d01",
+        "sha256": "f9727244cd4a20c5399bde2c1a2328d44fc79881c2317a942c446f4c0ceac614",
         "reviewStatus": "draft",
         "official": false
       },
@@ -17287,7 +17298,7 @@
         "label": "Eigener Aufgabenentwurf; fachliche Freigabe ausstehend",
         "repository": "https://github.com/CrispStrobe/kompass4",
         "path": "content/interactive/supplement.json",
-        "sha256": "673dc1c46023c7c8c7ea31ae9bd2e873b912636e656fed09c15be179b0470d01",
+        "sha256": "f9727244cd4a20c5399bde2c1a2328d44fc79881c2317a942c446f4c0ceac614",
         "reviewStatus": "draft",
         "official": false
       },
@@ -17383,7 +17394,7 @@
         "label": "Eigener Aufgabenentwurf; fachliche Freigabe ausstehend",
         "repository": "https://github.com/CrispStrobe/kompass4",
         "path": "content/interactive/supplement.json",
-        "sha256": "673dc1c46023c7c8c7ea31ae9bd2e873b912636e656fed09c15be179b0470d01",
+        "sha256": "f9727244cd4a20c5399bde2c1a2328d44fc79881c2317a942c446f4c0ceac614",
         "reviewStatus": "draft",
         "official": false
       },
@@ -17482,7 +17493,7 @@
         "label": "Eigener Aufgabenentwurf; fachliche Freigabe ausstehend",
         "repository": "https://github.com/CrispStrobe/kompass4",
         "path": "content/interactive/supplement.json",
-        "sha256": "673dc1c46023c7c8c7ea31ae9bd2e873b912636e656fed09c15be179b0470d01",
+        "sha256": "f9727244cd4a20c5399bde2c1a2328d44fc79881c2317a942c446f4c0ceac614",
         "reviewStatus": "draft",
         "official": false
       },
@@ -17580,7 +17591,7 @@
         "label": "Eigener Aufgabenentwurf; fachliche Freigabe ausstehend",
         "repository": "https://github.com/CrispStrobe/kompass4",
         "path": "content/interactive/supplement.json",
-        "sha256": "673dc1c46023c7c8c7ea31ae9bd2e873b912636e656fed09c15be179b0470d01",
+        "sha256": "f9727244cd4a20c5399bde2c1a2328d44fc79881c2317a942c446f4c0ceac614",
         "reviewStatus": "draft",
         "official": false
       },
@@ -17695,7 +17706,7 @@
         "label": "Eigener Aufgabenentwurf; fachliche Freigabe ausstehend",
         "repository": "https://github.com/CrispStrobe/kompass4",
         "path": "content/interactive/supplement.json",
-        "sha256": "673dc1c46023c7c8c7ea31ae9bd2e873b912636e656fed09c15be179b0470d01",
+        "sha256": "f9727244cd4a20c5399bde2c1a2328d44fc79881c2317a942c446f4c0ceac614",
         "reviewStatus": "draft",
         "official": false
       },
@@ -17776,7 +17787,7 @@
         "label": "Eigener Aufgabenentwurf; fachliche Freigabe ausstehend",
         "repository": "https://github.com/CrispStrobe/kompass4",
         "path": "content/interactive/supplement.json",
-        "sha256": "673dc1c46023c7c8c7ea31ae9bd2e873b912636e656fed09c15be179b0470d01",
+        "sha256": "f9727244cd4a20c5399bde2c1a2328d44fc79881c2317a942c446f4c0ceac614",
         "reviewStatus": "draft",
         "official": false
       },
@@ -17852,7 +17863,7 @@
         "label": "Eigener Aufgabenentwurf; fachliche Freigabe ausstehend",
         "repository": "https://github.com/CrispStrobe/kompass4",
         "path": "content/interactive/supplement.json",
-        "sha256": "673dc1c46023c7c8c7ea31ae9bd2e873b912636e656fed09c15be179b0470d01",
+        "sha256": "f9727244cd4a20c5399bde2c1a2328d44fc79881c2317a942c446f4c0ceac614",
         "reviewStatus": "draft",
         "official": false
       },
@@ -17928,7 +17939,7 @@
         "label": "Eigener Aufgabenentwurf; fachliche Freigabe ausstehend",
         "repository": "https://github.com/CrispStrobe/kompass4",
         "path": "content/interactive/supplement.json",
-        "sha256": "673dc1c46023c7c8c7ea31ae9bd2e873b912636e656fed09c15be179b0470d01",
+        "sha256": "f9727244cd4a20c5399bde2c1a2328d44fc79881c2317a942c446f4c0ceac614",
         "reviewStatus": "draft",
         "official": false
       },
@@ -18006,7 +18017,7 @@
         "label": "Eigener Aufgabenentwurf; fachliche Freigabe ausstehend",
         "repository": "https://github.com/CrispStrobe/kompass4",
         "path": "content/interactive/supplement.json",
-        "sha256": "673dc1c46023c7c8c7ea31ae9bd2e873b912636e656fed09c15be179b0470d01",
+        "sha256": "f9727244cd4a20c5399bde2c1a2328d44fc79881c2317a942c446f4c0ceac614",
         "reviewStatus": "draft",
         "official": false
       },
@@ -18082,7 +18093,7 @@
         "label": "Eigener Aufgabenentwurf; fachliche Freigabe ausstehend",
         "repository": "https://github.com/CrispStrobe/kompass4",
         "path": "content/interactive/supplement.json",
-        "sha256": "673dc1c46023c7c8c7ea31ae9bd2e873b912636e656fed09c15be179b0470d01",
+        "sha256": "f9727244cd4a20c5399bde2c1a2328d44fc79881c2317a942c446f4c0ceac614",
         "reviewStatus": "draft",
         "official": false
       },
@@ -18158,7 +18169,7 @@
         "label": "Eigener Aufgabenentwurf; fachliche Freigabe ausstehend",
         "repository": "https://github.com/CrispStrobe/kompass4",
         "path": "content/interactive/supplement.json",
-        "sha256": "673dc1c46023c7c8c7ea31ae9bd2e873b912636e656fed09c15be179b0470d01",
+        "sha256": "f9727244cd4a20c5399bde2c1a2328d44fc79881c2317a942c446f4c0ceac614",
         "reviewStatus": "draft",
         "official": false
       },
@@ -18234,7 +18245,7 @@
         "label": "Eigener Aufgabenentwurf; fachliche Freigabe ausstehend",
         "repository": "https://github.com/CrispStrobe/kompass4",
         "path": "content/interactive/supplement.json",
-        "sha256": "673dc1c46023c7c8c7ea31ae9bd2e873b912636e656fed09c15be179b0470d01",
+        "sha256": "f9727244cd4a20c5399bde2c1a2328d44fc79881c2317a942c446f4c0ceac614",
         "reviewStatus": "draft",
         "official": false
       },
@@ -18310,7 +18321,7 @@
         "label": "Eigener Aufgabenentwurf; fachliche Freigabe ausstehend",
         "repository": "https://github.com/CrispStrobe/kompass4",
         "path": "content/interactive/supplement.json",
-        "sha256": "673dc1c46023c7c8c7ea31ae9bd2e873b912636e656fed09c15be179b0470d01",
+        "sha256": "f9727244cd4a20c5399bde2c1a2328d44fc79881c2317a942c446f4c0ceac614",
         "reviewStatus": "draft",
         "official": false
       },

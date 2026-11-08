@@ -20,14 +20,14 @@ class KompassPartResult {
   });
   bool get needsReview => points == null;
   Map<String, dynamic> toJson() => {
-    'partId': partId,
-    'points': points,
-    'maxPoints': maxPoints,
-    'response': response,
-    'competencyIds': competencyIds,
-    'creditSteps': creditSteps,
-    'evaluation': evaluation,
-  };
+        'partId': partId,
+        'points': points,
+        'maxPoints': maxPoints,
+        'response': response,
+        'competencyIds': competencyIds,
+        'creditSteps': creditSteps,
+        'evaluation': evaluation,
+      };
   factory KompassPartResult.fromJson(Map<String, dynamic> json) =>
       KompassPartResult(
         partId: json['partId'] as String,
@@ -38,8 +38,7 @@ class KompassPartResult {
         creditSteps: (json['creditSteps'] as List? ?? [])
             .map((v) => (v as num).toDouble())
             .toList(),
-        evaluation:
-            json['evaluation'] as String? ??
+        evaluation: json['evaluation'] as String? ??
             (json['points'] == null ? 'pending' : 'automatic'),
       );
 
@@ -61,17 +60,18 @@ class KompassGrader {
   static List<KompassPartResult> assess(
     KompassTask task,
     Map<String, dynamic> answers,
-  ) => task.parts
-      .map(
-        (part) => assessPart(
-          part,
-          answers[part.id],
-          competencyIds: part.competencyIds.isEmpty
-              ? task.competencyIds
-              : part.competencyIds,
-        ),
-      )
-      .toList();
+  ) =>
+      task.parts
+          .map(
+            (part) => assessPart(
+              part,
+              answers[part.id],
+              competencyIds: part.competencyIds.isEmpty
+                  ? task.competencyIds
+                  : part.competencyIds,
+            ),
+          )
+          .toList();
 
   static KompassPartResult assessPart(
     KompassPart part,
@@ -92,7 +92,7 @@ class KompassGrader {
         case 'multiChoice':
           if (response is List) {
             final selected = response.map((v) => '$v').toSet();
-            correct =
+            correct = response.length == selected.length &&
                 selected.length == expected.toSet().length &&
                 selected.containsAll(expected);
           }
@@ -119,10 +119,10 @@ class KompassGrader {
       points = correct
           ? part.maxPoints
           : (part.reviewOnMismatch &&
-                    response is String &&
-                    response.trim().isNotEmpty
-                ? null
-                : 0);
+                  response is String &&
+                  response.trim().isNotEmpty
+              ? null
+              : 0);
     }
     return KompassPartResult(
       partId: part.id,

@@ -640,7 +640,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          S.of(context)!.dailySessionTitle,
+                          profile.goal == LearnerGoal.kompassBw
+                            ? S.of(context)!.goalKompassBw : S.of(context)!.dailySessionTitle,
                           textAlign: TextAlign.center,
                           style: SpaceTheme.buttonStyle.copyWith(
                             fontSize:
@@ -674,10 +675,21 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildBrowseButton() => TextButton.icon(
-        onPressed: _navigateToGameMenu,
-        icon: const Icon(Icons.grid_view),
-        label: Text(S.of(context)!.browseAllGames),
+  Widget _buildBrowseButton() => Wrap(
+        alignment: WrapAlignment.center,
+        spacing: 8,
+        children: [
+          TextButton.icon(
+            onPressed: _navigateToGameMenu,
+            icon: const Icon(Icons.grid_view),
+            label: Text(S.of(context)!.browseAllGames),
+          ),
+          TextButton.icon(
+            onPressed: () => Navigator.of(context).pushNamed('/kompass'),
+            icon: const Icon(Icons.explore_outlined),
+            label: Text(S.of(context)!.goalKompassBw),
+          ),
+        ],
       );
 }
 

@@ -21,6 +21,8 @@ const Set<String> registeredProviders = {
   'AudioService',
   'StreakService',
   'LearnerProfileService',
+  'KompassCourseService',
+  'KompassProgressService',
 };
 
 void main() {

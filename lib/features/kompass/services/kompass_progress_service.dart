@@ -41,22 +41,22 @@ class KompassAttempt {
       const {'independent', 'startCheck'}.contains(mode);
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'courseId': courseId,
-    'taskId': taskId,
-    'taskVersion': taskVersion,
-    'courseVersion': courseVersion,
-    'mode': mode,
-    'occurredAt': occurredAt.toIso8601String(),
-    'competencyIds': competencyIds,
-    'assistance': assistance,
-    'firstAttempt': firstAttempt,
-    'elapsedSeconds': elapsedSeconds,
-    'parts': parts.map((p) => p.toJson()).toList(),
-    'reviewer': reviewer,
-    'taskKind': taskKind,
-    'stimulusId': stimulusId,
-  };
+        'id': id,
+        'courseId': courseId,
+        'taskId': taskId,
+        'taskVersion': taskVersion,
+        'courseVersion': courseVersion,
+        'mode': mode,
+        'occurredAt': occurredAt.toIso8601String(),
+        'competencyIds': competencyIds,
+        'assistance': assistance,
+        'firstAttempt': firstAttempt,
+        'elapsedSeconds': elapsedSeconds,
+        'parts': parts.map((p) => p.toJson()).toList(),
+        'reviewer': reviewer,
+        'taskKind': taskKind,
+        'stimulusId': stimulusId,
+      };
 
   factory KompassAttempt.fromJson(Map<String, dynamic> json) {
     final parts = (json['parts'] as List)
@@ -99,23 +99,24 @@ class KompassAttempt {
   KompassAttempt withReview(
     List<KompassPartResult> reviewedParts,
     String source,
-  ) => KompassAttempt(
-    id: id,
-    courseId: courseId,
-    taskId: taskId,
-    taskVersion: taskVersion,
-    courseVersion: courseVersion,
-    mode: mode,
-    occurredAt: occurredAt,
-    competencyIds: competencyIds,
-    assistance: assistance,
-    firstAttempt: firstAttempt,
-    elapsedSeconds: elapsedSeconds,
-    parts: reviewedParts,
-    reviewer: source,
-    taskKind: taskKind,
-    stimulusId: stimulusId,
-  );
+  ) =>
+      KompassAttempt(
+        id: id,
+        courseId: courseId,
+        taskId: taskId,
+        taskVersion: taskVersion,
+        courseVersion: courseVersion,
+        mode: mode,
+        occurredAt: occurredAt,
+        competencyIds: competencyIds,
+        assistance: assistance,
+        firstAttempt: firstAttempt,
+        elapsedSeconds: elapsedSeconds,
+        parts: reviewedParts,
+        reviewer: source,
+        taskKind: taskKind,
+        stimulusId: stimulusId,
+      );
 }
 
 class KompassSkillStats {
@@ -136,7 +137,7 @@ class KompassSkillStats {
 /// assistance and per-part review provenance survive reloads and rubric review.
 class KompassProgressService extends ChangeNotifier {
   KompassProgressService(this._prefs, {DateTime Function()? clock})
-    : _clock = clock ?? DateTime.now {
+      : _clock = clock ?? DateTime.now {
     _load();
   }
   static const storageKey = 'kompass_progress_v1';
@@ -308,9 +309,8 @@ class KompassProgressService extends ChangeNotifier {
     if (index < 0) throw ArgumentError('Unknown attempt');
     final attempt = _attempts[index];
     for (final entry in scores.entries) {
-      final part = attempt.parts
-          .where((p) => p.partId == entry.key)
-          .firstOrNull;
+      final part =
+          attempt.parts.where((p) => p.partId == entry.key).firstOrNull;
       if (part == null ||
           !part.needsReview ||
           !entry.value.isFinite ||
@@ -340,57 +340,60 @@ class KompassProgressService extends ChangeNotifier {
       _attempts.reversed.where((a) => a.taskId == taskId).firstOrNull;
 
   KompassSkillStats statsFor(String skillId) {
-    final relevant = _attempts
-        .where((a) => a.competencyIds.contains(skillId))
-        .toList();
+    final relevant = _attempts.where((a) => a.taskKind != 'instruction' &&
+        a.competencyIds.contains(skillId)).toList();
+    // Recent, distinct first attempts allow recovery after earlier difficulties.
+    // Repeated answers never displace fresh evidence in this window.
+    final recent = relevant.reversed.where((a) => a.independent).take(3)
+        .map((a) => a.id).toSet();
     var independent = 0, supported = 0, pending = 0;
     double earned = 0, possible = 0;
-    final successfulTasks = <String>{}, days = <String>{};
+    final successfulTasks = <String>{}, days = <String>{}, contexts = <String>{};
+    DateTime? lastIndependent, lastScoredAt;
+    double? latestScore;
+    var incompleteIndependent = false;
     for (final attempt in relevant) {
-      final parts = attempt.parts
-          .where(
-            (p) => p.competencyIds.isEmpty || p.competencyIds.contains(skillId),
-          )
-          .toList();
+      final parts = attempt.parts.where((p) => p.competencyIds.isEmpty ||
+          p.competencyIds.contains(skillId)).toList();
       if (parts.any((p) => p.needsReview)) pending++;
-      final automatic = parts
-          .where((p) => !p.needsReview && p.evaluation == 'automatic')
-          .toList();
-      if (attempt.independent && automatic.any((p) => p.maxPoints > 0)) {
-        independent++;
-        final total = automatic.fold<double>(0, (sum, p) => sum + p.maxPoints);
-        final score = automatic.fold<double>(0, (sum, p) => sum + p.points!);
-        earned += score;
-        possible += total;
-        if (total > 0 && score / total >= 0.8) {
-          successfulTasks.add(attempt.taskId);
-          days.add(
-            '${attempt.occurredAt.year}-${attempt.occurredAt.month}-${attempt.occurredAt.day}',
-          );
+      final automatic = parts.where((p) => !p.needsReview && p.evaluation == 'automatic').toList();
+      if (automatic.any((p) => p.maxPoints > 0) &&
+          (lastScoredAt == null || !attempt.occurredAt.isBefore(lastScoredAt))) {
+        lastScoredAt = attempt.occurredAt;
+        latestScore = automatic.fold<double>(0, (sum, p) => sum + p.points!) /
+            automatic.fold<double>(0, (sum, p) => sum + p.maxPoints);
+      }
+      if (attempt.independent && automatic.any((p) => p.maxPoints > 0)) independent++;
+      if (recent.contains(attempt.id)) {
+        if (automatic.length != parts.length) {
+          // Preserve exact subpart evidence without turning an unresolved or
+          // rubric-reviewed sibling for the same skill into secure mastery.
+          incompleteIndependent = true;
+        } else if (automatic.any((p) => p.maxPoints > 0)) {
+          if (lastIndependent == null || attempt.occurredAt.isAfter(lastIndependent)) {
+            lastIndependent = attempt.occurredAt;
+          }
+          final total = automatic.fold<double>(0, (sum, p) => sum + p.maxPoints);
+          final score = automatic.fold<double>(0, (sum, p) => sum + p.points!);
+          earned += score; possible += total;
+          if (score / total >= 0.8) {
+            successfulTasks.add(attempt.taskId);
+            contexts.add(attempt.stimulusId ?? attempt.taskId);
+            days.add('${attempt.occurredAt.year}-${attempt.occurredAt.month}-${attempt.occurredAt.day}');
+          }
         }
       }
-      if (!attempt.independent ||
-          parts.any((p) => p.evaluation.startsWith('rubric:')))
-        supported++;
+      if (!attempt.independent || parts.any((p) => p.evaluation.startsWith('rubric:'))) supported++;
     }
     final rate = possible == 0 ? null : earned / possible;
-    final state = relevant.isEmpty
-        ? 'unobserved'
-        : independent == 0
-        ? (supported > 0 ? 'supported' : 'learning')
-        : rate! < 0.8
-        ? 'learning'
-        : successfulTasks.length >= 3 && days.length >= 2
-        ? 'secure'
-        : 'developing';
-    return KompassSkillStats(
-      attempts: relevant.length,
-      independentCount: independent,
-      supportedCount: supported,
-      pendingCount: pending,
-      successRate: rate,
-      state: state,
-    );
+    final state = relevant.isEmpty ? 'unobserved' : independent == 0 ?
+        (supported > 0 ? 'supported' : 'learning') :
+        rate == null || rate < 0.8 || (latestScore != null && latestScore < 0.8) ? 'learning' :
+        !incompleteIndependent && successfulTasks.length >= 3 && days.length >= 2 &&
+        contexts.length >= 2 && lastIndependent != null &&
+        now.difference(lastIndependent).inDays <= 14 ? 'secure' : 'developing';
+    return KompassSkillStats(attempts: relevant.length, independentCount: independent,
+        supportedCount: supported, pendingCount: pending, successRate: rate, state: state);
   }
 
   Future<void> clear() async {
