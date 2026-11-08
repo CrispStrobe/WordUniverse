@@ -230,11 +230,20 @@ runtime integration tests verify the effective application view separately.
 
 Among the 769 legacy tagged rows, `grade_level` and `gradeLevelEstimate`
 have the same distribution: **393 at 1, 127 at 2, and 249 at 3**. All 769
-estimates have `gradeLevelEstimateSource: "nrw"`. In
-[compute_grade_level_estimate.py](../pipeline/voc-de/compute_grade_level_estimate.py),
-that label is assigned when copying any existing grade from 1 through 4.
-It does not establish that every word came from NRW, nor is it a calibrated
-BW grade or KOMPASS difficulty measurement.
+estimates in the pinned pack have `gradeLevelEstimateSource: "nrw"`.
+The old estimator assigned that label when copying any existing grade from
+1 through 4. It does not establish that every word came from NRW, nor is it
+a calibrated BW grade or KOMPASS difficulty measurement.
+
+The repaired
+[grade estimator](../pipeline/voc-de/compute_grade_level_estimate.py) now
+uses `gradeLevelEstimateSource: "existing_grade_level"` for those copies.
+`gradeLevelEstimateEvidence` identifies the inherited `words.grade_level`
+field and preserves explicit `gradeLevelSource`/`gradeLevelEvidence` as
+`upstreamSource`/`upstreamEvidence` when supplied. Old ambiguous estimate
+labels and source-list membership do not establish that origin. ChildLex
+and DWDS decisions retain their existing numerical rules and record the
+selected field and heuristic. Numeric grade values are unchanged.
 
 | `spellingDifficulty` index | App label | Tagged rows |
 | --- | --- | ---: |
@@ -253,6 +262,18 @@ remaining rates assigned index 3. None of these 769 rows retains the
 corresponding sample-size field, so the audit cannot assess the reliability
 of a rate such as 1.0. These are corpus-derived item hints, not an individual
 child's mastery score.
+
+Future CSV-to-JSON builds retain the compatible numeric field but now add
+`spellingDifficultySource: "unknown"` and an explicit unknown
+`spellingDifficultyEvidence` object when no measured spelling evidence is
+available. A default zero therefore remains distinguishable from an
+observed zero error rate. Both LiTKey producers set the source to `litkey`
+and the evidence status to `corpus-derived`, recording the actual error
+rate, aggregation unit, and available token/error counts. Missing counts
+remain unknown. Counts already calculated by future enrichment runs are
+now retained; this does not repair the absent counts in the pinned pack.
+Every such evidence record explicitly states `calibrated: false`.
+The existing score thresholds are unchanged.
 
 All 769 rows have a primary spelling-strategy label. Its distribution is
 220 capitalization, 200 sound-spelling correspondence, 150 doubled
@@ -310,12 +331,16 @@ Focused importer regressions run with:
 
 ```bash
 python3 -m unittest discover -s pipeline/voc-de -p 'test_bw_source_lists.py'
+python3 -m unittest discover -s pipeline/voc-de -p 'test_*evidence.py'
 ```
 
-All **11 focused regressions passed** on the audit date. They exercise the
+All **11 source regressions and 13 evidence regressions passed** on the
+audit date. The source checks exercise the
 actual consolidation adapter with isolated fixtures,
 multiple page references, short-only words, source-case conflicts,
 annotations, provenance, and the restored official Z table. A fixture also
 follows the source declarations through mocked spaCy enrichment, JSON
-conversion, and an in-memory SQLite database. No full
+conversion, and an in-memory SQLite database. Evidence checks cover grade
+provenance, unchanged numeric boundaries, unknown versus observed zero,
+retained actual sample counts, and JSON-to-SQLite metadata preservation. No full
 dictionary rebuild or remote dataset publication is needed for this audit.

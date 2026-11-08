@@ -38,6 +38,9 @@ import sqlite3
 import sys
 from collections import Counter, defaultdict
 from pathlib import Path
+from spelling_difficulty_evidence import (
+    litkey_spelling_difficulty, unknown_spelling_difficulty,
+)
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[1]
@@ -149,7 +152,7 @@ def _make_row(
     if definitions:
         enrichment["definitions"] = definitions
 
-    metadata: dict = {"sources": sources}
+    metadata: dict = {"sources": sources, **unknown_spelling_difficulty()}
     if litkey_meta:
         metadata.update(litkey_meta)
 
@@ -234,10 +237,38 @@ def load_litkey(csv_path: Path) -> tuple[dict, dict]:
             "canonical": lemma_canon[key],
             "pos":       lemma_pos[key],
             "error_rate": rate,
+            "total_tokens": total,
+            "error_tokens": errors,
             "features":  feats,
         }
 
     return content_lemmas, ne_names
+
+
+def content_lemma_metadata(info: dict) -> dict:
+    """Use the unchanged rate thresholds and retain their actual provenance."""
+    rate = info["error_rate"]
+    difficulty = (
+        0 if rate < 0.25 else
+        1 if rate < 0.50 else
+        2 if rate < 0.75 else 3
+    )
+    metadata = {
+        "litkey_error_rate": rate,
+        **litkey_spelling_difficulty(
+            rate, difficulty,
+            sample_size=info.get("total_tokens"),
+            error_tokens=info.get("error_tokens"),
+            aggregation="lemma",
+        ),
+    }
+    if "total_tokens" in info:
+        metadata["litkey_total_tokens"] = info["total_tokens"]
+    if "error_tokens" in info:
+        metadata["litkey_error_tokens"] = info["error_tokens"]
+    if info.get("features"):
+        metadata["litkey_word_features"] = info["features"]
+    return metadata
 
 
 # ---------------------------------------------------------------------------
@@ -287,20 +318,7 @@ def main() -> int:
             continue
         word = info["canonical"]
         pos  = info["pos"]
-        rate = info["error_rate"]
-        feats = info["features"]
-
-        difficulty = (
-            0 if rate < 0.25 else
-            1 if rate < 0.50 else
-            2 if rate < 0.75 else 3
-        )
-        litkey_meta = {
-            "litkey_error_rate": rate,
-            "spellingDifficulty": difficulty,
-        }
-        if feats:
-            litkey_meta["litkey_word_features"] = feats
+        litkey_meta = content_lemma_metadata(info)
 
         new_rows.append(_make_row(
             row_id, word, word, pos,

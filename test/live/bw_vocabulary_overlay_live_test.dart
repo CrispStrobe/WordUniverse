@@ -1,0 +1,120 @@
+@TestOn('vm')
+library;
+
+import 'dart:convert';
+import 'dart:io';
+import 'dart:math';
+
+import 'package:flutter_test/flutter_test.dart';
+import 'package:WortUniversum/core/models/skill_category.dart';
+import 'package:WortUniversum/core/models/vocabulary_quality.dart';
+import 'package:WortUniversum/core/models/word_features.dart';
+import 'package:WortUniversum/core/services/bw_vocabulary_overlay.dart';
+import 'package:WortUniversum/core/services/dictionary_database_service.dart';
+import 'package:WortUniversum/core/services/sri_service.dart';
+
+import '../audit/challenge_harness.dart';
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  late AuditPack pack;
+  final skip = germanPackPath == null
+      ? 'set WU_PACK_DE to the verified German app pack'
+      : null;
+  setUpAll(() async {
+    if (skip == null) pack = await openAuditPack('de');
+  });
+  tearDownAll(() async {
+    if (skip == null) await pack.dispose();
+  });
+
+  test('BW preset covers every exact source spelling and only its proper band',
+      () async {
+    await pack.settings.applyBwVocabularyPreset();
+    final membership =
+        jsonDecode(File(BwVocabularyOverlay.membershipAsset).readAsStringSync())
+            as Map;
+    for (final band in ['BW1', 'BW3']) {
+      pack.settings.setTaskIncludedSources({band});
+      final expected = (membership['memberships'] as List)
+          .cast<Map>()
+          .where((entry) => (entry['sourceBands'] as List).contains(band))
+          .map((entry) => entry['word'] as String)
+          .toSet();
+      final words = pack.vocabulary.getAllWords(pack.settings);
+      expect(words.map((word) => word.word).toSet(), expected,
+          reason:
+              '$band must not merge case variants or retain inherited wrong tags');
+      expect(words.every((word) => word.isGrundwortschatzBW), isTrue);
+      expect(words.every((word) => !word.isHydrated), isTrue);
+      final sein = words.where((word) => word.word == 'sein').single;
+      expect(sein.wordType,
+          band == 'BW1' ? GermanWordType.verb : GermanWordType.pronomen);
+    }
+  }, skip: skip);
+
+  test('feature candidates and hydration include corrected ordinary nouns',
+      () async {
+    await pack.settings.applyBwVocabularyPreset();
+    final selected = await pack.vocabulary.takeWordsWithFeature(
+      WordFeature.definitions,
+      settingsProvider: pack.settings,
+      limit: 2000,
+      where: (word) => !word.isProperNoun && !namesSomething(word),
+      random: Random(1),
+    );
+    for (final written in [
+      'August',
+      'Gabel',
+      'Herr',
+      'Luchs',
+      'Mandarine',
+      'E-Mail',
+      'vergesslich',
+      'Zeh',
+      'Zylinder'
+    ]) {
+      final word = selected.singleWhere((word) => word.word == written);
+      expect(word.isHydrated, isTrue);
+      expect(word.isHeadword, isTrue);
+      expect(word.has(WordFeature.definitions), isTrue);
+      expect(word.learnerDefinitions, isNotEmpty);
+      expect(namesSomething(word), isFalse);
+    }
+    final untouched =
+        await DictionaryDatabaseService().getWordById('word_03407');
+    expect(untouched!.isProperNoun, isTrue,
+        reason: 'the downloaded database retains its original bytes and rows');
+  }, skip: skip);
+
+  test('exact lookup, async search and old review resolution preserve identity',
+      () async {
+    for (final pair in [
+      ('Arm', 'arm'),
+      ('Paar', 'paar'),
+      ('Weg', 'weg'),
+      ('Sie', 'sie')
+    ]) {
+      final upper = pack.vocabulary.findByWrittenForm(pair.$1)!;
+      final lower = pack.vocabulary.findByWrittenForm(pair.$2)!;
+      expect(upper.word, pair.$1);
+      expect(lower.word, pair.$2);
+      expect(upper.id, isNot(lower.id));
+    }
+    final email = await pack.vocabulary.searchWordsAsync('E-Mail');
+    expect(
+        email.any((word) => word.word == 'E-Mail' && word.isHydrated), isTrue);
+    final old = SriLanguageData(
+      itemId: 'SPELL_arm',
+      skillType: LanguageSkillType.spelling,
+      nextReviewDate: DateTime.utc(2020),
+    );
+    expect(pack.vocabulary.findByReviewItem(old), isNull,
+        reason:
+            'a case-folded old key alone cannot identify which sense was practised');
+    old.metadata['wordType'] = 'GermanWordType.substantiv';
+    expect(pack.vocabulary.findByReviewItem(old)!.word, 'Arm');
+    old.metadata['wordId'] = 'bw_lexical_v1_arm_adj';
+    expect(pack.vocabulary.findByReviewItem(old)!.word, 'arm');
+  }, skip: skip);
+}

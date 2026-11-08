@@ -1,17 +1,17 @@
-"""Add a per-word `gradeLevelEstimate` (1–6) to metadata_json,
-algorithmically derived from childLex age-presence + DWDS
-Häufigkeitsklasse + existing NRW-derived grade_level.
+"""Add a per-word `gradeLevelEstimate` and evidence to metadata_json.
 
-The existing `words.grade_level` column is NRW/Goethe-derived and
-authoritative for the ~1500 words it covers cleanly; the remaining
-~9000 words sit at `grade_level=5` (placeholder default for "above
-primary core") or `grade_level=6` (Sekundarstufe-tier vocabulary). For
-those, this script computes a finer-grained estimate using the
-childLex age-graded norms integrated in commit b6d084d.
+The existing `words.grade_level` column can have different upstream origins.
+Its numeric value alone does not identify NRW, BW, or any other source.
+Explicit `gradeLevelSource` and `gradeLevelEvidence` metadata are preserved
+when supplied; an old estimate-source label is not evidence of that origin.
+
+This script retains the existing numeric decision rules. Its childLex and
+DWDS mappings are frequency-based heuristics, not calibrated school-grade
+measurements or official curriculum assignments.
 
 Algorithm:
-  - If grade_level ∈ {1,2,3,4} (NRW-derived): trust it; estimate = grade_level.
-  - Else (grade_level ∈ {5,6}):
+  - If grade_level ∈ {1,2,3,4}: copy it; estimate = grade_level.
+  - Else:
       Look at the earliest childLex age band where lemma.freq.norm >= 5.0
       (a "substantive presence" cutoff, occurrences per million):
         Age 1 (ages 6–8 / Kl 1–2): split → Kl 1 if freq ≥ 50, else Kl 2
@@ -19,23 +19,29 @@ Algorithm:
         Age 3 (ages 11–12 / Kl 5–6): split → Kl 5 if freq ≥ 10, else Kl 6
       If no substantive childLex presence (or word not in childLex):
         Use DWDS frequenzklasse as fallback:
-          fk ≥ 5  → Kl 2  (very common in adult corpus, would be Kl 1-2)
-          fk = 3-4 → Kl 4  (medium frequency)
-          fk = 0-2 → Kl 6  (rare; specialized vocabulary)
-        If no DWDS data either: keep the original grade_level.
+          integer fk ≥ 5  → Kl 2
+          integer fk = 3-4 → Kl 4
+          other integer fk → Kl 6
+        If no DWDS data either: keep an integer original grade_level,
+        otherwise use the existing default of 5.
 
-The estimate is stored in `metadata_json.gradeLevelEstimate` as an
-integer 1–6. `metadata_json.gradeLevelEstimateSource` is one of:
-  "nrw"               — copied from authoritative NRW grade_level 1–4
+The heuristic rules produce grades 1–6; the fallback preserves an existing
+integer without changing its value. `gradeLevelEstimateSource` is one of:
+  "existing_grade_level" — copied from words.grade_level 1–4
   "childlex_age1"     — derived from childLex Age 1 frequency
   "childlex_age2"     — derived from childLex Age 2 frequency
   "childlex_age3"     — derived from childLex Age 3 frequency
   "dwds_fallback"     — derived from DWDS frequenzklasse (no childLex)
-  "original"          — kept original grade_level (no signals)
+  "original"          — kept an integer grade or defaulted to 5 (no signals)
+
+`gradeLevelEstimateEvidence` distinguishes inherited values, heuristic
+frequency mappings, and the generic default. It records explicit upstream
+evidence for inherited grades without guessing provenance from membership.
 """
 
 from __future__ import annotations
 
+from copy import deepcopy
 import gzip
 import json
 import sqlite3
@@ -84,6 +90,76 @@ def estimate_from_dwds(d: dict | None) -> tuple[int | None, str | None]:
     return 6, "dwds_fallback"
 
 
+def _inherited_evidence(metadata: dict, reason: str) -> dict:
+    evidence = {
+        "status": "inherited",
+        "sourceField": "words.grade_level",
+        "reason": reason,
+    }
+    # These explicit upstream fields are independent of prior estimate labels.
+    # In particular, gradeLevelEstimateSource='nrw' does not prove NRW origin.
+    for upstream, target in (("gradeLevelSource", "upstreamSource"),
+                             ("gradeLevelEvidence", "upstreamEvidence")):
+        if upstream in metadata:
+            evidence[target] = deepcopy(metadata[upstream])
+    return evidence
+
+
+def decide_grade_estimate(grade, frequency: dict | None = None,
+                          metadata: dict | None = None) -> dict:
+    """Return estimate metadata without modifying the supplied source records.
+
+    Numeric precedence and thresholds match the original implementation.
+    Provenance describes the selected field or heuristic, not inferred origin.
+    """
+    frequency = frequency if isinstance(frequency, dict) else {}
+    metadata = metadata if isinstance(metadata, dict) else {}
+
+    if isinstance(grade, int) and 1 <= grade <= 4:
+        estimate = grade
+        source = "existing_grade_level"
+        evidence = _inherited_evidence(metadata, "existing_grade_1_to_4")
+    else:
+        estimate, source = estimate_from_childlex(frequency.get("childlex"))
+        if estimate is not None:
+            age = source.removeprefix("childlex_")
+            field = f"{age}_freq_norm"
+            evidence = {
+                "status": "heuristic",
+                "sourceField": f"frequency_json.childlex.{field}",
+                "value": frequency["childlex"][field],
+                "method": "earliest_age_band_meeting_presence_threshold",
+                "presenceThreshold": PRESENCE_THRESHOLD,
+                "withinBandThreshold": {"age1": AGE1_HIGH, "age2": AGE2_HIGH,
+                                        "age3": AGE3_HIGH}[age],
+                "frequencyUnit": "occurrences_per_million",
+            }
+        else:
+            estimate, source = estimate_from_dwds(frequency.get("dwds"))
+            if estimate is not None:
+                evidence = {
+                    "status": "heuristic",
+                    "sourceField": "frequency_json.dwds.frequenzklasse",
+                    "value": frequency["dwds"]["frequenzklasse"],
+                    "method": "existing_dwds_frequency_class_thresholds",
+                    "rules": {"atLeast5": 2, "classes3Or4": 4, "otherInteger": 6},
+                }
+            else:
+                estimate = grade if isinstance(grade, int) else 5
+                source = "original"
+                evidence = (_inherited_evidence(metadata, "no_usable_frequency_signal")
+                            if isinstance(grade, int) else {
+                                "status": "default",
+                                "reason": "no_integer_grade_or_usable_frequency_signal",
+                                "defaultValue": 5,
+                            })
+    return {
+        "gradeLevelEstimate": estimate,
+        "gradeLevelEstimateSource": source,
+        "gradeLevelEstimateEvidence": evidence,
+    }
+
+
 def main() -> int:
     if not DB_GZ.exists():
         print(f"ERROR: shipped DB not found: {DB_GZ}", file=sys.stderr)
@@ -121,27 +197,12 @@ def main() -> int:
         except json.JSONDecodeError:
             freq = {}
 
-        grade = r["grade_level"]
-        estimate: int | None
-        source: str
-
-        if isinstance(grade, int) and 1 <= grade <= 4:
-            estimate = grade
-            source = "nrw"
-        else:
-            est, src = estimate_from_childlex(freq.get("childlex"))
-            if est is None:
-                est, src = estimate_from_dwds(freq.get("dwds"))
-            if est is None:
-                estimate = grade if isinstance(grade, int) else 5
-                source = "original"
-                grade_level_unchanged += 1
-            else:
-                estimate = est
-                source = src or "unknown"
-
-        meta["gradeLevelEstimate"] = estimate
-        meta["gradeLevelEstimateSource"] = source
+        decision = decide_grade_estimate(r["grade_level"], freq, meta)
+        estimate = decision["gradeLevelEstimate"]
+        source = decision["gradeLevelEstimateSource"]
+        if source == "original":
+            grade_level_unchanged += 1
+        meta.update(decision)
 
         update_cur.execute(
             "UPDATE words SET metadata_json = ? WHERE id = ?",
