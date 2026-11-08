@@ -218,29 +218,33 @@
       Abendessen
 ── sentence_completion (4)
   Die Kinder spielen gerne im ___ gelegenen Park.
-Das gesuchte Wort kann bedeuten: sich auf die Sonne beziehend, in der Art und Weise der Sonne, von der Sonne beschienen
+sich auf die Sonne beziehend, in der Art und Weise der Sonne, von der Sonne beschienen
       wichtig
       still
     ✓ sonnig
       dreckig
+    · cue label: Eine mögliche Bedeutung: …
   Ich mag keinen ___.
-Das gesuchte Wort kann bedeuten: subjektiv als unangenehm empfundener Schall, der unerwünschte Auswirkungen auf den Menschen hat (etwa das Gehör schädigt, krank machen kann, stört oder belästigt)
+subjektiv als unangenehm empfundener Schall, der unerwünschte Auswirkungen auf den Menschen hat (etwa das Gehör schädigt, krank machen kann, stört oder belästigt)
     ✓ Lärm
       Pause
       Zylinder
       Wärme
+    · cue label: Eine mögliche Bedeutung: …
   Die Blumen wachsen an der ___.
-Das gesuchte Wort kann bedeuten: Wand eines Gebäudes aus Stein, Beton oder auch Lehm
+Wand eines Gebäudes aus Stein, Beton oder auch Lehm
       Zylinder
     ✓ Mauer
       Pfingsten
       Palme
+    · cue label: Eine mögliche Bedeutung: …
   Wir dürfen den Müll nicht ___, das ist verboten.
-Das gesuchte Wort kann bedeuten: etwas durch Feuer vernichten
+etwas durch Feuer vernichten
       trösten
       donnern
     ✓ verbrennen
       schlagen
+    · cue label: Eine mögliche Bedeutung: …
 ── spelling_spotter (3)
   Which spelling is correct?
       fleach

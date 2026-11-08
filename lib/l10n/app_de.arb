@@ -1162,7 +1162,7 @@
     "definitionQuizOnboardingBody1": "Eine Definition wird gezeigt — wähle das passende Wort aus vier Optionen.",
     "definitionQuizOnboardingBody2": "Alle Optionen kommen aus derselben CEFR-Stufe, damit nichts zu leicht wird.",
     "definitionQuizOnboardingBody3": "Ab Wortschatzstufe 5 erscheint nach einer richtigen Antwort ein Sprach-Tipp zum Wort.",
-    "sentenceCompletionMeaningCue": "Das gesuchte Wort kann bedeuten: {definition}",
+    "sentenceCompletionMeaningCue": "Eine mögliche Bedeutung: {definition}",
     "@sentenceCompletionMeaningCue": {"placeholders": {"definition": {"type": "String"}}},
     "sentenceCompletionPrompt": "Welches Wort passt zum Hinweis und in den Satz?",
     "sentenceCompletionOnboardingBody1": "Lies den Satz mit der Lücke und den Hinweis zur gesuchten Bedeutung.",
@@ -2076,6 +2076,7 @@
         }
     },
     "reviewAllCaughtUp": "Für jetzt ist alles wiederholt.\nDeine Wörter kommen zum passenden Zeitpunkt wieder dran — auch die, die du schon gut kannst.",
+    "reviewItemWordUnavailable": "Wort nicht verfügbar",
     "reviewUnsupportedItems": "Einige fällige Aufgaben brauchen ihren ursprünglichen Zusammenhang.\nÜbe sie im passenden Spiel weiter; sie bleiben in deinem Wiederholungsplan.",
     "goalKompassBw": "Kompass 4 · BW Deutsch",
     "kompassCourseNote": "Lesen, Rechtschreiben und Sprache für den Beginn der Klasse 4 in Baden-Württemberg. Die Wortschatz-Schwierigkeit ist eine eigene Einstellung. Der Kurs funktioniert ohne Wörterbuch-Download.",
