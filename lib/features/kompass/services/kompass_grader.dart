@@ -9,6 +9,9 @@ class KompassPartResult {
   final List<String> competencyIds;
   final List<double> creditSteps;
   final String evaluation;
+  final String prompt;
+  final List<String> rubric;
+  final String? feedback;
   const KompassPartResult({
     required this.partId,
     required this.points,
@@ -17,6 +20,9 @@ class KompassPartResult {
     this.competencyIds = const [],
     this.creditSteps = const [],
     this.evaluation = 'automatic',
+    this.prompt = '',
+    this.rubric = const [],
+    this.feedback,
   });
   bool get needsReview => points == null;
   Map<String, dynamic> toJson() => {
@@ -27,6 +33,9 @@ class KompassPartResult {
         'competencyIds': competencyIds,
         'creditSteps': creditSteps,
         'evaluation': evaluation,
+        'prompt': prompt,
+        'rubric': rubric,
+        'feedback': feedback,
       };
   factory KompassPartResult.fromJson(Map<String, dynamic> json) =>
       KompassPartResult(
@@ -40,6 +49,9 @@ class KompassPartResult {
             .toList(),
         evaluation: json['evaluation'] as String? ??
             (json['points'] == null ? 'pending' : 'automatic'),
+        prompt: json['prompt'] as String? ?? '',
+        rubric: (json['rubric'] as List? ?? []).cast<String>(),
+        feedback: json['feedback'] as String?,
       );
 
   KompassPartResult reviewed(double value, String reviewer) =>
@@ -51,6 +63,9 @@ class KompassPartResult {
         competencyIds: competencyIds,
         creditSteps: creditSteps,
         evaluation: 'rubric:$reviewer',
+        prompt: prompt,
+        rubric: rubric,
+        feedback: feedback,
       );
 }
 
@@ -132,6 +147,9 @@ class KompassGrader {
       competencyIds: competencyIds,
       creditSteps: part.creditSteps,
       evaluation: points == null ? 'pending' : 'automatic',
+      prompt: part.prompt,
+      rubric: part.rubric,
+      feedback: part.feedback,
     );
   }
 

@@ -2408,14 +2408,6 @@ class SDe extends S {
       'Noch keine Wörter zum Wiederholen.\nMit deinen ersten Übungen entsteht dein persönlicher Wiederholungsplan.';
 
   @override
-  String get reviewAllCaughtUp =>
-      'Für jetzt ist alles wiederholt.\nDeine Wörter kommen zum passenden Zeitpunkt wieder dran — auch die, die du schon gut kannst.';
-
-  @override
-  String get reviewUnsupportedItems =>
-      'Einige fällige Aufgaben brauchen ihren ursprünglichen Zusammenhang.\nÜbe sie im passenden Spiel weiter; sie bleiben in deinem Wiederholungsplan.';
-
-  @override
   String get difficultyVeryHard => 'Sehr schwierig';
 
   @override
@@ -3428,6 +3420,14 @@ class SDe extends S {
   String whirlWrongFeedback(String word, String category) {
     return '✗ Falsch! $word gehört nicht zu: $category';
   }
+
+  @override
+  String get reviewAllCaughtUp =>
+      'Für jetzt ist alles wiederholt.\nDeine Wörter kommen zum passenden Zeitpunkt wieder dran — auch die, die du schon gut kannst.';
+
+  @override
+  String get reviewUnsupportedItems =>
+      'Einige fällige Aufgaben brauchen ihren ursprünglichen Zusammenhang.\nÜbe sie im passenden Spiel weiter; sie bleiben in deinem Wiederholungsplan.';
 
   @override
   String get goalKompassBw => 'Kompass 4 · BW Deutsch';

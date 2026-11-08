@@ -6,7 +6,7 @@ import 'kompass_grader.dart';
 
 class KompassAttempt {
   final String id, courseId, taskId, mode, reviewer, taskKind;
-  final String? stimulusId;
+  final String? stimulusId, sessionId, courseFingerprint;
   final int taskVersion, courseVersion, elapsedSeconds;
   final DateTime occurredAt;
   final List<String> competencyIds, assistance;
@@ -29,6 +29,8 @@ class KompassAttempt {
     this.reviewer = 'automatic',
     this.taskKind = 'practice',
     this.stimulusId,
+    this.sessionId,
+    this.courseFingerprint,
   });
 
   double get earnedPoints => parts.fold(0, (sum, p) => sum + (p.points ?? 0));
@@ -56,6 +58,8 @@ class KompassAttempt {
         'reviewer': reviewer,
         'taskKind': taskKind,
         'stimulusId': stimulusId,
+        'sessionId': sessionId,
+        'courseFingerprint': courseFingerprint,
       };
 
   factory KompassAttempt.fromJson(Map<String, dynamic> json) {
@@ -93,6 +97,8 @@ class KompassAttempt {
       reviewer: json['reviewer'] as String? ?? 'automatic',
       taskKind: json['taskKind'] as String? ?? 'practice',
       stimulusId: json['stimulusId'] as String?,
+      sessionId: json['sessionId'] as String?,
+      courseFingerprint: json['courseFingerprint'] as String?,
     );
   }
 
@@ -116,6 +122,8 @@ class KompassAttempt {
         reviewer: source,
         taskKind: taskKind,
         stimulusId: stimulusId,
+        sessionId: sessionId,
+        courseFingerprint: courseFingerprint,
       );
 }
 
@@ -185,7 +193,10 @@ class KompassProgressService extends ChangeNotifier {
       }
       _unreadableRecords.addAll(data['unreadableRecords'] as List? ?? []);
       _notTaught.addAll((data['notTaught'] as List? ?? []).whereType<String>());
-      if (data['activeSession'] is Map) {
+      if (data['activeSession'] != null &&
+          !_validSession(data['activeSession'])) {
+        _unreadableRecords.add({'unreadableSession': data['activeSession']});
+      } else if (data['activeSession'] is Map) {
         _activeSession = Map<String, dynamic>.from(
           data['activeSession'] as Map,
         );
@@ -241,10 +252,52 @@ class KompassProgressService extends ChangeNotifier {
   }
 
   Future<void> saveSession(Map<String, dynamic>? session) async {
+    if (session != null && !_validSession(session))
+      throw ArgumentError('Invalid course session');
     _activeSession = session == null
         ? null
         : Map<String, dynamic>.from(jsonDecode(jsonEncode(session)) as Map);
     await _persist();
+  }
+
+  static bool _validSession(dynamic raw) {
+    if (raw is! Map ||
+        raw['courseId'] is! String ||
+        raw['courseVersion'] is! int ||
+        raw['taskIds'] is! List ||
+        !(raw['taskIds'] as List).every((id) => id is String) ||
+        !const {'practice', 'independent', 'startCheck', 'paper'}
+            .contains(raw['mode']) ||
+        (raw['schemaVersion'] != null && raw['schemaVersion'] != 1) ||
+        (raw['courseFingerprint'] != null &&
+            raw['courseFingerprint'] is! String) ||
+        (raw['sessionId'] != null && raw['sessionId'] is! String) ||
+        (raw['index'] != null && raw['index'] is! int) ||
+        (raw['timeLimitSeconds'] != null && raw['timeLimitSeconds'] is! int))
+      return false;
+    bool mapOf(String key, bool Function(dynamic) valid) =>
+        raw[key] == null ||
+        (raw[key] is Map &&
+            (raw[key] as Map)
+                .entries
+                .every((e) => e.key is String && valid(e.value)));
+    bool strings(dynamic value) =>
+        value is List && value.every((v) => v is String);
+    if (!mapOf(
+            'answers',
+            (v) =>
+                v is Map &&
+                v.entries.every((e) =>
+                    e.key is String &&
+                    (e.value == null ||
+                        e.value is String ||
+                        strings(e.value)))) ||
+        !mapOf('assistance', strings) ||
+        !mapOf('attemptIds', (v) => v is String) ||
+        !mapOf('elapsed', (v) => v is int && v >= 0) ||
+        !mapOf('hintCounts', (v) => v is int && v >= 0)) return false;
+    return ['skipped', 'seenStimuli']
+        .every((key) => raw[key] == null || strings(raw[key]));
   }
 
   Future<KompassAttempt> recordAttempt({
@@ -254,6 +307,7 @@ class KompassProgressService extends ChangeNotifier {
     required String mode,
     Set<String> assistance = const {},
     int elapsedSeconds = 0,
+    String? sessionId,
   }) async {
     if (!const {
       'practice',
@@ -272,7 +326,18 @@ class KompassProgressService extends ChangeNotifier {
           a.taskId == task.id &&
           a.taskVersion == task.version,
     );
-    final supports = {...assistance, if (!first) 'retry'}.toList()..sort();
+    final knownPassage = task.stimulusId != null &&
+        _attempts.any((a) =>
+            a.courseId == course.id &&
+            a.stimulusId == task.stimulusId &&
+            (sessionId == null || a.sessionId != sessionId));
+    final supports = {
+      ...assistance,
+      if (!first) 'retry',
+      if (knownPassage && const {'independent', 'startCheck'}.contains(mode))
+        'knownPassage'
+    }.toList()
+      ..sort();
     final captured = Map<String, dynamic>.from(
       jsonDecode(jsonEncode(answers)) as Map,
     );
@@ -292,6 +357,8 @@ class KompassProgressService extends ChangeNotifier {
       parts: KompassGrader.assess(task, captured),
       taskKind: task.kind,
       stimulusId: task.stimulusId,
+      sessionId: sessionId,
+      courseFingerprint: course.fingerprint,
     );
     _attempts.add(attempt);
     await _persist();
@@ -340,60 +407,93 @@ class KompassProgressService extends ChangeNotifier {
       _attempts.reversed.where((a) => a.taskId == taskId).firstOrNull;
 
   KompassSkillStats statsFor(String skillId) {
-    final relevant = _attempts.where((a) => a.taskKind != 'instruction' &&
-        a.competencyIds.contains(skillId)).toList();
+    final relevant = _attempts
+        .where((a) =>
+            a.taskKind != 'instruction' && a.competencyIds.contains(skillId))
+        .toList();
     // Recent, distinct first attempts allow recovery after earlier difficulties.
     // Repeated answers never displace fresh evidence in this window.
-    final recent = relevant.reversed.where((a) => a.independent).take(3)
-        .map((a) => a.id).toSet();
+    final recent = relevant.reversed
+        .where((a) => a.independent)
+        .take(3)
+        .map((a) => a.id)
+        .toSet();
     var independent = 0, supported = 0, pending = 0;
     double earned = 0, possible = 0;
-    final successfulTasks = <String>{}, days = <String>{}, contexts = <String>{};
+    final successfulTasks = <String>{},
+        days = <String>{},
+        contexts = <String>{};
     DateTime? lastIndependent, lastScoredAt;
     double? latestScore;
     var incompleteIndependent = false;
     for (final attempt in relevant) {
-      final parts = attempt.parts.where((p) => p.competencyIds.isEmpty ||
-          p.competencyIds.contains(skillId)).toList();
+      final parts = attempt.parts
+          .where((p) =>
+              p.competencyIds.isEmpty || p.competencyIds.contains(skillId))
+          .toList();
       if (parts.any((p) => p.needsReview)) pending++;
-      final automatic = parts.where((p) => !p.needsReview && p.evaluation == 'automatic').toList();
+      final automatic = parts
+          .where((p) => !p.needsReview && p.evaluation == 'automatic')
+          .toList();
       if (automatic.any((p) => p.maxPoints > 0) &&
-          (lastScoredAt == null || !attempt.occurredAt.isBefore(lastScoredAt))) {
+          (lastScoredAt == null ||
+              !attempt.occurredAt.isBefore(lastScoredAt))) {
         lastScoredAt = attempt.occurredAt;
         latestScore = automatic.fold<double>(0, (sum, p) => sum + p.points!) /
             automatic.fold<double>(0, (sum, p) => sum + p.maxPoints);
       }
-      if (attempt.independent && automatic.any((p) => p.maxPoints > 0)) independent++;
+      if (attempt.independent && automatic.any((p) => p.maxPoints > 0))
+        independent++;
       if (recent.contains(attempt.id)) {
         if (automatic.length != parts.length) {
           // Preserve exact subpart evidence without turning an unresolved or
           // rubric-reviewed sibling for the same skill into secure mastery.
           incompleteIndependent = true;
         } else if (automatic.any((p) => p.maxPoints > 0)) {
-          if (lastIndependent == null || attempt.occurredAt.isAfter(lastIndependent)) {
+          if (lastIndependent == null ||
+              attempt.occurredAt.isAfter(lastIndependent)) {
             lastIndependent = attempt.occurredAt;
           }
-          final total = automatic.fold<double>(0, (sum, p) => sum + p.maxPoints);
+          final total =
+              automatic.fold<double>(0, (sum, p) => sum + p.maxPoints);
           final score = automatic.fold<double>(0, (sum, p) => sum + p.points!);
-          earned += score; possible += total;
+          earned += score;
+          possible += total;
           if (score / total >= 0.8) {
             successfulTasks.add(attempt.taskId);
             contexts.add(attempt.stimulusId ?? attempt.taskId);
-            days.add('${attempt.occurredAt.year}-${attempt.occurredAt.month}-${attempt.occurredAt.day}');
+            days.add(
+                '${attempt.occurredAt.year}-${attempt.occurredAt.month}-${attempt.occurredAt.day}');
           }
         }
       }
-      if (!attempt.independent || parts.any((p) => p.evaluation.startsWith('rubric:'))) supported++;
+      if (!attempt.independent ||
+          parts.any((p) => p.evaluation.startsWith('rubric:'))) supported++;
     }
     final rate = possible == 0 ? null : earned / possible;
-    final state = relevant.isEmpty ? 'unobserved' : independent == 0 ?
-        (supported > 0 ? 'supported' : 'learning') :
-        rate == null || rate < 0.8 || (latestScore != null && latestScore < 0.8) ? 'learning' :
-        !incompleteIndependent && successfulTasks.length >= 3 && days.length >= 2 &&
-        contexts.length >= 2 && lastIndependent != null &&
-        now.difference(lastIndependent).inDays <= 14 ? 'secure' : 'developing';
-    return KompassSkillStats(attempts: relevant.length, independentCount: independent,
-        supportedCount: supported, pendingCount: pending, successRate: rate, state: state);
+    final state = relevant.isEmpty
+        ? 'unobserved'
+        : independent == 0
+            ? (supported > 0 ? 'supported' : 'learning')
+            : rate == null ||
+                    rate < 0.8 ||
+                    (latestScore != null && latestScore < 0.8)
+                ? 'learning'
+                : !incompleteIndependent &&
+                        successfulTasks.length >= 3 &&
+                        days.length >= 2 &&
+                        contexts.length >= 2 &&
+                        lastIndependent != null &&
+                        now.difference(lastIndependent).inDays <= 14
+                    ? 'secure'
+                    : 'developing';
+    return KompassSkillStats(
+        attempts: relevant.length,
+        independentCount: independent,
+        supportedCount: supported,
+        pendingCount: pending,
+        successRate: rate,
+        state: state);
   }
 
   Future<void> clear() async {

@@ -64,12 +64,25 @@ class _KompassReviewSheetState extends State<KompassReviewSheet> {
                   for (final result in pending) ...[
                     Builder(builder: (context) {
                       final part = widget.task.parts
-                          .firstWhere((p) => p.id == result.partId);
+                          .where((p) => p.id == result.partId)
+                          .firstOrNull;
+                      final rubric = result.rubric.isNotEmpty
+                          ? result.rubric
+                          : (part?.rubric ?? const <String>[]);
+                      final feedback = result.rubric.isNotEmpty
+                          ? result.feedback
+                          : part?.feedback;
+                      final steps = result.creditSteps.isNotEmpty
+                          ? result.creditSteps
+                          : (part?.creditSteps ?? [0.0, result.maxPoints]);
                       return KompassCard(
                           child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                            Text(part.prompt,
+                            Text(
+                                result.prompt.isNotEmpty
+                                    ? result.prompt
+                                    : part?.prompt ?? result.partId,
                                 style: const TextStyle(
                                     color: kompassInk,
                                     fontWeight: FontWeight.bold,
@@ -86,30 +99,30 @@ class _KompassReviewSheetState extends State<KompassReviewSheet> {
                                     fontSize: 17,
                                     height: 1.5)),
                             const Divider(height: 28),
-                            for (final criterion in part.rubric)
+                            for (final criterion in rubric)
                               Padding(
                                   padding: const EdgeInsets.only(bottom: 10),
                                   child: Text(criterion,
                                       style: const TextStyle(
                                           color: kompassInk, height: 1.5))),
-                            if (part.feedback != null)
+                            if (feedback != null)
                               Padding(
                                   padding: const EdgeInsets.only(bottom: 10),
-                                  child: Text(part.feedback!,
+                                  child: Text(feedback,
                                       style: const TextStyle(
                                           color: kompassMuted, height: 1.5))),
                             const SizedBox(height: 8),
                             Wrap(spacing: 8, runSpacing: 8, children: [
                               for (final credit
-                                  in part.creditSteps.toSet().toList()..sort())
+                                  in steps.toSet().toList()..sort())
                                 ChoiceChip(
                                     label: Text(
-                                        '${kompassPoints(credit)} / ${kompassPoints(part.maxPoints)} ${s.points}'),
-                                    selected: _scores[part.id] == credit,
-                                    onSelected: _saving
+                                        '${kompassPoints(credit)} / ${kompassPoints(result.maxPoints)} ${s.points}'),
+                                    selected: _scores[result.partId] == credit,
+                                    onSelected: _saving || rubric.isEmpty
                                         ? null
-                                        : (_) => setState(
-                                            () => _scores[part.id] = credit)),
+                                        : (_) => setState(() =>
+                                            _scores[result.partId] = credit)),
                             ]),
                           ]));
                     }),

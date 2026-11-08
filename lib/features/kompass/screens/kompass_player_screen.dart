@@ -45,6 +45,7 @@ class _KompassPlayerScreenState extends State<KompassPlayerScreen>
   final Map<String, int> _hintCounts = {};
   final ScrollController _taskScroll = ScrollController();
   late KompassProgressService _progress;
+  late String _sessionId;
   KompassCourse? _course;
   List<KompassTask> _tasks = [];
   FlutterTts? _tts;
@@ -67,6 +68,8 @@ class _KompassPlayerScreenState extends State<KompassPlayerScreen>
 
   Future<void> _initialize() async {
     _progress = context.read<KompassProgressService>();
+    _sessionId = widget.session?['sessionId'] as String? ??
+        '${DateTime.now().microsecondsSinceEpoch}-${_progress.attempts.length}';
     final courses = context.read<KompassCourseService>();
     await courses.load();
     if (!mounted) return;
@@ -81,6 +84,8 @@ class _KompassPlayerScreenState extends State<KompassPlayerScreen>
     if (draft != null) {
       _incompatible = draft['courseId'] != _course!.id ||
           draft['courseVersion'] != _course!.version ||
+          (draft['courseFingerprint'] != null &&
+              draft['courseFingerprint'] != _course!.fingerprint) ||
           _tasks.length != widget.taskIds.length;
       if (!_incompatible) {
         _index = ((draft['index'] as num?)?.toInt() ?? 0)
@@ -163,6 +168,8 @@ class _KompassPlayerScreenState extends State<KompassPlayerScreen>
       'schemaVersion': 1,
       'courseId': _course!.id,
       'courseVersion': _course!.version,
+      'courseFingerprint': _course!.fingerprint,
+      'sessionId': _sessionId,
       'taskIds': widget.taskIds,
       'mode': widget.mode,
       'title': widget.title,
@@ -651,6 +658,7 @@ class _KompassPlayerScreenState extends State<KompassPlayerScreen>
           task: task,
           answers: _answers[task.id] ?? {},
           mode: widget.mode,
+          sessionId: _sessionId,
           assistance: _assistance[task.id] ?? {},
           elapsedSeconds: _elapsed[task.id] ?? 0);
       _attemptIds[task.id] = result.id;
@@ -776,6 +784,7 @@ class _KompassPlayerScreenState extends State<KompassPlayerScreen>
             task: task,
             answers: _answers[task.id] ?? {},
             mode: widget.mode,
+            sessionId: _sessionId,
             assistance: _assistance[task.id] ?? {},
             elapsedSeconds: _elapsed[task.id] ?? 0);
         _attemptIds[task.id] = attempt.id;

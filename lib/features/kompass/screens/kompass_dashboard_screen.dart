@@ -268,7 +268,9 @@ class _KompassDashboardScreenState extends State<KompassDashboardScreen> {
           style: const TextStyle(color: kompassMuted, height: 1.5)),
       const SizedBox(height: 14),
       Wrap(spacing: 8, runSpacing: 6, children: [
-        for (final minutes in [5, 10, 15, 20])
+        for (final minutes in ([
+          ...{5, 10, 15, 20, _minutes}
+        ]..sort()))
           ChoiceChip(
               label: Text('$minutes ${s.minutes}'),
               selected: _minutes == minutes,
@@ -490,8 +492,11 @@ class _KompassDashboardScreenState extends State<KompassDashboardScreen> {
   Future<void> _startPaper(BuildContext context, KompassTest test) async {
     final s = KompassStrings.of(context);
     final progress = context.read<KompassProgressService>();
-    final freshIds =
-        test.taskIds.where((id) => progress.latestAttempt(id) == null).toList();
+    final course = context.read<KompassCourseService>().course!;
+    final freshIds = test.taskIds
+        .where((id) =>
+            KompassPlanner.isFresh(course, progress, course.taskById(id)!))
+        .toList();
     if (freshIds.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(s.choose(
@@ -519,8 +524,8 @@ class _KompassDashboardScreenState extends State<KompassDashboardScreen> {
                             padding: const EdgeInsets.only(top: 12),
                             child: Text(
                                 s.choose(
-                                    '${freshIds.length} neue Aufgaben sind noch frei. Bereits bekannte Aufgaben bleiben bei diesem selbstständigen Versuch außen vor. Diese Teilrunde hat keine Uhr.',
-                                    '${freshIds.length} fresh tasks are available. Previously seen tasks are excluded from this independent attempt. This partial session is untimed.'),
+                                    '${freshIds.length} neue Aufgaben zu behandelten Themen sind noch frei. Bekannte Aufgaben und Lesetexte werden hier nicht erneut bewertet. Diese Teilrunde hat keine Uhr.',
+                                    '${freshIds.length} fresh tasks on taught topics are available. Familiar tasks and passages are excluded from this independent attempt. This partial session is untimed.'),
                                 style: const TextStyle(
                                     fontWeight: FontWeight.w600))),
                       const SizedBox(height: 12),

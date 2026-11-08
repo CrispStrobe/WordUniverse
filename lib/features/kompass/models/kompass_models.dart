@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:crypto/crypto.dart';
 
 /// Course identifiers are strings and content is versioned independently of
 /// the app's historical grade/skill enums (which are persisted by index).
@@ -6,6 +7,7 @@ class KompassCourse {
   final String id;
   final int version;
   final String locale;
+  final String fingerprint;
   final List<KompassCompetency> competencies;
   final Map<String, KompassStimulus> stimuli;
   final List<KompassTask> tasks;
@@ -16,6 +18,7 @@ class KompassCourse {
       : id = json['id'] as String,
         version = (json['version'] as num).toInt(),
         locale = json['locale'] as String? ?? 'de-DE',
+        fingerprint = sha256.convert(utf8.encode(jsonEncode(json))).toString(),
         competencies = _maps(
           json['competencies'],
         ).map(KompassCompetency.fromJson).toList(growable: false),
