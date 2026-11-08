@@ -164,6 +164,33 @@ def calculate_avg_rank(freq_data):
     
     return round(sum(ranks) / len(ranks), 1)
 
+
+def parse_bw_source_metadata(row):
+    """Decode source arrays without flattening or silently discarding evidence.
+
+    Missing columns in older CSVs yield empty arrays. Malformed source data is
+    an authoring error, not permission to invent or lose a source declaration.
+    """
+    fields = [
+        ('BW_RawLabels', 'bwSourceLabels', lambda item: isinstance(item, str) and bool(item)),
+        ('BW_Pages', 'bwSourcePages', lambda item: type(item) is int and item > 0),
+        ('BW_Provenance', 'bwSourceProvenance', lambda item: isinstance(item, dict)),
+    ]
+    metadata = {}
+    for column, key, valid_item in fields:
+        value = row.get(column, '')
+        if value is None or value == '':
+            parsed = []
+        else:
+            try:
+                parsed = json.loads(value)
+            except (TypeError, ValueError) as exc:
+                raise ValueError(f"Invalid {column} JSON for {row.get('Word', '')!r}") from exc
+            if not isinstance(parsed, list) or not all(valid_item(item) for item in parsed):
+                raise ValueError(f"Invalid {column} array for {row.get('Word', '')!r}")
+        metadata[key] = parsed
+    return metadata
+
 def convert_csv_to_json(input_file, output_file):
     """
     Loads the enriched CSV and converts it to the app's JSON format.
@@ -215,6 +242,7 @@ def convert_csv_to_json(input_file, output_file):
             'gradeLevel': grade_level,
             'sources': sources,
             'isGrundwortschatzBW': is_bw,
+            **parse_bw_source_metadata(row),
             'lemma': row['Lemma_spacy'] if row['Lemma_spacy'] else None,
             'forms': row['Forms'] if row['Forms'] else None,
             'genus': row.get('Genus', '') if row.get('Genus', '') else None,

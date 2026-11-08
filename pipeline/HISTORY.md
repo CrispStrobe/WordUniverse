@@ -10,11 +10,14 @@ creation dates. Date format: YYYY‑MM‑DD. Timezone is local
 First wave of pedagogical wordlists added to
 `/Volumes/backups/code/voc/lib/features/games/data/`:
 
-- **NRW Grundwortschatz** Klasse 1 + Klasse 3, Langform + Kurzform —
+- **Baden-Württemberg Grundwortschatz** classes 1–2 and 3–4, teacher and pupil lists —
   `Grundwortschatz1L.csv`, `Grundwortschatz1S.csv`,
   `Grundwortschatz3L.csv`, `Grundwortschatz3S.csv`. These are the
-  pedagogical core: words German primary schoolers in North
-  Rhine‑Westphalia are expected to master per grade.
+  pedagogical core tagged `BW1` and `BW3` by the consolidator. The earlier
+  NRW attribution in this history was incorrect: the source headwords were
+  checked against the four official BW documents on 2026-11-08. This verifies
+  source identity, not the historical collection date or runtime completeness;
+  see the [coverage audit](../docs/bw-vocabulary-coverage.md).
 - **CEFR sets** — `A1.csv`/`.json`, `A2.csv`/`.json`, `B1.csv`/`.json`.
 - First `consolidate.py` written — merges them into a unified candidate
   pool.
