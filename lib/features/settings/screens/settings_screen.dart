@@ -17,6 +17,8 @@ import '../../../core/services/language_pack_service.dart';
 import '../../../core/models/language_pack.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/learner_profile_service.dart';
+import '../../../core/services/cognitive_profile_service.dart';
+import '../../../core/services/streak_service.dart';
 import '../../kompass/services/kompass_progress_service.dart';
 
 import '../../../shared/widgets/imprint_dialog.dart';
@@ -2220,11 +2222,18 @@ class _SettingsScreenState extends State<SettingsScreen>
             onPressed: () async {
               if (kDebugMode)
                 debugPrint("[SETTINGS] 🗑️ Resetting all game progress");
-              context.read<GameProvider>().resetGame();
+              final game = context.read<GameProvider>();
               final sri = context.read<SriService>();
               final kompass = context.read<KompassProgressService>();
+              final cognitive = context.read<CognitiveProfileService>();
+              final profile = context.read<LearnerProfileService>();
+              final streak = context.read<StreakService>();
+              await game.resetGame();
               await sri.clearAllData();
               await kompass.clear();
+              await cognitive.resetProgress();
+              await profile.resetProgress();
+              await streak.resetProgress();
               if (!context.mounted) return;
               Navigator.of(context).pop();
               ScaffoldMessenger.of(context).showSnackBar(

@@ -12,13 +12,15 @@ class SkillStats {
   SkillStats({this.attempts = 0, this.successes = 0});
 
   Map<String, dynamic> toJson() => {'a': attempts, 's': successes};
-  
+
   factory SkillStats.fromJson(Map<String, dynamic> json) =>
       SkillStats(attempts: json['a'] ?? 0, successes: json['s'] ?? 0);
 }
 
 class CognitiveProfileService extends ChangeNotifier {
   Map<SkillCategory, Map<int, SkillStats>> _skillData = {};
+  Map<String, dynamic> _preservedProfile = {};
+  String? _unreadableProfile;
 
   /// Read-only snapshot of all tracked skill stats. Returns fresh copies
   /// so consumers can't mutate internal state.
@@ -53,8 +55,9 @@ class CognitiveProfileService extends ChangeNotifier {
   }
 
   void recordAttempt(SkillCategory skill, int difficulty, bool success) {
-    _log('Recording attempt for ${skill.name} at difficulty $difficulty: ${success ? "SUCCESS" : "FAILURE"}');
-    
+    _log(
+        'Recording attempt for ${skill.name} at difficulty $difficulty: ${success ? "SUCCESS" : "FAILURE"}');
+
     _skillData[skill] ??= {};
     _skillData[skill]![difficulty] ??= SkillStats();
 
@@ -62,8 +65,9 @@ class CognitiveProfileService extends ChangeNotifier {
     stats.attempts++;
     if (success) stats.successes++;
 
-    _log('Updated stats for ${skill.name} @ $difficulty: ${stats.successes}/${stats.attempts}');
-    
+    _log(
+        'Updated stats for ${skill.name} @ $difficulty: ${stats.successes}/${stats.attempts}');
+
     notifyListeners();
     saveProfile();
   }
@@ -75,11 +79,12 @@ class CognitiveProfileService extends ChangeNotifier {
       _log('No mastery for ${skill.name} @ $difficulty (insufficient data)');
       return false;
     }
-    
+
     final masteryLevel = stats.successes / stats.attempts;
     final hasMastery = masteryLevel >= threshold;
-    _log('Mastery check for ${skill.name} @ $difficulty: ${(masteryLevel * 100).toStringAsFixed(1)}% ${hasMastery ? "✓" : "✗"}');
-    
+    _log(
+        'Mastery check for ${skill.name} @ $difficulty: ${(masteryLevel * 100).toStringAsFixed(1)}% ${hasMastery ? "✓" : "✗"}');
+
     return hasMastery;
   }
 
@@ -88,10 +93,27 @@ class CognitiveProfileService extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       // --- FIX: Save using skill.id as the key, not the object ---
-      final json = _skillData.map((skill, diffMap) => MapEntry(
-        skill.id, // Use ID for stable serialization
-        diffMap.map((diff, stats) => MapEntry(diff.toString(), stats.toJson()))
-      ));
+      if (_unreadableProfile != null) {
+        final key = prefs.containsKey('${_storageKey}_recovery')
+            ? '${_storageKey}_recovery_${DateTime.now().microsecondsSinceEpoch}'
+            : '${_storageKey}_recovery';
+        if (!await prefs.setString(key, _unreadableProfile!)) {
+          throw StateError('Could not preserve unreadable profile');
+        }
+        _unreadableProfile = null;
+      }
+      final json = <String, dynamic>{
+        ..._preservedProfile,
+        ..._skillData.map((skill, diffMap) => MapEntry(
+                skill.id, // Use ID for stable serialization
+                <String, dynamic>{
+                  if (_preservedProfile[skill.id] is Map)
+                    ...Map<String, dynamic>.from(
+                        _preservedProfile[skill.id] as Map),
+                  ...diffMap.map((diff, stats) =>
+                      MapEntry(diff.toString(), stats.toJson()))
+                }))
+      };
       await prefs.setString(_storageKey, jsonEncode(json));
       _log('✅ Cognitive profile saved successfully');
     } catch (e) {
@@ -101,25 +123,44 @@ class CognitiveProfileService extends ChangeNotifier {
 
   Future<void> loadProfile() async {
     _log('Loading cognitive profile...');
+    _unreadableProfile = null;
+    String? original;
     try {
       final prefs = await SharedPreferences.getInstance();
       final jsonString = prefs.getString(_storageKey);
+      original = jsonString;
+      _skillData = {};
+      _preservedProfile = {};
       if (jsonString != null) {
         final json = jsonDecode(jsonString) as Map<String, dynamic>;
-        _skillData = json.map((skillId, diffMap) {
-          // --- FIX: Load using SkillCategories.all, not SkillCategory.values ---
-          final skill = SkillCategories.all.firstWhere(
-            (e) => e.id == skillId, // Find by ID
-            orElse: () => SkillCategories.all.first, // Fallback
-          );
-          final diffMapTyped = (diffMap as Map<String, dynamic>).map(
-            (diffStr, statsJson) => MapEntry(
-              int.parse(diffStr),
-              SkillStats.fromJson(statsJson)
-            )
-          );
-          return MapEntry(skill, diffMapTyped);
-        });
+        _preservedProfile = Map.from(json);
+        for (final entry in json.entries) {
+          final skill =
+              SkillCategories.all.where((s) => s.id == entry.key).firstOrNull;
+          // Unknown skills remain serialized without being credited to the
+          // first known category. Malformed neighbours cannot erase good rows.
+          if (skill == null) continue;
+          if (entry.value is! Map) {
+            _unreadableProfile = jsonString;
+            continue;
+          }
+          for (final row in (entry.value as Map).entries) {
+            final difficulty = int.tryParse('${row.key}');
+            final value = row.value;
+            if (difficulty == null ||
+                value is! Map ||
+                value['a'] is! int ||
+                value['s'] is! int ||
+                value['a'] < 0 ||
+                value['s'] < 0 ||
+                value['s'] > value['a']) {
+              _unreadableProfile = jsonString;
+              continue;
+            }
+            (_skillData[skill] ??= {})[difficulty] = SkillStats(
+                attempts: value['a'] as int, successes: value['s'] as int);
+          }
+        }
         _log('✅ Loaded ${_skillData.length} skill categories');
       } else {
         _log('No saved profile found. Starting fresh.');
@@ -127,6 +168,19 @@ class CognitiveProfileService extends ChangeNotifier {
     } catch (e) {
       _log('❌ Error loading profile: $e');
       _skillData = {};
+      _unreadableProfile = original;
+    }
+    notifyListeners();
+  }
+
+  Future<void> resetProgress() async {
+    _skillData.clear();
+    _preservedProfile.clear();
+    _unreadableProfile = null;
+    final prefs = await SharedPreferences.getInstance();
+    for (final key in prefs.getKeys().where((key) =>
+        key == _storageKey || key.startsWith('${_storageKey}_recovery'))) {
+      await prefs.remove(key);
     }
     notifyListeners();
   }

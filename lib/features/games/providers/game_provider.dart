@@ -839,14 +839,16 @@ class GameProvider extends ChangeNotifier {
   }
 
   // Game state management
-  void resetGame() {
+  Future<void> resetGame() {
     _score = 0;
     _level = 1;
     _lives = 3;
     _achievements.clear();
     _gameProgress.clear();
+    _currentLevelWins.clear();
+    _sessionsPlayed = 0;
     notifyListeners();
-    _saveProgress();
+    return _saveProgress();
   }
 
   void startNewGame(String gameType) {
