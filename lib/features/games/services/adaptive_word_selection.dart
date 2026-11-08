@@ -53,11 +53,13 @@ List<GermanWord> selectAdaptiveWords({
     return true;
   }
 
-  // 1. Words the learner is due to review, worst performance first.
+  // 1. Words the learner is due to review, oldest due first. A game that
+  // does not specify its skill defaults to spelling, never another skill's
+  // queue that it cannot actually review.
   final reviewTarget = (count * reviewShare).ceil();
   final reviewIds = sri.getItemsForReview(
     limit: reviewQueueLimit ?? reviewTarget * 2,
-    skillTypeFilter: skillFilter,
+    skillTypeFilter: skillFilter ?? LanguageSkillType.spelling,
     gradeLevelFilter: grade.index + 1,
     markReturned: false,
   );

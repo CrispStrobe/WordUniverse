@@ -24,7 +24,7 @@ class SriLanguageData {
   DateTime? lastReviewedAt;
   int assistedSuccessCount;
   Map<String, dynamic>
-  metadata; // Store additional info like grade level, topic
+      metadata; // Store additional info like grade level, topic
 
   SriLanguageData({
     required this.itemId,
@@ -40,24 +40,23 @@ class SriLanguageData {
   }) : metadata = metadata ?? {};
 
   Map<String, dynamic> toJson() => {
-    'id': itemId,
-    'skillType': skillType.index,
-    's': successCount,
-    'f': failureCount,
-    'ef': easinessFactor,
-    'r': repetitions,
-    'next': nextReviewDate.toIso8601String(),
-    if (lastReviewedAt != null) 'last': lastReviewedAt!.toIso8601String(),
-    'assisted': assistedSuccessCount,
-    'meta': metadata,
-  };
+        'id': itemId,
+        'skillType': skillType.index,
+        's': successCount,
+        'f': failureCount,
+        'ef': easinessFactor,
+        'r': repetitions,
+        'next': nextReviewDate.toIso8601String(),
+        if (lastReviewedAt != null) 'last': lastReviewedAt!.toIso8601String(),
+        'assisted': assistedSuccessCount,
+        'meta': metadata,
+      };
 
   factory SriLanguageData.fromJson(Map<String, dynamic> json) {
     final id = json['id'] as String;
     final storedSkill = json['skillType'];
     final inferredSkill = SriItemIdentity.fromId(id).skillType;
-    final skill =
-        storedSkill is int &&
+    final skill = storedSkill is int &&
             storedSkill >= 0 &&
             storedSkill < LanguageSkillType.values.length
         ? LanguageSkillType.values[storedSkill]
@@ -109,15 +108,16 @@ class SriService with ChangeNotifier {
   // nor disappear when a later answer saves the database.
   final Map<String, dynamic> _unparsedRecords = {};
   static const _sriStorageKey = 'sri_language_database';
+  static const _sriRecoveryKey = 'sri_language_database_recovery';
 
   final Set<String> _alreadyReturnedThisSession = {};
   DateTime? _sessionStartTime;
 
   int get totalTrackedItems => _sriDatabase.length;
   int get totalAttempts => _sriDatabase.values.fold(
-    0,
-    (sum, item) => sum + item.successCount + item.failureCount,
-  );
+        0,
+        (sum, item) => sum + item.successCount + item.failureCount,
+      );
   int get totalMasteredItems => _sriDatabase.keys.where(isItemMastered).length;
 
   // UNCHANGED - Keep logging functionality
@@ -204,8 +204,7 @@ class SriService with ChangeNotifier {
           stats['tracked'] = (stats['tracked'] as int) + 1;
           stats['totalEFactor'] =
               (stats['totalEFactor'] as double) + data.easinessFactor;
-          stats['totalAttempts'] =
-              (stats['totalAttempts'] as int) +
+          stats['totalAttempts'] = (stats['totalAttempts'] as int) +
               data.successCount +
               data.failureCount;
           stats['successfulAttempts'] =
@@ -234,9 +233,8 @@ class SriService with ChangeNotifier {
           mastered: mastered,
           averageEasiness: tracked > 0 ? (totalEFactor / tracked) : 2.5,
           totalAttempts: totalAttempts,
-          successRate: totalAttempts > 0
-              ? successfulAttempts / totalAttempts
-              : 0.0,
+          successRate:
+              totalAttempts > 0 ? successfulAttempts / totalAttempts : 0.0,
         );
       });
     });
@@ -263,9 +261,8 @@ class SriService with ChangeNotifier {
     // Aggregate word type identification skills
     _sriDatabase.forEach((itemId, data) {
       if (data.skillType == LanguageSkillType.wordType) {
-        final wordType = (data.metadata['wordType'] as String?)
-            ?.split('.')
-            .last;
+        final wordType =
+            (data.metadata['wordType'] as String?)?.split('.').last;
         if (wordType != null) {
           final enumType = GermanWordType.values.firstWhere(
             (e) => e.toString().split('.').last == wordType,
@@ -276,8 +273,7 @@ class SriService with ChangeNotifier {
           stats['tracked'] = (stats['tracked'] as int) + 1;
           stats['totalEFactor'] =
               (stats['totalEFactor'] as double) + data.easinessFactor;
-          stats['totalAttempts'] =
-              (stats['totalAttempts'] as int) +
+          stats['totalAttempts'] = (stats['totalAttempts'] as int) +
               data.successCount +
               data.failureCount;
           stats['successfulAttempts'] =
@@ -301,13 +297,11 @@ class SriService with ChangeNotifier {
         CompetenceStat(
           tracked: tracked,
           mastered: stats['mastered'] as int,
-          averageEasiness: tracked > 0
-              ? ((stats['totalEFactor'] as double) / tracked)
-              : 2.5,
+          averageEasiness:
+              tracked > 0 ? ((stats['totalEFactor'] as double) / tracked) : 2.5,
           totalAttempts: totalAttempts,
-          successRate: totalAttempts > 0
-              ? (successfulAttempts / totalAttempts)
-              : 0.0,
+          successRate:
+              totalAttempts > 0 ? (successfulAttempts / totalAttempts) : 0.0,
         ),
       );
     });
@@ -316,9 +310,11 @@ class SriService with ChangeNotifier {
   /// MODIFIED: Load data from storage
   Future<void> loadSriData() async {
     _log('Loading SRI language database from storage...');
+    String? originalJson;
     try {
       final prefs = await SharedPreferences.getInstance();
       final jsonString = prefs.getString(_sriStorageKey);
+      originalJson = jsonString;
       if (jsonString != null) {
         final jsonMap = Map<String, dynamic>.from(json.decode(jsonString));
         _sriDatabase = {};
@@ -342,10 +338,25 @@ class SriService with ChangeNotifier {
           '✅ Successfully loaded ${_sriDatabase.length} SRI language records.',
         );
       } else {
+        _sriDatabase.clear();
+        _canonicalItemIds.clear();
+        _unparsedRecords.clear();
         _log('No SRI data found. Starting with a fresh database.');
       }
     } catch (e) {
       _log('❌ Error loading SRI data: $e. Keeping existing in-memory data.');
+      if (originalJson != null) {
+        // Retain the exact unreadable source before a later response creates
+        // a fresh database. Do not overwrite an earlier recovery copy.
+        try {
+          final prefs = await SharedPreferences.getInstance();
+          if (!prefs.containsKey(_sriRecoveryKey)) {
+            await prefs.setString(_sriRecoveryKey, originalJson);
+          }
+        } catch (backupError) {
+          _log('Could not retain the recovery copy: $backupError');
+        }
+      }
     }
 
     resetSession();
@@ -401,8 +412,7 @@ class SriService with ChangeNotifier {
         ),
       );
     }
-    final data =
-        existing ??
+    final data = existing ??
         SriLanguageData(
           itemId: itemId,
           skillType: skillType,
@@ -609,18 +619,18 @@ class SriService with ChangeNotifier {
 
     _sriDatabase.values
         .where(
-          (data) =>
-              !data.nextReviewDate.isAfter(now) &&
-              !allExcluded.contains(data.itemId),
-        )
+      (data) =>
+          !data.nextReviewDate.isAfter(now) &&
+          !allExcluded.contains(data.itemId),
+    )
         .forEach((data) {
-          // Ensure skill type exists in map (safety check)
-          counts.update(
-            data.skillType,
-            (value) => value + 1,
-            ifAbsent: () => 1,
-          );
-        });
+      // Ensure skill type exists in map (safety check)
+      counts.update(
+        data.skillType,
+        (value) => value + 1,
+        ifAbsent: () => 1,
+      );
+    });
 
     return counts;
   }
@@ -765,6 +775,8 @@ class SriService with ChangeNotifier {
     _canonicalItemIds.clear();
     _unparsedRecords.clear();
     _alreadyReturnedThisSession.clear();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_sriRecoveryKey);
     await saveSriData();
     notifyListeners();
     _log('⚠️ All SRI data cleared!');

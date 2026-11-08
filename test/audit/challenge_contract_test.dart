@@ -94,7 +94,7 @@ const Map<String, String> _promptMayNameTheAnswer = {
   'verbtrenner': 'the form is shown; the answer is whether it separates',
   'conjugation_drill': 'the infinitive is shown; the answer is a form of it',
   'word_of_the_day': 'the card names the word and shows what it means',
-  'sri_review': 'the article challenge shows the noun it asks the article for',
+  'sri_review': 'skill-specific formats may show the word whose form or class is asked',
   'spelling_spotter': 'the prompt is a fixed question that names no word, so '
       'an answer like "is" only collides with ordinary English',
   'phrasal_verb_power': 'the answer is a particle, and prepositions recur: '
@@ -175,7 +175,8 @@ void _checkItem(Item item, String language, int grade, List<_Violation> out) {
         fail('blank option', 'options ${item.options}');
       }
     }
-    final caseMatters = _caseIsTheQuestion.containsKey(item.game);
+    final caseMatters = _caseIsTheQuestion.containsKey(item.game) ||
+        (item.game == 'sri_review' && item.notes['type'] == 'capitalization');
     final seen = <String>{};
     for (final option in item.options) {
       final key = caseMatters ? option.trim() : option.trim().toLowerCase();

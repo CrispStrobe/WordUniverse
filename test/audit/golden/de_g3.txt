@@ -253,29 +253,30 @@
     ✓ Räuber
     · shown after answering: Der Räuber entging seiner Strafe.
 ── sri_review (4)
-  Richtige Schreibweise für:
-"dem Kalender entsprechende Angabe des Tages (nebst Monat und Jahr), an dem eine Person geboren wird; Tag von jemandes Geburt"
-      geburstag
-      gebutstag
-    ✓ Geburtstag
-    · type: spelling
   Welcher Artikel passt?
-"___ Rechteck"
-      der
+"___ Geburtstag"
       die
-    ✓ das
-    · type: article
-  "jemandem Vorschriften machen; jemandem sagen, was er tun soll"
-      donnern
-    ✓ vorschreiben
-      nicken
-      vorfahren
-    · type: definition
-  Richtige Schreibweise für:
-"wurzellose Sporenpflanze mit Generationswechsel, die in ihrem Aufbau simpel und kaum gegliedert ist"
-      mos
-    ✓ Moos
-    · type: spelling
+      das
+    ✓ der
+    · type: article  assessedSkill: articleSelection
+  Welche Wortart?
+vorschreiben
+      Adverb
+      Adjektiv
+    ✓ Verb
+      Nomen
+    · type: wordType  assessedSkill: wordType
+  Großschreibung
+Bleibe ___.
+    ✓ neugierig
+      Neugierig
+    · type: capitalization  assessedSkill: capitalization
+  Wie lautet die Präsensform?
+donnern: er/sie/es ___
+      donnere
+      donnerst
+    ✓ donnert
+    · type: conjugation  assessedSkill: verbConjugation
 ── syllable_count (4)
   Religion
       1

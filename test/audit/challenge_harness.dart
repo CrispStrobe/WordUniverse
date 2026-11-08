@@ -279,6 +279,12 @@ const _reviewSkills = [
   LanguageSkillType.spelling,
   LanguageSkillType.articleSelection,
   LanguageSkillType.vocabulary,
+  LanguageSkillType.wordType,
+  LanguageSkillType.reading,
+  LanguageSkillType.sentenceStructure,
+  LanguageSkillType.capitalization,
+  LanguageSkillType.verbConjugation,
+  LanguageSkillType.pluralForm,
 ];
 
 final Map<String, Generator> generators = {
@@ -294,11 +300,12 @@ final Map<String, Generator> generators = {
         .map((w) => w.word.toLowerCase())
         .toSet();
     final items = <Item>[];
+    var candidateIndex = 0;
     for (final word in pool) {
       if (items.length >= c.count) break;
-      // Cycle the skill types so the dump shows all three review formats;
-      // each falls back to the definition quiz when it cannot build.
-      final skill = _reviewSkills[items.length % _reviewSkills.length];
+      // Advance even when this word cannot support the requested format.
+      // Otherwise an English article task stalls the whole review dump.
+      final skill = _reviewSkills[candidateIndex++ % _reviewSkills.length];
       final challenge = buildReviewChallenge(
         word,
         SriLanguageData(
@@ -311,6 +318,7 @@ final Map<String, Generator> generators = {
         strings: strings,
         isGerman: c.isGerman,
         rng: c.rng,
+        catalogue: c.vocabulary.getAllWords(c.settings),
       );
       if (challenge == null) continue;
       items.add(Item(
@@ -318,7 +326,10 @@ final Map<String, Generator> generators = {
         prompt: challenge.prompt,
         options: challenge.options,
         answer: challenge.options[challenge.correctIndex],
-        notes: {'type': challenge.type.name},
+        notes: {
+          'type': challenge.type.name,
+          'assessedSkill': challenge.assessedSkill.name,
+        },
       ));
     }
     return items;
