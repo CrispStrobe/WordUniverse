@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-enum LearnerGoal { balanced, vocabulary, spelling, grammar, dafDaz }
+// Append only: existing preferences persist these values by index.
+enum LearnerGoal { balanced, vocabulary, spelling, grammar, dafDaz, kompassBw }
 
 class LearnerProfileService extends ChangeNotifier {
   LearnerProfileService(this._prefs) {
@@ -45,9 +46,9 @@ class LearnerProfileService extends ChangeNotifier {
   void _load() {
     _onboardingComplete = _prefs.getBool(_onboardingKey) ?? false;
     final goalIndex = _prefs.getInt(_goalKey) ?? LearnerGoal.balanced.index;
-    _goal =
-        LearnerGoal.values[goalIndex.clamp(0, LearnerGoal.values.length - 1)];
-    _sessionMinutes = _prefs.getInt(_minutesKey) ?? 10;
+    _goal = goalIndex >= 0 && goalIndex < LearnerGoal.values.length
+        ? LearnerGoal.values[goalIndex] : LearnerGoal.balanced;
+    _sessionMinutes = (_prefs.getInt(_minutesKey) ?? 10).clamp(5, 20);
     _focusMode = _prefs.getBool(_focusModeKey) ?? false;
     _favoriteGameIds = (_prefs.getStringList(_favoritesKey) ?? []).toSet();
     _recentGameIds = _prefs.getStringList(_recentsKey) ?? [];
@@ -60,10 +61,10 @@ class LearnerProfileService extends ChangeNotifier {
     required int sessionMinutes,
   }) async {
     _goal = goal;
-    _sessionMinutes = sessionMinutes;
+    _sessionMinutes = sessionMinutes.clamp(5, 20);
     _onboardingComplete = true;
     await _prefs.setInt(_goalKey, goal.index);
-    await _prefs.setInt(_minutesKey, sessionMinutes);
+    await _prefs.setInt(_minutesKey, _sessionMinutes);
     await _prefs.setBool(_onboardingKey, true);
     notifyListeners();
   }

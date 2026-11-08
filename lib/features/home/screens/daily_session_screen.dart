@@ -15,6 +15,7 @@ import '../../games/screens/spelling_spotter_game.dart';
 import '../../games/screens/sri_review_game.dart';
 import '../../games/screens/word_sort_game.dart';
 import '../../games/widgets/space_background.dart';
+import '../../kompass/screens/kompass_dashboard_screen.dart';
 
 class DailySessionScreen extends StatefulWidget {
   const DailySessionScreen({super.key});
@@ -51,6 +52,8 @@ class _DailySessionScreenState extends State<DailySessionScreen> {
 
   Widget _goalGame(LearnerGoal goal) {
     switch (goal) {
+      case LearnerGoal.kompassBw:
+        return const KompassDashboardScreen();
       case LearnerGoal.spelling:
         return SpellingSpotterGame(gradeLevel: _band);
       case LearnerGoal.grammar:
@@ -67,6 +70,9 @@ class _DailySessionScreenState extends State<DailySessionScreen> {
   Widget build(BuildContext context) {
     final s = S.of(context)!;
     final profile = context.watch<LearnerProfileService>();
+    if (profile.goal == LearnerGoal.kompassBw) {
+      return const KompassDashboardScreen();
+    }
     final sri = context.watch<SriService>();
     final completed = profile.dailyCompletedSteps;
     final allDone = completed.length >= 3;

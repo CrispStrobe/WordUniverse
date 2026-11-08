@@ -20,13 +20,15 @@ class KompassPlanner {
     KompassProgressService progress,
     int minutes, {
     String? domain,
-  }) => _plan(course, progress, minutes, domain: domain);
+  }) =>
+      _plan(course, progress, minutes, domain: domain);
 
   static KompassPlan startCheck(
     KompassCourse course,
     KompassProgressService progress, {
     int minutes = 10,
-  }) => _plan(course, progress, minutes, independent: true);
+  }) =>
+      _plan(course, progress, minutes, independent: true);
 
   static KompassPlan _plan(
     KompassCourse course,
@@ -39,13 +41,16 @@ class KompassPlanner {
     final candidates = course.tasks.where((task) {
       if (domain != null && task.domain != domain) return false;
       if (task.competencyIds.any(progress.notTaught.contains)) return false;
+      if (task.prerequisiteCompetencyIds.any(progress.notTaught.contains))
+        return false;
       if (task.competencyIds.any(
         (id) => (course.competencyById(id)?.prerequisites ?? []).any(
           progress.notTaught.contains,
         ),
-      ))
-        return false;
-      if (independent) return progress.latestAttempt(task.id) == null;
+      )) return false;
+      if (independent)
+        return task.kind != 'instruction' &&
+            progress.latestAttempt(task.id) == null;
       return task.kind != 'transfer';
     }).toList();
 
@@ -54,13 +59,14 @@ class KompassPlanner {
       var score = last == null ? 30.0 : 0.0;
       for (final skill in task.competencyIds) {
         final stats = progress.statsFor(skill);
-        score += switch (stats.state) {
-          'unobserved' => 20,
-          'learning' => 35,
-          'supported' => 25,
-          'developing' => 15,
-          _ => 5,
-        };
+        score += (switch (stats.state) {
+              'unobserved' => 20,
+              'learning' => 35,
+              'supported' => 25,
+              'developing' => 15,
+              _ => 5,
+            }) /
+            task.competencyIds.length;
       }
       if (last != null) {
         final days = progress.now.difference(last.occurredAt).inHours / 24;
@@ -89,9 +95,11 @@ class KompassPlanner {
       KompassTask? next;
       var cost = 0;
       for (final task in candidates) {
+        if (domain == null &&
+            task.kind == 'instruction' &&
+            chosen.any((t) => t.kind == 'instruction')) continue;
         final passage = course.stimulusById(task.stimulusId);
-        final seconds =
-            task.estimatedSeconds +
+        final seconds = task.estimatedSeconds +
             (passage != null && !passages.contains(passage.id)
                 ? passage.readingSeconds
                 : 0);
@@ -113,11 +121,11 @@ class KompassPlanner {
       estimatedSeconds: used,
       reason: chosen.isEmpty
           ? (independent
-                ? 'Keine ungesehenen Aufgaben passen in diese Zeit und zu den behandelten Themen. Wähle mehr Zeit oder übe gezielt.'
-                : 'Keine passenden Aufgaben in dieser Zeit. Wähle mehr Zeit oder prüfe die noch nicht behandelten Themen.')
+              ? 'Keine ungesehenen Aufgaben passen in diese Zeit und zu den behandelten Themen. Wähle mehr Zeit oder übe gezielt.'
+              : 'Keine passenden Aufgaben in dieser Zeit. Wähle mehr Zeit oder prüfe die noch nicht behandelten Themen.')
           : independent
-          ? 'Ungesehene Aufgaben zeigen, was du schon selbstständig kannst. Offene Antworten werden mit einer Rubrik besprochen.'
-          : 'Dein Plan berücksichtigt Übungsbedarf, Wiederholungen, behandelte Themen und Zeit zum Lesen. Die Zeiten sind Schätzungen.',
+              ? 'Ungesehene Aufgaben zeigen, was du schon selbstständig kannst. Offene Antworten werden mit einer Rubrik besprochen.'
+              : 'Dein Plan berücksichtigt Übungsbedarf, Wiederholungen, behandelte Themen und Zeit zum Lesen. Die Zeiten sind Schätzungen.',
     );
   }
 }

@@ -833,10 +833,17 @@ class _GameMenuScreenState extends State<GameMenuScreen>
           height: 38,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            itemCount: filters.length,
+            itemCount: filters.length + 1,
             separatorBuilder: (_, __) => const SizedBox(width: 6),
             itemBuilder: (_, index) {
-              final item = filters[index];
+              if (index == 0) {
+                return ActionChip(
+                  avatar: const Icon(Icons.explore_outlined, size: 18),
+                  label: Text(s.goalKompassBw),
+                  onPressed: () => Navigator.of(context).pushNamed('/kompass'),
+                );
+              }
+              final item = filters[index - 1];
               return FilterChip(
                 label: Text(item.$2),
                 selected: _filter == item.$1,
@@ -927,6 +934,7 @@ class _GameMenuScreenState extends State<GameMenuScreen>
     if (game.title == s.sriReviewTitle) return true;
     final category = _category(game, s);
     return switch (goal) {
+      LearnerGoal.kompassBw => category == _GameCategory.spelling || category == _GameCategory.grammar,
       LearnerGoal.spelling => category == _GameCategory.spelling,
       LearnerGoal.grammar => category == _GameCategory.grammar,
       LearnerGoal.vocabulary ||

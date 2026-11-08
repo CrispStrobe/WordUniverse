@@ -35,6 +35,9 @@ import 'features/achievements/screens/achievements_screen.dart';
 import 'features/onboarding/screens/learner_onboarding_screen.dart';
 import 'features/onboarding/screens/language_setup_screen.dart';
 import 'features/home/screens/daily_session_screen.dart';
+import 'features/kompass/screens/kompass_dashboard_screen.dart';
+import 'features/kompass/services/kompass_course_service.dart';
+import 'features/kompass/services/kompass_progress_service.dart';
 
 import 'features/games/screens/space_word_rescue_game.dart';
 import 'features/games/screens/word_find_game.dart';
@@ -125,6 +128,8 @@ void main() async {
         ChangeNotifierProvider(
           create: (_) => LearnerProfileService(prefs),
         ),
+        ChangeNotifierProvider(create: (_) => KompassCourseService()),
+        ChangeNotifierProvider(create: (_) => KompassProgressService(prefs)),
         Provider.value(value: progressService),
         Provider.value(value: audioService),
       ],
@@ -336,6 +341,7 @@ class AppRoutes {
   static const String home = '/home';
   static const String gameMenu = '/games';
   static const String daily = '/daily';
+  static const String kompass = '/kompass';
 
   static const String spaceWordRescue = '/games/space-word-rescue';
   static const String wordFind = '/games/word-find';
@@ -372,6 +378,9 @@ class AppRoutes {
 
       case daily:
         return _createRoute(const DailySessionScreen());
+
+      case kompass:
+        return _createRoute(const KompassDashboardScreen());
 
       case spaceWordRescue:
         final grade = args?['grade'] as int? ?? 1;
@@ -556,7 +565,7 @@ class _SplashScreenState extends State<SplashScreen>
       // PHASE 1: Vocabulary Service (0.0 - 0.6) - THIS IS THE LONG PART
       await _updateProgress(0.0, const LoadStatus(LoadStage.preparingStation), const LoadStatus(LoadStage.preparingMission));
 
-      if (mounted) {
+      if (mounted && context.read<LearnerProfileService>().goal != LearnerGoal.kompassBw) {
         // The saved learning language may need a language pack that isn't on
         // this device (the German DB is GPL-3.0 and therefore downloaded, not
         // bundled — see db_platform/db_remote.dart). Resolve that here, with
