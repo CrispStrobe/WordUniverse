@@ -36,11 +36,11 @@ jobs:
       - name: Check registry pins against published packs
         env:
           WU_LIVE: '1'
-        run: flutter test test/live/language_pack_pins_live_test.dart
+        run: python3 tools/ci/flutter_native_retry.py -- flutter test test/live/language_pack_pins_live_test.dart
       # Opt-in: the full fetch, resume and decompressed-digest verification.
       - name: Verify a live resumable download end to end
         if: github.event_name == 'workflow_dispatch' && inputs.decompress
         env:
           WU_LIVE: '1'
           WU_LIVE_DECOMPRESS: '1'
-        run: flutter test test/live/db_remote_live_test.dart
+        run: python3 tools/ci/flutter_native_retry.py -- flutter test test/live/db_remote_live_test.dart

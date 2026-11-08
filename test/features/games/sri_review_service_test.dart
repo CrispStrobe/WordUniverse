@@ -75,8 +75,11 @@ void main() {
 
   group('article challenge', () {
     test('a German noun with an article is asked for it', () {
-      final word = _noun('Gepäck',
-          article: 'das', definitions: ['Was man auf eine Reise mitnimmt.']);
+      final word = _noun(
+        'Gepäck',
+        article: 'das',
+        definitions: ['Was man auf eine Reise mitnimmt.'],
+      );
       final challenge = build(word, LanguageSkillType.articleSelection)!;
       expect(challenge.type, ReviewChallengeType.article);
       expect(challenge.options.toSet(), {'der', 'die', 'das'});
@@ -84,26 +87,34 @@ void main() {
       expect(challenge.prompt, contains('Gepäck'));
     });
 
-    test('falls back to the definition quiz without an article', () {
-      final word = _noun('Gepäck', definitions: ['Was man mitnimmt.']);
-      expect(build(word, LanguageSkillType.articleSelection)!.type,
-          ReviewChallengeType.definition);
-    });
+    test(
+      'keeps an unsupported article review due instead of changing skills',
+      () {
+        final word = _noun('Gepäck', definitions: ['Was man mitnimmt.']);
+        expect(build(word, LanguageSkillType.articleSelection), isNull);
+      },
+    );
 
     test('is never asked of the English pack', () {
-      final word = _noun('luggage',
-          article: 'das', definitions: ['What you take on a journey.']);
+      final word = _noun(
+        'luggage',
+        article: 'das',
+        definitions: ['What you take on a journey.'],
+      );
       expect(
-          build(word, LanguageSkillType.articleSelection, isGerman: false)!
-              .type,
-          ReviewChallengeType.definition);
+        build(word, LanguageSkillType.articleSelection, isGerman: false),
+        isNull,
+      );
     });
   });
 
   group('spelling challenge', () {
     test('offers the word against its own recorded misspellings', () {
-      final word = _noun('Fahrrad',
-          definitions: ['Ein Rad zum Fahren.'], mistakes: ['Farrad']);
+      final word = _noun(
+        'Fahrrad',
+        definitions: ['Ein Rad zum Fahren.'],
+        mistakes: ['Farrad'],
+      );
       final challenge = build(word, LanguageSkillType.spelling)!;
       expect(challenge.type, ReviewChallengeType.spelling);
       expect(challenge.options, contains('Farrad'));
@@ -111,26 +122,35 @@ void main() {
     });
 
     test('a misspelling that is itself a real word is not offered', () {
-      final word = _noun('Weg',
-          definitions: ['Eine Strecke zum Gehen.'], mistakes: ['Haus']);
+      final word = _noun(
+        'Weg',
+        definitions: ['Eine Strecke zum Gehen.'],
+        mistakes: ['Haus'],
+      );
       // "Haus" is in the catalogue, so keying it wrong would be wrong.
-      expect(build(word, LanguageSkillType.spelling)!.type,
-          ReviewChallengeType.definition);
+      expect(build(word, LanguageSkillType.spelling), isNull);
     });
 
     test('a multi-word entry cannot be spelled at', () {
-      final word = _noun('zum Beispiel',
-          definitions: ['Eine Redewendung.'], mistakes: ['zum Beispil']);
-      expect(build(word, LanguageSkillType.spelling)!.type,
-          ReviewChallengeType.definition);
+      final word = _noun(
+        'zum Beispiel',
+        definitions: ['Eine Redewendung.'],
+        mistakes: ['zum Beispil'],
+      );
+      expect(build(word, LanguageSkillType.spelling), isNull);
     });
 
     test('the English pack reads its own learner-error field', () {
-      final word = _noun('bicycle',
-          definitions: ['A vehicle with two wheels.'],
-          learnerErrors: ['bycicle']);
-      final challenge =
-          build(word, LanguageSkillType.spelling, isGerman: false)!;
+      final word = _noun(
+        'bicycle',
+        definitions: ['A vehicle with two wheels.'],
+        learnerErrors: ['bycicle'],
+      );
+      final challenge = build(
+        word,
+        LanguageSkillType.spelling,
+        isGerman: false,
+      )!;
       expect(challenge.type, ReviewChallengeType.spelling);
       expect(challenge.options, contains('bycicle'));
     });
@@ -143,25 +163,38 @@ void main() {
       // offered the same wrong spelling twice and one of the two was keyed
       // wrong whichever the learner picked. The nightly sweep found it twice
       // in 22,000 items; the per-push check at forty never did.
-      final word = _noun('bicycle',
-          definitions: ['A vehicle with two wheels.'],
-          learnerErrors: ['bycicle', 'bycicle', 'bicicle']);
-      final challenge =
-          build(word, LanguageSkillType.spelling, isGerman: false)!;
+      final word = _noun(
+        'bicycle',
+        definitions: ['A vehicle with two wheels.'],
+        learnerErrors: ['bycicle', 'bycicle', 'bicicle'],
+      );
+      final challenge = build(
+        word,
+        LanguageSkillType.spelling,
+        isGerman: false,
+      )!;
       final lowered = challenge.options.map((o) => o.toLowerCase()).toList();
-      expect(lowered.toSet().length, lowered.length,
-          reason: 'options were ${challenge.options}');
+      expect(
+        lowered.toSet().length,
+        lowered.length,
+        reason: 'options were ${challenge.options}',
+      );
     });
 
     test('a typo corpus entry that does not look like the word is dropped', () {
       // The same rule Spelling Spotter applies: "base" arrives from the typo
       // corpus with "pare" and "pase" among its misspellings, and "pare" is a
       // word, so the question would have had two right answers.
-      final word = _noun('base',
-          definitions: ['The bottom of something.'],
-          learnerErrors: ['pare', 'pase', 'basse']);
-      final challenge =
-          build(word, LanguageSkillType.spelling, isGerman: false);
+      final word = _noun(
+        'base',
+        definitions: ['The bottom of something.'],
+        learnerErrors: ['pare', 'pase', 'basse'],
+      );
+      final challenge = build(
+        word,
+        LanguageSkillType.spelling,
+        isGerman: false,
+      );
       if (challenge != null) {
         expect(challenge.options, isNot(contains('pare')));
         expect(challenge.options, isNot(contains('pase')));
@@ -171,8 +204,11 @@ void main() {
 
   group('definition challenge', () {
     test('inherits the quiz\'s rules: the headword is redacted', () {
-      final word = _noun('Alter',
-          article: 'das', definitions: ['Alter ist ein Lebensabschnitt.']);
+      final word = _noun(
+        'Alter',
+        article: 'das',
+        definitions: ['Alter ist ein Lebensabschnitt.'],
+      );
       final challenge = build(word, LanguageSkillType.vocabulary)!;
       expect(challenge.type, ReviewChallengeType.definition);
       expect(challenge.prompt, isNot(contains('Alter')));
@@ -182,6 +218,134 @@ void main() {
 
     test('a word with no definition cannot be reviewed at all', () {
       expect(build(_noun('Haus'), LanguageSkillType.vocabulary), isNull);
+    });
+  });
+
+  group('review keeps the assessed skill', () {
+    test('word class uses classification rather than a definition', () {
+      final word = _noun('Hund', definitions: ['Ein Tier mit vier Beinen.']);
+      final challenge = build(word, LanguageSkillType.wordType)!;
+      expect(challenge.type, ReviewChallengeType.wordType);
+      expect(challenge.assessedSkill, LanguageSkillType.wordType);
+      expect(challenge.options[challenge.correctIndex], strings.wordTypeNoun);
+      expect(challenge.prompt, contains('Hund'));
+    });
+
+    test('an ambiguous word class is left for a contextual exercise', () {
+      final noun = _noun('Laut', definitions: ['Ein hörbarer Ton.']);
+      final adjective = testWord('laut', type: GermanWordType.adjektiv);
+      expect(
+        build(noun, LanguageSkillType.wordType, words: [adjective]),
+        isNull,
+      );
+    });
+
+    test('a conjugation suffix keeps the requested pronoun', () {
+      final verb = testWord(
+        'laufen',
+        type: GermanWordType.verb,
+        inflectionData: {
+          'conjugation': {
+            'Präsens': {'ich': 'laufe', 'du': 'läufst', 'er/sie/es': 'läuft'},
+          },
+        },
+      );
+      final item = SriLanguageData(
+        itemId: 'CONJUG_laufen_du',
+        skillType: LanguageSkillType.verbConjugation,
+        nextReviewDate: DateTime.utc(2020),
+      );
+      final challenge = buildReviewChallenge(
+        verb,
+        item,
+        [verb],
+        {'laufen'},
+        strings: strings,
+        isGerman: true,
+        rng: Random(1),
+      )!;
+      expect(challenge.type, ReviewChallengeType.conjugation);
+      expect(challenge.assessedSkill, LanguageSkillType.verbConjugation);
+      expect(challenge.prompt, contains('du ___'));
+      expect(challenge.options[challenge.correctIndex], 'läufst');
+      expect(challenge.sriData.itemId, 'CONJUG_laufen_du');
+    });
+
+    test('a word example cannot replace the original reading or syntax task',
+        () {
+      final word = testWord(
+        'Hund',
+        enrichment: testEnrichment(
+          gradeExamples: {
+            '3': ['Der Hund schläft unter dem Tisch.'],
+          },
+        ),
+      );
+      for (final skill in [
+        LanguageSkillType.reading,
+        LanguageSkillType.sentenceStructure,
+      ]) {
+        expect(build(word, skill), isNull,
+            reason: 'a cat and a dog can both sleep under a table');
+      }
+    });
+
+    test('capitalization uses the spelling in a complete sentence', () {
+      final word = testWord(
+        'Hund',
+        enrichment: testEnrichment(
+          gradeExamples: {
+            '3': ['Der Hund schläft unter dem Tisch.'],
+          },
+        ),
+      );
+      final challenge = build(word, LanguageSkillType.capitalization)!;
+      expect(challenge.assessedSkill, LanguageSkillType.capitalization);
+      expect(challenge.options.toSet(), {'Hund', 'hund'});
+      expect(challenge.options[challenge.correctIndex], 'Hund');
+      expect(challenge.prompt, isNot(contains(' Hund ')));
+    });
+
+    test('plural review uses the supplied plural form', () {
+      final dog = testWord('Hund', plural: 'Hunde');
+      final challenge = build(
+        dog,
+        LanguageSkillType.pluralForm,
+        words: [
+          testWord('Haus', plural: 'Häuser'),
+          testWord('Baum', plural: 'Bäume'),
+        ],
+      )!;
+      expect(challenge.assessedSkill, LanguageSkillType.pluralForm);
+      expect(challenge.options[challenge.correctIndex], 'Hunde');
+    });
+
+    test(
+      'a word definition cannot certify punctuation or grammatical case',
+      () {
+        final word = _noun('Hund', definitions: ['Ein Tier mit vier Beinen.']);
+        expect(build(word, LanguageSkillType.punctuation), isNull);
+        expect(build(word, LanguageSkillType.caseUsage), isNull);
+      },
+    );
+
+    test('every generated format credits exactly the requested skill', () {
+      final word = testWord(
+        'Hund',
+        article: 'der',
+        plural: 'Hunde',
+        commonMistakes: ['Hunt'],
+        enrichment: testEnrichment(
+          definitions: ['Ein Tier mit vier Beinen.'],
+          gradeExamples: {
+            '3': ['Der Hund schläft unter dem Tisch.'],
+          },
+        ),
+      );
+      for (final skill in LanguageSkillType.values) {
+        final challenge = build(word, skill);
+        if (challenge != null) expect(challenge.assessedSkill, skill);
+      }
     });
   });
 }

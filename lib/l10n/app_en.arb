@@ -1198,7 +1198,7 @@
         }
     },
     "sriReviewHeader": "Review",
-    "reviewNoWordsYet": "No words to review yet.\nPlay a few rounds so the system can identify your weak spots!",
+    "reviewNoWordsYet": "No words to review yet.\nYour first exercises will start your personal review plan.",
     "difficultyVeryHard": "Very hard",
     "difficultyHard": "Difficult",
     "difficultyPractice": "Practice",
@@ -1295,9 +1295,9 @@
     "synonymFlashOnboardingTimer": "You have 30 seconds. More correct answers means a better score.",
     "clozeFlashOnboardingBody1": "A sentence appears with a missing word — tap the correct answer.",
     "clozeFlashOnboardingTimer": "You have 30 seconds. Read the context — it helps!",
-    "sriReviewOnboardingBody1": "Practice your weakest words — selected based on your learning history.",
-    "sriReviewOnboardingBody2": "Each challenge adapts to the word: article, spelling, or definition.",
-    "sriReviewOnboardingBody3": "Every correct answer raises the easiness factor of that word.",
+    "sriReviewOnboardingBody1": "Review due tasks from your earlier practice.",
+    "sriReviewOnboardingBody2": "Each question practises the same skill again, such as spelling, word classes, verb forms, or reading in a sentence.",
+    "sriReviewOnboardingBody3": "Your answer helps schedule the next review. Familiar words also return later to keep them fresh.",
     "semanticsBack": "Go back",
     "semanticsScore": "Score: {n}",
     "@semanticsScore": {
@@ -2195,5 +2195,13 @@
                 "type": "String"
             }
         }
-    }
+    },
+    "reviewAllCaughtUp": "You are caught up for now.\nYour words will return when they are due, including the ones you already know well.",
+    "reviewUnsupportedItems": "Some due tasks need their original context.\nPractise them in the matching game; they will stay in your review plan.",
+    "goalKompassBw": "Kompass 4 · BW German",
+    "kompassCourseNote": "German reading, spelling and language for early year 4 in Baden-Württemberg. Vocabulary difficulty is a separate setting. The course works without downloading a dictionary.",
+    "kompassVocabularyPreset": "BW basic vocabulary",
+    "kompassVocabularyPresetBody": "Use BW1 and BW3 words in optional German word games. This replaces source, length and wildcard filters and clears active custom word sets. It does not change the course or language.",
+    "kompassVocabularyPresetApplied": "BW vocabulary filters are active.",
+    "kompassParentReport": "Kompass observations and next steps"
 }

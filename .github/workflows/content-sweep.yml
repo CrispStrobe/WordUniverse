@@ -104,7 +104,7 @@ jobs:
           WU_CONTRACT_GRADES: ${{ matrix.grade }}
           WU_CONTRACT_LANGUAGES: ${{ matrix.language }}
           WU_PACK_DE: ${{ matrix.language == 'de' && format('{0}/.cache/packs/grundwortschatz.db', github.workspace) || '' }}
-        run: flutter test --reporter expanded test/audit/challenge_contract_test.dart
+        run: python3 tools/ci/flutter_native_retry.py -- flutter test --reporter expanded test/audit/challenge_contract_test.dart
 
   # Games whose item space ends. Asked for more than the table holds, the
   # generator runs out and what comes back is every item the game can ever
@@ -172,7 +172,7 @@ jobs:
           WU_CONTRACT_GAMES: ${{ matrix.games }}
           WU_CONTRACT_LANGUAGES: ${{ matrix.language }}
           WU_PACK_DE: ${{ matrix.language == 'de' && format('{0}/.cache/packs/grundwortschatz.db', github.workspace) || '' }}
-        run: flutter test --reporter expanded test/audit/challenge_contract_test.dart
+        run: python3 tools/ci/flutter_native_retry.py -- flutter test --reporter expanded test/audit/challenge_contract_test.dart
 
   # The provenance oracle asks a different question from the contract: not
   # "is this item well formed" but "did this sentence, gloss or translation
@@ -229,7 +229,7 @@ jobs:
           WU_PACK: '1'
           WU_PROVENANCE_SEED: ${{ github.event.inputs.seed || github.run_number }}
           WU_PACK_DE: ${{ github.workspace }}/.cache/packs/grundwortschatz.db
-        run: flutter test --reporter expanded test/live/item_provenance_live_test.dart
+        run: python3 tools/ci/flutter_native_retry.py -- flutter test --reporter expanded test/live/item_provenance_live_test.dart
 
   # A nightly net nobody looks at is not a net. This one went red and stayed
   # red for a day, and the only reason it was noticed is that somebody asked.
@@ -262,9 +262,11 @@ jobs:
           body="The nightly content sweep failed: $RUN
 
           Each shard runs the per-push contract over 500 items per game per
-          grade, so what it catches is the long tail the 40-item check at
-          push time cannot see. Open the failing shard and read the
-          \`_Violation\` lines: they name the game, the grade and the rule."
+          grade. Open the failing shard: \`_Violation\` lines name a content
+          finding's game, grade and rule. If dependency or native-asset setup
+          failed before tests started, that shard has no content verdict.
+          SQLite download checksum failures are retried with verification
+          intact; a persistent mismatch still fails the run."
           if [ -n "$existing" ]; then
             gh issue comment "$existing" --body "$body"
           else
