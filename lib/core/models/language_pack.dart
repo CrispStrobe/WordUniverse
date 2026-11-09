@@ -314,9 +314,19 @@ const Map<String, LanguagePack> kLanguagePacks = {
     // this one — "bike" was "Clipping of bicycle.", "math" "Clipping of
     // mathematics." — of which five were misspellings a child was being
     // taught: "hasnt" and "isnt" at grade 1, "didnt" and "doesnt" at grade 2.
+    //
+    // Rebuilt 2026-11-09 on CI with the reviewed corrections of
+    // tools/pack/llm_correct.py (pipeline/llm_review/en*.jsonl): 3,464
+    // leading glosses rewritten to the sense a child means — "water" was a
+    // hamlet in Devon, "it" information technology, "office" a ceremonial
+    // duty — 353 word types corrected, 824 entries marked not vocabulary
+    // (im, hasnt, i-i-i, slurs), and the phrasal-verb table rewritten: 259
+    // verbs with sentences in which only their particle fits, 141 removed
+    // ("join out", "Mom sends away kid.").
     expectedDecompressedSha256:
-        '5f9d7136ced0929504bd36c5e0d47089ff0d4a32ca9d182aada192b36794bbc4',
+        '2dbbd0159e962124e7a2d5ce9d53babab6b82bb00411206c028ba059d1030f1c',
     previousDatabaseNames: [
+      'grundwortschatz_en-5f9d7136ced0929504bd36c5e0d47089ff0d4a32ca9d182aada192b36794bbc4.db',
       'grundwortschatz_en-6d24a142b921529fada4326127d66bbfab5bdcbf729ed7b4b8e87c9af241364c.db',
       'grundwortschatz_en-daa9c6ae32d0ac20ba9eec811aa5bc86544ea4257192eabeeb819dabb72717e9.db',
       'grundwortschatz_en-53365e2ae71884bad1e53b5e34c2cdc543f0f9ba8ba578eca7eb5050235c76d9.db',

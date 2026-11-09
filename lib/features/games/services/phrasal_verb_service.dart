@@ -56,6 +56,11 @@ List<PhrasalChallenge> buildPhrasalChallenges({
       .abs()
       .compareTo((b.gradeBand - gradeLevel).abs()));
 
+  // Every verb + particle the table knows, so a distractor can be checked
+  // against it: "He pulls ___ his wet socks" offered up beside off, and
+  // "pull up" is a phrasal verb too.
+  final known = {for (final v in verbs) v.phrasal.toLowerCase()};
+
   final challenges = <PhrasalChallenge>[];
   for (final pv in pool) {
     if (challenges.length >= maxChallenges) break;
@@ -64,7 +69,7 @@ List<PhrasalChallenge> buildPhrasalChallenges({
     final sentence = _pickSentence(pv, gradeLevel);
     if (sentence == null) continue;
 
-    final options = _buildOptions(pv, r);
+    final options = _buildOptions(pv, r, known);
     final correctIndex =
         options.indexWhere((o) => o.toLowerCase() == pv.particle.toLowerCase());
     if (correctIndex < 0) continue;
@@ -84,16 +89,28 @@ List<PhrasalChallenge> buildPhrasalChallenges({
 }
 
 /// Correct particle + up to 3 distractors, de-duped and shuffled.
-List<String> _buildOptions(PhrasalVerb pv, Random r) {
+///
+/// A distractor never makes another phrasal verb the table knows with the
+/// same base verb — that one could fit the sentence too. Gaps are filled
+/// from the common particles that do not.
+List<String> _buildOptions(PhrasalVerb pv, Random r, Set<String> known) {
+  final base = pv.baseVerb.toLowerCase();
+  bool fair(String d) => !known.contains('$base ${d.toLowerCase()}');
   final seen = <String>{pv.particle.toLowerCase()};
   final options = <String>[pv.particle];
-  for (final d in pv.distractors) {
-    if (seen.add(d.toLowerCase())) options.add(d);
+  final spare = [..._commonParticles]..shuffle(r);
+  for (final d in [...pv.distractors, ...spare]) {
     if (options.length >= 4) break;
+    if (fair(d) && seen.add(d.toLowerCase())) options.add(d);
   }
   options.shuffle(r);
   return options;
 }
+
+const _commonParticles = [
+  'up', 'down', 'in', 'out', 'on', 'off', 'away', 'back', 'over', 'around',
+  'through', 'along', 'apart', 'by', 'into', 'across',
+];
 
 /// Picks a grade-appropriate sentence (LLM grade examples first, then
 /// Wiktionary fallback) and blanks the particle. Returns null if none usable.
