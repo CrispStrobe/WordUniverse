@@ -254,16 +254,17 @@ const Map<String, LanguagePack> kLanguagePacks = {
     // model family, verified by another and kept only if two audit judges
     // both found it correct.
     remoteUrl:
-        'https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/5bc3d69f63e319374db8a6c4d1db8ab5ae7729c0/grundwortschatz-app.db.gz',
+        'https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/5c5a35b70d0dca859d0b0cdeddfc8d196b5c5456/grundwortschatz-app.db.gz',
     // Update the immutable URL and all pins together; retain this qualified
     // databaseName in previousDatabaseNames when publishing a new artifact.
-    expectedCompressedBytes: 16485372,
+    expectedCompressedBytes: 16485375,
     expectedCompressedSha256:
-        '77e3aa63371d0428e297497e87e37b87d62cd59a5108737f33b8840be8154fb5',
+        '7be4c6e008e22d3f3b49619b2c5dca93c5552859ebe4790bd5ccd6e1eadb7e88',
     expectedDecompressedBytes: 94736384,
     expectedDecompressedSha256:
-        'a4598603ebaadb27ac127e65613a0103b5e5d553b80b4a62f3d154d1ca46d873',
+        '71eadae4644dbe300f2c567adc2d2b7c85a2123556ecc34f4be2ce08bc1cbfe1',
     previousDatabaseNames: [
+      'grundwortschatz-a4598603ebaadb27ac127e65613a0103b5e5d553b80b4a62f3d154d1ca46d873.db',
       'grundwortschatz-b050d7d25f1a0ed373ae2b9f8d079a4c459c9536f3c2081fbc3cc9017e22f8f3.db',
       'grundwortschatz-64366f6f7edfe35c6e0c9dbd041d2a32746351cefa6d7b39c4b76070768afcd0.db',
       'grundwortschatz-158bea51ba1b0c0e4bcb696042dd45a03b0ddbccc132337a8ce8ef388117d9f1.db',
@@ -338,8 +339,9 @@ const Map<String, LanguagePack> kLanguagePacks = {
     // further judges: 334 glosses, 74 word types and 203 not-vocabulary
     // marks that either judge found wrong were withdrawn.
     expectedDecompressedSha256:
-        '4f3e9bbed8211f95ac180a7a26e83daaab64aa30335ff1818e792b63bc2f619c',
+        '38649e2cf2fd70bd4c45e9964291a22a048b4c0eb4db481bcfc98ab5981c3d30',
     previousDatabaseNames: [
+      'grundwortschatz_en-4f3e9bbed8211f95ac180a7a26e83daaab64aa30335ff1818e792b63bc2f619c.db',
       'grundwortschatz_en-2dbbd0159e962124e7a2d5ce9d53babab6b82bb00411206c028ba059d1030f1c.db',
       'grundwortschatz_en-5f9d7136ced0929504bd36c5e0d47089ff0d4a32ca9d182aada192b36794bbc4.db',
       'grundwortschatz_en-6d24a142b921529fada4326127d66bbfab5bdcbf729ed7b4b8e87c9af241364c.db',

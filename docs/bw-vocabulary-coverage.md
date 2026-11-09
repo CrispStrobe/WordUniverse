@@ -19,12 +19,12 @@ of the ZSL's description of **approximately 870 words**.
 The registry in [language_pack.dart](../lib/core/models/language_pack.dart)
 pins this immutable Hugging Face revision:
 
-[`c3a5df9a2ee686edde091bba918cf5c8a1ec82f4/grundwortschatz-app.db.gz`](https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/c3a5df9a2ee686edde091bba918cf5c8a1ec82f4/grundwortschatz-app.db.gz).
+[`5c5a35b70d0dca859d0b0cdeddfc8d196b5c5456/grundwortschatz-app.db.gz`](https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/5c5a35b70d0dca859d0b0cdeddfc8d196b5c5456/grundwortschatz-app.db.gz).
 
 | Input | Bytes | SHA-256 |
 | --- | ---: | --- |
-| Compressed runtime pack | 16,184,681 | `948a4004ed9ef4adeb21181d8471535468cdb5b5e38058b3f392f07ecf60fec9` |
-| Decompressed SQLite database | 92,770,304 | `b050d7d25f1a0ed373ae2b9f8d079a4c459c9536f3c2081fbc3cc9017e22f8f3` |
+| Compressed runtime pack | 16,485,375 | `7be4c6e008e22d3f3b49619b2c5dca93c5552859ebe4790bd5ccd6e1eadb7e88` |
+| Decompressed SQLite database | 94,736,384 | `71eadae4644dbe300f2c567adc2d2b7c85a2123556ecc34f4be2ce08bc1cbfe1` |
 
 Both local files match these pins. The database contains **13,040 word rows**.
 The audit opens it with SQLite `mode=ro` and `PRAGMA query_only=ON`. It does
@@ -210,7 +210,11 @@ reviewed receipt update rather than silently inheriting the old claim.
 Project-authored supplemental entries and corrected ordinary senses belong
 in the separate lexical overlay, not in the authority-bearing membership
 asset. The source audit identifies 13 missing exact spellings, the separate
-BW3 possessive use of `sein`, and five concrete incorrect lexical records:
+BW3 possessive use of `sein`, and five concrete incorrect lexical records.
+The reviewed pack of 2026-11-10 (see `tools/pack/llm_correct.py`) has since
+corrected Gabel, Herr, Luchs and Mandarine at the source; August is still
+typed as a given name, and the overrides remain in place for all five. A
+sixth, Band, was added after a read of the games on the reviewed pack:
 
 | Existing ID | Word | Pinned pack problem | Required ordinary meaning |
 | --- | --- | --- | --- |
@@ -219,6 +223,7 @@ BW3 possessive use of `sein`, and five concrete incorrect lexical records:
 | `word_04368` | Herr | Typed as a proper noun; leading sense is a surname | Ordinary noun/address |
 | `word_05837` | Luchs | Leading sense describes an inflected form of another noun | Animal |
 | `word_05944` | Mandarine | Leading sense describes a plural of another noun | Fruit |
+| `word_00876` | Band | Article *die* (music group), glosses of *der Band* (book); BW3 lists "Band; Bänder" | Ribbon (*das Band*), added 2026-11-10 |
 
 An override must keep candidate selection, feature-index answers, and
 hydration consistent. It must not make person-name senses eligible merely
@@ -282,8 +287,8 @@ structure, and 13 memorized spellings. These project enrichment categories
 are not an official KOMPASS scoring scheme.
 
 The shipped feature index additionally marks eight tagged rows as not
-being their own enriched headword, and 25 as lacking a usable leading
-definition. A separate pack flag marks 34 leading glosses as above their
+being their own enriched headword, and 15 as lacking a usable leading
+definition. A separate pack flag marks 21 leading glosses as above their
 reader's level. Some of these are useful function words whose dictionary
 parses do not make suitable child-facing meaning questions. Such flags
 call for appropriate game filtering or a reviewed explanation; they do

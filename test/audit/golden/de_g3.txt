@@ -1,124 +1,124 @@
 ── antonym_flash (4)
   vorne
-      sprechen
-      nachdem
-    ✓ hinten
-      sonnig
-    · grade: 3
-  Reihe
-    ✓ Linie
       Salz
-      Hagel
-      Kugel
+      blond
+    ✓ hinten
+      Rakete
     · grade: 3
   traurig
-      wirklich
-      flüssig
-      kühl
     ✓ fröhlich
+      auffällig
+      blond
+      fleißig
     · grade: 3
   nachdem
+      küssen
+      vorne
     ✓ bevor
-      während
-      obwohl
-      trotzdem
+      blond
+    · grade: 3
+  Abendessen
+      Geburtstag
+    ✓ Frühstück
+      Reihe
+      Hagel
     · grade: 3
 ── cloze_flash (4)
   Welches ___ haben wir heute?
-      Drachen
-    ✓ Datum
-      Rätsel
+      Kunst
       Waffe
+    ✓ Datum
+      Polizist
     · word: Datum
   Das ___ wird noch vom restlichen Fell befreit.
-      Süßigkeit
-      Rätsel
-    ✓ Fleisch
       Kunst
+      Ereignis
+      Waffe
+    ✓ Fleisch
     · word: Fleisch
   Der Eingang eines Hauses befindet sich normalerweise ___.
-      Palme
     ✓ vorne
-      manchmal
       zuletzt
+      manchmal
+      offen
     · word: vorne
   Ich habe viele Küchenmaschinen, das da ist eine ___ zum Brotbacken.
     ✓ Maschine
-      Schneemann
-      Jesus
-      Süßigkeit
+      Wohnung
+      Rad
+      Fleisch
     · word: Maschine
 ── conjugation_drill (4)
-  retten: ich ___
-      brülle
-      krieche
-      spreche
-    ✓ rette
-  kriechen: er/sie/es ___
-      schwitzt
-      spricht
-      brüllt
-    ✓ kriecht
-  brüllen: er/sie/es ___
-    ✓ brüllt
-      schwitzt
-      spricht
-      kriecht
-  sprechen: ich ___
-    ✓ spreche
-      krieche
-      brülle
-      rette
+  vorschreiben: ich ___
+      verkaufe
+    ✓ schreibe vor
+      verpacke
+      drücke
+  verpacken: er/sie/es ___
+      schlägt
+    ✓ verpackt
+      schreibt vor
+      drückt
+  flüstern: ich ___
+      verpacke
+      verkaufe
+    ✓ flüstere
+      drücke
+  schlagen: ich ___
+      verkaufe
+      drücke
+      verpacke
+    ✓ schlage
 ── definition_quiz (4)
-  an allen Orten
-    ✓ überall
-      stoppen
-      der Fleck
-      rechts
-    · word: überall  grade: 3
-  nach unten hin geöffneter kelchartiger Metallgegenstand, der durch Schlagen mit einem Klöppel zum Klingen gebracht wird
-      die Heizung
-      die Klassenfahrt
-      der Weltraum
-    ✓ die Glocke
-    · word: Glocke  grade: 3
-  Direkt folgende, ohne etwas dazwischen.
-    ✓ nächste
-      regnerisch
-      scharf
-      wild
-    · word: nächste  grade: 3
-  Seite oder Fläche, die irgendeinen Raum oder Hohlkörper begrenzt
-    ✓ die Wand
-      die Glocke
-      der Herr
-      der Räuber
-    · word: Wand  grade: 3
+  nach der Kaiserin höchste monarchische Würdenträgerin eines Staates (Königreichs)
+      das Rad
+      der Gruß
+      die Mandarine
+    ✓ die Königin
+    · word: Königin  grade: 3
+  ___ ist Luft, die sich bewegt.
+      die Mitte
+    ✓ der Wind
+      der Reifen
+      das Ohr
+    · word: Wind  grade: 3
+  in Flammen stehen, dem Feuer ausgesetzt sein
+      sprechen
+      ändern
+    ✓ brennen
+      verkaufen
+    · word: brennen  grade: 3
+  freundliche Wünsche, die eine Person einer anderen ausrichten soll, dies als Zeichen der Verbundenheit
+      das Rad
+      die Wärme
+      der Kakao
+    ✓ der Gruß
+    · word: Gruß  grade: 3
 ── expression_flash (4)
-  kein ___ vor den Mund nehmen
-    ✓ Blatt
-      Reihe
-      Wand
-      Abendessen
-    · word: Blatt
-  Äpfel mit Birnen ___
-      kriechen
-      verschwinden
-      Mühe
-    ✓ vergleichen
-    · word: vergleichen
-  aus der ___ kommen
-      Vertrauen
-    ✓ Reihe
-      Faust
-      Kreis
-    · word: Reihe
-  wie eine ___ abgehen
-      Salat
-      Wand
-    ✓ Rakete
-      Kreis
-    · word: Rakete
+  bei Nacht und ___
+      Film
+      Hausaufgabe
+    ✓ Nebel
+      Strumpf
+    · word: Nebel
+  die ___ auf etwas bringen
+    ✓ Sprache
+      Moos
+      Rechnung
+      Schwert
+    · word: Sprache
+  von sich selbst auf andere ___
+      stimmen
+      drücken
+    ✓ schließen
+      blühen
+    · word: schließen
+  es ___ treiben
+      früh
+      wild
+    ✓ bunt
+      stark
+    · word: bunt
 ── grossschreib (4)
   Für dieses mathematische [Rätsel] gibt es mehrere Lösungen.
     ✓ GROSS
@@ -133,244 +133,242 @@
     ✓ klein
     · word: bewölkt  rule: Adjektive werden kleingeschrieben
 ── grossstadt (4)
-  Groß oder klein? BEIM [einsteigen]
+  Groß oder klein? BEIM [überfallen]
     ✓ GROSS
       klein
     · rule: Nomen-Signal "BEIM" → Großschreibung
-  Groß oder klein? DU [steigst ein]
+  Groß oder klein? ICH [überfalle]
       GROSS
     ✓ klein
     · rule: Verben im Satz → Kleinschreibung
-  Groß oder klein? WILL [einsteigen]
+  Groß oder klein? KANN [überfallen]
       GROSS
     ✓ klein
     · rule: Verben (Infinitiv) → Kleinschreibung
-  Groß oder klein? DAS [umfassen]
+  Groß oder klein? BEIM [angreifen]
     ✓ GROSS
       klein
-    · rule: Nomen-Signal "DAS" → Großschreibung
+    · rule: Nomen-Signal "BEIM" → Großschreibung
 ── hypernym_flash (4)
-  Motorrad
-      bewegen
-      Frucht
-    ✓ Fahrzeug
-      Person
+  vornehmen
+      vernichten
+      Organisation
+    ✓ machen
+      Mahlzeit
+  Mädchen
+      vernichten
+      Organisation
+      Mahlzeit
+    ✓ Kind
   Abendessen
-      Fahrzeug
-      Person
-      Frucht
+      machen
+      Organisation
     ✓ Mahlzeit
-  nicken
-    ✓ ausdrücken
-      Frucht
-      Person
-      Fahrzeug
-  Bibel
-    ✓ Buch
-      Person
-      Fahrzeug
-      Frucht
+      Kind
+  verbrennen
+      Kind
+      Organisation
+      Mahlzeit
+    ✓ vernichten
 ── proverb_cloze (4)
   lieber den ___ in der Hand als die Taube auf dem Dach
-      Ordnung
-      Übung
     ✓ Spatz
-      König
+      Kartoffel
+      Kunst
+      Päckchen
     · word: Spatz
   ___ macht den Meister
-    ✓ Übung
-      Wurst
       Geld
-      Kunst
+      Huhn
+    ✓ Übung
+      Schokolade
     · word: Übung
   die zarteste Versuchung, seit es ___ gibt
-      Wurst
     ✓ Schokolade
-      Übung
+      Land
+      Kartoffel
       Huhn
     · word: Schokolade
   ___ ist, wer vergisst, was nicht mehr zu ändern ist
-    ✓ glücklich
-      stark
-      stumm
+      heiß
       früh
+    ✓ glücklich
+      still
     · word: glücklich
 ── reverse_translation_flash (4)
-  small packet
-      Ritter
-    ✓ Päckchen
-      Post
-      Vertrauen
-  tower
-      Waffe
-    ✓ Turm
-      Klassenfahrt
-      Salami
-  snow
-      satt
-      Turm
-    ✓ schneien
-      Reh
-  powerful
+  liquid
+      jedoch
+      Tee
+    ✓ flüssig
       Clown
-      Kugel
-    ✓ stark
-      Abendessen
+  dress up
+      fleißig
+    ✓ verkleiden
+      blind
+      Kreuzung
+  small packet
+      vorkommen
+      passen
+    ✓ Päckchen
+      Blatt
+  brave
+    ✓ mutig
+      trocken
+      verkleiden
+      fleißig
 ── sentence_completion (4)
-  Die Kinder spielen gerne im ___ gelegenen Park.
-sich auf die Sonne beziehend, in der Art und Weise der Sonne, von der Sonne beschienen
-      wichtig
-      still
-    ✓ sonnig
-      dreckig
+  Die Kinder sind ___, wenn sie im Park spielen.
+(Zufalls-)Glück oder Erfolg habend
+    ✓ glücklich
+      satt
+      scharf
+      freundlich
     · cue label: Eine mögliche Bedeutung: …
-  Ich mag keinen ___.
-subjektiv als unangenehm empfundener Schall, der unerwünschte Auswirkungen auf den Menschen hat (etwa das Gehör schädigt, krank machen kann, stört oder belästigt)
-    ✓ Lärm
-      Pause
-      Zylinder
-      Wärme
+  Ich lehne mein Fahrrad an die ___.
+Seite oder Fläche, die irgendeinen Raum oder Hohlkörper begrenzt
+      Filzstift
+    ✓ Wand
+      Schwimmbad
+      Richtung
     · cue label: Eine mögliche Bedeutung: …
-  Die Blumen wachsen an der ___.
-Wand eines Gebäudes aus Stein, Beton oder auch Lehm
-      Zylinder
-    ✓ Mauer
-      Pfingsten
-      Palme
-    · cue label: Eine mögliche Bedeutung: …
-  Wir dürfen den Müll nicht ___, das ist verboten.
-etwas durch Feuer vernichten
-      trösten
-      donnern
-    ✓ verbrennen
-      schlagen
-    · cue label: Eine mögliche Bedeutung: …
-── spelling_spotter (3)
-  Which spelling is correct?
-      fleach
+  Meine Familie isst ___ nur am Wochenende.
+Muskel- und häufig auch Fettgewebe
+      Rakete
     ✓ Fleisch
-    · shown after answering: Fleisch, bitte.
+      Hobby
+      Fluss
+    · cue label: Eine mögliche Bedeutung: …
+  Der Lehrer gab uns ein ___ für unsere Teamarbeit.
+Anerkennung von Leistungen oder Verhaltensweisen durch sprachliche oder körpersprachliche Ausdrucksmittel
+      Salz
+      Rakete
+      Richtung
+    ✓ Lob
+    · cue label: Eine mögliche Bedeutung: …
+── spelling_spotter (4)
   Which spelling is correct?
-      paty
-    ✓ Party
-      plat
-    · shown after answering: Die Party ist vorbei.
+      wiend
+      wong
+    ✓ Wind
+    · shown after answering: Der Wind weht.
   Which spelling is correct?
-      rrtter
       reuber
     ✓ Räuber
+      rrtter
     · shown after answering: Der Räuber entging seiner Strafe.
+  Which spelling is correct?
+    ✓ Pyramide
+      püramide
+    · shown after answering: Kegel und Pyramide sind mathematische Körper.
+  Which spelling is correct?
+      frühlig
+      frohlig
+    ✓ fleißig
+      frolig
+    · shown after answering: Lerne fleißig!
 ── sri_review (4)
-  Richtige Schreibweise für:
-"an allen Orten"
-      über-al
-      übeal
-      über-all
-    ✓ überall
-    · type: spelling  assessedSkill: spelling
   Welcher Artikel passt?
-"___ Glocke"
+"___ Motorrad"
+      die
       der
-      das
-    ✓ die
+    ✓ das
     · type: article  assessedSkill: articleSelection
-  "Direkt folgende, ohne etwas dazwischen."
-      wild
-      dreckig
-    ✓ nächste
-      scharf
+  "nach der Kaiserin höchste monarchische Würdenträgerin eines Staates (Königreichs)"
+      das Quadrat
+      die Freiheit
+      die E-Mail
+    ✓ die Königin
     · type: definition  assessedSkill: vocabulary
   Welche Wortart?
-Wand
-    ✓ Nomen
-      Verb
+Wind
+      Adverb
       Pronomen
-      Adjektiv
+      Verb
+    ✓ Nomen
     · type: wordType  assessedSkill: wordType
+  Großschreibung
+Ich packe die ___ ein.
+      tüte
+    ✓ Tüte
+    · type: capitalization  assessedSkill: capitalization
 ── syllable_count (4)
-  kämmen
-      1
-    ✓ 2
-      3
-      4+
-    · hyphenation: käm-men
-  Band
-    ✓ 1
-      2
-      3
-      4+
-    · hyphenation: Band
-  neugierig
+  vornehmen
       1
       2
     ✓ 3
       4+
-    · hyphenation: neu-gie-rig
-  Hausaufgabe
+    · hyphenation: vor-neh-men
+  verbrennen
       1
       2
+    ✓ 3
+      4+
+    · hyphenation: ver-bren-nen
+  pünktlich
+      1
+    ✓ 2
       3
-    ✓ 4+
-    · hyphenation: Haus-auf-ga-be
+      4+
+    · hyphenation: pünkt-lich
+  Kälte
+      1
+    ✓ 2
+      3
+      4+
+    · hyphenation: Käl-te
 ── synonym_flash (4)
+  Freiheit
+      Erlebnis
+      Lob
+      Spatz
+    ✓ Unabhängigkeit
+    · grade: 3
+  Verkehr
+    ✓ Akt
+      Punkt
+      Rücken
+      Bibel
+    · grade: 3
   Punkt
     ✓ Teil
-      Kunst
-      Tulpe
-      Salz
+      Erlebnis
+      Schreibtisch
+      Orkan
     · grade: 3
-  Ereignis
-      Quadrat
-      Punkt
-      Saal
-    ✓ Geschehen
-    · grade: 3
-  blond
-      rund
-      zornig
-    ✓ golden
-      scharf
-    · grade: 3
-  Höhle
-      Salz
-      Quadrat
-    ✓ Bau
-      Biber
+  still
+      mutig
+      trocken
+      blind
+    ✓ stumm
     · grade: 3
 ── translation_flash (4)
-  das Päckchen
-      supper
-      trust
-      puzzle
-    ✓ small packet
-  der Turm
-      clown
-    ✓ tower
-      powerful
+  flüssig
+    ✓ liquid
       blind
-  schneien
-      event
-    ✓ snow
-      storm
-      knight
-  stark
-      mail
-      polite
       clown
-    ✓ powerful
+      great hall
+  verkleiden
+      training
+      brave
+      sparrow
+    ✓ dress up
+  das Päckchen
+    ✓ small packet
+      beetle
+      square
+      all over
+  mutig
+      sparrow
+    ✓ brave
+      thin
+      still
 ── verbtrenner (4)
   Steht das Verb in diesem Satz getrennt oder zusammen?
-aus … drücken
-Diese Tube Zahnpasta lässt sich nicht mehr ausdrücken, weil sie leer ist.
+vor … tragen
+Umbreen ist sauer, weil sie ihr Gedicht nicht vollständig vortragen darf.
       GETRENNT
     ✓ ZUSAMMEN
-    · form: ausdrücken
-  Steht das Verb in diesem Satz getrennt oder zusammen?
-fährt … vor
-„Der Autosalon in Paris gehört zum Herbst wie bunte Blätter an den Bäumen. In diesem Jahr fährt man elektrisch vor. Die meisten Autobauer haben ein E-Auto am Stand.“
-    ✓ GETRENNT
-      ZUSAMMEN
-    · form: fährt vor
+    · form: vortragen
   Steht das Verb in diesem Satz getrennt oder zusammen?
 schreibt … vor
 Meine Mutti schreibt mir vor, bis wann die Hausaufgaben fertig sein sollen.
@@ -378,18 +376,24 @@ Meine Mutti schreibt mir vor, bis wann die Hausaufgaben fertig sein sollen.
       ZUSAMMEN
     · form: schreibt vor
   Steht das Verb in diesem Satz getrennt oder zusammen?
-schlage … vor
-Ich schlage vor, dass wir zuerst die Grundlagen besprechen.
+liest … vor
+Der Vater liest seinen Kindern jeden Abend eine Geschichte vor.
     ✓ GETRENNT
       ZUSAMMEN
-    · form: schlage vor
+    · form: liest vor
+  Steht das Verb in diesem Satz getrennt oder zusammen?
+gab … ein
+„Man gab dem Töchterchen Arzney ein und legte es zu Bette.“
+    ✓ GETRENNT
+      ZUSAMMEN
+    · form: gab ein
 ── word_builder (4)
   Build "Film" from its letters
     ✓ Film
     · grade: 3  gloss: dünne Schicht von etwas
   Build "Impfung" from its letters
     ✓ Impfung
-    · grade: 3
+    · grade: 3  gloss: eine Spritze, die man bekommt, um sich vor einer Krankheit zu schützen
   Build "Wand" from its letters
     ✓ Wand
     · grade: 3  gloss: Seite oder Fläche, die irgendeinen Raum oder Hohlkörper begrenzt
@@ -397,19 +401,19 @@ Ich schlage vor, dass wir zuerst die Grundlagen besprechen.
     ✓ Strom
     · grade: 3  gloss: allgemein eine Menge (Informationen, Menschen, Teilchen, Wasser), die sich fließend in eine bestimmte Richtung bewegt
 ── word_class_flash (4)
-  Englisch
+  der Klebstoff
     ✓ Nomen
       Verb
       Adjektiv
-  fröhlich
-      Nomen
-      Verb
-    ✓ Adjektiv
-  bremsen
+  nicken
       Nomen
     ✓ Verb
       Adjektiv
-  der Sattel
+  zusätzlich
+      Nomen
+      Verb
+    ✓ Adjektiv
+  das Moos
     ✓ Nomen
       Verb
       Adjektiv
@@ -419,7 +423,7 @@ Ich schlage vor, dass wir zuerst die Grundlagen besprechen.
     · grade: 3  gloss: dünne Schicht von etwas
   Find "Impfung" in the grid
     ✓ Impfung
-    · grade: 3
+    · grade: 3  gloss: eine Spritze, die man bekommt, um sich vor einer Krankheit zu schützen
   Find "Wand" in the grid
     ✓ Wand
     · grade: 3  gloss: Seite oder Fläche, die irgendeinen Raum oder Hohlkörper begrenzt
@@ -431,8 +435,8 @@ Ich schlage vor, dass wir zuerst die Grundlagen besprechen.
     ✓ dünne Schicht von etwas
     · grade: 3  partner: definition
   Match the pair for "Impfung"
-    ✓ Impfung
-    · grade: 3  partner: same word, other font
+    ✓ eine Spritze, die man bekommt, um sich vor einer Kra…
+    · grade: 3  partner: definition
   Match the pair for "Wand"
     ✓ Seite oder Fläche, die irgendeinen Raum oder Hohlkör…
     · grade: 3  partner: definition
@@ -440,17 +444,17 @@ Ich schlage vor, dass wir zuerst die Grundlagen besprechen.
     ✓ allgemein eine Menge (Informationen, Menschen, Teilc…
     · grade: 3  partner: definition
 ── word_of_the_day (4)
-  2026-01-01: die Million
-    ✓ 1.000.000, eintausend mal eintausend, 10⁶
+  2026-01-01: leider
+    ✓ Ausdruck des Bedauerns
     · grade: 4  cefr: —
-  2026-01-02: meist
-    ✓ fast immer, fast nur, sehr oft, am häufigsten
+  2026-01-02: der Kilometer
+    ✓ eine Maßeinheit der Länge, der Entfernung; entspricht eintausend Metern
     · grade: 4  cefr: —
-  2026-01-03: fremd
-    ✓ nicht bekannt, fremdartig
+  2026-01-03: später
+    ✓ Steigerung von „spät“
     · grade: 4  cefr: —
-  2026-01-04: die Arbeit
-    ✓ selbstgewählte, bewusste, schöpferische Handlung
+  2026-01-04: das Gepäck
+    ✓ gesamte Ausrüstung für eine Reise, eine Wanderung oder einen Marsch
     · grade: 4  cefr: —
 ── word_snake (4)
   Trace "Film"
@@ -458,7 +462,7 @@ Ich schlage vor, dass wir zuerst die Grundlagen besprechen.
     · grade: 3  gloss: dünne Schicht von etwas
   Trace "Impfung"
     ✓ Impfung
-    · grade: 3
+    · grade: 3  gloss: eine Spritze, die man bekommt, um sich vor einer Krankheit zu schützen
   Trace "Wand"
     ✓ Wand
     · grade: 3  gloss: Seite oder Fläche, die irgendeinen Raum oder Hohlkörper begrenzt
@@ -471,7 +475,7 @@ Ich schlage vor, dass wir zuerst die Grundlagen besprechen.
     · grade: 3  gloss: dünne Schicht von etwas
   Sort "Impfung" into its word class
     ✓ Nomen
-    · grade: 3
+    · grade: 3  gloss: eine Spritze, die man bekommt, um sich vor einer Krankheit zu schützen
   Sort "Wand" into its word class
     ✓ Nomen
     · grade: 3  gloss: Seite oder Fläche, die irgendeinen Raum oder Hohlkörper begrenzt
@@ -484,7 +488,7 @@ Ich schlage vor, dass wir zuerst die Grundlagen besprechen.
     · grade: 3  gloss: dünne Schicht von etwas
   Catch "die Impfung" in the right bin
     ✓ Nomen
-    · grade: 3
+    · grade: 3  gloss: eine Spritze, die man bekommt, um sich vor einer Krankheit zu schützen
   Catch "die Wand" in the right bin
     ✓ Nomen
     · grade: 3  gloss: Seite oder Fläche, die irgendeinen Raum oder Hohlkörper begrenzt
@@ -492,18 +496,18 @@ Ich schlage vor, dass wir zuerst die Grundlagen besprechen.
     ✓ Nomen
     · grade: 3  gloss: allgemein eine Menge (Informationen, Menschen, Teilchen, Wasser), die sich fließend in eine bestimmte Richtung bewegt
 ── wortbaumeister (4)
-  Build the compound: Abend + essen
-    ✓ Abendessen
-    · context: Während des Abendessens möchten wir nicht gestört werden.
-  Build the compound: Abfall + eimer
-    ✓ Abfalleimer
-    · context: „Die Abfalleimer aus Aluminium standen überquellend von Müll auf der Straße neben den Treppen.“
-  Build the compound: Alarm + stufe
-    ✓ Alarmstufe
-    · context: Das Wort "Alarmstufe" wird so geschrieben.
-  Build the compound: Alters + heim
-    ✓ Altersheim
-    · context: Sonntags besuchen wir meist Uroma im Altersheim.
+  Build the compound: Montag + nachmittag
+    ✓ Montagnachmittag
+    · context: Das Wort "Montagnachmittag" wird so geschrieben.
+  Build the compound: Dach + boden
+    ✓ Dachboden
+    · context: Das Wort "Dachboden" wird so geschrieben.
+  Build the compound: Straßen + ecke
+    ✓ Straßenecke
+    · context: Das Wort "Straßenecke" wird so geschrieben.
+  Build the compound: Holz + teil
+    ✓ Holzteil
+    · context: Das Wort "Holzteil" wird so geschrieben.
 ── wortfalle (4)
   Der ___ bringt uns ein wichtiges Päckchen.
     ✓ Bote

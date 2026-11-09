@@ -3,7 +3,7 @@
   "id": "bw-lexical-overlay-v1",
   "version": 1,
   "language": "de",
-  "appliesToPackSha256": "b050d7d25f1a0ed373ae2b9f8d079a4c459c9536f3c2081fbc3cc9017e22f8f3",
+  "appliesToPackSha256": "71eadae4644dbe300f2c567adc2d2b7c85a2123556ecc34f4be2ce08bc1cbfe1",
   "membershipAsset": "assets/data/bw_membership_v1.json",
   "provenance": {
     "checkedAt": "2026-11-08",
@@ -71,6 +71,59 @@
           }
         },
         "article": "der",
+        "spellingDifficultySource": "unknown",
+        "spellingDifficultyEvidence": {
+          "status": "unknown",
+          "source": null,
+          "reason": "Compatibility default; no measured spelling evidence for this authored sense.",
+          "calibrated": false
+        }
+      }
+    },
+    {
+      "target": {
+        "id": "word_00876",
+        "word": "Band"
+      },
+      "reason": "The pinned row has article die (music group), glosses for der Band (book) and examples about a music group; the official BW3 list gives \"Band; Bänder\", which is the neuter noun das Band (ribbon).",
+      "record": {
+        "id": "word_00876",
+        "word": "Band",
+        "lemma": "Band",
+        "wordType": "noun",
+        "gradeLevel": 3,
+        "sources": [
+          "PROJECT_BW_LEXICAL_V1"
+        ],
+        "isGrundwortschatzBW": true,
+        "nurImPlural": false,
+        "spellingDifficulty": 0,
+        "apiEnrichment": {
+          "enrichment_status": "project-authored",
+          "primary_lemma": "Band",
+          "primary_pos": "noun",
+          "definitions": [
+            "Ein schmaler, langer Streifen aus Stoff, mit dem man etwas bindet oder schmückt."
+          ],
+          "examples": [
+            {
+              "text": "Um das Geschenk binde ich ein rotes Band.",
+              "source": "WordUniverse BW lexical overlay, project-authored"
+            },
+            {
+              "text": "Sie trägt ein buntes Band im Haar.",
+              "source": "WordUniverse BW lexical overlay, project-authored"
+            }
+          ],
+          "grade_examples": {
+            "3": [
+              "Um das Geschenk binde ich ein rotes Band.",
+              "Sie trägt ein buntes Band im Haar."
+            ]
+          }
+        },
+        "article": "das",
+        "plural": "Bänder",
         "spellingDifficultySource": "unknown",
         "spellingDifficultyEvidence": {
           "status": "unknown",

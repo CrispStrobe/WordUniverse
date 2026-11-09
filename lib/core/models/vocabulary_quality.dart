@@ -87,9 +87,15 @@ bool describesAName(String definition) {
 /// "Ausland: Land oder Länder außerhalb des eigenen Staatsgebiets", "Insel:
 /// vollständig von Wasser umgebenes Stück Land", "Fluss: größeres,
 /// fließendes Gewässer". None of those matches.
+///
+/// The places inside a place were missing: "Wind" carries "Ortschaft der
+/// Gemeinde Pommersfelden" as its second sense, and the definition quiz,
+/// which skips the first because it names the word, asked for it. Not bare
+/// "Kreis", which opens "Kunde: Kreis an Käufern".
 final RegExp _geographyGloss =
     RegExp(r'^(hauptstadt|stadt|fluss|insel|gebirge|ozean|provinz|bundesland'
-        r'|bundesstaat|kontinent|staat|region|gemeinde|dorf)\s*,?\s*'
+        r'|bundesstaat|kontinent|staat|region|gemeinde|dorf|ortschaft|ortsteil'
+        r'|stadtteil|gemeindeteil|weiler|landkreis|kanton|bezirk)\s*,?\s*'
         r'(in|im|der|des|von|vom|zwischen|an|auf|nahe|bei|südlich|nördlich'
         r'|östlich|westlich|mit)\b');
 

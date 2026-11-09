@@ -84,8 +84,10 @@ void main() {
       expect(word.learnerDefinitions, isNotEmpty);
       expect(namesSomething(word), isFalse);
     }
+    // August: the reviewed pack of 2026-11-10 corrected Gabel at the source,
+    // but still types this row as a given name.
     final untouched =
-        await DictionaryDatabaseService().getWordById('word_03407');
+        await DictionaryDatabaseService().getWordById('word_00692');
     expect(untouched!.isProperNoun, isTrue,
         reason: 'the downloaded database retains its original bytes and rows');
   }, skip: skip);

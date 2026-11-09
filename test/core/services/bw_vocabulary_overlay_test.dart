@@ -9,7 +9,7 @@ import 'package:WortUniversum/core/models/word_features.dart';
 import 'package:WortUniversum/core/services/bw_vocabulary_overlay.dart';
 
 const _packHash =
-    'a4598603ebaadb27ac127e65613a0103b5e5d553b80b4a62f3d154d1ca46d873';
+    '71eadae4644dbe300f2c567adc2d2b7c85a2123556ecc34f4be2ce08bc1cbfe1';
 
 void main() {
   late BwVocabularyOverlay overlay;
@@ -90,13 +90,14 @@ void main() {
     expect(bw(at('sein', GermanWordType.pronomen)), ['BW3']);
   });
 
-  test('five exact pinned corrections agree before and after hydration', () {
+  test('six exact pinned corrections agree before and after hydration', () {
     final originals = [
       word('August', id: 'word_00692', type: 'proper_noun'),
       word('Gabel', id: 'word_03407', type: 'proper_noun'),
       word('Herr', id: 'word_04368', type: 'proper_noun'),
       word('Luchs', id: 'word_05837'),
       word('Mandarine', id: 'word_05944'),
+      word('Band', id: 'word_00876'),
     ];
     final catalogue = overlay.applyCatalogue(originals, packSha256: _packHash);
     for (final original in originals) {
@@ -118,6 +119,10 @@ void main() {
       expect(namesSomething(full), isFalse);
       expect(full.sources, contains('BERLIN'));
     }
+    final band = overlay.hydrateOrApply(
+        catalogue.singleWhere((word) => word.id == 'word_00876'));
+    expect(band.article, 'das');
+    expect(band.learnerDefinitions.single, contains('Streifen'));
     // The supplied database objects themselves were never mutated.
     expect(originals.first.isProperNoun, isTrue);
     expect(originals.first.has(WordFeature.nameLike), isTrue);

@@ -193,6 +193,15 @@ void main() {
           isTrue);
     });
 
+    test('catches a place inside a place, not a circle of customers', () {
+      expect(describesAName('Ortschaft der Gemeinde Pommersfelden'), isTrue);
+      expect(describesAName('Stadtteil im Südosten von New York City'), isTrue);
+      expect(describesAName('Kreis an Käufern/Abnehmern'), isFalse);
+      expect(describesAName('Kreis, der durch alle Eckpunkte eines Polygons '
+              'verläuft'),
+          isFalse);
+    });
+
     test('catches the shorter ways Wiktionary says "this is a name"', () {
       // Three English entries word it this way and came through as ordinary
       // vocabulary while the other 63 were typed proper_noun in the pack.
