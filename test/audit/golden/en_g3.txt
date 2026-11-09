@@ -24,30 +24,30 @@
       sufficient
     · grade: 3
 ── cloze_flash (4)
-  ___ of happiness devised by human reason
+  to have ___ to violence
       aisle
       cars
       category
-    ✓ projects
-    · word: projects
-  to have ___ to violence
+    ✓ resort
+    · word: resort
+  He took out his ___ and stabbed the man in the stomach.
       aisle
       hip-hop
       hint
-    ✓ resort
-    · word: resort
-  Every cancer victim is a true ___.
-    ✓ hero
+    ✓ sword
+    · word: sword
+  His deep ___ boomed through the room.
+    ✓ laughs
       palm
       kinds
       sword
-    · word: hero
-  He took out his ___ and stabbed the man in the stomach.
-      cars
-      laughs
-    ✓ sword
-      resort
-    · word: sword
+    · word: laughs
+  The giant spoke in a deep, ___, rumbling voice that shook me to my boots.
+    ✓ bass
+      religious
+      modest
+      genuinely
+    · word: bass
 ── definition_quiz (4)
   An open-seated motor vehicle with handlebars instead of a steering wheel, and having two (or sometimes three) wheels.
       switch
@@ -120,7 +120,7 @@
       tendency
     ✓ statement
       plane
-      group action
+      frequency
   investigation
       tendency
       hardship

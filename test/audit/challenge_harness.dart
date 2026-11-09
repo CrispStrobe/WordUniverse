@@ -548,10 +548,7 @@ final Map<String, Generator> generators = {
   'cloze_flash': (c) async => buildClozeChallenges(
         pool: await c.pool(WordFeature.examples,
             where: (w) => !w.isProperNoun && !w.word.contains(' ')),
-        texts: (w) => [
-          for (final example in w.apiEnrichment?.examples ?? const [])
-            if (example.text case final text?) text,
-        ],
+        texts: clozeExampleTexts,
         maxChallenges: c.count,
         rng: c.rng,
       ).map((ch) => _clozeItem('cloze_flash', ch)).toList(),

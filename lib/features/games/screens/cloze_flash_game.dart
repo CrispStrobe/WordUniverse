@@ -168,10 +168,7 @@ class _ClozeFlashGameState extends State<ClozeFlashGame>
 
     final challenges = buildClozeChallenges(
       pool: pool,
-      texts: (w) => [
-        for (final example in w.apiEnrichment?.examples ?? const [])
-          if (example.text case final text?) text,
-      ],
+      texts: clozeExampleTexts,
       maxChallenges: _maxRounds,
       optionCount: _optionCount,
       rng: _rng,

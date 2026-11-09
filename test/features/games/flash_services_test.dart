@@ -491,7 +491,11 @@ void main() {
           ));
       expect(
           pickHypernym(chicken,
-              isGerman: false, catalogue: catalogue([chicken])),
+              isGerman: false,
+              catalogue: catalogue([
+                chicken,
+                testWord('poultry', type: GermanWordType.substantiv),
+              ])),
           'poultry');
     });
 
@@ -517,7 +521,13 @@ void main() {
             ],
           ));
       expect(
-          pickHypernym(frost, isGerman: false, catalogue: catalogue([frost])),
+          pickHypernym(frost,
+              isGerman: false,
+              catalogue: catalogue([
+                frost,
+                testWord('poet', type: GermanWordType.substantiv),
+                testWord('ice', type: GermanWordType.substantiv),
+              ])),
           'ice');
     });
 
@@ -538,8 +548,26 @@ void main() {
           ));
       expect(
           pickHypernym(chicken,
-              isGerman: false, catalogue: catalogue([chicken])),
+              isGerman: false,
+              catalogue: catalogue([
+                chicken,
+                testWord('poultry', type: GermanWordType.substantiv),
+              ])),
           'poultry');
+    });
+
+    test('a WordNet label the learner does not have is not the answer', () {
+      // "a fruit is a kind of reproductive structure", "a cobra is a kind of
+      // elapid": only a hypernym the catalogue holds may be asked.
+      final cobra = testWord('cobra',
+          type: GermanWordType.substantiv,
+          enrichment: testEnrichment(wordnetSenses: const [
+            WordNetSense(
+                pos: 'noun', definition: 'venomous snake', hypernyms: ['elapid']),
+          ]));
+      expect(
+          pickHypernym(cobra, isGerman: false, catalogue: catalogue([cobra])),
+          isNull);
     });
 
     test('no other hypernym of the same word is ever a distractor', () {

@@ -319,7 +319,14 @@ String? _fromSenses(
       if (lowerPrompt.contains(lower) || lower.contains(lowerPrompt)) continue;
       usable.add(w);
     }
-    if (usable.isNotEmpty) return _mostFamiliar(usable, catalogue);
+    // The answer should be a word the learner has, not a WordNet label:
+    // "a fruit is a kind of reproductive structure", "arrive is a kind of
+    // change state", "a cobra is a kind of elapid". Only a hypernym the
+    // catalogue holds may be the answer.
+    final answerable = catalogue == null
+        ? usable
+        : usable.where((w) => catalogue.containsKey(w.toLowerCase())).toList();
+    if (answerable.isNotEmpty) return _mostFamiliar(answerable, catalogue);
   }
   return null;
 }
@@ -481,6 +488,11 @@ List<HypernymChallenge> buildHypernymChallenges({
   final picked = <GermanWord, String>{};
   for (final word in pool) {
     if (namesSomething(word)) continue;
+    // Grammar words have no category a child would name, and their senses
+    // here are other words': "will is a kind of decide", "can is a kind of
+    // preserve", and grade 1's "id is a kind of instinct".
+    if (isClosedClassEntry(word) ||
+        _notCategoryPrompts.contains(word.word.toLowerCase())) continue;
     final hypernym =
         pickHypernym(word, isGerman: isGerman, catalogue: catalogue);
     if (hypernym != null) picked[word] = hypernym;
@@ -518,4 +530,9 @@ const _categoriesOfEverything = {
   'group', 'relation', 'attribute', 'state', 'event', 'person', 'individual',
   'animal', 'lebewesen', 'ding', 'gegenstand', 'sache', 'objekt', 'etwas',
   'wesen', 'mensch',
+};
+
+/// Modal verbs and the like, whose WordNet senses are other words.
+const _notCategoryPrompts = {
+  'will', 'can', 'may', 'must', 'might', 'shall', 'id', 'ego',
 };

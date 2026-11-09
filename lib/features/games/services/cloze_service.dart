@@ -235,3 +235,20 @@ ClozeChallenge? buildClozeChallenge({
     correctIndex: correctIndex,
   );
 }
+
+/// The example sentences of [word] that Cloze Flash may blank.
+///
+/// Only Wiktionary's own usage examples, not the quotations it cites. A
+/// quotation carries its source in `ref`, and the sources are newspapers,
+/// novels and verse: a read of the dumps found a fourth-grader asked to
+/// complete "Trump's grotesque and incomprehensible ___ for Putin",
+/// "My minde is troubled, like a Fountaine ___'d" and a 1973 crime novel's
+/// "A good ___ has a pretty shrewd idea of the value of the painting". The
+/// uncited examples are written to show the word — "I threw out the trash
+/// can liner", "Das Essen in der Mensa war heute leider versalzen" — and
+/// there are 12,143 of them in English and 14,732 in German.
+List<String> clozeExampleTexts(GermanWord word) => [
+      for (final example in word.apiEnrichment?.examples ?? const <ApiExample>[])
+        if ((example.ref ?? '').trim().isEmpty)
+          if (example.text case final text?) text,
+    ];
