@@ -12,6 +12,11 @@ digest of what the models saw — so a pack whose data moved on is never
 "corrected" back to an older reading; those entries are counted and need
 another pass.
 
+Where pipeline/llm_review/<lang>.audit.jsonl exists (llm_correct.py audit),
+only the changes it confirmed are applied. Two further guards are rules,
+not judgement: a plural must start like its word, and a German word a
+state's Grundwortschatz teaches is never marked "not vocabulary".
+
 Per field:
   definition     put first in enrichment.definitions (the app reads the first;
                  the old senses stay behind it), metadata.gloss_source =
@@ -59,10 +64,27 @@ def taught(metadata):
             or bool(sources & GERMAN_LISTS))
 
 
+def fold(text):
+    return (text.lower().replace('ä', 'a').replace('ö', 'o')
+            .replace('ü', 'u'))
+
+
+def load_audit(lang):
+    path = OUT_DIR / f'{lang}.audit.jsonl'
+    if not path.exists():
+        return None
+    verdicts = {}
+    for line in path.read_text(encoding='utf-8').splitlines():
+        if line.strip():
+            r = json.loads(line)
+            verdicts[r['key']] = r['ok']
+    return verdicts
+
+
 def load(lang):
     path = OUT_DIR / f'{lang}.jsonl'
     latest = {}
-    for line in open(path, encoding='utf-8'):
+    for line in path.read_text(encoding='utf-8').splitlines():
         if line.strip():
             record = json.loads(line)
             latest[record['id']] = record  # a later reading supersedes
@@ -77,14 +99,18 @@ def main():
     args = parser.parse_args()
 
     corrections = load(args.lang)
+    audited = load_audit(args.lang)
     db = sqlite3.connect(args.pack)
     db.row_factory = sqlite3.Row
     counts = {'applied': 0, 'stale': 0, 'missing': 0, 'unchanged': 0}
     fields = {}
     for entry_id, record in corrections.items():
+        by_row = entry_id.startswith('row:')
         row = db.execute('SELECT id, original_id, word, word_type, article, genus, '
                          'grade_level, enrichment_json, metadata_json FROM words '
-                         'WHERE original_id = ?', (entry_id,)).fetchone()
+                         + ('WHERE id = ? AND original_id IS NULL' if by_row
+                            else 'WHERE original_id = ?'),
+                         (int(entry_id[4:]) if by_row else entry_id,)).fetchone()
         if row is None:
             counts['missing'] += 1
             continue
@@ -97,7 +123,33 @@ def main():
         if already:
             counts['unchanged'] += 1
             continue
-        change = record['change']
+        change = dict(record['change'])
+        # Only what the audit confirmed, when there is an audit: a change it
+        # flagged, or never got to, is not applied.
+        if audited is not None:
+            confirmed = {f for f in change
+                         if audited.get(f"{entry_id}|{record['src']}|{f}") is True}
+            if 'vocabulary' in confirmed:
+                confirmed.add('not_vocabulary')
+            dropped_fields = set(change) - confirmed
+            for f in dropped_fields:
+                counts['audit_dropped'] = counts.get('audit_dropped', 0) + 1
+            change = {k: v for k, v in change.items() if k in confirmed}
+        # A plural starts like its word (Hund/Hunde, Apfel/Äpfel, Haus/Häuser).
+        # The first run gave Tröpfchen the plural "Vanillen": an answer that
+        # belonged to another entry of the batch.
+        if 'plural' in change and isinstance(change['plural'], str) and \
+                fold(change['plural'][:2]) != fold(row['word'][:2]):
+            change.pop('plural')
+        # A German word a state's Grundwortschatz teaches is vocabulary,
+        # whatever a model said: "fett" was called a misspelling, "Kindern"
+        # not a word.
+        if args.lang == 'de' and taught(metadata):
+            change.pop('vocabulary', None)
+            change.pop('not_vocabulary', None)
+        if not change:
+            counts['nothing_left'] = counts.get('nothing_left', 0) + 1
+            continue
         word_type, article, genus = row['word_type'], row['article'], row['genus']
         if 'definition' in change:
             old = [d for d in enrichment.get('definitions') or []
@@ -155,7 +207,7 @@ def apply_phrasal(db):
         return None
     counts = {'rewritten': 0, 'removed': 0, 'unverified, removed': 0}
     latest = {}
-    for line in open(path, encoding='utf-8'):
+    for line in path.read_text(encoding='utf-8').splitlines():
         if line.strip():
             record = json.loads(line)
             if record.get('keep') is not None or record['id'] not in latest:

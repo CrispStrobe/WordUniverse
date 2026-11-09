@@ -45,12 +45,16 @@ import threading
 import time
 import urllib.error
 import urllib.request
+import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 OUT_DIR = ROOT / 'pipeline' / 'llm_review'
 
-# (lane name, base url, key variables, model, role, seconds between calls)
+OPENCODE_SESSION = {'x-opencode-session': lambda: str(uuid.uuid4())}
+
+# (lane name, base url, key variables, model, role, seconds between calls,
+#  family[, extra headers])
 # Free tiers only. "propose" lanes write corrections, "verify" lanes judge
 # them; a batch is never verified by the family that proposed it.
 LANES = [
@@ -63,6 +67,13 @@ LANES = [
     ('bonsai-27b', 'https://api.together.xyz/v1',
      ['TOGETHER_API_KEY', 'TOGETHER_API_KEY2', 'TOGETHER_API_KEY3'],
      'Prism-ML/Ternary-Bonsai-27B', 'propose', 3, 'prism'),
+    # OpenCode Go's free models; they need a client session header.
+    ('longcat-2.5', 'https://opencode.ai/zen/go/v1', ['OPENCODEGO_TOKEN'],
+     'longcat-2.5-free', 'propose', 3, 'longcat', OPENCODE_SESSION),
+    ('beam', 'https://opencode.ai/zen/go/v1', ['OPENCODEGO_TOKEN'],
+     'beam-free', 'verify', 3, 'beam', OPENCODE_SESSION),
+    ('iceman', 'https://opencode.ai/zen/go/v1', ['OPENCODEGO_TOKEN'],
+     'iceman-contributor-free', 'verify', 3, 'iceman', OPENCODE_SESSION),
     # Hetzner's free inference (experiments.hetzner.com), HETZNER_TOKEN.
     ('hetzner-qwen-p', 'https://inference.hetzner.com/v1', ['HETZNER_TOKEN'],
      'Qwen/Qwen3.8-27B', 'propose', 2, 'qwen'),
@@ -190,8 +201,10 @@ def load_env(path):
 
 
 class Lane:
-    def __init__(self, name, base, key, model, role, interval, family):
+    def __init__(self, name, base, key, model, role, interval, family,
+                 headers=None):
         self.name, self.base, self.key, self.model = name, base, key, model
+        self.headers = headers or {}
         self.role, self.interval, self.family = role, interval, family
         self.lock = threading.Lock()
         self.next_at = 0.0
@@ -219,7 +232,9 @@ class Lane:
             self.base + '/chat/completions', data=json.dumps(body).encode(),
             headers={'Authorization': 'Bearer ' + self.key,
                      'Content-Type': 'application/json',
-                     'User-Agent': 'wordUniverse-pack-review'})
+                     'User-Agent': 'wordUniverse-pack-review',
+                     **{k: (v() if callable(v) else v)
+                        for k, v in self.headers.items()}})
         self.calls += 1
         with urllib.request.urlopen(request, timeout=timeout) as response:
             data = json.load(response)
@@ -229,13 +244,14 @@ class Lane:
 class Pool:
     def __init__(self, env, only=None):
         self.lanes = []
-        for name, base, keys, model, role, interval, family in LANES:
+        for name, base, keys, model, role, interval, family, *rest in LANES:
             if only and name not in only:
                 continue
             for i, var in enumerate(keys):
                 if env.get(var):
                     self.lanes.append(Lane(f'{name}#{i}', base, env[var], model,
-                                           role, interval, family))
+                                           role, interval, family,
+                                           rest[0] if rest else None))
         if not self.lanes:
             sys.exit('no provider keys found')
 
@@ -276,13 +292,24 @@ def parse_array(text):
     return json.loads(text[start:end + 1])
 
 
+def entry_key(row):
+    """original_id, or the row id where there is none.
+
+    3,035 rows of the German pack (the later child-vocabulary additions:
+    anbellen, Bushaltestelle, Dackel) have no original_id. Keyed by it, they
+    all shared one key, so their verdicts overwrote each other and none could
+    be applied. Row ids are stable through slim, repair and the CI build.
+    """
+    return row['original_id'] or f"row:{row['id']}"
+
+
 def entry_of(row, lang):
     enrichment = json.loads(row['enrichment_json'] or '{}')
     metadata = json.loads(row['metadata_json'] or '{}')
     definitions = [d[:220] for d in (enrichment.get('definitions') or [])[:3]
                    if isinstance(d, str)]
     entry = {
-        'id': row['original_id'],
+        'id': entry_key(row),
         'word': row['word'],
         'word_type': row['word_type'],
         'grade': row['grade_level'],
@@ -420,7 +447,7 @@ def propose(args):
     language = 'German' if args.lang == 'de' else 'English'
     db = sqlite3.connect(args.pack)
     db.row_factory = sqlite3.Row
-    rows = db.execute('SELECT original_id, word, word_type, article, grade_level, '
+    rows = db.execute('SELECT id, original_id, word, word_type, article, grade_level, '
                       'enrichment_json, metadata_json FROM words '
                       'ORDER BY grade_level IS NULL, grade_level, id').fetchall()
     todo = []
@@ -619,6 +646,106 @@ def phrasal(args):
     print(stats, flush=True)
 
 
+# ─── Audit: re-check every accepted change in isolation ───────────────────
+#
+# The first German run attached glosses to the wrong entry: "schlurfen" got
+# "Ein Metallteil mit Gewinde" (a screw), "lern" "Ein frecher Junge", and
+# "Tröpfchen" the plural "Vanillen". Entries with no gloss of their own are
+# where it happened — the verifier had nothing to compare against. So each
+# accepted change is shown again on its own line, word beside value, where a
+# misplaced one is obvious, to two judges of different families. A change
+# either of them flags is dropped (pipeline/llm_review/<lang>.audit.jsonl).
+
+AUDIT_PROMPT = """You are checking a {language} children's dictionary. Each \
+line is: number | word | field | proposed value.
+
+Fields:
+- definition: must describe THIS word's common meaning (for an inflected \
+form, the meaning of that form).
+- plural: the nominative plural of this noun. It may be identical to the \
+singular (der Lehrer -> die Lehrer, der Pinsel -> die Pinsel); "None" means \
+the noun has no plural.
+- article: der/die/das of this noun.
+- word_type: its part of speech.
+- plural_only: true = the noun exists only in the plural (Ferien, Leute); \
+false = it has a normal singular.
+- vocabulary=false: the word is a name, abbreviation, misspelling, fragment, \
+foreign or unsuitable word.
+
+List the numbers of the lines that are clearly WRONG: the value belongs to \
+a different word, or is factually incorrect. Do not list a line just because \
+another answer would also be acceptable. Answer with ONLY a JSON array of \
+numbers, e.g. [3, 17], or [] if all are right.
+
+{lines}"""
+
+
+def audit(args):
+    env = load_env(args.env_file)
+    pool = Pool(env, only=set(args.lanes.split(',')) if args.lanes else None)
+    language = 'German' if args.lang == 'de' else 'English'
+    out = OUT_DIR / f'{args.lang}.audit.jsonl'
+    done = set()
+    if out.exists():
+        for line in open(out, encoding='utf-8'):
+            if line.strip():
+                done.add(json.loads(line)['key'])
+    checks = []
+    for line in open(OUT_DIR / f'{args.lang}.jsonl', encoding='utf-8'):
+        r = json.loads(line)
+        for field, value in (r.get('change') or {}).items():
+            if field == 'not_vocabulary':
+                continue
+            key = f"{r['id']}|{r['src']}|{field}"
+            if key in done:
+                continue
+            shown = 'false' if field == 'vocabulary' else value
+            checks.append({'key': key, 'word': r['word'], 'field': field,
+                           'value': shown})
+    batches = [checks[i:i + 40] for i in range(0, len(checks), 40)]
+    print(f'{len(checks)} changes to audit in {len(batches)} batches', flush=True)
+    judges = args.judges.split(',')
+    lock = threading.Lock()
+    stats = {'kept': 0, 'dropped': 0, 'failed': 0}
+
+    def one(batch):
+        lines = '\n'.join(f"{i + 1} | {c['word']} | {c['field']} | {c['value']}"
+                          for i, c in enumerate(batch))
+        prompt = AUDIT_PROMPT.format(language=language, lines=lines)
+        flagged, by, per_judge = set(), [], {}
+        for judge in judges:
+            lane_pool = Pool.__new__(Pool)
+            lane_pool.lanes = [l for l in pool.lanes if l.name.split('#')[0] == judge]
+            if not lane_pool.lanes:
+                raise RuntimeError(f'no lane {judge}')
+            for l in lane_pool.lanes:
+                l.role = 'audit'
+            lane, numbers = lane_pool.run('audit', prompt, attempts=40)
+            by.append(lane.model)
+            mine = {n for n in numbers if isinstance(n, int)}
+            per_judge[lane.model] = mine
+            flagged |= mine
+        with lock, open(out, 'a', encoding='utf-8') as f:
+            for i, c in enumerate(batch):
+                bad = (i + 1) in flagged
+                f.write(json.dumps({'key': c['key'], 'word': c['word'],
+                                    'field': c['field'], 'value': c['value'],
+                                    'ok': not bad, 'by': by,
+                                    'flagged_by': [m for m, n in per_judge.items()
+                                                   if (i + 1) in n]},
+                                   ensure_ascii=False) + '\n')
+                stats['dropped' if bad else 'kept'] += 1
+
+    with ThreadPoolExecutor(max_workers=args.workers) as ex:
+        for f in as_completed([ex.submit(one, b) for b in batches]):
+            try:
+                f.result()
+            except Exception as e:
+                stats['failed'] += 1
+                print(f'batch failed: {e}', flush=True)
+    print(stats, flush=True)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -636,11 +763,18 @@ def main():
     ph.add_argument('--workers', type=int, default=4)
     ph.add_argument('--lanes')
     ph.add_argument('--env-file', default=str(pathlib.Path.home() / 'code' / '.env'))
+    au = sub.add_parser('audit')
+    au.add_argument('--lang', choices=['de', 'en'], required=True)
+    au.add_argument('--judges', default='mistral-large,gpt-oss-120b')
+    au.add_argument('--workers', type=int, default=3)
+    au.add_argument('--lanes')
+    au.add_argument('--env-file', default=str(pathlib.Path.home() / 'code' / '.env'))
     r = sub.add_parser('report')
     r.add_argument('--lang', choices=['de', 'en'], required=True)
     r.add_argument('--samples', type=int, default=8)
     args = parser.parse_args()
-    {'propose': propose, 'report': report, 'phrasal': phrasal}[args.cmd](args)
+    {'propose': propose, 'report': report, 'phrasal': phrasal,
+     'audit': audit}[args.cmd](args)
 
 
 if __name__ == '__main__':
