@@ -139,6 +139,9 @@ is `6b48d7a3e0ed13bb966d7a390e049bbe9e177909`.
 | Vocabulary evidence metadata regressions | **13 passed** |
 | Native download retry policy regressions | **5 passed** |
 | Deployment configuration regressions | **5 passed** |
+| Browser storage/install-path suite | **60 passed** in GitHub Actions |
+| Playwright harness tests | **19 passed**, zero skips |
+| Live browser scenarios A–F | **Passed** against the PR web build |
 
 The full Flutter run includes the course engine, half-point and pending-review
 policies, passage freshness, assisted evidence, content fingerprints, rubric
@@ -174,11 +177,21 @@ The German artifact SHA-256 is
 the runtime correction layer leaves its bytes unchanged. The source CSV's
 original BOM/CRLF are preserved, and whitespace verification permits CRLF.
 
+### Recovered CI evidence
+
+On **2026-11-09**, the recovery review verified that both previously pending
+workflows completed successfully against saved head
+`bce58969b0c853d7102f26d43ed9ed3cfd11c070`:
+[CI / CD](https://github.com/CrispStrobe/WordUniverse/actions/runs/42520060650)
+and [Web e2e](https://github.com/CrispStrobe/WordUniverse/actions/runs/42520060641).
+Their job logs confirm the browser results above; no pending or failed check
+remained at that checkpoint. The browser scenarios cover language setup, real
+pack installation, pause/resume, persistence after reload, and a playable
+definition quiz. They do not cover the Kompass player; the course has separate
+VM/widget tests. Deployment was skipped for the pull-request runs.
+
 ### Remaining external validation
 
-- **Browser execution:** local Chromium could not start because this executor
-  disallows its named Unix sockets. Browser storage tests and Playwright e2e
-  remain separate GitHub Actions gates; queued runs are not counted as passes.
 - **Classroom validation:** primary-school teacher review of digital mappings,
   new activities and authored lexical corrections, plus a learner timing pilot,
   remain human evaluation tasks. Content stays explicitly draft until reviewed.
