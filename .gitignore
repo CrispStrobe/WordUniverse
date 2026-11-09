@@ -52,6 +52,8 @@ app.*.map.json
 
 # Pipeline intermediate artifacts (large/generated, not source-controlled)
 pipeline/**/*.jsonl
+# The reviewed corrections are a build input (tools/pack/apply_llm_overlay.py).
+!pipeline/llm_review/*.jsonl
 pipeline/**/*.db
 pipeline/**/vornamen/
 pipeline/**/sources/vornamen/

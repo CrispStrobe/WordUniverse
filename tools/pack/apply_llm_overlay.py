@@ -45,6 +45,20 @@ from llm_correct import OUT_DIR, digest, entry_of  # noqa: E402
 GENUS = {'der': 'mask.', 'die': 'fem.', 'das': 'neut.'}
 
 
+TAUGHT = ('fry', 'dolch', 'cambridge_yle', 'de_curriculum', 'uk_y')
+GERMAN_LISTS = {'BAYERN', 'BERLIN', 'BRANDENBURG', 'BW1', 'BW3', 'HESSEN',
+                'NIEDERSACHSEN', 'NRW111', 'NRW422', 'RHEINLAND_PFALZ',
+                'SCHLESWIG_HOLSTEIN'}
+
+
+def taught(metadata):
+    tags = [str(t).lower() for t in metadata.get('tags') or []]
+    sources = {str(s).upper() for s in metadata.get('sources') or []}
+    return (bool(metadata.get('cefr_level'))
+            or any(k in t for t in tags for k in TAUGHT)
+            or bool(sources & GERMAN_LISTS))
+
+
 def load(lang):
     path = OUT_DIR / f'{lang}.jsonl'
     latest = {}
@@ -91,6 +105,11 @@ def main():
             enrichment['definitions'] = [change['definition']] + old
             metadata['gloss_source'] = 'llm-reviewed'
             metadata.pop('gloss_above_reader', None)
+        # Months, weekdays, Christmas: English capitalises them and the models
+        # called them proper nouns, which takes a word out of every game. A
+        # word a curriculum list or a CEFR level teaches is vocabulary.
+        if change.get('word_type') == 'proper_noun' and taught(metadata):
+            change = {k: v for k, v in change.items() if k != 'word_type'}
         if 'word_type' in change:
             word_type = change['word_type']
         if 'article' in change:
