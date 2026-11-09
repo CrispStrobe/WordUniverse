@@ -23,6 +23,7 @@ save();
 async function snapshot(name) {
   fs.writeFileSync(path.join(evidence, `${name}.aria.txt`), await page.locator('body').ariaSnapshot());
   await page.screenshot({ path: path.join(evidence, `${name}.png`) });
+  fs.writeFileSync(path.join(evidence, `${name}.progress.json`), JSON.stringify(await progress(), null, 2) + '\n');
 }
 
 // Flutter may merge adjacent Text widgets into one accessibility label. Wait
@@ -54,6 +55,23 @@ async function progress() {
   }, progressKey);
 }
 
+async function focusAnswer(field) {
+  await field.click();
+  const element = await field.elementHandle();
+  // Flutter 3.44's semantic input exists before its editing bridge is active.
+  // The framework applies its inline font when that bridge is connected. DOM
+  // focus alone is too early for fill(), and an unfocused restored input may
+  // not yet contain the framework's saved value.
+  await page.waitForFunction(element =>
+    document.activeElement === element && element.style.font !== '', element);
+}
+
+async function enterAnswer(field, partId, value) {
+  await focusAnswer(field);
+  await field.pressSequentially(value, { delay: 30 });
+  await waitForProgress({ partId, value });
+}
+
 // Wait for actual persisted data, rather than a fixed debounce delay. Reading
 // localStorage here cannot manufacture a successful draft or score.
 async function waitForProgress(expected) {
@@ -62,6 +80,9 @@ async function waitForProgress(expected) {
     if (raw === null) return false;
     const value = JSON.parse(raw);
     const state = typeof value === 'string' ? JSON.parse(value) : value;
+    if (typeof expected === 'object') {
+      return state.activeSession?.answers?.d1_01?.[expected.partId] === expected.value;
+    }
     if (expected === 'draft') {
       const draft = state.activeSession;
       return draft?.answers?.d1_01?.a === 'Montag'
@@ -110,8 +131,8 @@ try {
   await button(page, 'Mit Hilfe üben').first().click();
   await waitForAccessibleText('Aufgabe 1 von 24');
   const answers = page.getByRole('textbox', { name: 'Deine Antwort', exact: true });
-  await answers.nth(0).fill('Montag');
-  await answers.nth(1).fill('Abstellraum');
+  await enterAnswer(answers.nth(0), 'a', 'Montag');
+  await enterAnswer(answers.nth(1), 'b', 'Abstellraum');
   await button(page, 'Tipp 1').click();
   await waitForProgress('draft');
   const draft = await progress();
@@ -125,7 +146,9 @@ try {
   await button(page, 'Kompass 4 · BW Deutsch').click({ timeout: 60000 });
   await button(page, 'Fortsetzen').click();
   await waitForAccessibleText('Aufgabe 1 von 24');
+  await focusAnswer(answers.nth(0));
   assert.equal(await answers.nth(0).inputValue(), 'Montag');
+  await focusAnswer(answers.nth(1));
   assert.equal(await answers.nth(1).inputValue(), 'Abstellraum');
   assert.equal((await progress()).activeSession.sessionId, sessionId);
   await button(page, 'Lesetext').click();
