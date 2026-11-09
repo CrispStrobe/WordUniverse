@@ -405,6 +405,162 @@ void main() {
     expect(restored.parts.last.prompt, 'b');
   });
 
+  test(
+    'abandoned drafts retain exposure without inventing skill observations',
+    () async {
+      final prefs = await SharedPreferences.getInstance();
+      var progress = KompassProgressService(prefs);
+      await progress.saveSession({
+        'courseId': real.id,
+        'courseVersion': real.version,
+        'sessionId': 'practice-one',
+        'mode': 'practice',
+        'taskIds': ['d1_01', 'd2_01'],
+        'index': 0,
+        'answers': {
+          'd1_01': {'a': 'Mon'},
+        },
+        'assistance': {
+          'd1_01': ['hint'],
+        },
+      }, course: real);
+      expect(progress.attempts, isEmpty);
+      expect(progress.statsFor('D-L01').state, 'unobserved');
+      expect(
+        KompassPlanner.isFresh(real, progress, real.taskById('d1_01')!),
+        isFalse,
+      );
+      expect(
+        KompassPlanner.isFresh(real, progress, real.taskById('d1_02')!),
+        isFalse,
+      );
+      expect(
+        KompassPlanner.isFresh(real, progress, real.taskById('d2_01')!),
+        isTrue,
+        reason: 'A queued page has not been read yet.',
+      );
+
+      await progress.saveSession(null, course: real);
+      progress = KompassProgressService(prefs);
+      expect(progress.activeSession, isNull);
+      expect(progress.attempts, isEmpty);
+      expect(
+        KompassPlanner.isFresh(real, progress, real.taskById('d1_01')!),
+        isFalse,
+      );
+      expect(
+        KompassPlanner.isFresh(real, progress, real.taskById('d1_02')!),
+        isFalse,
+      );
+      final repeated = await progress.recordAttempt(
+        course: real,
+        task: real.taskById('d1_01')!,
+        answers: {'a': 'Montag', 'b': 'Abstellraum'},
+        mode: 'independent',
+        sessionId: 'check-two',
+      );
+      expect(repeated.firstAttempt, isTrue);
+      expect(repeated.independent, isFalse);
+      expect(repeated.assistance, containsAll(['knownTask', 'knownPassage']));
+      await progress.clear();
+      final cleared = KompassProgressService(prefs);
+      expect(
+        KompassPlanner.isFresh(real, cleared, real.taskById('d1_01')!),
+        isTrue,
+      );
+    },
+  );
+
+  test(
+    'viewing and resuming within one new check preserves independent evidence',
+    () async {
+      final prefs = await SharedPreferences.getInstance();
+      var progress = KompassProgressService(prefs);
+      await progress.saveSession({
+        'courseId': real.id,
+        'courseVersion': real.version,
+        'sessionId': 'new-check',
+        'mode': 'independent',
+        'taskIds': ['d1_01', 'd1_02'],
+        'index': 1,
+        'elapsed': {'d1_01': 10, 'd1_02': 0},
+      }, course: real);
+      progress = KompassProgressService(prefs);
+      for (final id in ['d1_01', 'd1_02']) {
+        final attempt = await progress.recordAttempt(
+          course: real,
+          task: real.taskById(id)!,
+          answers: {},
+          mode: 'independent',
+          sessionId: 'new-check',
+        );
+        expect(attempt.independent, isTrue);
+      }
+      final later = await progress.recordAttempt(
+        course: real,
+        task: real.taskById('d1_03')!,
+        answers: {},
+        mode: 'independent',
+        sessionId: 'later-check',
+      );
+      expect(later.independent, isFalse);
+      expect(later.assistance, contains('knownPassage'));
+    },
+  );
+
+  test(
+    'legacy drafts preserve viewed pages when a new session replaces them',
+    () async {
+      final prefs = await SharedPreferences.getInstance();
+      final course = fixture();
+      await prefs.setString(
+        KompassProgressService.storageKey,
+        jsonEncode({
+          'schemaVersion': 1,
+          'attempts': [],
+          'activeSession': {
+            'courseId': course.id,
+            'courseVersion': course.version,
+            'mode': 'practice',
+            'taskIds': ['t0', 't1', 't2'],
+            'index': 1,
+            'elapsed': {'t0': 7},
+          },
+        }),
+      );
+      final progress = KompassProgressService(prefs);
+      expect(
+        KompassPlanner.isFresh(course, progress, course.taskById('t0')!),
+        isFalse,
+      );
+      expect(
+        KompassPlanner.isFresh(course, progress, course.taskById('t1')!),
+        isFalse,
+      );
+      expect(
+        KompassPlanner.isFresh(course, progress, course.taskById('t2')!),
+        isTrue,
+      );
+      await progress.saveSession({
+        'courseId': course.id,
+        'courseVersion': course.version,
+        'sessionId': 'replacement',
+        'mode': 'independent',
+        'taskIds': ['t2'],
+      }, course: course);
+      final restored = KompassProgressService(prefs);
+      expect(
+        KompassPlanner.isFresh(course, restored, course.taskById('t0')!),
+        isFalse,
+      );
+      expect(
+        KompassPlanner.isFresh(course, restored, course.taskById('t1')!),
+        isFalse,
+      );
+      expect(restored.attempts, isEmpty);
+    },
+  );
+
   test('malformed draft is preserved without crashing resume', () async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(

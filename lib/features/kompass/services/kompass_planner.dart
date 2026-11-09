@@ -17,7 +17,7 @@ class KompassPlan {
 class KompassPlanner {
   static bool isFresh(
       KompassCourse course, KompassProgressService progress, KompassTask task) {
-    if (task.kind == 'instruction' || progress.latestAttempt(task.id) != null)
+    if (task.kind == 'instruction' || progress.hasSeenTask(course, task))
       return false;
     if (task.competencyIds.any(progress.notTaught.contains) ||
         task.prerequisiteCompetencyIds.any(progress.notTaught.contains))
@@ -26,8 +26,7 @@ class KompassPlanner {
         (course.competencyById(id)?.prerequisites ?? [])
             .any(progress.notTaught.contains))) return false;
     return task.stimulusId == null ||
-        !progress.attempts.any(
-            (a) => a.courseId == course.id && a.stimulusId == task.stimulusId);
+        !progress.hasSeenStimulus(course, task.stimulusId!);
   }
 
   static KompassPlan build(

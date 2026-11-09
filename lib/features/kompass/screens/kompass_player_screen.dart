@@ -185,7 +185,7 @@ class _KompassPlayerScreenState extends State<KompassPlayerScreen>
       'hintCounts': _hintCounts,
       'skipped': _skipped.toList(),
       'seenStimuli': _seenStimuli.toList(),
-    });
+    }, course: _course);
   }
 
   void _change(String partId, dynamic value) {
@@ -792,7 +792,7 @@ class _KompassPlayerScreenState extends State<KompassPlayerScreen>
         await _persist();
       }
       _saveDebounce?.cancel();
-      await _progress.saveSession(null);
+      await _progress.saveSession(null, course: _course);
       if (mounted)
         setState(() {
           _completed = true;

@@ -11,6 +11,7 @@ import 'package:WortUniversum/core/services/learner_profile_service.dart';
 import 'package:WortUniversum/features/kompass/widgets/kompass_blocks.dart';
 import 'package:WortUniversum/features/kompass/services/kompass_course_service.dart';
 import 'package:WortUniversum/features/kompass/services/kompass_progress_service.dart';
+import 'package:WortUniversum/features/kompass/services/kompass_planner.dart';
 import 'package:WortUniversum/features/kompass/screens/kompass_dashboard_screen.dart';
 import 'package:WortUniversum/features/kompass/screens/kompass_player_screen.dart';
 import 'package:WortUniversum/features/kompass/widgets/kompass_part_input.dart';
@@ -267,6 +268,48 @@ void main() {
     expect(progress.attempts.single.earnedPoints, 1);
     await tester.pumpWidget(const SizedBox());
     await tester.pumpAndSettle();
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+  });
+
+  testWidgets('leaving a viewed draft keeps later checks fresh', (
+    tester,
+  ) async {
+    final (courses, progress) = await _services(_fixture(count: 2));
+    await _show(
+      tester,
+      _app(
+        const KompassPlayerScreen(taskIds: ['task0', 'task1']),
+        courses,
+        progress,
+      ),
+    );
+    await tester.enterText(find.byType(TextFormField).first, 'ka');
+    await tester.pump(const Duration(milliseconds: 350));
+    await tester.pumpWidget(const SizedBox());
+    await tester.pumpAndSettle();
+    final course = courses.course!;
+    expect(progress.attempts, isEmpty);
+    expect(
+      KompassPlanner.isFresh(course, progress, course.taskById('task0')!),
+      isFalse,
+    );
+    expect(
+      KompassPlanner.isFresh(course, progress, course.taskById('task1')!),
+      isTrue,
+    );
+    await progress.saveSession(null, course: course);
+    final restored = KompassProgressService(
+      await SharedPreferences.getInstance(),
+    );
+    expect(
+      KompassPlanner.isFresh(course, restored, course.taskById('task0')!),
+      isFalse,
+    );
+    expect(KompassPlanner.startCheck(course, restored).tasks.map((t) => t.id), [
+      'task1',
+    ]);
+    expect(restored.statsFor('D-R01').state, 'unobserved');
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
   });
