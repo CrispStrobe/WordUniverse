@@ -144,6 +144,31 @@ void main() {
   // ─── extractPraesensFromWiktionary ───────────────────────────────────────
 
   group('extractPraesensFromWiktionary', () {
+    List<Map<String, dynamic>> present(List<String> forms) =>
+        [for (final f in forms) {'form_text': f, 'tags': 'present'}];
+
+    test('variant forms do not shift the persons', () {
+      // Read by position these keyed "er backst" and "er machst ab".
+      expect(
+          extractPraesensFromWiktionary(
+              present(['backe', 'bäckst', 'backst', 'bäckt', 'backt'])),
+          {'ich': 'backe', 'du': 'bäckst', 'er/sie/es': 'bäckt'});
+      expect(
+          extractPraesensFromWiktionary(
+              present(['mache ab', 'mach ab', 'machst ab', 'macht ab'])),
+          {'ich': 'mache ab', 'du': 'machst ab', 'er/sie/es': 'macht ab'});
+    });
+
+    test('irregular and s-stem verbs still find every person', () {
+      expect(extractPraesensFromWiktionary(present(['bin', 'bist', 'ist'])),
+          {'ich': 'bin', 'du': 'bist', 'er/sie/es': 'ist'});
+      expect(extractPraesensFromWiktionary(present(['lese', 'liest', 'liest'])),
+          {'ich': 'lese', 'du': 'liest', 'er/sie/es': 'liest'});
+      expect(
+          extractPraesensFromWiktionary(present(['kann', 'kannst', 'kann'])),
+          {'ich': 'kann', 'du': 'kannst', 'er/sie/es': 'kann'});
+    });
+
     test('returns null for empty list', () {
       expect(extractPraesensFromWiktionary([]), isNull);
     });

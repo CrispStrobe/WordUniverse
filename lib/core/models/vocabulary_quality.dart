@@ -14,6 +14,9 @@ import 'word_features.dart';
 /// See db_feature_index.dart.
 bool isPresentableVocabularyEntry(GermanWord entry) {
   if (!_cleanHeadword.hasMatch(entry.word.trim())) return false;
+  // "a-a", "and-and", "i-i-i": a subtitle corpus's stutters, typed as nouns
+  // with no gloss, and offered at grade 1 by six word games.
+  if (_reduplicated.hasMatch(entry.word.trim())) return false;
   if (!wordSuitsAChild(entry.word)) return false;
   if (entry.sources.any(_isMisspellingSource)) return false;
   if (!entry.isHydrated) return true;
@@ -26,6 +29,9 @@ bool isPresentableVocabularyEntry(GermanWord entry) {
   ].join(' ').toLowerCase();
   return !_invalidSpellingMarkers.any(description.contains);
 }
+
+final RegExp _reduplicated =
+    RegExp(r'^([A-Za-zÀ-ÖØ-öø-ÿ]+)(?:-\1)+$', caseSensitive: false);
 
 final RegExp _cleanHeadword = RegExp(
   r"^[A-Za-zÀ-ÖØ-öø-ÿẞ]+(?:[-'’][A-Za-zÀ-ÖØ-öø-ÿẞ]+)*$",
@@ -548,7 +554,30 @@ bool sentenceSuitsAChild(String sentence) =>
     !_adultSetting.hasMatch(sentence) &&
     !_archaicWords.hasMatch(sentence) &&
     !_archaicSpelling.hasMatch(sentence) &&
-    !_clinicalAnatomy.hasMatch(sentence);
+    !_clinicalAnatomy.hasMatch(sentence) &&
+    !_nationalSocialistSlogans.hasMatch(sentence) &&
+    !_drinkingAndBeating.hasMatch(sentence);
+
+/// Slogans of the Nazi state. Wiktionary records them as expressions of
+/// ordinary words, so Phrasen-Blitz asked a fourth-grader to complete
+/// "___ macht frei" (Arbeit — the Auschwitz gate) and "___ das Seine"
+/// (jedem — the Buchenwald gate), and "Drang nach ___" (Osten). Each word is
+/// harmless; the sentence is not something to practise as an idiom.
+final RegExp _nationalSocialistSlogans = RegExp(
+    r'(arbeit\s+macht\s+frei|jedem\s+das\s+seine|drang\s+nach\s+osten'
+    r'|blut\s+und\s+boden|lebensraum\s+im\s+osten|ein\s+volk,?\s+ein\s+reich'
+    r'|sieg\s+heil|heil\s+hitler|endlösung|meine\s+ehre\s+heißt\s+treue'
+    r'|deutschland\s+erwache|juda\s+verrecke|kraft\s+durch\s+freude'
+    r'|führer\s+befiehl)',
+    caseSensitive: false);
+
+/// Getting drunk and beating someone up, as German idioms teach them:
+/// "auf ex trinken", "einen sitzen haben", "jemanden windelweich prügeln".
+final RegExp _drinkingAndBeating = RegExp(
+    r'(\bauf\s+ex\b|einen\s+sitzen|windelweich|grün\s+und\s+blau\s+schlagen'
+    r'|\bbesoffen|\bbetrunken|\bsaufen\b|\bsäuft\b|totgestochen|stach\s+\w+\s+\w*\s*tot'
+    r'|\bblau\s+sein\b|einen\s+über\s+den\s+durst)',
+    caseSensitive: false);
 
 /// Reproductive anatomy, in the register a textbook uses.
 ///
@@ -769,7 +798,11 @@ final RegExp _unsuitableWords = RegExp(
     // word a seven-year-old is taught.
     r'fuck\w*|cunt|cock|asshole|arsehole|arse|bollocks|bugger|'
     r'faggot|nigger|slut|whore|twat|wank\w*|shit\w*|turd|crap|crappy|'
-    r'bitch|bastard)$',
+    r'bitch|bastard|'
+    // Read off a dump of every game in both packs: slurs and adult terms
+    // offered as distractors or definition prompts at grades 3-5.
+    r'retard\w*|circumcis\w*|promiscu\w*|pogrom\w*|genitalia|butch|'
+    r'Beschneidung)$',
     caseSensitive: false);
 
 /// Whether [entry] is a closed-class word — an article, pronoun, preposition,
@@ -796,6 +829,24 @@ bool isFunctionWord(GermanWord entry, {required bool isGerman}) {
   return isGerman
       ? _germanFunctionWords.contains(word)
       : _englishFunctionWords.contains(word);
+}
+
+/// [isFunctionWord] without knowing the pack's language, for code that sees
+/// only the entry: its word type, or a spelling on either list — except
+/// "die" and "den", which are ordinary English words and are typed as
+/// articles in the German pack anyway.
+bool isClosedClassEntry(GermanWord entry) {
+  if (const {
+    GermanWordType.artikel,
+    GermanWordType.pronomen,
+    GermanWordType.praeposition,
+    GermanWordType.konjunktion,
+    GermanWordType.partikel,
+  }.contains(entry.wordType)) return true;
+  final word = entry.word.toLowerCase();
+  if (word == 'die' || word == 'den') return false;
+  return _englishFunctionWords.contains(word) ||
+      _germanFunctionWords.contains(word);
 }
 
 // Closed classes are small and stable, so they are listed rather than

@@ -723,7 +723,19 @@ class GermanWord {
   /// because its aircraft sense runs to 234 characters and the troweling
   /// machine is next in the list. It did that to 506 entries — car, data,
   /// fly, go — before anybody read one.
+  bool get _glossWasWrittenForIt => const {
+        'project-authored',
+        'llm-reviewed',
+      }.contains(apiEnrichment?.enrichmentStatus);
+
   List<String> get learnerDefinitions {
+    // A closed-class word's gloss is a noun sense that shares its spelling:
+    // "and" as half a beat, "an" as a Georgian letter. A sentence-completion
+    // hint and a word-game gloss showed exactly those. A gloss somebody
+    // wrote for the word itself — the BW overlay's "Ein Fürwort für eine
+    // weibliche Person", or one a reviewed correction pass put first — is
+    // about the right word and stays.
+    if (isClosedClassEntry(this) && !_glossWasWrittenForIt) return const [];
     final all = displayDefinitions;
     if (all.isNotEmpty &&
         !glossIsAboveItsReader &&

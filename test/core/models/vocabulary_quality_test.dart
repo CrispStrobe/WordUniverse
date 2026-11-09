@@ -608,4 +608,30 @@ void main() {
       isFalse,
     );
   });
+
+  test('Nazi slogans and drinking idioms are not practised as phrases', () {
+    expect(sentenceSuitsAChild('Arbeit macht frei'), isFalse);
+    expect(sentenceSuitsAChild('Jedem das Seine'), isFalse);
+    expect(sentenceSuitsAChild('der Drang nach Osten'), isFalse);
+    expect(sentenceSuitsAChild('ein Glas auf ex trinken'), isFalse);
+    expect(sentenceSuitsAChild('Die Arbeit macht mir Spaß.'), isTrue);
+    expect(sentenceSuitsAChild('Wir fahren nach Osten.'), isTrue);
+  });
+
+  test('stuttered headwords are not vocabulary', () {
+    expect(isPresentableVocabularyEntry(_word('a-a')), isFalse);
+    expect(isPresentableVocabularyEntry(_word('and-and')), isFalse);
+    expect(isPresentableVocabularyEntry(_word('i-i-i')), isFalse);
+    expect(isPresentableVocabularyEntry(_word('well-known')), isTrue);
+  });
+
+  test('a function word shows no borrowed noun sense', () {
+    expect(
+        _word('an', definitions: [
+          'The first letter of the Georgian alphabet.'
+        ]).learnerDefinitions,
+        isEmpty);
+    expect(_word('apple', definitions: ['A round fruit.']).learnerDefinitions,
+        ['A round fruit.']);
+  });
 }

@@ -37,27 +37,40 @@ Map<String, String>? extractPraesens(Map<String, dynamic>? inflectionData) {
 
 /// Extract Präsens from the flat Wiktionary tagged-forms list.
 ///
-/// German Wiktionary always lists present forms in table order (ich/du/er/sie/es),
-/// tagged exactly `"present"` (no additional tags).  The first three such entries
-/// map positionally to ich → du → er/sie/es.
+/// The forms tagged exactly `"present"` come in table order, ich → du →
+/// er/sie/es, but a verb with variants lists every variant in turn:
+/// backen gives [backe, bäckst, backst, bäckt, backt] and abmachen
+/// [mache ab, mach ab, machst ab, macht ab]. Read by position, the drill
+/// keyed "er backst" and "er machst ab". So each person is found by its
+/// ending: du is the first form in -st, er/sie/es the first after it in -t
+/// (not -st, unless nothing else is there: er liest, er ist), ich the first
+/// form before du, preferring one in -e.
 Map<String, String>? extractPraesensFromWiktionary(
     List<Map<String, dynamic>> inflections) {
-  final exactPresent = inflections
+  final forms = inflections
       .where((f) => f['tags'] == 'present')
       .map((f) => (f['form_text'] as String?)?.trim() ?? '')
       .where((s) => s.isNotEmpty)
       .toList();
-  // Positional mapping only holds for a full ich/du/er row. An impersonal
-  // verb lists one form — "geschieht" — and reading it positionally asked
-  // "geschehen: ich ___" and keyed the third-person form.
-  if (exactPresent.length < _wiktionaryPresentPronouns.length) return null;
-  final result = <String, String>{};
-  for (var i = 0;
-      i < exactPresent.length && i < _wiktionaryPresentPronouns.length;
-      i++) {
-    result[_wiktionaryPresentPronouns[i]] = exactPresent[i];
-  }
-  return result.isEmpty ? null : result;
+  // An impersonal verb lists one form — "geschieht" — and reading it as a
+  // table asked "geschehen: ich ___" and keyed the third-person form.
+  if (forms.length < _wiktionaryPresentPronouns.length) return null;
+  String verbOf(String form) => form.split(' ').first;
+
+  final du = forms.indexWhere((f) => verbOf(f).endsWith('st'));
+  if (du <= 0) return null;
+  final before = forms.sublist(0, du);
+  final ich = before.firstWhere((f) => verbOf(f).endsWith('e'),
+      orElse: () => before.first);
+  final after = forms.sublist(du + 1);
+  final er = after.where((f) {
+        final v = verbOf(f);
+        return v.endsWith('t') && !v.endsWith('st');
+      }).firstOrNull ??
+      after.where((f) => verbOf(f).endsWith('t')).firstOrNull ??
+      after.firstOrNull;
+  if (er == null) return null;
+  return {'ich': ich, 'du': forms[du], 'er/sie/es': er};
 }
 
 /// Returns the best available Präsens table for [w]:

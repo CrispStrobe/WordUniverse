@@ -209,7 +209,15 @@ String? pickHypernym(
     return _fromSenses(word, isDE: isDE, catalogue: catalogue);
   }
 
-  final all = word.apiEnrichment?.hypernyms ?? [];
+  var all = word.apiEnrichment?.hypernyms ?? [];
+  // German Wiktionary hypernyms do say which sense they belong to, as a
+  // sense number. Pooled, they asked "Fliege ist eine Art …?" keyed Bart
+  // (sense 3, the beard) and "Heft" keyed Nummer (sense 2, an issue). When
+  // the numbers are there, only the leading sense is asked about.
+  if (all.any((h) => (h.senseIndex ?? '').trim().isNotEmpty)) {
+    all = all.where((h) => _isLeadingSense(h.senseIndex)).toList();
+    if (all.isEmpty) return null;
+  }
   if (all.length > _sensesAWordCanCarry) return null;
   // Curated relations first; the unsourced remainder only when the curated
   // ones yield nothing usable.
@@ -487,3 +495,9 @@ List<HypernymChallenge> buildHypernymChallenges({
   }
   return challenges;
 }
+
+/// Whether a Wiktionary sense reference ("1", "1a", "1, 3", "1-2") includes
+/// the first sense.
+bool _isLeadingSense(String? senseIndex) => RegExp(r'\d+')
+    .allMatches(senseIndex ?? '')
+    .any((m) => m.group(0) == '1');
