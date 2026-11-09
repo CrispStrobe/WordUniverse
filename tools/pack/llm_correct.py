@@ -58,6 +58,11 @@ LANES = [
      'mistral-large-latest', 'propose', 2.2, 'mistral'),
     ('gemini-3.1-flash-lite', 'https://generativelanguage.googleapis.com/v1beta/openai',
      ['GOOGLEAI_API_KEY', 'GOOGLE_API_KEY'], 'gemini-3.1-flash-lite', 'propose', 5, 'google'),
+    # Free on Together (2026-11). A ternary 27B: proposes only, so a
+    # stronger model of another family checks everything it suggests.
+    ('bonsai-27b', 'https://api.together.xyz/v1',
+     ['TOGETHER_API_KEY', 'TOGETHER_API_KEY2', 'TOGETHER_API_KEY3'],
+     'Prism-ML/Ternary-Bonsai-27B', 'propose', 3, 'prism'),
     ('magistral-medium', 'https://api.mistral.ai/v1', ['MISTRAL_API_KEY'],
      'magistral-medium-latest', 'verify', 2.2, 'mistral'),
     ('command-a', 'https://api.cohere.ai/compatibility/v1', ['COHERE_API_KEY'],
