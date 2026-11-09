@@ -105,16 +105,16 @@ class KompassBlocks extends StatelessWidget {
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 10, vertical: 12),
-                                    child: SelectableText(
-                                        j < all[i].length ? all[i][j] : '',
-                                        style: TextStyle(
-                                            color: kompassInk,
-                                            fontSize: 15,
-                                            height: 1.4,
-                                            fontWeight:
-                                                i == 0 && headers.isNotEmpty
+                                    child: SelectionArea(
+                                        child: Text(
+                                            j < all[i].length ? all[i][j] : '',
+                                            style: TextStyle(
+                                                color: kompassInk,
+                                                fontSize: 15,
+                                                height: 1.4,
+                                                fontWeight: i == 0 && headers.isNotEmpty
                                                     ? FontWeight.bold
-                                                    : FontWeight.normal)),
+                                                    : FontWeight.normal))),
                                   )
                               ],
                             )
@@ -225,11 +225,12 @@ class KompassPassage extends StatelessWidget {
                                               fontSize: 12)))),
                               const SizedBox(width: 12),
                               Expanded(
-                                  child: SelectableText(line.text,
-                                      style: const TextStyle(
-                                          color: kompassInk,
-                                          fontSize: 17,
-                                          height: 1.6))),
+                                  child: SelectionArea(
+                                      child: Text(line.text,
+                                          style: const TextStyle(
+                                              color: kompassInk,
+                                              fontSize: 17,
+                                              height: 1.6)))),
                             ])),
                   ),
                 ),
@@ -291,6 +292,10 @@ class KompassRichText extends StatelessWidget {
     return TextSpan(style: base, children: children);
   }
 
+  // Read-only content must be exposed as text labels before focus. A
+  // SelectableText uses an editable-value semantic node that Flutter web does
+  // not populate until activation, hiding passage/instruction text from AT.
   @override
-  Widget build(BuildContext context) => SelectableText.rich(span(text, style));
+  Widget build(BuildContext context) =>
+      SelectionArea(child: Text.rich(span(text, style)));
 }

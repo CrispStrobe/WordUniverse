@@ -93,11 +93,12 @@ class _KompassReviewSheetState extends State<KompassReviewSheet> {
                                 style: const TextStyle(
                                     color: kompassMuted, fontSize: 12)),
                             const SizedBox(height: 5),
-                            SelectableText(_response(result.response, s),
-                                style: const TextStyle(
-                                    color: kompassInk,
-                                    fontSize: 17,
-                                    height: 1.5)),
+                            SelectionArea(
+                                child: Text(_response(result.response, s),
+                                    style: const TextStyle(
+                                        color: kompassInk,
+                                        fontSize: 17,
+                                        height: 1.5))),
                             const Divider(height: 28),
                             for (final criterion in rubric)
                               Padding(
