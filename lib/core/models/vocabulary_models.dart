@@ -645,9 +645,15 @@ class GermanWord {
   /// enrichment's `primary_lemma`. A light word has no enrichment to compare,
   /// and the packs' `lemma` column simply echoes the spelling for 11,503 of
   /// the English pack's 11,539 rows — so it reads the feature index instead.
-  bool get isHeadword => isHydrated
-      ? word.toLowerCase() == lemma.toLowerCase()
-      : has(WordFeature.headword);
+  ///
+  /// Case counts. A lemma spelled with different capitals is a different
+  /// word, and its senses describe that word: "im" carried the galaxy class
+  /// "Im", "water" a hamlet in Devon, "app" a German surname, "Naja" the
+  /// cobra and "Sorry" the adjective "ohne Wert". Both packs store a word in
+  /// its own case, so an entry whose lemma differs only in capitals is
+  /// never its own headword.
+  bool get isHeadword =>
+      isHydrated ? word == lemma : has(WordFeature.headword);
 
   /// The definitions that actually describe this spelling.
   ///

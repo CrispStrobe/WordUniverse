@@ -76,9 +76,10 @@ fi
 
 if [ "$mode" = list ]; then
   # `flutter test` interleaves its own progress with the print; the generator
-  # lines are the tab-separated ones.
+  # lines are the tab-separated ones. A literal tab rather than grep -P,
+  # which BSD grep on macOS does not have.
   WU_DUMP=list flutter test test/audit/challenge_dump_test.dart 2>/dev/null |
-    grep -P '^[a-z_]+\t' |
+    grep -E "^[a-z_]+$(printf '\t')" |
     awk -F'\t' '{printf "  %-26s %s\n", $1, $2}'
   exit 0
 fi

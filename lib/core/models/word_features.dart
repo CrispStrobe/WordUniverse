@@ -81,7 +81,9 @@ enum WordFeature {
 // So the two indexes cannot produce a different item between them, and a
 // bump would make every device rebuild for no change. The next republish
 // closes the gap on its own.
-const int kWordFeatureIndexFormat = 9;
+// 10: headword compares the lemma case-sensitively — "im" is not the
+// headword of "Im", nor "water" of the Devon hamlet "Water".
+const int kWordFeatureIndexFormat = 10;
 
 extension WordFeatureMask on int {
   bool hasFeature(WordFeature feature) => this & feature.mask != 0;

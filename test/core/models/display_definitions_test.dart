@@ -43,8 +43,15 @@ void main() {
     expect(entry.displayDefinitions, isEmpty);
   });
 
-  test('case alone does not make an entry foreign', () {
-    expect(word('Haus', lemma: 'haus', definitions: ['a house']).displayDefinitions,
+  test('a lemma in different capitals is a different word', () {
+    // The packs store every word in its own case, so a capitalised lemma
+    // names something else: "im" carried the galaxy class "Im", "water" a
+    // hamlet in Devon, and German "Naja" the cobra.
+    expect(
+        word('im', lemma: 'Im', definitions: ['irregular galaxy'])
+            .displayDefinitions,
+        isEmpty);
+    expect(word('Haus', lemma: 'Haus', definitions: ['a house']).displayDefinitions,
         ['a house']);
   });
 

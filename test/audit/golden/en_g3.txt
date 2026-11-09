@@ -49,30 +49,30 @@
       supper
     · word: replacement
 ── definition_quiz (4)
-  The imagination.
-      shell
-    ✓ fancy
-      lunchtime
-      hardworking
-    · word: fancy  grade: 3
-  A lover of something.
-      beta
-    ✓ amateur
-      shell
-      temperature
-    · word: amateur  grade: 3
-  A written work edited and published, as by a certain editor or in a certain manner, or at a certain time.
-      dude
-      teen
-    ✓ edition
-      laboratory
-    · word: edition  grade: 3
-  Exhibiting unsoundness or disorder of mind; not sane; utterly mad.
-      corporate
-      relaxed
-      mutual
-    ✓ insane
-    · word: insane  grade: 3
+  Of, relating to, or having structure.
+      religious
+    ✓ structural
+      dynamic
+      marvellous
+    · word: structural  grade: 3
+  Changing; active; in motion.
+      marvellous
+    ✓ dynamic
+      structural
+      usual
+    · word: dynamic  grade: 3
+  A person who is always very kind.
+    ✓ sweetheart
+      forest
+      screen
+      balloon
+    · word: sweetheart  grade: 3
+  Something considered as a reason or ground for a (possible) decision.
+      giant
+    ✓ consideration
+      sweetheart
+      darkness
+    · word: consideration  grade: 3
 ── false_friends (4)
   What does "ordinary" really mean?
       ordinär
@@ -116,26 +116,26 @@
     ✓ male
     · group: mail/male
 ── hypernym_flash (4)
-  graduate
-      ceramic
-      gift
-    ✓ scholar
-      camp
-  batch
-      gift
-      camp
-      scholar
-    ✓ collection
-  earn
-    ✓ acquire
-      camp
-      scholar
-      gift
-  keyboard
-      scholar
-      gift
-    ✓ device
-      camp
+  beginner
+      physical condition
+      capture
+      body
+    ✓ unskilled person
+  volunteer
+      body
+      capture
+      physical condition
+    ✓ military personnel
+  jury
+      physical condition
+    ✓ body
+      orientation
+      capture
+  arrest
+    ✓ capture
+      physical condition
+      orientation
+      body
 ── phrasal_verb_match (4)
   What does "pay out" mean?
     ✓ give money to people
@@ -183,33 +183,33 @@
       out
     · phrasal: pass on  means: to move forward or go ahead
 ── sentence_completion (4)
-  The town has a special ___.
-A part of culture that is passed from person to person or generation to generation, possibly differing in detail from family to family, such as the way to celebrate holidays.
-      maintenance
-      alien
-      wheat
-    ✓ tradition
+  The ___ made everyone very upset.
+An event or occurrence.
+      consultant
+    ✓ incident
+      radar
+      sand
     · cue label: One possible meaning: …
-  I need the ___ same one.
-Precisely agreeing with a standard, a fact, or the truth; perfectly conforming; neither exceeding nor falling short in any respect.
-      shocking
-      cheap
-      complex
-    ✓ exact
+  The ___ is wet near the water.
+Rock that is ground more finely than gravel, but is not as fine as silt (more formally, see grain sizes chart), forming beaches and deserts and also used in construction.
+    ✓ sand
+      host
+      behalf
+      incident
     · cue label: One possible meaning: …
-  Some people have an ___ to playing video games.
-A state that is characterized by compulsive drug use or compulsive engagement in rewarding behavior, despite negative consequences.
-      strip
-      killer
-    ✓ addiction
-      joy
+  She applied for a ___.
+A grant-in-aid to a student.
+    ✓ scholarship
+      cab
+      politics
+      protection
     · cue label: One possible meaning: …
-  The girl blushed on her ___.
-The soft skin on each side of the face, below the eyes; the outer surface of the sides of the oral cavity.
-      destination
-      addiction
-      alien
-    ✓ cheek
+  ___ is very important.
+The act of attending; the state of being present; presence.
+      Customer
+      Radar
+      Symphony
+    ✓ Attendance
     · cue label: One possible meaning: …
 ── spelling_spotter (4)
   Which spelling is correct?
@@ -238,28 +238,29 @@ The soft skin on each side of the face, below the eyes; the outer surface of the
     · shown after answering: Culberson is a politician who enjoyed excellent health before he entered the public service.
 ── sri_review (4)
   Correct spelling for:
-"The imagination."
-    ✓ fancy
-      fance
+"Of, relating to, or having structure."
+      sturctural
+    ✓ structural
+      structual
     · type: spelling  assessedSkill: spelling
+  "A person who is always very kind."
+      elevator
+      meter
+      balloon
+    ✓ sweetheart
+    · type: definition  assessedSkill: vocabulary
   What word class?
-edition
-      Adjective
-      Verb
+consideration
+      Adverb
     ✓ Noun
+      Verb
       Pronoun
     · type: wordType  assessedSkill: wordType
   Capitalization
-The lesson had a clear ___.
-    ✓ objective
-      Objective
+I ___ eat a sandwich.
+    ✓ typically
+      Typically
     · type: capitalization  assessedSkill: capitalization
-  "of or relating to the area of Palestine and its inhabitants"
-    ✓ Palestinian
-      insane
-      mutual
-      Italian
-    · type: definition  assessedSkill: vocabulary
 ── syllable_count (4)
   confirm
       1
@@ -286,29 +287,29 @@ The lesson had a clear ___.
       4+
     · hyphenation: ig-nore
 ── synonym_flash (4)
-  incredible
-    ✓ unbelievable
-      external
-      contrary
-      aesthetic
+  availability
+    ✓ accessibility
+      emphasis
+      intelligence
+      customs
     · grade: 3
-  surface
-      execution
-      connection
-      incident
-    ✓ open
+  personnel
+      episode
+      emphasis
+    ✓ force
+      oxygen
     · grade: 3
-  besides
-    ✓ also
-      category
-      incident
-      disappointment
+  demon
+      harmony
+      oxygen
+    ✓ devil
+      episode
     · grade: 3
-  category
-      disappointment
-      connection
-      besides
-    ✓ class
+  heaven
+      chain
+      meaning
+      function
+    ✓ paradise
     · grade: 3
 ── word_builder (4)
   Build "attacked" from its letters
@@ -323,23 +324,19 @@ The lesson had a clear ___.
   Build "middle-aged" from its letters
     ✓ middle-aged
     · grade: 3  gloss: Of or relating to middle age or a middle-ager; neither old nor young.
-── word_class_flash (4)
-  lasting
+── word_class_flash (3)
+  tropical
       Noun
       Verb
     ✓ Adjective
-  wildlife
+  planet
     ✓ Noun
       Verb
       Adjective
-  disagree
+  possess
       Noun
     ✓ Verb
       Adjective
-  aware
-      Noun
-      Verb
-    ✓ Adjective
 ── word_find (4)
   Find "attacked" in the grid
     ✓ attacked

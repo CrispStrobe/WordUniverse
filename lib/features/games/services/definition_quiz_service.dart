@@ -118,6 +118,7 @@ DefinitionChallenge? buildDefinitionChallenge({
   // learnerDefinitions, not apiEnrichment.definitions: an entry whose
   // enrichment belongs to another word would be keyed to that word's meaning,
   // and a gloss the pack marked as written above its reader is not a prompt.
+  if (isFunctionWord(word, isGerman: isGerman)) return null;
   final definitions = word.learnerDefinitions;
   if (definitions.isEmpty) return null;
 
@@ -220,6 +221,7 @@ List<String> pickDefinitionDistractors({
     // indexed.
     candidates = candidates.where((w) =>
         w.isHeadword &&
+        !isFunctionWord(w, isGerman: isGerman) &&
         !namesSomething(w) &&
         isPresentableVocabularyEntry(w) &&
         (!w.isHydrated || _hasUsableGloss(w)));

@@ -1,3 +1,4 @@
+import 'skill_category.dart';
 import 'vocabulary_models.dart';
 import 'word_features.dart';
 
@@ -770,3 +771,80 @@ final RegExp _unsuitableWords = RegExp(
     r'faggot|nigger|slut|whore|twat|wank\w*|shit\w*|turd|crap|crappy|'
     r'bitch|bastard)$',
     caseSensitive: false);
+
+/// Whether [entry] is a closed-class word — an article, pronoun, preposition,
+/// conjunction, auxiliary or particle — or the apostrophe-less remains of a
+/// contraction.
+///
+/// These are grammar, not vocabulary with a meaning to describe, and the
+/// packs' glosses for them are wrong more often than right: enrichment took
+/// whichever *noun* sense shared the spelling, so "an" is "The first letter
+/// of the Georgian alphabet", "it" is information technology, "and" is half
+/// a beat and "of" is Norfolk Island. A Definition Quiz asked a grade-1
+/// learner which of im / their / an / it is an "irregular galaxy with no
+/// coherent structure". Games about meaning leave them out, as prompts and
+/// as distractors; games about spelling still use them.
+bool isFunctionWord(GermanWord entry, {required bool isGerman}) {
+  if (const {
+    GermanWordType.artikel,
+    GermanWordType.pronomen,
+    GermanWordType.praeposition,
+    GermanWordType.konjunktion,
+    GermanWordType.partikel,
+  }.contains(entry.wordType)) return true;
+  final word = entry.word.toLowerCase();
+  return isGerman
+      ? _germanFunctionWords.contains(word)
+      : _englishFunctionWords.contains(word);
+}
+
+// Closed classes are small and stable, so they are listed rather than
+// inferred: the English pack types 6,055 entries as nouns and only 7 as
+// pronouns, and "their", "it" and "an" are among the nouns. Words with a
+// content sense a child would be asked about stay out of the list — like,
+// past, little, will, can, may, ill, well, down, up.
+const _englishFunctionWords = <String>{
+  // articles and determiners
+  'a', 'an', 'the', 'this', 'that', 'these', 'those', 'some', 'any', 'no',
+  'every', 'each', 'either', 'neither', 'both', 'all', 'such', 'what',
+  'which', 'whose', 'several', 'another',
+  // pronouns
+  'i', 'me', 'my', 'mine', 'myself', 'you', 'your', 'yours', 'yourself',
+  'yourselves', 'he', 'him', 'his', 'himself', 'she', 'her', 'hers',
+  'herself', 'it', 'its', 'itself', 'we', 'us', 'our', 'ours', 'ourselves',
+  'they', 'them', 'their', 'theirs', 'themselves', 'who', 'whom', 'whoever',
+  'whatever', 'whichever', 'someone', 'somebody', 'something', 'anyone',
+  'anybody', 'anything', 'everyone', 'everybody', 'everything', 'nobody',
+  'nothing', 'none', 'oneself',
+  // prepositions
+  'about', 'above', 'across', 'after', 'against', 'along', 'among', 'around',
+  'at', 'before', 'behind', 'below', 'beneath', 'beside', 'besides',
+  'between', 'beyond', 'by', 'despite', 'during', 'except', 'for', 'from',
+  'in', 'into', 'of', 'on', 'onto', 'since', 'through', 'throughout', 'till',
+  'to', 'toward', 'towards', 'under', 'underneath', 'until', 'unto', 'upon',
+  'via', 'with', 'within', 'without',
+  // conjunctions
+  'and', 'or', 'nor', 'but', 'so', 'yet', 'if', 'unless', 'because',
+  'although', 'though', 'while', 'whereas', 'whether', 'than', 'as', 'when',
+  'whenever', 'where', 'wherever', 'how', 'why',
+  // auxiliaries
+  'am', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'do', 'does',
+  'did', 'have', 'has', 'had', 'could', 'shall', 'should', 'would', 'ought',
+  // particles and the apostrophe-less remains of contractions
+  'not', 'im', 'ive', 'youre', 'youve', 'youll', 'youd', 'hes', 'shes',
+  'theyre', 'theyve', 'theyll', 'dont', 'doesnt', 'didnt', 'cant', 'couldnt',
+  'wouldnt', 'isnt', 'arent', 'wasnt', 'werent', 'hasnt', 'havent', 'hadnt',
+  'shouldnt', 'mustnt', 'thats', 'whats', 'theres',
+};
+
+// Only what the German pack leaves untyped or types as something else; the
+// typed closed classes are caught by word type above.
+const _germanFunctionWords = <String>{
+  'der', 'die', 'das', 'den', 'dem', 'des', 'ein', 'eine', 'einen', 'einem',
+  'einer', 'eines', 'ich', 'du', 'er', 'sie', 'es', 'wir', 'ihr', 'mich',
+  'dich', 'sich', 'uns', 'euch', 'mir', 'dir', 'ihm', 'ihn', 'ihnen',
+  'und', 'oder', 'aber', 'denn', 'weil', 'dass', 'ob', 'wenn', 'als',
+  'zu', 'von', 'mit', 'bei', 'nach', 'aus', 'auf', 'an', 'in', 'im', 'am',
+  'zum', 'zur', 'vom', 'beim', 'ins', 'ans', 'für', 'um', 'durch', 'gegen',
+  'ohne',
+};

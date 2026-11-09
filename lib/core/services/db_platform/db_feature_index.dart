@@ -60,10 +60,11 @@ final Map<WordFeature, String> _featureSql = {
   // knownMisspelling is not a per-row test — see _misspellingSql.
   WordFeature.curriculum: _curriculumSql,
 
-  // A missing primary_lemma means nothing claims the entry is derived.
+  // A missing primary_lemma means nothing claims the entry is derived. Case
+  // counts: see GermanWord.isHeadword.
   WordFeature.headword:
-      "coalesce(lower(json_extract(enrichment_json, '\$.primary_lemma')), "
-          "lower(word)) = lower(word)",
+      "coalesce(json_extract(enrichment_json, '\$.primary_lemma'), word) "
+          "= word",
 };
 
 /// Whether the word is on a word list a curriculum actually prescribes.
@@ -592,8 +593,7 @@ int featuresFromDecodedJson({
   final primaryLemma = enrichment['primary_lemma'];
   set(
       WordFeature.headword,
-      primaryLemma is! String ||
-          primaryLemma.toLowerCase() == word.toLowerCase());
+      primaryLemma is! String || primaryLemma == word);
 
   final sources = metadata['sources'];
   final tags = metadata['tags'];
