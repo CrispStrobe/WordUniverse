@@ -48,6 +48,10 @@ SynonymChallenge? buildSynonymChallenge({
   if (synonyms.isEmpty) return null;
   // "atlantic" glossed as an ocean is a name, not vocabulary.
   if (namesSomething(word)) return null;
+  // Grammar words and numbers have no synonym a child could pick: "aus"
+  // offered ob and von, "denn" offered als and weil (both also right), and
+  // "drei" was keyed fünfzehn, its tennis score.
+  if (isClosedClassEntry(word) || _isNumber(word)) return null;
 
   // Rank the clean synonyms by how likely a learner is to know them. The
   // packs list rare and sense-specific ones beside everyday ones — "Almighty"
@@ -118,7 +122,8 @@ SynonymChallenge? buildSynonymChallenge({
   bool eligible(GermanWord w) =>
       !synSet.contains(w.word.toLowerCase()) &&
       w.word.toLowerCase() != correctWord.toLowerCase() &&
-      !namesSomething(w);
+      !namesSomething(w) &&
+      !isClosedClassEntry(w);
 
   final sameType = allWords
       .where((w) => w.wordType == word.wordType && eligible(w))
@@ -270,3 +275,9 @@ List<SynonymChallenge> buildSynonymChallenges({
   }
   return challenges;
 }
+
+bool _isNumber(GermanWord word) => const {
+      GermanWordType.numerale,
+      GermanWordType.kardinalzahlwort,
+      GermanWordType.ordinalzahlwort,
+    }.contains(word.wordType);

@@ -419,7 +419,7 @@ final Map<String, Generator> generators = {
         .toList();
     final nounMap = {for (final w in nouns) w.word.toLowerCase(): w};
     final candidates = await c.vocabulary.hydrate(
-        nouns.where((w) => w.word.length >= minCompoundLength).take(300));
+        compoundCandidates(nouns, gradeLevel: c.grade, rng: c.rng));
     return buildCompoundChallenges(candidates, nounMap)
         .take(c.count)
         .map((ch) => Item(

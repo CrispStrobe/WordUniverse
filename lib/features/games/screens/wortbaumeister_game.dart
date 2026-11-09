@@ -154,8 +154,9 @@ class _WortbaumeisterGameState extends State<WortbaumeisterGame>
       for (var w in nouns) w.word.toLowerCase(): w
     };
 
-    final candidates = await _vocabularyService.hydrate(
-        nouns.where((w) => w.word.length >= minCompoundLength).take(300));
+    final candidates = await _vocabularyService.hydrate(compoundCandidates(
+        nouns,
+        gradeLevel: widget.gradeLevel.index + 1));
     if (!mounted) return;
 
     final nounChallenges = buildCompoundChallenges(candidates, nounMap)

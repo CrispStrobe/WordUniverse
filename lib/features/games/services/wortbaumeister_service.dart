@@ -1,3 +1,4 @@
+import 'dart:math';
 // lib/features/games/services/wortbaumeister_service.dart
 //
 // Compound-word challenge construction, extracted from the screen so it can be
@@ -51,6 +52,27 @@ class CompoundSplit {
     required this.part2,
     required this.difficulty,
   });
+}
+
+/// The long nouns worth decoding as possible compounds, in the order to try
+/// them.
+///
+/// The catalogue is alphabetical, and taking its first 300 long nouns meant
+/// the same dozen A-compounds at every grade — Arbeitserlaubnis at grade 1.
+/// Nouns at or below the learner's grade come first, each band shuffled.
+List<GermanWord> compoundCandidates(
+  Iterable<GermanWord> nouns, {
+  required int gradeLevel,
+  int limit = 300,
+  Random? rng,
+}) {
+  final random = rng ?? Random();
+  final long = nouns.where((w) => w.word.length >= minCompoundLength);
+  final within = long.where((w) => w.gradeLevel <= gradeLevel).toList()
+    ..shuffle(random);
+  final above = long.where((w) => w.gradeLevel > gradeLevel).toList()
+    ..shuffle(random);
+  return [...within, ...above].take(limit).toList();
 }
 
 List<WordChallenge> buildCompoundChallenges(

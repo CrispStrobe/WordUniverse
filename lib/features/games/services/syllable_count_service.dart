@@ -42,12 +42,32 @@ int? countSyllables(String rawHyph) {
   return segments.length;
 }
 
+/// Runs of vowel letters in [word]: a rough syllable count that is only used
+/// to doubt the hyphenation, never as the answer.
+int vowelGroups(String word) => RegExp(r'[aeiouyäöü]+', caseSensitive: false)
+    .allMatches(word)
+    .length;
+
 SyllableChallenge? buildSyllableChallenge(GermanWord word) {
+  // The CMU count is the pronunciation itself. Hyphenation is how a word may
+  // be broken across lines, and never splits off one letter: "about",
+  // "aloud", "obey", "Abend", "Ofen", "Igel" all arrive as one piece and
+  // were keyed as one syllable.
+  final cmu = word.cmuSyllables;
+  if (cmu != null) {
+    return SyllableChallenge(
+      word: word,
+      syllableCount: cmu,
+      correctBucket: syllableBucket(cmu),
+    );
+  }
   final hyphenations = word.hyphenation;
   // Try each hyphenation entry; use the first that parses cleanly.
   for (final raw in hyphenations) {
     final count = countSyllables(raw);
-    if (count != null && count >= 1) {
+    // Without a pronunciation, a hyphenation that disagrees with the
+    // spelling's vowel groups is not trusted, and the word is not asked.
+    if (count != null && count >= 1 && count == vowelGroups(word.word)) {
       return SyllableChallenge(
         word: word,
         syllableCount: count,

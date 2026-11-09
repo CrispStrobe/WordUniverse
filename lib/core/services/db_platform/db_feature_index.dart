@@ -64,7 +64,7 @@ final Map<WordFeature, String> _featureSql = {
   // counts: see GermanWord.isHeadword.
   WordFeature.headword:
       "coalesce(json_extract(enrichment_json, '\$.primary_lemma'), word) "
-          "= word",
+          "= word AND (lemma IS NULL OR lemma = '' OR lower(lemma) = lower(word))",
 };
 
 /// Whether the word is on a word list a curriculum actually prescribes.
@@ -544,7 +544,9 @@ int featuresFromDecodedJson({
   required String word,
   required Map<String, dynamic> enrichment,
   required Map<String, dynamic> metadata,
+  String? lemma,
 }) {
+  final packLemma = lemma;
   bool nonEmptyList(Map<String, dynamic> json, String key) {
     final value = json[key];
     return value is List && value.isNotEmpty;
@@ -606,7 +608,10 @@ int featuresFromDecodedJson({
   final primaryLemma = enrichment['primary_lemma'];
   set(
       WordFeature.headword,
-      primaryLemma is! String || primaryLemma == word);
+      (primaryLemma is! String || primaryLemma == word) &&
+          (packLemma == null ||
+              packLemma.isEmpty ||
+              packLemma.toLowerCase() == word.toLowerCase()));
 
   final sources = metadata['sources'];
   final tags = metadata['tags'];

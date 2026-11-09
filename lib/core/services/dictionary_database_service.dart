@@ -540,6 +540,7 @@ class DictionaryDatabaseService {
             // beyond the decode it is standing in for.
             ? featuresFromDecodedJson(
                 word: (row['word'] as String?) ?? '',
+                lemma: row['lemma'] as String?,
                 enrichment: apiEnrichment,
                 metadata: metadata)
             : rowId == null

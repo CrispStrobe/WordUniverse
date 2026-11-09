@@ -41,8 +41,10 @@ ApiEnrichment _enrichment({List<String> hyphenation = const []}) =>
       commonLearnerErrors: const [],
     );
 
-GermanWord _word(String word, {List<String> hyphenation = const []}) =>
+GermanWord _word(String word,
+        {List<String> hyphenation = const [], int? cmuSyllables}) =>
     GermanWord(
+      cmuSyllables: cmuSyllables,
       id: 'test_$word',
       word: word,
       wordType: GermanWordType.substantiv,
@@ -265,6 +267,22 @@ void main() {
       final c = buildSyllableChallenge(w)!;
       expect(c.syllableCount, equals(5));
       expect(c.correctBucket, equals(3));
+    });
+  });
+
+  group('a hyphenation that never splits one letter off', () {
+    test('the CMU count decides where there is one', () {
+      // "about" arrives hyphenated as one piece; AH0 B AW1 T has two vowels.
+      final c = buildSyllableChallenge(
+          _word('about', hyphenation: ['about'], cmuSyllables: 2))!;
+      expect(c.syllableCount, 2);
+    });
+
+    test('without one, a count the spelling contradicts is not asked', () {
+      expect(buildSyllableChallenge(_word('Abend', hyphenation: ['Abend'])),
+          isNull);
+      expect(buildSyllableChallenge(_word('Hase', hyphenation: ['Ha-se']))!
+          .syllableCount, 2);
     });
   });
 }

@@ -652,8 +652,18 @@ class GermanWord {
   /// cobra and "Sorry" the adjective "ohne Wert". Both packs store a word in
   /// its own case, so an entry whose lemma differs only in capitals is
   /// never its own headword.
-  bool get isHeadword =>
-      isHydrated ? word == lemma : has(WordFeature.headword);
+  ///
+  /// The pack's own `lemma` column has to agree as well, up to case (spaCy
+  /// lowercases some nouns: "Finale" -> "finale"). Wiktionary names a German
+  /// inflected form as its own lemma — "verließen", "kämpfte", "Göttern" — and
+  /// the column says verlassen, kämpfen, Götter; those rows were offered as
+  /// words in six games and as a verb to conjugate ("gefilmt: ich ___").
+  bool get isHeadword => isHydrated
+      ? word == lemma &&
+          (packLemma == null ||
+              packLemma!.isEmpty ||
+              packLemma!.toLowerCase() == word.toLowerCase())
+      : has(WordFeature.headword);
 
   /// The definitions that actually describe this spelling.
   ///
@@ -958,9 +968,26 @@ class GermanWord {
   /// a fragment, a misspelling — from metadata `quality.vocabulary`.
   final bool markedNotVocabulary;
 
+  /// The pack's `lemma` column, as stored — see [isHeadword].
+  final String? packLemma;
+
+  /// Syllables by the CMU pronouncing dictionary (English pack, metadata
+  /// `pronunciation.arpabet`): one per vowel phoneme, which carries a stress
+  /// digit. Null where the pack has no CMU entry.
+  final int? cmuSyllables;
+
   /// Mirrors the SQL in db_feature_index.dart: a verdict resting only on
   /// "tagged a misspelling" does not count, because that tag marks a pair
   /// and a real word ("suburban", "decidedly") is half of it.
+  static int? _cmuSyllables(Object? pronunciation) {
+    if (pronunciation is! Map) return null;
+    final arpabet = pronunciation['arpabet'];
+    if (arpabet is! List || arpabet.isEmpty) return null;
+    final vowels =
+        arpabet.where((p) => p is String && RegExp(r'\d$').hasMatch(p)).length;
+    return vowels == 0 ? null : vowels;
+  }
+
   static bool _markedNotVocabulary(Object? quality) {
     if (quality is! Map || quality['vocabulary'] != false) return false;
     final reasons = quality['reasons'];
@@ -1032,6 +1059,8 @@ class GermanWord {
     this.isProperNoun = false,
     this.glossIsAboveItsReader = false,
     this.markedNotVocabulary = false,
+    this.packLemma,
+    this.cmuSyllables,
     this.glossReviewed = false,
   })  : _apiEnrichment = apiEnrichment,
         spellingDifficultySource = spellingDifficultySource ??
@@ -1175,6 +1204,8 @@ class GermanWord {
       isProperNoun: isProperNoun,
       glossIsAboveItsReader: json['gloss_above_reader'] == true,
       markedNotVocabulary: _markedNotVocabulary(json['quality']),
+      packLemma: json['lemma'] as String?,
+      cmuSyllables: _cmuSyllables(json['pronunciation']),
       glossReviewed: json['gloss_source'] == 'llm-reviewed',
       gradeLevel: _parseInt(json['gradeLevel'], 1), // SAFE PARSE
       lemma: apiData?.primaryLemma ?? json['lemma'] ?? json['word'],
@@ -1348,6 +1379,8 @@ class GermanWord {
         isProperNoun: isProperNoun,
         glossIsAboveItsReader: glossIsAboveItsReader,
         markedNotVocabulary: markedNotVocabulary,
+        packLemma: packLemma,
+        cmuSyllables: cmuSyllables,
         glossReviewed: glossReviewed,
       );
 

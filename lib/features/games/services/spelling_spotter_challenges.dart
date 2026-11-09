@@ -57,6 +57,7 @@ SpellingChallenge? buildSpellingChallenge({
           e.toLowerCase() != displayWord.toLowerCase() &&
           e.isNotEmpty &&
           !e.contains(' ') &&
+          _looksLikeAWord.hasMatch(e) &&
           // Skip error forms that are themselves valid vocabulary words
           // (e.g. "in" is a commonMistake of "ihn" but is a real word too).
           !validWords.contains(e.toLowerCase()) &&
@@ -83,6 +84,7 @@ SpellingChallenge? buildSpellingChallenge({
         .where((e) =>
             !distractors.contains(e) &&
             e.length >= 2 &&
+            _looksLikeAWord.hasMatch(e) &&
             isDistractorPlausible(e, displayWord, validWords: validWords))
         .toList()
       ..shuffle(random);
@@ -199,3 +201,8 @@ List<SpellingChallenge> buildSpellingChallenges({
   }
   return challenges;
 }
+
+/// A wrong spelling still has to look like a spelling: the German error
+/// corpus carries transcription marks, and "k.no", "schaf=en", "vormitto*"
+/// and "verabschi-edete" were offered beside the real word.
+final RegExp _looksLikeAWord = RegExp(r"^[A-Za-zÄÖÜäöüßẞÀ-ÿ]+(?:'[A-Za-z]+)?$");

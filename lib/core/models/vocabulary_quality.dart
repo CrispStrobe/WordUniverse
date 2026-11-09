@@ -458,6 +458,12 @@ const kCrossReferenceMarkers = <String>[
   'kurzform für',
   'koseform von',
   'koseform für',
+  // German name glosses the openings list anchors past: "männlicher und
+  // weiblicher Vorname", "Hafenstadt an der Westküste Norwegens" (Bergen).
+  // Not "Familienname": Glück, Sonntag, Mehl and Wurm lead with a surname
+  // gloss and are ordinary words whose gloss is wrong, not names — that is
+  // corrected in the pack (tools/pack/llm_correct.py), not filtered here.
+  'weiblicher vorname', 'männlicher vorname', 'hafenstadt ',
 ];
 
 /// The packs carry a literal stand-in where a gloss is missing, and it reads
@@ -466,7 +472,10 @@ const kCrossReferenceMarkers = <String>[
 /// Hi.
 final RegExp _placeholderGloss = RegExp(
     r'^(no definition|keine definition|definition not available|'
-    r'not available|n/a|unknown|unbekannt)\b',
+    r'not available|n/a|unknown|unbekannt|'
+    // A Wiktionary maintenance banner, keyed as the meaning of "das
+    // Bundesland" in a Definition Quiz.
+    r'der artikel soll überarbeitet werden|dieser eintrag)\b',
     caseSensitive: false);
 
 bool _isAPlaceholder(String definition) =>
