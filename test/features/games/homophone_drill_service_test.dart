@@ -90,7 +90,10 @@ List<GermanWord> _wordsForGroup(HomophoneGroup group) => [
         _word(
           group.words[i],
           gradeExamples: {
-            '1': ['I ${group.words[i]} today.', 'She uses ${group.words[i]}.'],
+            '1': [
+              'We talked about ${group.words[i]} at school today.',
+              'She uses ${group.words[i]} in her story.',
+            ],
           },
         )
     ];
@@ -377,21 +380,21 @@ void main() {
       // Use real-world-style grade_examples matching the DB format.
       final realisticWords = [
         _word('hear', gradeExamples: {
-          '1': ['I hear a dog.', 'Can you hear me?'],
-          '2': ['I hear the music.'],
+          '1': ['I hear a dog barking outside.', 'Can you hear me from there?'],
+          '2': ['I hear the music in the hall.'],
         }),
         _word('here', gradeExamples: {
-          '1': ['Come here.', 'I am here now.'],
-          '2': ['Put it here.'],
+          '1': ['Please come here and sit down.', 'I am here with my mother now.'],
+          '2': ['Put it here on the table.'],
         }),
         _word('to', gradeExamples: {
-          '1': ['I go to school.', 'She goes to the park.'],
+          '1': ['I go to school every day.', 'She goes to the park later.'],
         }),
         _word('too', gradeExamples: {
-          '1': ["It's too big.", "I'm going too."],
+          '1': ["This coat is too big for me.", "I'm going to the party too."],
         }),
         _word('two', gradeExamples: {
-          '1': ['I have two pencils.', 'The clock shows two.'],
+          '1': ['I have two pencils in my bag.', 'The clock shows two in the afternoon.'],
         }),
       ];
 

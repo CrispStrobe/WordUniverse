@@ -322,6 +322,10 @@ String? _pickSentence(GermanWord entry, int gradeLevel, String targetWord) {
     if (sentences == null || sentences.isEmpty) continue;
     for (final raw in sentences) {
       if (!looksLikeAWholeSentence(raw)) continue;
+      // The context has to choose between the homophones, and four words
+      // rarely can: "I see a ___." takes plane and plain alike, and sale and
+      // sail.
+      if (raw.trim().split(RegExp(r'\s+')).length < 5) continue;
       final blanked = _blankWord(raw, targetWord);
       if (blanked != null) return blanked;
     }

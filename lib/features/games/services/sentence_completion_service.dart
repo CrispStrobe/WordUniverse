@@ -286,6 +286,9 @@ bool _cueNamesAnswer(String cue, List<_DeclaredForm> forms) =>
 
 bool _usableAsOption(GermanWord word) =>
     _contentTypes.contains(word.wordType) &&
+    // The English pack types "and" and "don't" as nouns, so the content-type
+    // test passed them, and "Dogs ___ bark loud" took don't and can alike.
+    !isClosedClassEntry(word) &&
     _partOfSpeechMatches(word) &&
     word.isHeadword &&
     !word.isProperNoun &&

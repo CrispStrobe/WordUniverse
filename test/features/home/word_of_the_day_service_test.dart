@@ -284,21 +284,23 @@ void main() {
     });
 
     test('excludes a headword listed as a known misspelling', () {
-      final misspelling = _eligible('didnt');
+      // A contraction is grammar with no gloss to show (learnerDefinitions is
+      // empty for it), so the pair is one with a meaning.
+      final misspelling = _eligible('oclock');
       final canonical = _word(
-        "didn't",
+        "o'clock",
         api: _enrichment(
-          definitions: ['did not'],
+          definitions: ['used after a number to say the time'],
           entryNotes: const [],
         ),
-        commonMistakes: const ['didnt'],
+        commonMistakes: const ['oclock'],
       );
 
-      expect(pickWordOfTheDay([misspelling, canonical], date)?.word, "didn't");
+      expect(pickWordOfTheDay([misspelling, canonical], date)?.word, "o'clock");
     });
 
     test('accepts clean apostrophes and hyphens', () {
-      for (final word in ["didn't", 'E-Mail']) {
+      for (final word in ["o'clock", 'E-Mail']) {
         expect(pickWordOfTheDay([_eligible(word)], date)?.word, word);
       }
     });

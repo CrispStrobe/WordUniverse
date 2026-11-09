@@ -83,6 +83,9 @@ Map<String, String>? getPraesensForWord(GermanWord w) =>
 bool isConjugatableVerb(GermanWord w) {
   if (w.wordType != GermanWordType.verb) return false;
   if (w.isProperNoun) return false;
+  // "gefilmt: ich ___", "nahm: du ___": an inflected form is not a verb to
+  // conjugate. Its own lemma has to be itself.
+  if (!w.isHeadword) return false;
   if (w.word.contains(' ')) return false;
   final pres = getPraesensForWord(w);
   return pres != null && pres.isNotEmpty;

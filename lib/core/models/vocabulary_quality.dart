@@ -835,7 +835,7 @@ bool isFunctionWord(GermanWord entry, {required bool isGerman}) {
     GermanWordType.konjunktion,
     GermanWordType.partikel,
   }.contains(entry.wordType)) return true;
-  final word = entry.word.toLowerCase();
+  final word = entry.word.toLowerCase().replaceAll(RegExp("['’]"), '');
   return isGerman
       ? _germanFunctionWords.contains(word)
       : _englishFunctionWords.contains(word);
@@ -853,7 +853,8 @@ bool isClosedClassEntry(GermanWord entry) {
     GermanWordType.konjunktion,
     GermanWordType.partikel,
   }.contains(entry.wordType)) return true;
-  final word = entry.word.toLowerCase();
+  // "don't", "can't", "I'm" are listed without their apostrophe.
+  final word = entry.word.toLowerCase().replaceAll(RegExp("['’]"), '');
   if (word == 'die' || word == 'den') return false;
   return _englishFunctionWords.contains(word) ||
       _germanFunctionWords.contains(word);
@@ -895,7 +896,10 @@ const _englishFunctionWords = <String>{
   'not', 'im', 'ive', 'youre', 'youve', 'youll', 'youd', 'hes', 'shes',
   'theyre', 'theyve', 'theyll', 'dont', 'doesnt', 'didnt', 'cant', 'couldnt',
   'wouldnt', 'isnt', 'arent', 'wasnt', 'werent', 'hasnt', 'havent', 'hadnt',
-  'shouldnt', 'mustnt', 'thats', 'whats', 'theres',
+  'shouldnt', 'mustnt', 'thats', 'whats', 'theres', 'wont', 'lets',
+  // Not ill, shed, wed or id: what I'll, she'd, we'd and I'd lose their
+  // apostrophe into is an ordinary word as well.
+  'hed', 'theyd',
 };
 
 // Only what the German pack leaves untyped or types as something else; the
