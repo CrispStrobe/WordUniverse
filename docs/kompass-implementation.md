@@ -135,7 +135,16 @@ test failures; a persistent mismatch still fails.
 Validation on **2026-11-08**, with Flutter **3.44.2**, passed against code
 checkpoint `c84f763424d63d11063c03e661aaf934341bfaac`. The final documentation
 checkpoint does not change application code. The companion kompass4 source head
-is `6b48d7a3e0ed13bb966d7a390e049bbe9e177909`.
+is `6b48d7a3e0ed13bb966d7a390e049bbe9e177909`. (These hashes predate the
+2026-11-09 history rewrite that removed old database blobs; the rewritten
+WordUniverse commits carry the same trees under new IDs.)
+
+**Update 2026-11-09 (kompass4 `6b6560c`).** 28 former review-only parts that
+have a canonical answer (d1_03 b, d2_03 b, d*_15, d*_16, d3_23) are now `text`
+parts with accepted answers and `reviewOnMismatch`: the model answer scores
+automatically, anything else still goes to rubric review with its credit steps.
+Before, typing exactly "vorübergehend" showed "Rückmeldung offen". The 12
+genuinely open questions remain review-only.
 
 | Gate | Result |
 | --- | --- |

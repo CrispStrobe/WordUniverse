@@ -130,6 +130,35 @@ void main() {
     }
   });
 
+  test('the model answer to a rubric question is scored, not left pending',
+      () {
+    KompassPart realPart(String task, String id) =>
+        real.taskById(task)!.parts.firstWhere((p) => p.id == id);
+    final place = realPart('d1_03', 'b');
+    expect(KompassGrader.assessPart(place, 'vorübergehend').points, 1);
+    expect(KompassGrader.assessPart(place, 'Nur vorübergehend.').points, 1);
+    // A plausible paraphrase still goes to rubric review rather than 0.
+    final paraphrase = KompassGrader.assessPart(place, 'für kurze Zeit');
+    expect(paraphrase.points, isNull);
+    expect(paraphrase.evaluation, 'pending');
+
+    final punctuation = real.taskById('d4_15')!.parts;
+    expect(
+        punctuation
+            .map((p) =>
+                KompassGrader.assessPart(p, 'Amal ruft: „Warte auf mich!“')
+                    .points)
+            .toList(),
+        [0.5, 0.5, 0.5, 0.5]);
+    expect(
+        punctuation
+            .map((p) =>
+                KompassGrader.assessPart(p, 'Amal ruft „Warte auf mich!“')
+                    .points)
+            .toSet(),
+        {null});
+  });
+
   test('orthography retains case, umlauts and sharp s, but normalizes Unicode',
       () {
     final p = KompassPart.fromJson(part('a'));
