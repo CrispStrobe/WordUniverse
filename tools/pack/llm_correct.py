@@ -63,6 +63,11 @@ LANES = [
     ('bonsai-27b', 'https://api.together.xyz/v1',
      ['TOGETHER_API_KEY', 'TOGETHER_API_KEY2', 'TOGETHER_API_KEY3'],
      'Prism-ML/Ternary-Bonsai-27B', 'propose', 3, 'prism'),
+    # Hetzner's free inference (experiments.hetzner.com), HETZNER_TOKEN.
+    ('hetzner-qwen-p', 'https://inference.hetzner.com/v1', ['HETZNER_TOKEN'],
+     'Qwen/Qwen3.8-27B', 'propose', 2, 'qwen'),
+    ('hetzner-qwen', 'https://inference.hetzner.com/v1', ['HETZNER_TOKEN'],
+     'Qwen/Qwen3.8-27B', 'verify', 2, 'qwen'),
     ('magistral-medium', 'https://api.mistral.ai/v1', ['MISTRAL_API_KEY'],
      'magistral-medium-latest', 'verify', 2.2, 'mistral'),
     ('command-a', 'https://api.cohere.ai/compatibility/v1', ['COHERE_API_KEY'],
