@@ -9,6 +9,8 @@ GermanWord _word(
   String headword, {
   List<String> definitions = const ['definition'],
   List<String> sources = const [],
+  bool markedNotVocabulary = false,
+  bool glossReviewed = false,
 }) {
   final enrichment = ApiEnrichment(
     enrichmentStatus: 'success',
@@ -43,6 +45,8 @@ GermanWord _word(
     gradeLevel: 1,
     lemma: headword,
     sources: sources,
+    markedNotVocabulary: markedNotVocabulary,
+    glossReviewed: glossReviewed,
     isGrundwortschatzBW: false,
     nurImPlural: false,
     graphematicVariants: const [],
@@ -633,5 +637,20 @@ void main() {
         isEmpty);
     expect(_word('apple', definitions: ['A round fruit.']).learnerDefinitions,
         ['A round fruit.']);
+  });
+
+  test('the pack\'s not-vocabulary verdict is honoured', () {
+    expect(isPresentableVocabularyEntry(_word('dog')), isTrue);
+    expect(isPresentableVocabularyEntry(_word('dog', markedNotVocabulary: true)),
+        isFalse);
+  });
+
+  test('a reviewed gloss for a function word is shown', () {
+    expect(
+        _word('sie',
+                definitions: ['Ein Fürwort für eine weibliche Person.'],
+                glossReviewed: true)
+            .learnerDefinitions,
+        ['Ein Fürwort für eine weibliche Person.']);
   });
 }

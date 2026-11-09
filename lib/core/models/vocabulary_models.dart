@@ -723,10 +723,9 @@ class GermanWord {
   /// because its aircraft sense runs to 234 characters and the troweling
   /// machine is next in the list. It did that to 506 entries — car, data,
   /// fly, go — before anybody read one.
-  bool get _glossWasWrittenForIt => const {
-        'project-authored',
-        'llm-reviewed',
-      }.contains(apiEnrichment?.enrichmentStatus);
+  bool get _glossWasWrittenForIt =>
+      glossReviewed ||
+      apiEnrichment?.enrichmentStatus == 'project-authored';
 
   List<String> get learnerDefinitions {
     // A closed-class word's gloss is a noun sense that shares its spelling:
@@ -955,6 +954,24 @@ class GermanWord {
   /// seven-year-old needs; none of those sentences is for one.
   final bool glossIsAboveItsReader;
 
+  /// The pack's verdict that this entry is not a word to ask about — a name,
+  /// a fragment, a misspelling — from metadata `quality.vocabulary`.
+  final bool markedNotVocabulary;
+
+  /// Mirrors the SQL in db_feature_index.dart: a verdict resting only on
+  /// "tagged a misspelling" does not count, because that tag marks a pair
+  /// and a real word ("suburban", "decidedly") is half of it.
+  static bool _markedNotVocabulary(Object? quality) {
+    if (quality is! Map || quality['vocabulary'] != false) return false;
+    final reasons = quality['reasons'];
+    return reasons is List &&
+        reasons.any((r) => r != 'tagged a misspelling');
+  }
+
+  /// The leading gloss was written for this entry by the reviewed correction
+  /// pass (tools/pack/llm_correct.py), metadata `gloss_source`.
+  final bool glossReviewed;
+
   GermanWord({
     required this.id,
     required this.word,
@@ -1014,6 +1031,8 @@ class GermanWord {
     required this.coordinateTerms,
     this.isProperNoun = false,
     this.glossIsAboveItsReader = false,
+    this.markedNotVocabulary = false,
+    this.glossReviewed = false,
   })  : _apiEnrichment = apiEnrichment,
         spellingDifficultySource = spellingDifficultySource ??
             (_parseErrorRate(litekeyErrorRate) == null ? 'unknown' : 'litkey'),
@@ -1155,6 +1174,8 @@ class GermanWord {
       wordType: parseWordType(json['wordType']),
       isProperNoun: isProperNoun,
       glossIsAboveItsReader: json['gloss_above_reader'] == true,
+      markedNotVocabulary: _markedNotVocabulary(json['quality']),
+      glossReviewed: json['gloss_source'] == 'llm-reviewed',
       gradeLevel: _parseInt(json['gradeLevel'], 1), // SAFE PARSE
       lemma: apiData?.primaryLemma ?? json['lemma'] ?? json['word'],
       forms: json['forms'],
@@ -1326,6 +1347,8 @@ class GermanWord {
         coordinateTerms: coordinateTerms,
         isProperNoun: isProperNoun,
         glossIsAboveItsReader: glossIsAboveItsReader,
+        markedNotVocabulary: markedNotVocabulary,
+        glossReviewed: glossReviewed,
       );
 
   Map<String, dynamic> toJson() => {

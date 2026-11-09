@@ -20,6 +20,7 @@ bool isPresentableVocabularyEntry(GermanWord entry) {
   if (!wordSuitsAChild(entry.word)) return false;
   if (entry.sources.any(_isMisspellingSource)) return false;
   if (!entry.isHydrated) return true;
+  if (entry.markedNotVocabulary) return false;
 
   final enrichment = entry.apiEnrichment;
   if (enrichment == null) return true;

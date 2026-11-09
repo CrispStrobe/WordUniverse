@@ -81,6 +81,10 @@ jobs:
             --out build/pack/slim.db
           python3 tools/pack/repair_pack.py build/pack/slim.db \
             --out build/pack/artifact.db
+          # Reviewed corrections (tools/pack/llm_correct.py), before the
+          # index is built so its bits describe the corrected rows.
+          python3 tools/pack/apply_llm_overlay.py build/pack/artifact.db \
+            --lang ${{ inputs.language }}
           bash tools/pack/index_pack.sh build/pack/artifact.db
 
       - name: Install the publishing dependencies

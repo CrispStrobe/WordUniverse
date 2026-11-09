@@ -144,7 +144,20 @@ String _presentableSql() {
       .map((marker) => "lower(entry.value) LIKE '%$marker%'")
       .join(' OR ');
   return '''
-    NOT EXISTS (
+    -- The pack's own verdict: tools/pack/repair_pack.py and the reviewed
+    -- correction pass write quality.vocabulary = false for an entry that is
+    -- not a word to ask about. JSON false reads as 0. Except a verdict
+    -- resting only on "tagged a misspelling": that tag marks the pair
+    -- (suburban, aggravate, decidedly carry it), and the rule below already
+    -- tells the halves apart by word list.
+    NOT (
+      coalesce(json_extract(words.metadata_json, '\$.quality.vocabulary'), 1) = 0
+      AND EXISTS (
+        SELECT 1 FROM json_each(words.metadata_json, '\$.quality.reasons') AS r
+        WHERE r.value != 'tagged a misspelling'
+      )
+    )
+    AND NOT EXISTS (
       SELECT 1 FROM json_each(words.metadata_json, '\$.sources') AS entry
       WHERE upper(entry.value) LIKE '%COMMON_MISSPELL%'
     )

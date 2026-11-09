@@ -82,7 +82,8 @@ enum WordFeature {
 // bump would make every device rebuild for no change. The next republish
 // closes the gap on its own.
 // 10: headword compares the lemma case-sensitively — "im" is not the
-// headword of "Im", nor "water" of the Devon hamlet "Water".
+// headword of "Im", nor "water" of the Devon hamlet "Water"; and presentable
+// honours the pack's quality.vocabulary = false verdict.
 const int kWordFeatureIndexFormat = 10;
 
 extension WordFeatureMask on int {
