@@ -152,25 +152,34 @@ void main() {
         expect(wrong, isEmpty, reason: wrong.take(10).join('\n  '));
       }, skip: skipReason, timeout: const Timeout(Duration(minutes: 10)));
 
-      test('a sentence gap is one of the pack\'s own sentences', () async {
+      test(
+          'the accepted sentence answer restores its source and cue provenance',
+          () async {
         await installPack();
         final words = await pool(WordFeature.gradeExamples,
             where: (w) => !w.isProperNoun && !w.word.contains(' '));
         final challenges = buildSentenceChallenges(
             pool: words,
             gradeIndex: _grade,
+            isGerman: isGerman,
             maxChallenges: 400,
             rng: Random(_seed));
         final wrong = <String>[];
         for (final challenge in challenges) {
           final rebuilt =
-              '${challenge.before}${challenge.matchedForm}${challenge.after}';
+              '${challenge.before}${challenge.correctOption}${challenge.after}';
           final examples =
               challenge.word.apiEnrichment?.gradeExamples?.values.expand(
                     (sentences) => sentences,
                   ) ??
                   const <String>[];
-          if (!examples.contains(rebuilt)) {
+          if (!examples.contains(rebuilt) ||
+              rebuilt != challenge.source ||
+              challenge.options[challenge.correctIndex] !=
+                  challenge.matchedForm ||
+              !challenge.word.learnerDefinitions
+                  .map((definition) => definition.trim())
+                  .contains(challenge.meaningCue)) {
             wrong.add('${challenge.word.word}: "$rebuilt"');
           }
         }

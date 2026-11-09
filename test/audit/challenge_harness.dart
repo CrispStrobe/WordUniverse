@@ -279,6 +279,12 @@ const _reviewSkills = [
   LanguageSkillType.spelling,
   LanguageSkillType.articleSelection,
   LanguageSkillType.vocabulary,
+  LanguageSkillType.wordType,
+  LanguageSkillType.reading,
+  LanguageSkillType.sentenceStructure,
+  LanguageSkillType.capitalization,
+  LanguageSkillType.verbConjugation,
+  LanguageSkillType.pluralForm,
 ];
 
 final Map<String, Generator> generators = {
@@ -294,11 +300,12 @@ final Map<String, Generator> generators = {
         .map((w) => w.word.toLowerCase())
         .toSet();
     final items = <Item>[];
+    var candidateIndex = 0;
     for (final word in pool) {
       if (items.length >= c.count) break;
-      // Cycle the skill types so the dump shows all three review formats;
-      // each falls back to the definition quiz when it cannot build.
-      final skill = _reviewSkills[items.length % _reviewSkills.length];
+      // Advance even when this word cannot support the requested format.
+      // Otherwise an English article task stalls the whole review dump.
+      final skill = _reviewSkills[candidateIndex++ % _reviewSkills.length];
       final challenge = buildReviewChallenge(
         word,
         SriLanguageData(
@@ -311,6 +318,7 @@ final Map<String, Generator> generators = {
         strings: strings,
         isGerman: c.isGerman,
         rng: c.rng,
+        catalogue: c.vocabulary.getAllWords(c.settings),
       );
       if (challenge == null) continue;
       items.add(Item(
@@ -318,7 +326,10 @@ final Map<String, Generator> generators = {
         prompt: challenge.prompt,
         options: challenge.options,
         answer: challenge.options[challenge.correctIndex],
-        notes: {'type': challenge.type.name},
+        notes: {
+          'type': challenge.type.name,
+          'assessedSkill': challenge.assessedSkill.name,
+        },
       ));
     }
     return items;
@@ -581,14 +592,20 @@ final Map<String, Generator> generators = {
             .where((w) => hasGradeExamples(w, c.grade))
             .toList(),
         gradeIndex: c.grade,
+        isGerman: c.isGerman,
         maxChallenges: c.count,
         rng: c.rng,
       )
           .map((ch) => Item(
                 game: 'sentence_completion',
-                prompt: '${ch.before}___${ch.after}',
+                // Audit the complete dynamic clue, without static UI words
+                // such as ‘Wort’ / ‘meaning’ becoming false answer leaks.
+                prompt: '${ch.before}___${ch.after}\n${ch.meaningCue}',
                 options: ch.options,
                 answer: ch.options[ch.correctIndex],
+                notes: {
+                  'cue label': c.strings.sentenceCompletionMeaningCue('…')
+                },
               ))
           .toList(),
   'word_class_flash': (c) async {

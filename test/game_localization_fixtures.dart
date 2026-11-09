@@ -48,6 +48,7 @@ class GermanVocabularyFixture extends VocabularyService {
           required GameProvider settingsProvider,
           required GradeLevel grade,
           int limit = 5,
+          LanguageSkillType skillType = LanguageSkillType.spelling,
           Random? rng}) =>
       words.take(limit).toList();
 }

@@ -12,6 +12,8 @@ on:
       - 'tools/e2e/**'
       - 'web/**'
       - 'pubspec.yaml'
+      - 'assets/kompass/**'
+      - 'assets/data/bw_*'
       - '.github/workflows/web-e2e.yml'
   workflow_dispatch:
 
@@ -37,6 +39,7 @@ jobs:
           cache-dependency-path: tools/e2e/package-lock.json
       - uses: subosito/flutter-action@v2
         with:
+          flutter-version: '3.44.2'
           channel: stable
           cache: true
       - run: flutter pub get
@@ -66,6 +69,14 @@ jobs:
           BASE_URL: http://127.0.0.1:18100
           EVIDENCE_DIR: ${{ runner.temp }}/wu-live-evidence
         run: tools/e2e/run.sh
+
+      - name: Exercise the bundled Kompass course
+        if: ${{ !cancelled() }}
+        env:
+          BASE_URL: http://127.0.0.1:18100
+          EVIDENCE_DIR: ${{ runner.temp }}/wu-live-evidence/kompass
+          PLAYWRIGHT_BROWSERS_PATH: '0'
+        run: node tools/e2e/kompass-live.mjs
 
       - name: Upload evidence
         if: always()

@@ -14,18 +14,10 @@ import 'dart:math';
 import '../../../core/models/skill_category.dart';
 import '../../../core/models/vocabulary_models.dart';
 import '../../../core/models/vocabulary_quality.dart';
+export '../../../core/models/sri_item_identity.dart' show baseWordFromSriId;
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/vocabulary_service.dart';
 import '../providers/game_provider.dart';
-
-/// Strips the skill prefix an SRI item id carries, leaving the written form.
-String? baseWordFromSriId(String id) {
-  const prefixes = ['SPELL_', 'TYPE_', 'GRAM_', 'MEAN_'];
-  for (final prefix in prefixes) {
-    if (id.startsWith(prefix)) return id.substring(prefix.length);
-  }
-  return id.isEmpty ? null : id;
-}
 
 /// Words to practise, adaptively: overdue items, then unseen words, then fill.
 ///
@@ -49,31 +41,43 @@ List<GermanWord> selectAdaptiveWords({
   final selected = <GermanWord>[];
   final takenIds = <String>{};
 
-  void offer(GermanWord word) {
-    if (selected.length >= count) return;
-    if (takenIds.contains(word.id)) return;
+  bool offer(GermanWord word) {
+    if (selected.length >= count) return false;
+    if (takenIds.contains(word.id)) return false;
     // Names are not vocabulary to practise: the catalogue carries them
     // untyped, so "barbara" was being offered as a word to find in a grid.
-    if (word.isProperNoun || namesSomething(word)) return;
-    if (!isPlayable(word)) return;
+    if (word.isProperNoun || namesSomething(word)) return false;
+    if (!isPlayable(word)) return false;
     selected.add(word);
     takenIds.add(word.id);
+    return true;
   }
 
-  // 1. Words the learner is due to review, worst performance first.
+  // 1. Words the learner is due to review, oldest due first. A game that
+  // does not specify its skill defaults to spelling, never another skill's
+  // queue that it cannot actually review.
   final reviewTarget = (count * reviewShare).ceil();
   final reviewIds = sri.getItemsForReview(
     limit: reviewQueueLimit ?? reviewTarget * 2,
-    skillTypeFilter: skillFilter,
+    skillTypeFilter: skillFilter ?? LanguageSkillType.spelling,
     gradeLevelFilter: grade.index + 1,
+    markReturned: false,
   );
   for (final id in reviewIds) {
     if (selected.length >= reviewTarget) break;
-    final written = baseWordFromSriId(id);
-    if (written == null) continue;
+    final item = sri.getItemData(id);
+    if (item == null) continue;
     // Indexed lookup: this used to scan the whole catalogue per review item.
-    final word = vocabulary.findByWrittenForm(written);
-    if (word != null) offer(word);
+    final word = vocabulary.findByReviewItem(item);
+    if (word != null && word.gradeLevel == grade.index + 1 && offer(word)) {
+      sri.bindWordIdentity(
+        itemId: id,
+        wordId: word.id,
+        baseWord: word.word,
+        wordType: word.wordType,
+      );
+      sri.markItemsReturned([id]);
+    }
   }
 
   // 2. Words not studied yet, at this grade.
@@ -82,6 +86,7 @@ List<GermanWord> selectAdaptiveWords({
     grade: grade,
     limit: (count - selected.length) * 2,
     settingsProvider: settings,
+    skillType: skillFilter ?? LanguageSkillType.spelling,
     rng: rng,
   )) {
     if (selected.length >= count) break;

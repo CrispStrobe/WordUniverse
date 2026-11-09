@@ -8,6 +8,7 @@ import 'dart:math';
 
 import '../../../core/models/vocabulary_models.dart';
 import '../../../core/models/vocabulary_quality.dart';
+import 'cloze_service.dart' show tryBlank;
 import 'spelling_spotter_service.dart';
 
 class SpellingChallenge {
@@ -113,7 +114,7 @@ SpellingChallenge? buildSpellingChallenge({
       .where(sentenceSuitsAChild)
       .firstOrNull;
   if (context == null) {
-    final gradeKey = '\$gradeLevel';
+    final gradeKey = '$gradeLevel';
     final ge = word.apiEnrichment?.gradeExamples;
     if (ge != null) {
       final sents = ge[gradeKey] ?? ge.values.firstOrNull ?? [];
@@ -134,7 +135,7 @@ SpellingChallenge? buildSpellingChallenge({
 }
 
 bool _sentenceContains(String sentence, String word) =>
-    sentence.toLowerCase().contains(word.toLowerCase());
+    tryBlank(sentence, word) != null;
 
 /// The words to ask about, hardest first but drawn from a wider tier so that
 /// replays differ. Expects a pool already filtered to words with errors.

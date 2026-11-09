@@ -1,21 +1,15 @@
 // lib/features/games/screens/sri_review_game.dart
 //
 // SRI Review Mode — practice the player's weakest tracked words.
-// Pulls up to 10 lowest-easiness-factor entries from SriService and runs
-// each through a challenge that matches the original skill:
-//   • articleSelection  → pick der / die / das
-//   • spelling          → pick correctly-spelled form from misspellings
-//   • everything else   → pick the matching word given its definition
-// Falls back to definition quiz when the skill-specific format is not
-// applicable (e.g. no error words stored, or no definition available).
+// Reviews due cards in a format that tests their recorded skill. Unsupported
+// tasks remain due for their original game; a definition never credits grammar.
 
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../core/models/vocabulary_models.dart';
-import '../../../core/models/word_features.dart';
 import '../services/sri_review_service.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/services/sri_service.dart';
@@ -33,7 +27,9 @@ import '../../../shared/widgets/onboarding_overlay.dart';
 // ─── Widget ───────────────────────────────────────────────────────────────────
 
 class SriReviewGame extends StatefulWidget {
-  const SriReviewGame({super.key});
+  const SriReviewGame({super.key, this.initialChallenges});
+
+  final List<ReviewChallenge>? initialChallenges;
 
   @override
   State<SriReviewGame> createState() => _SriReviewGameState();
@@ -54,6 +50,9 @@ class _SriReviewGameState extends State<SriReviewGame>
 
   bool _isLoading = true;
   bool _onboardingScheduled = false;
+  bool _hasDueItems = false;
+  bool _usedInitialChallenges = false;
+  Timer? _advanceTimer;
   List<ReviewChallenge> _challenges = [];
   int _index = 0;
   int _correct = 0;
@@ -65,20 +64,23 @@ class _SriReviewGameState extends State<SriReviewGame>
 
   final _rng = Random();
 
-  bool get _isDE => _vocabService.learningLanguage == 'de';
-
   @override
   void initState() {
     super.initState();
     _pulseCtrl = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 500));
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
     _shakeCtrl = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 400));
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) => _init());
   }
 
   @override
   void dispose() {
+    _advanceTimer?.cancel();
     _pulseCtrl.dispose();
     _shakeCtrl.dispose();
     super.dispose();
@@ -93,8 +95,10 @@ class _SriReviewGameState extends State<SriReviewGame>
     _gameProvider = context.read<GameProvider>();
 
     if (!_vocabService.isInitialized) await _vocabService.initialize();
+    if (!mounted) return;
     _audioService.setTtsLanguage(_vocabService.learningLanguage);
     await _buildChallenges();
+    if (!mounted) return;
     if (!_onboardingScheduled) {
       _onboardingScheduled = true;
       OnboardingOverlay.maybeShow(
@@ -121,99 +125,23 @@ class _SriReviewGameState extends State<SriReviewGame>
 
   // ─── Challenge building ──────────────────────────────────────────────────
 
-  String _baseWordFromId(SriLanguageData d) {
-    // Strip the prefix added by SriService.getItemId() to recover the word.
-    const prefixes = [
-      'SPELL_',
-      'ARTICLE_',
-      'PLURAL_',
-      'WORDTYPE_',
-      'SENTENCE_',
-      'PUNCT_',
-      'CAPITAL_',
-      'CONJUG_',
-      'CASE_',
-    ];
-    var id = d.itemId;
-    for (final p in prefixes) {
-      if (id.startsWith(p)) return id.substring(p.length);
-    }
-    return id;
-  }
-
-  /// Indexed lookup; this used to scan the whole catalogue per review item.
-  GermanWord? _findWord(String baseWord) =>
-      _vocabService.findByWrittenForm(baseWord);
-
   Future<void> _buildChallenges() async {
-    // Respect spaced repetition: prefer items that are actually DUE
-    // (getItemsForReview excludes mastered/not-yet-due), ranked by difficulty.
-    // Only fall back to hardest-overall when nothing is due, so the game stays
-    // playable but doesn't resurface the same low-EF words every session.
-    final dueIds =
-        _sriService.getItemsForReview(limit: _targetRounds * 4).toSet();
-    var sriItems = _sriService
-        .getMostDifficultItems(limit: _targetRounds * 4)
-        .where((d) => dueIds.contains(d.itemId))
-        .toList();
-    if (sriItems.isEmpty) {
-      sriItems = _sriService.getMostDifficultItems(limit: _targetRounds * 2);
-    }
-    if (sriItems.isEmpty) {
-      setState(() => _isLoading = false);
-      return;
-    }
-
-    // Spelling distractors only need the spellings, so this stays the light
-    // catalogue.
-    final validWords = _vocabService
-        .getAllWords(_gameProvider)
-        .map((w) => w.word.toLowerCase())
-        .toSet();
-
-    // Definition distractors need decoded definitions — a bounded pool of
-    // words the feature index says have them.
-    final definitionPool = await _vocabService.takeWordsWithFeature(
-      WordFeature.definitions,
-      settingsProvider: _gameProvider,
-      limit: 120,
-      where: (w) => !w.isProperNoun,
-      random: _rng,
-    );
-
-    // The reviewed words themselves are shown with their definitions and
-    // learner errors, so hydrate exactly those.
-    final reviewed = <SriLanguageData, GermanWord>{};
-    final found = <SriLanguageData, GermanWord>{};
-    for (final item in sriItems) {
-      final word = _findWord(_baseWordFromId(item));
-      if (word != null) found[item] = word;
-    }
-    final hydrated = await _vocabService.hydrate(found.values);
-    var cursor = 0;
-    for (final item in found.keys) {
-      reviewed[item] = hydrated[cursor++];
-    }
+    _advanceTimer?.cancel();
+    _hasDueItems = _sriService.getAvailableReviewCount() > 0;
+    final challenges =
+        !_usedInitialChallenges && widget.initialChallenges != null
+            ? widget.initialChallenges!
+            : await buildDueReviewChallenges(
+                vocabulary: _vocabService,
+                sri: _sriService,
+                settings: _gameProvider,
+                strings: _s,
+                limit: _targetRounds,
+                optionCount: _optionCount,
+                rng: _rng,
+              );
+    _usedInitialChallenges = true;
     if (!mounted) return;
-
-    final challenges = <ReviewChallenge>[];
-    for (final item in sriItems) {
-      if (challenges.length >= _targetRounds) break;
-      final word = reviewed[item];
-      if (word == null) continue;
-
-      final challenge = buildReviewChallenge(
-        word,
-        item,
-        definitionPool,
-        validWords,
-        strings: _s,
-        isGerman: _isDE,
-        optionCount: _optionCount,
-        rng: _rng,
-      );
-      if (challenge != null) challenges.add(challenge);
-    }
 
     setState(() {
       _challenges = challenges;
@@ -242,26 +170,26 @@ class _SriReviewGameState extends State<SriReviewGame>
       _audioService.playSound('success');
       _pulseCtrl.forward(from: 0);
       _correct++;
-      _sriService.recordResponse(
-        skillType: challenge.sriData.skillType,
-        // Use the base recovered from the item's own id so we UPDATE the
-        // reviewed item rather than create a new lemma-keyed duplicate (the
-        // word may have been matched via its lemma, not its surface form).
-        baseWord: _baseWordFromId(challenge.sriData),
-        wasCorrect: true,
-      );
     } else {
       _gameProvider.hapticMedium();
       _audioService.playSound('error');
-      _shakeCtrl.forward(from: 0).then((_) => _shakeCtrl.reverse());
-      _sriService.recordResponse(
-        skillType: challenge.sriData.skillType,
-        baseWord: _baseWordFromId(challenge.sriData),
-        wasCorrect: false,
-      );
+      _shakeCtrl.forward(from: 0).then((_) {
+        if (mounted) _shakeCtrl.reverse();
+      });
     }
 
-    Future.delayed(const Duration(milliseconds: 2000), () {
+    _sriService.recordReviewResponse(
+      itemId: challenge.sriData.itemId,
+      assessedSkill: challenge.assessedSkill,
+      wasCorrect: isCorrect,
+      metadata: {
+        'gradeLevel': challenge.word.gradeLevel,
+        'responseFormat': challenge.type.name,
+        'baseWord': challenge.word.word,
+        'wordId': challenge.word.id,
+      },
+    );
+    _advanceTimer = Timer(const Duration(milliseconds: 2000), () {
       if (!mounted) return;
       _advance();
     });
@@ -280,12 +208,14 @@ class _SriReviewGameState extends State<SriReviewGame>
   }
 
   void _showGameOver() {
-    _gameProvider.reportOutcome(GameOutcome(
-      gameType: 'sri_review',
-      difficulty: 3,
-      score: _correct * 10,
-      wasSuccessful: _correct >= (_challenges.length * 0.7),
-    ));
+    _gameProvider.reportOutcome(
+      GameOutcome(
+        gameType: 'sri_review',
+        difficulty: 3,
+        score: _correct * 10,
+        wasSuccessful: _correct >= (_challenges.length * 0.7),
+      ),
+    );
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -298,8 +228,10 @@ class _SriReviewGameState extends State<SriReviewGame>
           children: [
             Text(
               '$_correct / ${_challenges.length}',
-              style: SpaceTheme.titleStyle
-                  .copyWith(color: SpaceTheme.starYellow, fontSize: 28),
+              style: SpaceTheme.titleStyle.copyWith(
+                color: SpaceTheme.starYellow,
+                fontSize: 28,
+              ),
             ),
             const SizedBox(height: 4),
             Text(
@@ -323,7 +255,8 @@ class _SriReviewGameState extends State<SriReviewGame>
               _buildChallenges();
             },
             style: ElevatedButton.styleFrom(
-                backgroundColor: SpaceTheme.planetOrange),
+              backgroundColor: SpaceTheme.planetOrange,
+            ),
             child: Text(_s.playAgain),
           ),
         ],
@@ -358,9 +291,19 @@ class _SriReviewGameState extends State<SriReviewGame>
             const Icon(Icons.star_outline, color: Colors.white38, size: 64),
             const SizedBox(height: 16),
             Text(
-              _s.reviewNoWordsYet,
+              _sriService.totalTrackedItems == 0
+                  ? _s.reviewNoWordsYet
+                  : _hasDueItems
+                      ? _s.reviewUnsupportedItems
+                      : _s.reviewAllCaughtUp,
               style: SpaceTheme.bodyStyle.copyWith(color: Colors.white70),
               textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            OutlinedButton.icon(
+              onPressed: () => Navigator.of(context).pop(),
+              icon: const Icon(Icons.arrow_back),
+              label: Text(_s.backToMenu),
             ),
           ],
         ),
@@ -374,7 +317,7 @@ class _SriReviewGameState extends State<SriReviewGame>
       children: [
         _buildHeader(challenge),
         Expanded(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
             child: Column(
               children: [
@@ -407,8 +350,9 @@ class _SriReviewGameState extends State<SriReviewGame>
               children: [
                 Text(
                   _s.sriReviewHeader,
-                  style: SpaceTheme.titleStyle
-                      .copyWith(color: SpaceTheme.starYellow),
+                  style: SpaceTheme.titleStyle.copyWith(
+                    color: SpaceTheme.starYellow,
+                  ),
                 ),
                 Text(
                   '${_index + 1} / ${_challenges.length}',
@@ -419,8 +363,10 @@ class _SriReviewGameState extends State<SriReviewGame>
           ),
           Text(
             '${_s.score}: ${_correct * 10}',
-            style: SpaceTheme.bodyStyle
-                .copyWith(color: SpaceTheme.starYellow, fontSize: 14),
+            style: SpaceTheme.bodyStyle.copyWith(
+              color: SpaceTheme.starYellow,
+              fontSize: 14,
+            ),
           ),
         ],
       ),
@@ -455,9 +401,14 @@ class _SriReviewGameState extends State<SriReviewGame>
             children: [
               Icon(Icons.repeat, color: color, size: 14),
               const SizedBox(width: 4),
-              Text(label,
-                  style: TextStyle(
-                      color: color, fontSize: 12, fontWeight: FontWeight.w600)),
+              Text(
+                label,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ],
           ),
         ),
@@ -474,6 +425,10 @@ class _SriReviewGameState extends State<SriReviewGame>
       ReviewChallengeType.article => _s.challengeTypeArticle,
       ReviewChallengeType.spelling => _s.challengeTypeSpelling,
       ReviewChallengeType.definition => _s.challengeTypeDefinition,
+      ReviewChallengeType.wordType => _s.statsWordTypes,
+      ReviewChallengeType.conjugation => _s.statsVerbs,
+      ReviewChallengeType.plural => _s.statsPlural,
+      ReviewChallengeType.capitalization => _s.statsCapitalization,
     };
 
     return AnimatedBuilder(
@@ -507,9 +462,10 @@ class _SriReviewGameState extends State<SriReviewGame>
             Text(
               typeLabel,
               style: SpaceTheme.bodyStyle.copyWith(
-                  color: SpaceTheme.starYellow.withValues(alpha: 0.8),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600),
+                color: SpaceTheme.starYellow.withValues(alpha: 0.8),
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
             ),
             const SizedBox(height: 10),
             Text(
@@ -586,10 +542,16 @@ class _SriReviewGameState extends State<SriReviewGame>
               Icon(icon, color: text, size: 18),
               const SizedBox(width: 8),
             ],
-            Text(
-              challenge.options[index],
-              style: TextStyle(
-                  color: text, fontSize: 16, fontWeight: FontWeight.w500),
+            Flexible(
+              child: Text(
+                challenge.options[index],
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: text,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ),
           ],
         ),
@@ -597,7 +559,11 @@ class _SriReviewGameState extends State<SriReviewGame>
     );
 
     if (!hasAnswered) {
-      tile = GestureDetector(onTap: () => _handleTap(index), child: tile);
+      tile = InkWell(
+        onTap: () => _handleTap(index),
+        borderRadius: BorderRadius.circular(12),
+        child: tile,
+      );
     }
     return tile;
   }

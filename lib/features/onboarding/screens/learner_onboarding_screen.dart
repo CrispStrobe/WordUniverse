@@ -27,7 +27,9 @@ class _LearnerOnboardingScreenState extends State<LearnerOnboardingScreen> {
     setState(() => _saving = true);
     // LanguageSetupScreen owns both language preferences. Learner setup must
     // not overwrite them with a default (vocabulary is not loaded yet).
-    context.read<GameProvider>().setGrade(_band);
+    if (_goal != LearnerGoal.kompassBw) {
+      context.read<GameProvider>().setGrade(_band);
+    }
     await context.read<LearnerProfileService>().completeOnboarding(
           goal: _goal,
           sessionMinutes: _minutes,
@@ -72,7 +74,12 @@ class _LearnerOnboardingScreenState extends State<LearnerOnboardingScreen> {
                             _goalChip(LearnerGoal.spelling, s.goalSpelling),
                             _goalChip(LearnerGoal.grammar, s.goalGrammar),
                             _goalChip(LearnerGoal.dafDaz, s.goalDafDaz),
+                            _goalChip(LearnerGoal.kompassBw, s.goalKompassBw),
                           ])),
+                      if (_goal == LearnerGoal.kompassBw)
+                        Padding(padding: const EdgeInsets.only(top: 14),
+                          child: Text(s.kompassCourseNote, style: SpaceTheme.bodyStyle)),
+                      if (_goal != LearnerGoal.kompassBw)
                       _section(
                           s.onboardingStartBand,
                           Column(

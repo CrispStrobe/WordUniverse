@@ -14,6 +14,7 @@ import '../../../core/services/sri_service.dart';
 import '../../../core/theme/space_theme.dart';
 import '../../../generated/l10n.dart';
 import '../providers/game_provider.dart';
+import '../services/sri_item_display.dart';
 
 class KarteikastenScreen extends StatefulWidget {
   const KarteikastenScreen({super.key});
@@ -186,7 +187,7 @@ class _KarteikastenScreenState extends State<KarteikastenScreen> {
         final item = items[i];
         return _DraggableItemCard(
           itemId: item.itemId,
-          label: _formatItemLabel(S.of(context)!, item),
+          label: sriItemDisplayLabel(S.of(context)!, item),
           subtitle: 'EF ${item.easinessFactor.toStringAsFixed(2)} · '
               '${item.successCount}✓ ${item.failureCount}✗',
           currentBox: _selectedBox,
@@ -194,50 +195,6 @@ class _KarteikastenScreenState extends State<KarteikastenScreen> {
         );
       },
     );
-  }
-
-  String _formatItemLabel(S s, SriLanguageData item) {
-    // itemId is "SKILL_word" — drop the SKILL_ prefix for display, but keep
-    // the skill as a small badge prefix so the same word in two skills is
-    // distinguishable. The raw prefix (SPELL, WORDTYPE, …) is localized.
-    final underscoreIdx = item.itemId.indexOf('_');
-    if (underscoreIdx <= 0 || underscoreIdx >= item.itemId.length - 1) {
-      return item.itemId;
-    }
-    final skill = item.itemId.substring(0, underscoreIdx);
-    final word = item.itemId.substring(underscoreIdx + 1);
-    return '[${_skillLabel(s, skill)}] $word';
-  }
-
-  /// Localized human label for a raw SRI skill prefix (see SriService.getItemId).
-  /// Unknown prefixes fall back to the raw token.
-  String _skillLabel(S s, String prefix) {
-    switch (prefix) {
-      case 'SPELL':
-        return s.skillLabelSpelling;
-      case 'ARTICLE':
-        return s.skillLabelArticle;
-      case 'PLURAL':
-        return s.skillLabelPlural;
-      case 'WORDTYPE':
-        return s.skillLabelWordType;
-      case 'SENTENCE':
-        return s.skillLabelSentence;
-      case 'PUNCT':
-        return s.skillLabelPunctuation;
-      case 'CAPITAL':
-        return s.skillLabelCapitalization;
-      case 'CONJUG':
-        return s.skillLabelConjugation;
-      case 'CASE':
-        return s.skillLabelCase;
-      case 'VOCAB':
-        return s.skillLabelVocabulary;
-      case 'READ':
-        return s.skillLabelReading;
-      default:
-        return prefix;
-    }
   }
 }
 

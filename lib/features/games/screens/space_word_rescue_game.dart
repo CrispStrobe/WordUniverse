@@ -13,6 +13,7 @@ import '../../../core/services/audio_service.dart';
 import '../../../core/theme/space_theme.dart';
 import '../../../core/models/skill_category.dart';
 import '../services/space_word_rescue_hints.dart';
+import '../services/space_word_rescue_scoring.dart';
 import '../widgets/cefr_chip.dart';
 import '../widgets/space_background.dart';
 import '../widgets/space_word_rescue_widgets.dart';
@@ -382,10 +383,17 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
     
     _sriService.recordResponse(
       skillType: LanguageSkillType.spelling,
-      baseWord: _currentWord!.displayName,
+      baseWord: _currentWord!.word,
+      wordId: _currentWord!.id,
+      legacyBaseWords: [_currentWord!.displayName],
       wasCorrect: false,
+      wasAssisted: _hintsUsed > 0,
       metadata: {
         'gradeLevel': widget.gradeLevel.index + 1,
+        'wordId': _currentWord!.id,
+        'responseFormat': 'memoryReproduction',
+        'previewShown': true,
+        'hintsUsed': _hintsUsed,
       },
     );
     
@@ -485,25 +493,18 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
     _fadeTimer?.cancel();
     
     final s = S.of(context)!;
-    final userInput = _userInput.trim().toLowerCase();
-    final correctDisplayName = _currentWord!.displayName.toLowerCase();
-    final correctArticle = _currentWord!.article?.toLowerCase();
-
-    // Strip a leading article uniformly so a child who types the noun
-    // without its article is judged the same way in the perfect-match path
-    // and the variant path below.
-    String userWordPart = userInput;
-    if (correctArticle != null && userInput.startsWith("$correctArticle ")) {
-      userWordPart = userInput.substring(correctArticle.length + 1);
-    }
-    final correctWordPart = _currentWord!.word.toLowerCase();
+    final spellingResult = evaluateRescueSpelling(
+      _currentWord!,
+      _userInput,
+      isGerman: _vocabularyService.learningLanguage == 'de',
+    );
 
     bool wasCorrectForSRI = false;
     int scoreGained = 0;
 
     _hintTimer?.cancel();
 
-    if (userInput == correctDisplayName || userWordPart == correctWordPart) {
+    if (spellingResult == RescueSpellingResult.correct) {
         _answerResult = AnswerResultType.perfect;
         _feedbackMessage = s.gameplayCorrect;
         _educationalHint = generateEducationalHint(context, _currentWord!, isPerfect: true, gradeLevel: widget.gradeLevel);
@@ -519,12 +520,11 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
           _streakController.forward(from: 0.0);
         }
     } else {
-      if (_currentWord!.graphematicVariants
-          .any((v) => v.spelling.toLowerCase() == userWordPart)) {
+      if (spellingResult == RescueSpellingResult.commonMistake) {
         _answerResult = AnswerResultType.commonMistake;
         _feedbackMessage = s.gameplayFeedbackCommonMistake(_currentWord!.displayName);
         _educationalHint = generateEducationalHint(context, _currentWord!, isCommonMistake: true, gradeLevel: widget.gradeLevel);
-        wasCorrectForSRI = true;
+        wasCorrectForSRI = false;
 
         scoreGained = 5 - (_hintsUsed * 1);
         scoreGained = max(2, scoreGained);
@@ -556,10 +556,18 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
     
     _sriService.recordResponse(
       skillType: LanguageSkillType.spelling,
-      baseWord: _currentWord!.displayName,
+      baseWord: _currentWord!.word,
+      wordId: _currentWord!.id,
+      legacyBaseWords: [_currentWord!.displayName],
       wasCorrect: wasCorrectForSRI,
+      wasAssisted: _hintsUsed > 0,
       metadata: {
         'gradeLevel': widget.gradeLevel.index + 1,
+        'wordId': _currentWord!.id,
+        'responseFormat': 'memoryReproduction',
+        'previewShown': true,
+        'hintsUsed': _hintsUsed,
+        'recognizedMistake': spellingResult == RescueSpellingResult.commonMistake,
       },
     );
     
@@ -582,6 +590,9 @@ class _SpaceWordRescueGameState extends State<SpaceWordRescueGame>
       });
     } else {
       setState(() {
+        // Encourage a recognisable attempt without counting a misspelling as
+        // a rescued word or a correct SRI response.
+        _score += scoreGained;
         _wordsLost++;
       });
       

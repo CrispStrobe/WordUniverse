@@ -696,6 +696,7 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
     _sriService.recordResponse(
       skillType: LanguageSkillType.wordType,
       baseWord: whirlingWord.word.word,
+      wordId: whirlingWord.word.id,
       wasCorrect: true,
       metadata: {
         'game': 'word_type_whirl',
@@ -725,6 +726,7 @@ class _WordTypeWhirlGameState extends State<WordTypeWhirlGame>
     _sriService.recordResponse(
       skillType: LanguageSkillType.wordType,
       baseWord: whirlingWord.word.word,
+      wordId: whirlingWord.word.id,
       wasCorrect: false,
       metadata: {
         'game': 'word_type_whirl',

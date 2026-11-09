@@ -10,13 +10,13 @@ class GradeSelector extends StatelessWidget {
   String _getGradeDescription(BuildContext context, int grade) {
     final s = S.of(context)!;
     switch (grade) {
-      case 3:
+      case 1:
         return s.grade3Desc;
-      case 4:
+      case 2:
         return s.grade4Desc;
-      case 5:
+      case 3:
         return s.grade5Desc;
-      case 6:
+      case 4:
         return s.grade6Desc;
       default:
         return '';
@@ -71,7 +71,7 @@ class GradeSelector extends StatelessWidget {
               const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [3, 4, 5, 6].map((grade) {
+                children: [1, 2, 3, 4].map((grade) {
                   final isSelected = gameProvider.grade == grade;
                   
                   return GestureDetector(

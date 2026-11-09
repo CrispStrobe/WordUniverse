@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // --- FIX: Import enums from the single source of truth ---
 import '../models/skill_category.dart';
+import '../models/sri_item_identity.dart';
 import '../../features/games/tuning.dart';
 // --- END FIX ---
 
@@ -20,6 +21,8 @@ class SriLanguageData {
   double easinessFactor; // E-Factor from SM-2 algorithm
   int repetitions;
   DateTime nextReviewDate;
+  DateTime? lastReviewedAt;
+  int assistedSuccessCount;
   Map<String, dynamic>
       metadata; // Store additional info like grade level, topic
 
@@ -31,6 +34,8 @@ class SriLanguageData {
     this.easinessFactor = kSm2InitialEasiness,
     this.repetitions = 0,
     required this.nextReviewDate,
+    this.lastReviewedAt,
+    this.assistedSuccessCount = 0,
     Map<String, dynamic>? metadata,
   }) : metadata = metadata ?? {};
 
@@ -42,20 +47,41 @@ class SriLanguageData {
         'ef': easinessFactor,
         'r': repetitions,
         'next': nextReviewDate.toIso8601String(),
+        if (lastReviewedAt != null) 'last': lastReviewedAt!.toIso8601String(),
+        'assisted': assistedSuccessCount,
         'meta': metadata,
       };
 
-  factory SriLanguageData.fromJson(Map<String, dynamic> json) =>
-      SriLanguageData(
-        itemId: json['id'],
-        skillType: LanguageSkillType.values[json['skillType'] ?? 0],
-        successCount: json['s'] ?? 0,
-        failureCount: json['f'] ?? 0,
-        easinessFactor: json['ef'] ?? kSm2InitialEasiness,
-        repetitions: json['r'] ?? 0,
-        nextReviewDate: DateTime.parse(json['next']),
-        metadata: json['meta'] ?? {},
-      );
+  factory SriLanguageData.fromJson(Map<String, dynamic> json) {
+    final id = json['id'] as String;
+    final storedSkill = json['skillType'];
+    final inferredSkill = SriItemIdentity.fromId(id).skillType;
+    final skill = storedSkill is int &&
+            storedSkill >= 0 &&
+            storedSkill < LanguageSkillType.values.length
+        ? LanguageSkillType.values[storedSkill]
+        : inferredSkill;
+    if (skill == null) throw const FormatException('Unknown review skill');
+    return SriLanguageData(
+      itemId: id,
+      skillType: skill,
+      successCount: (json['s'] as num?)?.toInt() ?? 0,
+      failureCount: (json['f'] as num?)?.toInt() ?? 0,
+      easinessFactor: (json['ef'] as num?)?.toDouble() ?? kSm2InitialEasiness,
+      repetitions: (json['r'] as num?)?.toInt() ?? 0,
+      nextReviewDate: DateTime.parse(json['next'] as String),
+      lastReviewedAt: DateTime.tryParse(json['last'] as String? ?? ''),
+      assistedSuccessCount: (json['assisted'] as num?)?.toInt() ?? 0,
+      metadata: Map<String, dynamic>.from(json['meta'] as Map? ?? const {}),
+    );
+  }
+
+  SriItemIdentity get identity =>
+      SriItemIdentity.fromId(itemId, skillType: skillType, metadata: metadata);
+
+  bool get hasBoundWordIdentity =>
+      SriItemIdentity.fromId(itemId).wordId != null ||
+      metadata['lexicalIdentityVersion'] == 2;
 }
 
 // Statistics for competence areas
@@ -77,15 +103,26 @@ class CompetenceStat {
 
 // The main service class
 class SriService with ChangeNotifier {
+  SriService({DateTime Function()? clock}) : _clock = clock ?? DateTime.now;
+
+  final DateTime Function() _clock;
   Map<String, SriLanguageData> _sriDatabase = {};
+  final Map<String, String> _canonicalItemIds = {};
+  final Map<String, String> _canonicalByStoredId = {};
+  // A malformed or newer-format record must not erase all the valid records,
+  // nor disappear when a later answer saves the database.
+  final Map<String, dynamic> _unparsedRecords = {};
   static const _sriStorageKey = 'sri_language_database';
+  static const _sriRecoveryKey = 'sri_language_database_recovery';
 
   final Set<String> _alreadyReturnedThisSession = {};
   DateTime? _sessionStartTime;
 
   int get totalTrackedItems => _sriDatabase.length;
-  int get totalAttempts => _sriDatabase.values
-      .fold(0, (sum, item) => sum + item.successCount + item.failureCount);
+  int get totalAttempts => _sriDatabase.values.fold(
+        0,
+        (sum, item) => sum + item.successCount + item.failureCount,
+      );
   int get totalMasteredItems => _sriDatabase.keys.where(isItemMastered).length;
 
   // UNCHANGED - Keep logging functionality
@@ -96,14 +133,14 @@ class SriService with ChangeNotifier {
   // UNCHANGED
   void resetSession() {
     _alreadyReturnedThisSession.clear();
-    _sessionStartTime = DateTime.now();
+    _sessionStartTime = _clock();
     _log('Session reset. Clearing returned items cache.');
   }
 
   // UNCHANGED
   void _checkSessionExpiry() {
     if (_sessionStartTime == null ||
-        DateTime.now().difference(_sessionStartTime!).inMinutes > 10) {
+        _clock().difference(_sessionStartTime!).inMinutes > 10) {
       resetSession();
     }
   }
@@ -113,56 +150,34 @@ class SriService with ChangeNotifier {
     required LanguageSkillType skillType,
     required String baseWord,
     String? additionalInfo,
+    String? wordId,
   }) {
-    // Create consistent IDs for tracking
-    switch (skillType) {
-      case LanguageSkillType.spelling:
-        return 'SPELL_${baseWord.toLowerCase()}';
-      case LanguageSkillType.articleSelection:
-        return 'ARTICLE_${baseWord.toLowerCase()}';
-      case LanguageSkillType.pluralForm:
-        return 'PLURAL_${baseWord.toLowerCase()}';
-      case LanguageSkillType.wordType:
-        return 'WORDTYPE_${baseWord.toLowerCase()}';
-      case LanguageSkillType.sentenceStructure:
-        return 'SENTENCE_${additionalInfo ?? baseWord}';
-      case LanguageSkillType.punctuation:
-        return 'PUNCT_${additionalInfo ?? baseWord}';
-      case LanguageSkillType.capitalization:
-        return 'CAPITAL_${baseWord.toLowerCase()}';
-      case LanguageSkillType.verbConjugation:
-        // Ensure additionalInfo doesn't create trailing underscore
-        final info =
-            additionalInfo?.isNotEmpty == true ? '_$additionalInfo' : '';
-        return 'CONJUG_${baseWord.toLowerCase()}$info';
-      case LanguageSkillType.caseUsage:
-        // Ensure additionalInfo doesn't create trailing underscore
-        final info =
-            additionalInfo?.isNotEmpty == true ? '_$additionalInfo' : '';
-        return 'CASE_${baseWord.toLowerCase()}$info';
-      case LanguageSkillType.vocabulary:
-        return 'VOCAB_${baseWord.toLowerCase()}';
-      case LanguageSkillType.reading:
-        return 'READ_${baseWord.toLowerCase()}';
-    }
+    return SriItemIdentity.itemId(
+      skillType: skillType,
+      baseWord: baseWord,
+      additionalInfo: additionalInfo,
+      wordId: wordId,
+    );
   }
 
   /// MODIFIED: Check if an item is mastered
   bool isItemMastered(String itemId) {
-    final data = _sriDatabase[itemId];
+    final data = getItemData(itemId);
     if (data == null) return false;
+    return _isMastered(data);
+  }
 
-    // Adjusted mastery criteria for language learning
-    // Requires more repetitions and higher easiness factor
-    final isMastered = data.repetitions >= 5 &&
-        data.easinessFactor > 3.5 &&
-        data.failureCount <= 2 &&
-        data.successCount >= 8;
-
-    if (isMastered) {
-      _log('Item "$itemId" is considered MASTERED. 🌟');
+  bool _isMastered(SriLanguageData data) {
+    final manualBox = data.metadata['manualBox'];
+    if (manualBox is int && manualBox >= 1 && manualBox <= 5) {
+      return manualBox == 5;
     }
-    return isMastered;
+    // Lifetime mistakes remain useful history, but never permanently bar a
+    // learner from recovering. Repetitions resets after each new mistake.
+    return data.repetitions >= kSm2MinimumRepetitionsForMastery &&
+        data.easinessFactor > kSm2MasteryEasinessThreshold &&
+        data.successCount - data.assistedSuccessCount >=
+            kSm2MinimumSuccessesForMastery;
   }
 
   /// Calculate detailed breakdown by skill type and grade level
@@ -186,7 +201,7 @@ class SriService with ChangeNotifier {
 
     // Aggregate data
     _sriDatabase.forEach((itemId, data) {
-      final gradeLevel = data.metadata['gradeLevel'] as int? ?? 1;
+      final gradeLevel = _gradeLevel(data) ?? 1;
       final skillType = data.skillType;
 
       if (gradeLevel >= 1 && gradeLevel <= 6) {
@@ -253,7 +268,8 @@ class SriService with ChangeNotifier {
     // Aggregate word type identification skills
     _sriDatabase.forEach((itemId, data) {
       if (data.skillType == LanguageSkillType.wordType) {
-        final wordType = data.metadata['wordType'] as String?;
+        final wordType =
+            (data.metadata['wordType'] as String?)?.split('.').last;
         if (wordType != null) {
           final enumType = GermanWordType.values.firstWhere(
             (e) => e.toString().split('.').last == wordType,
@@ -284,39 +300,72 @@ class SriService with ChangeNotifier {
       final successfulAttempts = stats['successfulAttempts'] as int;
 
       return MapEntry(
-          wordType,
-          CompetenceStat(
-            tracked: tracked,
-            mastered: stats['mastered'] as int,
-            averageEasiness: tracked > 0
-                ? ((stats['totalEFactor'] as double) / tracked)
-                : 2.5,
-            totalAttempts: totalAttempts,
-            successRate:
-                totalAttempts > 0 ? (successfulAttempts / totalAttempts) : 0.0,
-          ));
+        wordType,
+        CompetenceStat(
+          tracked: tracked,
+          mastered: stats['mastered'] as int,
+          averageEasiness:
+              tracked > 0 ? ((stats['totalEFactor'] as double) / tracked) : 2.5,
+          totalAttempts: totalAttempts,
+          successRate:
+              totalAttempts > 0 ? (successfulAttempts / totalAttempts) : 0.0,
+        ),
+      );
     });
   }
 
   /// MODIFIED: Load data from storage
   Future<void> loadSriData() async {
     _log('Loading SRI language database from storage...');
+    String? originalJson;
     try {
       final prefs = await SharedPreferences.getInstance();
       final jsonString = prefs.getString(_sriStorageKey);
+      originalJson = jsonString;
       if (jsonString != null) {
-        final Map<String, dynamic> jsonMap = json.decode(jsonString);
-        _sriDatabase = jsonMap.map(
-          (key, value) => MapEntry(key, SriLanguageData.fromJson(value)),
-        );
+        final jsonMap = Map<String, dynamic>.from(json.decode(jsonString));
+        _sriDatabase = {};
+        _canonicalItemIds.clear();
+        _canonicalByStoredId.clear();
+        _unparsedRecords.clear();
+        for (final entry in jsonMap.entries) {
+          try {
+            final value = Map<String, dynamic>.from(entry.value as Map);
+            // The storage key is the identity other saved screens refer to.
+            // Keep it intact even if an old row's redundant id differs.
+            value['id'] = entry.key;
+            final data = SriLanguageData.fromJson(value);
+            _sriDatabase[entry.key] = data;
+            _indexIdentity(data);
+          } catch (error) {
+            _unparsedRecords[entry.key] = entry.value;
+            _log('Keeping unreadable record ${entry.key}: $error');
+          }
+        }
         _log(
-            '✅ Successfully loaded ${_sriDatabase.length} SRI language records.');
+          '✅ Successfully loaded ${_sriDatabase.length} SRI language records.',
+        );
       } else {
+        _sriDatabase.clear();
+        _canonicalItemIds.clear();
+        _canonicalByStoredId.clear();
+        _unparsedRecords.clear();
         _log('No SRI data found. Starting with a fresh database.');
       }
     } catch (e) {
-      _log('❌ Error loading SRI data: $e. Using an empty database.');
-      _sriDatabase = {};
+      _log('❌ Error loading SRI data: $e. Keeping existing in-memory data.');
+      if (originalJson != null) {
+        // Retain the exact unreadable source before a later response creates
+        // a fresh database. Do not overwrite an earlier recovery copy.
+        try {
+          final prefs = await SharedPreferences.getInstance();
+          if (!prefs.containsKey(_sriRecoveryKey)) {
+            await prefs.setString(_sriRecoveryKey, originalJson);
+          }
+        } catch (backupError) {
+          _log('Could not retain the recovery copy: $backupError');
+        }
+      }
     }
 
     resetSession();
@@ -328,9 +377,10 @@ class SriService with ChangeNotifier {
     _log('Saving SRI language database to storage...');
     try {
       final prefs = await SharedPreferences.getInstance();
-      final jsonString = json.encode(
-        _sriDatabase.map((key, value) => MapEntry(key, value.toJson())),
-      );
+      final jsonString = json.encode({
+        ..._unparsedRecords,
+        ..._sriDatabase.map((key, value) => MapEntry(key, value.toJson())),
+      });
       await prefs.setString(_sriStorageKey, jsonString);
       _log('✅ Successfully saved ${_sriDatabase.length} SRI language records.');
     } catch (e) {
@@ -344,54 +394,191 @@ class SriService with ChangeNotifier {
     required String baseWord,
     required bool wasCorrect,
     String? additionalInfo,
+    String? wordId,
     Map<String, dynamic>? metadata,
+    bool wasAssisted = false,
+    Iterable<String> legacyBaseWords = const [],
   }) {
+    final suppliedWordId = wordId ?? metadata?['wordId'] as String?;
+    if (wordId != null &&
+        metadata?['wordId'] != null &&
+        metadata!['wordId'] != wordId) {
+      throw ArgumentError('Conflicting lexical word ids in a response');
+    }
     final itemId = getItemId(
       skillType: skillType,
       baseWord: baseWord,
       additionalInfo: additionalInfo,
+      wordId: suppliedWordId,
     );
 
     _log(
-        'Recording response for "$itemId": ${wasCorrect ? "Correct ✅" : "Incorrect ❌"}');
+      'Recording response for "$itemId": ${wasCorrect ? "Correct ✅" : "Incorrect ❌"}',
+    );
 
-    final data = _sriDatabase[itemId] ??
+    SriLanguageData? existing = getItemData(itemId);
+    // Reuse a legacy key only when saved evidence identifies this exact sense.
+    // Otherwise it stays intact and due; new practice starts a lexical record.
+    // This also supports old display-name keys such as "der Hund".
+    for (final legacyWord in [baseWord, ...legacyBaseWords]) {
+      if (existing != null) break;
+      final candidate = getItemData(
+        getItemId(
+          skillType: skillType,
+          baseWord: legacyWord,
+          additionalInfo: additionalInfo,
+        ),
+      );
+      if (candidate == null) continue;
+      if (suppliedWordId != null &&
+          (candidate.identity.additionalInfo ?? '') != (additionalInfo ?? ''))
+        continue;
+      if (suppliedWordId == null ||
+          candidate.identity.wordId == suppliedWordId ||
+          (candidate.identity.wordId == null &&
+              candidate.metadata['baseWord'] == baseWord &&
+              candidate.metadata['wordType'] != null &&
+              metadata?['wordType'] != null &&
+              candidate.metadata['wordType'].toString().split('.').last ==
+                  metadata!['wordType'].toString().split('.').last)) {
+        existing = candidate;
+      }
+    }
+    final data = existing ??
         SriLanguageData(
           itemId: itemId,
           skillType: skillType,
-          nextReviewDate: DateTime.now(),
-          metadata: metadata ?? {},
+          nextReviewDate: _clock(),
         );
-
-    // Update metadata if provided
-    if (metadata != null) {
-      data.metadata.addAll(metadata);
+    if (data.skillType != skillType) {
+      throw StateError('A response cannot update a different review skill');
     }
+    data.metadata.addAll({
+      ...?metadata,
+      'baseWord': baseWord,
+      if (suppliedWordId != null) ...{
+        'wordId': suppliedWordId,
+        'lexicalIdentityVersion': 2,
+      },
+      if (additionalInfo != null) 'additionalInfo': additionalInfo,
+    });
+    _recordResponse(data, wasCorrect: wasCorrect, wasAssisted: wasAssisted);
+  }
+
+  /// Updates exactly the item that was asked, preserving contextual suffixes
+  /// and old ids. A different exercise cannot credit the original skill.
+  void recordReviewResponse({
+    required String itemId,
+    required LanguageSkillType assessedSkill,
+    required bool wasCorrect,
+    bool wasAssisted = false,
+    Map<String, dynamic>? metadata,
+  }) {
+    final data = getItemData(itemId);
+    if (data == null) throw StateError('Unknown review item: $itemId');
+    if (data.skillType != assessedSkill) {
+      throw ArgumentError.value(
+        assessedSkill,
+        'assessedSkill',
+        'Does not match the reviewed item',
+      );
+    }
+    final reviewedWordId = metadata?['wordId'];
+    if (reviewedWordId is String &&
+        _hasBoundIdentity(data) &&
+        data.identity.wordId != reviewedWordId) {
+      throw ArgumentError('A review cannot update a different lexical sense');
+    }
+    data.metadata.addAll({
+      ...?metadata,
+      if (reviewedWordId is String) 'lexicalIdentityVersion': 2,
+    });
+    _recordResponse(data, wasCorrect: wasCorrect, wasAssisted: wasAssisted);
+  }
+
+  void _indexIdentity(SriLanguageData data) {
+    final canonical = data.identity.canonicalId;
+    final previous = _canonicalByStoredId[data.itemId];
+    if (previous != null &&
+        previous != canonical &&
+        _canonicalItemIds[previous] == data.itemId) {
+      _canonicalItemIds.remove(previous);
+    }
+    if (canonical != null) {
+      _canonicalItemIds[canonical] = data.itemId;
+      _canonicalByStoredId[data.itemId] = canonical;
+    }
+  }
+
+  bool _hasBoundIdentity(SriLanguageData data) => data.hasBoundWordIdentity;
+
+  /// Attach a stable id only after the vocabulary resolver has uniquely
+  /// identified an old item. Keep its stored key and every learning count.
+  /// Ambiguous items must never call this method and remain pending instead.
+  void bindWordIdentity({
+    required String itemId,
+    required String wordId,
+    required String baseWord,
+    required GermanWordType wordType,
+  }) {
+    if (wordId.trim().isEmpty) {
+      throw ArgumentError.value(wordId, 'wordId', 'Must identify an entry');
+    }
+    final data = getItemData(itemId);
+    if (data == null) throw StateError('Unknown review item: $itemId');
+    if (_hasBoundIdentity(data) && data.identity.wordId != wordId) {
+      throw ArgumentError('Cannot reassign an existing lexical identity');
+    }
+    final detail = data.identity.additionalInfo;
+    data.metadata.addAll({
+      'wordId': wordId,
+      'baseWord': baseWord,
+      'wordType': wordType.name,
+      'lexicalIdentityVersion': 2,
+      if (detail != null) 'additionalInfo': detail,
+    });
+    _indexIdentity(data);
+  }
+
+  void _recordResponse(
+    SriLanguageData data, {
+    required bool wasCorrect,
+    required bool wasAssisted,
+  }) {
+    final now = _clock();
+    data.lastReviewedAt = now;
+    data.metadata.remove('manualBox');
+    data.metadata['lastResponseAssisted'] = wasAssisted;
 
     // Update success/failure counts
     if (wasCorrect) {
       data.successCount++;
+      if (wasAssisted) data.assistedSuccessCount++;
     } else {
       data.failureCount++;
     }
 
     // SM-2 algorithm implementation
-    final q = wasCorrect ? 5 : 1;
+    final q = wasCorrect ? (wasAssisted ? 3 : 5) : 1;
 
     if (q < 3) {
       data.repetitions = 0;
-    } else {
+    } else if (!wasAssisted) {
       data.repetitions++;
     }
 
-    data.easinessFactor =
-        data.easinessFactor + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02));
-    if (data.easinessFactor < kSm2MinimumEasiness)
+    // Correct with support is useful practice, but not evidence to advance
+    // independent mastery. Keep its ease unchanged and revisit it soon.
+    if (!wasCorrect || !wasAssisted) {
+      data.easinessFactor += 0.1 - (5 - q) * (0.08 + (5 - q) * 0.02);
+    }
+    if (data.easinessFactor < kSm2MinimumEasiness) {
       data.easinessFactor = kSm2MinimumEasiness;
+    }
 
     // Calculate next review interval
     int intervalInDays;
-    if (data.repetitions <= 1) {
+    if (wasAssisted || data.repetitions <= 1) {
       intervalInDays = 1;
     } else if (data.repetitions == 2) {
       intervalInDays = 3; // Shorter interval for language learning
@@ -401,11 +588,14 @@ class SriService with ChangeNotifier {
       if (intervalInDays > 30) intervalInDays = 30;
     }
 
-    data.nextReviewDate = DateTime.now().add(Duration(days: intervalInDays));
+    data.nextReviewDate = now.add(Duration(days: intervalInDays));
 
-    _sriDatabase[itemId] = data;
+    _sriDatabase[data.itemId] = data;
+    _indexIdentity(data);
+    _alreadyReturnedThisSession.add(data.itemId);
     _log(
-        'Updated SRI for "$itemId": EF=${data.easinessFactor.toStringAsFixed(2)}, Reps=${data.repetitions}, NextReview=${data.nextReviewDate.toIso8601String().substring(0, 10)}');
+      'Updated SRI for "${data.itemId}": EF=${data.easinessFactor.toStringAsFixed(2)}, Reps=${data.repetitions}, NextReview=${data.nextReviewDate.toIso8601String().substring(0, 10)}',
+    );
 
     notifyListeners();
     saveSriData();
@@ -418,24 +608,27 @@ class SriService with ChangeNotifier {
     bool resetSessionFirst = false,
     LanguageSkillType? skillTypeFilter,
     int? gradeLevelFilter,
+    bool markReturned = true,
   }) {
+    if (limit <= 0) return const [];
     if (resetSessionFirst) {
       resetSession();
     } else {
       _checkSessionExpiry();
     }
 
-    final now = DateTime.now();
+    final now = _clock();
     final allExcluded = <String>{
       ..._alreadyReturnedThisSession,
       ...?excludeIds,
     };
 
     var reviewable = _sriDatabase.values
-        .where((data) =>
-            data.nextReviewDate.isBefore(now) &&
-            !allExcluded.contains(data.itemId) &&
-            !isItemMastered(data.itemId))
+        .where(
+          (data) =>
+              !data.nextReviewDate.isAfter(now) &&
+              !allExcluded.contains(data.itemId),
+        )
         .toList();
 
     // Apply filters
@@ -447,23 +640,29 @@ class SriService with ChangeNotifier {
 
     if (gradeLevelFilter != null) {
       reviewable = reviewable
-          .where((data) => data.metadata['gradeLevel'] == gradeLevelFilter)
+          .where(
+            (data) =>
+                _gradeLevel(data) == null ||
+                _gradeLevel(data) == gradeLevelFilter,
+          )
           .toList();
     }
 
-    // Sort by priority: lower easiness factor and earlier review date first
+    // Oldest due first prevents mastered maintenance cards being starved by
+    // an endless stream of newer difficult cards. Ease breaks equal dates.
     reviewable.sort((a, b) {
-      int efComparison = a.easinessFactor.compareTo(b.easinessFactor);
-      if (efComparison != 0) return efComparison;
-      return a.nextReviewDate.compareTo(b.nextReviewDate);
+      final dueComparison = a.nextReviewDate.compareTo(b.nextReviewDate);
+      if (dueComparison != 0) return dueComparison;
+      return a.easinessFactor.compareTo(b.easinessFactor);
     });
 
     final itemIds = reviewable.map((data) => data.itemId).take(limit).toList();
 
-    _alreadyReturnedThisSession.addAll(itemIds);
+    if (markReturned) markItemsReturned(itemIds);
 
     _log(
-        'Found ${itemIds.length} items for review (skill filter: $skillTypeFilter, grade: $gradeLevelFilter)');
+      'Found ${itemIds.length} items for review (skill filter: $skillTypeFilter, grade: $gradeLevelFilter)',
+    );
     if (itemIds.isNotEmpty) {
       _log('Returning: ${itemIds.join(", ")}');
     }
@@ -471,12 +670,25 @@ class SriService with ChangeNotifier {
     return itemIds;
   }
 
+  /// Reserve only the items that actually reached a playable round. Selection
+  /// may inspect more candidates than it uses, and those stay available.
+  void markItemsReturned(Iterable<String> itemIds) {
+    _checkSessionExpiry();
+    _alreadyReturnedThisSession.addAll(itemIds);
+  }
+
+  int? _gradeLevel(SriLanguageData data) {
+    final grade = data.metadata['gradeLevel'];
+    return grade is num ? grade.toInt() : int.tryParse('$grade');
+  }
+
   /// NEW: Get available review count by skill type
-  Map<LanguageSkillType, int> getAvailableReviewsBySkill(
-      {Set<String>? excludeIds}) {
+  Map<LanguageSkillType, int> getAvailableReviewsBySkill({
+    Set<String>? excludeIds,
+  }) {
     _checkSessionExpiry();
 
-    final now = DateTime.now();
+    final now = _clock();
     final allExcluded = <String>{
       ..._alreadyReturnedThisSession,
       ...?excludeIds,
@@ -488,13 +700,18 @@ class SriService with ChangeNotifier {
     }
 
     _sriDatabase.values
-        .where((data) =>
-            data.nextReviewDate.isBefore(now) &&
-            !allExcluded.contains(data.itemId) &&
-            !isItemMastered(data.itemId))
+        .where(
+      (data) =>
+          !data.nextReviewDate.isAfter(now) &&
+          !allExcluded.contains(data.itemId),
+    )
         .forEach((data) {
       // Ensure skill type exists in map (safety check)
-      counts.update(data.skillType, (value) => value + 1, ifAbsent: () => 1);
+      counts.update(
+        data.skillType,
+        (value) => value + 1,
+        ifAbsent: () => 1,
+      );
     });
 
     return counts;
@@ -528,31 +745,38 @@ class SriService with ChangeNotifier {
   int getAvailableReviewCount({Set<String>? excludeIds}) {
     _checkSessionExpiry();
 
-    final now = DateTime.now();
+    final now = _clock();
     final allExcluded = <String>{
       ..._alreadyReturnedThisSession,
       ...?excludeIds,
     };
 
     return _sriDatabase.values
-        .where((data) =>
-            data.nextReviewDate.isBefore(now) &&
-            !allExcluded.contains(data.itemId) &&
-            !isItemMastered(data.itemId))
+        .where(
+          (data) =>
+              !data.nextReviewDate.isAfter(now) &&
+              !allExcluded.contains(data.itemId),
+        )
         .length;
   }
 
   // UNCHANGED
-  List<String> getFreshItemsForReview(
-      {int limit = 10, Set<String>? excludeIds}) {
+  List<String> getFreshItemsForReview({
+    int limit = 10,
+    Set<String>? excludeIds,
+  }) {
     return getItemsForReview(
-        limit: limit, excludeIds: excludeIds, resetSessionFirst: true);
+      limit: limit,
+      excludeIds: excludeIds,
+      resetSessionFirst: true,
+    );
   }
 
   // UNCHANGED
   void debugPrintSessionState() {
     _log(
-        'SESSION DEBUG: ${_alreadyReturnedThisSession.length} items returned this session');
+      'SESSION DEBUG: ${_alreadyReturnedThisSession.length} items returned this session',
+    );
     _log('Returned items: ${_alreadyReturnedThisSession.join(", ")}');
     _log('Available for review: ${getAvailableReviewCount()}');
   }
@@ -576,9 +800,9 @@ class SriService with ChangeNotifier {
   List<String> getMostChallengingWords({int limit = 10}) {
     final spellingItems = _sriDatabase.values
         .where((data) => data.skillType == LanguageSkillType.spelling)
-        .where((data) =>
-            (data.successCount + data.failureCount) >
-            0) // Check for any attempts
+        .where(
+          (data) => (data.successCount + data.failureCount) > 0,
+        ) // Check for any attempts
         .toList();
 
     spellingItems.sort((a, b) {
@@ -589,42 +813,53 @@ class SriService with ChangeNotifier {
       final bFailureRate = bTotal > 0 ? b.failureCount / bTotal : 0.0;
 
       if (aFailureRate != bFailureRate) {
-        return bFailureRate
-            .compareTo(aFailureRate); // Higher failure rate first
+        return bFailureRate.compareTo(
+          aFailureRate,
+        ); // Higher failure rate first
       }
-      return a.easinessFactor
-          .compareTo(b.easinessFactor); // Lower easiness first
+      return a.easinessFactor.compareTo(
+        b.easinessFactor,
+      ); // Lower easiness first
     });
 
     return spellingItems
         .take(limit)
-        .map((data) => data.itemId.replaceFirst('SPELL_', ''))
+        .map((data) => data.identity.baseWord)
         .toList();
   }
 
   /// NEW: Get recently learned items
   List<String> getRecentlyLearnedItems({int days = 7, int limit = 20}) {
-    final cutoffDate = DateTime.now().subtract(Duration(days: days));
+    final cutoffDate = _clock().subtract(Duration(days: days));
 
     final recentItems = _sriDatabase.values
-        .where((data) =>
-            data.successCount > 0 && data.nextReviewDate.isAfter(cutoffDate))
+        .where(
+          (data) =>
+              data.successCount > 0 &&
+              data.lastReviewedAt != null &&
+              !data.lastReviewedAt!.isBefore(cutoffDate),
+        )
         .toList();
 
-    recentItems.sort((a, b) => b.nextReviewDate.compareTo(a.nextReviewDate));
+    recentItems.sort((a, b) => b.lastReviewedAt!.compareTo(a.lastReviewedAt!));
 
     return recentItems.take(limit).map((data) => data.itemId).toList();
   }
 
   /// NEW: Get skill-specific data for an item
   SriLanguageData? getItemData(String itemId) {
-    return _sriDatabase[itemId];
+    return _sriDatabase[itemId] ?? _sriDatabase[_canonicalItemIds[itemId]];
   }
 
   /// NEW: Clear all data (for testing or reset)
   Future<void> clearAllData() async {
     _sriDatabase.clear();
+    _canonicalItemIds.clear();
+    _canonicalByStoredId.clear();
+    _unparsedRecords.clear();
     _alreadyReturnedThisSession.clear();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_sriRecoveryKey);
     await saveSriData();
     notifyListeners();
     _log('⚠️ All SRI data cleared!');
@@ -637,10 +872,11 @@ class SriService with ChangeNotifier {
 
   /// Returns 1..5 for the given item data. 1 = Neu, 5 = Gemeistert.
   int getBoxFor(SriLanguageData d) {
-    final mastered = d.repetitions >= kSm2MinimumRepetitionsForMastery &&
-        d.easinessFactor > kSm2MasteryEasinessThreshold &&
-        d.failureCount <= kSm2MaxFailuresForMastery;
-    if (mastered) return 5;
+    final manualBox = d.metadata['manualBox'];
+    if (manualBox is int && manualBox >= 1 && manualBox <= 5) {
+      return manualBox;
+    }
+    if (_isMastered(d)) return 5;
     if (d.repetitions == 0) return 1;
     if (d.repetitions == 1) return 2;
     if (d.repetitions == 2) return 3;
@@ -662,59 +898,18 @@ class SriService with ChangeNotifier {
     return counts;
   }
 
-  /// Manually move an item into [targetBox] (1..5). Adjusts repetitions,
-  /// easiness, failureCount and nextReviewDate so [getBoxFor] returns the
-  /// requested value. Persists and notifies listeners.
+  /// Manually place a card and schedule it without rewriting its attempt
+  /// history. Manual placement is a self-assessment; the next answer clears
+  /// it and returns the card to the same evidence-based mastery calculation
+  /// used by the dashboard.
   Future<void> moveItemToBox(String itemId, int targetBox) async {
-    final data = _sriDatabase[itemId];
-    if (data == null) return;
-    final now = DateTime.now();
-    switch (targetBox) {
-      case 1:
-        data.repetitions = 0;
-        data.easinessFactor = kSm2InitialEasiness;
-        data.failureCount = 0;
-        data.nextReviewDate = now;
-        break;
-      case 2:
-        data.repetitions = 1;
-        if (data.easinessFactor < kSm2InitialEasiness) {
-          data.easinessFactor = kSm2InitialEasiness;
-        }
-        data.nextReviewDate = now.add(const Duration(days: 1));
-        break;
-      case 3:
-        data.repetitions = 2;
-        if (data.easinessFactor < kSm2InitialEasiness + 0.5) {
-          data.easinessFactor = kSm2InitialEasiness + 0.5;
-        }
-        data.nextReviewDate = now.add(const Duration(days: 3));
-        break;
-      case 4:
-        if (data.repetitions < kSm2MinimumRepetitionsForMastery) {
-          data.repetitions = kSm2MinimumRepetitionsForMastery;
-        }
-        if (data.easinessFactor < kSm2InitialEasiness + 1.0) {
-          data.easinessFactor = kSm2InitialEasiness + 1.0;
-        }
-        if (data.easinessFactor > kSm2MasteryEasinessThreshold) {
-          data.easinessFactor = kSm2MasteryEasinessThreshold;
-        }
-        data.nextReviewDate = now.add(const Duration(days: 7));
-        break;
-      case 5:
-        if (data.repetitions < kSm2MinimumRepetitionsForMastery) {
-          data.repetitions = kSm2MinimumRepetitionsForMastery + 2;
-        }
-        if (data.easinessFactor <= kSm2MasteryEasinessThreshold) {
-          data.easinessFactor = kSm2MasteryEasinessThreshold + 0.1;
-        }
-        data.failureCount = 0;
-        data.nextReviewDate = now.add(const Duration(days: 30));
-        break;
-      default:
-        return;
-    }
+    final data = getItemData(itemId);
+    if (data == null || targetBox < 1 || targetBox > 5) return;
+    data.metadata['manualBox'] = targetBox;
+    data.nextReviewDate = _clock().add(
+      Duration(days: const [0, 1, 3, 7, 30][targetBox - 1]),
+    );
+    _alreadyReturnedThisSession.remove(data.itemId);
     _log('Moved "$itemId" to box $targetBox');
     notifyListeners();
     await saveSriData();

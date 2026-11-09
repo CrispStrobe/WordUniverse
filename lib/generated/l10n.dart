@@ -4261,7 +4261,7 @@ abstract class S {
   /// No description provided for @reviewNoWordsYet.
   ///
   /// In en, this message translates to:
-  /// **'No words to review yet.\nPlay a few rounds so the system can identify your weak spots!'**
+  /// **'No words to review yet.\nYour first exercises will start your personal review plan.'**
   String get reviewNoWordsYet;
 
   /// No description provided for @difficultyVeryHard.
@@ -4510,28 +4510,34 @@ abstract class S {
   /// **'From vocabulary level 5, a language note appears after a correct answer.'**
   String get definitionQuizOnboardingBody3;
 
+  /// No description provided for @sentenceCompletionMeaningCue.
+  ///
+  /// In en, this message translates to:
+  /// **'One possible meaning: {definition}'**
+  String sentenceCompletionMeaningCue(String definition);
+
   /// No description provided for @sentenceCompletionPrompt.
   ///
   /// In en, this message translates to:
-  /// **'Which word completes the sentence?'**
+  /// **'Which word matches the clue and completes the sentence?'**
   String get sentenceCompletionPrompt;
 
   /// No description provided for @sentenceCompletionOnboardingBody1.
   ///
   /// In en, this message translates to:
-  /// **'A sentence with a gap is shown — pick the word that fits.'**
+  /// **'Read the sentence with a gap and the clue about the meaning to look for.'**
   String get sentenceCompletionOnboardingBody1;
 
   /// No description provided for @sentenceCompletionOnboardingBody2.
   ///
   /// In en, this message translates to:
-  /// **'Only nouns, verbs, and adjectives are tested — they are uniquely identifiable in context.'**
+  /// **'Practise vocabulary in context. A word can have several meanings. Use both clues.'**
   String get sentenceCompletionOnboardingBody2;
 
   /// No description provided for @sentenceCompletionOnboardingBody3.
   ///
   /// In en, this message translates to:
-  /// **'A meaning hint appears after each correct answer.'**
+  /// **'After you choose, the sentence shows the intended word.'**
   String get sentenceCompletionOnboardingBody3;
 
   /// No description provided for @spellingSpotterPrompt.
@@ -4573,19 +4579,19 @@ abstract class S {
   /// No description provided for @sriReviewOnboardingBody1.
   ///
   /// In en, this message translates to:
-  /// **'Practice your weakest words — selected based on your learning history.'**
+  /// **'Review due tasks from your earlier practice.'**
   String get sriReviewOnboardingBody1;
 
   /// No description provided for @sriReviewOnboardingBody2.
   ///
   /// In en, this message translates to:
-  /// **'Each challenge adapts to the word: article, spelling, or definition.'**
+  /// **'Each question practises the same skill again, such as spelling, word classes, verb forms, or reading in a sentence.'**
   String get sriReviewOnboardingBody2;
 
   /// No description provided for @sriReviewOnboardingBody3.
   ///
   /// In en, this message translates to:
-  /// **'Every correct answer raises the easiness factor of that word.'**
+  /// **'Your answer helps schedule the next review. Familiar words also return later to keep them fresh.'**
   String get sriReviewOnboardingBody3;
 
   /// No description provided for @semanticsBack.
@@ -5794,6 +5800,60 @@ abstract class S {
   /// In en, this message translates to:
   /// **'✗ Wrong! {word} does not belong to: {category}'**
   String whirlWrongFeedback(String word, String category);
+
+  /// No description provided for @reviewAllCaughtUp.
+  ///
+  /// In en, this message translates to:
+  /// **'You are caught up for now.\nYour words will return when they are due, including the ones you already know well.'**
+  String get reviewAllCaughtUp;
+
+  /// No description provided for @reviewItemWordUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Word unavailable'**
+  String get reviewItemWordUnavailable;
+
+  /// No description provided for @reviewUnsupportedItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Some due tasks need their original context.\nPractise them in the matching game; they will stay in your review plan.'**
+  String get reviewUnsupportedItems;
+
+  /// No description provided for @goalKompassBw.
+  ///
+  /// In en, this message translates to:
+  /// **'Kompass 4 · BW German'**
+  String get goalKompassBw;
+
+  /// No description provided for @kompassCourseNote.
+  ///
+  /// In en, this message translates to:
+  /// **'German reading, spelling and language for early year 4 in Baden-Württemberg. Vocabulary difficulty is a separate setting. The course works without downloading a dictionary.'**
+  String get kompassCourseNote;
+
+  /// No description provided for @kompassVocabularyPreset.
+  ///
+  /// In en, this message translates to:
+  /// **'BW basic vocabulary'**
+  String get kompassVocabularyPreset;
+
+  /// No description provided for @kompassVocabularyPresetBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Use BW1 and BW3 words in optional German word games. This replaces source, length and wildcard filters and clears active custom word sets. It does not change the course or language.'**
+  String get kompassVocabularyPresetBody;
+
+  /// No description provided for @kompassVocabularyPresetApplied.
+  ///
+  /// In en, this message translates to:
+  /// **'BW vocabulary filters are active.'**
+  String get kompassVocabularyPresetApplied;
+
+  /// No description provided for @kompassParentReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Kompass observations and next steps'**
+  String get kompassParentReport;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

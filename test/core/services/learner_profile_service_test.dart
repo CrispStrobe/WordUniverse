@@ -30,6 +30,38 @@ void main() {
     expect(restored.recentGameIds.first, 'cloze_flash');
   });
 
+  test('adding Kompass preserves every existing persisted goal', () async {
+    final prefs = await SharedPreferences.getInstance();
+    const previous = [
+      LearnerGoal.balanced,
+      LearnerGoal.vocabulary,
+      LearnerGoal.spelling,
+      LearnerGoal.grammar,
+      LearnerGoal.dafDaz
+    ];
+    for (var index = 0; index < previous.length; index++) {
+      await prefs.setInt('learner_goal', index);
+      expect(LearnerProfileService(prefs).goal, previous[index]);
+    }
+    final profile = LearnerProfileService(prefs);
+    await profile.setGoal(LearnerGoal.kompassBw);
+    expect(LearnerProfileService(prefs).goal, LearnerGoal.kompassBw);
+    await prefs.setInt('learner_goal', 999);
+    expect(LearnerProfileService(prefs).goal, LearnerGoal.balanced);
+  });
+
+  test('onboarding and stored minutes keep the supported time budget',
+      () async {
+    final prefs = await SharedPreferences.getInstance();
+    final profile = LearnerProfileService(prefs);
+    await profile.completeOnboarding(
+        goal: LearnerGoal.kompassBw, sessionMinutes: 100);
+    expect(profile.sessionMinutes, 20);
+    expect(LearnerProfileService(prefs).sessionMinutes, 20);
+    await prefs.setInt('learner_session_minutes', -4);
+    expect(LearnerProfileService(prefs).sessionMinutes, 5);
+  });
+
   test('counts a completed daily session only once', () async {
     final prefs = await SharedPreferences.getInstance();
     final profile = LearnerProfileService(prefs);

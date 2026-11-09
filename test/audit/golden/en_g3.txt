@@ -184,25 +184,33 @@
     · phrasal: pass on  means: to move forward or go ahead
 ── sentence_completion (4)
   The town has a special ___.
-      destination
-      cheek
+A part of culture that is passed from person to person or generation to generation, possibly differing in detail from family to family, such as the way to celebrate holidays.
+      maintenance
+      alien
+      wheat
     ✓ tradition
-      customs
+    · cue label: One possible meaning: …
   I need the ___ same one.
-    ✓ exact
-      accomplished
-      cheap
+Precisely agreeing with a standard, a fact, or the truth; perfectly conforming; neither exceeding nor falling short in any respect.
       shocking
+      cheap
+      complex
+    ✓ exact
+    · cue label: One possible meaning: …
   Some people have an ___ to playing video games.
+A state that is characterized by compulsive drug use or compulsive engagement in rewarding behavior, despite negative consequences.
       strip
+      killer
     ✓ addiction
-      tablet
-      tale
-  The boy got a scratch on his ___.
-      tablet
+      joy
+    · cue label: One possible meaning: …
+  The girl blushed on her ___.
+The soft skin on each side of the face, below the eyes; the outer surface of the sides of the oral cavity.
+      destination
+      addiction
+      alien
     ✓ cheek
-      comfort
-      strip
+    · cue label: One possible meaning: …
 ── spelling_spotter (4)
   Which spelling is correct?
       approxiately
@@ -215,7 +223,7 @@
       garantee
       garantees
       gaurantees
-    · shown after answering: I have a guarantee.
+    · shown after answering: The company offers a guarantee.
   Which spelling is correct?
       tempertaure
       temperture
@@ -233,25 +241,25 @@
 "The imagination."
     ✓ fancy
       fance
-    · type: spelling
-  "A lover of something."
-      beta
-    ✓ amateur
-      distinction
-      artist
-    · type: definition
-  "A written work edited and published, as by a certain editor or in a certain manner, or at a certain time."
-      laboratory
-      dude
-    ✓ edition
-      objective
-    · type: definition
-  "Exhibiting unsoundness or disorder of mind; not sane; utterly mad."
-      corporate
+    · type: spelling  assessedSkill: spelling
+  What word class?
+edition
+      Adjective
+      Verb
+    ✓ Noun
+      Pronoun
+    · type: wordType  assessedSkill: wordType
+  Capitalization
+The lesson had a clear ___.
+    ✓ objective
+      Objective
+    · type: capitalization  assessedSkill: capitalization
+  "of or relating to the area of Palestine and its inhabitants"
+    ✓ Palestinian
+      insane
       mutual
-    ✓ insane
       Italian
-    · type: definition
+    · type: definition  assessedSkill: vocabulary
 ── syllable_count (4)
   confirm
       1

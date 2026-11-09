@@ -93,6 +93,18 @@ class StreakService extends ChangeNotifier {
   }
 
   DateTime _dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
+  Future<void> resetProgress() async {
+    _current = 0;
+    _longest = 0;
+    _lastPlayedDay = null;
+    _loaded = true;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_kCurrentKey);
+    await prefs.remove(_kLongestKey);
+    await prefs.remove(_kLastDayKey);
+    notifyListeners();
+  }
+
   bool _sameDay(DateTime a, DateTime b) =>
       a.year == b.year && a.month == b.month && a.day == b.day;
 }

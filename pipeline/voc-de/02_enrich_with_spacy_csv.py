@@ -2,6 +2,7 @@ import pandas as pd
 import spacy
 import sys
 import os
+from bw_source_lists import PROVENANCE_COLUMNS
 
 # --- Handle optional tqdm import ---
 try:
@@ -57,7 +58,7 @@ def enrich_data(input_file='voc_de.csv', output_file='voc_de_enriched.csv'):
     """
     Loads the consolidated CSV and enriches it using spaCy, applying
     a priority-based logic to fill and *correct* data.
-    Preserves frequency data from the input file.
+    Preserves frequency data and BW source declarations from the input file.
     """
     
     # --- 1. Load spaCy Model ---
@@ -95,8 +96,8 @@ def enrich_data(input_file='voc_de.csv', output_file='voc_de_enriched.csv'):
         'Wortart', 'Genus', 'URL', 'nur_im_Plural'
     ]
     
-    # Combine for the final, ordered list: base + morph + frequency
-    final_cols = base_cols + morph_cols + freq_cols
+    # Keep BW provenance as source data; it is not inferred or edited by spaCy.
+    final_cols = base_cols + morph_cols + freq_cols + PROVENANCE_COLUMNS
 
     # Add any missing columns from the *input* file for robustness
     for col in final_cols:
@@ -107,6 +108,9 @@ def enrich_data(input_file='voc_de.csv', output_file='voc_de_enriched.csv'):
             elif col in freq_cols:
                 # Frequency columns should exist, but add as empty if missing
                 print(f"Warning: Frequency column '{col}' not found. Adding it as empty.")
+                df[col] = ''
+            elif col in PROVENANCE_COLUMNS:
+                # Older consolidated files may not have source declarations.
                 df[col] = ''
             else:
                 # Other base columns
@@ -217,6 +221,8 @@ def enrich_data(input_file='voc_de.csv', output_file='voc_de_enriched.csv'):
         # Add frequency data from the input row
         for freq_col in freq_cols:
             enriched_row[freq_col] = row[freq_col]
+        for source_col in PROVENANCE_COLUMNS:
+            enriched_row[source_col] = row[source_col]
         
         enriched_rows.append(enriched_row)
 

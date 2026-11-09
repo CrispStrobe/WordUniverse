@@ -13,6 +13,8 @@ import '../../../core/services/sri_service.dart';
 import '../../../core/theme/space_theme.dart';
 import '../../../generated/l10n.dart';
 import '../providers/game_provider.dart';
+import '../../kompass/screens/kompass_report_screen.dart';
+import '../../kompass/services/kompass_course_service.dart';
 
 const _kParentPinKey = 'parent_pin';
 const _kDefaultParentPin = '1234';
@@ -38,6 +40,7 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
 
   Future<void> _loadPin() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     setState(() {
       _storedPin = prefs.getString(_kParentPinKey) ?? _kDefaultParentPin;
     });
@@ -169,6 +172,26 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        Card(
+          color: SpaceTheme.nebulaPurple.withValues(alpha: 0.3),
+          child: ListTile(
+            leading: const Icon(Icons.explore_outlined, color: SpaceTheme.starYellow),
+            title: Text(s.kompassParentReport, style: SpaceTheme.titleStyle),
+            subtitle: Text(s.kompassCourseNote, style: SpaceTheme.bodyStyle),
+            trailing: const Icon(Icons.chevron_right, color: Colors.white70),
+            onTap: () async {
+              final course = context.read<KompassCourseService>();
+              await course.load();
+              if (!context.mounted) return;
+              if (course.course == null) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(s.loadFailed)));
+                return;
+              }
+              Navigator.of(context).push(MaterialPageRoute(builder: (_) => const KompassReportScreen()));
+            },
+          ),
+        ),
+        const SizedBox(height: 16),
         _Section(
           title: s.parentSectionLanguageMastery,
           children: [

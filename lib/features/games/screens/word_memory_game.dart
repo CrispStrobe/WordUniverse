@@ -28,6 +28,7 @@ class WordMemoryGame extends StatefulWidget {
 
 class MemoryCard {
   final String word;
+  final String wordId;
   final String displayText;
   final String fontFamily;
   final int id;
@@ -38,6 +39,7 @@ class MemoryCard {
 
   MemoryCard({
     required this.word,
+    required this.wordId,
     String? displayText,
     required this.fontFamily,
     required this.id,
@@ -158,13 +160,20 @@ class _WordMemoryGameState extends State<WordMemoryGame>
       grade: widget.gradeLevel,
       count: _totalPairs,
       isPlayable: _isWordValidForGame,
+      skillFilter: widget.gradeLevel.index >= 2
+          ? LanguageSkillType.vocabulary
+          : LanguageSkillType.spelling,
     );
 
     // Definition cards read the enrichment, so decode it for the chosen words.
     // Below year 3 both cards show the word itself, so the spelling has to
     // be one the pack does not contradict.
+    final seenSpellings = <String>{};
     final playable = (await _vocabularyService.hydrate(wordsForGame))
         .where(spellingIsTrustworthy)
+        // A pair of identical word faces cannot tell two lexical senses
+        // apart, even when their definitions or saved progress differ.
+        .where((word) => seenSpellings.add(word.word))
         .toList();
     if (!mounted) return;
 
@@ -181,11 +190,13 @@ class _WordMemoryGameState extends State<WordMemoryGame>
         final truncDef = def.length > 55 ? '${def.substring(0, 52)}…' : def;
         cards.add(MemoryCard(
             word: word.word,
+            wordId: word.id,
             fontFamily: shuffledFonts[0],
             id: i * 2,
             matchId: pairId));
         cards.add(MemoryCard(
             word: word.word,
+            wordId: word.id,
             displayText: truncDef,
             fontFamily: 'SpaceGrotesk',
             id: i * 2 + 1,
@@ -193,9 +204,15 @@ class _WordMemoryGameState extends State<WordMemoryGame>
             isDefinitionCard: true));
       } else {
         cards.add(MemoryCard(
-            word: word.word, fontFamily: shuffledFonts[0], id: i * 2));
+            word: word.word,
+            wordId: word.id,
+            fontFamily: shuffledFonts[0],
+            id: i * 2));
         cards.add(MemoryCard(
-            word: word.word, fontFamily: shuffledFonts[1], id: i * 2 + 1));
+            word: word.word,
+            wordId: word.id,
+            fontFamily: shuffledFonts[1],
+            id: i * 2 + 1));
       }
     }
 
@@ -203,6 +220,7 @@ class _WordMemoryGameState extends State<WordMemoryGame>
 
     setState(() {
       _cards = cards;
+      _totalPairs = cards.length ~/ 2;
       _firstSelected = null;
       _secondSelected = null;
       _isChecking = false;
@@ -239,10 +257,11 @@ class _WordMemoryGameState extends State<WordMemoryGame>
     // into a rebuild so the UI reflects the locked state immediately.
     setState(() => _isChecking = true);
     await Future.delayed(const Duration(milliseconds: 600));
+    if (!mounted) return;
 
     final bool isMatch = _firstSelected!.matchId != null
         ? _firstSelected!.matchId == _secondSelected!.matchId
-        : _firstSelected!.word == _secondSelected!.word;
+        : _firstSelected!.wordId == _secondSelected!.wordId;
 
     if (isMatch) {
       setState(() {
@@ -256,11 +275,23 @@ class _WordMemoryGameState extends State<WordMemoryGame>
       _gameProvider.hapticLight();
       _matchController.forward(from: 0);
 
+      final definitionPair = _firstSelected!.isDefinitionCard ||
+          _secondSelected!.isDefinitionCard;
       _sriService.recordResponse(
-        skillType: LanguageSkillType.spelling,
+        skillType: definitionPair
+            ? LanguageSkillType.vocabulary
+            : LanguageSkillType.spelling,
         baseWord: _firstSelected!.word,
+        wordId: _firstSelected!.wordId,
         wasCorrect: true,
-        metadata: {'game': 'memory', 'moves': _moves},
+        wasAssisted: !definitionPair,
+        metadata: {
+          'game': 'memory',
+          'moves': _moves,
+          'gradeLevel': widget.gradeLevel.index + 1,
+          'responseFormat': definitionPair ? 'definitionMatch' : 'wordShapeMatch',
+          'targetShown': !definitionPair,
+        },
       );
 
       if (_pairsFound == _totalPairs) {
@@ -280,12 +311,9 @@ class _WordMemoryGameState extends State<WordMemoryGame>
         });
       }
 
-      _sriService.recordResponse(
-        skillType: LanguageSkillType.spelling,
-        baseWord: _firstSelected!.word,
-        wasCorrect: false,
-        metadata: {'game': 'memory', 'moves': _moves},
-      );
+      // Choosing two different hidden cards measures board memory, not a
+      // spelling or vocabulary error. Keep the game's move penalty without
+      // lowering language mastery for a guess at an unseen card.
     }
 
     if (mounted) {
@@ -387,7 +415,14 @@ class _WordMemoryGameState extends State<WordMemoryGame>
                     child: Center(child: CircularProgressIndicator()))
               else
                 Expanded(
-                  child: _buildGameGrid(),
+                  child: _cards.isEmpty
+                      ? Center(
+                          child: Text(
+                            S.of(context)!.wordSortEmptyTitle,
+                            style: SpaceTheme.bodyStyle,
+                          ),
+                        )
+                      : _buildGameGrid(),
                 ),
             ],
           ),
@@ -653,6 +688,7 @@ class _WordMemoryGameState extends State<WordMemoryGame>
               button: true,
               selected: isSelected,
               child: GestureDetector(
+                key: ValueKey('memory-card-${card.id}'),
                 onTap: () => _onCardTapped(card),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 300),

@@ -185,6 +185,24 @@ void main() {
       expect(challenges, isNotEmpty);
     });
 
+    test('retains the source entry identity through the challenge builder', () {
+      final group = homophoneGroups
+          .firstWhere((g) => g.words.contains('hear') && g.words.contains('here'));
+      final entries = _wordsForGroup(group);
+      final challenges = buildHomophoneChallenges(
+        allWords: entries,
+        gradeLevel: 1,
+        groups: [group],
+      );
+      expect(challenges, isNotEmpty);
+      for (final challenge in challenges) {
+        final entry = entries.singleWhere(
+            (word) => word.word == challenge.correctWord);
+        expect(challenge.wordId, entry.id);
+        expect(challenge.wordId, isNot(entry.word));
+      }
+    });
+
     test('correctIndex is valid index into options', () {
       final group = homophoneGroups
           .firstWhere((g) => g.words.contains('know') && g.words.contains('no'));

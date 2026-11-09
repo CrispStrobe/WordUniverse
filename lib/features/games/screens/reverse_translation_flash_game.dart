@@ -227,6 +227,7 @@ class _ReverseTranslationFlashGameState
       _sriService.recordResponse(
         skillType: LanguageSkillType.vocabulary,
         baseWord: challenge.word.word,
+        wordId: challenge.word.id,
         wasCorrect: true,
       );
     } else {
@@ -236,6 +237,7 @@ class _ReverseTranslationFlashGameState
       _sriService.recordResponse(
         skillType: LanguageSkillType.vocabulary,
         baseWord: challenge.word.word,
+        wordId: challenge.word.id,
         wasCorrect: false,
       );
     }

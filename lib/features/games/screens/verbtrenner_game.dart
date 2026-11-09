@@ -235,6 +235,8 @@ class _VerbtrennerGameState extends State<VerbtrennerGame>
     _sriService.recordResponse(
       skillType: LanguageSkillType.spelling,
       baseWord: _currentPair!.formText,
+      wordId: _currentPair!.wordId,
+      additionalInfo: _currentPair!.formText,
       wasCorrect: true,
       metadata: {
         'wordId': _currentPair!.wordId,
@@ -267,6 +269,8 @@ class _VerbtrennerGameState extends State<VerbtrennerGame>
     _sriService.recordResponse(
       skillType: LanguageSkillType.spelling,
       baseWord: _currentPair!.formText,
+      wordId: _currentPair!.wordId,
+      additionalInfo: _currentPair!.formText,
       wasCorrect: false,
       metadata: {
         'wordId': _currentPair!.wordId,

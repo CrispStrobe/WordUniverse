@@ -110,6 +110,7 @@ class _WordFindGameState extends State<WordFindGame> {
       grade: widget.gradeLevel,
       count: wordCount,
       isPlayable: _isWordValidForGame,
+      skillFilter: LanguageSkillType.vocabulary,
     );
     // --- END ADAPTIVE SELECTION ---
 
@@ -118,8 +119,14 @@ class _WordFindGameState extends State<WordFindGame> {
     // Hydration brings the pack's own prose with it, which is what says
     // whether the entry's spelling can be shown: "january" is stored
     // lowercase and written capitalised everywhere the pack uses it.
+    final seenGridForms = <String>{};
     _wordsToFind = (await _vocabularyService.hydrate(wordsForGame))
         .where(spellingIsTrustworthy)
+        // The grid uses capitals and omits spaces. Two lexical entries that
+        // become the same target would be indistinguishable and prevent the
+        // found-word set from ever reaching the number of placed targets.
+        .where((word) =>
+            seenGridForms.add(word.word.replaceAll(' ', '').toUpperCase()))
         .toList();
     if (!mounted) return;
 
@@ -278,10 +285,16 @@ class _WordFindGameState extends State<WordFindGame> {
           _sriService.recordResponse(
             skillType: LanguageSkillType.vocabulary,
             baseWord: originalWord.word,
+            wordId: originalWord.id,
             wasCorrect: true,
+            // The target remains visible while the child finds it. This is
+            // useful recognition practice, not independent word recall.
+            wasAssisted: true,
             metadata: {
               'gradeLevel': originalWord.gradeLevel,
               'wordType': originalWord.wordType.toString(),
+              'responseFormat': 'wordSearch',
+              'targetShown': true,
             },
           );
         }

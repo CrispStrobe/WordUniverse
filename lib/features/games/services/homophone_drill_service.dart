@@ -228,6 +228,7 @@ List<HomophoneGroup> groupsForMode(HomophoneGameMode mode) =>
 // ─── Challenge model ──────────────────────────────────────────────────────────
 
 class HomophoneChallenge {
+  final String wordId;
   final String correctWord;
   final String sentence; // e.g. "I go ___ school."
   final List<String> options; // shuffled, length 2-3
@@ -236,6 +237,7 @@ class HomophoneChallenge {
   final List<String> groupMeanings;
 
   const HomophoneChallenge({
+    required this.wordId,
     required this.correctWord,
     required this.sentence,
     required this.options,
@@ -293,6 +295,7 @@ List<HomophoneChallenge> buildHomophoneChallenges({
       if (correctIndex < 0) continue;
 
       challenges.add(HomophoneChallenge(
+        wordId: entry.id,
         correctWord: targetWord,
         sentence: sentence,
         options: options,

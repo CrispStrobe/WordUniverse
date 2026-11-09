@@ -353,6 +353,7 @@ class _WordSnakeGameState extends State<WordSnakeGame> {
     _sriService.recordResponse(
       skillType: LanguageSkillType.spelling,
       baseWord: _currentWord!.word,
+      wordId: _currentWord!.id,
       wasCorrect: isCorrect,
       metadata: {
         'gradeLevel': _currentWord!.gradeLevel,

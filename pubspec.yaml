@@ -45,6 +45,8 @@ dependencies:
 
   in_app_purchase: ^3.1.13
   url_launcher: ^6.3.2
+  printing: ^5.15.1
+  unorm_dart: ^0.3.3
 
   path_provider: any
   in_app_purchase_storekit: any
@@ -60,6 +62,10 @@ flutter:
   assets:
     - assets/images/
     - assets/sounds/
+    - assets/kompass/bw_de_v1.json
+    - assets/data/bw_membership_v1.json
+    - assets/data/bw_lexical_overlay_v1.json
+    - assets/kompass/print/
     # Not the whole fonts/ directory: every face is declared under `fonts:`
     # below and bundled from there. The directory entry additionally shipped
     # the files nothing declares — a PDF specimen, a README, an unused

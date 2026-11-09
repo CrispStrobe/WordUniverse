@@ -17,6 +17,9 @@ import '../../../core/services/language_pack_service.dart';
 import '../../../core/models/language_pack.dart';
 import '../../../core/services/sri_service.dart';
 import '../../../core/services/learner_profile_service.dart';
+import '../../../core/services/cognitive_profile_service.dart';
+import '../../../core/services/streak_service.dart';
+import '../../kompass/services/kompass_progress_service.dart';
 
 import '../../../shared/widgets/imprint_dialog.dart';
 import '../../../shared/widgets/language_pack_dialog.dart';
@@ -531,6 +534,21 @@ class _SettingsScreenState extends State<SettingsScreen>
             title: S.of(context)!.taskCustomizationTitle,
             icon: Icons.filter_list,
             children: [
+              if (currentLearningLanguage == 'de')
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.explore_outlined, color: SpaceTheme.starYellow),
+                  title: Text(S.of(context)!.kompassVocabularyPreset, style: SpaceTheme.titleStyle),
+                  subtitle: Text(S.of(context)!.kompassVocabularyPresetBody, style: SpaceTheme.bodyStyle),
+                  onTap: () async {
+                    await gameProvider.applyBwVocabularyPreset();
+                    _includeController.clear();
+                    _excludeController.clear();
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text(S.of(context)!.kompassVocabularyPresetApplied)));
+                  },
+                ),
               _buildSwitchTile(
                 title: S.of(context)!.taskCustomizationEnable,
                 subtitle: S.of(context)!.taskCustomizationEnableDesc,
@@ -1540,7 +1558,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                     dropdownColor: SpaceTheme.deepSpace,
                     decoration: InputDecoration(
                         labelText: S.of(context)!.onboardingDailyTime),
-                    items: const [5, 10, 15]
+                    items: ([...{5, 10, 15, 20, profile.sessionMinutes}]..sort())
                         .map((minutes) => DropdownMenuItem(
                               value: minutes,
                               child: Text('$minutes min'),
@@ -2156,6 +2174,8 @@ class _SettingsScreenState extends State<SettingsScreen>
         return s.goalGrammar;
       case LearnerGoal.dafDaz:
         return s.goalDafDaz;
+      case LearnerGoal.kompassBw:
+        return s.goalKompassBw;
     }
   }
 
@@ -2199,11 +2219,22 @@ class _SettingsScreenState extends State<SettingsScreen>
           ),
           ElevatedButton(
             autofocus: true,
-            onPressed: () {
+            onPressed: () async {
               if (kDebugMode)
                 debugPrint("[SETTINGS] 🗑️ Resetting all game progress");
-              context.read<GameProvider>().resetGame();
-              context.read<SriService>().clearAllData();
+              final game = context.read<GameProvider>();
+              final sri = context.read<SriService>();
+              final kompass = context.read<KompassProgressService>();
+              final cognitive = context.read<CognitiveProfileService>();
+              final profile = context.read<LearnerProfileService>();
+              final streak = context.read<StreakService>();
+              await game.resetGame();
+              await sri.clearAllData();
+              await kompass.clear();
+              await cognitive.resetProgress();
+              await profile.resetProgress();
+              await streak.resetProgress();
+              if (!context.mounted) return;
               Navigator.of(context).pop();
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(

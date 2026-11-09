@@ -31,7 +31,7 @@ alternate to pick, and the filename‑drift chain.
 
 | File | Used by | What it is |
 |---|---|---|
-| `Grundwortschatz1L.csv` / `1S` / `3L` / `3S` | 01 | NRW Grundwortschatz, Klasse 1 + 3, Lang‑ + Kurzform |
+| `Grundwortschatz1L.csv` / `1S` / `3L` / `3S` | 01 | Baden-Württemberg Grundwortschatz, classes 1–2 and 3–4, teacher/pupil lists |
 | `A1.csv`/`.json`, `A2.*`, `B1.*` | 01 | CEFR sets |
 | `111_NRW_Merkwörter.txt` | 01, 04 | NRW: words to memorize |
 | `422_NRW_Nachdenkwörter.txt` | 01, 04 | NRW: words requiring rule reasoning |
@@ -49,6 +49,15 @@ alternate to pick, and the filename‑drift chain.
 | `output_nested.json` | 04 | Output of conv_xls.py |
 | `grapheme.json` | 06 | IPA→grapheme mapping table |
 | `verb_government.json` / `verb_government_hdt.json` | (Dart enricher) | UD‑derived verb government / preposition case stats |
+
+The BW origin was verified against all four official ZSL Word documents on
+2026-11-08. The former NRW label for these four CSVs was incorrect. The
+3L CSV's missing Z section has been restored. `bw_source_lists.py` preserves
+multiple page references, pupil-only heads, exact capitalization, and raw
+source declarations through stages 01–03. The downloaded runtime pack is
+separately pinned and is not rebuilt by these source repairs. See the
+[coverage audit](../../docs/bw-vocabulary-coverage.md) for exact input hashes,
+missing runtime spellings, source-band corrections, and reproducible checks.
 
 External (must be downloaded manually):
 

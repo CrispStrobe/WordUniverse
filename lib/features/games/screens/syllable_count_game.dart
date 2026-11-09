@@ -224,6 +224,7 @@ class _SyllableCountGameState extends State<SyllableCountGame>
       _sriService.recordResponse(
         skillType: LanguageSkillType.spelling,
         baseWord: challenge.word.word,
+        wordId: challenge.word.id,
         wasCorrect: true,
       );
     } else {
@@ -233,6 +234,7 @@ class _SyllableCountGameState extends State<SyllableCountGame>
       _sriService.recordResponse(
         skillType: LanguageSkillType.spelling,
         baseWord: challenge.word.word,
+        wordId: challenge.word.id,
         wasCorrect: false,
       );
     }

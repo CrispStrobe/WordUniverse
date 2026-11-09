@@ -2405,7 +2405,7 @@ class SDe extends S {
 
   @override
   String get reviewNoWordsYet =>
-      'Noch keine Wörter zum Wiederholen.\nSpiele ein paar Runden, damit das System deine schwachen Punkte erkennt!';
+      'Noch keine Wörter zum Wiederholen.\nMit deinen ersten Übungen entsteht dein persönlicher Wiederholungsplan.';
 
   @override
   String get difficultyVeryHard => 'Sehr schwierig';
@@ -2556,19 +2556,25 @@ class SDe extends S {
       'Ab Wortschatzstufe 5 erscheint nach einer richtigen Antwort ein Sprach-Tipp zum Wort.';
 
   @override
-  String get sentenceCompletionPrompt => 'Welches Wort passt in die Lücke?';
+  String sentenceCompletionMeaningCue(String definition) {
+    return 'Eine mögliche Bedeutung: $definition';
+  }
+
+  @override
+  String get sentenceCompletionPrompt =>
+      'Welches Wort passt zum Hinweis und in den Satz?';
 
   @override
   String get sentenceCompletionOnboardingBody1 =>
-      'Ein Satz mit einer Lücke wird gezeigt — wähle das passende Wort.';
+      'Lies den Satz mit der Lücke und den Hinweis zur gesuchten Bedeutung.';
 
   @override
   String get sentenceCompletionOnboardingBody2 =>
-      'Es werden nur Nomen, Verben und Adjektive abgefragt, da diese eindeutig im Satz erkennbar sind.';
+      'Du übst Wortschatz im Satz. Ein Wort kann mehrere Bedeutungen haben. Nutze beide Hinweise.';
 
   @override
   String get sentenceCompletionOnboardingBody3 =>
-      'Bei richtiger Antwort siehst du einen Hinweis auf die Wortbedeutung.';
+      'Nach deiner Wahl siehst du den Satz mit dem gesuchten Wort.';
 
   @override
   String get spellingSpotterPrompt => 'Welches Wort ist richtig geschrieben?';
@@ -2595,15 +2601,15 @@ class SDe extends S {
 
   @override
   String get sriReviewOnboardingBody1 =>
-      'Hier übst du deine schwächsten Wörter — basierend auf deiner Lernhistorie.';
+      'Hier wiederholst du fällige Aufgaben aus deinen bisherigen Übungen.';
 
   @override
   String get sriReviewOnboardingBody2 =>
-      'Jede Aufgabe passt sich dem Wort an: Artikel, Schreibweise oder Definition.';
+      'Die Aufgabe übt dieselbe Fähigkeit erneut: zum Beispiel Rechtschreibung, Wortarten, Verbformen oder Lesen im Satz.';
 
   @override
   String get sriReviewOnboardingBody3 =>
-      'Mit jeder richtigen Antwort steigt der Easiness Factor des Wortes.';
+      'Deine Antwort bestimmt die nächste Wiederholung. Auch sichere Wörter kommen später wieder dran.';
 
   @override
   String get semanticsBack => 'Zurück';
@@ -3420,4 +3426,37 @@ class SDe extends S {
   String whirlWrongFeedback(String word, String category) {
     return '✗ Falsch! $word gehört nicht zu: $category';
   }
+
+  @override
+  String get reviewAllCaughtUp =>
+      'Für jetzt ist alles wiederholt.\nDeine Wörter kommen zum passenden Zeitpunkt wieder dran — auch die, die du schon gut kannst.';
+
+  @override
+  String get reviewItemWordUnavailable => 'Wort nicht verfügbar';
+
+  @override
+  String get reviewUnsupportedItems =>
+      'Einige fällige Aufgaben brauchen ihren ursprünglichen Zusammenhang.\nÜbe sie im passenden Spiel weiter; sie bleiben in deinem Wiederholungsplan.';
+
+  @override
+  String get goalKompassBw => 'Kompass 4 · BW Deutsch';
+
+  @override
+  String get kompassCourseNote =>
+      'Lesen, Rechtschreiben und Sprache für den Beginn der Klasse 4 in Baden-Württemberg. Die Wortschatz-Schwierigkeit ist eine eigene Einstellung. Der Kurs funktioniert ohne Wörterbuch-Download.';
+
+  @override
+  String get kompassVocabularyPreset => 'Grundwortschatz BW';
+
+  @override
+  String get kompassVocabularyPresetBody =>
+      'BW1- und BW3-Wörter in den ergänzenden deutschen Wortspielen nutzen. Ersetzt Quellen-, Längen- und Platzhalterfilter und hebt aktive eigene Wortlisten auf. Kurs und Sprache bleiben erhalten.';
+
+  @override
+  String get kompassVocabularyPresetApplied =>
+      'Die BW-Wortschatzfilter sind aktiv.';
+
+  @override
+  String get kompassParentReport =>
+      'Kompass: Beobachtungen und nächste Schritte';
 }

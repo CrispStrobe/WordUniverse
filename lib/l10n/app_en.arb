@@ -1198,7 +1198,7 @@
         }
     },
     "sriReviewHeader": "Review",
-    "reviewNoWordsYet": "No words to review yet.\nPlay a few rounds so the system can identify your weak spots!",
+    "reviewNoWordsYet": "No words to review yet.\nYour first exercises will start your personal review plan.",
     "difficultyVeryHard": "Very hard",
     "difficultyHard": "Difficult",
     "difficultyPractice": "Practice",
@@ -1285,19 +1285,21 @@
     "definitionQuizOnboardingBody1": "A definition is shown — pick the matching word from four options.",
     "definitionQuizOnboardingBody2": "All options come from the same CEFR level so nothing is too obvious.",
     "definitionQuizOnboardingBody3": "From vocabulary level 5, a language note appears after a correct answer.",
-    "sentenceCompletionPrompt": "Which word completes the sentence?",
-    "sentenceCompletionOnboardingBody1": "A sentence with a gap is shown — pick the word that fits.",
-    "sentenceCompletionOnboardingBody2": "Only nouns, verbs, and adjectives are tested — they are uniquely identifiable in context.",
-    "sentenceCompletionOnboardingBody3": "A meaning hint appears after each correct answer.",
+    "sentenceCompletionMeaningCue": "One possible meaning: {definition}",
+    "@sentenceCompletionMeaningCue": {"placeholders": {"definition": {"type": "String"}}},
+    "sentenceCompletionPrompt": "Which word matches the clue and completes the sentence?",
+    "sentenceCompletionOnboardingBody1": "Read the sentence with a gap and the clue about the meaning to look for.",
+    "sentenceCompletionOnboardingBody2": "Practise vocabulary in context. A word can have several meanings. Use both clues.",
+    "sentenceCompletionOnboardingBody3": "After you choose, the sentence shows the intended word.",
     "spellingSpotterPrompt": "Which one is spelled correctly?",
     "noSpellingData": "No spelling data available at this level.",
     "synonymFlashOnboardingBody1": "A word appears — tap a word with the same meaning as fast as you can.",
     "synonymFlashOnboardingTimer": "You have 30 seconds. More correct answers means a better score.",
     "clozeFlashOnboardingBody1": "A sentence appears with a missing word — tap the correct answer.",
     "clozeFlashOnboardingTimer": "You have 30 seconds. Read the context — it helps!",
-    "sriReviewOnboardingBody1": "Practice your weakest words — selected based on your learning history.",
-    "sriReviewOnboardingBody2": "Each challenge adapts to the word: article, spelling, or definition.",
-    "sriReviewOnboardingBody3": "Every correct answer raises the easiness factor of that word.",
+    "sriReviewOnboardingBody1": "Review due tasks from your earlier practice.",
+    "sriReviewOnboardingBody2": "Each question practises the same skill again, such as spelling, word classes, verb forms, or reading in a sentence.",
+    "sriReviewOnboardingBody3": "Your answer helps schedule the next review. Familiar words also return later to keep them fresh.",
     "semanticsBack": "Go back",
     "semanticsScore": "Score: {n}",
     "@semanticsScore": {
@@ -2195,5 +2197,14 @@
                 "type": "String"
             }
         }
-    }
+    },
+    "reviewAllCaughtUp": "You are caught up for now.\nYour words will return when they are due, including the ones you already know well.",
+    "reviewItemWordUnavailable": "Word unavailable",
+    "reviewUnsupportedItems": "Some due tasks need their original context.\nPractise them in the matching game; they will stay in your review plan.",
+    "goalKompassBw": "Kompass 4 · BW German",
+    "kompassCourseNote": "German reading, spelling and language for early year 4 in Baden-Württemberg. Vocabulary difficulty is a separate setting. The course works without downloading a dictionary.",
+    "kompassVocabularyPreset": "BW basic vocabulary",
+    "kompassVocabularyPresetBody": "Use BW1 and BW3 words in optional German word games. This replaces source, length and wildcard filters and clears active custom word sets. It does not change the course or language.",
+    "kompassVocabularyPresetApplied": "BW vocabulary filters are active.",
+    "kompassParentReport": "Kompass observations and next steps"
 }
