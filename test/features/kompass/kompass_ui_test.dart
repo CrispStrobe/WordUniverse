@@ -220,6 +220,7 @@ void main() {
   testWidgets(
       'rubric review preserves half points and requires explicit criteria choices',
       (tester) async {
+    final semantics = tester.ensureSemantics();
     final (courses, progress) = await _services(_fixture(grouped: true));
     final course = courses.course!;
     final task = course.tasks.single;
@@ -232,6 +233,8 @@ void main() {
         tester,
         _app(Scaffold(body: KompassReviewSheet(task: task, attempt: attempt)),
             courses, progress));
+    expect(find.bySemanticsLabel(RegExp(RegExp.escape('Der Hund schläft.'))),
+        findsWidgets);
     final save = find.byKey(const ValueKey('kompass-review-save'));
     expect(tester.widget<FilledButton>(save).onPressed, isNull);
     await tester.ensureVisible(find.widgetWithText(ChoiceChip, '1 / 1 Punkte'));
@@ -250,9 +253,11 @@ void main() {
     expect(tester.takeException(), isNull);
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
+    semantics.dispose();
   });
 
   testWidgets('hint is recorded before answer scoring', (tester) async {
+    final semantics = tester.ensureSemantics();
     final (courses, progress) = await _services(_fixture());
     await _show(tester,
         _app(const KompassPlayerScreen(taskIds: ['task0']), courses, progress));
@@ -265,11 +270,13 @@ void main() {
     await tester.pumpAndSettle();
     expect(progress.attempts.single.assistance, contains('hint'));
     expect(progress.attempts.single.independent, isFalse);
+    expect(find.bySemanticsLabel(RegExp('Lösung: kalt')), findsWidgets);
     expect(progress.attempts.single.earnedPoints, 1);
     await tester.pumpWidget(const SizedBox());
     await tester.pumpAndSettle();
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
+    semantics.dispose();
   });
 
   testWidgets('leaving a viewed draft keeps later checks fresh', (
@@ -381,6 +388,62 @@ void main() {
         .whereType<TextSpan>()
         .firstWhere((s) => s.text == 'trägt');
     expect(target.style!.fontWeight, FontWeight.bold);
+  });
+
+  testWidgets(
+      'read-only passage, instructions and table expose text labels before focus',
+      (tester) async {
+    final semantics = tester.ensureSemantics();
+    final (courses, progress) = await _services(_fixture());
+    final stimulus = KompassStimulus.fromJson({
+      'id': 'reading',
+      'title': 'Ein Spielewagen',
+      'lines': [
+        {
+          'id': 'reading:L25',
+          'label': '25',
+          'text': 'Am Montag wird der Wagen ausprobiert.',
+        },
+      ],
+    });
+    await _show(
+        tester,
+        _app(
+            Scaffold(
+                body: SingleChildScrollView(
+                    child: Column(children: [
+              KompassPassage(stimulus: stimulus),
+              const KompassRichText('Prüfe das <b>Wort</b>.'),
+              const KompassBlocks(blocks: [
+                {
+                  'type': 'table',
+                  'headers': ['Ort', 'Zeit'],
+                  'rows': [
+                    ['Schulhof', '10 Uhr']
+                  ],
+                },
+              ]),
+            ]))),
+            courses,
+            progress));
+    // Screen readers receive labels immediately; none of this content depends
+    // on focusing a read-only editable field to initialize its value.
+    for (final text in [
+      'Zeile 25',
+      'Am Montag wird der Wagen ausprobiert.',
+      'Prüfe das Wort.',
+      'Schulhof',
+      '10 Uhr',
+    ]) {
+      expect(find.bySemanticsLabel(RegExp(RegExp.escape(text))), findsWidgets,
+          reason: text);
+    }
+    expect(find.byType(EditableText), findsNothing);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    semantics.dispose();
   });
 
   testWidgets(

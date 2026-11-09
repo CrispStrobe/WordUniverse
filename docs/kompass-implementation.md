@@ -45,6 +45,9 @@ Reading passages remain available beside the task on wide screens and in an
 expandable panel on phones. Logical line numbers survive wrapping. Authored
 emphasis is rendered safely. Multiple criteria for one sentence share one
 answer field. The course supports portrait, landscape and enlarged text.
+Passages, instructions, table cells, solutions and reviewed answers expose
+their text directly to assistive tools while retaining text selection. Reading
+content does not require focusing a disabled text field to become accessible.
 
 ## Evidence, scoring and persistence
 

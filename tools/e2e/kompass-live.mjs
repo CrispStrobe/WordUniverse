@@ -130,6 +130,7 @@ try {
   // by a judgment/evidence task with independently awarded points.
   await button(page, 'Mit Hilfe üben').first().click();
   await waitForAccessibleText('Aufgabe 1 von 24');
+  await waitForAccessibleText('Antworte kurz. Einzelne Wörter genügen.');
   const answers = page.getByRole('textbox', { name: 'Deine Antwort', exact: true });
   await enterAnswer(answers.nth(0), 'a', 'Montag');
   await enterAnswer(answers.nth(1), 'b', 'Abstellraum');
@@ -155,6 +156,9 @@ try {
   await waitForAccessibleText('Zeile 25');
   const passage = await page.locator('body').ariaSnapshot();
   assert.match(passage, /Zeile 25/, 'logical source lines remain available after phone reflow');
+  assert.match(passage, /Am Montag wurde der Spielewagen zum ersten Mal auf den Schulhof geschoben\./,
+    'assistive tools can read the passage content, not only its line numbers');
+  assert.match(passage, /Nach jeder Pause steht der Wagen im Abstellraum neben der Turnhalle\./);
   await snapshot('passage-phone');
   await page.keyboard.press('Escape');
   await button(page, 'Antwort prüfen').waitFor();

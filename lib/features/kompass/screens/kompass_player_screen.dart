@@ -934,10 +934,11 @@ class _KompassPlayerScreenState extends State<KompassPlayerScreen>
                         ],
                         if (!result.needsReview && part.answers.isNotEmpty) ...[
                           const SizedBox(height: 6),
-                          SelectableText(
-                              '${s.choose('Lösung:', 'Solution:')} ${_solution(part)}',
-                              style: const TextStyle(
-                                  color: kompassInk, height: 1.5)),
+                          SelectionArea(
+                              child: Text(
+                                  '${s.choose('Lösung:', 'Solution:')} ${_solution(part)}',
+                                  style: const TextStyle(
+                                      color: kompassInk, height: 1.5))),
                         ],
                       ],
                     ));
