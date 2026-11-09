@@ -25,6 +25,19 @@ async function snapshot(name) {
   await page.screenshot({ path: path.join(evidence, `${name}.png`) });
 }
 
+// Flutter may merge adjacent Text widgets into one accessibility label. Wait
+// for the visible semantics, without depending on a separate DOM text node.
+async function waitForAccessibleText(text) {
+  const deadline = Date.now() + 30000;
+  let semantics = '';
+  while (Date.now() < deadline) {
+    semantics = await page.locator('body').ariaSnapshot();
+    if (semantics.includes(text)) return;
+    await page.waitForTimeout(100);
+  }
+  assert.fail(`Accessible text not found: ${text}\n${semantics}`);
+}
+
 async function navigate() {
   await page.goto(baseUrl, { timeout: 90000 });
   const semantics = page.locator('flt-semantics-placeholder');
@@ -83,7 +96,7 @@ try {
   await navigate();
   await chooseFromMenu(page, button(page, 'Interface language English'), 'Deutsch');
   await button(page, 'Weiter').click();
-  await page.getByText('Kompass 4 · BW Deutsch', { exact: true }).click();
+  await page.getByRole('checkbox', { name: 'Kompass 4 · BW Deutsch', exact: true }).click();
   await button(page, 'Meinen Lernplan vorbereiten').click();
   await button(page, 'Kompass 4 · BW Deutsch').click({ timeout: 60000 });
   await button(page, 'Jetzt üben').waitFor();
@@ -95,7 +108,7 @@ try {
   // The first full practice form gives a stable two-part reading task, followed
   // by a judgment/evidence task with independently awarded points.
   await button(page, 'Mit Hilfe üben').first().click();
-  await page.getByText('Aufgabe 1 von 24', { exact: true }).waitFor();
+  await waitForAccessibleText('Aufgabe 1 von 24');
   const answers = page.getByRole('textbox', { name: 'Deine Antwort', exact: true });
   await answers.nth(0).fill('Montag');
   await answers.nth(1).fill('Abstellraum');
@@ -111,11 +124,12 @@ try {
   await navigate();
   await button(page, 'Kompass 4 · BW Deutsch').click({ timeout: 60000 });
   await button(page, 'Fortsetzen').click();
-  await page.getByText('Aufgabe 1 von 24', { exact: true }).waitFor();
+  await waitForAccessibleText('Aufgabe 1 von 24');
   assert.equal(await answers.nth(0).inputValue(), 'Montag');
   assert.equal(await answers.nth(1).inputValue(), 'Abstellraum');
   assert.equal((await progress()).activeSession.sessionId, sessionId);
   await button(page, 'Lesetext').click();
+  await waitForAccessibleText('Zeile 25');
   const passage = await page.locator('body').ariaSnapshot();
   assert.match(passage, /Zeile 25/, 'logical source lines remain available after phone reflow');
   await snapshot('passage-phone');
@@ -134,11 +148,11 @@ try {
   passed('Resumed correct answers earn their authored points and retain assistance provenance');
 
   await button(page, 'Weiter').click();
-  await page.getByText('Aufgabe 2 von 24', { exact: true }).waitFor();
-  await page.getByText('ja', { exact: true }).click();
+  await waitForAccessibleText('Aufgabe 2 von 24');
+  await button(page, 'ja').click();
   // Deliberately wrong judgment, but the right evidence: neither part may
   // overwrite the other's credit. This is source line 24 of Deutsch Test 1.
-  await page.getByText(/^24\s+.*Erwachsen/).click();
+  await page.getByRole('button', { name: /^24\s+.*Erwachsen/ }).click();
   await button(page, 'Antwort prüfen').click();
   await waitForProgress('second-score');
   const second = (await progress()).attempts[1];
@@ -150,7 +164,7 @@ try {
 
   await button(page, 'Runde beenden').click();
   await button(page, 'Runde abschließen').click();
-  await page.getByText('Ein Schritt weiter.', { exact: true }).waitFor();
+  await waitForAccessibleText('Ein Schritt weiter.');
   await waitForProgress('finished');
   const completed = await progress();
   assert.equal(completed.attempts.length, 2, 'unanswered tasks are not manufactured failures');
