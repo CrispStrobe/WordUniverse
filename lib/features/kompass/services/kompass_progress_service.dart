@@ -141,6 +141,34 @@ class KompassSkillStats {
   });
 }
 
+/// Seeing a task is not a scored observation, but it prevents a later session
+/// from treating the same task or passage as fresh independent evidence.
+class _KompassExposure {
+  final String courseId, taskId;
+  final String? stimulusId, sessionId;
+  const _KompassExposure({
+    required this.courseId,
+    required this.taskId,
+    this.stimulusId,
+    this.sessionId,
+  });
+
+  factory _KompassExposure.fromJson(Map<String, dynamic> json) =>
+      _KompassExposure(
+        courseId: json['courseId'] as String,
+        taskId: json['taskId'] as String,
+        stimulusId: json['stimulusId'] as String?,
+        sessionId: json['sessionId'] as String?,
+      );
+
+  Map<String, dynamic> toJson() => {
+        'courseId': courseId,
+        'taskId': taskId,
+        'stimulusId': stimulusId,
+        'sessionId': sessionId,
+      };
+}
+
 /// Local observations, not a prediction of an official test level. Raw answers,
 /// assistance and per-part review provenance survive reloads and rubric review.
 class KompassProgressService extends ChangeNotifier {
@@ -153,6 +181,7 @@ class KompassProgressService extends ChangeNotifier {
   final SharedPreferences _prefs;
   final DateTime Function() _clock;
   final List<KompassAttempt> _attempts = [];
+  final List<_KompassExposure> _exposures = [];
   final Set<String> _notTaught = {};
   final List<dynamic> _unreadableRecords = [];
   Map<String, dynamic>? _activeSession;
@@ -191,6 +220,15 @@ class KompassProgressService extends ChangeNotifier {
           _unreadableRecords.add(row);
         }
       }
+      for (final row in data['exposures'] as List? ?? []) {
+        try {
+          _rememberExposure(
+            _KompassExposure.fromJson(Map<String, dynamic>.from(row as Map)),
+          );
+        } catch (_) {
+          _unreadableRecords.add({'unreadableExposure': row});
+        }
+      }
       _unreadableRecords.addAll(data['unreadableRecords'] as List? ?? []);
       _notTaught.addAll((data['notTaught'] as List? ?? []).whereType<String>());
       if (data['activeSession'] != null &&
@@ -216,6 +254,7 @@ class KompassProgressService extends ChangeNotifier {
     final snapshot = jsonEncode({
       'schemaVersion': 1,
       'attempts': _attempts.map((a) => a.toJson()).toList(),
+      'exposures': _exposures.map((e) => e.toJson()).toList(),
       'notTaught': _notTaught.toList()..sort(),
       'activeSession': _activeSession,
       'unreadableRecords': _unreadableRecords,
@@ -251,14 +290,110 @@ class KompassProgressService extends ChangeNotifier {
     await _persist();
   }
 
-  Future<void> saveSession(Map<String, dynamic>? session) async {
+  Future<void> saveSession(
+    Map<String, dynamic>? session, {
+    KompassCourse? course,
+  }) async {
     if (session != null && !_validSession(session))
       throw ArgumentError('Invalid course session');
+    if (course != null) {
+      // Preserve viewed tasks from a replaced or completed draft, including
+      // drafts saved before exposure history was introduced.
+      for (final exposure in _sessionExposures(course, _activeSession)) {
+        _rememberExposure(exposure);
+      }
+    }
     _activeSession = session == null
         ? null
         : Map<String, dynamic>.from(jsonDecode(jsonEncode(session)) as Map);
+    if (course != null) {
+      for (final exposure in _sessionExposures(course, _activeSession)) {
+        _rememberExposure(exposure);
+      }
+    }
     await _persist();
   }
+
+  void _rememberExposure(_KompassExposure exposure) {
+    // The first viewing is enough to decide freshness. Repeated practice need
+    // not grow this history indefinitely or replace the original session ID.
+    if (!_exposures.any(
+      (e) =>
+          e.courseId == exposure.courseId &&
+          e.taskId == exposure.taskId &&
+          e.stimulusId == exposure.stimulusId,
+    )) {
+      _exposures.add(exposure);
+    }
+  }
+
+  Iterable<_KompassExposure> _sessionExposures(
+    KompassCourse course,
+    Map<String, dynamic>? session,
+  ) sync* {
+    if (session == null || session['courseId'] != course.id) return;
+    final taskIds = (session['taskIds'] as List).cast<String>();
+    final index = session['index'] as int? ?? 0;
+    final seen = <String>{
+      if (index >= 0 && index < taskIds.length) taskIds[index],
+      ...((session['skipped'] as List?) ?? const []).cast<String>(),
+      for (final key in [
+        'answers',
+        'assistance',
+        'elapsed',
+        'hintCounts',
+        'attemptIds',
+      ])
+        ...((session[key] as Map?) ?? const {}).keys.cast<String>(),
+    };
+    // Planned tasks after the current page remain fresh until actually viewed.
+    for (final id in seen) {
+      final task = course.taskById(id);
+      if (task == null) continue;
+      yield _KompassExposure(
+        courseId: course.id,
+        taskId: task.id,
+        stimulusId: task.stimulusId,
+        sessionId: session['sessionId'] as String?,
+      );
+    }
+  }
+
+  bool hasSeenTask(
+    KompassCourse course,
+    KompassTask task, {
+    String? exceptSessionId,
+  }) =>
+      _attempts.any(
+        (a) =>
+            a.courseId == course.id &&
+            a.taskId == task.id &&
+            (exceptSessionId == null || a.sessionId != exceptSessionId),
+      ) ||
+      [..._exposures, ..._sessionExposures(course, _activeSession)].any(
+        (e) =>
+            e.courseId == course.id &&
+            e.taskId == task.id &&
+            (exceptSessionId == null || e.sessionId != exceptSessionId),
+      );
+
+  bool hasSeenStimulus(
+    KompassCourse course,
+    String stimulusId, {
+    String? exceptSessionId,
+  }) =>
+      _attempts.any(
+        (a) =>
+            a.courseId == course.id &&
+            a.stimulusId == stimulusId &&
+            (exceptSessionId == null || a.sessionId != exceptSessionId),
+      ) ||
+      [..._exposures, ..._sessionExposures(course, _activeSession)].any(
+        (e) =>
+            e.courseId == course.id &&
+            e.stimulusId == stimulusId &&
+            (exceptSessionId == null || e.sessionId != exceptSessionId),
+      );
 
   static bool _validSession(dynamic raw) {
     if (raw is! Map ||
@@ -326,14 +461,14 @@ class KompassProgressService extends ChangeNotifier {
           a.taskId == task.id &&
           a.taskVersion == task.version,
     );
+    final knownTask = hasSeenTask(course, task, exceptSessionId: sessionId);
     final knownPassage = task.stimulusId != null &&
-        _attempts.any((a) =>
-            a.courseId == course.id &&
-            a.stimulusId == task.stimulusId &&
-            (sessionId == null || a.sessionId != sessionId));
+        hasSeenStimulus(course, task.stimulusId!, exceptSessionId: sessionId);
     final supports = {
       ...assistance,
       if (!first) 'retry',
+      if (knownTask && const {'independent', 'startCheck'}.contains(mode))
+        'knownTask',
       if (knownPassage && const {'independent', 'startCheck'}.contains(mode))
         'knownPassage'
     }.toList()
@@ -499,6 +634,7 @@ class KompassProgressService extends ChangeNotifier {
   Future<void> clear() async {
     await _writes;
     _attempts.clear();
+    _exposures.clear();
     _notTaught.clear();
     _unreadableRecords.clear();
     _activeSession = null;

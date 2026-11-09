@@ -67,6 +67,21 @@ build plus a Chromium download is heavy, and a contended machine makes both the
 timings and any pause/resume race unreliable. Evidence is uploaded as an
 artifact.
 
+The PR workflow also runs `kompass-live.mjs` against its newly built source.
+This separate course check uses fresh browser storage and performs Kompass
+onboarding without a dictionary download, enters reading answers and a hint,
+reloads in a phone viewport, resumes the saved draft, checks partial credit for
+judgment and evidence, and verifies completed results survive another reload.
+It reads persisted progress only to assert the results of UI actions; it never
+seeds preferences, answers or scores. Screenshots, semantics, progress and a
+non-overwriting result file are uploaded alongside the A–F evidence. To run it
+against a locally served build after setup:
+
+  PLAYWRIGHT_BROWSERS_PATH=0 node tools/e2e/kompass-live.mjs
+
+Keep this check separate from production A–F until the course is deployed;
+passing against a PR build does not imply a production deployment.
+
 Scenarios:
   A: Distinct picker legends and immediate German interface switch.
   B: Full onboarding, German preference retained after declining initial pack,
