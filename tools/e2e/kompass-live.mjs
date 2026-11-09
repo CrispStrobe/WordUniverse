@@ -24,6 +24,13 @@ async function snapshot(name) {
   fs.writeFileSync(path.join(evidence, `${name}.aria.txt`), await page.locator('body').ariaSnapshot());
   await page.screenshot({ path: path.join(evidence, `${name}.png`) });
   fs.writeFileSync(path.join(evidence, `${name}.progress.json`), JSON.stringify(await progress(), null, 2) + '\n');
+  const editors = await page.getByRole('textbox', { name: 'Deine Antwort', exact: true })
+    .evaluateAll(fields => fields.map(element => ({
+      tag: element.tagName, value: element.value, focused: element.matches(':focus'),
+      root: element.getRootNode().nodeName, style: element.getAttribute('style'),
+      activeTag: document.activeElement?.tagName,
+    })));
+  fs.writeFileSync(path.join(evidence, `${name}.editors.json`), JSON.stringify(editors, null, 2) + '\n');
 }
 
 // Flutter may merge adjacent Text widgets into one accessibility label. Wait
@@ -57,13 +64,13 @@ async function progress() {
 
 async function focusAnswer(field) {
   await field.click();
-  const element = await field.elementHandle();
   // Flutter 3.44's semantic input exists before its editing bridge is active.
-  // The framework applies its inline font when that bridge is connected. DOM
-  // focus alone is too early for fill(), and an unfocused restored input may
-  // not yet contain the framework's saved value.
-  await page.waitForFunction(element =>
-    document.activeElement === element && element.style.font !== '', element);
+  // Let the focus action and its semantics update render before typing or
+  // reading a restored value. Inline CSS is not an editing-readiness signal.
+  const focused = await field.evaluate(element => new Promise(resolve => {
+    requestAnimationFrame(() => requestAnimationFrame(() => resolve(element.matches(':focus'))));
+  }));
+  assert(focused, 'the answer editor keeps focus through its rendered update');
 }
 
 async function enterAnswer(field, partId, value) {
