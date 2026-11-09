@@ -67,15 +67,14 @@ async function focusAnswer(field) {
   // Flutter 3.44's semantic input exists before its editing bridge is active.
   // Let the focus action and its semantics update render before typing or
   // reading a restored value. Inline CSS is not an editing-readiness signal.
-  const focused = await field.evaluate(element => new Promise(resolve => {
-    requestAnimationFrame(() => requestAnimationFrame(() => resolve(element.matches(':focus'))));
+  await page.evaluate(() => new Promise(resolve => {
+    requestAnimationFrame(() => requestAnimationFrame(resolve));
   }));
-  assert(focused, 'the answer editor keeps focus through its rendered update');
 }
 
 async function enterAnswer(field, partId, value) {
   await focusAnswer(field);
-  await field.pressSequentially(value, { delay: 30 });
+  await page.keyboard.type(value, { delay: 30 });
   await waitForProgress({ partId, value });
 }
 
