@@ -60,6 +60,12 @@ answer field. The course supports portrait, landscape and enlarged text.
   assistance records. Independent checks use fresh tasks and fresh passages
   from topics not marked “not taught yet.” Reusing a text within one new
   session is recorded as the same reading context.
+- Viewed tasks and passages also retain exposure history when a draft is
+  abandoned or replaced before submission. Viewing or skipping never creates
+  a score or competency observation. Unvisited tasks remain fresh, and resuming
+  the same independent session preserves its first-attempt status. Older saved
+  drafts contribute their known viewed pages to this history; progress reset
+  clears it together with the scored attempts.
 - Subject observations exclude instruction-game results. A correct subpart
   cannot establish complete mastery while another criterion for that skill is
   unresolved or only rubric-reviewed. Automatic evidence for a different skill
@@ -185,10 +191,21 @@ workflows completed successfully against saved head
 [CI / CD](https://github.com/CrispStrobe/WordUniverse/actions/runs/42520060650)
 and [Web e2e](https://github.com/CrispStrobe/WordUniverse/actions/runs/42520060641).
 Their job logs confirm the browser results above; no pending or failed check
-remained at that checkpoint. The browser scenarios cover language setup, real
+remained at that checkpoint. Those browser scenarios cover language setup, real
 pack installation, pause/resume, persistence after reload, and a playable
 definition quiz. They do not cover the Kompass player; the course has separate
 VM/widget tests. Deployment was skipped for the pull-request runs.
+
+The continuation adds four focused regressions for unsubmitted exposure,
+same-session resume, old-draft migration, and player navigation. It also adds
+`tools/e2e/kompass-live.mjs` as a separate PR browser gate: fresh Kompass
+onboarding without a word-pack download, persisted answers and hint use,
+resuming in a phone viewport, access to numbered passage lines, independent
+partial credit for judgment/evidence, and exactly-once completion after reload.
+The browser check drives the UI and only reads storage for assertions; it does
+not seed preferences, answers or scores. Evidence is uploaded with the Web e2e
+workflow. Per-checkpoint run results are linked from
+[the implementation PR](https://github.com/CrispStrobe/WordUniverse/pull/4).
 
 ### Remaining external validation
 
