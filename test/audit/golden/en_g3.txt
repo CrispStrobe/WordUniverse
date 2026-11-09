@@ -117,25 +117,25 @@
     · group: mail/male
 ── hypernym_flash (4)
   description
+      tendency
     ✓ statement
+      plane
       group action
-      failure
-      kid
   investigation
-      failure
-      statement
-      kid
+      tendency
+      hardship
+      writer
     ✓ research
   dislike
-      statement
-      failure
+      quality
     ✓ tendency
-      kid
+      research
+      fund
   babe
-      group action
-      failure
-    ✓ kid
       statement
+      tendency
+      hardship
+    ✓ kid
 ── phrasal_verb_match (4)
   What does "pay out" mean?
     ✓ give money to people

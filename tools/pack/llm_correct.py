@@ -450,6 +450,150 @@ def report(args):
                   f"  ({r['reason'][:60]})")
 
 
+# ─── Phrasal verbs (English pack, `phrasal_verbs` table) ───────────────────
+#
+# Phrasal Verb Power blanks the particle out of a sentence and offers three
+# others. A dump read found 5-7 of 12 items broken at every grade: rows that
+# are not English ("join out" = "join a group"), sentences that are not
+# either ("I send ___ card.", "Mom sends away kid."), and distractors that
+# fit as well as the key ("The bad guy will break ___ tonight": in / out).
+# So each row is rewritten whole and then checked sentence by sentence.
+
+PARTICLES = ['up', 'down', 'in', 'out', 'on', 'off', 'away', 'back', 'over',
+             'around', 'through', 'along', 'apart', 'by', 'into', 'across']
+
+PHRASAL_PROMPT = """You are writing exercises for English learners aged 8-11. \
+Each item below is a phrasal verb from our database, with its stored meaning \
+and two of its current example sentences.
+
+For each item:
+1. keep: false if it is not a real, common English phrasal verb with that \
+meaning, or not suitable for children (violence, crime, sex, alcohol). \
+Otherwise keep: true.
+2. meaning: the most common meaning, in very simple English (max 10 words).
+3. sentences: exactly 3 short, natural, grammatical sentences (5-12 words) \
+using the phrasal verb in that meaning. The particle "{{particle}}" must appear \
+exactly once, right where the phrasal verb uses it. The context must make \
+this particle the ONLY one that fits: no other particle from {particles} may \
+make sense in its place.
+4. wrong_particles: exactly 3 particles from {particles} that do NOT make \
+sense in ANY of your sentences.
+
+Answer with ONLY a JSON array, one object per item, same order, no prose:
+{{"id": "...", "keep": true, "meaning": "...", "sentences": ["...", "...", \
+"..."], "wrong_particles": ["...", "...", "..."]}}
+or {{"id": "...", "keep": false, "reason": "..."}}
+
+Items:
+{items}"""
+
+PHRASAL_VERIFY = """You are checking exercises for English learners aged \
+8-11. In each sentence the particle of the given phrasal verb will be \
+replaced by a gap, and the child chooses between the correct particle and \
+the three wrong_particles.
+
+For each item judge:
+- meaning_ok: the meaning is correct and simple.
+- sentences_ok: for each sentence, true only if it is natural, grammatical, \
+uses the phrasal verb in that meaning, and NONE of the wrong_particles would \
+also make sense in the gap.
+
+Answer with ONLY a JSON array, one object per item, same order, no prose:
+{{"id": "...", "meaning_ok": true, "sentences_ok": [true, false, true], \
+"note": "<short, only if something is rejected>"}}
+
+Items:
+{items}"""
+
+
+def phrasal(args):
+    env = load_env(args.env_file)
+    pool = Pool(env, only=set(args.lanes.split(',')) if args.lanes else None)
+    out = OUT_DIR / 'en_phrasal.jsonl'
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    done = set()
+    if out.exists():
+        done = {json.loads(l)['id'] for l in open(out, encoding='utf-8') if l.strip()}
+    db = sqlite3.connect(args.pack)
+    db.row_factory = sqlite3.Row
+    rows = [r for r in db.execute('SELECT phrasal, base_verb, particle, meaning, '
+                                  'examples_json FROM phrasal_verbs ORDER BY phrasal')
+            if r['phrasal'] not in done]
+    items = []
+    for r in rows:
+        examples = json.loads(r['examples_json'] or '{}')
+        sample = [s for band in sorted(examples) for s in examples[band]][:2]
+        items.append({'id': r['phrasal'], 'phrasal': r['phrasal'],
+                      'particle': r['particle'], 'meaning': r['meaning'],
+                      'examples': sample})
+    batches = [items[i:i + 15] for i in range(0, len(items), 15)]
+    print(f'{len(rows)} phrasal verbs to read in {len(batches)} batches', flush=True)
+    lock = threading.Lock()
+    stats = {'kept': 0, 'dropped': 0, 'unusable': 0, 'failed': 0}
+
+    def one(batch):
+        prompt = PHRASAL_PROMPT.format(particles=PARTICLES, items=json.dumps(
+            batch, ensure_ascii=False, indent=0)).replace('{particle}', 'its particle')
+        proposer, proposals = pool.run('propose', prompt)
+        by_id = {p.get('id'): p for p in proposals if isinstance(p, dict)}
+        to_check, records = [], []
+        for item in batch:
+            p = by_id.get(item['id'])
+            if not p:
+                continue
+            if p.get('keep') is False:
+                records.append({'id': item['id'], 'keep': False,
+                                'reason': p.get('reason', ''), 'by': proposer.model})
+                continue
+            particle = item['particle'].lower()
+            sentences = [s.strip() for s in p.get('sentences') or []
+                         if isinstance(s, str) and len(re.findall(
+                             r'\b' + re.escape(particle) + r'\b', s.lower())) == 1]
+            wrong = [w for w in p.get('wrong_particles') or []
+                     if w in PARTICLES and w != particle][:3]
+            meaning = (p.get('meaning') or item['meaning']).strip()
+            if len(sentences) < 2 or len(wrong) < 3:
+                records.append({'id': item['id'], 'keep': None, 'by': proposer.model,
+                                'note': 'proposal unusable'})
+                continue
+            to_check.append({'id': item['id'], 'phrasal': item['phrasal'],
+                             'meaning': meaning, 'sentences': sentences,
+                             'wrong_particles': wrong})
+        if to_check:
+            verifier, verdicts = pool.run('verify', PHRASAL_VERIFY.format(
+                items=json.dumps(to_check, ensure_ascii=False, indent=0)),
+                exclude_family=proposer.family)
+            vby = {v.get('id'): v for v in verdicts if isinstance(v, dict)}
+            for c in to_check:
+                v = vby.get(c['id']) or {}
+                oks = v.get('sentences_ok') or []
+                good = [s for s, ok in zip(c['sentences'], oks) if ok is True]
+                if v.get('meaning_ok') is True and len(good) >= 2:
+                    records.append({'id': c['id'], 'keep': True, 'meaning': c['meaning'],
+                                    'sentences': good,
+                                    'wrong_particles': c['wrong_particles'],
+                                    'by': proposer.model, 'checked_by': verifier.model})
+                else:
+                    records.append({'id': c['id'], 'keep': None, 'by': proposer.model,
+                                    'checked_by': verifier.model,
+                                    'note': v.get('note', 'rejected'), 'proposal': c})
+        with lock:
+            with open(out, 'a', encoding='utf-8') as f:
+                for r in records:
+                    f.write(json.dumps(r, ensure_ascii=False) + '\n')
+                    key = {True: 'kept', False: 'dropped', None: 'unusable'}[r['keep']]
+                    stats[key] += 1
+
+    with ThreadPoolExecutor(max_workers=args.workers) as ex:
+        for f in as_completed([ex.submit(one, b) for b in batches]):
+            try:
+                f.result()
+            except Exception as e:
+                stats['failed'] += 1
+                print(f'batch failed: {e}', flush=True)
+    print(stats, flush=True)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -462,11 +606,16 @@ def main():
     p.add_argument('--workers', type=int, default=6)
     p.add_argument('--lanes', help='comma-separated lane names to use')
     p.add_argument('--env-file', default=str(pathlib.Path.home() / 'code' / '.env'))
+    ph = sub.add_parser('phrasal')
+    ph.add_argument('pack')
+    ph.add_argument('--workers', type=int, default=4)
+    ph.add_argument('--lanes')
+    ph.add_argument('--env-file', default=str(pathlib.Path.home() / 'code' / '.env'))
     r = sub.add_parser('report')
     r.add_argument('--lang', choices=['de', 'en'], required=True)
     r.add_argument('--samples', type=int, default=8)
     args = parser.parse_args()
-    propose(args) if args.cmd == 'propose' else report(args)
+    {'propose': propose, 'report': report, 'phrasal': phrasal}[args.cmd](args)
 
 
 if __name__ == '__main__':

@@ -22,6 +22,13 @@ Per field:
   plural_only    metadata.nurImPlural
   vocabulary     metadata.quality = {vocabulary: false, reasons: [...]}
 
+For the English pack, pipeline/llm_review/en_phrasal.jsonl rewrites the
+phrasal_verbs table: a row the models agreed is not a real phrasal verb (or
+not for children) is removed; a kept row gets the reviewed meaning, the
+sentences that passed verification — in which only its own particle fits —
+and three particles that fit none of them. Its Wiktionary quotations are
+dropped: they are adult prose, and the reviewed sentences replace them.
+
 Idempotent: applying twice changes nothing the second time.
 """
 import argparse
@@ -107,8 +114,42 @@ def main():
                     json.dumps(enrichment, ensure_ascii=False),
                     json.dumps(metadata, ensure_ascii=False), row['id']))
         counts['applied'] += 1
+    phrasal = apply_phrasal(db) if args.lang == 'en' else None
     db.commit()
-    print(json.dumps({'corrections': len(corrections), **counts, 'fields': fields}))
+    print(json.dumps({'corrections': len(corrections), **counts, 'fields': fields,
+                      **({'phrasal': phrasal} if phrasal else {})}))
+
+
+def apply_phrasal(db):
+    path = OUT_DIR / 'en_phrasal.jsonl'
+    if not path.exists():
+        return None
+    counts = {'rewritten': 0, 'removed': 0, 'left': 0}
+    latest = {}
+    for line in open(path, encoding='utf-8'):
+        if line.strip():
+            record = json.loads(line)
+            if record.get('keep') is not None or record['id'] not in latest:
+                latest[record['id']] = record
+    for phrasal_verb, record in latest.items():
+        row = db.execute('SELECT id, grade_band FROM phrasal_verbs WHERE phrasal = ?',
+                         (phrasal_verb,)).fetchone()
+        if row is None:
+            continue
+        if record.get('keep') is False:
+            db.execute('DELETE FROM phrasal_verbs WHERE id = ?', (row['id'],))
+            counts['removed'] += 1
+        elif record.get('keep') is True:
+            db.execute('UPDATE phrasal_verbs SET meaning=?, examples_json=?, '
+                       'distractors_json=?, wiktionary_examples_json=? WHERE id=?',
+                       (record['meaning'],
+                        json.dumps({str(row['grade_band'] or 3): record['sentences']},
+                                   ensure_ascii=False),
+                        json.dumps(record['wrong_particles']), '[]', row['id']))
+            counts['rewritten'] += 1
+        else:
+            counts['left'] += 1
+    return counts
 
 
 if __name__ == '__main__':

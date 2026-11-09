@@ -424,11 +424,17 @@ HypernymChallenge? buildHypernymChallenge({
       .where((s) => s.isNotEmpty)
       .toSet();
 
+  // Each challenge draws from its own shuffle. Walking one shared order gave
+  // every item in a round the same three distractors — "group action /
+  // parcel / meal" ten times over — so after the first a child could answer
+  // by elimination.
+  final shuffled = List<String>.of(hypernymPool)..shuffle(random);
   final distractors = <String>[];
-  for (final h in hypernymPool) {
+  for (final h in shuffled) {
     if (distractors.length >= optionCount - 1) break;
     final hl = h.toLowerCase();
     if (!ownHypernyms.contains(hl) &&
+        !_categoriesOfEverything.contains(hl) &&
         !distractors.any((d) => d.toLowerCase() == hl)) {
       distractors.add(h);
     }
@@ -501,3 +507,15 @@ List<HypernymChallenge> buildHypernymChallenges({
 bool _isLeadingSense(String? senseIndex) => RegExp(r'\d+')
     .allMatches(senseIndex ?? '')
     .any((m) => m.group(0) == '1');
+
+/// Categories so high up that nearly every noun belongs to them. Offered as a
+/// wrong answer they are right: "being" sat among the distractors for wife,
+/// aunt and frog.
+const _categoriesOfEverything = {
+  'entity', 'physical entity', 'abstraction', 'abstract entity', 'object',
+  'physical object', 'whole', 'unit', 'being', 'organism', 'living thing',
+  'thing', 'matter', 'substance', 'artifact', 'artefact', 'act', 'human action',
+  'group', 'relation', 'attribute', 'state', 'event', 'person', 'individual',
+  'animal', 'lebewesen', 'ding', 'gegenstand', 'sache', 'objekt', 'etwas',
+  'wesen', 'mensch',
+};

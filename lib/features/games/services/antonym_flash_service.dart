@@ -111,6 +111,14 @@ AntonymChallenge? buildAntonymChallenge({
           .toList() ??
       const [];
   if (antonyms.isEmpty) return null;
+  // German Wiktionary's "Gegenwörter" are often a contrast set, not an
+  // opposite: Ast lists Stamm, Zweig, Blatt; November five other months;
+  // Europa the other continents; Quader the other solids. Both entries name
+  // each other, so the reciprocity check above passes them. A real opposite
+  // comes alone or in a pair (groß/klein, hell/dunkel), so a longer list is
+  // read as what it is and not asked.
+  final listed = word.apiEnrichment?.antonyms.length ?? 0;
+  if (isGerman && listed > 2) return null;
 
   // Variety: pick a random antonym among the clean ones as the displayed
   // correct answer (any listed antonym is still accepted on tap).
