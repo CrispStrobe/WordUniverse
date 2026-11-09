@@ -34,6 +34,7 @@ Idempotent: applying twice changes nothing the second time.
 import argparse
 import json
 import pathlib
+import re
 import sqlite3
 import sys
 
@@ -98,6 +99,14 @@ def main():
             metadata['forms'] = change['plural']
         if 'plural_only' in change:
             metadata['nurImPlural'] = change['plural_only']
+        # A plain word is never "not a word" or a "fragment": the models said
+        # so of participles (angekommen) and plurals (problems) in an early
+        # run. Those verdicts are only for spellings like "i-i" or "a-".
+        if (change.get('vocabulary') is False
+                and change.get('not_vocabulary') in ('not_a_word', 'fragment')
+                and re.match(r"^[A-Za-zÀ-ÖØ-öø-ÿß]+$", row['word'])):
+            change = {k: v for k, v in change.items()
+                      if k not in ('vocabulary', 'not_vocabulary')}
         if change.get('vocabulary') is False:
             quality = metadata.get('quality') or {}
             reasons = list(quality.get('reasons') or [])

@@ -123,6 +123,17 @@ itself{extra_fields}
 Be conservative. Change a field only when it is clearly wrong; a correct but \
 imperfect definition stays. Never change the spelling or case of the word.
 
+Important:
+- Inflected forms (plurals, past tense, participles, -ing forms, comparatives, \
+conjugated or declined forms) ARE vocabulary: keep them, and if the \
+definition describes only the base word, write one for this form.
+- A common word whose definition is wrong (e.g. "water" glossed as a village) \
+is still vocabulary: fix the definition, do not mark it "name".
+- Judge the WORD in its everyday sense, not the definition shown: "come" \
+or "without" are never inappropriate even if a definition is.
+- Use "name" only when the word itself is mainly a person or place name, and \
+"fragment" only for prefixes, suffixes or broken pieces like "a-" or "i-i".
+
 Entries:
 {entries}"""
 
