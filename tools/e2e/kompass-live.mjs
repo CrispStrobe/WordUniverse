@@ -119,7 +119,8 @@ try {
   const passage = await page.locator('body').ariaSnapshot();
   assert.match(passage, /Zeile 25/, 'logical source lines remain available after phone reflow');
   await snapshot('passage-phone');
-  await button(page, 'Schließen').click();
+  await page.keyboard.press('Escape');
+  await button(page, 'Antwort prüfen').waitFor();
   passed('A phone reload restores the same draft and keeps its numbered reading passage accessible');
 
   await button(page, 'Antwort prüfen').click();
