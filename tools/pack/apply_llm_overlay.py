@@ -26,7 +26,8 @@ For the English pack, pipeline/llm_review/en_phrasal.jsonl rewrites the
 phrasal_verbs table: a row the models agreed is not a real phrasal verb (or
 not for children) is removed; a kept row gets the reviewed meaning, the
 sentences that passed verification — in which only its own particle fits —
-and three particles that fit none of them. Its Wiktionary quotations are
+and three particles that fit none of them. A row whose rewrite failed
+verification is removed as well. Its Wiktionary quotations are
 dropped: they are adult prose, and the reviewed sentences replace them.
 
 Idempotent: applying twice changes nothing the second time.
@@ -133,7 +134,7 @@ def apply_phrasal(db):
     path = OUT_DIR / 'en_phrasal.jsonl'
     if not path.exists():
         return None
-    counts = {'rewritten': 0, 'removed': 0, 'left': 0}
+    counts = {'rewritten': 0, 'removed': 0, 'unverified, removed': 0}
     latest = {}
     for line in open(path, encoding='utf-8'):
         if line.strip():
@@ -157,7 +158,11 @@ def apply_phrasal(db):
                         json.dumps(record['wrong_particles']), '[]', row['id']))
             counts['rewritten'] += 1
         else:
-            counts['left'] += 1
+            # Read, rewritten, and the rewrite failed verification. The row's
+            # own data is what the read found broken ("I join out."), so it
+            # goes too: a missing item costs less than a wrong one.
+            db.execute('DELETE FROM phrasal_verbs WHERE id = ?', (row['id'],))
+            counts['unverified, removed'] += 1
     return counts
 
 
