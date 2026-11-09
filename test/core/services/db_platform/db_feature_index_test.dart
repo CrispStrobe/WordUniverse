@@ -33,6 +33,7 @@ Future<Database> packFixture(List<Map<String, Object?>> words) async {
     await db.insert('words', {
       'original_id': word['word'],
       'word': word['word'],
+      'lemma': word['lemma'],
       'word_type': 'noun',
       'grade_level': 1,
       'enrichment_json': jsonEncode(word['enrichment'] ?? {}),
@@ -303,6 +304,43 @@ void main() {
         final sql =
             index.featuresOf(i + 1) & ~WordFeature.knownMisspelling.mask;
         expect(dart, sql, reason: 'SQL and Dart disagree on "${word['word']}"');
+      }
+    });
+
+    test('the lemma column decides a headword, except on a curriculum',
+        () async {
+      final words = <Map<String, Object?>>[
+        // An inflected form Wiktionary names as its own lemma.
+        {'word': 'zeigten', 'lemma': 'zeigen'},
+        // A taught word whose lemma spaCy truncated.
+        {
+          'word': 'Kirsche',
+          'lemma': 'Kirsch',
+          'metadata': {
+            'sources': ['BW1']
+          },
+        },
+        {'word': 'Finale', 'lemma': 'finale'},
+      ];
+      final db = await packFixture(words);
+      addTearDown(db.close);
+      final index = await WordFeatureIndex.build(db);
+
+      final headword = [
+        for (var i = 1; i <= words.length; i++)
+          index.featuresOf(i).hasFeature(WordFeature.headword)
+      ];
+      expect(headword, [false, true, true]);
+      for (var i = 0; i < words.length; i++) {
+        final dart = featuresFromDecodedJson(
+          word: words[i]['word'] as String,
+          lemma: words[i]['lemma'] as String?,
+          enrichment: const {},
+          metadata: ((words[i]['metadata'] ?? const {}) as Map)
+              .cast<String, dynamic>(),
+        );
+        expect(dart.hasFeature(WordFeature.headword), headword[i],
+            reason: 'SQL and Dart disagree on "${words[i]['word']}"');
       }
     });
 

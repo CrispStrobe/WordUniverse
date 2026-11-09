@@ -61,10 +61,12 @@ final Map<WordFeature, String> _featureSql = {
   WordFeature.curriculum: _curriculumSql,
 
   // A missing primary_lemma means nothing claims the entry is derived. Case
-  // counts: see GermanWord.isHeadword.
+  // counts, and a curriculum word's lemma column is not consulted: see
+  // GermanWord.isHeadword.
   WordFeature.headword:
       "coalesce(json_extract(enrichment_json, '\$.primary_lemma'), word) "
-          "= word AND (lemma IS NULL OR lemma = '' OR lower(lemma) = lower(word))",
+          "= word AND (lemma IS NULL OR lemma = '' OR lower(lemma) = lower(word) "
+          "OR ($_curriculumSql))",
 };
 
 /// Whether the word is on a word list a curriculum actually prescribes.
@@ -580,19 +582,6 @@ int featuresFromDecodedJson({
   set(WordFeature.ipa, nonEmptyList(enrichment, 'pronunciation'));
   set(WordFeature.inflections, nonEmptyList(enrichment, 'inflections'));
 
-  const germanCurricula = {
-    'BAYERN',
-    'BERLIN',
-    'BRANDENBURG',
-    'BW1',
-    'BW3',
-    'HESSEN',
-    'NIEDERSACHSEN',
-    'NRW111',
-    'NRW422',
-    'RHEINLAND_PFALZ',
-    'SCHLESWIG_HOLSTEIN',
-  };
   const englishLists = {
     'source:dolch',
     'source:fry',
@@ -605,24 +594,25 @@ int featuresFromDecodedJson({
   set(WordFeature.usableDefinition,
       firstGloss is String && isUsableDefinition(firstGloss));
 
+  final sources = metadata['sources'];
+  final tags = metadata['tags'];
+  final onACurriculum =
+      (sources is List && sources.any(kGermanCurriculumSources.contains)) ||
+          (tags is List &&
+              tags.any((tag) =>
+                  englishLists.contains(tag) ||
+                  (tag is String &&
+                      (tag.startsWith('source:cambridge_yle_') ||
+                          tag.startsWith('source:uk_y')))));
+  set(WordFeature.curriculum, onACurriculum);
+
   final primaryLemma = enrichment['primary_lemma'];
   set(
       WordFeature.headword,
       (primaryLemma is! String || primaryLemma == word) &&
           (packLemma == null ||
               packLemma.isEmpty ||
-              packLemma.toLowerCase() == word.toLowerCase()));
-
-  final sources = metadata['sources'];
-  final tags = metadata['tags'];
-  set(
-      WordFeature.curriculum,
-      (sources is List && sources.any(germanCurricula.contains)) ||
-          (tags is List &&
-              tags.any((tag) =>
-                  englishLists.contains(tag) ||
-                  (tag is String &&
-                      (tag.startsWith('source:cambridge_yle_') ||
-                          tag.startsWith('source:uk_y'))))));
+              packLemma.toLowerCase() == word.toLowerCase() ||
+              onACurriculum));
   return features;
 }

@@ -84,7 +84,27 @@ enum WordFeature {
 // 10: headword compares the lemma case-sensitively — "im" is not the
 // headword of "Im", nor "water" of the Devon hamlet "Water"; and presentable
 // honours the pack's quality.vocabulary = false verdict.
-const int kWordFeatureIndexFormat = 10;
+// 11: a curriculum word is a headword whatever the pack's lemma column says.
+// spaCy truncated 33 taught BW words there ("Kirsche" -> "Kirsch", "Seife"
+// -> "Seif", "küssen" -> "Küsse"), and format 10 dropped them from every
+// game that asks for a headword.
+const int kWordFeatureIndexFormat = 11;
+
+/// The Bundesland tokens in a German entry's `metadata_json.sources` that
+/// mean a state's Grundwortschatz lists the word.
+const Set<String> kGermanCurriculumSources = {
+  'BAYERN',
+  'BERLIN',
+  'BRANDENBURG',
+  'BW1',
+  'BW3',
+  'HESSEN',
+  'NIEDERSACHSEN',
+  'NRW111',
+  'NRW422',
+  'RHEINLAND_PFALZ',
+  'SCHLESWIG_HOLSTEIN',
+};
 
 extension WordFeatureMask on int {
   bool hasFeature(WordFeature feature) => this & feature.mask != 0;

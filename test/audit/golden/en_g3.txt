@@ -1,78 +1,78 @@
 ── antonym_flash (4)
   lend
-      appropriate
-      nuclear
-      kindly
+      approval
     ✓ borrow
+      efficiency
+      collective
     · grade: 3
   appropriate
-      hopefully
-      ill
-      approval
+      kindly
+      necessarily
+      host
     ✓ inappropriate
     · grade: 3
   net
-      approval
-      capability
     ✓ gross
-      hire
+      capability
+      responsibility
+      host
     · grade: 3
   appearance
+      capability
     ✓ disappearance
-      gravity
-      efficiency
-      importance
+      responsibility
+      host
     · grade: 3
 ── cloze_flash (4)
-  This town offers ___ tours where you can go and watch the bears, deer, wild rabbits and other creatures in their natural habitats.
-      rubber
-      widow
-      tourist
-    ✓ wildlife
-    · word: wildlife
-  The shift of the supplier gave us a ___ of 10 percent.
-      knight
-      missile
-      bush
-    ✓ saving
-    · word: saving
-  He ___ of his commitment to her happiness.
-    ✓ assured
-      introduced
-      remaining
-      ally
-    · word: assured
-  He was hoping that we would take him ___.
-    ✓ seriously
-      anymore
-      assured
-      equally
-    · word: seriously
+  ___ made Jack depressed.
+      statement
+      larry
+    ✓ Unemployment
+      customers
+    · word: unemployment
+  He emigrated and now lives ___.
+      operate
+    ✓ overseas
+      nonetheless
+      smoothly
+    · word: overseas
+  The ___ of this loudspeaker is 40%.
+    ✓ efficiency
+      metre
+      lottery
+      pipe
+    · word: efficiency
+  In this town, the garbage removal staff ___ between six o'clock at midnight.
+    ✓ operate
+      enter
+      announced
+      wander
+    · word: operate
 ── definition_quiz (4)
-  To give someone an idea or feeling that makes them want to do something creative or good.
-    ✓ inspire
-      launch
-      fry
-      rational
-    · word: inspire  grade: 3
-  Capable of reasoning.
-    ✓ rational
-      tremendous
-      rough
-      northwest
-    · word: rational  grade: 3
-  Not smooth; uneven.
-      adorable
-      exact
-    ✓ rough
-      tremendous
-    · word: rough  grade: 3
-  Tired; feeling the need for sleep.
-      exceptional
-      adorable
-      print
-    ✓ sleepy
-    · word: sleepy  grade: 3
+  A person who travels somewhere on foot.
+      fame
+      consensus
+      testimony
+    ✓ walker
+    · word: walker  grade: 3
+  The steady, continuous movement of a liquid, gas, or electricity.
+      champion
+      resort
+      strain
+    ✓ flow
+    · word: flow  grade: 3
+  The act of conveying something.
+      cancer
+      patrol
+      champion
+    ✓ delivery
+    · word: delivery  grade: 3
+  A process of decision-making that seeks widespread agreement among group members.
+      testimony
+      portion
+      mortgage
+    ✓ consensus
+    · word: consensus  grade: 3
 ── false_friends (4)
   What does "ordinary" really mean?
       ordinär
@@ -116,26 +116,26 @@
     ✓ male
     · group: mail/male
 ── hypernym_flash (4)
-  instructor
-      differ
-      statement
-    ✓ educator
-      energy
-  defeat
-      means
-    ✓ win
-      differ
-      react
-  curriculum
-      system
-      emotion
-    ✓ information
-      energy
-  equipment
-    ✓ means
-      information
-      win
-      talk
+  dignity
+      response
+      input
+    ✓ pride
+      shelter
+  casino
+      cloth
+      subject
+    ✓ cards
+      response
+  administrator
+      subject
+    ✓ head
+      cloth
+      shelter
+  haven
+      input
+    ✓ shelter
+      head
+      cards
 ── phrasal_verb_match (4)
   What does "push around" mean?
     ✓ to bully or treat someone badly
@@ -183,183 +183,180 @@
       up
     · phrasal: walk through  means: explain step by step
 ── sentence_completion (4)
-  The wedding was a joyful ___.
-A favorable opportunity; a convenient or timely chance.
-    ✓ occasion
-      fashion
-      remainder
-      kilo
+  The toy store has many ___ from children.
+The desire to purchase goods and services.
+      kingdoms
+      footages
+      defences
+    ✓ demands
     · cue label: One possible meaning: …
-  The ___ was very painful.
-A sudden, heavy impact.
-      occasion
-      citizenship
-      guilt
-    ✓ shock
+  Every product has a ___.
+A person or company that manufactures.
+      responsibility
+      escort
+    ✓ manufacturer
+      demand
     · cue label: One possible meaning: …
-  The ___ magazine has some great outfit ideas.
-A popular style of clothing or way of doing things.
-    ✓ fashion
-      citizenship
-      option
-      marriage
+  The ___ around the mirror is golden.
+To fit, as for a specific end or purpose; make suitable or comfortable; adapt; adjust.
+    ✓ frame
+      compete
+      approach
+      remind
     · cue label: One possible meaning: …
-  The ___ reason is clear.
-First or earliest in a group or series.
-    ✓ primary
-      royal
-      ethnic
-      well-dressed
+  My ___ helps me remember things.
+Any system by which time is divided into days, weeks, months, and years.
+      manufacturer
+    ✓ calendar
+      sword
+      kingdom
     · cue label: One possible meaning: …
 ── spelling_spotter (4)
   Which spelling is correct?
-      adecuate
-      adequit
-      addequake
-    ✓ adequate
-    · shown after answering: It is the one adequate word.
+      refereces
+    ✓ reference
+      referemce
+      referece
+    · shown after answering: Maybe it had some reference to his temper.
   Which spelling is correct?
-    ✓ technical
-      tecknicle
-      tecmical
-      tecnecale
-    · shown after answering: The Commonwealth bills aimed to prevent technical attacks upon indictments.
+      ocassionally
+      ocasionaly
+    ✓ occasionally
+      ocasionally
+    · shown after answering: We must ask them to call occasionally.
   Which spelling is correct?
-    ✓ driven
-      drevan
-      diven
-      divern
-    · shown after answering: Where more bargains driven of all sorts?
+      assoicates
+      assoicated
+      asociated
+    ✓ associated
+    · shown after answering: Mr. Ward had been associated with Brann for some time.
   Which spelling is correct?
-      destisastion
-      desinations
-      desternetion
-    ✓ destination
+    ✓ mathematics
+      mathamatics
+      maxanlatic
+      mathematicas
+    · shown after answering: Then he displays to you his great skill in architecture and improvement in the mathematics.
 ── sri_review (4)
-  Correct spelling for:
-"To give someone an idea or feeling that makes them want to do something creative or good."
-      inspite
-    ✓ inspire
-    · type: spelling  assessedSkill: spelling
-  "Not smooth; uneven."
-      tremendous
-    ✓ rough
-      rational
-      northwest
+  "The act of conveying something."
+      champion
+    ✓ delivery
+      flow
+      strain
     · type: definition  assessedSkill: vocabulary
   What word class?
-sleepy
-    ✓ Adjective
-      Verb
-      Noun
+consensus
+    ✓ Noun
       Pronoun
+      Verb
+      Adverb
     · type: wordType  assessedSkill: wordType
   Capitalization
-The plant needs water ___.
-    ✓ hardly
-      Hardly
+The family said ___ to relatives.
+    ✓ goodbye
+      Goodbye
     · type: capitalization  assessedSkill: capitalization
+  Correct spelling for:
+"following, in succession, without interruption"
+    ✓ consecutive
+      consectutive
+    · type: spelling  assessedSkill: spelling
 ── syllable_count (4)
-  convenience
+  assignment
       1
       2
     ✓ 3
       4+
-    · hyphenation: con-ve-nience
-  capable
-      1
-      2
-    ✓ 3
-      4+
-    · hyphenation: ca-pa-ble
-  visitor
-      1
-      2
-    ✓ 3
-      4+
-    · hyphenation: vis-it-or
-  reply
+    · hyphenation: a-ssign-ment
+  withdraw
       1
     ✓ 2
       3
       4+
-    · hyphenation: re-ply
+    · hyphenation: with-draw
+  jersey
+      1
+    ✓ 2
+      3
+      4+
+    · hyphenation: jer-sey
+  principle
+      1
+      2
+    ✓ 3
+      4+
+    · hyphenation: prin-ci-ple
 ── synonym_flash (4)
-  chart
-      aid
-      finger
-      bomb
-    ✓ graph
+  introduction
+      ford
+      capability
+      idiot
+    ✓ entry
     · grade: 3
-  boot
-      bomb
-      alcohol
-    ✓ trunk
-      agency
+  accident
+    ✓ stroke
+      garlic
+      ford
+      bow
     · grade: 3
-  aid
-      agency
-      elevator
-      jerk
-    ✓ help
+  settlement
+      bow
+    ✓ colony
+      census
+      garlic
     · grade: 3
-  difficulty
-      chamber
-      basis
-    ✓ trouble
-      formation
+  cheap
+      dynamic
+      realistic
+    ✓ inexpensive
+      bold
     · grade: 3
 ── word_builder (4)
-  Build "altogether" from its letters
-    ✓ altogether
-    · grade: 3  gloss: Completely, wholly, or without exception.
-  Build "legislature" from its letters
-    ✓ legislature
-    · grade: 3  gloss: A governmental body with the power to make, amend and repeal laws.
-  Build "bare" from its letters
-    ✓ bare
+  Build "checks" from its letters
+    ✓ checks
     · grade: 3
-  Build "successfully" from its letters
-    ✓ successfully
-    · grade: 3  gloss: In a way that achieves a goal or has a good result.
-── word_class_flash (3)
-  extraordinary
-      Noun
-      Verb
-    ✓ Adjective
-  tension
-    ✓ Noun
-      Verb
-      Adjective
-  commit
+  Build "incredibly" from its letters
+    ✓ incredibly
+    · grade: 3  gloss: In an incredible manner; not to be believed.
+  Build "seaside" from its letters
+    ✓ seaside
+    · grade: 3  gloss: The area by and around the sea; including the beach, promenade or cliffs
+  Build "mama" from its letters
+    ✓ mama
+    · grade: 3  gloss: Mother, female parent.
+── word_class_flash (2)
+  explore
       Noun
     ✓ Verb
       Adjective
+  ceremony
+    ✓ Noun
+      Verb
+      Adjective
 ── word_find (4)
-  Find "altogether" in the grid
-    ✓ altogether
-    · grade: 3  gloss: Completely, wholly, or without exception.
-  Find "legislature" in the grid
-    ✓ legislature
-    · grade: 3  gloss: A governmental body with the power to make, amend and repeal laws.
-  Find "bare" in the grid
-    ✓ bare
+  Find "checks" in the grid
+    ✓ checks
     · grade: 3
-  Find "successfully" in the grid
-    ✓ successfully
-    · grade: 3  gloss: In a way that achieves a goal or has a good result.
+  Find "incredibly" in the grid
+    ✓ incredibly
+    · grade: 3  gloss: In an incredible manner; not to be believed.
+  Find "seaside" in the grid
+    ✓ seaside
+    · grade: 3  gloss: The area by and around the sea; including the beach, promenade or cliffs
+  Find "mama" in the grid
+    ✓ mama
+    · grade: 3  gloss: Mother, female parent.
 ── word_memory (4)
-  Match the pair for "bare"
-    ✓ bare
+  Match the pair for "checks"
+    ✓ checks
     · grade: 3  partner: same word, other font
-  Match the pair for "beings"
-    ✓ beings
-    · grade: 3  partner: same word, other font
-  Match the pair for "input"
-    ✓ Information or data that is put into a computer or s…
+  Match the pair for "seaside"
+    ✓ The area by and around the sea; including the beach,…
     · grade: 3  partner: definition
-  Match the pair for "rare"
-    ✓ Very uncommon; scarce.
+  Match the pair for "mama"
+    ✓ Mother, female parent.
+    · grade: 3  partner: definition
+  Match the pair for "arch"
+    ✓ An inverted U shape.
     · grade: 3  partner: definition
 ── word_of_the_day (4)
   2026-01-01: archive
@@ -375,29 +372,41 @@ The plant needs water ___.
     ✓ A small, open, wheeled vehicle, drawn or pushed by a person or animal, often with two wheels on one axle, more often used for transporting goods than passengers.
     · grade: 4  cefr: —
 ── word_snake (4)
-  Trace "altogether"
-    ✓ altogether
-    · grade: 3  gloss: Completely, wholly, or without exception.
-  Trace "legislature"
-    ✓ legislature
-    · grade: 3  gloss: A governmental body with the power to make, amend and repeal laws.
-  Trace "bare"
-    ✓ bare
+  Trace "checks"
+    ✓ checks
     · grade: 3
-  Trace "successfully"
-    ✓ successfully
-    · grade: 3  gloss: In a way that achieves a goal or has a good result.
-── word_sort (2)
-  Sort "legislature" into its word class
+  Trace "incredibly"
+    ✓ incredibly
+    · grade: 3  gloss: In an incredible manner; not to be believed.
+  Trace "seaside"
+    ✓ seaside
+    · grade: 3  gloss: The area by and around the sea; including the beach, promenade or cliffs
+  Trace "mama"
+    ✓ mama
+    · grade: 3  gloss: Mother, female parent.
+── word_sort (4)
+  Sort "checks" into its word class
     ✓ Nouns
-    · grade: 3  gloss: A governmental body with the power to make, amend and repeal laws.
-  Sort "successfully" into its word class
+    · grade: 3
+  Sort "incredibly" into its word class
     ✓ Adverbs
-    · grade: 3  gloss: In a way that achieves a goal or has a good result.
-── word_type_whirl (2)
-  Catch "legislature" in the right bin
+    · grade: 3  gloss: In an incredible manner; not to be believed.
+  Sort "seaside" into its word class
     ✓ Nouns
-    · grade: 3  gloss: A governmental body with the power to make, amend and repeal laws.
-  Catch "successfully" in the right bin
+    · grade: 3  gloss: The area by and around the sea; including the beach, promenade or cliffs
+  Sort "mama" into its word class
+    ✓ Nouns
+    · grade: 3  gloss: Mother, female parent.
+── word_type_whirl (4)
+  Catch "checks" in the right bin
+    ✓ Nouns
+    · grade: 3
+  Catch "incredibly" in the right bin
     ✓ Adverbs
-    · grade: 3  gloss: In a way that achieves a goal or has a good result.
+    · grade: 3  gloss: In an incredible manner; not to be believed.
+  Catch "seaside" in the right bin
+    ✓ Nouns
+    · grade: 3  gloss: The area by and around the sea; including the beach, promenade or cliffs
+  Catch "mama" in the right bin
+    ✓ Nouns
+    · grade: 3  gloss: Mother, female parent.

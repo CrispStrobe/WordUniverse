@@ -658,11 +658,15 @@ class GermanWord {
   /// inflected form as its own lemma — "verließen", "kämpfte", "Göttern" — and
   /// the column says verlassen, kämpfen, Götter; those rows were offered as
   /// words in six games and as a verb to conjugate ("gefilmt: ich ___").
+  /// A curriculum word is exempt: there the column is spaCy's guess, and it
+  /// truncated taught words ("Kirsche" -> "Kirsch", "Seife" -> "Seif").
   bool get isHeadword => isHydrated
       ? word == lemma &&
           (packLemma == null ||
               packLemma!.isEmpty ||
-              packLemma!.toLowerCase() == word.toLowerCase())
+              packLemma!.toLowerCase() == word.toLowerCase() ||
+              sources.any(kGermanCurriculumSources.contains) ||
+              has(WordFeature.curriculum))
       : has(WordFeature.headword);
 
   /// The definitions that actually describe this spelling.

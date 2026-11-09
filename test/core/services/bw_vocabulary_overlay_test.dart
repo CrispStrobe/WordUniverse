@@ -9,7 +9,7 @@ import 'package:WortUniversum/core/models/word_features.dart';
 import 'package:WortUniversum/core/services/bw_vocabulary_overlay.dart';
 
 const _packHash =
-    'b050d7d25f1a0ed373ae2b9f8d079a4c459c9536f3c2081fbc3cc9017e22f8f3';
+    'a4598603ebaadb27ac127e65613a0103b5e5d553b80b4a62f3d154d1ca46d873';
 
 void main() {
   late BwVocabularyOverlay overlay;

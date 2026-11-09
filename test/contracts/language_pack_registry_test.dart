@@ -30,7 +30,10 @@ void main() {
     // answered Werkzeug. Reduced to the synsets the games read it costs
     // about a megabyte compressed, and the number here is why that trade is
     // stated rather than slipped in.
-    expect(pack.requiredFreeSizeLabel, kIsWeb ? '192 MiB' : '104 MiB');
+    //
+    // Up by two on 2026-11-10: the reviewed glosses that replaced wrong ones
+    // are full sentences where the old ones were often a single word.
+    expect(pack.requiredFreeSizeLabel, kIsWeb ? '192 MiB' : '106 MiB');
     expect(kLanguagePacks['en']!.requiredFreeBytes, isNull);
     expect(kLanguagePacks['en']!.requiredFreeSizeLabel, isNull);
   });
