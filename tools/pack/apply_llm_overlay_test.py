@@ -164,6 +164,13 @@ class PhrasalFits(unittest.TestCase):
             self.assertNotIn(p, wrong)
         self.assertIn('off', wrong)
 
+    def test_another_phrasal_verb_of_the_same_verb_is_never_wrong(self):
+        record = {'id': 'put up', 'sentences': ['She put up the tent.']}
+        fits = {'She put ___ the tent.': {'up'}}
+        _, wrong = apply.safe_distractors(record, fits, {'put up', 'put away'})
+        self.assertNotIn('away', wrong)
+        self.assertIn('through', wrong)
+
     def test_a_sentence_judged_later_keeps_the_verified_rewrite(self):
         record = {'id': 'eat away', 'sentences': ['Rust eats away the metal.']}
         self.assertIsNone(apply.safe_distractors(record, {}))

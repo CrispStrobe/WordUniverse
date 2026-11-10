@@ -281,21 +281,26 @@ def load_fits():
     return fits
 
 
-def safe_distractors(record, fits):
+def safe_distractors(record, fits, attested=frozenset()):
     """The sentences to keep and the particles that fit none of them.
 
     A sentence is kept only if at least three particles fit nowhere in it;
     the distractors are the particles that fit none of the kept sentences.
+    A particle that makes another phrasal verb in [attested] with the same
+    verb is never a distractor, whatever the judges said: four of them let
+    "She put ___ the tent." offer "away".
     Returns (sentences, distractors), or None when no sentence leaves three.
     """
-    particle = record['id'].split(' ', 1)[1]
+    verb, particle = record['id'].split(' ', 1)
+    taken = {p for p in PARTICLES if f'{verb} {p}' in attested}
     scored = []
     for sentence in record['sentences']:
         gap = re.sub(r'\b' + re.escape(particle) + r'\b', '___', sentence,
                      count=1, flags=re.I)
         if gap not in fits:
             return None  # not judged yet: keep the verified rewrite as it is
-        wrong = [p for p in PARTICLES if p != particle and p not in fits[gap]]
+        wrong = [p for p in PARTICLES
+                 if p != particle and p not in fits[gap] and p not in taken]
         scored.append((sentence, set(wrong)))
     kept, common = [], None
     for sentence, wrong in sorted(scored, key=lambda x: -len(x[1])):
@@ -315,6 +320,11 @@ def apply_phrasal(db):
     counts = {'rewritten': 0, 'removed': 0, 'unverified, removed': 0,
               'no safe distractors, removed': 0}
     fits = load_fits()
+    attested = {row[0] for row in db.execute('SELECT phrasal FROM phrasal_verbs')}
+    listed = OUT_DIR / 'en_attested_phrasals.txt'
+    if listed.exists():
+        attested |= {line.strip() for line in listed.read_text().splitlines()
+                     if line.strip() and not line.startswith('#')}
     latest = {}
     for line in path.read_text(encoding='utf-8').splitlines():
         if line.strip():
@@ -330,7 +340,7 @@ def apply_phrasal(db):
             db.execute('DELETE FROM phrasal_verbs WHERE id = ?', (row['id'],))
             counts['removed'] += 1
         elif record.get('keep') is True:
-            safe = safe_distractors(record, fits) if fits is not None else None
+            safe = safe_distractors(record, fits, attested) if fits is not None else None
             if safe is not None:
                 sentences, wrong = safe
                 if not sentences:

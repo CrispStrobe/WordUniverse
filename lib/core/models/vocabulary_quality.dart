@@ -395,6 +395,8 @@ const kGrammaticalFormMarkers = <String>[
   'des verbs', 'des substantivs', 'des adjektivs', 'partizip',
   'indikativ', 'konjunktiv', 'imperativ', 'person singular',
   'person plural', 'komparativ', 'superlativ', 'grundform',
+  // "später: Steigerung von „spät“" was a Word of the Day.
+  'steigerung von',
   // Case names: "Nominativ Singular Femininum attributiv des
   // Indefinitpronomens jeder" is a parse, not a meaning.
   'nominativ', 'genitiv', 'dativ', 'akkusativ',

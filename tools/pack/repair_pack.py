@@ -682,6 +682,13 @@ GERMAN_ROW_CORRECTIONS = {
     },
 }
 
+PLACES_WITHOUT_ARTICLE = frozenset({
+    'Deutschland', 'Europa', 'Afrika', 'Asien', 'Amerika', 'Australien',
+    'Österreich', 'Frankreich', 'Italien', 'Spanien', 'England', 'Polen',
+    'Russland', 'China', 'Japan', 'Griechenland', 'Dänemark', 'Belgien',
+    'Bayern', 'Berlin', 'Hamburg', 'München', 'Wien',
+})
+
 
 def fix_german_rows(db, report):
     """Applies GERMAN_ROW_CORRECTIONS. Returns the words it changed."""
@@ -707,6 +714,16 @@ def fix_german_rows(db, report):
                 (correction['word_type'],
                  json.dumps(enrichment, ensure_ascii=False),
                  json.dumps(metadata, ensure_ascii=False), row['id']))
+    # Neuter names of countries and continents take no article: a child reads
+    # "Deutschland", and Translation Flash showed "das Deutschland".
+    for row in db.execute(
+            "SELECT id, word FROM words WHERE article = 'das' AND word IN (%s)"
+            % ','.join('?' * len(PLACES_WITHOUT_ARTICLE)),
+            sorted(PLACES_WITHOUT_ARTICLE)).fetchall():
+        fixed.append(row['word'])
+        if not report:
+            db.execute('UPDATE words SET article = NULL WHERE id = ?',
+                       (row['id'],))
     if fixed and not report:
         db.commit()
     return fixed

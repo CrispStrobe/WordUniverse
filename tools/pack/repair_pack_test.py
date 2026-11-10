@@ -310,9 +310,10 @@ class GermanRowCorrections(unittest.TestCase):
         db = sqlite3.connect(':memory:')
         db.row_factory = sqlite3.Row
         db.execute('CREATE TABLE words (id INTEGER PRIMARY KEY, word TEXT, '
-                   'word_type TEXT, enrichment_json TEXT, metadata_json TEXT)')
+                   'word_type TEXT, enrichment_json TEXT, metadata_json TEXT, '
+                   'article TEXT)')
         for i, gloss in enumerate(glosses, 1):
-            db.execute('INSERT INTO words VALUES (?,?,?,?,?)',
+            db.execute('INSERT INTO words VALUES (?,?,?,?,?,NULL)',
                        (i, 'August', 'proper_noun',
                         json.dumps({'definitions': [gloss]}),
                         json.dumps({'nurImPlural': True})))
@@ -325,6 +326,18 @@ class GermanRowCorrections(unittest.TestCase):
         self.assertEqual(row['word_type'], 'substantiv')
         self.assertIn('Monat', row['enrichment_json'])
         self.assertIn('"nurImPlural": false', row['metadata_json'])
+
+    def test_a_country_loses_its_article(self):
+        db = self.rows('der achte Monat')
+        db.execute("INSERT INTO words VALUES (9, 'Deutschland', 'substantiv', "
+                   "'{}', '{}', 'das')")
+        db.execute("INSERT INTO words VALUES (10, 'Land', 'substantiv', "
+                   "'{}', '{}', 'das')")
+        self.assertEqual(repair.fix_german_rows(db, False), ['Deutschland'])
+        self.assertEqual(db.execute('SELECT article FROM words WHERE id = 9')
+                         .fetchone()[0], None)
+        self.assertEqual(db.execute('SELECT article FROM words WHERE id = 10')
+                         .fetchone()[0], 'das')
 
     def test_a_row_that_already_reads_otherwise_is_left_alone(self):
         db = self.rows('der achte Monat')

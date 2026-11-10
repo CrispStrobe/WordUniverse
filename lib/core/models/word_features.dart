@@ -88,7 +88,9 @@ enum WordFeature {
 // spaCy truncated 33 taught BW words there ("Kirsche" -> "Kirsch", "Seife"
 // -> "Seif", "küssen" -> "Küsse"), and format 10 dropped them from every
 // game that asks for a headword.
-const int kWordFeatureIndexFormat = 11;
+// 12: "Steigerung von" is a grammatical-form gloss ("später" was a Word of
+// the Day glossed as the comparative of "spät").
+const int kWordFeatureIndexFormat = 12;
 
 /// The Bundesland tokens in a German entry's `metadata_json.sources` that
 /// mean a state's Grundwortschatz lists the word.
