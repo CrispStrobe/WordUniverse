@@ -93,8 +93,11 @@ AntonymChallenge? buildAntonymChallenge({
   final agreed = reciprocals ?? antonymsByWord(allWords);
   final self = word.word.toLowerCase();
 
-  final antonyms = word.apiEnrichment?.antonyms
-          .where((a) => a.trim().isNotEmpty)
+  // Reviewed: only opposites three judges accepted for the usual meaning
+  // ("Salz" listed "Zucker"). Unreviewed entries keep the checks below.
+  final reviewed = word.reviewedAntonyms;
+  final antonyms = (reviewed ?? word.apiEnrichment?.antonyms)
+          ?.where((a) => a.trim().isNotEmpty)
           // The packs list symbols and phrases among the antonyms: the
           // opposite of "Kreuz" came out as "♭".
           .where(isCleanSynonym)
@@ -106,8 +109,11 @@ AntonymChallenge? buildAntonymChallenge({
               isGerman ||
               word.word != word.word.toLowerCase() ||
               a == a.toLowerCase())
-          // Both entries have to call the other its opposite.
-          .where((a) => agreed[a.toLowerCase()]?.contains(self) ?? false)
+          // Both entries have to call the other its opposite, unless the
+          // judges already accepted the pair.
+          .where((a) =>
+              reviewed != null ||
+              (agreed[a.toLowerCase()]?.contains(self) ?? false))
           .toList() ??
       const [];
   if (antonyms.isEmpty) return null;
@@ -118,13 +124,18 @@ AntonymChallenge? buildAntonymChallenge({
   // comes alone or in a pair (groß/klein, hell/dunkel), so a longer list is
   // read as what it is and not asked.
   final listed = word.apiEnrichment?.antonyms.length ?? 0;
-  if (isGerman && listed > 2) return null;
+  if (reviewed == null && isGerman && listed > 2) return null;
 
   // Variety: pick a random antonym among the clean ones as the displayed
   // correct answer (any listed antonym is still accepted on tap).
   final correct = antonyms[random.nextInt(antonyms.length)];
 
-  final antonymsLower = antonyms.map((a) => a.toLowerCase()).toSet();
+  // Every listed opposite stays out of the wrong options, accepted or not:
+  // "arbeiten" with only "ruhen" accepted must not offer "faulenzen".
+  final antonymsLower = {
+    ...antonyms,
+    ...?word.apiEnrichment?.antonyms,
+  }.map((a) => a.toLowerCase()).toSet();
   bool isUsableDistractor(String t) =>
       t.isNotEmpty &&
       t != word.word &&

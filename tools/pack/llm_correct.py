@@ -1098,9 +1098,13 @@ def lexrel(args):
         prompt = LEXREL_PROMPT.format(
             language=language,
             entries=json.dumps(entries, ensure_ascii=False, indent=0))
-        first, a = pool.run('propose', prompt)
-        second, b = pool.run('verify', prompt, exclude_family=first.family)
-        third, c = pool.run('verify', prompt,
+        # Groq's Qwen, the only third family that answers, allows 8,000
+        # tokens a minute — about two batches — so a call waits its turn
+        # rather than failing the batch.
+        first, a = pool.run('propose', prompt, attempts=60)
+        second, b = pool.run('verify', prompt, exclude_family=first.family,
+                             attempts=60)
+        third, c = pool.run('verify', prompt, attempts=60,
                             exclude_family={first.family, second.family})
         answers = [{x.get('id'): x for x in r if isinstance(x, dict)}
                    for r in (a, b, c)]

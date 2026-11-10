@@ -1015,6 +1015,14 @@ class GermanWord {
   /// entry was not reviewed.
   final String? reviewedCategory;
 
+  /// The listed synonyms and antonyms that are pack words and that three
+  /// judges of different model families all accepted for the word's usual
+  /// meaning (metadata `llm_synonyms`, `llm_antonyms`). Empty where they
+  /// accepted none; null where the entry was not reviewed. Only answers come
+  /// from these: the full lists still decide what may not be a wrong option.
+  final List<String>? reviewedSynonyms;
+  final List<String>? reviewedAntonyms;
+
   GermanWord({
     required this.id,
     required this.word,
@@ -1080,6 +1088,8 @@ class GermanWord {
     this.glossReviewed = false,
     this.reviewedClasses,
     this.reviewedCategory,
+    this.reviewedSynonyms,
+    this.reviewedAntonyms,
   })  : _apiEnrichment = apiEnrichment,
         spellingDifficultySource = spellingDifficultySource ??
             (_parseErrorRate(litekeyErrorRate) == null ? 'unknown' : 'litkey'),
@@ -1230,6 +1240,8 @@ class GermanWord {
               (json['llm_classes'] as List).whereType<String>())
           : null,
       reviewedCategory: json['llm_category'] as String?,
+      reviewedSynonyms: _stringList(json['llm_synonyms']),
+      reviewedAntonyms: _stringList(json['llm_antonyms']),
       gradeLevel: _parseInt(json['gradeLevel'], 1), // SAFE PARSE
       lemma: apiData?.primaryLemma ?? json['lemma'] ?? json['word'],
       forms: json['forms'],
@@ -1407,6 +1419,8 @@ class GermanWord {
         glossReviewed: glossReviewed,
         reviewedClasses: reviewedClasses,
         reviewedCategory: reviewedCategory,
+        reviewedSynonyms: reviewedSynonyms,
+        reviewedAntonyms: reviewedAntonyms,
       );
 
   Map<String, dynamic> toJson() => {
@@ -1513,3 +1527,7 @@ class VocabularySet {
         'isCustom': isCustom,
       };
 }
+
+List<String>? _stringList(Object? value) => value is List
+    ? List<String>.unmodifiable(value.whereType<String>())
+    : null;

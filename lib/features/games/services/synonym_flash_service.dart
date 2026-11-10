@@ -44,7 +44,11 @@ SynonymChallenge? buildSynonymChallenge({
   // answers on the card. German carries no senses, and nor do a third of the
   // English entries, so the tiers below still do the work for them.
   final sensed = _synonymsOfItsOwnSense(word);
-  final synonyms = sensed ?? word.apiEnrichment?.synonyms ?? const [];
+  final listed = sensed ?? word.apiEnrichment?.synonyms ?? const [];
+  // Reviewed: only what three judges accepted for the usual meaning is an
+  // answer ("Preis" listed "Treffer", its lottery sense). The whole list
+  // still keeps its members out of the wrong options below.
+  final synonyms = word.reviewedSynonyms ?? listed;
   if (synonyms.isEmpty) return null;
   // "atlantic" glossed as an ocean is a name, not vocabulary.
   if (namesSomething(word)) return null;
@@ -114,7 +118,7 @@ SynonymChallenge? buildSynonymChallenge({
 
   // Any of the word's listed synonyms counts as correct, so exclude them all
   // (plus the prompt word itself) from the distractor pool.
-  final synSet = synonyms.map((s) => s.toLowerCase()).toSet()
+  final synSet = [...listed, ...synonyms].map((s) => s.toLowerCase()).toSet()
     ..add(word.word.toLowerCase());
 
   // Restrict distractors to the same word type as the prompt for plausibility;

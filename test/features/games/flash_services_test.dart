@@ -59,6 +59,34 @@ void main() {
       expect(challenge.options[challenge.correctIndex], 'sad');
     });
 
+    test('reviewed: only an accepted opposite is asked, and no listed one is wrong',
+        () {
+      // "arbeiten" listed ruhen, faulenzen and Pause; only ruhen was accepted.
+      final word = testWord('arbeiten',
+          type: GermanWordType.verb,
+          reviewedAntonyms: ['ruhen'],
+          enrichment:
+              testEnrichment(antonyms: ['ruhen', 'faulenzen', 'Pause']));
+      final others = [
+        for (final w in ['ruhen', 'faulenzen', 'laufen', 'singen', 'malen'])
+          testWord(w, type: GermanWordType.verb),
+      ];
+      for (var seed = 0; seed < 10; seed++) {
+        final challenge = build(word, others, isGerman: true, seed: seed)!;
+        expect(challenge.correctAntonym, 'ruhen');
+        expect(challenge.options, isNot(contains('faulenzen')));
+      }
+      // Reviewed with nothing accepted: not asked.
+      expect(
+          build(
+              testWord('Salz',
+                  reviewedAntonyms: const [],
+                  enrichment: testEnrichment(antonyms: ['Zucker'])),
+              filler(),
+              isGerman: true),
+          isNull);
+    });
+
     test('every listed antonym is carried, since any is accepted on tap', () {
       final challenge = build(_adj('happy', antonyms: ['sad', 'unhappy']), [
         _adj('sad', antonyms: ['happy']),

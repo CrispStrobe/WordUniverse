@@ -150,6 +150,23 @@ class Guards(unittest.TestCase):
         # Too general to be an answer.
         self.assertEqual(self.row(3)[3]['llm_category'], '')
 
+    def test_reviewed_synonyms_keep_only_what_the_row_still_lists(self):
+        self.db.execute(
+            "UPDATE words SET enrichment_json=? WHERE id=1",
+            (json.dumps({'definitions': ['Sternbilder'],
+                         'synonyms': [{'word': 'Köter'}, 'Treffer'],
+                         'antonyms': ['Katze']}),))
+        self.db.commit()
+        root = pathlib.Path(self.dir.name)
+        (root / 'de_lexrel.jsonl').write_text(json.dumps(
+            {'id': 'w1', 'src': correct.digest(self.relation(1)),
+             'synonyms': ['Köter', 'Fremdwort'], 'antonyms': []}) + '\n')
+        self.run_apply()
+        meta = self.row(1)[3]
+        self.assertEqual(meta['llm_synonyms'], ['Köter'])
+        # Empty is a verdict: nothing to ask.
+        self.assertEqual(meta['llm_antonyms'], [])
+
 
 class PhrasalFits(unittest.TestCase):
     def test_only_particles_no_judge_fits_anywhere_are_offered(self):

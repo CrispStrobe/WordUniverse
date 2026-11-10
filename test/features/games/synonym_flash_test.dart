@@ -53,9 +53,11 @@ GermanWord _word(
   int grade = 3,
   GermanWordType type = GermanWordType.adjektiv,
   int features = 0,
+  List<String>? reviewedSynonyms,
 }) =>
     GermanWord(
       id: 'test_$word',
+      reviewedSynonyms: reviewedSynonyms,
       word: word,
       wordType: type,
       gradeLevel: grade,
@@ -177,6 +179,24 @@ void main() {
   });
 
   group('which synonym is asked', () {
+    test('reviewed: only an accepted synonym is the answer', () {
+      // "Preis" listed Treffer, its lottery sense; only Belohnung was kept.
+      final word = _word('Preis',
+          type: GermanWordType.substantiv,
+          synonyms: ['Treffer', 'Belohnung'],
+          reviewedSynonyms: ['Belohnung']);
+      final others = [
+        for (final w in ['Treffer', 'Belohnung', 'Tisch', 'Wolke', 'Hose'])
+          _word(w, type: GermanWordType.substantiv),
+      ];
+      for (var seed = 0; seed < 10; seed++) {
+        final c = _build(word, others, isGerman: true, seed: seed)!;
+        expect(c.correctSynonym, 'Belohnung');
+        // Still a synonym in some sense, so never offered as wrong.
+        expect(c.options, isNot(contains('Treffer')));
+      }
+    });
+
     test('a curriculum word at or below the band beats a rarer one', () {
       // "creator" lists "Almighty" first in the pack; the curriculum word is
       // the one a learner can be expected to know.

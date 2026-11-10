@@ -54,6 +54,7 @@ import sys
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from llm_correct import (OUT_DIR, PARTICLES, RELATIONS_TEXT,  # noqa: E402
                          digest, entry_of, relation_entry)
+from llm_correct import _terms as terms  # noqa: E402
 
 GENUS = {'der': 'mask.', 'die': 'fem.', 'das': 'neut.'}
 
@@ -205,10 +206,51 @@ def main():
         counts['applied'] += 1
     phrasal = apply_phrasal(db) if args.lang == 'en' else None
     relations = apply_relations(db, args.lang)
+    lexrel = apply_lexrel(db, args.lang)
     db.commit()
     print(json.dumps({'corrections': len(corrections), **counts, 'fields': fields,
                       **({'phrasal': phrasal} if phrasal else {}),
-                      **({'relations': relations} if relations else {})}))
+                      **({'relations': relations} if relations else {}),
+                      **({'lexrel': lexrel} if lexrel else {})}))
+
+
+def apply_lexrel(db, lang):
+    """metadata.llm_synonyms and metadata.llm_antonyms from <lang>_lexrel.jsonl.
+
+    The listed synonyms and antonyms that three judges of different families
+    all accepted for the word's usual meaning. Written even when empty: an
+    empty list means the review found no answer to ask, which is different
+    from not having been reviewed. Kept only where the term is still listed,
+    so a later change to the lists cannot smuggle a term in.
+    """
+    path = OUT_DIR / f'{lang}_lexrel.jsonl'
+    if not path.exists():
+        return None
+    latest = {}
+    for line in path.read_text(encoding='utf-8').splitlines():
+        if line.strip():
+            record = json.loads(line)
+            latest[record['id']] = record
+    counts = {'applied': 0, 'stale': 0, 'missing': 0}
+    for entry_id, record in latest.items():
+        row = find_row(db, entry_id, 'id, original_id, word, word_type, article, '
+                                     'enrichment_json, metadata_json')
+        if row is None:
+            counts['missing'] += 1
+            continue
+        if digest(relation_entry(row, lang)) != record['src']:
+            counts['stale'] += 1
+            continue
+        enrichment = json.loads(row['enrichment_json'] or '{}')
+        metadata = json.loads(row['metadata_json'] or '{}')
+        for key in ('synonyms', 'antonyms'):
+            listed = {t.lower() for t in terms(enrichment.get(key))}
+            metadata[f'llm_{key}'] = [t for t in record.get(key) or []
+                                      if t.lower() in listed]
+        db.execute('UPDATE words SET metadata_json=? WHERE id=?',
+                   (json.dumps(metadata, ensure_ascii=False), row['id']))
+        counts['applied'] += 1
+    return counts
 
 
 def find_row(db, entry_id, columns):

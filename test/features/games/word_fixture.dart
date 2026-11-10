@@ -81,11 +81,15 @@ GermanWord testWord(
   ApiEnrichment? enrichment,
   List<String>? reviewedClasses,
   String? reviewedCategory,
+  List<String>? reviewedSynonyms,
+  List<String>? reviewedAntonyms,
 }) =>
     GermanWord(
       id: 'test_$word',
       reviewedClasses: reviewedClasses,
       reviewedCategory: reviewedCategory,
+      reviewedSynonyms: reviewedSynonyms,
+      reviewedAntonyms: reviewedAntonyms,
       word: word,
       wordType: type,
       gradeLevel: grade,
