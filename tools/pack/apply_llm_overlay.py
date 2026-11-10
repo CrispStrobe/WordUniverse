@@ -211,15 +211,18 @@ def main():
     # are read from the lists as they were reviewed.
     lexrel = apply_lexrel(db, args.lang)
     senses = apply_synonym_senses(db, args.lang)
-    # Last: it changes the leading gloss the steps above were read against.
+    # Last: they change the leading gloss the steps above were read against;
+    # the sense check was read against the children's glosses.
     kidgloss = apply_kidgloss(db, args.lang)
+    sense = apply_sense(db, args.lang)
     db.commit()
     print(json.dumps({'corrections': len(corrections), **counts, 'fields': fields,
                       **({'phrasal': phrasal} if phrasal else {}),
                       **({'relations': relations} if relations else {}),
                       **({'synonym_senses': senses} if senses else {}),
                       **({'lexrel': lexrel} if lexrel else {}),
-                      **({'kidgloss': kidgloss} if kidgloss else {})}))
+                      **({'kidgloss': kidgloss} if kidgloss else {}),
+                      **({'sense': sense} if sense else {})}))
 
 
 def synonym_lists_digest(enrichment):
@@ -353,6 +356,52 @@ def apply_kidgloss(db, lang):
         enrichment['definitions'] = [gloss] + [
             d for d in enrichment.get('definitions') or [] if d != gloss]
         metadata['gloss_source'] = 'llm-reviewed'
+        metadata.pop('gloss_above_reader', None)
+        db.execute('UPDATE words SET enrichment_json=?, metadata_json=? WHERE id=?',
+                   (json.dumps(enrichment, ensure_ascii=False),
+                    json.dumps(metadata, ensure_ascii=False), row['id']))
+        counts['applied'] += 1
+    return counts
+
+
+def apply_sense(db, lang):
+    """The meaning a child means, from <lang>_sense.jsonl, where it was not
+    the one shown first and a judge of another family confirmed the change.
+
+    "Kater" led with a hangover (grade 1); it now leads with a male cat. The
+    old gloss stays behind it: it is a meaning of the word, just not the one
+    a child is asked about.
+    """
+    path = OUT_DIR / f'{lang}_sense.jsonl'
+    if not path.exists():
+        return None
+    latest = {}
+    for line in path.read_text(encoding='utf-8').splitlines():
+        if line.strip():
+            record = json.loads(line)
+            latest[record['id']] = record
+    counts = {'applied': 0, 'kept': 0, 'unconfirmed': 0, 'stale': 0, 'missing': 0}
+    for entry_id, record in latest.items():
+        if record.get('ok'):
+            counts['kept'] += 1
+            continue
+        if not record.get('confirmed') or not record.get('gloss'):
+            counts['unconfirmed'] += 1
+            continue
+        row = find_row(db, entry_id, 'id, original_id, word, word_type, article, '
+                                     'enrichment_json, metadata_json')
+        if row is None:
+            counts['missing'] += 1
+            continue
+        if digest(relation_entry(row, lang)) != record['src']:
+            counts['stale'] += 1
+            continue
+        gloss = record['gloss'].strip()
+        enrichment = json.loads(row['enrichment_json'] or '{}')
+        metadata = json.loads(row['metadata_json'] or '{}')
+        enrichment['definitions'] = [gloss] + [
+            d for d in enrichment.get('definitions') or [] if d != gloss]
+        metadata['gloss_source'] = 'llm-sense'
         metadata.pop('gloss_above_reader', None)
         db.execute('UPDATE words SET enrichment_json=?, metadata_json=? WHERE id=?',
                    (json.dumps(enrichment, ensure_ascii=False),

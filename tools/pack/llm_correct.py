@@ -1278,6 +1278,158 @@ def kidgloss(args):
     print_lanes(pool)
 
 
+# ─── Sense: is the first meaning the one a child means? ──────────────────
+#
+# The children's glosses rewrite the leading meaning in easy words, but keep
+# whichever meaning leads. "Kater" (grade 1) led with a hangover and had no
+# other sense; the rewrite made the hangover easy to read. This pass asks
+# whether the leading meaning is the one a child of the word's grade means,
+# and if not, writes that one; a judge of another family confirms each change.
+
+SENSE_PROMPT = """You check a {language} vocabulary app for children aged 6 to 11.
+Each entry has a word, its word class, the school grade it is taught in, the
+meaning the app shows first ("gloss") and the other meanings it lists ("other").
+
+For each entry decide: is "gloss" the meaning a child of that grade most likely
+means by this word? Example: for "Kater" a child means a male cat, not a
+hangover; for "Maus" the animal, not a computer mouse; for "Bank" a bench to
+sit on is as likely as a bank for money, so either is fine.
+
+- If it is, answer {{"id": "...", "ok": true}}.
+- If it is not, answer {{"id": "...", "ok": false, "gloss": "..."}} with the
+  meaning the child means, in ONE short {language} sentence or phrase of at
+  most 12 everyday words, without the word itself or a word of its family.
+  {style}
+Only say false when you are sure; a correct but less common reading of a word
+a child also uses is fine.
+
+Answer with ONE JSON array only, one object per entry: [{{"id": "...", "ok": true}}, ...]
+
+Entries:
+{entries}"""
+
+SENSE_VERIFY = """You check meanings in a {language} vocabulary app for children aged 6 to 11.
+For each entry a reviewer replaced the meaning shown first ("old") with "new".
+"ok" is true only if ALL hold:
+- "new" is the meaning a child of that grade most likely means by the word,
+  and "old" was not (for "Kater": a male cat, not a hangover),
+- "new" is correct, easy for a child, at most 12 words, and does not contain
+  the word itself or a word of its family.
+
+Answer with JSON only: [{{"id": "...", "ok": true|false}}]
+
+Entries:
+{entries}"""
+
+
+def sense(args):
+    env = load_env(args.env_file)
+    pool = Pool(env, only=set(args.lanes.split(',')) if args.lanes else None)
+    if args.proposers:
+        assign_roles(pool, set(args.proposers.split(',')),
+                     set(args.verifiers.split(',')))
+    language = 'German' if args.lang == 'de' else 'English'
+    out = OUT_DIR / f'{args.lang}_sense.jsonl'
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    seen = {}
+    if out.exists():
+        for line in open(out, encoding='utf-8'):
+            if line.strip():
+                r = json.loads(line)
+                seen[r['id']] = r['src']
+    db = sqlite3.connect(args.pack)
+    db.row_factory = sqlite3.Row
+    rows = db.execute(
+        "SELECT id, original_id, word, word_type, article, grade_level, "
+        "enrichment_json, metadata_json FROM words WHERE grade_level "
+        "BETWEEN 1 AND ? AND coalesce(json_extract(metadata_json, "
+        "'$.quality.vocabulary'), 1) = 1 ORDER BY grade_level, id",
+        (args.max_grade,)).fetchall()
+    todo = []
+    for row in rows:
+        if row['word_type'] not in RELATION_TYPES:
+            continue
+        entry = relation_entry(row, args.lang)
+        if not entry['meaning']:
+            continue
+        src = digest(entry)
+        if seen.get(entry['id']) == src:
+            continue
+        defs = [d for d in json.loads(row['enrichment_json'] or '{}').get('definitions') or []
+                if isinstance(d, str) and d.strip()]
+        others = [d[:120] for d in defs[1:6] if d[:200] != entry['meaning']]
+        todo.append(({'id': entry['id'], 'word': entry['word'],
+                      'word_type': entry['word_type'], 'grade': row['grade_level'],
+                      'gloss': entry['meaning'], 'other': others}, src))
+    if args.limit:
+        todo = todo[:args.limit]
+    batches = [todo[i:i + args.batch] for i in range(0, len(todo), args.batch)]
+    print(f'{len(todo)} entries in {len(batches)} batches', flush=True)
+    lock = threading.Lock()
+    stats = {'entries': 0, 'kept': 0, 'changed': 0, 'rejected': 0, 'failed': 0}
+
+    def one(batch):
+        entries = [e for e, _ in batch]
+        proposer, answers = pool.run('propose', SENSE_PROMPT.format(
+            language=language, style=KIDGLOSS_STYLE[args.lang],
+            entries=json.dumps(entries, ensure_ascii=False, indent=0)), attempts=30)
+        by_id = {a.get('id'): a for a in answers if isinstance(a, dict)}
+        if sum(1 for e in entries if isinstance((by_id.get(e['id']) or {}).get('ok'), bool)) \
+                < len(entries) * 0.9:
+            raise RuntimeError(f'{proposer.name}: answered too few entries')
+        changes = []
+        for e in entries:
+            a = by_id.get(e['id']) or {}
+            g = a.get('gloss')
+            if a.get('ok') is False and isinstance(g, str) and g.strip() \
+                    and g.strip() != e['gloss']:
+                changes.append({'id': e['id'], 'word': e['word'], 'grade': e['grade'],
+                                'old': e['gloss'], 'new': g.strip()})
+        verdict, checker = {}, None
+        if changes:
+            checker, verdicts = pool.run('verify', SENSE_VERIFY.format(
+                language=language,
+                entries=json.dumps(changes, ensure_ascii=False, indent=0)),
+                exclude_family=proposer.family, attempts=30)
+            verdict = {v.get('id'): v.get('ok') for v in verdicts if isinstance(v, dict)}
+        changed = {c['id']: c for c in changes}
+        src_of = {e['id']: src for e, src in batch}
+        with lock, open(out, 'a', encoding='utf-8') as f:
+            for e in entries:
+                a = by_id.get(e['id']) or {}
+                if not isinstance(a.get('ok'), bool):
+                    continue
+                record = {'id': e['id'], 'word': e['word'], 'src': src_of[e['id']],
+                          'ok': a['ok'], 'by': proposer.model}
+                if e['id'] in changed:
+                    if not isinstance(verdict.get(e['id']), bool):
+                        continue
+                    record.update(old=e['gloss'], gloss=changed[e['id']]['new'],
+                                  confirmed=verdict[e['id']], checked_by=checker.model)
+                f.write(json.dumps(record, ensure_ascii=False) + '\n')
+                stats['entries'] += 1
+                if a['ok']:
+                    stats['kept'] += 1
+                elif record.get('confirmed'):
+                    stats['changed'] += 1
+                else:
+                    stats['rejected'] += 1
+
+    started = time.time()
+    with ThreadPoolExecutor(max_workers=args.workers) as ex:
+        futures = [ex.submit(one, b) for b in batches]
+        for i, f in enumerate(as_completed(futures), 1):
+            try:
+                f.result()
+            except Exception as e:
+                stats['failed'] += 1
+                print(f'batch failed: {e}', flush=True)
+            if i % 10 == 0 or i == len(futures):
+                rate = i / max(1, time.time() - started) * 3600
+                print(f'[{i}/{len(futures)}] {stats} ~{rate:.0f} batches/h', flush=True)
+    print_lanes(pool)
+
+
 def print_lanes(pool):
     print('lanes:', ', '.join(
         f'{l.name} {l.ok}ok/{l.failures}fail'
@@ -1423,6 +1575,17 @@ def main():
     kg.add_argument('--proposers', default='mistral-large')
     kg.add_argument('--verifiers', default='iceman,gpt-oss-120b,gemini-3-flash,nemotron-ultra,longcat-2.5')
     kg.add_argument('--env-file', default=str(pathlib.Path.home() / 'code' / '.env'))
+    se = sub.add_parser('sense', help='is the meaning shown first the one a child means?')
+    se.add_argument('pack')
+    se.add_argument('--lang', choices=['de', 'en'], required=True)
+    se.add_argument('--max-grade', type=int, default=13)
+    se.add_argument('--limit', type=int)
+    se.add_argument('--batch', type=int, default=50)
+    se.add_argument('--workers', type=int, default=6)
+    se.add_argument('--lanes')
+    se.add_argument('--proposers', default='mistral-large,mistral-medium')
+    se.add_argument('--verifiers', default='iceman,gpt-oss-120b,gemini-3-flash,nemotron-ultra,longcat-2.5')
+    se.add_argument('--env-file', default=str(pathlib.Path.home() / 'code' / '.env'))
     pf = sub.add_parser('phrasal-fits')
     pf.add_argument('--judges', default='mistral-large,command-a')
     pf.add_argument('--round', type=int, default=1,
@@ -1437,7 +1600,7 @@ def main():
     {'propose': propose, 'report': report, 'phrasal': phrasal,
      'audit': audit, 'relations': relations,
      'phrasal-fits': phrasal_fits, 'lexrel': lexrel,
-     'kidgloss': kidgloss}[args.cmd](args)
+     'kidgloss': kidgloss, 'sense': sense}[args.cmd](args)
 
 
 if __name__ == '__main__':

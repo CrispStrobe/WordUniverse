@@ -207,6 +207,21 @@ class Guards(unittest.TestCase):
         self.assertEqual(meta['gloss_source'], 'llm-reviewed')
         self.assertEqual(self.row(3)[2]['definitions'], ['dick'])
 
+    def test_the_meaning_a_child_means_goes_first_once_confirmed(self):
+        root = pathlib.Path(self.dir.name)
+        (root / 'de_sense.jsonl').write_text('\n'.join(json.dumps(r) for r in [
+            {'id': 'w1', 'src': correct.digest(self.relation(1)), 'ok': False,
+             'old': 'Sternbilder', 'gloss': 'Ein Tier, das bellt.', 'confirmed': True},
+            # The second judge disagreed: left alone.
+            {'id': 'w3', 'src': correct.digest(self.relation(3)), 'ok': False,
+             'old': 'dick', 'gloss': 'Öl zum Braten.', 'confirmed': False},
+        ]) + '\n')
+        self.run_apply()
+        _, _, enr, meta = self.row(1)
+        self.assertEqual(enr['definitions'], ['Ein Tier, das bellt.', 'Sternbilder'])
+        self.assertEqual(meta['gloss_source'], 'llm-sense')
+        self.assertEqual(self.row(3)[2]['definitions'], ['dick'])
+
 
 class PhrasalFits(unittest.TestCase):
     def test_only_particles_no_judge_fits_anywhere_are_offered(self):
