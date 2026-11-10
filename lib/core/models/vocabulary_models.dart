@@ -1003,6 +1003,18 @@ class GermanWord {
   /// pass (tools/pack/llm_correct.py), metadata `gloss_source`.
   final bool glossReviewed;
 
+  /// The word classes two reviewing models of different families named for
+  /// this spelling, united (metadata `llm_classes`, written by
+  /// tools/pack/apply_llm_overlay.py). Null where the entry was not reviewed.
+  /// "mash" is ["noun", "verb"]: a word-class game cannot ask about it.
+  final List<String>? reviewedClasses;
+
+  /// The category word a child would give for "a knife is a kind of ___",
+  /// proposed by one model and confirmed by another (metadata
+  /// `llm_category`). Empty where the review found none; null where the
+  /// entry was not reviewed.
+  final String? reviewedCategory;
+
   GermanWord({
     required this.id,
     required this.word,
@@ -1066,6 +1078,8 @@ class GermanWord {
     this.packLemma,
     this.cmuSyllables,
     this.glossReviewed = false,
+    this.reviewedClasses,
+    this.reviewedCategory,
   })  : _apiEnrichment = apiEnrichment,
         spellingDifficultySource = spellingDifficultySource ??
             (_parseErrorRate(litekeyErrorRate) == null ? 'unknown' : 'litkey'),
@@ -1211,6 +1225,11 @@ class GermanWord {
       packLemma: json['lemma'] as String?,
       cmuSyllables: _cmuSyllables(json['pronunciation']),
       glossReviewed: json['gloss_source'] == 'llm-reviewed',
+      reviewedClasses: json['llm_classes'] is List
+          ? List<String>.unmodifiable(
+              (json['llm_classes'] as List).whereType<String>())
+          : null,
+      reviewedCategory: json['llm_category'] as String?,
       gradeLevel: _parseInt(json['gradeLevel'], 1), // SAFE PARSE
       lemma: apiData?.primaryLemma ?? json['lemma'] ?? json['word'],
       forms: json['forms'],
@@ -1386,6 +1405,8 @@ class GermanWord {
         packLemma: packLemma,
         cmuSyllables: cmuSyllables,
         glossReviewed: glossReviewed,
+        reviewedClasses: reviewedClasses,
+        reviewedCategory: reviewedCategory,
       );
 
   Map<String, dynamic> toJson() => {

@@ -198,6 +198,27 @@ String? pickHypernym(
   // information technology, "two" a playing card.
   if (classIsContradicted(word)) return null;
 
+  // The reviewed category, where the entry has one, is the answer and the
+  // only one: proposed for the sense the pack glosses by one model and
+  // confirmed by another. Everything below infers a sense from lists that
+  // span all of them, and still keyed knife -> arm (the weapon), bone ->
+  // white and ache -> long. Reviewed and empty means no everyday category
+  // fits ("information", "news"), and then the word is not asked.
+  final reviewed = word.reviewedCategory?.trim();
+  if (reviewed != null) {
+    if (reviewed.isEmpty || !_isCleanHypernym(reviewed, isDE)) return null;
+    final lower = reviewed.toLowerCase();
+    final prompt = word.word.toLowerCase();
+    if (lower == prompt || prompt.contains(lower) || lower.contains(prompt)) {
+      return null;
+    }
+    if (catalogue == null) return reviewed;
+    final entry = catalogue[lower];
+    if (entry == null || namesSomething(entry)) return null;
+    if (entry.wordType != word.wordType) return null;
+    return entry.word;
+  }
+
   // Where the pack says which sense a hypernym belongs to, there is nothing
   // to infer, and the pooled list below — every sense poured together — is
   // exactly what that data replaces. So for an entry that has senses, the

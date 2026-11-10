@@ -34,6 +34,13 @@ sentences that passed verification — in which only its own particle fits —
 and three particles that fit none of them. A row whose rewrite failed
 verification is removed as well. Its Wiktionary quotations are
 dropped: they are adult prose, and the reviewed sentences replace them.
+Where pipeline/llm_review/en_phrasal_fits.jsonl has judged a row's gaps,
+its distractors are instead every particle neither judge said fits any of
+its kept sentences.
+
+pipeline/llm_review/<lang>_relations.jsonl adds metadata.llm_classes (the
+classes the spelling is used in, for the word-class games) and, for nouns
+and verbs, metadata.llm_category (the hypernym game's answer, "" for none).
 
 Idempotent: applying twice changes nothing the second time.
 """
@@ -45,7 +52,8 @@ import sqlite3
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-from llm_correct import OUT_DIR, digest, entry_of  # noqa: E402
+from llm_correct import (OUT_DIR, PARTICLES, digest, entry_of,  # noqa: E402
+                         relation_entry)
 
 GENUS = {'der': 'mask.', 'die': 'fem.', 'das': 'neut.'}
 
@@ -196,16 +204,108 @@ def main():
                     json.dumps(metadata, ensure_ascii=False), row['id']))
         counts['applied'] += 1
     phrasal = apply_phrasal(db) if args.lang == 'en' else None
+    relations = apply_relations(db, args.lang)
     db.commit()
     print(json.dumps({'corrections': len(corrections), **counts, 'fields': fields,
-                      **({'phrasal': phrasal} if phrasal else {})}))
+                      **({'phrasal': phrasal} if phrasal else {}),
+                      **({'relations': relations} if relations else {})}))
+
+
+def find_row(db, entry_id, columns):
+    by_row = entry_id.startswith('row:')
+    return db.execute(f'SELECT {columns} FROM words '
+                      + ('WHERE id = ? AND original_id IS NULL' if by_row
+                         else 'WHERE original_id = ?'),
+                      (int(entry_id[4:]) if by_row else entry_id,)).fetchone()
+
+
+def apply_relations(db, lang):
+    """metadata.llm_classes and metadata.llm_category from <lang>_relations.jsonl.
+
+    llm_classes: the classes two models of different families named for the
+    spelling, united — a word-class game asks only where it is one class, and
+    that class is the column's. llm_category: for a noun or verb, the category
+    word the verifier confirmed, or "" where none was (the hypernym game then
+    leaves the word out rather than fall back on WordNet's every-sense list).
+    Applied against the corrected row, after the corrections above, since
+    that is what the models were shown.
+    """
+    path = OUT_DIR / f'{lang}_relations.jsonl'
+    if not path.exists():
+        return None
+    latest = {}
+    for line in path.read_text(encoding='utf-8').splitlines():
+        if line.strip():
+            record = json.loads(line)
+            latest[record['id']] = record
+    counts = {'applied': 0, 'stale': 0, 'missing': 0}
+    for entry_id, record in latest.items():
+        row = find_row(db, entry_id, 'id, original_id, word, word_type, article, '
+                                     'enrichment_json, metadata_json')
+        if row is None:
+            counts['missing'] += 1
+            continue
+        if digest(relation_entry(row, lang)) != record['src']:
+            counts['stale'] += 1
+            continue
+        metadata = json.loads(row['metadata_json'] or '{}')
+        if record.get('classes'):
+            metadata['llm_classes'] = record['classes']
+        if record.get('word_type') in ('noun', 'verb'):
+            metadata['llm_category'] = record.get('category') or ''
+        db.execute('UPDATE words SET metadata_json=? WHERE id=?',
+                   (json.dumps(metadata, ensure_ascii=False), row['id']))
+        counts['applied'] += 1
+    return counts
+
+
+def load_fits():
+    """Sentence-with-gap -> the particles two judges said fill it."""
+    path = OUT_DIR / 'en_phrasal_fits.jsonl'
+    if not path.exists():
+        return None
+    fits = {}
+    for line in path.read_text(encoding='utf-8').splitlines():
+        if line.strip():
+            r = json.loads(line)
+            fits[r['sentence']] = set(r['fits'])
+    return fits
+
+
+def safe_distractors(record, fits):
+    """The sentences to keep and the particles that fit none of them.
+
+    A sentence is kept only if at least three particles fit nowhere in it;
+    the distractors are the particles that fit none of the kept sentences.
+    Returns (sentences, distractors), or None when no sentence leaves three.
+    """
+    particle = record['id'].split(' ', 1)[1]
+    scored = []
+    for sentence in record['sentences']:
+        gap = re.sub(r'\b' + re.escape(particle) + r'\b', '___', sentence,
+                     count=1, flags=re.I)
+        if gap not in fits:
+            return None  # not judged yet: keep the verified rewrite as it is
+        wrong = [p for p in PARTICLES if p != particle and p not in fits[gap]]
+        scored.append((sentence, set(wrong)))
+    kept, common = [], None
+    for sentence, wrong in sorted(scored, key=lambda x: -len(x[1])):
+        joint = wrong if common is None else common & wrong
+        if len(joint) >= 3:
+            kept.append(sentence)
+            common = joint
+    if not kept:
+        return ([], [])
+    return (kept, [p for p in PARTICLES if p in common])
 
 
 def apply_phrasal(db):
     path = OUT_DIR / 'en_phrasal.jsonl'
     if not path.exists():
         return None
-    counts = {'rewritten': 0, 'removed': 0, 'unverified, removed': 0}
+    counts = {'rewritten': 0, 'removed': 0, 'unverified, removed': 0,
+              'no safe distractors, removed': 0}
+    fits = load_fits()
     latest = {}
     for line in path.read_text(encoding='utf-8').splitlines():
         if line.strip():
@@ -221,6 +321,14 @@ def apply_phrasal(db):
             db.execute('DELETE FROM phrasal_verbs WHERE id = ?', (row['id'],))
             counts['removed'] += 1
         elif record.get('keep') is True:
+            safe = safe_distractors(record, fits) if fits is not None else None
+            if safe is not None:
+                sentences, wrong = safe
+                if not sentences:
+                    db.execute('DELETE FROM phrasal_verbs WHERE id = ?', (row['id'],))
+                    counts['no safe distractors, removed'] += 1
+                    continue
+                record = {**record, 'sentences': sentences, 'wrong_particles': wrong}
             db.execute('UPDATE phrasal_verbs SET meaning=?, examples_json=?, '
                        'distractors_json=?, wiktionary_examples_json=? WHERE id=?',
                        (record['meaning'],

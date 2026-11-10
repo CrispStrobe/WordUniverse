@@ -746,6 +746,283 @@ def audit(args):
     print(stats, flush=True)
 
 
+# ─── Relations: word classes and a child's category word ──────────────────
+#
+# Two games ask what the pack cannot say reliably. Word Class Flash asks
+# which class a word is, and 4,150 English entries have no WordNet senses to
+# show that "mash" is a noun as well as a verb. Hypernym Flash asks "a knife
+# is a kind of …?", and WordNet's hypernyms span every sense: knife -> arm
+# (the weapon), bone -> white, ache -> long. So a model names the classes a
+# child meets the spelling in, and the category word for the sense the pack
+# glosses; a model of another family lists the classes again on its own and
+# judges the category. The class lists are united, so a word either model
+# calls ambiguous is not asked about.
+
+CLASSES = ['noun', 'verb', 'adjective', 'adverb', 'pronoun', 'preposition',
+           'conjunction', 'determiner', 'numeral', 'interjection']
+CLASS_OF_TYPE = {
+    'noun': 'noun', 'substantiv': 'noun', 'verb': 'verb',
+    'adjective': 'adjective', 'adjektiv': 'adjective', 'adverb': 'adverb',
+    'pronoun': 'pronoun', 'pronomen': 'pronoun', 'preposition': 'preposition',
+    'praeposition': 'preposition', 'conjunction': 'conjunction',
+    'konjunktion': 'conjunction', 'artikel': 'determiner',
+    'determiner': 'determiner', 'numerale': 'numeral', 'numeral': 'numeral',
+    'interjection': 'interjection', 'interjektion': 'interjection',
+}
+RELATION_TYPES = {'noun', 'substantiv', 'verb', 'adjective', 'adjektiv',
+                  'adverb'}
+
+RELATIONS_TEXT = {
+    'en': dict(
+        noun_frame='A <word> is a kind of ___.',
+        verb_frame='To <word> is a way to ___.',
+        too_general='thing, object, item, stuff, person, people, place, '
+                    'act, action, do, make, be, have, get, go',
+        class_note='A participle or -ing form counts as an adjective only '
+                   'where it is commonly one ("interesting", "tired").'),
+    'de': dict(
+        noun_frame='Ein/eine <Wort> ist eine Art ___.',
+        verb_frame='<wort> ist eine Art zu ___.',
+        too_general='Ding, Sache, Gegenstand, Etwas, Person, Mensch, Ort, '
+                    'Handlung, tun, machen, sein, haben, werden',
+        class_note='Use German school grammar: an adjective used '
+                   'adverbially ("schnell laufen") is still only an '
+                   'adjective; a noun is only a noun (the nominalised verb '
+                   '"das Laufen" is a separate entry), and a verb is only a '
+                   'verb.'),
+}
+
+RELATIONS_PROMPT = """You are preparing word games for {language}-speaking \
+children aged 6-11. Each entry gives a word, its word type in our dictionary \
+and its first meaning.
+
+For each entry:
+1. classes: every word class in which this exact spelling is commonly used \
+in everyday {language}, from {classes}. Include a class only if a child \
+would plausibly meet the word used that way. {class_note}
+2. category — only for nouns and verbs, and in the meaning given: the one \
+common, simple {language} word a child would give for "{noun_frame}" or \
+"{verb_frame}". It must be of the same word class as the entry, a true \
+superordinate (a kind-of relation: not a part, colour, material, place, \
+use or synonym), not the word itself or contained in it, and not so general \
+that it fits almost anything ({too_general}). Use null where no such \
+everyday word exists, and for every word that is not a noun or verb.
+
+Answer with ONLY a JSON array, one object per entry, same order, no prose:
+{{"id": "...", "classes": ["..."], "category": "..." or null}}
+
+Entries:
+{entries}"""
+
+RELATIONS_VERIFY = """You are checking word-game data for {language}-speaking \
+children aged 6-11. Each entry gives a word, its word type, its first \
+meaning and a proposed category.
+
+For each entry:
+1. classes: on your own, list every word class in which this exact spelling \
+is commonly used in everyday {language}, from {classes}. Include a class \
+only if a child would plausibly meet the word used that way. {class_note}
+2. category_ok (only where a category is given): true if "{noun_frame}" / \
+"{verb_frame}" with that category is correct for the meaning given, the \
+category is a true superordinate of the same word class (not a part, \
+colour, material, place, use or synonym) and a word a child knows; \
+otherwise false.
+
+Answer with ONLY a JSON array, one object per entry, same order, no prose:
+{{"id": "...", "classes": ["..."], "category_ok": true}}
+
+Entries:
+{entries}"""
+
+
+def relation_entry(row, lang):
+    enrichment = json.loads(row['enrichment_json'] or '{}')
+    gloss = next((d[:200] for d in enrichment.get('definitions') or []
+                  if isinstance(d, str) and d.strip()), '')
+    entry = {'id': entry_key(row), 'word': row['word'],
+             'word_type': CLASS_OF_TYPE.get(row['word_type'], row['word_type']),
+             'meaning': gloss}
+    if lang == 'de' and row['word_type'] == 'substantiv' and row['article']:
+        entry['word'] = f"{row['article']} {row['word']}"
+    return entry
+
+
+def clean_classes(value):
+    if not isinstance(value, list):
+        return None
+    out = sorted({c.strip().lower() for c in value
+                  if isinstance(c, str) and c.strip().lower() in CLASSES})
+    return out or None
+
+
+def relations(args):
+    env = load_env(args.env_file)
+    pool = Pool(env, only=set(args.lanes.split(',')) if args.lanes else None)
+    language = 'German' if args.lang == 'de' else 'English'
+    text = RELATIONS_TEXT[args.lang]
+    out = OUT_DIR / f'{args.lang}_relations.jsonl'
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    seen = {}
+    if out.exists():
+        for line in open(out, encoding='utf-8'):
+            if line.strip():
+                r = json.loads(line)
+                seen[r['id']] = r['src']
+    db = sqlite3.connect(args.pack)
+    db.row_factory = sqlite3.Row
+    rows = db.execute(
+        "SELECT id, original_id, word, word_type, article, enrichment_json, "
+        "metadata_json FROM words WHERE coalesce(json_extract(metadata_json, "
+        "'$.quality.vocabulary'), 1) = 1 ORDER BY grade_level, id").fetchall()
+    todo = []
+    for row in rows:
+        if row['word_type'] not in RELATION_TYPES:
+            continue
+        entry = relation_entry(row, args.lang)
+        src = digest(entry)
+        if seen.get(entry['id']) != src:
+            todo.append((entry, src))
+    if args.limit:
+        todo = todo[:args.limit]
+    batches = [todo[i:i + args.batch] for i in range(0, len(todo), args.batch)]
+    print(f'{len(todo)} entries in {len(batches)} batches', flush=True)
+    lock = threading.Lock()
+    stats = {'entries': 0, 'categories': 0, 'ambiguous': 0, 'failed': 0}
+
+    def one(batch):
+        entries = [e for e, _ in batch]
+        fmt = dict(language=language, classes=CLASSES, **text)
+        proposer, proposals = pool.run('propose', RELATIONS_PROMPT.format(
+            entries=json.dumps(entries, ensure_ascii=False, indent=0), **fmt))
+        by_id = {p.get('id'): p for p in proposals if isinstance(p, dict)}
+        shown = []
+        for entry in entries:
+            p = by_id.get(entry['id']) or {}
+            category = p.get('category')
+            if not (isinstance(category, str) and category.strip()
+                    and entry['word_type'] in ('noun', 'verb')):
+                category = None
+            shown.append({**entry, 'category': category.strip() if category else None})
+        verifier, verdicts = pool.run('verify', RELATIONS_VERIFY.format(
+            entries=json.dumps(shown, ensure_ascii=False, indent=0), **fmt),
+            exclude_family=proposer.family)
+        v_by_id = {v.get('id'): v for v in verdicts if isinstance(v, dict)}
+        records = []
+        for (entry, src), item in zip(batch, shown):
+            p, v = by_id.get(entry['id']), v_by_id.get(entry['id'])
+            if not p or not v:
+                continue  # read again on the next run
+            a, b = clean_classes(p.get('classes')), clean_classes(v.get('classes'))
+            classes = sorted(set(a or []) | set(b or [])) if a and b else None
+            category = item['category'] if v.get('category_ok') is True else None
+            records.append({'id': entry['id'], 'word': entry['word'], 'src': src,
+                            'word_type': entry['word_type'], 'classes': classes,
+                            'category': category,
+                            'proposed_category': item['category'],
+                            'by': proposer.model, 'checked_by': verifier.model})
+        with lock, open(out, 'a', encoding='utf-8') as f:
+            for r in records:
+                f.write(json.dumps(r, ensure_ascii=False) + '\n')
+                stats['entries'] += 1
+                stats['categories'] += r['category'] is not None
+                stats['ambiguous'] += len(r['classes'] or []) > 1
+
+    started = time.time()
+    with ThreadPoolExecutor(max_workers=args.workers) as ex:
+        futures = [ex.submit(one, b) for b in batches]
+        for i, f in enumerate(as_completed(futures), 1):
+            try:
+                f.result()
+            except Exception as e:
+                stats['failed'] += 1
+                print(f'batch failed: {e}', flush=True)
+            if i % 10 == 0 or i == len(futures):
+                rate = i / max(1, time.time() - started) * 3600
+                print(f'[{i}/{len(futures)}] {stats} ~{rate:.0f} batches/h', flush=True)
+
+
+# ─── Phrasal fits: which particles fill each gap ─────────────────────────
+#
+# The phrasal rewrite asked its verifier to confirm three wrong particles,
+# and confirming is where it slipped: "She walks me ___ the steps" kept
+# "down" as wrong. So two judges now list every particle that fits each gap,
+# literal readings included, and only a particle neither lists is offered.
+
+FITS_PROMPT = """Each line is a sentence with a gap (___). For each, list \
+EVERY word from {particles} that could fill the gap to give a grammatical \
+sentence that makes sense in any reading, literal or idiomatic. Be generous: \
+when in doubt, include the word.
+
+Answer with ONLY a JSON array with one object per line, e.g. \
+[{{"n": 1, "fits": ["up", "down"]}}, {{"n": 2, "fits": ["away"]}}].
+
+{lines}"""
+
+
+def phrasal_fits(args):
+    env = load_env(args.env_file)
+    pool = Pool(env, only=set(args.lanes.split(',')) if args.lanes else None)
+    out = OUT_DIR / 'en_phrasal_fits.jsonl'
+    done = set()
+    if out.exists():
+        done = {json.loads(l)['sentence'] for l in open(out, encoding='utf-8')
+                if l.strip()}
+    gaps = []
+    latest = {}
+    for line in open(OUT_DIR / 'en_phrasal.jsonl', encoding='utf-8'):
+        if line.strip():
+            r = json.loads(line)
+            if r.get('keep') is not None or r['id'] not in latest:
+                latest[r['id']] = r
+    for r in latest.values():
+        if r.get('keep') is not True:
+            continue
+        particle = r['id'].split(' ', 1)[1]
+        for sentence in r['sentences']:
+            gap = re.sub(r'\b' + re.escape(particle) + r'\b', '___', sentence,
+                         count=1, flags=re.I)
+            if gap not in done and '___' in gap:
+                gaps.append({'id': r['id'], 'sentence': gap})
+    batches = [gaps[i:i + 25] for i in range(0, len(gaps), 25)]
+    print(f'{len(gaps)} gaps in {len(batches)} batches', flush=True)
+    judges = args.judges.split(',')
+    lock = threading.Lock()
+    stats = {'gaps': 0, 'failed': 0}
+
+    def one(batch):
+        lines = '\n'.join(f"{i + 1}. {g['sentence']}" for i, g in enumerate(batch))
+        prompt = FITS_PROMPT.format(particles=PARTICLES, lines=lines)
+        answers = []
+        for judge in judges:
+            sub = Pool.__new__(Pool)
+            sub.lanes = [l for l in pool.lanes if l.name.split('#')[0] == judge]
+            for l in sub.lanes:
+                l.role = 'audit'
+            lane, reply = sub.run('audit', prompt, attempts=30)
+            by_n = {r.get('n'): r.get('fits') for r in reply if isinstance(r, dict)}
+            if not all(isinstance(by_n.get(i + 1), list) for i in range(len(batch))):
+                raise RuntimeError(f'{judge}: an answer is missing')
+            answers.append((lane.model, [by_n[i + 1] for i in range(len(batch))]))
+        with lock, open(out, 'a', encoding='utf-8') as f:
+            for i, g in enumerate(batch):
+                fits = set()
+                for _, reply in answers:
+                    fits |= {w for w in (reply[i] if isinstance(reply[i], list) else [])
+                             if w in PARTICLES}
+                f.write(json.dumps({**g, 'fits': sorted(fits),
+                                    'by': [m for m, _ in answers]}) + '\n')
+                stats['gaps'] += 1
+
+    with ThreadPoolExecutor(max_workers=args.workers) as ex:
+        for f in as_completed([ex.submit(one, b) for b in batches]):
+            try:
+                f.result()
+            except Exception as e:
+                stats['failed'] += 1
+                print(f'batch failed: {e}', flush=True)
+    print(stats, flush=True)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -769,12 +1046,26 @@ def main():
     au.add_argument('--workers', type=int, default=3)
     au.add_argument('--lanes')
     au.add_argument('--env-file', default=str(pathlib.Path.home() / 'code' / '.env'))
+    rl = sub.add_parser('relations')
+    rl.add_argument('pack')
+    rl.add_argument('--lang', choices=['de', 'en'], required=True)
+    rl.add_argument('--limit', type=int)
+    rl.add_argument('--batch', type=int, default=30)
+    rl.add_argument('--workers', type=int, default=6)
+    rl.add_argument('--lanes')
+    rl.add_argument('--env-file', default=str(pathlib.Path.home() / 'code' / '.env'))
+    pf = sub.add_parser('phrasal-fits')
+    pf.add_argument('--judges', default='mistral-large,command-a')
+    pf.add_argument('--workers', type=int, default=3)
+    pf.add_argument('--lanes')
+    pf.add_argument('--env-file', default=str(pathlib.Path.home() / 'code' / '.env'))
     r = sub.add_parser('report')
     r.add_argument('--lang', choices=['de', 'en'], required=True)
     r.add_argument('--samples', type=int, default=8)
     args = parser.parse_args()
     {'propose': propose, 'report': report, 'phrasal': phrasal,
-     'audit': audit}[args.cmd](args)
+     'audit': audit, 'relations': relations,
+     'phrasal-fits': phrasal_fits}[args.cmd](args)
 
 
 if __name__ == '__main__':

@@ -718,6 +718,16 @@ bool classIsContradicted(GermanWord word) {
 /// first two opinions alone.
 bool classIsSettled(GermanWord word) {
   if (classIsContradicted(word)) return false;
+  // A fourth opinion where the reviewed pass gave one, and the one that
+  // covers the entries with no senses: "mash" has none, is filed as a verb,
+  // and is a noun just as often. Two models named its classes independently
+  // and the lists are united, so a word either calls ambiguous is out.
+  final reviewed = word.reviewedClasses;
+  if (reviewed != null && reviewed.isNotEmpty) {
+    final column = _posSynonyms[word.wordType.name] ?? word.wordType.name;
+    final named = {for (final c in reviewed) _posSynonyms[c] ?? c};
+    if (named.length != 1 || named.single != column) return false;
+  }
   final classes = <String>{};
   for (final sense
       in word.apiEnrichment?.wordnetSenses ?? const <WordNetSense>[]) {

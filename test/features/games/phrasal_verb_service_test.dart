@@ -66,6 +66,29 @@ void main() {
   });
 
   group('buildPhrasalChallenges', () {
+    test('offers only the listed distractors, never pads with others', () {
+      // "Rust eats ___ the metal": padding from the common particles offered
+      // "into" and "through", which fit.
+      final challenges = buildPhrasalChallenges(
+        verbs: [
+          _pv(
+            phrasal: 'eat away',
+            particle: 'away',
+            distractors: const ['up', 'apart', 'across'],
+            examples: const {
+              '3': ['Rust eats away the metal.']
+            },
+          ),
+          _pv(phrasal: 'eat up', particle: 'up'),
+        ],
+        gradeLevel: 3,
+        rng: Random(1),
+      );
+      final eat = challenges.firstWhere((c) => c.phrasal == 'eat away');
+      // "up" is dropped (eat up is a phrasal verb); nothing replaces it.
+      expect(eat.options.toSet(), {'away', 'apart', 'across'});
+    });
+
     test('blanks the particle and includes correct + distractor options', () {
       final challenges = buildPhrasalChallenges(
         verbs: [

@@ -158,30 +158,29 @@
       to open or display on a screen
       Leave quickly
 ── phrasal_verb_power (4)
-  Big kids push ___ smaller ones.
-      down
-      along
-      across
-    ✓ around
-    · phrasal: push around  means: to bully or treat someone badly
   He lies ___ in the dentist's chair.
-      off
-      apart
-      through
     ✓ back
-    · phrasal: lie back  means: recline into a lying position
-  I draw ___ a list of chores.
-    ✓ up
-      apart
-      along
+      through
       off
-    · phrasal: draw up  means: write a plan or document carefully
+      apart
+    · phrasal: lie back  means: recline into a lying position
   She walks me ___ the steps.
-    ✓ through
-      down
-      along
       up
+      down
+    ✓ through
     · phrasal: walk through  means: explain step by step
+  The players make ___ a strong team.
+      on
+      down
+      in
+    ✓ up
+    · phrasal: make up  means: to form or create a group or story
+  I find ___ the answer tomorrow.
+      in
+      up
+      down
+    ✓ out
+    · phrasal: find out  means: discover or learn something
 ── sentence_completion (4)
   The toy store has many ___ from children.
 The desire to purchase goods and services.

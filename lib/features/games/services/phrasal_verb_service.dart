@@ -91,15 +91,19 @@ List<PhrasalChallenge> buildPhrasalChallenges({
 /// Correct particle + up to 3 distractors, de-duped and shuffled.
 ///
 /// A distractor never makes another phrasal verb the table knows with the
-/// same base verb — that one could fit the sentence too. Gaps are filled
-/// from the common particles that do not.
+/// same base verb — that one could fit the sentence too.
 List<String> _buildOptions(PhrasalVerb pv, Random r, Set<String> known) {
   final base = pv.baseVerb.toLowerCase();
   bool fair(String d) => !known.contains('$base ${d.toLowerCase()}');
   final seen = <String>{pv.particle.toLowerCase()};
   final options = <String>[pv.particle];
-  final spare = [..._commonParticles]..shuffle(r);
-  for (final d in [...pv.distractors, ...spare]) {
+  // The reviewed rows list every particle two judges found fits none of
+  // their sentences, so those are the only distractors: padding from the
+  // common particles offered "into" and "through" for "Rust eats ___ the
+  // metal". Only a row with no list of its own falls back on them.
+  final listed = [...pv.distractors]..shuffle(r);
+  final spare = listed.isEmpty ? ([..._commonParticles]..shuffle(r)) : <String>[];
+  for (final d in [...listed, ...spare]) {
     if (options.length >= 4) break;
     if (fair(d) && seen.add(d.toLowerCase())) options.add(d);
   }

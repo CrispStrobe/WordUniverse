@@ -79,9 +79,13 @@ GermanWord testWord(
   List<String> hyphenation = const [],
   List<Map<String, dynamic>> wiktionaryInflections = const [],
   ApiEnrichment? enrichment,
+  List<String>? reviewedClasses,
+  String? reviewedCategory,
 }) =>
     GermanWord(
       id: 'test_$word',
+      reviewedClasses: reviewedClasses,
+      reviewedCategory: reviewedCategory,
       word: word,
       wordType: type,
       gradeLevel: grade,

@@ -323,6 +323,37 @@ void main() {
           'gathering');
     });
 
+    test('a reviewed category is the answer, and the only one', () {
+      // WordNet's list for "knife" spans its senses, and "arm" (the weapon)
+      // is in it.
+      final knife = testWord('knife',
+          reviewedCategory: 'tool',
+          enrichment: testEnrichment(
+              hypernyms: [term('arm'), term('tool')],
+              definitions: const ['A tool with a sharp blade, used as an arm.']));
+      final words = [knife, _noun('arm'), _noun('tool')];
+      expect(pickHypernym(knife, isGerman: false, catalogue: catalogue(words)),
+          'tool');
+      // Not held by the catalogue: no answer rather than a WordNet guess.
+      expect(
+          pickHypernym(knife,
+              isGerman: false, catalogue: catalogue([knife, _noun('arm')])),
+          isNull);
+    });
+
+    test('reviewed with no category, the word is not asked', () {
+      final news = testWord('news',
+          reviewedCategory: '',
+          enrichment: testEnrichment(
+              hypernyms: [term('information')],
+              definitions: const ['New information about events.']));
+      expect(
+          pickHypernym(news,
+              isGerman: false,
+              catalogue: catalogue([news, _noun('information')])),
+          isNull);
+    });
+
     test('a word is never its own hypernym', () {
       final launch = _noun('launch',
           hypernyms: ['launch', 'boat'], definitions: ['A large motor boat.']);

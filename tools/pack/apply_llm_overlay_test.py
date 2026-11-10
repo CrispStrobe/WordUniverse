@@ -121,6 +121,43 @@ class Guards(unittest.TestCase):
         self.assertEqual(self.row(4)[2]['definitions'][0],
                          'die Füße beim Gehen über den Boden ziehen')
 
+    def test_relations_apply_to_the_row_the_models_read(self):
+        self.db.row_factory = sqlite3.Row
+        row = self.db.execute('SELECT * FROM words WHERE id = 1').fetchone()
+        self.db.row_factory = None
+        entry = apply.relation_entry(row, 'de')
+        root = pathlib.Path(self.dir.name)
+        (root / 'de_relations.jsonl').write_text('\n'.join(json.dumps(r) for r in [
+            {'id': 'w1', 'src': correct.digest(entry), 'word_type': 'noun',
+             'classes': ['noun'], 'category': 'Tier'},
+            # Read when Tröpfchen said something else: not applied.
+            {'id': 'w2', 'src': 'stale', 'word_type': 'noun',
+             'classes': ['noun', 'verb'], 'category': None},
+        ]) + '\n')
+        self.run_apply()
+        meta = self.row(1)[3]
+        self.assertEqual(meta['llm_classes'], ['noun'])
+        self.assertEqual(meta['llm_category'], 'Tier')
+        self.assertNotIn('llm_classes', self.row(2)[3])
+
+
+class PhrasalFits(unittest.TestCase):
+    def test_only_particles_no_judge_fits_anywhere_are_offered(self):
+        record = {'id': 'walk through',
+                  'sentences': ['She walks me through the steps.',
+                                'He walks us through the game.']}
+        fits = {'She walks me ___ the steps.': {'through', 'up', 'down', 'along'},
+                'He walks us ___ the game.': {'through', 'into'}}
+        sentences, wrong = apply.safe_distractors(record, fits)
+        self.assertEqual(len(sentences), 2)
+        for p in ('up', 'down', 'along', 'into', 'through'):
+            self.assertNotIn(p, wrong)
+        self.assertIn('off', wrong)
+
+    def test_a_sentence_judged_later_keeps_the_verified_rewrite(self):
+        record = {'id': 'eat away', 'sentences': ['Rust eats away the metal.']}
+        self.assertIsNone(apply.safe_distractors(record, {}))
+
 
 if __name__ == '__main__':
     unittest.main()

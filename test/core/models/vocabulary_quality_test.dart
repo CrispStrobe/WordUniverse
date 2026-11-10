@@ -485,6 +485,26 @@ void main() {
   });
 
   group('classIsSettled', () {
+    test('the reviewed classes decide where the pack has no senses', () {
+      // "mash" carries no WordNet senses, so the column and primary_pos were
+      // the only opinions, and both say verb. The reviewers say noun too.
+      expect(
+          classIsSettled(testWord('mash',
+              type: GermanWordType.verb,
+              reviewedClasses: const ['noun', 'verb'])),
+          isFalse);
+      expect(
+          classIsSettled(testWord('negotiate',
+              type: GermanWordType.verb, reviewedClasses: const ['verb'])),
+          isTrue);
+      // One class, but not the column's.
+      expect(
+          classIsSettled(testWord('owing',
+              type: GermanWordType.adjektiv,
+              reviewedClasses: const ['verb'])),
+          isFalse);
+    });
+
     test('a word whose senses span two classes is not asked', () {
       // "answer" is filed as a noun and its primary_pos agrees; WordNet gives
       // it five noun senses and ten verb ones. A learner answering Verb is
