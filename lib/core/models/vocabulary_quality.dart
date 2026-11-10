@@ -575,7 +575,25 @@ bool sentenceSuitsAChild(String sentence) =>
     !_clinicalAnatomy.hasMatch(sentence) &&
     !_nationalSocialistSlogans.hasMatch(sentence) &&
     !_drinkingAndBeating.hasMatch(sentence) &&
-    !_dictionaryBoilerplate.hasMatch(sentence);
+    !_dictionaryBoilerplate.hasMatch(sentence) &&
+    !_tooMuchToRead(sentence);
+
+/// A sentence a child has to wade through. Wiktionary's German examples are
+/// mostly press quotations, marked „…“, and a game asked a third-grader
+/// whether "aufbewahrt" is separated in "„Bonhoeffer ist der Meinung, dass
+/// zur Sicherheit der Widerstandskämpfer keinerlei Dokumente aufbewahrt
+/// werden dürften.“" No word in it is unsuitable; there is just far too much
+/// of it. Short quotations ("„Manchmal ging er mit seinem Enkel
+/// spazieren.“") stay. A gap mark "[…]" means the sentence was cut out of
+/// something longer.
+bool _tooMuchToRead(String sentence) {
+  final text = sentence.trim();
+  if (text.contains('[…]') || text.contains('[...]')) return true;
+  final words = text.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).length;
+  if (words > 16) return true;
+  final quoted = RegExp(r'^[„«»"“]').hasMatch(text);
+  return quoted && words > 10;
+}
 
 /// Wiktionary's own notes, filed among the example sentences: Cloze Flash
 /// asked "For quotations using this term, see Citations:___." (Islam), and

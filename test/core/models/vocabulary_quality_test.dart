@@ -561,6 +561,18 @@ void main() {
   });
 
   group('sentenceSuitsAChild', () {
+    test('a press quotation a child has to wade through is not offered', () {
+      expect(
+          sentenceSuitsAChild('„Bonhoeffer ist der Meinung, dass zur Sicherheit '
+              'der Widerstandskämpfer keinerlei Dokumente aufbewahrt werden '
+              'dürften.“'),
+          isFalse);
+      expect(sentenceSuitsAChild('„Manchmal ging er mit seinem Enkel spazieren.“'),
+          isTrue);
+      expect(sentenceSuitsAChild('„[…] meine Prognose ist, dass es regnet.“'),
+          isFalse);
+    });
+
     test('a dictionary note is not a sentence', () {
       expect(
           sentenceSuitsAChild(

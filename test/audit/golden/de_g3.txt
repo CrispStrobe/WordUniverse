@@ -363,17 +363,11 @@ Ich packe die ___ ein.
       still
 ── verbtrenner (4)
   Steht das Verb in diesem Satz getrennt oder zusammen?
-vor … tragen
-Umbreen ist sauer, weil sie ihr Gedicht nicht vollständig vortragen darf.
+auf … räumen
+Ich werde morgen meinen Schreibtisch aufräumen.
       GETRENNT
     ✓ ZUSAMMEN
-    · form: vortragen
-  Steht das Verb in diesem Satz getrennt oder zusammen?
-schreibt … vor
-Meine Mutti schreibt mir vor, bis wann die Hausaufgaben fertig sein sollen.
-    ✓ GETRENNT
-      ZUSAMMEN
-    · form: schreibt vor
+    · form: aufräumen
   Steht das Verb in diesem Satz getrennt oder zusammen?
 liest … vor
 Der Vater liest seinen Kindern jeden Abend eine Geschichte vor.
@@ -381,11 +375,17 @@ Der Vater liest seinen Kindern jeden Abend eine Geschichte vor.
       ZUSAMMEN
     · form: liest vor
   Steht das Verb in diesem Satz getrennt oder zusammen?
-gab … ein
-„Man gab dem Töchterchen Arzney ein und legte es zu Bette.“
+liest … vor
+Der Vater liest seinen Kindern jeden Abend eine Geschichte vor.
     ✓ GETRENNT
       ZUSAMMEN
-    · form: gab ein
+    · form: liest vor
+  Steht das Verb in diesem Satz getrennt oder zusammen?
+dringt … ein
+Das Hochwasser dringt in den Keller ein.
+    ✓ GETRENNT
+      ZUSAMMEN
+    · form: dringt ein
 ── word_builder (4)
   Build "Film" from its letters
     ✓ Film
