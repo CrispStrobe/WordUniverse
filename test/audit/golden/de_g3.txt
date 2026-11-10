@@ -1,27 +1,27 @@
 ── antonym_flash (4)
-  vorne
-      Salz
-      blond
-    ✓ hinten
-      Rakete
-    · grade: 3
-  traurig
-    ✓ fröhlich
+  blond
       auffällig
-      blond
+    ✓ dunkel
+      still
       fleißig
     · grade: 3
-  nachdem
-      küssen
-      vorne
-    ✓ bevor
+  vorne
+      flüssig
       blond
+    ✓ hinten
+      auffällig
     · grade: 3
-  Abendessen
-      Geburtstag
-    ✓ Frühstück
-      Reihe
-      Hagel
+  sprechen
+      trotzdem
+      Abendessen
+      Königin
+    ✓ schweigen
+    · grade: 3
+  kühl
+      auffällig
+    ✓ warm
+      flüssig
+      fleißig
     · grade: 3
 ── cloze_flash (4)
   Welches ___ haben wir heute?
@@ -316,29 +316,29 @@ Ich packe die ___ ein.
       4+
     · hyphenation: Käl-te
 ── synonym_flash (4)
-  Freiheit
-      Erlebnis
-      Lob
-      Spatz
-    ✓ Unabhängigkeit
+  froh
+      freundlich
+      satt
+    ✓ glücklich
+      fröhlich
     · grade: 3
-  Verkehr
-    ✓ Akt
-      Punkt
-      Rücken
-      Bibel
+  verkaufen
+      schlagen
+    ✓ absetzen
+      proben
+      retten
     · grade: 3
-  Punkt
-    ✓ Teil
-      Erlebnis
-      Schreibtisch
-      Orkan
+  deshalb
+      fröhlich
+    ✓ folglich
+      schließlich
+      Sprache
     · grade: 3
-  still
-      mutig
-      trocken
-      blind
-    ✓ stumm
+  fröhlich
+      froh
+      freundlich
+    ✓ munter
+      fleißig
     · grade: 3
 ── translation_flash (4)
   flüssig

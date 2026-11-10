@@ -19,12 +19,12 @@ of the ZSL's description of **approximately 870 words**.
 The registry in [language_pack.dart](../lib/core/models/language_pack.dart)
 pins this immutable Hugging Face revision:
 
-[`ecca6d6bc2f87f933bfd37eda00cc6303d4a442c/grundwortschatz-app.db.gz`](https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/ecca6d6bc2f87f933bfd37eda00cc6303d4a442c/grundwortschatz-app.db.gz).
+[`e6dafc8b114c2f7f720ab2a53a3562a25e1e8e2f/grundwortschatz-app.db.gz`](https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/e6dafc8b114c2f7f720ab2a53a3562a25e1e8e2f/grundwortschatz-app.db.gz).
 
 | Input | Bytes | SHA-256 |
 | --- | ---: | --- |
-| Compressed runtime pack | 16,271,239 | `b2bcf484dfc7d02fbc77f2459fb4e392e96f9a7c2cf6a2b67f37a771c51ab305` |
-| Decompressed SQLite database | 95,817,728 | `3884c856c5fa0340942b0d21b25fa7f28ac3ea909282944d2623870b0d16bba0` |
+| Compressed runtime pack | 15,994,220 | `0cbe09e65bc90d4ad638a12d70743bbc77ad665073b6d00234873e57374c12bf` |
+| Decompressed SQLite database | 96,206,848 | `977cf9aa2e25d5d2884dd481b30bd653dc0e48a243539a7a5db4d5a77dc1c64f` |
 
 Both local files match these pins. The database contains **13,040 word rows**.
 The audit opens it with SQLite `mode=ro` and `PRAGMA query_only=ON`. It does

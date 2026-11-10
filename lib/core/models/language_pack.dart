@@ -257,17 +257,25 @@ const Map<String, LanguagePack> kLanguagePacks = {
     // Rebuilt again the same day: August is the month (BW1 teaches it; the
     // row was the given name), Deutschland and Europa take no article, and
     // the feature index is format 12.
+    //
+    // Rebuilt 2026-11-10 once more: each word's synonyms ranked by sense
+    // against Wiktionary's sense numbers (pipeline/llm_review/
+    // de_synonym_senses.jsonl). "Hund" had listed insults, "Preis" "Egon
+    // Schiele Art Center" from a synset OpenThesaurus had hidden, and 2,625
+    // words themselves. Synonyms and antonyms a child is asked for come from
+    // a three-judge review (llm_synonyms, llm_antonyms, llm_rejected_*).
     remoteUrl:
-        'https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/ecca6d6bc2f87f933bfd37eda00cc6303d4a442c/grundwortschatz-app.db.gz',
+        'https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/e6dafc8b114c2f7f720ab2a53a3562a25e1e8e2f/grundwortschatz-app.db.gz',
     // Update the immutable URL and all pins together; retain this qualified
     // databaseName in previousDatabaseNames when publishing a new artifact.
-    expectedCompressedBytes: 16271239,
+    expectedCompressedBytes: 15994220,
     expectedCompressedSha256:
-        'b2bcf484dfc7d02fbc77f2459fb4e392e96f9a7c2cf6a2b67f37a771c51ab305',
-    expectedDecompressedBytes: 95817728,
+        '0cbe09e65bc90d4ad638a12d70743bbc77ad665073b6d00234873e57374c12bf',
+    expectedDecompressedBytes: 96206848,
     expectedDecompressedSha256:
-        '3884c856c5fa0340942b0d21b25fa7f28ac3ea909282944d2623870b0d16bba0',
+        '977cf9aa2e25d5d2884dd481b30bd653dc0e48a243539a7a5db4d5a77dc1c64f',
     previousDatabaseNames: [
+      'grundwortschatz-3884c856c5fa0340942b0d21b25fa7f28ac3ea909282944d2623870b0d16bba0.db',
       'grundwortschatz-71eadae4644dbe300f2c567adc2d2b7c85a2123556ecc34f4be2ce08bc1cbfe1.db',
       'grundwortschatz-a4598603ebaadb27ac127e65613a0103b5e5d553b80b4a62f3d154d1ca46d873.db',
       'grundwortschatz-b050d7d25f1a0ed373ae2b9f8d079a4c459c9536f3c2081fbc3cc9017e22f8f3.db',
@@ -349,9 +357,15 @@ const Map<String, LanguagePack> kLanguagePacks = {
     // offered particle also fits ("She put ___ the tent." offered "away");
     // 180 verbs keep such options, the rest are left out. Every word carries
     // its reviewed word classes and category (llm_classes, llm_category).
+    //
+    // Rebuilt 2026-11-10 again: synonyms ranked by WordNet sense order and
+    // vulgar senses removed ("know" and "love" listed "fuck", "make" "shit",
+    // "tools" "cock"), synonym/antonym answers from a three-judge review, and
+    // grades raised to the CEFR level unless a children's list places the word.
     expectedDecompressedSha256:
-        'a815a888c8bc7312fb39b93709f8b51401e3413b8a5f741eb105c41fe3fed023',
+        'e556525f8e8f6f6d64375c204cd1ae019e39cef0a7ff033c44aa35b3f7fb3d4b',
     previousDatabaseNames: [
+      'grundwortschatz_en-a815a888c8bc7312fb39b93709f8b51401e3413b8a5f741eb105c41fe3fed023.db',
       'grundwortschatz_en-38649e2cf2fd70bd4c45e9964291a22a048b4c0eb4db481bcfc98ab5981c3d30.db',
       'grundwortschatz_en-4f3e9bbed8211f95ac180a7a26e83daaab64aa30335ff1818e792b63bc2f619c.db',
       'grundwortschatz_en-2dbbd0159e962124e7a2d5ce9d53babab6b82bb00411206c028ba059d1030f1c.db',

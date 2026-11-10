@@ -1,78 +1,78 @@
 ── antonym_flash (4)
-  lend
-      approval
-    ✓ borrow
-      efficiency
-      collective
+  inner
+      provincial
+    ✓ outer
+      generous
+      dangerous
     · grade: 3
-  appropriate
-      kindly
-      necessarily
-      host
-    ✓ inappropriate
+  unpleasant
+      alive
+    ✓ pleasant
+      wireless
+      provincial
     · grade: 3
-  net
-    ✓ gross
-      capability
-      responsibility
-      host
+  establish
+      gather
+      indicate
+      bend
+    ✓ abolish
     · grade: 3
-  appearance
-      capability
-    ✓ disappearance
-      responsibility
-      host
+  employed
+      dangerous
+      confident
+    ✓ unemployed
+      inner
     · grade: 3
 ── cloze_flash (4)
-  ___ made Jack depressed.
-      statement
-      larry
-    ✓ Unemployment
-      customers
-    · word: unemployment
-  He emigrated and now lives ___.
-      operate
-    ✓ overseas
-      nonetheless
-      smoothly
-    · word: overseas
-  The ___ of this loudspeaker is 40%.
-    ✓ efficiency
-      metre
-      lottery
-      pipe
-    · word: efficiency
-  In this town, the garbage removal staff ___ between six o'clock at midnight.
-    ✓ operate
-      enter
-      announced
-      wander
-    · word: operate
+  As part of the act, the fat clown's ___ broke, causing his pants to fall down.
+    ✓ belt
+      cards
+      projects
+      heroes
+    · word: belt
+  The automatic child-frightener made clowns ___.
+    ✓ unnecessary
+      artificial
+      downstairs
+      harder
+    · word: unnecessary
+  The kids sleep in the ___ bedroom; we sleep in the upstairs one.
+    ✓ downstairs
+      artificial
+      unnecessary
+      harder
+    · word: downstairs
+  a ___ to the king's authority
+    ✓ challenge
+      mug
+      cards
+      jobs
+    · word: challenge
 ── definition_quiz (4)
-  A person who travels somewhere on foot.
-      fame
-      consensus
-      testimony
-    ✓ walker
-    · word: walker  grade: 3
-  The steady, continuous movement of a liquid, gas, or electricity.
-      champion
-      resort
-      strain
-    ✓ flow
-    · word: flow  grade: 3
-  The act of conveying something.
-      cancer
-      patrol
-      champion
-    ✓ delivery
-    · word: delivery  grade: 3
-  A process of decision-making that seeks widespread agreement among group members.
-      testimony
-      portion
-      mortgage
-    ✓ consensus
-    · word: consensus  grade: 3
+  A liquid fuel used to power cars and other vehicles.
+      stamp
+    ✓ petrol
+      laziness
+      visitor
+    · word: petrol  grade: 3
+  Something fun or interesting to watch or do.
+      wisdom
+      receipt
+      visitor
+    ✓ entertainment
+    · word: entertainment  grade: 3
+  Devoid of content; containing nothing or nobody; vacant.
+      lively
+      latter
+    ✓ empty
+      useful
+    · word: empty  grade: 3
+  the ability to comprehend; to understand and profit from experience
+      thief
+      metre
+    ✓ intelligence
+      petrol
+    · word: intelligence  grade: 3
 ── false_friends (4)
   What does "ordinary" really mean?
       ordinär
@@ -116,25 +116,26 @@
     ✓ male
     · group: mail/male
 ── hypernym_flash (4)
-  jean
-    ✓ fabric
+  square
+      picture
+    ✓ shape
       tool
-      information
-      collection
-  database
-      fabric
-      tool
-    ✓ collection
-  jack
-      information
+      power
+  comb
     ✓ tool
-      fabric
-      collection
-  knowledge
-    ✓ information
+      power
+      range
+      shape
+  influence
+      shape
+    ✓ power
+      range
+      picture
+  portrait
+    ✓ picture
+      range
       tool
-      collection
-      fabric
+      shape
 ── phrasal_verb_match (4)
   What does "show up" mean?
       continue in a place or position
@@ -182,224 +183,233 @@
       along
     · phrasal: draw away  means: move away from something
 ── sentence_completion (4)
-  The toy store has many ___ from children.
-The desire to purchase goods and services.
-      kingdoms
-      footages
-      defences
-    ✓ demands
+  We need a good ___.
+A professional person with a graduate law degree that qualifies for legal work (such as Juris Doctor)
+      consequence
+      fog
+      skate
+    ✓ lawyer
     · cue label: One possible meaning: …
-  Every product has a ___.
-A person or company that manufactures.
-      responsibility
-      escort
-    ✓ manufacturer
-      demand
+  I like ___ with meatballs.
+A type of pasta made in the shape of long thin strings.
+      supper
+    ✓ spaghetti
+      salt
+      panic
     · cue label: One possible meaning: …
-  The ___ around the mirror is golden.
-To fit, as for a specific end or purpose; make suitable or comfortable; adapt; adjust.
-    ✓ frame
-      compete
-      approach
-      remind
+  The girl lost her ___.
+A piece of jewelry worn on the ear.
+      sake
+    ✓ earring
+      recipe
+      integrity
     · cue label: One possible meaning: …
-  My ___ helps me remember things.
-Any system by which time is divided into days, weeks, months, and years.
-      manufacturer
-    ✓ calendar
-      sword
-      kingdom
+  Our school has a ___.
+An employee (such as a secretary) who works in reception (receiving visitors and/or calls) for a person or business, especially an office.
+      earring
+      spaghetti
+    ✓ receptionist
+      toothbrush
     · cue label: One possible meaning: …
 ── spelling_spotter (4)
   Which spelling is correct?
-      refereces
-    ✓ reference
-      referemce
-      referece
-    · shown after answering: Maybe it had some reference to his temper.
+      captur
+    ✓ chapter
+      chapture
+      chaper
+    · shown after answering: Chapter XII Out of Sectarian Confusion I was still a Methodist.
   Which spelling is correct?
-      ocassionally
-      ocasionaly
-    ✓ occasionally
-      ocasionally
-    · shown after answering: We must ask them to call occasionally.
+      privelige
+      privelege
+    ✓ privilege
+      privalege
+    · shown after answering: But I have had the privilege of helping in other ways.
   Which spelling is correct?
-      assoicates
-      assoicated
-      asociated
-    ✓ associated
-    · shown after answering: Mr. Ward had been associated with Brann for some time.
+      dissapear
+      disappearred
+      disapeared
+    ✓ disappear
+    · shown after answering: The children watched the tail-lights of the guard's van disappear into the darkness.
   Which spelling is correct?
-    ✓ mathematics
-      mathamatics
-      maxanlatic
-      mathematicas
-    · shown after answering: Then he displays to you his great skill in architecture and improvement in the mathematics.
+    ✓ beg
+      bgn
+      begg
+      brd
+    · shown after answering: My mom will beg for help.
 ── sri_review (4)
-  "The act of conveying something."
-      champion
-    ✓ delivery
-      flow
-      strain
+  "Devoid of content; containing nothing or nobody; vacant."
+      confident
+      latter
+      lively
+    ✓ empty
     · type: definition  assessedSkill: vocabulary
   What word class?
-consensus
-    ✓ Noun
-      Pronoun
-      Verb
+carrot
       Adverb
+    ✓ Noun
+      Verb
+      Pronoun
     · type: wordType  assessedSkill: wordType
   Capitalization
-The family said ___ to relatives.
-    ✓ goodbye
-      Goodbye
+That’s a very ___ tool for gardeners.
+    ✓ useful
+      Useful
     · type: capitalization  assessedSkill: capitalization
-  Correct spelling for:
-"following, in succession, without interruption"
-    ✓ consecutive
-      consectutive
-    · type: spelling  assessedSkill: spelling
+  "The quality or state of being able; capacity to do or of doing something; having the necessary power."
+      entertainment
+    ✓ ability
+      visitor
+      petrol
+    · type: definition  assessedSkill: vocabulary
 ── syllable_count (4)
-  assignment
-      1
-      2
-    ✓ 3
-      4+
-    · hyphenation: a-ssign-ment
-  withdraw
+  goodbye
       1
     ✓ 2
       3
       4+
-    · hyphenation: with-draw
-  jersey
-      1
-    ✓ 2
-      3
-      4+
-    · hyphenation: jer-sey
-  principle
+    · hyphenation: good-bye
+  thunderstorm
       1
       2
     ✓ 3
       4+
-    · hyphenation: prin-ci-ple
+    · hyphenation: thun-der-storm
+  entertainment
+      1
+      2
+      3
+    ✓ 4+
+    · hyphenation: en-ter-tain-ment
+  protocol
+      1
+      2
+    ✓ 3
+      4+
+    · hyphenation: pro-to-col
 ── synonym_flash (4)
-  introduction
-      ford
-      capability
-      idiot
-    ✓ entry
+  colony
+      galaxy
+    ✓ settlement
+      crash
+      impact
     · grade: 3
-  accident
-    ✓ stroke
-      garlic
-      ford
-      bow
+  bail
+      hockey
+      colony
+      handle
+    ✓ bond
     · grade: 3
-  settlement
-      bow
-    ✓ colony
-      census
-      garlic
+  cargo
+      attitude
+      hunter
+    ✓ load
+      crash
     · grade: 3
-  cheap
-      dynamic
-      realistic
-    ✓ inexpensive
-      bold
+  accommodate
+      escape
+      confuse
+    ✓ adapt
+      count
     · grade: 3
 ── word_builder (4)
-  Build "checks" from its letters
-    ✓ checks
+  Build "communications" from its letters
+    ✓ communications
+    · grade: 3  gloss: the discipline that studies the principles of transmitting information and the methods by which it is delivered (as print or radio or television etc.)
+  Build "appears" from its letters
+    ✓ appears
     · grade: 3
-  Build "incredibly" from its letters
-    ✓ incredibly
-    · grade: 3  gloss: In an incredible manner; not to be believed.
-  Build "seaside" from its letters
-    ✓ seaside
-    · grade: 3  gloss: The area by and around the sea; including the beach, promenade or cliffs
-  Build "mama" from its letters
-    ✓ mama
-    · grade: 3  gloss: Mother, female parent.
-── word_class_flash (2)
-  explore
+  Build "investigate" from its letters
+    ✓ investigate
+    · grade: 3  gloss: To inquire into or study in order to ascertain facts or information.
+  Build "whom" from its letters
+    ✓ whom
+    · grade: 3
+── word_class_flash (4)
+  governance
+    ✓ Noun
+      Verb
+      Adjective
+  receive
       Noun
     ✓ Verb
       Adjective
-  ceremony
+  indoor
+      Noun
+      Verb
+    ✓ Adjective
+  costa
     ✓ Noun
       Verb
       Adjective
 ── word_find (4)
-  Find "checks" in the grid
-    ✓ checks
+  Find "communications" in the grid
+    ✓ communications
+    · grade: 3  gloss: the discipline that studies the principles of transmitting information and the methods by which it is delivered (as print or radio or television etc.)
+  Find "appears" in the grid
+    ✓ appears
     · grade: 3
-  Find "incredibly" in the grid
-    ✓ incredibly
-    · grade: 3  gloss: In an incredible manner; not to be believed.
-  Find "seaside" in the grid
-    ✓ seaside
-    · grade: 3  gloss: The area by and around the sea; including the beach, promenade or cliffs
-  Find "mama" in the grid
-    ✓ mama
-    · grade: 3  gloss: Mother, female parent.
+  Find "investigate" in the grid
+    ✓ investigate
+    · grade: 3  gloss: To inquire into or study in order to ascertain facts or information.
+  Find "whom" in the grid
+    ✓ whom
+    · grade: 3
 ── word_memory (4)
-  Match the pair for "checks"
-    ✓ checks
+  Match the pair for "appears"
+    ✓ appears
     · grade: 3  partner: same word, other font
-  Match the pair for "seaside"
-    ✓ The area by and around the sea; including the beach,…
+  Match the pair for "whom"
+    ✓ whom
+    · grade: 3  partner: same word, other font
+  Match the pair for "bay"
+    ✓ A body of water (especially the sea) contained by a …
     · grade: 3  partner: definition
-  Match the pair for "mama"
-    ✓ Mother, female parent.
-    · grade: 3  partner: definition
-  Match the pair for "arch"
-    ✓ An inverted U shape.
+  Match the pair for "fortune"
+    ✓ Destiny, especially favorable.
     · grade: 3  partner: definition
 ── word_of_the_day (4)
-  2026-01-01: archive
-    ✓ a depository containing historical records and documents
-    · grade: 4  cefr: —
-  2026-01-02: chimney
-    ✓ a vertical flue that provides a path through which smoke from a fire is carried away through the wall or roof of a building
-    · grade: 4  cefr: B2
-  2026-01-03: FAQ
-    ✓ A list of questions said to be frequently asked, and their answers.
-    · grade: 4  cefr: —
-  2026-01-04: cart
-    ✓ A small, open, wheeled vehicle, drawn or pushed by a person or animal, often with two wheels on one axle, more often used for transporting goods than passengers.
-    · grade: 4  cefr: —
+  2026-01-01: press
+    ✓ An instance of applying pressure; an instance of pressing.
+    · grade: 4  cefr: B1
+  2026-01-02: protection
+    ✓ The process of keeping (something or someone) safe.
+    · grade: 4  cefr: B1
+  2026-01-03: blog
+    ✓ a shared on-line journal where people can post diary entries about their personal experiences and hobbies
+    · grade: 4  cefr: B1
+  2026-01-04: insurance
+    ✓ A means of indemnity against a future occurrence of an uncertain event.
+    · grade: 4  cefr: B1
 ── word_snake (4)
-  Trace "checks"
-    ✓ checks
+  Trace "communications"
+    ✓ communications
+    · grade: 3  gloss: the discipline that studies the principles of transmitting information and the methods by which it is delivered (as print or radio or television etc.)
+  Trace "appears"
+    ✓ appears
     · grade: 3
-  Trace "incredibly"
-    ✓ incredibly
-    · grade: 3  gloss: In an incredible manner; not to be believed.
-  Trace "seaside"
-    ✓ seaside
-    · grade: 3  gloss: The area by and around the sea; including the beach, promenade or cliffs
-  Trace "mama"
-    ✓ mama
-    · grade: 3  gloss: Mother, female parent.
+  Trace "investigate"
+    ✓ investigate
+    · grade: 3  gloss: To inquire into or study in order to ascertain facts or information.
+  Trace "whom"
+    ✓ whom
+    · grade: 3
 ── word_sort (3)
-  Sort "incredibly" into its word class
-    ✓ Adverbs
-    · grade: 3  gloss: In an incredible manner; not to be believed.
-  Sort "seaside" into its word class
+  Sort "communications" into its word class
     ✓ Nouns
-    · grade: 3  gloss: The area by and around the sea; including the beach, promenade or cliffs
-  Sort "mama" into its word class
-    ✓ Nouns
-    · grade: 3  gloss: Mother, female parent.
+    · grade: 3  gloss: the discipline that studies the principles of transmitting information and the methods by which it is delivered (as print or radio or television etc.)
+  Sort "appears" into its word class
+    ✓ Verbs
+    · grade: 3
+  Sort "investigate" into its word class
+    ✓ Verbs
+    · grade: 3  gloss: To inquire into or study in order to ascertain facts or information.
 ── word_type_whirl (3)
-  Catch "incredibly" in the right bin
-    ✓ Adverbs
-    · grade: 3  gloss: In an incredible manner; not to be believed.
-  Catch "seaside" in the right bin
+  Catch "communications" in the right bin
     ✓ Nouns
-    · grade: 3  gloss: The area by and around the sea; including the beach, promenade or cliffs
-  Catch "mama" in the right bin
-    ✓ Nouns
-    · grade: 3  gloss: Mother, female parent.
+    · grade: 3  gloss: the discipline that studies the principles of transmitting information and the methods by which it is delivered (as print or radio or television etc.)
+  Catch "appears" in the right bin
+    ✓ Verbs
+    · grade: 3
+  Catch "investigate" in the right bin
+    ✓ Verbs
+    · grade: 3  gloss: To inquire into or study in order to ascertain facts or information.
