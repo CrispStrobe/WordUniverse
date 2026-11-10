@@ -91,8 +91,12 @@ def expand_entry(wn_en, word: str) -> dict:
                 'all_hypernyms': [...], 'all_definitions': [...]}"""
     word_lc = word.lower()
     senses_out = []
-    all_syn: set[str] = set()
-    all_ant: set[str] = set()
+    # In WordNet's sense order, the most frequent sense first; this used to
+    # be a set, sorted, so "know" put "bed" (sense 8) beside "cognize"
+    # (sense 1). Which senses a child is shown is decided after, by
+    # tools/pack/build_synonym_senses.py --lang en (fixed 2026-11).
+    all_syn: dict[str, None] = {}
+    all_ant: dict[str, None] = {}
     all_hyp: set[str] = set()
     all_defs: list[str] = []
 
@@ -126,8 +130,8 @@ def expand_entry(wn_en, word: str) -> dict:
                 "meronyms": mero,
                 "hypernymChain": hyp_chain,
             })
-            all_syn.update(synonyms)
-            all_ant.update(antonyms)
+            all_syn.update(dict.fromkeys(synonyms))
+            all_ant.update(dict.fromkeys(antonyms))
             all_hyp.update(hyps)
             if definition:
                 all_defs.append(definition)
@@ -136,8 +140,8 @@ def expand_entry(wn_en, word: str) -> dict:
 
     return {
         "senses": senses_out,
-        "all_synonyms": sorted(all_syn),
-        "all_antonyms": sorted(all_ant),
+        "all_synonyms": list(all_syn),
+        "all_antonyms": list(all_ant),
         "all_hypernyms": sorted(all_hyp),
         "all_definitions": all_defs,
     }

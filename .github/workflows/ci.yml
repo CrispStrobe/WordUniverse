@@ -52,7 +52,9 @@ jobs:
         run: python3 tools/pack/apply_llm_overlay_test.py
 
       - name: Check the synonym-by-sense rules
-        run: python3 tools/pack/thesaurus_de_test.py
+        run: |
+          python3 tools/pack/thesaurus_de_test.py
+          python3 tools/pack/thesaurus_en_test.py
 
       - name: Check BW source import and evidence
         run: |
