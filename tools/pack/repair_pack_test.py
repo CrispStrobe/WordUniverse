@@ -345,5 +345,47 @@ class GermanRowCorrections(unittest.TestCase):
         self.assertEqual(db.execute('SELECT word_type FROM words').fetchone()[0],
                          'proper_noun')
 
+
+class EnglishGrades(unittest.TestCase):
+    def pack(self, rows):
+        import json, sqlite3
+        db = sqlite3.connect(':memory:')
+        db.row_factory = sqlite3.Row
+        db.execute('CREATE TABLE words (id INTEGER PRIMARY KEY, word TEXT, '
+                   'grade_level INTEGER, enrichment_json TEXT, metadata_json TEXT)')
+        for i, (word, grade, lemma, meta) in enumerate(rows, 1):
+            db.execute('INSERT INTO words VALUES (?,?,?,?,?)',
+                       (i, word, grade, json.dumps({'primary_lemma': lemma}),
+                        json.dumps(meta)))
+        return db
+
+    def grades(self, db):
+        return dict(db.execute('SELECT word, grade_level FROM words'))
+
+    def test_an_adult_word_is_raised_and_a_childs_word_is_not(self):
+        db = self.pack([
+            ('racism', 3, 'racism', {'cefr_level': 'B2'}),
+            ('insane', 3, 'insane', {'cefr_level': 'B1'}),
+            # B1 by CEFR, but Cambridge Flyers teaches it.
+            ('victim', 3, 'victim', {'cefr_level': 'B1',
+                                     'tags': ['source:cambridge_yle_flyers']}),
+            ('cat', 2, 'cat', {'cefr_level': 'A1'}),
+            # Never lowered.
+            ('gleam', 6, 'gleam', {'cefr_level': 'B2'}),
+        ])
+        self.assertEqual(repair.raise_english_grades(db, False), 2)
+        self.assertEqual(self.grades(db), {'racism': 5, 'insane': 4, 'victim': 3,
+                                           'cat': 2, 'gleam': 6})
+
+    def test_an_inflected_form_follows_its_base_word(self):
+        db = self.pack([
+            ('arrest', 3, 'arrest', {'cefr_level': 'B1'}),
+            ('arrested', 3, 'arrest', {}),
+            ('had', 1, 'have', {}),
+        ])
+        repair.raise_english_grades(db, False)
+        self.assertEqual(self.grades(db)['arrested'], 4)
+        self.assertEqual(self.grades(db)['had'], 1)
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)

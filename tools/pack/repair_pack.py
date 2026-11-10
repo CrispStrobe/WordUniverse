@@ -729,6 +729,64 @@ def fix_german_rows(db, report):
     return fixed
 
 
+# English grade levels are raised, never lowered, to the CEFR level a word
+# carries, unless a children's list places it. Step 03 of the English
+# pipeline took min(curriculum cap, frequency band), and the frequency is
+# OpenSubtitles': "racism", "execution" and "revenge" are common in films, so
+# they sat at grade 3 beside "cat". A child's list (Dolch, Fry 1-300, the UK
+# Year 1-6 statutory words, Cambridge YLE) is evidence for the grade it
+# gives; CEFR B1 is not a third-grader's word without one.
+CHILD_LIST_TAGS = frozenset({
+    'source:uk_y1_y2', 'source:uk_y3_y4', 'source:uk_y5_y6',
+    'source:cambridge_yle_starters', 'source:cambridge_yle_movers',
+    'source:cambridge_yle_flyers', 'dolch_g1', 'dolch_g2', 'dolch_g3',
+    'fry_b1', 'fry_b2', 'fry_b3',
+})
+CEFR_GRADE_FLOOR = {'B1': 4, 'B2': 5, 'C1': 5, 'C2': 5}
+
+
+def _grade_floor(metadata):
+    if set(metadata.get('tags') or []) & CHILD_LIST_TAGS or metadata.get('yle_level'):
+        return None
+    return CEFR_GRADE_FLOOR.get(metadata.get('cefr_level'))
+
+
+def raise_english_grades(db, report):
+    """Applies CEFR_GRADE_FLOOR. Returns the number of rows raised.
+
+    An inflected form follows its base word's floor ("arrested" is B1 through
+    "arrest"), never its own frequency.
+    """
+    rows = db.execute(
+        'SELECT id, word, grade_level, enrichment_json, metadata_json FROM words '
+        'WHERE grade_level IS NOT NULL').fetchall()
+    meta_by_word = {}
+    for row in rows:
+        meta_by_word.setdefault(row['word'].lower(),
+                                json.loads(row['metadata_json'] or '{}'))
+    raised = 0
+    for row in rows:
+        metadata = json.loads(row['metadata_json'] or '{}')
+        floor = _grade_floor(metadata)
+        lemma = (json.loads(row['enrichment_json'] or '{}').get('primary_lemma')
+                 or row['word']).lower()
+        if floor is None and lemma != row['word'].lower() and lemma in meta_by_word \
+                and not set(metadata.get('tags') or []) & CHILD_LIST_TAGS:
+            floor = _grade_floor(meta_by_word[lemma])
+        if floor is None or row['grade_level'] >= floor:
+            continue
+        raised += 1
+        if report:
+            continue
+        metadata['gradeReason'] = f'cefr_floor_{floor}'
+        db.execute('UPDATE words SET grade_level = ?, metadata_json = ? '
+                   'WHERE id = ?', (floor, json.dumps(metadata, ensure_ascii=False),
+                                    row['id']))
+    if raised and not report:
+        db.commit()
+    return raised
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('pack', type=pathlib.Path)
@@ -751,6 +809,8 @@ def main():
     phrasals_fixed = fix_phrasal_glosses(db, args.report)
     rows_fixed = (fix_german_rows(db, args.report)
                   if language == 'de' else [])
+    grades_raised = (raise_english_grades(db, args.report)
+                     if language == 'en' else 0)
     weak = weak_masculine_forms(db)
     weak_patterns = weak_noun_patterns(weak)
     reasons = Counter()
@@ -952,6 +1012,8 @@ def main():
     if phrasals_fixed:
         print(f'  {len(phrasals_fixed):6d}  {"phrasal glosses corrected":28s} '
               f'{", ".join(phrasals_fixed)}')
+    if grades_raised:
+        print(f'  {grades_raised:6d}  {"English grades raised":28s} to the CEFR floor')
     if rows_fixed:
         print(f'  {len(rows_fixed):6d}  {"German rows corrected":28s} '
               f'{", ".join(rows_fixed)}')
