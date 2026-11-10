@@ -450,7 +450,11 @@ HypernymChallenge? buildHypernymChallenge({
   final ownHypernyms = (word.apiEnrichment?.hypernyms ?? [])
       .map((h) => (h.word ?? '').trim().toLowerCase())
       .where((s) => s.isNotEmpty)
-      .toSet();
+      .toSet()
+    // A reviewed category is not among the enrichment hypernyms, so without
+    // this the answer could sit among the wrong options too: delta offered
+    // "land" twice.
+    ..add(correct.trim().toLowerCase());
 
   // Each challenge draws from its own shuffle. Walking one shared order gave
   // every item in a round the same three distractors — "group action /
@@ -518,7 +522,16 @@ List<HypernymChallenge> buildHypernymChallenges({
         pickHypernym(word, isGerman: isGerman, catalogue: catalogue);
     if (hypernym != null) picked[word] = hypernym;
   }
-  final hypernymPool = picked.values.toList()..shuffle(random);
+  // Wrong options come from categories of words of the same class: a verb
+  // among three nouns ("inspire": meat / fire / facility / encourage) gives
+  // the answer away.
+  final poolByType = <GermanWordType, List<String>>{};
+  for (final entry in picked.entries) {
+    poolByType.putIfAbsent(entry.key.wordType, () => []).add(entry.value);
+  }
+  for (final list in poolByType.values) {
+    list.shuffle(random);
+  }
 
   final challenges = <HypernymChallenge>[];
   for (final entry in picked.entries) {
@@ -526,7 +539,7 @@ List<HypernymChallenge> buildHypernymChallenges({
     final challenge = buildHypernymChallenge(
       word: entry.key,
       correct: entry.value,
-      hypernymPool: hypernymPool,
+      hypernymPool: poolByType[entry.key.wordType]!,
       optionCount: optionCount,
       rng: random,
     );

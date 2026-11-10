@@ -989,8 +989,13 @@ Future<AuditPack> openAuditPack(String language) async {
   final pack = kLanguagePacks[language]!;
   final List<int> bytes;
   if (language == 'en') {
-    bytes = GZipDecoder().decodeBytes(
-        await File('assets/grundwortschatz_en.db.gz').readAsBytes());
+    // WU_PACK_EN reads a decompressed English pack that is not the shipped
+    // asset yet — a build to check before it replaces the asset.
+    final candidate = Platform.environment['WU_PACK_EN'];
+    bytes = candidate != null && candidate.isNotEmpty
+        ? await File(candidate).readAsBytes()
+        : GZipDecoder().decodeBytes(
+            await File('assets/grundwortschatz_en.db.gz').readAsBytes());
   } else {
     final path = germanPackPath;
     if (path == null) {

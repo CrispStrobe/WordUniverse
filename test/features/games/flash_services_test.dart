@@ -614,6 +614,50 @@ void main() {
       expect(challenge.options, isNot(contains('set')));
       expect(challenge.options[challenge.correctIndex], 'gathering');
     });
+
+    test('a reviewed answer is never also a wrong option', () {
+      // delta offered "land" twice: once right, once wrong.
+      final delta = testWord('delta', reviewedCategory: 'land');
+      final challenge = buildHypernymChallenge(
+        word: delta,
+        correct: 'land',
+        hypernymPool: ['land', 'air', 'calculation', 'structure'],
+        rng: Random(1),
+      )!;
+      expect(challenge.options.where((o) => o == 'land'), hasLength(1));
+    });
+
+    test('wrong options are categories of words of the same class', () {
+      // "inspire": meat / fire / facility / encourage gave the verb away.
+      GermanWord reviewed(String w, String category, GermanWordType type) =>
+          testWord(w,
+              type: type,
+              reviewedCategory: category,
+              enrichment: testEnrichment(definitions: ['A word: $w.']));
+      final nouns = {
+        'knife': 'tool', 'apple': 'fruit', 'car': 'vehicle',
+        'dog': 'animal', 'rose': 'flower',
+      };
+      final verbs = {'inspire': 'encourage', 'glance': 'look', 'shout': 'call'};
+      final pool = [
+        for (final e in nouns.entries)
+          reviewed(e.key, e.value, GermanWordType.substantiv),
+        for (final e in verbs.entries)
+          reviewed(e.key, e.value, GermanWordType.verb),
+      ];
+      final candidates = [
+        for (final c in nouns.values) testWord(c, type: GermanWordType.substantiv),
+        for (final c in verbs.values) testWord(c, type: GermanWordType.verb),
+      ];
+      final challenges = buildHypernymChallenges(
+          pool: pool, isGerman: false, candidates: candidates,
+          maxChallenges: 20, rng: Random(3));
+      expect(challenges, isNotEmpty);
+      for (final c in challenges) {
+        final own = c.word.wordType == GermanWordType.verb ? verbs : nouns;
+        expect(own.values, containsAll(c.options), reason: c.word.word);
+      }
+    });
   });
 
   group('Word Class Flash', () {

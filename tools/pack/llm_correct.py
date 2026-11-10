@@ -210,6 +210,9 @@ class Lane:
         self.next_at = 0.0
         self.parked_until = 0.0
         self.calls = self.failures = 0
+        self.streak = 0  # consecutive failures
+        self.seconds = 0.0  # time spent in successful calls
+        self.ok = 0
 
     def available(self):
         return time.time() >= self.parked_until
@@ -217,7 +220,15 @@ class Lane:
     def park(self, seconds):
         self.parked_until = max(self.parked_until, time.time() + seconds)
 
-    def call(self, prompt, timeout=240):
+    def failed(self, seconds):
+        # A lane that keeps failing is rested longer each time: a fixed short
+        # park had every worker cycling through the same dead lanes (Nemotron,
+        # Gemma: every call failed) and a run of 300 batches doing four an hour.
+        self.failures += 1
+        self.streak += 1
+        self.park(min(3600, seconds * 2 ** (self.streak - 1)))
+
+    def call(self, prompt, timeout=150):
         with self.lock:
             wait = self.next_at - time.time()
             if wait > 0:
@@ -266,20 +277,28 @@ class Pool:
             # Least-recently-scheduled first spreads load across lanes.
             lane = min(candidates, key=lambda l: (l.next_at, random.random()))
             try:
-                return lane, parse_array(lane.call(prompt))
+                t0 = time.time()
+                result = lane, parse_array(lane.call(prompt))
+                lane.streak = 0
+                lane.ok += 1
+                lane.seconds += time.time() - t0
+                return result
             except urllib.error.HTTPError as e:
-                lane.failures += 1
                 retry = e.headers.get('retry-after') if e.headers else None
                 if e.code == 429:
-                    lane.park(float(retry) if retry and retry.isdigit() else 90)
+                    # A rate limit says nothing about the lane's health: a
+                    # flat pause. Escalating it parked the only fast lanes
+                    # for an hour and stalled the run.
+                    lane.failures += 1
+                    lane.park(float(retry) if retry and retry.isdigit() else 60)
                 elif e.code in (401, 402, 403, 404):
+                    lane.failures += 1
                     lane.park(10 ** 9)  # not usable this run
                 else:
-                    lane.park(30)
+                    lane.failed(30)
                 tried.append(f'{lane.name}:{e.code}')
             except Exception as e:  # timeout, bad JSON, connection reset
-                lane.failures += 1
-                lane.park(20)
+                lane.failed(30)
                 tried.append(f'{lane.name}:{type(e).__name__}')
         raise RuntimeError('all attempts failed: ' + ', '.join(tried[-5:]))
 
@@ -855,9 +874,33 @@ def clean_classes(value):
     return out or None
 
 
+def assign_roles(pool, proposers, verifiers):
+    """Give the named lanes these roles for this run, and drop the rest.
+
+    A lane named in both is split in two, one per role. For a task where
+    only a few lanes answer fast — a batch of 30 took Mistral 6 s and Groq's
+    Qwen 3 s, while four lanes timed out at 150 s and held a worker each
+    time — this keeps the run on the ones that work.
+    """
+    import copy
+    lanes = []
+    for lane in pool.lanes:
+        base = lane.name.split('#')[0]
+        for role, names in (('propose', proposers), ('verify', verifiers)):
+            if base in names:
+                twin = copy.copy(lane)
+                twin.lock = threading.Lock()
+                twin.role = role
+                lanes.append(twin)
+    pool.lanes = lanes
+
+
 def relations(args):
     env = load_env(args.env_file)
     pool = Pool(env, only=set(args.lanes.split(',')) if args.lanes else None)
+    if args.proposers:
+        assign_roles(pool, set(args.proposers.split(',')),
+                     set(args.verifiers.split(',')))
     language = 'German' if args.lang == 'de' else 'English'
     text = RELATIONS_TEXT[args.lang]
     out = OUT_DIR / f'{args.lang}_relations.jsonl'
@@ -939,6 +982,14 @@ def relations(args):
             if i % 10 == 0 or i == len(futures):
                 rate = i / max(1, time.time() - started) * 3600
                 print(f'[{i}/{len(futures)}] {stats} ~{rate:.0f} batches/h', flush=True)
+    print_lanes(pool)
+
+
+def print_lanes(pool):
+    print('lanes:', ', '.join(
+        f'{l.name} {l.ok}ok/{l.failures}fail'
+        + (f' {l.seconds / l.ok:.0f}s' if l.ok else '')
+        for l in pool.lanes if l.calls), flush=True)
 
 
 # ─── Phrasal fits: which particles fill each gap ─────────────────────────
@@ -966,7 +1017,7 @@ def phrasal_fits(args):
     done = set()
     if out.exists():
         done = {json.loads(l)['sentence'] for l in open(out, encoding='utf-8')
-                if l.strip()}
+                if l.strip() and json.loads(l).get('round', 1) == args.round}
     gaps = []
     latest = {}
     for line in open(OUT_DIR / 'en_phrasal.jsonl', encoding='utf-8'):
@@ -1009,7 +1060,7 @@ def phrasal_fits(args):
                 for _, reply in answers:
                     fits |= {w for w in (reply[i] if isinstance(reply[i], list) else [])
                              if w in PARTICLES}
-                f.write(json.dumps({**g, 'fits': sorted(fits),
+                f.write(json.dumps({**g, 'fits': sorted(fits), 'round': args.round,
                                     'by': [m for m, _ in answers]}) + '\n')
                 stats['gaps'] += 1
 
@@ -1053,9 +1104,13 @@ def main():
     rl.add_argument('--batch', type=int, default=30)
     rl.add_argument('--workers', type=int, default=6)
     rl.add_argument('--lanes')
+    rl.add_argument('--proposers', help='lanes to propose with, e.g. mistral-large,qwen3.8-27b')
+    rl.add_argument('--verifiers', default='magistral-medium,mistral-medium,command-a,iceman,qwen3.8-27b')
     rl.add_argument('--env-file', default=str(pathlib.Path.home() / 'code' / '.env'))
     pf = sub.add_parser('phrasal-fits')
     pf.add_argument('--judges', default='mistral-large,command-a')
+    pf.add_argument('--round', type=int, default=1,
+                    help='another round with other judges; rounds are united')
     pf.add_argument('--workers', type=int, default=3)
     pf.add_argument('--lanes')
     pf.add_argument('--env-file', default=str(pathlib.Path.home() / 'code' / '.env'))

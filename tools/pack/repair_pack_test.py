@@ -303,5 +303,34 @@ class CrossReferences(unittest.TestCase):
             'ein Fahrzeug mit zwei Raedern zum Fahren', RULES))
 
 
+
+class GermanRowCorrections(unittest.TestCase):
+    def rows(self, *glosses):
+        import json, sqlite3
+        db = sqlite3.connect(':memory:')
+        db.row_factory = sqlite3.Row
+        db.execute('CREATE TABLE words (id INTEGER PRIMARY KEY, word TEXT, '
+                   'word_type TEXT, enrichment_json TEXT, metadata_json TEXT)')
+        for i, gloss in enumerate(glosses, 1):
+            db.execute('INSERT INTO words VALUES (?,?,?,?,?)',
+                       (i, 'August', 'proper_noun',
+                        json.dumps({'definitions': [gloss]}),
+                        json.dumps({'nurImPlural': True})))
+        return db
+
+    def test_the_given_name_becomes_the_month(self):
+        db = self.rows('männlicher Vorname')
+        self.assertEqual(repair.fix_german_rows(db, False), ['August'])
+        row = db.execute('SELECT * FROM words').fetchone()
+        self.assertEqual(row['word_type'], 'substantiv')
+        self.assertIn('Monat', row['enrichment_json'])
+        self.assertIn('"nurImPlural": false', row['metadata_json'])
+
+    def test_a_row_that_already_reads_otherwise_is_left_alone(self):
+        db = self.rows('der achte Monat')
+        self.assertEqual(repair.fix_german_rows(db, False), [])
+        self.assertEqual(db.execute('SELECT word_type FROM words').fetchone()[0],
+                         'proper_noun')
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)

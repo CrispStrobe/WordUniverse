@@ -52,8 +52,8 @@ import sqlite3
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-from llm_correct import (OUT_DIR, PARTICLES, digest, entry_of,  # noqa: E402
-                         relation_entry)
+from llm_correct import (OUT_DIR, PARTICLES, RELATIONS_TEXT,  # noqa: E402
+                         digest, entry_of, relation_entry)
 
 GENUS = {'der': 'mask.', 'die': 'fem.', 'das': 'neut.'}
 
@@ -239,6 +239,8 @@ def apply_relations(db, lang):
             record = json.loads(line)
             latest[record['id']] = record
     counts = {'applied': 0, 'stale': 0, 'missing': 0}
+    too_general = {w.strip().lower()
+                   for w in RELATIONS_TEXT[lang]['too_general'].split(',')}
     for entry_id, record in latest.items():
         row = find_row(db, entry_id, 'id, original_id, word, word_type, article, '
                                      'enrichment_json, metadata_json')
@@ -252,7 +254,12 @@ def apply_relations(db, lang):
         if record.get('classes'):
             metadata['llm_classes'] = record['classes']
         if record.get('word_type') in ('noun', 'verb'):
-            metadata['llm_category'] = record.get('category') or ''
+            category = (record.get('category') or '').strip()
+            # The prompt names the answers too general to ask for, and a model
+            # still gave "Nachbarin -> Person"; the list is a rule here.
+            if category.lower() in too_general:
+                category = ''
+            metadata['llm_category'] = category
         db.execute('UPDATE words SET metadata_json=? WHERE id=?',
                    (json.dumps(metadata, ensure_ascii=False), row['id']))
         counts['applied'] += 1
@@ -260,7 +267,7 @@ def apply_relations(db, lang):
 
 
 def load_fits():
-    """Sentence-with-gap -> the particles two judges said fill it."""
+    """Sentence-with-gap -> the particles any judge said fills it."""
     path = OUT_DIR / 'en_phrasal_fits.jsonl'
     if not path.exists():
         return None
@@ -268,7 +275,9 @@ def load_fits():
     for line in path.read_text(encoding='utf-8').splitlines():
         if line.strip():
             r = json.loads(line)
-            fits[r['sentence']] = set(r['fits'])
+            # Every round's judges are united: a particle any of them
+            # accepted is never offered as wrong.
+            fits.setdefault(r['sentence'], set()).update(r['fits'])
     return fits
 
 

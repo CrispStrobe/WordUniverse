@@ -121,6 +121,12 @@ class Guards(unittest.TestCase):
         self.assertEqual(self.row(4)[2]['definitions'][0],
                          'die Füße beim Gehen über den Boden ziehen')
 
+    def relation(self, row_id):
+        self.db.row_factory = sqlite3.Row
+        row = self.db.execute('SELECT * FROM words WHERE id = ?', (row_id,)).fetchone()
+        self.db.row_factory = None
+        return apply.relation_entry(row, 'de')
+
     def test_relations_apply_to_the_row_the_models_read(self):
         self.db.row_factory = sqlite3.Row
         row = self.db.execute('SELECT * FROM words WHERE id = 1').fetchone()
@@ -133,12 +139,16 @@ class Guards(unittest.TestCase):
             # Read when Tröpfchen said something else: not applied.
             {'id': 'w2', 'src': 'stale', 'word_type': 'noun',
              'classes': ['noun', 'verb'], 'category': None},
+            {'id': 'w3', 'src': correct.digest(self.relation(3)),
+             'word_type': 'noun', 'classes': ['noun'], 'category': 'Sache'},
         ]) + '\n')
         self.run_apply()
         meta = self.row(1)[3]
         self.assertEqual(meta['llm_classes'], ['noun'])
         self.assertEqual(meta['llm_category'], 'Tier')
         self.assertNotIn('llm_classes', self.row(2)[3])
+        # Too general to be an answer.
+        self.assertEqual(self.row(3)[3]['llm_category'], '')
 
 
 class PhrasalFits(unittest.TestCase):

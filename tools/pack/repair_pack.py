@@ -667,6 +667,51 @@ def fix_phrasal_glosses(db, report):
     return fixed
 
 
+# German rows that sense-linking typed as the wrong word, where the curriculum
+# lists the other one. Each applies only while the row still reads the way it
+# was found, so a corrected source is left alone.
+#   August   BW1 teaches the month (der August); the row was the given name,
+#            glossed "männlicher Vorname" with a singer as its example, while
+#            its own graded sentences are all about the month.
+GERMAN_ROW_CORRECTIONS = {
+    'August': {
+        'wrong': 'männlicher Vorname',
+        'word_type': 'substantiv',
+        'definition': 'der achte Monat des Jahres',
+        'example': 'Der August kommt nach dem Juli.',
+    },
+}
+
+
+def fix_german_rows(db, report):
+    """Applies GERMAN_ROW_CORRECTIONS. Returns the words it changed."""
+    fixed = []
+    for word, correction in GERMAN_ROW_CORRECTIONS.items():
+        for row in db.execute(
+                'SELECT id, enrichment_json, metadata_json FROM words '
+                'WHERE word = ?', (word,)).fetchall():
+            enrichment = json.loads(row['enrichment_json'] or '{}')
+            metadata = json.loads(row['metadata_json'] or '{}')
+            definitions = enrichment.get('definitions') or []
+            if not definitions or definitions[0] != correction['wrong']:
+                continue
+            fixed.append(word)
+            if report:
+                continue
+            enrichment['definitions'] = [correction['definition']]
+            enrichment['examples'] = [{'text': correction['example']}]
+            metadata['nurImPlural'] = False
+            db.execute(
+                'UPDATE words SET word_type = ?, enrichment_json = ?, '
+                'metadata_json = ? WHERE id = ?',
+                (correction['word_type'],
+                 json.dumps(enrichment, ensure_ascii=False),
+                 json.dumps(metadata, ensure_ascii=False), row['id']))
+    if fixed and not report:
+        db.commit()
+    return fixed
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('pack', type=pathlib.Path)
@@ -687,6 +732,8 @@ def main():
     language = pack_language(db)
     vocabulary = graded_surfaces(db)
     phrasals_fixed = fix_phrasal_glosses(db, args.report)
+    rows_fixed = (fix_german_rows(db, args.report)
+                  if language == 'de' else [])
     weak = weak_masculine_forms(db)
     weak_patterns = weak_noun_patterns(weak)
     reasons = Counter()
@@ -888,6 +935,9 @@ def main():
     if phrasals_fixed:
         print(f'  {len(phrasals_fixed):6d}  {"phrasal glosses corrected":28s} '
               f'{", ".join(phrasals_fixed)}')
+    if rows_fixed:
+        print(f'  {len(rows_fixed):6d}  {"German rows corrected":28s} '
+              f'{", ".join(rows_fixed)}')
     if not args.report:
         print(f'  wrote   {out}')
 

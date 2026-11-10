@@ -23,6 +23,7 @@ seed=1
 format=text
 out=
 pack_de="${WU_PACK_DE:-}"
+pack_en="${WU_PACK_EN:-}"
 mode=dump
 
 usage() {
@@ -37,6 +38,7 @@ usage() {
   --json              one JSON object per line instead of text
   --out FILE          write there instead of stdout
   --pack-de PATH      decompressed German pack (or set WU_PACK_DE)
+  --pack-en PATH      decompressed English pack instead of the asset (or WU_PACK_EN)
   --list              list the games that can be generated, with their packs
   --check             run the contract test instead of printing items
   -h, --help          this
@@ -54,6 +56,7 @@ while [ $# -gt 0 ]; do
     --seed)    seed="${2:?--seed needs a value}"; shift 2 ;;
     --out)     out="${2:?--out needs a value}"; shift 2 ;;
     --pack-de) pack_de="${2:?--pack-de needs a value}"; shift 2 ;;
+    --pack-en) pack_en="${2:?--pack-en needs a value}"; shift 2 ;;
     --json)    format=json; shift ;;
     --list)    mode=list; shift ;;
     --check)   mode=check; shift ;;
@@ -71,7 +74,7 @@ case "$lang" in en|de) ;; *) die "--lang must be en or de" ;; esac
 if [ "$mode" = check ]; then
   # The contract test asserts; its output is the failure report, so it is
   # shown as flutter prints it.
-  WU_PACK_DE="$pack_de" exec flutter test test/audit/challenge_contract_test.dart
+  WU_PACK_DE="$pack_de" WU_PACK_EN="$pack_en" exec flutter test test/audit/challenge_contract_test.dart
 fi
 
 if [ "$mode" = list ]; then
@@ -97,7 +100,7 @@ fi
 set +e
 WU_DUMP="$game" WU_DUMP_GRADE="$grade" WU_DUMP_LANG="$lang" \
   WU_DUMP_COUNT="$count" WU_DUMP_SEED="$seed" WU_DUMP_FORMAT="$format" \
-  WU_DUMP_OUT="$target" WU_PACK_DE="$pack_de" \
+  WU_DUMP_OUT="$target" WU_PACK_DE="$pack_de" WU_PACK_EN="$pack_en" \
   flutter test test/audit/challenge_dump_test.dart >/tmp/wu_dump_run.$$ 2>&1
 status=$?
 set -e
