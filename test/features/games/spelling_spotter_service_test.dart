@@ -9,6 +9,24 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:WortUniversum/features/games/services/spelling_spotter_service.dart';
 
 void main() {
+  group('germanMisspellings', () {
+    test('each variant is the word with one typical error', () {
+      final r = germanMisspellings('Rätsel');
+      expect(r, contains('Retsel'));
+      expect(r, isNot(contains('rrtter')));
+      expect(germanMisspellings('Fahrrad'),
+          containsAll(['Farrad', 'Fahrad', 'Fahrrat']));
+      expect(germanMisspellings('verliebt'), containsAll(['verlibt', 'ferliebt']));
+      expect(germanMisspellings('Straße'), contains('Strasse'));
+    });
+
+    test('the word itself is never among them', () {
+      for (final w in ['Haus', 'beginnen', 'Wind', 'fühlen']) {
+        expect(germanMisspellings(w), isNot(contains(w)));
+      }
+    });
+  });
+
   // ─── normWord ─────────────────────────────────────────────────────────────
 
   group('normWord', () {

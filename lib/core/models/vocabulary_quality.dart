@@ -574,7 +574,18 @@ bool sentenceSuitsAChild(String sentence) =>
     !_archaicSpelling.hasMatch(sentence) &&
     !_clinicalAnatomy.hasMatch(sentence) &&
     !_nationalSocialistSlogans.hasMatch(sentence) &&
-    !_drinkingAndBeating.hasMatch(sentence);
+    !_drinkingAndBeating.hasMatch(sentence) &&
+    !_dictionaryBoilerplate.hasMatch(sentence);
+
+/// Wiktionary's own notes, filed among the example sentences: Cloze Flash
+/// asked "For quotations using this term, see Citations:___." (Islam), and
+/// 114 English entries list "Near-synonym: …" as an example.
+final RegExp _dictionaryBoilerplate = RegExp(
+    r'(see\s+citations\s*:|for\s+quotations\s+using\s+this\s+term'
+    r'|^\s*(near-)?synonyms?\s*:|^\s*antonyms?\s*:|^\s*hypernyms?\s*:'
+    r'|^\s*hyponyms?\s*:|^\s*see\s+also\b|^\s*usage\s+notes?\b'
+    r'|^\s*siehe\s+auch\b|^\s*(synonyme?|gegenwörter|oberbegriffe)\s*:)',
+    caseSensitive: false);
 
 /// Slogans of the Nazi state. Wiktionary records them as expressions of
 /// ordinary words, so Phrasen-Blitz asked a fourth-grader to complete

@@ -77,8 +77,26 @@ SpellingChallenge? buildSpellingChallenge({
     if (distractors.length >= optionCount - 1) break;
   }
 
-  // Pad with errors from other words if needed.
-  if (distractors.length < optionCount - 1) {
+  // German: pad with the word's own rule-made misspellings. Other words'
+  // errors gave "rrtter / retzel / reten" for Rätsel.
+  if (isGerman && distractors.length < optionCount - 1) {
+    final made = germanMisspellings(displayWord)
+        .where((e) =>
+            !distractors.contains(e) &&
+            !validWords.contains(e.toLowerCase()) &&
+            // Capitals alone are a different game (Großschreibung); keep one
+            // at most, and only if nothing else is left.
+            e.toLowerCase() != displayWord.toLowerCase())
+        .toList()
+      ..shuffle(random);
+    for (final e in made) {
+      distractors.add(e);
+      if (distractors.length >= optionCount - 1) break;
+    }
+  }
+
+  // English: pad with errors from other words if needed.
+  if (!isGerman && distractors.length < optionCount - 1) {
     final others = allErrors
         .map(normWord)
         .where((e) =>
@@ -97,7 +115,20 @@ SpellingChallenge? buildSpellingChallenge({
   // Two options that both look like the word beat four where three do not.
   if (distractors.isEmpty) return null;
 
-  final options = [displayWord, ...distractors.take(optionCount - 1)];
+  // The recorded German errors are lower case, so a noun stood out as the
+  // only capitalised option: "etbere / Erdbeere / erdbere". Spelling is the
+  // question here; capitals have their own game.
+  final shown = isGerman
+      ? distractors
+          .map((e) => e.isNotEmpty &&
+                  e[0].toLowerCase() == displayWord[0].toLowerCase()
+              ? displayWord[0] + e.substring(1)
+              : e)
+          .where((e) => e != displayWord)
+          .toSet()
+      : distractors;
+  if (shown.isEmpty) return null;
+  final options = [displayWord, ...shown.take(optionCount - 1)];
   options.shuffle(random);
   final correctIndex = options.indexOf(displayWord);
   if (correctIndex < 0) return null;

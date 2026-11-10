@@ -68,3 +68,74 @@ int editDistance(String a, String b) {
   }
   return previous[b.length];
 }
+
+/// Misspellings of a German word that a child plausibly writes, one rule
+/// each: the error types a German spelling lesson drills.
+///
+/// Padding the options with other words' recorded errors put "rrtter",
+/// "retzel" and "reten" beside "Rätsel" and "ferstehen" beside "frieren":
+/// only one option resembled the word, so the game asked nothing. Each
+/// variant here changes one spot by one rule, so every option is the word as
+/// somebody might really write it.
+List<String> germanMisspellings(String word) {
+  final out = <String>{};
+  void swap(String from, String to) {
+    var start = 0;
+    while (true) {
+      final i = word.indexOf(from, start);
+      if (i < 0) break;
+      out.add(word.substring(0, i) + to + word.substring(i + from.length));
+      start = i + 1;
+    }
+  }
+
+  // Umlaut and its spelling by sound.
+  swap('äu', 'eu');
+  swap('eu', 'äu');
+  swap('ä', 'e');
+  swap('Ä', 'E');
+  // Long i, Dehnungs-h, and the doubled vowel.
+  swap('ie', 'i');
+  swap('ieh', 'ie');
+  for (final v in ['ah', 'eh', 'oh', 'uh', 'äh', 'öh', 'üh']) {
+    swap(v, v[0]);
+  }
+  swap('aa', 'a');
+  swap('ee', 'e');
+  swap('oo', 'o');
+  // s-sounds.
+  swap('ß', 'ss');
+  swap('ss', 'ß');
+  // Doubled consonants, ck and tz.
+  for (final c in ['ll', 'mm', 'nn', 'pp', 'rr', 'tt', 'ff']) {
+    swap(c, c[0]);
+  }
+  swap('ck', 'k');
+  swap('tz', 'z');
+  // Hardening at the end of a word.
+  for (final pair in [('d', 't'), ('b', 'p'), ('g', 'k')]) {
+    if (word.endsWith(pair.$1)) {
+      out.add(word.substring(0, word.length - 1) + pair.$2);
+    }
+  }
+  // v sounds like f.
+  if (word.startsWith('v')) out.add('f${word.substring(1)}');
+  if (word.startsWith('V')) out.add('F${word.substring(1)}');
+  // A single consonant between short-vowel syllables doubled.
+  final single = RegExp(r'([aeiouäöü])([lmnprt])([aeiouäöü])');
+  for (final m in single.allMatches(word)) {
+    out.add(word.substring(0, m.start + 1) +
+        m.group(2)! +
+        word.substring(m.start + 1));
+  }
+  // A noun written small, an adjective or verb written capitalised.
+  if (word.isNotEmpty) {
+    final first = word[0];
+    final flipped = first == first.toUpperCase()
+        ? first.toLowerCase()
+        : first.toUpperCase();
+    out.add(flipped + word.substring(1));
+  }
+  out.remove(word);
+  return out.toList();
+}

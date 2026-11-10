@@ -561,6 +561,16 @@ void main() {
   });
 
   group('sentenceSuitsAChild', () {
+    test('a dictionary note is not a sentence', () {
+      expect(
+          sentenceSuitsAChild(
+              'For quotations using this term, see Citations:Islam.'),
+          isFalse);
+      expect(sentenceSuitsAChild('Near-synonym: definer'), isFalse);
+      // The words alone are fine.
+      expect(sentenceSuitsAChild('I can see the synonyms in my book.'), isTrue);
+    });
+
     test('keeps ordinary sentences', () {
       expect(
           sentenceSuitsAChild('Wir frühstücken immer in der Küche.'), isTrue);
