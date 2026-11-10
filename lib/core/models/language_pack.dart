@@ -253,17 +253,22 @@ const Map<String, LanguagePack> kLanguagePacks = {
     // foreign words marked not vocabulary. Each change was proposed by one
     // model family, verified by another and kept only if two audit judges
     // both found it correct.
+    //
+    // Rebuilt again the same day: August is the month (BW1 teaches it; the
+    // row was the given name), Deutschland and Europa take no article, and
+    // the feature index is format 12.
     remoteUrl:
-        'https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/5c5a35b70d0dca859d0b0cdeddfc8d196b5c5456/grundwortschatz-app.db.gz',
+        'https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/ecca6d6bc2f87f933bfd37eda00cc6303d4a442c/grundwortschatz-app.db.gz',
     // Update the immutable URL and all pins together; retain this qualified
     // databaseName in previousDatabaseNames when publishing a new artifact.
-    expectedCompressedBytes: 16485375,
+    expectedCompressedBytes: 16271239,
     expectedCompressedSha256:
-        '7be4c6e008e22d3f3b49619b2c5dca93c5552859ebe4790bd5ccd6e1eadb7e88',
-    expectedDecompressedBytes: 94736384,
+        'b2bcf484dfc7d02fbc77f2459fb4e392e96f9a7c2cf6a2b67f37a771c51ab305',
+    expectedDecompressedBytes: 95817728,
     expectedDecompressedSha256:
-        '71eadae4644dbe300f2c567adc2d2b7c85a2123556ecc34f4be2ce08bc1cbfe1',
+        '3884c856c5fa0340942b0d21b25fa7f28ac3ea909282944d2623870b0d16bba0',
     previousDatabaseNames: [
+      'grundwortschatz-71eadae4644dbe300f2c567adc2d2b7c85a2123556ecc34f4be2ce08bc1cbfe1.db',
       'grundwortschatz-a4598603ebaadb27ac127e65613a0103b5e5d553b80b4a62f3d154d1ca46d873.db',
       'grundwortschatz-b050d7d25f1a0ed373ae2b9f8d079a4c459c9536f3c2081fbc3cc9017e22f8f3.db',
       'grundwortschatz-64366f6f7edfe35c6e0c9dbd041d2a32746351cefa6d7b39c4b76070768afcd0.db',
@@ -338,9 +343,16 @@ const Map<String, LanguagePack> kLanguagePacks = {
     // Rebuilt again 2026-11-10 with every reviewed change audited by two
     // further judges: 334 glosses, 74 word types and 203 not-vocabulary
     // marks that either judge found wrong were withdrawn.
+    //
+    // And once more the same day: each phrasal verb's wrong particles were
+    // judged by four models in two rounds and checked against WordNet, so no
+    // offered particle also fits ("She put ___ the tent." offered "away");
+    // 180 verbs keep such options, the rest are left out. Every word carries
+    // its reviewed word classes and category (llm_classes, llm_category).
     expectedDecompressedSha256:
-        '38649e2cf2fd70bd4c45e9964291a22a048b4c0eb4db481bcfc98ab5981c3d30',
+        'a815a888c8bc7312fb39b93709f8b51401e3413b8a5f741eb105c41fe3fed023',
     previousDatabaseNames: [
+      'grundwortschatz_en-38649e2cf2fd70bd4c45e9964291a22a048b4c0eb4db481bcfc98ab5981c3d30.db',
       'grundwortschatz_en-4f3e9bbed8211f95ac180a7a26e83daaab64aa30335ff1818e792b63bc2f619c.db',
       'grundwortschatz_en-2dbbd0159e962124e7a2d5ce9d53babab6b82bb00411206c028ba059d1030f1c.db',
       'grundwortschatz_en-5f9d7136ced0929504bd36c5e0d47089ff0d4a32ca9d182aada192b36794bbc4.db',

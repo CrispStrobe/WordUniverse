@@ -84,11 +84,11 @@ void main() {
       expect(word.learnerDefinitions, isNotEmpty);
       expect(namesSomething(word), isFalse);
     }
-    // August: the reviewed pack of 2026-11-10 corrected Gabel at the source,
-    // but still types this row as a given name.
+    // Band: the pack corrected Gabel and August at the source, but this row
+    // still mixes die/der/das Band; the overlay's "das" lives in memory only.
     final untouched =
-        await DictionaryDatabaseService().getWordById('word_00692');
-    expect(untouched!.isProperNoun, isTrue,
+        await DictionaryDatabaseService().getWordById('word_00876');
+    expect(untouched!.article, 'die',
         reason: 'the downloaded database retains its original bytes and rows');
   }, skip: skip);
 

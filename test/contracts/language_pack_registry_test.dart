@@ -32,8 +32,9 @@ void main() {
     // stated rather than slipped in.
     //
     // Up by two on 2026-11-10: the reviewed glosses that replaced wrong ones
-    // are full sentences where the old ones were often a single word.
-    expect(pack.requiredFreeSizeLabel, kIsWeb ? '192 MiB' : '106 MiB');
+    // are full sentences where the old ones were often a single word. One
+    // more the same day for the reviewed word classes and categories.
+    expect(pack.requiredFreeSizeLabel, kIsWeb ? '192 MiB' : '107 MiB');
     expect(kLanguagePacks['en']!.requiredFreeBytes, isNull);
     expect(kLanguagePacks['en']!.requiredFreeSizeLabel, isNull);
   });

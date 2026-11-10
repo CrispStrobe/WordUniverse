@@ -116,71 +116,71 @@
     ✓ male
     · group: mail/male
 ── hypernym_flash (4)
-  dignity
-      response
-      input
-    ✓ pride
-      shelter
-  casino
-      cloth
-      subject
-    ✓ cards
-      response
-  administrator
-      subject
-    ✓ head
-      cloth
-      shelter
-  haven
-      input
-    ✓ shelter
-      head
-      cards
+  jean
+    ✓ fabric
+      tool
+      information
+      collection
+  database
+      fabric
+      tool
+    ✓ collection
+  jack
+      information
+    ✓ tool
+      fabric
+      collection
+  knowledge
+    ✓ information
+      tool
+      collection
+      fabric
 ── phrasal_verb_match (4)
-  What does "push around" mean?
-    ✓ to bully or treat someone badly
-      take back what you said
-      interrupt someone while speaking
-      to form or create a group or story
-  What does "lie back" mean?
-      test something to see if it works
-    ✓ recline into a lying position
-      visit briefly on the way
-      talk louder so people can hear
-  What does "draw up" mean?
-    ✓ write a plan or document carefully
+  What does "show up" mean?
+      continue in a place or position
+    ✓ arrive or appear
+      to behave badly or misbehave
+      deal with or arrange something
+  What does "sell out" mean?
+    ✓ to sell everything until none left
+      make someone feel very tired
+      spend time outside the house
+      to distribute something to many people
+  What does "join up" mean?
+      Start to get better
+      Quickly check something
+      remain behind or not go forward
+    ✓ connect or become part of a group
+  What does "draw away" mean?
+    ✓ move away from something
       to remove something from inside
-      become an adult
-      to form or create a group or story
-  What does "walk through" mean?
-      to renovate or change the look of something
-    ✓ explain step by step
-      to open or display on a screen
-      Leave quickly
+      to remove something by pulling
+      save something for later
 ── phrasal_verb_power (4)
-  He lies ___ in the dentist's chair.
-    ✓ back
-      through
-      off
-      apart
-    · phrasal: lie back  means: recline into a lying position
-  She walks me ___ the steps.
-      up
-      down
-    ✓ through
-    · phrasal: walk through  means: explain step by step
-  The players make ___ a strong team.
-      on
-      down
-      in
+  I show ___ early for the party.
     ✓ up
-    · phrasal: make up  means: to form or create a group or story
-  I find ___ the answer tomorrow.
-      in
-      up
-      down
+      apart
+      around
+      on
+    · phrasal: show up  means: arrive or appear
+  The store sells ___ fast.
+      along
+      through
+      by
     ✓ out
-    · phrasal: find out  means: discover or learn something
+    · phrasal: sell out  means: to sell everything until none left
+  We join ___ for the school play.
+      off
+    ✓ up
+      back
+      away
+    · phrasal: join up  means: connect or become part of a group
+  The car draws ___ from the house.
+      through
+      apart
+    ✓ away
+      along
+    · phrasal: draw away  means: move away from something
 ── sentence_completion (4)
   The toy store has many ___ from children.
 The desire to purchase goods and services.
@@ -383,10 +383,7 @@ The family said ___ to relatives.
   Trace "mama"
     ✓ mama
     · grade: 3  gloss: Mother, female parent.
-── word_sort (4)
-  Sort "checks" into its word class
-    ✓ Nouns
-    · grade: 3
+── word_sort (3)
   Sort "incredibly" into its word class
     ✓ Adverbs
     · grade: 3  gloss: In an incredible manner; not to be believed.
@@ -396,10 +393,7 @@ The family said ___ to relatives.
   Sort "mama" into its word class
     ✓ Nouns
     · grade: 3  gloss: Mother, female parent.
-── word_type_whirl (4)
-  Catch "checks" in the right bin
-    ✓ Nouns
-    · grade: 3
+── word_type_whirl (3)
   Catch "incredibly" in the right bin
     ✓ Adverbs
     · grade: 3  gloss: In an incredible manner; not to be believed.

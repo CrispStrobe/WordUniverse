@@ -252,6 +252,12 @@ class Lane:
         return data['choices'][0]['message']['content'] or ''
 
 
+def _families(exclude):
+    if exclude is None:
+        return set()
+    return {exclude} if isinstance(exclude, str) else set(exclude)
+
+
 class Pool:
     def __init__(self, env, only=None):
         self.lanes = []
@@ -270,7 +276,8 @@ class Pool:
         tried = []
         for _ in range(attempts):
             candidates = [l for l in self.lanes if l.role == role
-                          and l.family != exclude_family and l.available()]
+                          and l.family not in _families(exclude_family)
+                          and l.available()]
             if not candidates:
                 time.sleep(15)
                 continue
@@ -985,6 +992,153 @@ def relations(args):
     print_lanes(pool)
 
 
+# ─── Synonyms and antonyms a child can be asked for ──────────────────────
+# The packs' synonym lists join every OdeNet/OpenThesaurus sense of a word
+# with Wiktionary's, so "Preis" lists "Treffer" (the lottery sense) and
+# "Käfig" "Bauer"; the antonyms pair "Salz" with "Zucker". Two judges of
+# Three judges of different families each keep what fits the word's usual
+# meaning, and only what all three keep is kept: with two, "Bein" still had
+# "Arm" as its opposite. Only candidates that are themselves pack words are
+# shown: the games never offer any other.
+
+LEXREL_PROMPT = """You check word relations for a vocabulary game for children aged 8 to 12 learning {language}.
+Each entry has a word, its word class, its usual meaning, candidate synonyms and candidate antonyms.
+
+Keep a synonym only if, in the usual meaning given, a teacher would accept it as meaning the same thing:
+same word class, and it could replace the word in a simple sentence. Drop words that match only a rare
+sense (Preis/Treffer is the lottery sense, Käfig/Bauer the birdcage sense), broader or narrower terms
+(Hund/Tier, Tier/Hund), merely related words, and words of another word class.
+Keep an antonym only if it is a clear opposite of the usual meaning (heiß/kalt, kaufen/verkaufen,
+hostile/friendly). Drop contrasts, pairs and companions (Salz/Zucker, Obst/Gemüse, bounce/clear).
+When unsure, drop it.
+
+Answer with JSON only, one object per entry, copying kept words exactly from the candidates:
+[{{"id": "...", "synonyms": ["..."], "antonyms": ["..."]}}]
+
+Entries:
+{entries}"""
+
+
+def _terms(values):
+    out = []
+    for v in values or []:
+        t = v.get('word') if isinstance(v, dict) else v
+        if isinstance(t, str) and t.strip():
+            out.append(t.strip())
+    return out
+
+
+def lexrel_candidates(row, vocabulary):
+    """The synonyms and antonyms of a row that are themselves pack words."""
+    enrichment = json.loads(row['enrichment_json'] or '{}')
+    word = row['word'].lower()
+
+    def pick(key):
+        seen, out = set(), []
+        for t in _terms(enrichment.get(key)):
+            k = t.lower()
+            if k != word and k in vocabulary and k not in seen:
+                seen.add(k)
+                out.append(t)
+        return out[:10]
+    return pick('synonyms'), pick('antonyms')
+
+
+def pack_vocabulary(db):
+    return {r[0].lower() for r in db.execute(
+        "SELECT word FROM words WHERE grade_level IS NOT NULL AND coalesce("
+        "json_extract(metadata_json, '$.quality.vocabulary'), 1) = 1")}
+
+
+def lexrel(args):
+    env = load_env(args.env_file)
+    pool = Pool(env, only=set(args.lanes.split(',')) if args.lanes else None)
+    if args.proposers:
+        assign_roles(pool, set(args.proposers.split(',')),
+                     set(args.verifiers.split(',')))
+    language = 'German' if args.lang == 'de' else 'English'
+    out = OUT_DIR / f'{args.lang}_lexrel.jsonl'
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    seen = {}
+    if out.exists():
+        for line in open(out, encoding='utf-8'):
+            if line.strip():
+                r = json.loads(line)
+                seen[r['id']] = r['src']
+    db = sqlite3.connect(args.pack)
+    db.row_factory = sqlite3.Row
+    vocabulary = pack_vocabulary(db)
+    rows = db.execute(
+        "SELECT id, original_id, word, word_type, article, enrichment_json, "
+        "metadata_json FROM words WHERE grade_level IS NOT NULL AND coalesce("
+        "json_extract(metadata_json, '$.quality.vocabulary'), 1) = 1 "
+        "ORDER BY grade_level, id").fetchall()
+    todo = []
+    for row in rows:
+        synonyms, antonyms = lexrel_candidates(row, vocabulary)
+        if not synonyms and not antonyms:
+            continue
+        entry = relation_entry(row, args.lang)
+        src = digest(entry)
+        if seen.get(entry['id']) != src:
+            todo.append(({**entry, 'synonyms': synonyms, 'antonyms': antonyms}, src))
+    if args.limit:
+        todo = todo[:args.limit]
+    batches = [todo[i:i + args.batch] for i in range(0, len(todo), args.batch)]
+    print(f'{len(todo)} entries in {len(batches)} batches', flush=True)
+    lock = threading.Lock()
+    stats = {'entries': 0, 'synonyms': 0, 'antonyms': 0, 'failed': 0}
+
+    def kept(answer, entry, key):
+        allowed = {t.lower(): t for t in entry[key]}
+        return {t.lower() for t in _terms(answer.get(key)) if t.lower() in allowed}
+
+    def one(batch):
+        entries = [e for e, _ in batch]
+        prompt = LEXREL_PROMPT.format(
+            language=language,
+            entries=json.dumps(entries, ensure_ascii=False, indent=0))
+        first, a = pool.run('propose', prompt)
+        second, b = pool.run('verify', prompt, exclude_family=first.family)
+        third, c = pool.run('verify', prompt,
+                            exclude_family={first.family, second.family})
+        answers = [{x.get('id'): x for x in r if isinstance(x, dict)}
+                   for r in (a, b, c)]
+        records = []
+        for entry, src in batch:
+            got = [by.get(entry['id']) for by in answers]
+            if any(x is None for x in got):
+                continue  # read again on the next run
+            syn = set.intersection(*(kept(x, entry, 'synonyms') for x in got))
+            ant = set.intersection(*(kept(x, entry, 'antonyms') for x in got))
+            records.append({
+                'id': entry['id'], 'word': entry['word'], 'src': src,
+                'synonyms': [t for t in entry['synonyms'] if t.lower() in syn],
+                'antonyms': [t for t in entry['antonyms'] if t.lower() in ant],
+                'candidates': [len(entry['synonyms']), len(entry['antonyms'])],
+                'by': [first.model, second.model, third.model]})
+        with lock, open(out, 'a', encoding='utf-8') as f:
+            for r in records:
+                f.write(json.dumps(r, ensure_ascii=False) + '\n')
+                stats['entries'] += 1
+                stats['synonyms'] += len(r['synonyms'])
+                stats['antonyms'] += len(r['antonyms'])
+
+    started = time.time()
+    with ThreadPoolExecutor(max_workers=args.workers) as ex:
+        futures = [ex.submit(one, b) for b in batches]
+        for i, f in enumerate(as_completed(futures), 1):
+            try:
+                f.result()
+            except Exception as e:
+                stats['failed'] += 1
+                print(f'batch failed: {e}', flush=True)
+            if i % 10 == 0 or i == len(futures):
+                rate = i / max(1, time.time() - started) * 3600
+                print(f'[{i}/{len(futures)}] {stats} ~{rate:.0f} batches/h', flush=True)
+    print_lanes(pool)
+
+
 def print_lanes(pool):
     print('lanes:', ', '.join(
         f'{l.name} {l.ok}ok/{l.failures}fail'
@@ -1107,6 +1261,16 @@ def main():
     rl.add_argument('--proposers', help='lanes to propose with, e.g. mistral-large,qwen3.8-27b')
     rl.add_argument('--verifiers', default='magistral-medium,mistral-medium,command-a,iceman,qwen3.8-27b')
     rl.add_argument('--env-file', default=str(pathlib.Path.home() / 'code' / '.env'))
+    lx = sub.add_parser('lexrel')
+    lx.add_argument('pack')
+    lx.add_argument('--lang', choices=['de', 'en'], required=True)
+    lx.add_argument('--limit', type=int)
+    lx.add_argument('--batch', type=int, default=20)
+    lx.add_argument('--workers', type=int, default=8)
+    lx.add_argument('--lanes')
+    lx.add_argument('--proposers', default='mistral-large,qwen3.8-27b')
+    lx.add_argument('--verifiers', default='iceman,magistral-medium,qwen3.8-27b,gpt-oss-120b,command-a')
+    lx.add_argument('--env-file', default=str(pathlib.Path.home() / 'code' / '.env'))
     pf = sub.add_parser('phrasal-fits')
     pf.add_argument('--judges', default='mistral-large,command-a')
     pf.add_argument('--round', type=int, default=1,
@@ -1120,7 +1284,7 @@ def main():
     args = parser.parse_args()
     {'propose': propose, 'report': report, 'phrasal': phrasal,
      'audit': audit, 'relations': relations,
-     'phrasal-fits': phrasal_fits}[args.cmd](args)
+     'phrasal-fits': phrasal_fits, 'lexrel': lexrel}[args.cmd](args)
 
 
 if __name__ == '__main__':

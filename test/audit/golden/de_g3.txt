@@ -133,43 +133,43 @@
     ✓ klein
     · word: bewölkt  rule: Adjektive werden kleingeschrieben
 ── grossstadt (4)
-  Groß oder klein? BEIM [überfallen]
+  Groß oder klein? ZUM [überfallen]
     ✓ GROSS
       klein
-    · rule: Nomen-Signal "BEIM" → Großschreibung
-  Groß oder klein? ICH [überfalle]
+    · rule: Nomen-Signal "ZUM" → Großschreibung
+  Groß oder klein? WIR [überfallen]
       GROSS
     ✓ klein
     · rule: Verben im Satz → Kleinschreibung
-  Groß oder klein? KANN [überfallen]
+  Groß oder klein? DARF [überfallen]
       GROSS
     ✓ klein
     · rule: Verben (Infinitiv) → Kleinschreibung
-  Groß oder klein? BEIM [angreifen]
+  Groß oder klein? DAS [angreifen]
     ✓ GROSS
       klein
-    · rule: Nomen-Signal "BEIM" → Großschreibung
+    · rule: Nomen-Signal "DAS" → Großschreibung
 ── hypernym_flash (4)
-  vornehmen
-      vernichten
-      Organisation
-    ✓ machen
-      Mahlzeit
-  Mädchen
-      vernichten
-      Organisation
-      Mahlzeit
-    ✓ Kind
-  Abendessen
-      machen
-      Organisation
-    ✓ Mahlzeit
+  Tulpe
+    ✓ Blume
+      Sportart
+      Süßigkeit
+      Möbel
+  Rechnung
       Kind
-  verbrennen
+      Möbel
+      Sportart
+    ✓ Forderung
+  Schokolade
+      Blume
       Kind
-      Organisation
+    ✓ Süßigkeit
       Mahlzeit
-    ✓ vernichten
+  Limonade
+      Kind
+      Süßigkeit
+    ✓ Getränk
+      Möbel
 ── proverb_cloze (4)
   lieber den ___ in der Hand als die Taube auf dem Dach
     ✓ Spatz
@@ -247,24 +247,23 @@ Anerkennung von Leistungen oder Verhaltensweisen durch sprachliche oder körpers
     · cue label: Eine mögliche Bedeutung: …
 ── spelling_spotter (4)
   Which spelling is correct?
-      wiend
-      wong
+      Wiend
+      Wint
     ✓ Wind
     · shown after answering: Der Wind weht.
   Which spelling is correct?
-      reuber
+      Reuber
     ✓ Räuber
-      rrtter
     · shown after answering: Der Räuber entging seiner Strafe.
   Which spelling is correct?
+      Pyrammide
+      Püramide
     ✓ Pyramide
-      püramide
     · shown after answering: Kegel und Pyramide sind mathematische Körper.
   Which spelling is correct?
-      frühlig
-      frohlig
+      fleißik
     ✓ fleißig
-      frolig
+      fleissig
     · shown after answering: Lerne fleißig!
 ── sri_review (4)
   Welcher Artikel passt?
@@ -451,7 +450,7 @@ gab … ein
     ✓ eine Maßeinheit der Länge, der Entfernung; entspricht eintausend Metern
     · grade: 4  cefr: —
   2026-01-03: später
-    ✓ Steigerung von „spät“
+    ✓ zukünftig aus heutiger Perspektive
     · grade: 4  cefr: —
   2026-01-04: das Gepäck
     ✓ gesamte Ausrüstung für eine Reise, eine Wanderung oder einen Marsch

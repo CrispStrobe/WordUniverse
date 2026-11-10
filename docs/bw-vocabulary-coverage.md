@@ -19,12 +19,12 @@ of the ZSL's description of **approximately 870 words**.
 The registry in [language_pack.dart](../lib/core/models/language_pack.dart)
 pins this immutable Hugging Face revision:
 
-[`5c5a35b70d0dca859d0b0cdeddfc8d196b5c5456/grundwortschatz-app.db.gz`](https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/5c5a35b70d0dca859d0b0cdeddfc8d196b5c5456/grundwortschatz-app.db.gz).
+[`ecca6d6bc2f87f933bfd37eda00cc6303d4a442c/grundwortschatz-app.db.gz`](https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/ecca6d6bc2f87f933bfd37eda00cc6303d4a442c/grundwortschatz-app.db.gz).
 
 | Input | Bytes | SHA-256 |
 | --- | ---: | --- |
-| Compressed runtime pack | 16,485,375 | `7be4c6e008e22d3f3b49619b2c5dca93c5552859ebe4790bd5ccd6e1eadb7e88` |
-| Decompressed SQLite database | 94,736,384 | `71eadae4644dbe300f2c567adc2d2b7c85a2123556ecc34f4be2ce08bc1cbfe1` |
+| Compressed runtime pack | 16,271,239 | `b2bcf484dfc7d02fbc77f2459fb4e392e96f9a7c2cf6a2b67f37a771c51ab305` |
+| Decompressed SQLite database | 95,817,728 | `3884c856c5fa0340942b0d21b25fa7f28ac3ea909282944d2623870b0d16bba0` |
 
 Both local files match these pins. The database contains **13,040 word rows**.
 The audit opens it with SQLite `mode=ro` and `PRAGMA query_only=ON`. It does
@@ -212,8 +212,9 @@ in the separate lexical overlay, not in the authority-bearing membership
 asset. The source audit identifies 13 missing exact spellings, the separate
 BW3 possessive use of `sein`, and five concrete incorrect lexical records.
 The reviewed pack of 2026-11-10 (see `tools/pack/llm_correct.py`) has since
-corrected Gabel, Herr, Luchs and Mandarine at the source; August is still
-typed as a given name, and the overrides remain in place for all five. A
+corrected Gabel, Herr, Luchs and Mandarine at the source, and its rebuild
+the same day corrected August (`tools/pack/repair_pack.py`,
+`GERMAN_ROW_CORRECTIONS`); the overrides remain in place for all five. A
 sixth, Band, was added after a read of the games on the reviewed pack:
 
 | Existing ID | Word | Pinned pack problem | Required ordinary meaning |
