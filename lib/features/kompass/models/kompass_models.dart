@@ -234,6 +234,52 @@ class KompassTask {
           json['parts'],
         ).map(KompassPart.fromJson).toList(growable: false),
         metadata = Map.unmodifiable(json);
+
+  /// The task text as the app shows it. The blocks are the print task, which
+  /// asks for pen and paper ("Kreise das Verb ein", "Grenze ... durch
+  /// senkrechte Striche ab"); `digitalText` rewords those phrases for the
+  /// screen, where the child taps or types instead. `digitalInstructions`, if
+  /// set, replaces the instruction paragraph outright.
+  List<Map<String, dynamic>> get screenBlocks {
+    final reword = metadata['digitalText'];
+    final blocks = <Map<String, dynamic>>[
+      for (final block in this.blocks)
+        if (reword is Map &&
+            block['type'] == 'paragraph' &&
+            block['text'] is String)
+          {
+            ...block,
+            'text': reword.entries.fold<String>(block['text'] as String,
+                (text, e) => text.replaceAll('${e.key}', '${e.value}')),
+          }
+        else
+          block,
+    ];
+    final raw = metadata['digitalInstructions'];
+    if (raw == null) return blocks;
+    final instruction = raw is List ? raw.join('\n') : '$raw';
+    final out = <Map<String, dynamic>>[];
+    var inserted = false;
+    for (final block in blocks) {
+      if (block['type'] == 'paragraph' && block['style'] == 'instruction') {
+        if (!inserted) {
+          out.add({
+            'type': 'paragraph',
+            'style': 'instruction',
+            'text': instruction
+          });
+        }
+        inserted = true;
+      } else {
+        out.add(block);
+      }
+    }
+    if (!inserted) {
+      out.insert(0,
+          {'type': 'paragraph', 'style': 'instruction', 'text': instruction});
+    }
+    return out;
+  }
 }
 
 class KompassTest {

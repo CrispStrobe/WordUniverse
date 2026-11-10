@@ -130,6 +130,36 @@ void main() {
     }
   });
 
+  test('the screen never asks for pen and paper', () {
+    // The print text sits above the app's own inputs. "Kreise das Verb ein"
+    // and "Grenze ... durch senkrechte Striche ab" cannot be done on a
+    // screen. Tasks that teach how to read print instructions quote them.
+    final paper = RegExp(
+        r'\b(Kreise|Kreuze|Unterstreiche|Grenze|Streiche|Umrande|Markiere|Verbinde)\b');
+    for (final task in real.tasks.where((t) => t.kind != 'instruction')) {
+      for (final block in task.screenBlocks) {
+        if (block['type'] != 'paragraph') continue;
+        expect(paper.hasMatch('${block['text']}'), isFalse,
+            reason: '${task.id}: ${block['text']}');
+      }
+      for (final part in task.parts) {
+        expect(paper.hasMatch(part.prompt), isFalse,
+            reason: '${task.id}/${part.id}');
+      }
+    }
+    final verb = real.taskById('d2_17')!;
+    expect(verb.screenBlocks.first['text'], startsWith('Finde das Verb.'));
+    // On paper it still says what a pen does.
+    expect(verb.blocks.first['text'], startsWith('Kreise das Verb ein.'));
+  });
+
+  test('Ro(s/ss)e says it is the flower, not Rosse (horses)', () {
+    final rose = real.taskById('d2_12')!;
+    expect(rose.parts.firstWhere((p) => p.id == 'b').prompt, contains('Blume'));
+    expect(rose.screenBlocks.map((b) => '${b['text']}'),
+        contains('b) Ro(s/ss)e (die Blume) →'));
+  });
+
   test('the model answer to a rubric question is scored, not left pending',
       () {
     KompassPart realPart(String task, String id) =>

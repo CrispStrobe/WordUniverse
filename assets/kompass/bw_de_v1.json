@@ -7,7 +7,7 @@
   "locale": "de-DE",
   "source": {
     "repository": "https://github.com/CrispStrobe/kompass4",
-    "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+    "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
     "originalTaskCount": 96,
     "originalPassageCount": 4,
     "reviewStatus": "draft",
@@ -1521,9 +1521,9 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tests/deutsch1.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tests/deutsch1.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tests/deutsch1.json",
         "sha256": "47879b4e4fe85783d68edd1678389ddf3b46bd0811799d31b0f75af8c1f5ff74",
         "reviewStatus": "project-reviewed",
         "official": false
@@ -1696,9 +1696,9 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tests/deutsch2.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tests/deutsch2.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tests/deutsch2.json",
         "sha256": "a6ab1c55a54ed5a151b8a43574479a2206ea49699e81b76756dd4ab5fdc61278",
         "reviewStatus": "project-reviewed",
         "official": false
@@ -1871,9 +1871,9 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tests/deutsch3.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tests/deutsch3.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tests/deutsch3.json",
         "sha256": "d4640bf9dc50f463025ddb7d7d6ba788adc2f63d9c795526308dc3c1f0a2f5a4",
         "reviewStatus": "project-reviewed",
         "official": false
@@ -2046,9 +2046,9 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tests/deutsch4.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tests/deutsch4.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tests/deutsch4.json",
         "sha256": "dd2d7e5bc9795bff87a1655e222a6b38960525b1498901e23a4578ba667b7083",
         "reviewStatus": "project-reviewed",
         "official": false
@@ -2269,15 +2269,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch1/d1_01.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch1/d1_01.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch1/d1_01.json",
         "sha256": "3e004d2134b09f781da91c50c9f3f8daa5acaf50ed618055341874233db77b32",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "34dd5da928409122b2089254bf2b5925a996ee75cea6ca858157ebb4cea4c461"
+        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
       },
       "sourceRubric": [
         "a: 1 Punkt für Montag. Herbstferien allein beantwortet die Frage nach dem Wochentag nicht.",
@@ -2421,15 +2421,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch1/d1_02.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch1/d1_02.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch1/d1_02.json",
         "sha256": "b4ed7dfe0663ea882dd3211e9a04fbff699cbab14167c1e47f3c0df9e6875521",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "34dd5da928409122b2089254bf2b5925a996ee75cea6ca858157ebb4cea4c461"
+        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
       },
       "sourceRubric": [
         "a: 1 Punkt für ausschließlich nein, sonst 0 Punkte.",
@@ -2593,15 +2593,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch1/d1_03.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch1/d1_03.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch1/d1_03.json",
         "sha256": "9b09291912f3834d5528b2e74cda546e555d91f27c9cc083775c33a8b4a42fdd",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "34dd5da928409122b2089254bf2b5925a996ee75cea6ca858157ebb4cea4c461"
+        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
       },
       "sourceRubric": [
         "a: 1 Punkt für ausschließlich B.",
@@ -2627,6 +2627,9 @@
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "9b09291912f3834d5528b2e74cda546e555d91f27c9cc083775c33a8b4a42fdd",
       "prerequisiteCompetencyIds": [],
+      "digitalText": {
+        "Kreuze genau eine Antwort an.": "Wähle genau eine Antwort."
+      },
       "stimulusId": "passage_deutsch1"
     },
     {
@@ -2703,15 +2706,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch1/d1_04.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch1/d1_04.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch1/d1_04.json",
         "sha256": "3172a5531fe03196b602c64cac4f72734ca865d4268e9383d44dcfc868ef13f8",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "34dd5da928409122b2089254bf2b5925a996ee75cea6ca858157ebb4cea4c461"
+        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
       },
       "sourceRubric": [
         "Je 1 Punkt für jeden der beiden verschiedenen Gründe, höchstens 2 Punkte. Die Reihenfolge und das benutzte Antwortfeld sind unerheblich.",
@@ -2866,15 +2869,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch1/d1_05.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch1/d1_05.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch1/d1_05.json",
         "sha256": "282f100e8c6e99748d9d3ac842eac7422ce494dd90fecb9727cbb6fbcd0e2535",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "34dd5da928409122b2089254bf2b5925a996ee75cea6ca858157ebb4cea4c461"
+        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
       },
       "sourceRubric": [
         "a: 1 Punkt für ausschließlich A.",
@@ -2901,6 +2904,9 @@
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "282f100e8c6e99748d9d3ac842eac7422ce494dd90fecb9727cbb6fbcd0e2535",
       "prerequisiteCompetencyIds": [],
+      "digitalText": {
+        "Kreuze genau eine Antwort an.": "Wähle genau eine Antwort."
+      },
       "stimulusId": "passage_deutsch1"
     },
     {
@@ -3069,15 +3075,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch1/d1_06.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch1/d1_06.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch1/d1_06.json",
         "sha256": "9dc44f325f2481bef1f42106332afd05987d2e935ed09a17b1905c39ab853250",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "34dd5da928409122b2089254bf2b5925a996ee75cea6ca858157ebb4cea4c461"
+        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für die richtige Zahl an einer der vier abgedruckten Positionen: 3, 4, 1, 2. Insgesamt höchstens 2 Punkte.",
@@ -3247,15 +3253,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch1/d1_07.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch1/d1_07.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch1/d1_07.json",
         "sha256": "38882a58beb95e01d40d2c374e71aada84c0bf49287b20e9ec67be96cfebcb9e",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "34dd5da928409122b2089254bf2b5925a996ee75cea6ca858157ebb4cea4c461"
+        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
       },
       "sourceRubric": [
         "a: 1 Punkt für ausschließlich B. Gleichzeitig begrenzt die Zahl der parallel ausgeliehenen Spielsachen; nach einer Rückgabe ist ein Wechsel erlaubt.",
@@ -3281,6 +3287,9 @@
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "38882a58beb95e01d40d2c374e71aada84c0bf49287b20e9ec67be96cfebcb9e",
       "prerequisiteCompetencyIds": [],
+      "digitalText": {
+        "Kreuze bei a und b jeweils genau den Satz an,": "Wähle bei a und b jeweils genau den Satz,"
+      },
       "stimulusId": "passage_deutsch1"
     },
     {
@@ -3432,15 +3441,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch1/d1_08.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch1/d1_08.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch1/d1_08.json",
         "sha256": "eb01358bc22b894df8efde1d22179aecd307bd0096f9042105fd7b7829a88925",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "34dd5da928409122b2089254bf2b5925a996ee75cea6ca858157ebb4cea4c461"
+        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
       },
       "sourceRubric": [
         "a: 1 Punkt für Tom, sonst 0 Punkte.",
@@ -3565,15 +3574,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch1/d1_09.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch1/d1_09.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch1/d1_09.json",
         "sha256": "aa15ee033dcb4211a75b2bcc74dff96ada2715c341bab2899760f04f50f7f05c",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "34dd5da928409122b2089254bf2b5925a996ee75cea6ca858157ebb4cea4c461"
+        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
       },
       "sourceRubric": [
         "Je 1 Punkt für Heute und Buch mit richtigem Anfangsbuchstaben. Die Reihenfolge der beiden Wörter spielt keine Rolle. Wenn das Kind freiwillig den ganzen Satz richtig aufschreibt, ebenfalls 2 Punkte. Emil ist bereits richtig geschrieben und zählt nicht als Berichtigung. Höchstens 2 Punkte."
@@ -3692,15 +3701,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch1/d1_10.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch1/d1_10.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch1/d1_10.json",
         "sha256": "d7fde2580f78a9a1609fcd69d896250ac99a24bcd340465473be85133a3b3b89",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "34dd5da928409122b2089254bf2b5925a996ee75cea6ca858157ebb4cea4c461"
+        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
       },
       "sourceRubric": [
         "a) 1 Punkt für Berg. b) 1 Punkt für Berge. Die beiden Einträge getrennt bewerten: Eine richtige Mehrzahl erhält ihren Punkt auch dann, wenn a falsch ist. Andere Wörter, die lediglich ähnlich klingen, sind keine Verlängerung. Höchstens 2 Punkte."
@@ -3820,15 +3829,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch1/d1_11.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch1/d1_11.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch1/d1_11.json",
         "sha256": "defd3d136b309acf60ee6b94d2db939e0966672d96c7cd05a6776cdfb62538d2",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "34dd5da928409122b2089254bf2b5925a996ee75cea6ca858157ebb4cea4c461"
+        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
       },
       "sourceRubric": [
         "a) 1 Punkt für kälter. b) 1 Punkt für kalt oder ein anderes tatsächlich verwandtes Wort mit a, das die Ableitung klärt, zum Beispiel kalte oder erkalten. Die Antworten unabhängig bewerten. Ein unverbundenes Wort mit a erhält keinen Punkt. Höchstens 2 Punkte."
@@ -3946,15 +3955,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch1/d1_12.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch1/d1_12.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch1/d1_12.json",
         "sha256": "fc1a20dc9d103f5caf6673ee12a3c5d1d5f3a299d7fe563bed2dc18d7cfd35ff",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "34dd5da928409122b2089254bf2b5925a996ee75cea6ca858157ebb4cea4c461"
+        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
       },
       "sourceRubric": [
         "Je 1 Punkt für Puppe und Koffer. Die beiden Wörter getrennt bewerten. Ein erklärender Regelsatz ist nicht verlangt. Höchstens 2 Punkte."
@@ -4064,15 +4073,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch1/d1_13.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch1/d1_13.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch1/d1_13.json",
         "sha256": "aff421964ba8cc612c9d99e202e14ea24e88ebcafae7abd32648e6db362bbdd6",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "34dd5da928409122b2089254bf2b5925a996ee75cea6ca858157ebb4cea4c461"
+        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
       },
       "sourceRubric": [
         "a) 1 Punkt für ß in hei____. b) 1 Punkt für ss in Ki____en. Auch die ausgeschriebenen richtigen Wörter heiß und Kissen gelten. Die beiden Lücken getrennt bewerten. Höchstens 2 Punkte."
@@ -4248,15 +4257,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch1/d1_14.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch1/d1_14.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch1/d1_14.json",
         "sha256": "a5b22220dfa9440f2a76343b8f6a94c498b2f1511891fb3e189c7dfa24f5c4f9",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "34dd5da928409122b2089254bf2b5925a996ee75cea6ca858157ebb4cea4c461"
+        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für die Berichtigungen Mittwoch, Brot, liegt und Tisch. Die Reihenfolge ist beliebig. Das richtige Unterstreichen allein erhält noch keinen Punkt, weil die Berichtigung geprüft wird. Eine richtige Berichtigung zählt auch dann, wenn das falsche Wort nicht zusätzlich unterstrichen wurde. Die übrigen Textwörter müssen nicht abgeschrieben werden. Höchstens 2 Punkte."
@@ -4271,7 +4280,10 @@
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "assessmentAdaptationNote": "Die digitalen Felder bitten um die Reihenfolge im Text. Andere Reihenfolgen bleiben nach Rubrikprüfung zulässig; eine Zielkorrektur zählt nur einmal.",
       "sourceTaskSha256": "a5b22220dfa9440f2a76343b8f6a94c498b2f1511891fb3e189c7dfa24f5c4f9",
-      "prerequisiteCompetencyIds": []
+      "prerequisiteCompetencyIds": [],
+      "digitalText": {
+        "Unterstreiche sie. Schreibe nur diese vier Wörter richtig auf.": "Finde sie und schreibe nur diese vier Wörter richtig auf, von links nach rechts."
+      }
     },
     {
       "id": "d1_15",
@@ -4450,15 +4462,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch1/d1_15.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch1/d1_15.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch1/d1_15.json",
         "sha256": "e87802faf30f70bae382e31076258f4325db72d2320529871c180e82d1293c3f",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "34dd5da928409122b2089254bf2b5925a996ee75cea6ca858157ebb4cea4c461"
+        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für den Doppelpunkt nach sagt, das öffnende Anführungszeichen vor Der, das schließende Anführungszeichen am Ende der gesprochenen Wörter und den Punkt nach gleich vor dem schließenden Anführungszeichen. Die genaue Stellung des Punkts wird nur beim Punkt bewertet: Steht der Punkt fälschlich außerhalb der Anführungszeichen, bleiben die 0,5 Punkte für ein ansonsten richtig gesetztes schließendes Anführungszeichen erhalten. Übliche handschriftliche oder typografische Formen der doppelten Anführungszeichen anerkennen. Ein Ausrufezeichen erfüllt den ausdrücklich verlangten Punkt nicht. Höchstens 2 Punkte."
@@ -4586,15 +4598,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch1/d1_16.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch1/d1_16.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch1/d1_16.json",
         "sha256": "cab49e15aeafd684664209864e9cac7d45a4c9bd16d227ab320916268201a2ee",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "34dd5da928409122b2089254bf2b5925a996ee75cea6ca858157ebb4cea4c461"
+        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
       },
       "sourceRubric": [
         "Wortgrenzen: 1 Punkt, wenn alle sieben Wörter richtig getrennt sind; 0,5 Punkte bei genau einer fehlenden oder zusätzlich eingefügten Wortgrenze; sonst 0 Punkte. Groß- und Kleinschreibung: 1 Punkt, wenn alle sieben Wörter richtig geschrieben sind; 0,5 Punkte bei genau einem Wort mit falscher Groß- oder Kleinschreibung; sonst 0 Punkte. Die beiden Kriterien unabhängig bewerten. Mehrere Leerzeichen zwischen zwei Wörtern zählen als eine Wortgrenze. Der bereits vorgegebene Schlusspunkt erhält keinen eigenen Punkt. Höchstens 2 Punkte."
@@ -4761,15 +4773,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch1/d1_17.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch1/d1_17.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch1/d1_17.json",
         "sha256": "96c89392e41ef74c40cac78c0d0dd55966e3100fa059fafad63b28392a779c89",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "34dd5da928409122b2089254bf2b5925a996ee75cea6ca858157ebb4cea4c461"
+        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
       },
       "sourceRubric": [
         "a) 1 Punkt für die erkennbare Zusammensetzung Regenjacke in dieser Reihenfolge. Eine eindeutige Darstellung der Verbindung mit Bindestrich ebenfalls anerkennen; zwei unverbundene Wörter sind keine gebildete Zusammensetzung. b) 0,5 Punkte für backen in der verlangten Grundform und unabhängig davon 0,5 Punkte für Verb beziehungsweise eine eindeutige gleichbedeutende Wortartbezeichnung. Back- oder back zeigt die Zerlegung, erfüllt aber den ausdrücklich verlangten Infinitiv nicht. Die Wortart wird bezogen auf den Zielbestandteil bewertet, auch wenn die Grundform fehlt oder falsch geschrieben ist. Orthografische Ungenauigkeiten nicht zusätzlich abziehen, sofern Zusammensetzung beziehungsweise grammatische Form erkennbar bleiben. Höchstens 2 Punkte."
@@ -4909,15 +4921,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch1/d1_18.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch1/d1_18.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch1/d1_18.json",
         "sha256": "d569032653eb29e7846d251d8263a91299860182c16dc6178ccffda8aa300bac",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "34dd5da928409122b2089254bf2b5925a996ee75cea6ca858157ebb4cea4c461"
+        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
       },
       "sourceRubric": [
         "a) 1 Punkt für die eindeutige Auswahl ausschließlich von fand. Werden weitere Wörter mit ausgewählt, 0 Punkte für a; eindeutig zurückgenommene Markierungen nicht mitzählen. b) Unabhängig von a 1 Punkt für finden. Personalformen wie findet oder fanden erfüllen den Auftrag Grundform nicht. Rechtschreibfehler nicht zusätzlich werten, solange die beabsichtigte Grundform eindeutig erkennbar ist. Höchstens 2 Punkte."
@@ -4933,7 +4945,10 @@
       "sourceTaskSha256": "d569032653eb29e7846d251d8263a91299860182c16dc6178ccffda8aa300bac",
       "prerequisiteCompetencyIds": [],
       "requiresTaughtContent": true,
-      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde."
+      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
+      "digitalText": {
+        "a) Unterstreiche das Verb.": "a) Finde das Verb im Satz."
+      }
     },
     {
       "id": "d1_19",
@@ -5075,15 +5090,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch1/d1_19.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch1/d1_19.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch1/d1_19.json",
         "sha256": "8f77353ea9ac1cad8e66f9153ddeabc68b0f08bd0e9d1da2c4bd2032bb8986bd",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "34dd5da928409122b2089254bf2b5925a996ee75cea6ca858157ebb4cea4c461"
+        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für den in einem Wort genau abgegrenzten Stamm bau beziehungsweise Bau, insgesamt vier unabhängige Markierungen. Werden im jeweiligen Wort zusätzlich um, en, werk oder stelle mitmarkiert oder Teile des Stamms ausgelassen, erhält nur diese Markierung 0 Punkte. Einkreisen, Einklammern oder eine eindeutig dem einzelnen Wort zugeordnete Stammangabe sind gleichwertig. Groß- und Kleinschreibung bei zusätzlich aufgeschriebenen Stammangaben nicht bewerten. Höchstens 2 Punkte."
@@ -5099,7 +5114,10 @@
       "sourceTaskSha256": "8f77353ea9ac1cad8e66f9153ddeabc68b0f08bd0e9d1da2c4bd2032bb8986bd",
       "prerequisiteCompetencyIds": [],
       "requiresTaughtContent": true,
-      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde."
+      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
+      "digitalText": {
+        "Unterstreiche in jedem Wort nur den gemeinsamen Wortstamm.": "Schreibe für jedes Wort nur den gemeinsamen Wortstamm auf."
+      }
     },
     {
       "id": "d1_20",
@@ -5197,15 +5215,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch1/d1_20.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch1/d1_20.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch1/d1_20.json",
         "sha256": "a80ebb9bf0e0e9a2401e94e35ba1bdf9d4d87fb1e43b9403da90c9f0e04a413b",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "34dd5da928409122b2089254bf2b5925a996ee75cea6ca858157ebb4cea4c461"
+        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
       },
       "sourceRubric": [
         "Je 1 Punkt für die passende Form kleinen beziehungsweise blaue. Beide Lücken unabhängig bewerten. Eine vollständig abgeschriebene richtige Satzfassung ist ebenfalls zulässig, aber nicht erforderlich. Bewertet werden das vorgegebene Adjektiv und seine passende Endung; eine grammatisch andere Endung wie kleiner oder blaues ist falsch. Sonstige Rechtschreibfehler und Großschreibung nicht zusätzlich abziehen, wenn die verlangte Form eindeutig erkennbar bleibt. Höchstens 2 Punkte."
@@ -5313,15 +5331,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch1/d1_21.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch1/d1_21.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch1/d1_21.json",
         "sha256": "80e328b1aad5ec5dcad70a608ca179fcf8a774f3e412629ce0e19c1b1ee5aa3f",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "34dd5da928409122b2089254bf2b5925a996ee75cea6ca858157ebb4cea4c461"
+        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
       },
       "sourceRubric": [
         "1 Punkt für besser in der ersten Lücke und unabhängig davon 1 Punkt für besten beziehungsweise am besten in der zweiten Lücke. Die falschen Vergleichsformen guter oder gutesten erhalten keinen Punkt. Reine Rechtschreibfehler wie beser nicht zusätzlich abziehen, sofern die beabsichtigte Vergleichsform eindeutig ist. Eine andere Flexionsform wie beste statt besten erfüllt die vorgegebene Verbindung am nicht. Höchstens 2 Punkte."
@@ -5557,15 +5575,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch1/d1_22.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch1/d1_22.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch1/d1_22.json",
         "sha256": "686acce7f1a37708066f2db3e794556eb56602406d6871fc5065f091d0a7e08e",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "34dd5da928409122b2089254bf2b5925a996ee75cea6ca858157ebb4cea4c461"
+        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für jede richtige Zuordnung. Alle vier Sätze unabhängig bewerten; wiederholte Bezeichnungen sind ausdrücklich erlaubt. Eindeutige Ersatzbezeichnungen laut Lösung und reine Schreibfehler in den Begriffen anerkennen. Vergangenheit allein genügt bei b, c und d nicht, weil damit Präteritum und Perfekt nicht unterschieden werden. Zwei nicht eindeutig korrigierte konkurrierende Bezeichnungen zu einem Satz ergeben nur für diesen Satz 0 Punkte. Höchstens 2 Punkte."
@@ -5680,15 +5698,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch1/d1_23.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch1/d1_23.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch1/d1_23.json",
         "sha256": "141c2c0c7955ed17f82a1561d44871d1163727ebadc483fa639a1310e01e2a0c",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "34dd5da928409122b2089254bf2b5925a996ee75cea6ca858157ebb4cea4c461"
+        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
       },
       "sourceRubric": [
         "Je 1 Punkt für die passende Präteritumform mit richtiger Person und Zahl: fragtest beziehungsweise gingen. Beide Antworten unabhängig bewerten. Ein vollständig abgeschriebener Satz ist ebenfalls zulässig, aber nicht erforderlich. Perfektformen erfüllen den Auftrag nicht; auch fragte bei du beziehungsweise ging bei wir sind grammatisch andere Formen und erhalten keinen Punkt. Sonstige Rechtschreibfehler nicht zusätzlich werten, wenn die verlangte Form eindeutig erkennbar bleibt. Höchstens 2 Punkte."
@@ -5846,15 +5864,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch1/d1_24.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch1/d1_24.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch1/d1_24.json",
         "sha256": "52823ee68f34de3ff936eb86102a13ab211d3119ebc00c39e5befb1d7193a5e1",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "34dd5da928409122b2089254bf2b5925a996ee75cea6ca858157ebb4cea4c461"
+        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für jede vollständig und ausschließlich abgegrenzte Einheit Vor dem Haus, fegt, Leni und die Treppe. Satzanfang und Satzende gelten als äußere Grenzen; insgesamt genügen deshalb drei Trennstriche. Eine zusätzlich innerhalb einer Einheit gesetzte Grenze nimmt nur dieser Einheit ihren halben Punkt. Fehlende Grenzen betreffen die jeweils nicht vollständig abgegrenzten Einheiten. Keine Minuspunkte. Gleichwertiges Einklammern der vier Einheiten oder eine eindeutig gegliederte Abschrift anerkennen. Das Prädikat wird entsprechend dem ausdrücklichen Auftrag als eigene Einheit abgegrenzt; eine Benennung der Satzgliedarten oder eine aufgeschriebene Umstellprobe ist nicht erforderlich. Bei einer Abschrift reine Rechtschreibfehler nicht zusätzlich bewerten, sofern die Struktur eindeutig erhalten bleibt. Höchstens 2 Punkte."
@@ -5871,7 +5889,10 @@
       "sourceTaskSha256": "52823ee68f34de3ff936eb86102a13ab211d3119ebc00c39e5befb1d7193a5e1",
       "prerequisiteCompetencyIds": [],
       "requiresTaughtContent": true,
-      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde."
+      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
+      "digitalText": {
+        "Grenze die Satzglieder und das Prädikat durch senkrechte Striche voneinander ab. Zusammengehörige Wörter bleiben zusammen.": "Teile den Satz in seine Satzglieder und das Prädikat. Schreibe jeden Teil in ein eigenes Feld, von links nach rechts. Zusammengehörige Wörter kommen in dasselbe Feld."
+      }
     },
     {
       "id": "d2_01",
@@ -5980,15 +6001,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch2/d2_01.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch2/d2_01.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch2/d2_01.json",
         "sha256": "4eea761a798b05f1add6460d3b0244753657698504eb2f2e04d4de5046dfb90b",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "40254695ff293834b1f5fd5ec150d68fccf6f737b15b50e24dbca1c554b58d98"
+        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
       },
       "sourceRubric": [
         "Je 1 Punkt. Bei a genügt Dose; bei b genügt Regal. Kein vollständiger Satz und keine Zeilenangabe erforderlich. Tisch oder Vorrat ist bei b nicht richtig."
@@ -6121,15 +6142,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch2/d2_02.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch2/d2_02.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch2/d2_02.json",
         "sha256": "106ec808cf94bf24b572a46bfc000fae82b64b17e4b0eac8b4682e0ba8e2eb80",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "40254695ff293834b1f5fd5ec150d68fccf6f737b15b50e24dbca1c554b58d98"
+        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
       },
       "sourceRubric": [
         "Je 1 Punkt für Urteil und tragenden Beleg, unabhängig voneinander. Statt der Zahl genügt die eindeutige Wiedergabe, dass die Lehrerin die Blätter in der nächsten Woche abholt. Zeile 19 allein nennt nur die Trocknungsdauer, nicht den Abholtermin. Pauschal 19-24 ohne erkennbare Auswahl genügt nicht."
@@ -6283,15 +6304,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch2/d2_03.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch2/d2_03.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch2/d2_03.json",
         "sha256": "27ee40441441e54dddfb38a8bdf3a6444f940f15c0735f1f336d5148164ccd58",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "40254695ff293834b1f5fd5ec150d68fccf6f737b15b50e24dbca1c554b58d98"
+        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
       },
       "sourceRubric": [
         "Je 1 Punkt. a verlangt ausschließlich C. b erhält den Punkt für eine Formulierung, die die leichte Beschädigung durch Reißen nennt; reißen allein genügt im Zusammenhang ebenfalls. Beide Teile unabhängig werten."
@@ -6306,6 +6327,9 @@
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "27ee40441441e54dddfb38a8bdf3a6444f940f15c0735f1f336d5148164ccd58",
       "prerequisiteCompetencyIds": [],
+      "digitalText": {
+        "Kreuze genau eine Antwort an.": "Wähle genau eine Antwort."
+      },
       "stimulusId": "passage_deutsch2"
     },
     {
@@ -6380,15 +6404,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch2/d2_04.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch2/d2_04.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch2/d2_04.json",
         "sha256": "04e208ef7b88d183e23cb9bc9354412e9ff57e83b687a256ff963851d712206e",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "40254695ff293834b1f5fd5ec150d68fccf6f737b15b50e24dbca1c554b58d98"
+        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
       },
       "sourceRubric": [
         "Je 1 Punkt für jeden unterschiedlichen Grund; Reihenfolge beliebig. Kurzantworten wie gegenseitig helfen und nicht genug Rahmen genügen. Derselbe Grund in anderen Worten zählt nur einmal. Ein erfundener Grund wie schneller fertig werden zählt nicht."
@@ -6526,15 +6550,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch2/d2_05.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch2/d2_05.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch2/d2_05.json",
         "sha256": "6415617c38a4995f325df7d93df8bd76b6113084b52b3802a1d6147c4838a4b4",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "40254695ff293834b1f5fd5ec150d68fccf6f737b15b50e24dbca1c554b58d98"
+        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
       },
       "sourceRubric": [
         "a) 1 Punkt ausschließlich für B. b) 1 Punkt zum Beispiel für Trocknen im Regal, Beschriften der Tücher, nur trockenes Papier mitnehmen, fertige Blätter aus dem Vorrat oder späteres Abholen durch die Lehrerin. Bloßes Wiederholen der Überschrift genügt nicht. b unabhängig vom Kreuz werten."
@@ -6549,6 +6573,9 @@
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "6415617c38a4995f325df7d93df8bd76b6113084b52b3802a1d6147c4838a4b4",
       "prerequisiteCompetencyIds": [],
+      "digitalText": {
+        "Kreuze genau eine Antwort an.": "Wähle genau eine Antwort."
+      },
       "stimulusId": "passage_deutsch2"
     },
     {
@@ -6659,15 +6686,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch2/d2_06.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch2/d2_06.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch2/d2_06.json",
         "sha256": "596a1e064c5ee4cc2180f93f7f99cdde51304763fa9c9161dd2a2878a8ab5e99",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "40254695ff293834b1f5fd5ec150d68fccf6f737b15b50e24dbca1c554b58d98"
+        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
       },
       "sourceRubric": [
         "Je 1 Punkt pro vollständig richtigem Schritt an der richtigen Position. Je 0,5 Punkte, wenn bei Schritt 2 nur Herausheben oder Abtropfen, bei Schritt 4 nur zweites Tuch auflegen oder Wasser herauspressen genannt wird. Sinngleiche Formulierungen gelten. Vertauschte Schritte zählen nicht für ihre Position."
@@ -6836,15 +6863,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch2/d2_07.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch2/d2_07.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch2/d2_07.json",
         "sha256": "9c7688c9483dcb715345b8f45511b00ec3fe7496ed64108a784f9d991df4d040",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "40254695ff293834b1f5fd5ec150d68fccf6f737b15b50e24dbca1c554b58d98"
+        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
       },
       "sourceRubric": [
         "Je 1 Punkt für die eindeutige Zuordnung. A bedeutet, dass niemand hetzen muss. D erhält die unterschiedlichen Arten der Gestaltung. Mehrere ungestrichene Buchstaben in einem Feld ergeben nur für dieses Feld 0 Punkte. Keine zusätzliche Begründung verlangen."
@@ -7007,15 +7034,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch2/d2_08.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch2/d2_08.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch2/d2_08.json",
         "sha256": "3189fc0235056007c7745104499deba4e241aca8059e75f8ab5a8c1f49672047",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "40254695ff293834b1f5fd5ec150d68fccf6f737b15b50e24dbca1c554b58d98"
+        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
       },
       "sourceRubric": [
         "Je 1 Punkt. Bei a sind Raum 2 oder nur 2 eindeutig und zulässig. Bei b genügt Falten; Papier allein ist nicht eindeutig. Die Tabelle liefert alle benötigten Informationen."
@@ -7129,15 +7156,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch2/d2_09.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch2/d2_09.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch2/d2_09.json",
         "sha256": "6ca6676bc3f381290bcd19761a257ba64731d2525843cf0505da3f4fa2c30b3c",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "40254695ff293834b1f5fd5ec150d68fccf6f737b15b50e24dbca1c554b58d98"
+        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
       },
       "sourceRubric": [
         "Je 1 Punkt für die richtige Großschreibung von Morgen und Mütze; Reihenfolge beliebig. Ein vollständig korrigierter Satz ist ebenfalls zulässig. Jule ist bereits richtig geschrieben."
@@ -7256,15 +7283,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch2/d2_10.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch2/d2_10.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch2/d2_10.json",
         "sha256": "fea19979166aa199fa8cf12de87904d307569bc1df7b7879a4ed7d21f8f079e6",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "40254695ff293834b1f5fd5ec150d68fccf6f737b15b50e24dbca1c554b58d98"
+        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
       },
       "sourceRubric": [
         "Je 1 Punkt für Korb und Körbe. Die richtige Mehrzahl erhält ihren Punkt unabhängig von a. Eine Erklärung ist nicht verlangt; beide Wörter müssen richtig geschrieben sein."
@@ -7384,15 +7411,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch2/d2_11.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch2/d2_11.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch2/d2_11.json",
         "sha256": "7b78622e32f21a368069cb7179744d6e8890906018ffa61c108dbb127f12769c",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "40254695ff293834b1f5fd5ec150d68fccf6f737b15b50e24dbca1c554b58d98"
+        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
       },
       "sourceRubric": [
         "Je 1 Punkt, unabhängig. Das zweite Wort muss erkennbar zu Baum gehören und au enthalten. Ein anderes, unverbundenes Wort mit au genügt nicht."
@@ -7434,7 +7461,7 @@
         },
         {
           "type": "paragraph",
-          "text": "b) Ro(s/ss)e →"
+          "text": "b) Ro(s/ss)e (die Blume) →"
         },
         {
           "type": "response",
@@ -7472,7 +7499,7 @@
         {
           "id": "b",
           "type": "text",
-          "prompt": "b) Schreibe Ro(s/ss)e vollständig:",
+          "prompt": "b) Schreibe Ro(s/ss)e (die Blume) vollständig:",
           "options": [],
           "answers": [
             "Rose"
@@ -7510,15 +7537,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch2/d2_12.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch2/d2_12.json",
-        "sha256": "2e738073a8df2b6012e4c62a71271e7a8a2b4f2c622ac86ad8b663163788c205",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch2/d2_12.json",
+        "sha256": "f5076b813a1bd42a23b19b366bf29d0ca70bc305db2a0b2f173f8342123cade1",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "40254695ff293834b1f5fd5ec150d68fccf6f737b15b50e24dbca1c554b58d98"
+        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
       },
       "sourceRubric": [
         "Je 1 Punkt für das vollständig richtig geschriebene Wort. Tasse hat ss, Rose hat s. Ein erklärender Regelsatz ist nicht verlangt."
@@ -7531,7 +7558,7 @@
       ],
       "scoringPolicy": "independent-parts",
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
-      "sourceTaskSha256": "2e738073a8df2b6012e4c62a71271e7a8a2b4f2c622ac86ad8b663163788c205",
+      "sourceTaskSha256": "f5076b813a1bd42a23b19b366bf29d0ca70bc305db2a0b2f173f8342123cade1",
       "prerequisiteCompetencyIds": []
     },
     {
@@ -7628,15 +7655,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch2/d2_13.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch2/d2_13.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch2/d2_13.json",
         "sha256": "b93a420b7d929b4c07cbe1101fe72fba1b4eb8958741b57ea37e70c3bb04c9c5",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "40254695ff293834b1f5fd5ec150d68fccf6f737b15b50e24dbca1c554b58d98"
+        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
       },
       "sourceRubric": [
         "Je 1 Punkt. Auch das jeweils vollständig richtig geschriebene Wort anerkennen. Die beiden Lücken getrennt werten."
@@ -7812,15 +7839,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch2/d2_14.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch2/d2_14.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch2/d2_14.json",
         "sha256": "1e107b9998857f4305abdfc6804151717ead09cea03de5a84548417b59522ccc",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "40254695ff293834b1f5fd5ec150d68fccf6f737b15b50e24dbca1c554b58d98"
+        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
       },
       "sourceRubric": [
         "Je 0,5 Punkte pro richtiger Berichtigung; Reihenfolge beliebig. Unterstreichen allein zählt nicht. Eine richtige Berichtigung erhält ihren Punkt auch ohne Unterstreichung. Ein vollständig korrigierter Text ist ebenfalls zulässig."
@@ -7835,7 +7862,10 @@
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "assessmentAdaptationNote": "Die digitalen Felder bitten um die Reihenfolge im Text. Andere Reihenfolgen bleiben nach Rubrikprüfung zulässig; eine Zielkorrektur zählt nur einmal.",
       "sourceTaskSha256": "1e107b9998857f4305abdfc6804151717ead09cea03de5a84548417b59522ccc",
-      "prerequisiteCompetencyIds": []
+      "prerequisiteCompetencyIds": [],
+      "digitalText": {
+        "Unterstreiche sie und schreibe diese vier Wörter richtig auf.": "Finde sie und schreibe diese vier Wörter richtig auf, von links nach rechts."
+      }
     },
     {
       "id": "d2_15",
@@ -8014,15 +8044,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch2/d2_15.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch2/d2_15.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch2/d2_15.json",
         "sha256": "8a6d4196495be97c4f377277de3afae4cdadbf2bbfc8380a1e3815ab2206047c",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "40254695ff293834b1f5fd5ec150d68fccf6f737b15b50e24dbca1c554b58d98"
+        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für Doppelpunkt, öffnendes und schließendes Anführungszeichen sowie Fragezeichen nach Heft innerhalb der Anführungszeichen. Ein falsch außerhalb gesetztes Fragezeichen nimmt nur dessen Punkt, nicht zusätzlich den für ein sonst richtiges Schlusszeichen. Übliche Formen doppelter Anführungszeichen anerkennen."
@@ -8150,15 +8180,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch2/d2_16.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch2/d2_16.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch2/d2_16.json",
         "sha256": "b078ff3fa006ff98fb45f87eef743b1d93ede38229928b2c1b3487b8c1e6fe6b",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "40254695ff293834b1f5fd5ec150d68fccf6f737b15b50e24dbca1c554b58d98"
+        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
       },
       "sourceRubric": [
         "Wortgrenzen: 1 Punkt bei allen richtigen Grenzen, 0,5 bei genau einer fehlenden oder zusätzlichen Grenze. Groß/Klein: 1 Punkt bei allen richtigen Formen, 0,5 bei genau einem falsch geschriebenen Wort. Sonst für das jeweilige Kriterium 0; unabhängig werten. Der vorgegebene Punkt zählt nicht extra."
@@ -8315,15 +8345,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch2/d2_17.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch2/d2_17.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch2/d2_17.json",
         "sha256": "9e6f2f911fd9c7604f80493c50c3532b6f3a877c59e1f82d8e26d863c7e9b707",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "40254695ff293834b1f5fd5ec150d68fccf6f737b15b50e24dbca1c554b58d98"
+        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
       },
       "sourceRubric": [
         "1 Punkt für ausschließlich suchen. Je 0,5 Punkte für suche und suchst, unabhängig von der Markierung. Eindeutiges Unterstreichen oder Aufschreiben statt Einkreisen ist zulässig. Die passende Personenform muss erkennbar sein."
@@ -8339,7 +8369,10 @@
       "sourceTaskSha256": "9e6f2f911fd9c7604f80493c50c3532b6f3a877c59e1f82d8e26d863c7e9b707",
       "prerequisiteCompetencyIds": [],
       "requiresTaughtContent": true,
-      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde."
+      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
+      "digitalText": {
+        "Kreise das Verb ein. Verändere dieses Wort dann": "Finde das Verb. Verändere dieses Wort dann"
+      }
     },
     {
       "id": "d2_18",
@@ -8529,15 +8562,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch2/d2_18.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch2/d2_18.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch2/d2_18.json",
         "sha256": "312beb307fee95569ad3e59da399088b9e86d73295362dacc16af24e78fcc111",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "40254695ff293834b1f5fd5ec150d68fccf6f737b15b50e24dbca1c554b58d98"
+        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für die passende Verbform. Jede Lücke unabhängig werten. Auch eine eindeutig markierte richtige Auswahl in der Klammer zählt, wenn das Antwortfeld leer bleibt."
@@ -8657,15 +8690,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch2/d2_19.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch2/d2_19.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch2/d2_19.json",
         "sha256": "ff6c3e6fbc3721b5c49499ebd797f683cbe873a48292b6eed2fddf9208211eeb",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "40254695ff293834b1f5fd5ec150d68fccf6f737b15b50e24dbca1c554b58d98"
+        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
       },
       "sourceRubric": [
         "Je 1 Punkt für die richtige Grundform. Beide Antworten unabhängig werten. Gebeugte Formen wie trage oder schlief erfüllen den Auftrag nicht."
@@ -8775,15 +8808,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch2/d2_20.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch2/d2_20.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch2/d2_20.json",
         "sha256": "f1f95321863672e715aac42f888d8c12ced6832b815ae98028b1b99dd126768a",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "40254695ff293834b1f5fd5ec150d68fccf6f737b15b50e24dbca1c554b58d98"
+        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
       },
       "sourceRubric": [
         "Je 1 Punkt für das richtige Adjektiv mit passender Endung. Andere Endungen erfüllen den Auftrag nicht. Reine Schreibfehler außerhalb der grammatisch gefragten Form nicht zusätzlich abziehen."
@@ -8890,15 +8923,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch2/d2_21.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch2/d2_21.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch2/d2_21.json",
         "sha256": "c24e0a2daf6c470fb88db71f6ea854267b4453c085676b6c0a6d2d594841d0f1",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "40254695ff293834b1f5fd5ec150d68fccf6f737b15b50e24dbca1c554b58d98"
+        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
       },
       "sourceRubric": [
         "Je 1 Punkt für höher und höchsten. Ein zusätzliches am in der zweiten Lücke nicht abziehen. Die veränderte Stammform und die passende Endung gehören zur grammatischen Leistung; hochst oder höchste passt nicht."
@@ -9134,15 +9167,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch2/d2_22.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch2/d2_22.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch2/d2_22.json",
         "sha256": "6d85c5b27892504117319383c05d4b5d9ddf6ec106232d8ac7e5ede19e64338e",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "40254695ff293834b1f5fd5ec150d68fccf6f737b15b50e24dbca1c554b58d98"
+        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
       },
       "sourceRubric": [
         "Je 0,5 Punkte. Eindeutige Abkürzungen sowie Gegenwart, erste Vergangenheit und zweite Vergangenheit sind zulässig. Vergangenheit allein unterscheidet die beiden Vergangenheitsformen nicht. Mehrere konkurrierende Angaben ergeben nur beim betreffenden Satz 0 Punkte."
@@ -9257,15 +9290,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch2/d2_23.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch2/d2_23.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch2/d2_23.json",
         "sha256": "b121a4b47e20101d0ca2c3f46b9fc6ac47a8b5fe7a2f20bf21b71843382e1246",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "40254695ff293834b1f5fd5ec150d68fccf6f737b15b50e24dbca1c554b58d98"
+        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
       },
       "sourceRubric": [
         "Je 1 Punkt für das Präteritum in der passenden Person und Zahl. Perfektformen erfüllen den Auftrag nicht. Die Antworten unabhängig werten."
@@ -9423,15 +9456,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch2/d2_24.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch2/d2_24.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch2/d2_24.json",
         "sha256": "02aa3efeb3866d6f21b1e016cedf21b5407394575e6c601fd760362c8b8fb56f",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "40254695ff293834b1f5fd5ec150d68fccf6f737b15b50e24dbca1c554b58d98"
+        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für jede vollständig und ausschließlich abgegrenzte Einheit. Satzanfang und Satzende sind äußere Grenzen; drei Striche genügen. Eine zusätzliche Grenze nimmt nur der betroffenen Einheit ihren Punkt. Eine fehlende Grenze betrifft die nicht vollständig abgegrenzten Einheiten. Gleichwertige Klammern oder gegliederte Abschrift zulässig."
@@ -9448,7 +9481,10 @@
       "sourceTaskSha256": "02aa3efeb3866d6f21b1e016cedf21b5407394575e6c601fd760362c8b8fb56f",
       "prerequisiteCompetencyIds": [],
       "requiresTaughtContent": true,
-      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde."
+      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
+      "digitalText": {
+        "Grenze die Satzglieder und das Prädikat durch senkrechte Striche voneinander ab. Zusammengehörige Wörter bleiben zusammen.": "Teile den Satz in seine Satzglieder und das Prädikat. Schreibe jeden Teil in ein eigenes Feld, von links nach rechts. Zusammengehörige Wörter kommen in dasselbe Feld."
+      }
     },
     {
       "id": "d3_01",
@@ -9559,15 +9595,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch3/d3_01.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch3/d3_01.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch3/d3_01.json",
         "sha256": "d925d146dd1da9c1bbc59ddd520b259ccd712772a953edf0183571652f51cc64",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "3d0a3c1f787a46ece2bc49b291af7ba6d8b508ea8d3737221df7a0a8e84af662"
+        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
       },
       "sourceRubric": [
         "Je 1 Punkt. Bei a auch die Lehrerin, wenn Frau Kern damit eindeutig gemeint ist. Bei b genügen Striche, Markierungen oder Skala. Keine vollständigen Sätze oder Zeilennummern erforderlich."
@@ -9700,15 +9736,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch3/d3_02.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch3/d3_02.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch3/d3_02.json",
         "sha256": "4e8044add00dacc27d2daaa954fe44f3b6905a1b3ffdc024ffc10327b2218173",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "3d0a3c1f787a46ece2bc49b291af7ba6d8b508ea8d3737221df7a0a8e84af662"
+        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
       },
       "sourceRubric": [
         "Je 1 Punkt für das Urteil und den Beleg, unabhängig voneinander. Statt der Zeilenzahl ist die eindeutige Wiedergabe des Inhalts zulässig. Zeile 14 ist nur Elifs Vermutung und belegt das Ergebnis nicht. Ein breiter Bereich ohne erkennbare Auswahl genügt nicht."
@@ -9846,15 +9882,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch3/d3_03.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch3/d3_03.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch3/d3_03.json",
         "sha256": "83a835d897c868ee91df58441f98df80dc49b4127aeb4b0850010aca78715409",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "3d0a3c1f787a46ece2bc49b291af7ba6d8b508ea8d3737221df7a0a8e84af662"
+        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
       },
       "sourceRubric": [
         "Je 1 Punkt. a verlangt ausschließlich B. b verlangt den Bezug zur unterschiedlichen Wassermenge; etwa herausfinden, warum ein Becher voller ist. Bloßes Wiederholen der Bedeutung ohne Bezug zur Geschichte genügt nicht. b unabhängig vom Kreuz bewerten."
@@ -9869,6 +9905,9 @@
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "83a835d897c868ee91df58441f98df80dc49b4127aeb4b0850010aca78715409",
       "prerequisiteCompetencyIds": [],
+      "digitalText": {
+        "Kreuze genau eine Antwort an.": "Wähle genau eine Antwort."
+      },
       "stimulusId": "passage_deutsch3"
     },
     {
@@ -10015,15 +10054,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch3/d3_04.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch3/d3_04.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch3/d3_04.json",
         "sha256": "9182c8a7ca9b6fba8d08ec9c2d8cb48cd048c82c44f7083509728f502c23ece2",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "3d0a3c1f787a46ece2bc49b291af7ba6d8b508ea8d3737221df7a0a8e84af662"
+        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
       },
       "sourceRubric": [
         "Je 1 Punkt für die eindeutige Zuordnung. Alternativ zählt der richtig aufgeschriebene Grund. Mehrere ungestrichene Buchstaben im selben Feld ergeben für dieses Feld 0 Punkte."
@@ -10141,15 +10180,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch3/d3_05.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch3/d3_05.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch3/d3_05.json",
         "sha256": "148e509c854e2faef88ca096b551b7e72175de1041a66326ce5b4c598a217cdb",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "3d0a3c1f787a46ece2bc49b291af7ba6d8b508ea8d3737221df7a0a8e84af662"
+        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
       },
       "sourceRubric": [
         "a) 1 Punkt für eine Überschrift, die das Prüfen, Vergleichen oder den neuen gemeinsamen Standort als Kern erfasst. Nur Frau Kern lobt oder Ein Schild ist zu eng. b) 1 Punkt für einen konkreten im Abschnitt genannten Schritt, der zur eigenen Überschrift passt. b kann auch bei einer zu engen, aber inhaltlich richtigen Überschrift zählen. Sinngleiche Formulierungen anerkennen."
@@ -10328,15 +10367,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch3/d3_06.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch3/d3_06.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch3/d3_06.json",
         "sha256": "a538fe1db5665b1724e50ff928de2f13b86e8c44c4c6c50a5bf82678d245ea79",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "3d0a3c1f787a46ece2bc49b291af7ba6d8b508ea8d3737221df7a0a8e84af662"
+        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für die richtige Zahl bei dem betreffenden Ereignis. Jedes Feld unabhängig werten; eine falsche oder mehrfach verwendete Zahl macht andere richtige Zuordnungen nicht ungültig."
@@ -10481,15 +10520,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch3/d3_07.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch3/d3_07.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch3/d3_07.json",
         "sha256": "d10bdb5a5e6ec661c28aa9369229df1273fb9e7dd5e48182ddf73b4bc72de1fc",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "3d0a3c1f787a46ece2bc49b291af7ba6d8b508ea8d3737221df7a0a8e84af662"
+        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
       },
       "sourceRubric": [
         "Je 1 Punkt. Pro Teil nur die richtige Auswahl; mehrere ungestrichene Kreuze ergeben nur für den betreffenden Teil 0 Punkte. Keine Begründung erforderlich."
@@ -10504,6 +10543,9 @@
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "d10bdb5a5e6ec661c28aa9369229df1273fb9e7dd5e48182ddf73b4bc72de1fc",
       "prerequisiteCompetencyIds": [],
+      "digitalText": {
+        "Kreuze jeweils genau eine Antwort an.": "Wähle jeweils genau eine Antwort."
+      },
       "stimulusId": "passage_deutsch3"
     },
     {
@@ -10647,15 +10689,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch3/d3_08.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch3/d3_08.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch3/d3_08.json",
         "sha256": "3107bec4f50d20062d4779407dd820d7c498ef8ee25cf45b5b79839e4870cb23",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "3d0a3c1f787a46ece2bc49b291af7ba6d8b508ea8d3737221df7a0a8e84af662"
+        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
       },
       "sourceRubric": [
         "Je 1 Punkt. Bei a müssen beide Namen stimmen; die Reihenfolge ist frei. Bei b nur Ida, nicht das ganze Paar. Schreibungen mit eindeutig erkennbarem Namen akzeptieren."
@@ -10781,15 +10823,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch3/d3_09.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch3/d3_09.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch3/d3_09.json",
         "sha256": "7520bacdd2bded6f1635acd5afb1f5f4eb8ff52203b9d0b9a503ccc1f50909e5",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "3d0a3c1f787a46ece2bc49b291af7ba6d8b508ea8d3737221df7a0a8e84af662"
+        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
       },
       "sourceRubric": [
         "Je 1 Punkt für die eindeutige richtige Auswahl. Ein richtig aufgeschriebenes Wort zählt ebenfalls. Bei mehreren ungestrichenen Alternativen erhält nur der betreffende Satz 0 Punkte."
@@ -10803,7 +10845,10 @@
       "scoringPolicy": "independent-parts",
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "7520bacdd2bded6f1635acd5afb1f5f4eb8ff52203b9d0b9a503ccc1f50909e5",
-      "prerequisiteCompetencyIds": []
+      "prerequisiteCompetencyIds": [],
+      "digitalText": {
+        "Kreise in jedem Satz die richtige Schreibung ein.": "Wähle in jedem Satz die richtige Schreibung."
+      }
     },
     {
       "id": "d3_10",
@@ -10909,15 +10954,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch3/d3_10.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch3/d3_10.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch3/d3_10.json",
         "sha256": "afa91b1e9f0232af939e6b24a544fad641979e15bb4ac6fbafb0968fffc2679c",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "3d0a3c1f787a46ece2bc49b291af7ba6d8b508ea8d3737221df7a0a8e84af662"
+        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
       },
       "sourceRubric": [
         "Je 1 Punkt. Die Grundschreibung und das geeignete richtig geschriebene Prüfwort unabhängig bewerten. Das Prüfwort muss das t vor einem hörbaren Vokal zeigen; eiskalt oder sehr kalt genügt nicht."
@@ -11030,15 +11075,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch3/d3_11.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch3/d3_11.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch3/d3_11.json",
         "sha256": "067587be524fb8c3cd7f0e58644706e94eb4bf38ad6f626826b529e4cdaa8aee",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "3d0a3c1f787a46ece2bc49b291af7ba6d8b508ea8d3737221df7a0a8e84af662"
+        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
       },
       "sourceRubric": [
         "Je 1 Punkt. Für b zählt ein richtig geschriebenes Wort aus der Wortfamilie Wahl mit a, etwa Wahl, Auswahl oder Wahlzettel. Ein unverbundenes Wort mit a oder wählen ohne a erfüllt den Auftrag nicht."
@@ -11156,15 +11201,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch3/d3_12.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch3/d3_12.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch3/d3_12.json",
         "sha256": "209f93889b6aaf860e7fd7e9530ff9f9c630d39eeca9c7188edeb402e0ee0423",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "3d0a3c1f787a46ece2bc49b291af7ba6d8b508ea8d3737221df7a0a8e84af662"
+        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
       },
       "sourceRubric": [
         "Je 1 Punkt für das richtig geschriebene Brille bzw. Schiff. Ein richtiges Wort erhält den Punkt auch ohne Unterstreichung."
@@ -11178,7 +11223,10 @@
       "scoringPolicy": "independent-parts",
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "209f93889b6aaf860e7fd7e9530ff9f9c630d39eeca9c7188edeb402e0ee0423",
-      "prerequisiteCompetencyIds": []
+      "prerequisiteCompetencyIds": [],
+      "digitalText": {
+        "Unterstreiche es und schreibe nur dieses Wort richtig auf.": "Finde es und schreibe nur dieses Wort richtig auf."
+      }
     },
     {
       "id": "d3_13",
@@ -11308,15 +11356,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch3/d3_13.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch3/d3_13.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch3/d3_13.json",
         "sha256": "6dc4bda7a7e094360d7b57e0cbfd5a9ed6a11c67964fdcfbb3041f6fc68f3d81",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "3d0a3c1f787a46ece2bc49b291af7ba6d8b508ea8d3737221df7a0a8e84af662"
+        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
       },
       "sourceRubric": [
         "Je 1 Punkt für die richtige Auswahl. Die übliche deutsche Rechtschreibung wird geübt. Beide Zeilen unabhängig bewerten; eine eindeutige Berichtigung zählt."
@@ -11330,7 +11378,10 @@
       "scoringPolicy": "independent-parts",
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "6dc4bda7a7e094360d7b57e0cbfd5a9ed6a11c67964fdcfbb3041f6fc68f3d81",
-      "prerequisiteCompetencyIds": []
+      "prerequisiteCompetencyIds": [],
+      "digitalText": {
+        "Kreuze in jeder Zeile genau das richtig geschriebene Wort an.": "Wähle in jeder Zeile das richtig geschriebene Wort."
+      }
     },
     {
       "id": "d3_14",
@@ -11492,15 +11543,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch3/d3_14.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch3/d3_14.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch3/d3_14.json",
         "sha256": "ca08e71fa825d4c1b0906c450518cc7e96bb2c16ace9cdf188341e6a8fc2e841",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "3d0a3c1f787a46ece2bc49b291af7ba6d8b508ea8d3737221df7a0a8e84af662"
+        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
       },
       "sourceRubric": [
         "Je 0,5 Punkte pro richtig berichtigtem Wort; Reihenfolge beliebig. Ein vollständig korrigierter Text ist ebenfalls zulässig. Nicht gefragte zusätzliche Änderungen ergeben keine Zusatzpunkte."
@@ -11694,15 +11745,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch3/d3_15.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch3/d3_15.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch3/d3_15.json",
         "sha256": "c4d2601f285afb3e3ff3d2836f89d978bca4c85ab811383c0eba0f701a37a84b",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "3d0a3c1f787a46ece2bc49b291af7ba6d8b508ea8d3737221df7a0a8e84af662"
+        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für Doppelpunkt, öffnendes und schließendes Anführungszeichen sowie den Punkt nach Korb innerhalb der Anführungszeichen. Ein außerhalb gesetzter Punkt betrifft nur dessen Teilpunkt. Übliche Formen doppelter Anführungszeichen anerkennen."
@@ -11830,15 +11881,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch3/d3_16.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch3/d3_16.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch3/d3_16.json",
         "sha256": "abe71d7d4309391aac3c7e29e1c7be8271e669f39b319f343bf795d38906db51",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "3d0a3c1f787a46ece2bc49b291af7ba6d8b508ea8d3737221df7a0a8e84af662"
+        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
       },
       "sourceRubric": [
         "Wortgrenzen: 1 Punkt bei allen richtigen Grenzen, 0,5 bei genau einer fehlenden oder zusätzlichen Grenze. Groß/Klein: 1 Punkt bei allen richtigen Wortformen, 0,5 bei genau einem falsch geschriebenen Wort. Sonst im jeweiligen Kriterium 0 Punkte. Beide Kriterien unabhängig werten; der Punkt ist vorgegeben."
@@ -12034,15 +12085,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch3/d3_17.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch3/d3_17.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch3/d3_17.json",
         "sha256": "ac8f6a5a95ab6f4efd08692d8f9a0c8c2539c9e2b8f377392f81af222a471550",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "3d0a3c1f787a46ece2bc49b291af7ba6d8b508ea8d3737221df7a0a8e84af662"
+        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für die richtige Zusammensetzung und je 0,5 für den passenden Artikel, unabhängig voneinander. Reine Schreibfehler, die die Wortbildung nicht verändern, nicht zusätzlich abziehen. Die Reihenfolge der vorgegebenen Bestandteile beibehalten."
@@ -12183,15 +12234,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch3/d3_18.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch3/d3_18.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch3/d3_18.json",
         "sha256": "d274164b6f94929955779e0d760eb2b186a8e8b786e934c2fe3a6d5986b4773c",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "3d0a3c1f787a46ece2bc49b291af7ba6d8b508ea8d3737221df7a0a8e84af662"
+        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
       },
       "sourceRubric": [
         "Je 1 Punkt. a verlangt ausschließlich leise; die Länge des Wortes oder die Wortart ist nicht das Kriterium. In b genügt der erkennbare Stamm les ohne weitere Endung. Die beiden Leistungen unabhängig bewerten."
@@ -12207,7 +12258,10 @@
       "sourceTaskSha256": "d274164b6f94929955779e0d760eb2b186a8e8b786e934c2fe3a6d5986b4773c",
       "prerequisiteCompetencyIds": [],
       "requiresTaughtContent": true,
-      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde."
+      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
+      "digitalText": {
+        "a) Streiche das Wort durch, das nicht zur Wortfamilie gehört.": "a) Finde das Wort, das nicht zur Wortfamilie gehört."
+      }
     },
     {
       "id": "d3_19",
@@ -12401,15 +12455,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch3/d3_19.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch3/d3_19.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch3/d3_19.json",
         "sha256": "eaca8a57745ca9f3daf197cb056ec7b6223e09e72aae463efa8a7dce37697e21",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "3d0a3c1f787a46ece2bc49b291af7ba6d8b508ea8d3737221df7a0a8e84af662"
+        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für das richtig markierte Bestimmungswort und je 0,5 für seine Wortart. Bei b ist Trink der zum Verb trinken gehörende erste Wortteil. Nomen ist in beiden Fällen die Wortart des ganzen Wortes, nicht des gefragten ersten Bestandteils. Teilantworten unabhängig bewerten."
@@ -12425,7 +12479,10 @@
       "sourceTaskSha256": "eaca8a57745ca9f3daf197cb056ec7b6223e09e72aae463efa8a7dce37697e21",
       "prerequisiteCompetencyIds": [],
       "requiresTaughtContent": true,
-      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde."
+      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
+      "digitalText": {
+        "Unterstreiche diesen Wortteil und kreuze seine Wortart an.": "Schreibe diesen Wortteil auf und wähle seine Wortart."
+      }
     },
     {
       "id": "d3_20",
@@ -12519,15 +12576,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch3/d3_20.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch3/d3_20.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch3/d3_20.json",
         "sha256": "d911dbbf13ea7372f66092d2f88f90adb91efd534640cfffe0fb3263f4a1699f",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "3d0a3c1f787a46ece2bc49b291af7ba6d8b508ea8d3737221df7a0a8e84af662"
+        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
       },
       "sourceRubric": [
         "Je 1 Punkt für die passende Adjektivform. Reine Schreibfehler außerhalb der verlangten Endung nicht zusätzlich abziehen; die grammatische Form muss eindeutig erkennbar sein."
@@ -12638,15 +12695,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch3/d3_21.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch3/d3_21.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch3/d3_21.json",
         "sha256": "211d61fc6b0a3ae15d7a5bf5dafb37baccfa2d5ffb2860574d89d82a5743ce5b",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "3d0a3c1f787a46ece2bc49b291af7ba6d8b508ea8d3737221df7a0a8e84af662"
+        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
       },
       "sourceRubric": [
         "Je 1 Punkt für kürzer und kürzesten. Ein zusätzliches am in der zweiten Lücke nicht abziehen. Andere Adjektive erfüllen den Auftrag nicht."
@@ -12889,15 +12946,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch3/d3_22.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch3/d3_22.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch3/d3_22.json",
         "sha256": "d24f79c67c69cec53d3d5b87c47563861872f8e7ad52d215f8d23604310c29a3",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "3d0a3c1f787a46ece2bc49b291af7ba6d8b508ea8d3737221df7a0a8e84af662"
+        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
       },
       "sourceRubric": [
         "Je 0,5 Punkte pro eindeutig in das richtige Feld eingetragenem Buchstaben. Steht ein Buchstabe ungestrichen in mehreren Feldern, zählt nur dieser Buchstabe 0 Punkte. Die Reihenfolge von C und D ist gleichgültig."
@@ -13022,15 +13079,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch3/d3_23.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch3/d3_23.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch3/d3_23.json",
         "sha256": "7e5cea3446bbd7c26894b84f63209c0e4706af5f2cce58a4a92d435ff8ca82fc",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "3d0a3c1f787a46ece2bc49b291af7ba6d8b508ea8d3737221df7a0a8e84af662"
+        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
       },
       "sourceRubric": [
         "1 Punkt für den vollständig vorangestellten Satzteil Nach der Pause. 1 Punkt für den grammatisch richtigen restlichen Satz mit allen Wörtern: besucht unsere Klasse die Bücherei. Groß-/Kleinschreibfehler und fehlender Schlusspunkt werden hier nicht gesondert bewertet. Die Umstellung prüft zusammengehörige Satzteile."
@@ -13192,15 +13249,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch3/d3_24.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch3/d3_24.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch3/d3_24.json",
         "sha256": "d943b4b484a9e3822c1043254e3dfb6573ce06d9fddbad20308ed5f39c7b4a4d",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "3d0a3c1f787a46ece2bc49b291af7ba6d8b508ea8d3737221df7a0a8e84af662"
+        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
       },
       "sourceRubric": [
         "Je 0,5 Punkte pro vollständig und richtig markiertem Subjekt bzw. Prädikat. Die einfache/doppelte Markierung muss eindeutig sein; bei einer sonst klaren schriftlichen Benennung ebenfalls werten. Zusätzliche Wörter nehmen nur den Punkt des betroffenen Satzteils."
@@ -13216,7 +13273,10 @@
       "sourceTaskSha256": "d943b4b484a9e3822c1043254e3dfb6573ce06d9fddbad20308ed5f39c7b4a4d",
       "prerequisiteCompetencyIds": [],
       "requiresTaughtContent": true,
-      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde."
+      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
+      "digitalText": {
+        "Unterstreiche in jedem Satz das ganze Subjekt einmal und das ganze Prädikat zweimal.": "Schreibe für jeden Satz das ganze Subjekt und das ganze Prädikat auf."
+      }
     },
     {
       "id": "d4_01",
@@ -13326,15 +13386,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch4/d4_01.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch4/d4_01.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch4/d4_01.json",
         "sha256": "aea0a77dad524e2cac0b8de3d604cec04cd73d772ba086f1aa0d6f28b7669751",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "1b3fd7fa3718ff7164a0cf499db9d8956e80ccd5507d880a66ff4711bd2c6ee9"
+        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
       },
       "sourceRubric": [
         "a) 1 Punkt für Schulfest. Die Bücherei ist ein Ort und beantwortet die Frage nach der Veranstaltung nicht.",
@@ -13476,15 +13536,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch4/d4_02.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch4/d4_02.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch4/d4_02.json",
         "sha256": "b97b31fcb6c99842a438316448e863c374a74a5fbbc49ac337e4d3498e913e94",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "1b3fd7fa3718ff7164a0cf499db9d8956e80ccd5507d880a66ff4711bd2c6ee9"
+        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
       },
       "sourceRubric": [
         "a) 1 Punkt für genau ein Kreuz bei nein.",
@@ -13627,15 +13687,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch4/d4_03.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch4/d4_03.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch4/d4_03.json",
         "sha256": "b0f4072ef60eafdaea7ac24b83d62d02814cd422afed80856d06514e32b62e35",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "1b3fd7fa3718ff7164a0cf499db9d8956e80ccd5507d880a66ff4711bd2c6ee9"
+        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
       },
       "sourceRubric": [
         "a) 1 Punkt für genau ein Kreuz bei C.",
@@ -13663,6 +13723,9 @@
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "b0f4072ef60eafdaea7ac24b83d62d02814cd422afed80856d06514e32b62e35",
       "prerequisiteCompetencyIds": [],
+      "digitalText": {
+        "Kreuze genau eine Antwort an.": "Wähle genau eine Antwort."
+      },
       "stimulusId": "passage_deutsch4"
     },
     {
@@ -13739,15 +13802,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch4/d4_04.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch4/d4_04.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch4/d4_04.json",
         "sha256": "0abea7cb85e8218874b1163a25f189f4cbc886552943a3f1fa2a0342faee7f5d",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "1b3fd7fa3718ff7164a0cf499db9d8956e80ccd5507d880a66ff4711bd2c6ee9"
+        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
       },
       "sourceRubric": [
         "Je 1 Punkt für jeden der beiden verschiedenen Vorteile: Ruhe beziehungsweise kein Schulhoflärm; vorhandenes und benutzbares Mikrofon.",
@@ -13914,15 +13977,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch4/d4_05.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch4/d4_05.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch4/d4_05.json",
         "sha256": "71571a0a78c958c7d857eb7abaa37be29035a2eadb409c100cf51e2ca6331e46",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "1b3fd7fa3718ff7164a0cf499db9d8956e80ccd5507d880a66ff4711bd2c6ee9"
+        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
       },
       "sourceRubric": [
         "Je 1 Punkt für die richtige Zuordnung B beziehungsweise A. Beide Felder unabhängig bewerten.",
@@ -14118,15 +14181,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch4/d4_06.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch4/d4_06.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch4/d4_06.json",
         "sha256": "2b632418baffee084722ea23839e16fb5a50c622b5691044396c0717adb7085e",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "1b3fd7fa3718ff7164a0cf499db9d8956e80ccd5507d880a66ff4711bd2c6ee9"
+        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für jede richtig eingetragene Zahl an der richtigen Stelle, insgesamt 2 Punkte.",
@@ -14278,15 +14341,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch4/d4_07.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch4/d4_07.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch4/d4_07.json",
         "sha256": "45e433ee8b32c2562c04e979cfdebdd67ef4661dedc98e8fc103c56013eaf146",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "1b3fd7fa3718ff7164a0cf499db9d8956e80ccd5507d880a66ff4711bd2c6ee9"
+        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
       },
       "sourceRubric": [
         "Je 1 Punkt für genau eine richtige Auswahl pro Teil: a) B, b) A.",
@@ -14303,6 +14366,9 @@
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "45e433ee8b32c2562c04e979cfdebdd67ef4661dedc98e8fc103c56013eaf146",
       "prerequisiteCompetencyIds": [],
+      "digitalText": {
+        "Kreuze bei a) und b) jeweils genau den Satz an,": "Wähle bei a) und b) jeweils genau den Satz,"
+      },
       "stimulusId": "passage_deutsch4"
     },
     {
@@ -14447,15 +14513,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch4/d4_08.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch4/d4_08.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch4/d4_08.json",
         "sha256": "8187eb186cbbd5f9adc286821989f300d097e3ed838e69e3320ae44678d614a3",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "1b3fd7fa3718ff7164a0cf499db9d8956e80ccd5507d880a66ff4711bd2c6ee9"
+        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
       },
       "sourceRubric": [
         "a) 1 Punkt für Lena.",
@@ -14635,15 +14701,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch4/d4_09.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch4/d4_09.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch4/d4_09.json",
         "sha256": "2b6a680045e6bc3022632b41389b2f386cf12b9d6ad64a4e5879a7e96460bf0f",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "1b3fd7fa3718ff7164a0cf499db9d8956e80ccd5507d880a66ff4711bd2c6ee9"
+        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für die richtige Groß- oder Kleinschreibung jedes Zielworts: Gestern, Stein, Garten, kleiner; insgesamt 2 Punkte.",
@@ -14768,15 +14834,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch4/d4_10.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch4/d4_10.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch4/d4_10.json",
         "sha256": "61dae2ca1f3ee1f7bae5a774af89a2f84fc30121728642778de518d401f34e28",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "1b3fd7fa3718ff7164a0cf499db9d8956e80ccd5507d880a66ff4711bd2c6ee9"
+        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
       },
       "sourceRubric": [
         "a) 1 Punkt für Schild mit d.",
@@ -14897,15 +14963,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch4/d4_11.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch4/d4_11.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch4/d4_11.json",
         "sha256": "959f4ae9a56ef353f886f68ffadc746f1ba77bddc5301ab88e0bc0abeaceae4e",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "1b3fd7fa3718ff7164a0cf499db9d8956e80ccd5507d880a66ff4711bd2c6ee9"
+        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
       },
       "sourceRubric": [
         "a) 1 Punkt für träumen mit äu.",
@@ -15022,15 +15088,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch4/d4_12.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch4/d4_12.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch4/d4_12.json",
         "sha256": "97cb7633e9f1f95fde927ea73c3f8a6aa109696065189f7fded4a4f8fb5125ef",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "1b3fd7fa3718ff7164a0cf499db9d8956e80ccd5507d880a66ff4711bd2c6ee9"
+        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
       },
       "sourceRubric": [
         "Je 1 Punkt für Kamm mit mm und Name mit einfachem m. Beide Wörter unabhängig bewerten. Der vorgegebene Artikel darf mitgeschrieben werden, ist in der Antwort aber nicht erforderlich.",
@@ -15148,15 +15214,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch4/d4_13.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch4/d4_13.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch4/d4_13.json",
         "sha256": "756c53f9f480d7868bb29918120e7319c2d6a63352bd89c5795658f55cbfcad7",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "1b3fd7fa3718ff7164a0cf499db9d8956e80ccd5507d880a66ff4711bd2c6ee9"
+        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
       },
       "sourceRubric": [
         "Je 1 Punkt für die richtige Einsetzung: a) ß, b) ss. Die Teile unabhängig bewerten.",
@@ -15320,15 +15386,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch4/d4_14.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch4/d4_14.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch4/d4_14.json",
         "sha256": "2c34d37688a8702f6512a4b93c12bf692f7e78a5bb887c58beba561fbf78576d",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "1b3fd7fa3718ff7164a0cf499db9d8956e80ccd5507d880a66ff4711bd2c6ee9"
+        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für jedes korrekt verbesserte Zielwort: Wintter → Winter, Sokken → Socken, nemen → nehmen, schnel → schnell; insgesamt 2 Punkte.",
@@ -15526,15 +15592,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch4/d4_15.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch4/d4_15.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch4/d4_15.json",
         "sha256": "9667a36fd2421d1f18f5be50dda5fd895f092d3a799baf67d49c37e6bf3d265c",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "1b3fd7fa3718ff7164a0cf499db9d8956e80ccd5507d880a66ff4711bd2c6ee9"
+        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für den Doppelpunkt nach ruft, das öffnende Anführungszeichen vor Warte, das Ausrufezeichen nach mich und das schließende Anführungszeichen nach dem Ausrufezeichen.",
@@ -15663,15 +15729,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch4/d4_16.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch4/d4_16.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch4/d4_16.json",
         "sha256": "bacd15d00176eee26987c82d43904ce50f567b0c1cd2ded27c14ef0b580c74ea",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "1b3fd7fa3718ff7164a0cf499db9d8956e80ccd5507d880a66ff4711bd2c6ee9"
+        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
       },
       "sourceRubric": [
         "1 Punkt für die vollständige richtige Worttrennung: Der | kleine | Fuchs | schläft | unter | der | Bank.",
@@ -15804,15 +15870,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch4/d4_17.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch4/d4_17.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch4/d4_17.json",
         "sha256": "e90f06496b0e7e51ad58b3dab2ef043cb78d83c5ec0a5933b71ac2f8422d80f0",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "1b3fd7fa3718ff7164a0cf499db9d8956e80ccd5507d880a66ff4711bd2c6ee9"
+        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
       },
       "sourceRubric": [
         "a) 1 Punkt für die eindeutige Auswahl hoffen.",
@@ -15835,7 +15901,10 @@
       "sourceTaskSha256": "e90f06496b0e7e51ad58b3dab2ef043cb78d83c5ec0a5933b71ac2f8422d80f0",
       "prerequisiteCompetencyIds": [],
       "requiresTaughtContent": true,
-      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde."
+      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
+      "digitalText": {
+        "a) Kreise das Verb ein.": "a) Finde das Verb."
+      }
     },
     {
       "id": "d4_18",
@@ -15943,15 +16012,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch4/d4_18.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch4/d4_18.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch4/d4_18.json",
         "sha256": "d0d92bff0f2987a53c62fb9ce3f49297e13a74f09826cc3d1c142826efe79df7",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "1b3fd7fa3718ff7164a0cf499db9d8956e80ccd5507d880a66ff4711bd2c6ee9"
+        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
       },
       "sourceRubric": [
         "Je 1 Punkt für die richtige Grundform geben beziehungsweise sehen. Beide Teile unabhängig bewerten.",
@@ -16116,15 +16185,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch4/d4_19.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch4/d4_19.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch4/d4_19.json",
         "sha256": "f7649eea8cb1f8405daa5eb694e08d63ed24583b0ed71da50464a2816b1a061e",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "1b3fd7fa3718ff7164a0cf499db9d8956e80ccd5507d880a66ff4711bd2c6ee9"
+        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
       },
       "sourceRubric": [
         "a) 1 Punkt für den genau abgegrenzten gemeinsamen Wortstamm mal beziehungsweise Mal. malen oder das ganze Wort bemalen ist nicht der verlangte Stamm.",
@@ -16246,15 +16315,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch4/d4_20.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch4/d4_20.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch4/d4_20.json",
         "sha256": "16b7974b061099df018a21f40fa62154f5e95c188e6c156307e97edd2f9ebe6e",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "1b3fd7fa3718ff7164a0cf499db9d8956e80ccd5507d880a66ff4711bd2c6ee9"
+        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
       },
       "sourceRubric": [
         "Je 1 Punkt für die grammatisch passende Form langen beziehungsweise dünnes. Beide Teile unabhängig bewerten.",
@@ -16383,15 +16452,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch4/d4_21.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch4/d4_21.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch4/d4_21.json",
         "sha256": "d8817cfc595b7520dbf1b513e59554d463eacb6ae5f046ffec47c55ee8530d63",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "1b3fd7fa3718ff7164a0cf499db9d8956e80ccd5507d880a66ff4711bd2c6ee9"
+        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
       },
       "sourceRubric": [
         "1 Punkt für stark in der Grundstufe und unabhängig davon 1 Punkt für stärksten in der zweiten Vergleichsstufe.",
@@ -16645,15 +16714,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch4/d4_22.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch4/d4_22.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch4/d4_22.json",
         "sha256": "a0da304c522aa67f8cd6e767a04616d34b7b53d3a7f65fe9691d866cb4ea505e",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "1b3fd7fa3718ff7164a0cf499db9d8956e80ccd5507d880a66ff4711bd2c6ee9"
+        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
       },
       "sourceRubric": [
         "a) 0,5 Punkte, wenn genau beide Verbteile haben und gedeckt markiert sind; unabhängig davon 0,5 Punkte für Perfekt.",
@@ -16677,7 +16746,10 @@
       "sourceTaskSha256": "a0da304c522aa67f8cd6e767a04616d34b7b53d3a7f65fe9691d866cb4ea505e",
       "prerequisiteCompetencyIds": [],
       "requiresTaughtContent": true,
-      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde."
+      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
+      "digitalText": {
+        "Unterstreiche in jedem Satz alle Wörter, die zur Verbform gehören. Schreibe die grammatische Zeitform daneben:": "Wähle in jedem Satz alle Wörter, die zur Verbform gehören. Wähle dann die grammatische Zeitform:"
+      }
     },
     {
       "id": "d4_23",
@@ -16779,15 +16851,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch4/d4_23.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch4/d4_23.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch4/d4_23.json",
         "sha256": "65442416967ca5c222d6bb352f9f2f4eccdc8a964a12be8276d1683631db2bb2",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "1b3fd7fa3718ff7164a0cf499db9d8956e80ccd5507d880a66ff4711bd2c6ee9"
+        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
       },
       "sourceRubric": [
         "Je 1 Punkt für lachtest beziehungsweise las. Beide Teile unabhängig bewerten; Person und Zahl müssen erhalten bleiben.",
@@ -16948,15 +17020,15 @@
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tasks/deutsch4/d4_24.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tasks/deutsch4/d4_24.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tasks/deutsch4/d4_24.json",
         "sha256": "33c86ed2d663de8efad66104b641beaf63e07517489f70d30c392e183c26ccb8",
         "reviewStatus": "project-reviewed",
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "1b3fd7fa3718ff7164a0cf499db9d8956e80ccd5507d880a66ff4711bd2c6ee9"
+        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
       },
       "sourceRubric": [
         "a) 1 Punkt, wenn die vollständige und ausschließlich gemeinte Wortgruppe ein müder Wanderer markiert ist. Nur Wanderer oder eine Markierung einschließlich sitzt reicht nicht.",
@@ -16980,7 +17052,11 @@
       "sourceTaskSha256": "33c86ed2d663de8efad66104b641beaf63e07517489f70d30c392e183c26ccb8",
       "prerequisiteCompetencyIds": [],
       "requiresTaughtContent": true,
-      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde."
+      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
+      "digitalText": {
+        "a) Unterstreiche das ganze Subjekt.": "a) Wähle alle Wörter des ganzen Subjekts.",
+        "b) Wähle die passende Verbform aus der Klammer und schreibe sie in die Lücke.": "b) Wähle die passende Verbform aus der Klammer."
+      }
     },
     {
       "id": "wu_transfer_reading_evidence",
@@ -18540,13 +18616,13 @@
       "solutionsSha256": "8398bce87870f2ad5b68389702b853cb9fbab40ea2f1f5bc04748a417518bcdd",
       "printPages": 8,
       "solutionsPages": 8,
-      "printUrl": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/materials/modular/deutsch1/Kompass4_deutsch1_Aufgaben.pdf",
+      "printUrl": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/materials/modular/deutsch1/Kompass4_deutsch1_Aufgaben.pdf",
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tests/deutsch1.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tests/deutsch1.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tests/deutsch1.json",
         "sha256": "47879b4e4fe85783d68edd1678389ddf3b46bd0811799d31b0f75af8c1f5ff74",
         "reviewStatus": "project-reviewed",
         "official": false
@@ -18629,17 +18705,17 @@
       ],
       "printAsset": "assets/kompass/print/deutsch2_tasks.pdf",
       "solutionsAsset": "assets/kompass/print/deutsch2_solutions.pdf",
-      "printSha256": "274c9e6afdf95164b0b3822bc93addbba0030e8695a150aac2b46baf5d7b779a",
-      "solutionsSha256": "46fe0bc706fdb738ead03ffe58a5c18e6baf4cf9733ce669d6e008eaa876e74b",
+      "printSha256": "bd99407559e49e874f5cd98e3cdcca4a1380703f6c827ce646ec1d59c036019b",
+      "solutionsSha256": "532810f9c81ac22c4e435d6826a5d5d745d0fb7bb1fb8c0d01877e4393a0fab6",
       "printPages": 8,
       "solutionsPages": 6,
-      "printUrl": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/materials/modular/deutsch2/Kompass4_deutsch2_Aufgaben.pdf",
+      "printUrl": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/materials/modular/deutsch2/Kompass4_deutsch2_Aufgaben.pdf",
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tests/deutsch2.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tests/deutsch2.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tests/deutsch2.json",
         "sha256": "a6ab1c55a54ed5a151b8a43574479a2206ea49699e81b76756dd4ab5fdc61278",
         "reviewStatus": "project-reviewed",
         "official": false
@@ -18724,13 +18800,13 @@
       "solutionsSha256": "45644c0541eabe4c4281660a2a5a09dafa36da36019bd63436868f02b05ee271",
       "printPages": 8,
       "solutionsPages": 6,
-      "printUrl": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/materials/modular/deutsch3/Kompass4_deutsch3_Aufgaben.pdf",
+      "printUrl": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/materials/modular/deutsch3/Kompass4_deutsch3_Aufgaben.pdf",
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tests/deutsch3.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tests/deutsch3.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tests/deutsch3.json",
         "sha256": "d4640bf9dc50f463025ddb7d7d6ba788adc2f63d9c795526308dc3c1f0a2f5a4",
         "reviewStatus": "project-reviewed",
         "official": false
@@ -18815,13 +18891,13 @@
       "solutionsSha256": "06b06ef1b9bb5de6c065b492e39b6dc5b7d4dcd6cb706acd4eee0ec2f9a446c3",
       "printPages": 8,
       "solutionsPages": 8,
-      "printUrl": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/materials/modular/deutsch4/Kompass4_deutsch4_Aufgaben.pdf",
+      "printUrl": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/materials/modular/deutsch4/Kompass4_deutsch4_Aufgaben.pdf",
       "source": {
         "kind": "project-original",
         "repository": "https://github.com/CrispStrobe/kompass4",
-        "revision": "9a0b25a6b0706b7c7944836e00f163bcbfd46676",
+        "revision": "207c6a089075adf3eface6dea5d9842d8a9b415f",
         "path": "content/tests/deutsch4.json",
-        "url": "https://github.com/CrispStrobe/kompass4/blob/9a0b25a6b0706b7c7944836e00f163bcbfd46676/content/tests/deutsch4.json",
+        "url": "https://github.com/CrispStrobe/kompass4/blob/207c6a089075adf3eface6dea5d9842d8a9b415f/content/tests/deutsch4.json",
         "sha256": "dd2d7e5bc9795bff87a1655e222a6b38960525b1498901e23a4578ba667b7083",
         "reviewStatus": "project-reviewed",
         "official": false

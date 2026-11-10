@@ -426,7 +426,7 @@ class _KompassPlayerScreenState extends State<KompassPlayerScreen>
               height: 1.3)),
       const SizedBox(height: 20),
       KompassBlocks(
-          blocks: _displayBlocks(),
+          blocks: _task.screenBlocks,
           showChoices: false,
           redundantParagraphs: _task.parts.map((p) => p.prompt).toSet()),
       const Divider(height: 30),
@@ -439,31 +439,6 @@ class _KompassPlayerScreenState extends State<KompassPlayerScreen>
                 style: const TextStyle(color: kompassMuted, fontSize: 13))),
       ..._responseInputs(stimulus, attempt),
     ]));
-  }
-
-  List<Map<String, dynamic>> _displayBlocks() {
-    final raw = _task.metadata['digitalInstructions'];
-    if (raw == null) return _task.blocks;
-    final instruction = raw is List ? raw.join('\n') : '$raw';
-    final blocks = <Map<String, dynamic>>[];
-    var inserted = false;
-    for (final block in _task.blocks) {
-      if (block['type'] == 'paragraph' && block['style'] == 'instruction') {
-        if (!inserted)
-          blocks.add({
-            'type': 'paragraph',
-            'style': 'instruction',
-            'text': instruction
-          });
-        inserted = true;
-      } else {
-        blocks.add(block);
-      }
-    }
-    if (!inserted)
-      blocks.insert(0,
-          {'type': 'paragraph', 'style': 'instruction', 'text': instruction});
-    return blocks;
   }
 
   List<Widget> _responseInputs(
@@ -832,7 +807,7 @@ class _KompassPlayerScreenState extends State<KompassPlayerScreen>
       final words = [
         if (stimulus != null) ...stimulus.lines.map((l) => l.text),
         _task.title,
-        ..._displayBlocks().where((b) => b['type'] == 'paragraph').map(
+        ..._task.screenBlocks.where((b) => b['type'] == 'paragraph').map(
             (b) => KompassRichText.span('${b['text']}', null).toPlainText()),
         ..._task.parts.map((p) => p.prompt)
       ].join('. ');
