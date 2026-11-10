@@ -1143,6 +1143,141 @@ def lexrel(args):
     print_lanes(pool)
 
 
+# ─── A meaning a child can read ──────────────────────────────────────────
+# German glosses come from Wiktionary and DWDS and are written for adults:
+# Planet "…der sich um einen Stern bewegt und seine Umlaufbahn freigeräumt
+# hat", Haut "…Wärmeregulierung". One family writes a gloss for a child (or
+# keeps the one there if it already is one), another checks it is right for
+# the usual meaning, readable at eight, and does not use the word itself.
+
+KIDGLOSS_PROMPT = """You write word meanings for a {language} vocabulary app for children aged 7 to 10.
+For each entry write the usual meaning of the word in ONE short {language} sentence or phrase of at most
+12 words, using only common everyday words a child knows. Describe the meaning given in "gloss"
+(the usual one), not a rare sense. Do not use the word itself or a word of its family.
+{style}
+If the current gloss is already short, correct and easy for a child, return it unchanged.
+
+Answer with JSON only: [{{"id": "...", "gloss": "..."}}]
+
+Entries:
+{entries}"""
+
+KIDGLOSS_STYLE = {
+    'de': 'Write like a children\'s dictionary: "Ein Tier mit Fell, das bellt." for Hund, '
+          '"sehr müde sein und nicht mehr können" for erschöpft sein.',
+    'en': 'Write like a children\'s dictionary: "An animal with fur that barks." for dog, '
+          '"very tired" for exhausted.',
+}
+
+KIDGLOSS_VERIFY = """You check word meanings written for children aged 7 to 10 learning {language}.
+For each entry, "ok" is true only if ALL hold:
+- the gloss is correct for the usual meaning of the word (the "old" gloss shows the intended sense),
+- a child of eight can understand every word of it,
+- it does not contain the word itself or a word of its family,
+- it is at most 12 words.
+
+Answer with JSON only: [{{"id": "...", "ok": true|false}}]
+
+Entries:
+{entries}"""
+
+
+def kidgloss(args):
+    env = load_env(args.env_file)
+    pool = Pool(env, only=set(args.lanes.split(',')) if args.lanes else None)
+    if args.proposers:
+        assign_roles(pool, set(args.proposers.split(',')),
+                     set(args.verifiers.split(',')))
+    language = 'German' if args.lang == 'de' else 'English'
+    out = OUT_DIR / f'{args.lang}_kidgloss.jsonl'
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    seen = {}
+    if out.exists():
+        for line in open(out, encoding='utf-8'):
+            if line.strip():
+                r = json.loads(line)
+                seen[r['id']] = r['src']
+    db = sqlite3.connect(args.pack)
+    db.row_factory = sqlite3.Row
+    rows = db.execute(
+        "SELECT id, original_id, word, word_type, article, grade_level, "
+        "enrichment_json, metadata_json FROM words WHERE grade_level "
+        "BETWEEN 1 AND ? AND coalesce(json_extract(metadata_json, "
+        "'$.quality.vocabulary'), 1) = 1 ORDER BY grade_level, id",
+        (args.max_grade,)).fetchall()
+    todo = []
+    for row in rows:
+        if row['word_type'] not in RELATION_TYPES:
+            continue
+        entry = relation_entry(row, args.lang)
+        gloss = entry['meaning']
+        if not gloss:
+            continue
+        metadata = json.loads(row['metadata_json'] or '{}')
+        if args.only_long and len(gloss.split()) <= 12 \
+                and not metadata.get('gloss_above_reader'):
+            continue
+        src = digest(entry)
+        if seen.get(entry['id']) != src:
+            todo.append(({'id': entry['id'], 'word': entry['word'],
+                          'word_type': entry['word_type'], 'gloss': gloss}, src))
+    if args.limit:
+        todo = todo[:args.limit]
+    batches = [todo[i:i + args.batch] for i in range(0, len(todo), args.batch)]
+    print(f'{len(todo)} entries in {len(batches)} batches', flush=True)
+    lock = threading.Lock()
+    stats = {'entries': 0, 'rewritten': 0, 'kept': 0, 'rejected': 0, 'failed': 0}
+
+    def one(batch):
+        entries = [e for e, _ in batch]
+        proposer, proposals = pool.run('propose', KIDGLOSS_PROMPT.format(
+            language=language, style=KIDGLOSS_STYLE[args.lang],
+            entries=json.dumps(entries, ensure_ascii=False, indent=0)), attempts=30)
+        by_id = {p.get('id'): p for p in proposals if isinstance(p, dict)}
+        shown = []
+        for entry in entries:
+            g = (by_id.get(entry['id']) or {}).get('gloss')
+            if isinstance(g, str) and g.strip():
+                shown.append({'id': entry['id'], 'word': entry['word'],
+                              'old': entry['gloss'], 'gloss': g.strip()})
+        verifier, verdicts = pool.run('verify', KIDGLOSS_VERIFY.format(
+            language=language,
+            entries=json.dumps(shown, ensure_ascii=False, indent=0)),
+            exclude_family=proposer.family, attempts=30)
+        ok = {v.get('id'): v.get('ok') for v in verdicts if isinstance(v, dict)}
+        src_of = {e['id']: src for e, src in batch}
+        with lock, open(out, 'a', encoding='utf-8') as f:
+            for item in shown:
+                if not isinstance(ok.get(item['id']), bool):
+                    continue
+                record = {'id': item['id'], 'word': item['word'],
+                          'src': src_of[item['id']], 'gloss': item['gloss'],
+                          'old': item['old'], 'ok': ok[item['id']],
+                          'by': proposer.model, 'checked_by': verifier.model}
+                f.write(json.dumps(record, ensure_ascii=False) + '\n')
+                stats['entries'] += 1
+                if not record['ok']:
+                    stats['rejected'] += 1
+                elif record['gloss'] == record['old']:
+                    stats['kept'] += 1
+                else:
+                    stats['rewritten'] += 1
+
+    started = time.time()
+    with ThreadPoolExecutor(max_workers=args.workers) as ex:
+        futures = [ex.submit(one, b) for b in batches]
+        for i, f in enumerate(as_completed(futures), 1):
+            try:
+                f.result()
+            except Exception as e:
+                stats['failed'] += 1
+                print(f'batch failed: {e}', flush=True)
+            if i % 10 == 0 or i == len(futures):
+                rate = i / max(1, time.time() - started) * 3600
+                print(f'[{i}/{len(futures)}] {stats} ~{rate:.0f} batches/h', flush=True)
+    print_lanes(pool)
+
+
 def print_lanes(pool):
     print('lanes:', ', '.join(
         f'{l.name} {l.ok}ok/{l.failures}fail'
@@ -1275,6 +1410,19 @@ def main():
     lx.add_argument('--proposers', default='mistral-large,qwen3.8-27b')
     lx.add_argument('--verifiers', default='iceman,magistral-medium,qwen3.8-27b,gpt-oss-120b,command-a')
     lx.add_argument('--env-file', default=str(pathlib.Path.home() / 'code' / '.env'))
+    kg = sub.add_parser('kidgloss')
+    kg.add_argument('pack')
+    kg.add_argument('--lang', choices=['de', 'en'], required=True)
+    kg.add_argument('--max-grade', type=int, default=4)
+    kg.add_argument('--only-long', action='store_true',
+                    help='only glosses over 12 words or marked above the reader')
+    kg.add_argument('--limit', type=int)
+    kg.add_argument('--batch', type=int, default=20)
+    kg.add_argument('--workers', type=int, default=4)
+    kg.add_argument('--lanes')
+    kg.add_argument('--proposers', default='mistral-large')
+    kg.add_argument('--verifiers', default='iceman,gpt-oss-120b,gemini-3-flash,nemotron-ultra,longcat-2.5')
+    kg.add_argument('--env-file', default=str(pathlib.Path.home() / 'code' / '.env'))
     pf = sub.add_parser('phrasal-fits')
     pf.add_argument('--judges', default='mistral-large,command-a')
     pf.add_argument('--round', type=int, default=1,
@@ -1288,7 +1436,8 @@ def main():
     args = parser.parse_args()
     {'propose': propose, 'report': report, 'phrasal': phrasal,
      'audit': audit, 'relations': relations,
-     'phrasal-fits': phrasal_fits, 'lexrel': lexrel}[args.cmd](args)
+     'phrasal-fits': phrasal_fits, 'lexrel': lexrel,
+     'kidgloss': kidgloss}[args.cmd](args)
 
 
 if __name__ == '__main__':

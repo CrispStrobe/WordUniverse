@@ -207,11 +207,14 @@ def main():
     phrasal = apply_phrasal(db) if args.lang == 'en' else None
     relations = apply_relations(db, args.lang)
     lexrel = apply_lexrel(db, args.lang)
+    # Last: it changes the leading gloss the steps above were read against.
+    kidgloss = apply_kidgloss(db, args.lang)
     db.commit()
     print(json.dumps({'corrections': len(corrections), **counts, 'fields': fields,
                       **({'phrasal': phrasal} if phrasal else {}),
                       **({'relations': relations} if relations else {}),
-                      **({'lexrel': lexrel} if lexrel else {})}))
+                      **({'lexrel': lexrel} if lexrel else {}),
+                      **({'kidgloss': kidgloss} if kidgloss else {})}))
 
 
 def apply_lexrel(db, lang):
@@ -249,6 +252,50 @@ def apply_lexrel(db, lang):
                                       if t.lower() in listed]
         db.execute('UPDATE words SET metadata_json=? WHERE id=?',
                    (json.dumps(metadata, ensure_ascii=False), row['id']))
+        counts['applied'] += 1
+    return counts
+
+
+def apply_kidgloss(db, lang):
+    """The children's gloss of <lang>_kidgloss.jsonl, where the check passed.
+
+    It goes first and the old glosses stay behind it, as with a corrected
+    gloss above; gloss_source says it was written for the word.
+    """
+    path = OUT_DIR / f'{lang}_kidgloss.jsonl'
+    if not path.exists():
+        return None
+    latest = {}
+    for line in path.read_text(encoding='utf-8').splitlines():
+        if line.strip():
+            record = json.loads(line)
+            latest[record['id']] = record
+    counts = {'applied': 0, 'unchanged': 0, 'rejected': 0, 'stale': 0, 'missing': 0}
+    for entry_id, record in latest.items():
+        if not record.get('ok'):
+            counts['rejected'] += 1
+            continue
+        row = find_row(db, entry_id, 'id, original_id, word, word_type, article, '
+                                     'enrichment_json, metadata_json')
+        if row is None:
+            counts['missing'] += 1
+            continue
+        if digest(relation_entry(row, lang)) != record['src']:
+            counts['stale'] += 1
+            continue
+        gloss = record['gloss'].strip()
+        if gloss == record.get('old'):
+            counts['unchanged'] += 1
+            continue
+        enrichment = json.loads(row['enrichment_json'] or '{}')
+        metadata = json.loads(row['metadata_json'] or '{}')
+        enrichment['definitions'] = [gloss] + [
+            d for d in enrichment.get('definitions') or [] if d != gloss]
+        metadata['gloss_source'] = 'llm-reviewed'
+        metadata.pop('gloss_above_reader', None)
+        db.execute('UPDATE words SET enrichment_json=?, metadata_json=? WHERE id=?',
+                   (json.dumps(enrichment, ensure_ascii=False),
+                    json.dumps(metadata, ensure_ascii=False), row['id']))
         counts['applied'] += 1
     return counts
 

@@ -167,6 +167,21 @@ class Guards(unittest.TestCase):
         # Empty is a verdict: nothing to ask.
         self.assertEqual(meta['llm_antonyms'], [])
 
+    def test_a_checked_childrens_gloss_goes_first(self):
+        root = pathlib.Path(self.dir.name)
+        src = correct.digest(self.relation(1))
+        (root / 'de_kidgloss.jsonl').write_text('\n'.join(json.dumps(r) for r in [
+            {'id': 'w1', 'src': src, 'gloss': 'Ein Tier, das bellt.',
+             'old': 'Sternbilder', 'ok': True},
+            {'id': 'w3', 'src': correct.digest(self.relation(3)),
+             'gloss': 'Fett halt.', 'old': 'dick', 'ok': False},
+        ]) + '\n')
+        self.run_apply()
+        _, _, enr, meta = self.row(1)
+        self.assertEqual(enr['definitions'], ['Ein Tier, das bellt.', 'Sternbilder'])
+        self.assertEqual(meta['gloss_source'], 'llm-reviewed')
+        self.assertEqual(self.row(3)[2]['definitions'], ['dick'])
+
 
 class PhrasalFits(unittest.TestCase):
     def test_only_particles_no_judge_fits_anywhere_are_offered(self):
