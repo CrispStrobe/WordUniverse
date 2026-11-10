@@ -255,21 +255,40 @@ def build_enrichment_data(
     # --- END V24 KEYS ---
 
     # 6. Aggregated Semantics (Guaranteed Keys)
+    #
+    # Wiktionary's synonyms first, in its order (it numbers them by sense,
+    # and sense 1 comes first), then OdeNet's. Three things this used to
+    # get wrong (fixed 2026-11):
+    #   * the word itself stayed in: the Space compares a lowercased word
+    #     with OdeNet's capitalised lemma, so "Hund" was a synonym of Hund;
+    #   * set() order changed on every run, and the cut to ten below then
+    #     kept a different ten each time;
+    #   * every OdeNet sense was poured in. That cannot be undone here,
+    #     because OdeNet's definitions are often on the wrong synset; the
+    #     list is ranked by sense afterwards, against Wiktionary's sense
+    #     numbers, by tools/pack/build_synonym_senses.py.
+    headword = (enrichment.get('primary_lemma') or api_response.get('input_word')
+                or api_response.get('word') or '').lower()
+
+    def ordered(values):
+        out = {}
+        for v in values:
+            if isinstance(v, str) and v.strip() and v.strip().lower() != headword:
+                out.setdefault(v.strip().lower(), v.strip())
+        return list(out.values())
+
     wikt_synonyms = semantics.get('wiktionary_synonyms', [])
-    syn_set = set(
-        item['synonym_word'] for item in wikt_synonyms if isinstance(item, dict) and 'synonym_word' in item
-    )
     wikt_antonyms = semantics.get('wiktionary_antonyms', [])
-    ant_set = set(
-        item['antonym_word'] for item in wikt_antonyms if isinstance(item, dict) and 'antonym_word' in item
-    )
-    for s in odenet_senses_list:
-        for syn in s.get('synonyms', []): syn_set.add(syn)
-        for ant in s.get('antonyms', []): ant_set.add(ant)
-        
+    all_synonyms = ordered(
+        [item['synonym_word'] for item in wikt_synonyms
+         if isinstance(item, dict) and 'synonym_word' in item]
+        + [syn for s in odenet_senses_list for syn in s.get('synonyms', [])])
+    all_antonyms = ordered(
+        [item['antonym_word'] for item in wikt_antonyms
+         if isinstance(item, dict) and 'antonym_word' in item]
+        + [ant for s in odenet_senses_list for ant in s.get('antonyms', [])])
+
     # --- MODIFIED WITH --no-limits ---
-    all_synonyms = list(syn_set)
-    all_antonyms = list(ant_set)
     
     if not no_limits and len(all_synonyms) > 10:
         log_verbose(f"    Found {len(all_synonyms)} synonyms. Limiting to 10.")

@@ -154,7 +154,7 @@ class Guards(unittest.TestCase):
         self.db.execute(
             "UPDATE words SET enrichment_json=? WHERE id=1",
             (json.dumps({'definitions': ['Sternbilder'],
-                         'synonyms': [{'word': 'Köter'}, 'Treffer'],
+                         'synonyms': [{'word': 'Köter'}, 'Treffer', 'fett'],
                          'antonyms': ['Katze']}),))
         self.db.commit()
         root = pathlib.Path(self.dir.name)
@@ -164,8 +164,33 @@ class Guards(unittest.TestCase):
         self.run_apply()
         meta = self.row(1)[3]
         self.assertEqual(meta['llm_synonyms'], ['Köter'])
+        # A pack word, so it was put to the judges, who turned it down.
+        self.assertEqual(meta['llm_rejected_synonyms'], ['fett'])
         # Empty is a verdict: nothing to ask.
         self.assertEqual(meta['llm_antonyms'], [])
+
+    def test_synonyms_ranked_by_sense_replace_the_lists_they_were_read_from(self):
+        listed = {'definitions': ['Sternbilder'],
+                  'synonyms': ['Hurensohn (derb)', 'Hund', 'Köter'],
+                  'antonyms': ['Katze']}
+        self.db.execute("UPDATE words SET enrichment_json=? WHERE id IN (1, 3)",
+                        (json.dumps(listed),))
+        self.db.commit()
+        src = apply.synonym_lists_digest(listed)
+        root = pathlib.Path(self.dir.name)
+        (root / 'de_synonym_senses.jsonl').write_text('\n'.join(json.dumps(r) for r in [
+            {'id': 'w1', 'src': src, 'synonyms': ['Köter'], 'antonyms': ['Katze']},
+            {'id': 'w3', 'src': 'stale', 'synonyms': [], 'antonyms': []},
+        ]) + '\n')
+        (root / 'de_lexrel.jsonl').write_text(json.dumps(
+            {'id': 'w1', 'src': correct.digest(self.relation(1)),
+             'synonyms': ['Köter'], 'antonyms': []}) + '\n')
+        self.run_apply()
+        _, _, enr, meta = self.row(1)
+        self.assertEqual(enr['synonyms'], ['Köter'])
+        self.assertEqual(meta['llm_synonyms'], ['Köter'])
+        # Read from other lists: left as it is.
+        self.assertEqual(self.row(3)[2]['synonyms'], listed['synonyms'])
 
     def test_a_checked_childrens_gloss_goes_first(self):
         root = pathlib.Path(self.dir.name)

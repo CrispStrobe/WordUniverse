@@ -120,11 +120,28 @@ python 12_api_wins_3.py
 python 13_fix_genders_manually.py
 python 13b_enrich_with_openthesaurus.py
 python 14_convert_db_to_sqflite.py
+# Then, on the built pack, rank each word's synonyms by sense (writes
+# pipeline/llm_review/de_synonym_senses.jsonl, which CI applies):
+python3 ../../tools/pack/build_synonym_senses.py PACK.db \
+    --wiktionary DIR   # parquet of cstr/de-wiktionary-extracted
+    --openthesaurus openthesaurus_dump.sql   # --wn defaults to ~/.wn_data/wn.db
 gzip -9 grundwortschatz.db -c > ../../assets/grundwortschatz.db.gz
 ```
 
 Wall time on a recent laptop: ~3–8 h depending on HF Space warmup and
 `/analyze_word` latency.
+
+**Synonyms (fixed 2026-11).** Steps 11 and 13b took every synset that holds
+a word, in OdeNet and in OpenThesaurus, and poured them into one list. With
+three bugs on top — OpenThesaurus's hidden (rejected) synsets were read,
+`derb`/`vulgär` terms were kept with the level written into the word, and the
+Space compared a lowercased word with OdeNet's capitalised lemma so a noun
+stayed in its own list — "Hund" listed insults and "Preis" listed "Egon
+Schiele Art Center". 11 and 13b now skip what is plainly wrong, but which
+terms belong to the meaning a child is shown cannot be decided there: OdeNet's
+definitions are often on the wrong synset. `tools/pack/thesaurus_de.py` decides
+it with Wiktionary's sense numbers and ranks the list; tiers and the share of
+each the three-judge review accepted are in its `TIER_ORDER` comment.
 
 ## Final step: slim the pack before publishing
 

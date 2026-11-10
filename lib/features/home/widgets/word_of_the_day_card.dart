@@ -123,7 +123,7 @@ class _WordOfTheDayContent extends StatelessWidget {
   }
 
   List<String> get _synonyms {
-    return (word.apiEnrichment?.synonyms ?? []).take(3).toList();
+    return word.shownSynonyms.take(3).toList();
   }
 
   void _showDetail(BuildContext context, bool isDE) {
@@ -342,8 +342,8 @@ class _WordDetailSheet extends StatelessWidget {
     final s = S.of(context)!;
     final audioService = context.read<AudioService>();
     final defs = word.learnerDefinitions;
-    final synonyms = word.apiEnrichment?.synonyms ?? [];
-    final antonyms = word.apiEnrichment?.antonyms ?? [];
+    final synonyms = word.shownSynonyms;
+    final antonyms = word.shownAntonyms;
     final entryNotes = word.entryNotes;
     final gradeExamples =
         word.apiEnrichment?.gradeExamples?['${word.gradeLevel}'] ?? [];

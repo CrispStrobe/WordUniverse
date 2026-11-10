@@ -53,7 +53,8 @@ import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from llm_correct import (OUT_DIR, PARTICLES, RELATIONS_TEXT,  # noqa: E402
-                         digest, entry_of, relation_entry)
+                         digest, entry_of, lexrel_candidates,
+                         pack_vocabulary, relation_entry)
 from llm_correct import _terms as terms  # noqa: E402
 
 GENUS = {'der': 'mask.', 'die': 'fem.', 'das': 'neut.'}
@@ -206,15 +207,67 @@ def main():
         counts['applied'] += 1
     phrasal = apply_phrasal(db) if args.lang == 'en' else None
     relations = apply_relations(db, args.lang)
+    # lexrel first: it names the candidates the judges turned down, which
+    # are read from the lists as they were reviewed.
     lexrel = apply_lexrel(db, args.lang)
+    senses = apply_synonym_senses(db, args.lang)
     # Last: it changes the leading gloss the steps above were read against.
     kidgloss = apply_kidgloss(db, args.lang)
     db.commit()
     print(json.dumps({'corrections': len(corrections), **counts, 'fields': fields,
                       **({'phrasal': phrasal} if phrasal else {}),
                       **({'relations': relations} if relations else {}),
+                      **({'synonym_senses': senses} if senses else {}),
                       **({'lexrel': lexrel} if lexrel else {}),
                       **({'kidgloss': kidgloss} if kidgloss else {})}))
+
+
+def synonym_lists_digest(enrichment):
+    import hashlib
+    body = json.dumps([enrichment.get('synonyms') or [],
+                       enrichment.get('antonyms') or []],
+                      sort_keys=True, ensure_ascii=False)
+    return hashlib.sha256(body.encode()).hexdigest()[:16]
+
+
+def apply_synonym_senses(db, lang):
+    """Synonyms ranked by sense, from <lang>_synonym_senses.jsonl.
+
+    Written by build_synonym_senses.py from Wiktionary, OpenThesaurus and
+    OdeNet: the word itself, offensive terms, hidden synsets and terms of
+    no sense the word shows are gone, and the terms of the meaning shown
+    first come first. Applied only where the lists are still the ones it
+    read.
+    """
+    path = OUT_DIR / f'{lang}_synonym_senses.jsonl'
+    if not path.exists():
+        return None
+    counts = {'applied': 0, 'stale': 0, 'missing': 0}
+    for line in path.read_text(encoding='utf-8').splitlines():
+        if not line.strip():
+            continue
+        record = json.loads(line)
+        row = find_row(db, record['id'], 'id, enrichment_json, metadata_json')
+        if row is None:
+            counts['missing'] += 1
+            continue
+        enrichment = json.loads(row['enrichment_json'] or '{}')
+        if synonym_lists_digest(enrichment) != record['src']:
+            counts['stale'] += 1
+            continue
+        enrichment['synonyms'] = record['synonyms']
+        enrichment['antonyms'] = record['antonyms']
+        metadata = json.loads(row['metadata_json'] or '{}')
+        for key in ('synonyms', 'antonyms'):
+            listed = {t.lower() for t in record[key]}
+            for field in (f'llm_{key}', f'llm_rejected_{key}'):
+                if field in metadata:
+                    metadata[field] = [t for t in metadata[field] if t.lower() in listed]
+        db.execute('UPDATE words SET enrichment_json=?, metadata_json=? WHERE id=?',
+                   (json.dumps(enrichment, ensure_ascii=False),
+                    json.dumps(metadata, ensure_ascii=False), row['id']))
+        counts['applied'] += 1
+    return counts
 
 
 def apply_lexrel(db, lang):
@@ -225,6 +278,9 @@ def apply_lexrel(db, lang):
     empty list means the review found no answer to ask, which is different
     from not having been reviewed. Kept only where the term is still listed,
     so a later change to the lists cannot smuggle a term in.
+
+    Also metadata.llm_rejected_*: the candidates put to the judges that they
+    did not accept, so a list shown to a child can leave them out.
     """
     path = OUT_DIR / f'{lang}_lexrel.jsonl'
     if not path.exists():
@@ -235,9 +291,10 @@ def apply_lexrel(db, lang):
             record = json.loads(line)
             latest[record['id']] = record
     counts = {'applied': 0, 'stale': 0, 'missing': 0}
+    vocabulary = pack_vocabulary(db)
     for entry_id, record in latest.items():
         row = find_row(db, entry_id, 'id, original_id, word, word_type, article, '
-                                     'enrichment_json, metadata_json')
+                                     'grade_level, enrichment_json, metadata_json')
         if row is None:
             counts['missing'] += 1
             continue
@@ -246,10 +303,14 @@ def apply_lexrel(db, lang):
             continue
         enrichment = json.loads(row['enrichment_json'] or '{}')
         metadata = json.loads(row['metadata_json'] or '{}')
+        asked = dict(zip(('synonyms', 'antonyms'), lexrel_candidates(row, vocabulary)))
         for key in ('synonyms', 'antonyms'):
             listed = {t.lower() for t in terms(enrichment.get(key))}
             metadata[f'llm_{key}'] = [t for t in record.get(key) or []
                                       if t.lower() in listed]
+            accepted = {t.lower() for t in record.get(key) or []}
+            metadata[f'llm_rejected_{key}'] = [t for t in asked[key]
+                                               if t.lower() not in accepted]
         db.execute('UPDATE words SET metadata_json=? WHERE id=?',
                    (json.dumps(metadata, ensure_ascii=False), row['id']))
         counts['applied'] += 1

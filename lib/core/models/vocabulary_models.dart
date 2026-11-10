@@ -1023,6 +1023,33 @@ class GermanWord {
   final List<String>? reviewedSynonyms;
   final List<String>? reviewedAntonyms;
 
+  /// The candidates the judges were shown and did not accept (metadata
+  /// `llm_rejected_synonyms`, `llm_rejected_antonyms`).
+  final List<String> rejectedSynonyms;
+  final List<String> rejectedAntonyms;
+
+  /// Synonyms to show a child next to the word: what the review accepted,
+  /// then the rest of the list (which the pack orders by sense, the meaning
+  /// shown first) without what the review turned down.
+  List<String> get shownSynonyms => _shown(
+      reviewedSynonyms, rejectedSynonyms, apiEnrichment?.synonyms ?? const []);
+
+  /// Antonyms to show a child, chosen the same way as [shownSynonyms].
+  List<String> get shownAntonyms => _shown(
+      reviewedAntonyms, rejectedAntonyms, apiEnrichment?.antonyms ?? const []);
+
+  static List<String> _shown(
+      List<String>? accepted, List<String> rejected, List<String> listed) {
+    final out = <String>[...?accepted];
+    final skip = {
+      for (final t in [...out, ...rejected]) t.toLowerCase(),
+    };
+    for (final t in listed) {
+      if (skip.add(t.toLowerCase())) out.add(t);
+    }
+    return out;
+  }
+
   GermanWord({
     required this.id,
     required this.word,
@@ -1090,6 +1117,8 @@ class GermanWord {
     this.reviewedCategory,
     this.reviewedSynonyms,
     this.reviewedAntonyms,
+    this.rejectedSynonyms = const [],
+    this.rejectedAntonyms = const [],
   })  : _apiEnrichment = apiEnrichment,
         spellingDifficultySource = spellingDifficultySource ??
             (_parseErrorRate(litekeyErrorRate) == null ? 'unknown' : 'litkey'),
@@ -1242,6 +1271,8 @@ class GermanWord {
       reviewedCategory: json['llm_category'] as String?,
       reviewedSynonyms: _stringList(json['llm_synonyms']),
       reviewedAntonyms: _stringList(json['llm_antonyms']),
+      rejectedSynonyms: _stringList(json['llm_rejected_synonyms']) ?? const [],
+      rejectedAntonyms: _stringList(json['llm_rejected_antonyms']) ?? const [],
       gradeLevel: _parseInt(json['gradeLevel'], 1), // SAFE PARSE
       lemma: apiData?.primaryLemma ?? json['lemma'] ?? json['word'],
       forms: json['forms'],
@@ -1421,6 +1452,8 @@ class GermanWord {
         reviewedCategory: reviewedCategory,
         reviewedSynonyms: reviewedSynonyms,
         reviewedAntonyms: reviewedAntonyms,
+        rejectedSynonyms: rejectedSynonyms,
+        rejectedAntonyms: rejectedAntonyms,
       );
 
   Map<String, dynamic> toJson() => {

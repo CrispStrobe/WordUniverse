@@ -415,11 +415,11 @@ class _WordSortGameState extends State<WordSortGame>
 
     hints.add(_s.wordSortHintNounNaming(word.word));
 
-    if (apiData?.synonyms.isNotEmpty ?? false) {
-      hints.add(_s.wordSortHintSynonym(apiData!.synonyms.take(2).join(', ')));
+    if (word.shownSynonyms.isNotEmpty) {
+      hints.add(_s.wordSortHintSynonym(word.shownSynonyms.take(2).join(', ')));
     }
-    if (apiData?.antonyms.isNotEmpty ?? false) {
-      hints.add(_s.wordSortHintAntonym(apiData!.antonyms.first));
+    if (word.shownAntonyms.isNotEmpty) {
+      hints.add(_s.wordSortHintAntonym(word.shownAntonyms.first));
     }
 
     if (hints.isEmpty) {
@@ -469,11 +469,11 @@ class _WordSortGameState extends State<WordSortGame>
 
     hints.add(_s.wordSortHintVerbAction(word.word));
 
-    if (apiData?.synonyms.isNotEmpty ?? false) {
-      hints.add(_s.wordSortHintSynonym(apiData!.synonyms.take(2).join(', ')));
+    if (word.shownSynonyms.isNotEmpty) {
+      hints.add(_s.wordSortHintSynonym(word.shownSynonyms.take(2).join(', ')));
     }
-    if (apiData?.antonyms.isNotEmpty ?? false) {
-      hints.add(_s.wordSortHintAntonym(apiData!.antonyms.first));
+    if (word.shownAntonyms.isNotEmpty) {
+      hints.add(_s.wordSortHintAntonym(word.shownAntonyms.first));
     }
 
     if (hints.isEmpty) {
@@ -513,11 +513,11 @@ class _WordSortGameState extends State<WordSortGame>
     hints.add(_s.wordSortHintAdjQuality(word.word));
     hints.add(_s.wordSortHintAdjQuestion(word.word));
 
-    if (apiData?.synonyms.isNotEmpty ?? false) {
-      hints.add(_s.wordSortHintSynonym(apiData!.synonyms.take(2).join(', ')));
+    if (word.shownSynonyms.isNotEmpty) {
+      hints.add(_s.wordSortHintSynonym(word.shownSynonyms.take(2).join(', ')));
     }
-    if (apiData?.antonyms.isNotEmpty ?? false) {
-      hints.add(_s.wordSortHintAntonym(apiData!.antonyms.first));
+    if (word.shownAntonyms.isNotEmpty) {
+      hints.add(_s.wordSortHintAntonym(word.shownAntonyms.first));
     }
 
     if (hints.isEmpty) {

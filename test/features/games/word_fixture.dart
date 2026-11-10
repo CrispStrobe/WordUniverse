@@ -83,9 +83,13 @@ GermanWord testWord(
   String? reviewedCategory,
   List<String>? reviewedSynonyms,
   List<String>? reviewedAntonyms,
+  List<String> rejectedSynonyms = const [],
+  List<String> rejectedAntonyms = const [],
 }) =>
     GermanWord(
       id: 'test_$word',
+      rejectedSynonyms: rejectedSynonyms,
+      rejectedAntonyms: rejectedAntonyms,
       reviewedClasses: reviewedClasses,
       reviewedCategory: reviewedCategory,
       reviewedSynonyms: reviewedSynonyms,

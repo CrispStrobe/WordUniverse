@@ -51,7 +51,8 @@ English Vocabulary Profile, SUBTLEX‑US**.
 | DE Wiktionary | Wikimedia Foundation | CC‑BY‑SA 4.0 | step 11 enrichment (definitions, IPA, inflections, examples, etymology, syn/ant, hyper/hypo/mero/holo) |
 | ConceptNet 5.x (de) | Luminoso Technologies + community | CC‑BY‑SA 4.0 | step 11 (`enrichment_json.conceptnet`) |
 | OdeNet | Universität Hamburg, LT Group | CC‑BY‑SA 4.0 | step 11 (`enrichment_json.odenet`) |
-| OpenThesaurus | community / openthesaurus.de | CC‑BY‑SA 4.0 (since 2019; previously LGPL) | step 13b (synonym / hypernym / hyponym closure) |
+| OpenThesaurus | community / openthesaurus.de | CC‑BY‑SA 4.0 (since 2019; previously LGPL) | step 13b (synonym / hypernym / hyponym closure); `tools/pack/build_synonym_senses.py` (visibility, register levels) |
+| DE Wiktionary via wiktextract (`cstr/de-wiktionary-extracted`) | Wikimedia Foundation; extraction by wiktextract (Tatu Ylonen, MIT) | CC‑BY‑SA 4.0 | `tools/pack/build_synonym_senses.py`: sense numbers of synonyms, to rank them by the meaning shown |
 | `de_50k_hermitdave.txt` | Matthias Buchmeier / HermitDave, derived from OpenSubtitles 2018 | CC‑BY‑SA 4.0 | step 01 frequency signal |
 | `Buchmeier20k.txt` | Matthias Buchmeier (EN Wiktionary user namespace, `User:Matthias_Buchmeier/German_frequency_list-*`) | CC‑BY‑SA 4.0 (Wiktionary) | step 01 frequency signal |
 | `Grundwortschatz{1L,1S,3L,3S}.csv` | Ministerium für Schule und Bildung NRW | German public administrative material — freely usable for educational purposes; courtesy attribution to MSB NRW | step 01 pedagogical core |

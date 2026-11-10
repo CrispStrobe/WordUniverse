@@ -68,6 +68,7 @@ def load_openthesaurus_sql(filepath):
     
     word_map = {}          # word -> [ {synset_id, level_id} ]
     synset_terms = {}      # synset_id -> [ {word, level_id} ]
+    synset_visible = {}    # synset_id -> bool
 
     try:
         with open(filepath, 'r', encoding='utf-8', errors='replace') as f:
@@ -108,6 +109,15 @@ def load_openthesaurus_sql(filepath):
                             tgt_id = r[6]
                             synset_links.setdefault(src_id, []).append({'target': tgt_id, 'type': type_id})
 
+                # 5b. SYNSET: OpenThesaurus hides the synsets it rejected
+                # (is_visible = 0). Hidden synset 41007 is how "Preis" came
+                # to list "Egon Schiele Art Center".
+                elif "INSERT INTO `synset` " in line:
+                    for r in parse_sql_values(line):
+                        # id, version, evaluation, is_visible, ...
+                        if len(r) >= 4:
+                            synset_visible[r[0]] = r[3] not in ('0', '', '\0')
+
                 # 6. TERM
                 elif "INSERT INTO `term`" in line:
                     for r in parse_sql_values(line):
@@ -132,22 +142,43 @@ def load_openthesaurus_sql(filepath):
         'synset_categories': synset_categories,
         'synset_links': synset_links,
         'word_map': word_map,
-        'synset_terms': synset_terms
+        'synset_terms': synset_terms,
+        'synset_visible': synset_visible,
     }
 
+OFFENSIVE_LEVELS = {'derb', 'vulgär'}
+
+
+def level_of(term, db):
+    return db['levels'].get(term['level_id']) if term['level_id'] else None
+
+
 def resolve_terms(synset_id, db, exclude_word=None):
-    """Helper to get all words for a synset ID as string list"""
-    terms = db['synset_terms'].get(synset_id, [])
+    """The words of a visible synset, without the word itself (compared
+    case-insensitively) and without derb or vulgär terms.
+
+    The level used to be written into the word ("Sack (derb)"), and the app
+    showed it; levels are now kept apart, see synonym_levels below.
+    """
+    if not db['synset_visible'].get(synset_id, False):
+        return []
     results = []
-    for t in terms:
+    for t in db['synset_terms'].get(synset_id, []):
         w = t['word']
-        if exclude_word and w == exclude_word: continue
-        
-        # Optional: Add level (e.g., "Haus (ugs.)")
-        if t['level_id'] and t['level_id'] in db['levels']:
-            w += f" ({db['levels'][t['level_id']]})"
+        if exclude_word and w.lower() == exclude_word.lower():
+            continue
+        if level_of(t, db) in OFFENSIVE_LEVELS:
+            continue
         results.append(w)
     return results
+
+
+def word_is_offensive_in(synset_id, word, db):
+    """True where the word itself is filed derb or vulgär: its insult sense,
+    whose other terms are insults, not synonyms of the animal."""
+    own = [level_of(t, db) for t in db['synset_terms'].get(synset_id, [])
+           if t['word'] == word]
+    return bool(own) and all(lv in OFFENSIVE_LEVELS for lv in own)
 
 def enrich_json():
     db = load_openthesaurus_sql(SQL_DUMP_FILE)
@@ -174,11 +205,15 @@ def enrich_json():
                 entry['apiEnrichment'] = {}
             
             thesaurus_groups = []
-            flat_synonyms = set()
+            flat_synonyms = []
 
             # Process each Meaning Group (Synset)
             for match in matches:
                 synset_id = match['synset_id']
+                if not db['synset_visible'].get(synset_id, False):
+                    continue
+                if word_is_offensive_in(synset_id, word, db):
+                    continue
                 
                 # 1. Get Categories (e.g. "Medizin")
                 cat_ids = db['synset_categories'].get(synset_id, [])
@@ -186,7 +221,7 @@ def enrich_json():
                 
                 # 2. Get Direct Synonyms
                 synonyms = resolve_terms(synset_id, db, exclude_word=word)
-                flat_synonyms.update(synonyms)
+                flat_synonyms.extend(synonyms)
 
                 # 3. Get Relations (Oberbegriffe, Unterbegriffe, etc.)
                 relations = {'Oberbegriffe': [], 'Unterbegriffe': [], 'Assoziationen': []}
@@ -225,9 +260,15 @@ def enrich_json():
             if thesaurus_groups:
                 entry['apiEnrichment']['openThesaurus'] = thesaurus_groups
                 
-                # Merge synonyms into the flat list for backward compatibility
-                existing_syns = set(entry['apiEnrichment'].get('synonyms', []))
-                entry['apiEnrichment']['synonyms'] = list(existing_syns.union(flat_synonyms))
+                # Merge into the flat list: what was there first, in a fixed
+                # order, each word once. All senses are still in it; which
+                # belong to the meaning a child is shown is decided after,
+                # by tools/pack/build_synonym_senses.py.
+                merged = {}
+                for w in list(entry['apiEnrichment'].get('synonyms', [])) + flat_synonyms:
+                    if isinstance(w, str) and w.lower() != word.lower():
+                        merged.setdefault(w.lower(), w)
+                entry['apiEnrichment']['synonyms'] = list(merged.values())
                 
                 stats['enriched'] += 1
 
