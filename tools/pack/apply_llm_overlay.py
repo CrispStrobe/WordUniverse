@@ -215,6 +215,7 @@ def main():
     # the sense check was read against the children's glosses.
     kidgloss = apply_kidgloss(db, args.lang)
     sense = apply_sense(db, args.lang)
+    finished = finish_glosses(db)
     db.commit()
     print(json.dumps({'corrections': len(corrections), **counts, 'fields': fields,
                       **({'phrasal': phrasal} if phrasal else {}),
@@ -222,7 +223,50 @@ def main():
                       **({'synonym_senses': senses} if senses else {}),
                       **({'lexrel': lexrel} if lexrel else {}),
                       **({'kidgloss': kidgloss} if kidgloss else {}),
-                      **({'sense': sense} if sense else {})}))
+                      **({'sense': sense} if sense else {}),
+                      'glosses_finished': finished}))
+
+
+# The app's isUsableDefinition (lib/core/models/vocabulary_quality.dart)
+# reads a gloss with no closing punctuation that ends on one of these words
+# as cut off: the source packs have "eine Hupe am Kraftfahrzeug betätigen,
+# um". A gloss a model wrote whole can end on one too ("damit isst man
+# Suppe oder rührt um", "nicht immer, aber ab und zu"), and lost
+# "Löffel" and "manchmal" the word of the day. Keep in step with
+# _danglingWords there.
+DANGLING = {
+    'um', 'und', 'oder', 'dass', 'zu', 'mit', 'von', 'für', 'der', 'die', 'das',
+    'ein', 'eine', 'einen', 'einem', 'einer', 'im', 'am', 'beim', 'zum', 'zur',
+    'wenn', 'weil', 'sich', 'als', 'aus', 'auf', 'in',
+    'to', 'of', 'the', 'a', 'an', 'and', 'or', 'that', 'with', 'for', 'by',
+    'from', 'as', 'at', 'on',
+}
+WRITTEN_WHOLE = {'llm-reviewed', 'llm-sense'}
+
+
+def finish_glosses(db):
+    """A full stop after a model-written leading gloss that ends on a word
+    the app takes for a cut. Runs after every step that reads the leading
+    gloss, so no record's digest sees it."""
+    n = 0
+    for row_id, enr, meta in db.execute(
+            'SELECT id, enrichment_json, metadata_json FROM words').fetchall():
+        metadata = json.loads(meta or '{}')
+        if metadata.get('gloss_source') not in WRITTEN_WHOLE:
+            continue
+        enrichment = json.loads(enr or '{}')
+        defs = enrichment.get('definitions') or []
+        if not defs or not isinstance(defs[0], str):
+            continue
+        gloss = defs[0].rstrip()
+        if not gloss or gloss[-1] in '.!?,;:' or \
+                gloss.split()[-1].lower() not in DANGLING:
+            continue
+        enrichment['definitions'] = [gloss + '.'] + defs[1:]
+        db.execute('UPDATE words SET enrichment_json=? WHERE id=?',
+                   (json.dumps(enrichment, ensure_ascii=False), row_id))
+        n += 1
+    return n
 
 
 def synonym_lists_digest(enrichment):

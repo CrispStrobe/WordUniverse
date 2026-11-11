@@ -222,6 +222,19 @@ class Guards(unittest.TestCase):
         self.assertEqual(meta['gloss_source'], 'llm-sense')
         self.assertEqual(self.row(3)[2]['definitions'], ['dick'])
 
+    def test_a_written_gloss_ending_on_a_particle_is_closed_with_a_full_stop(self):
+        root = pathlib.Path(self.dir.name)
+        (root / 'de_sense.jsonl').write_text('\n'.join(json.dumps(r) for r in [
+            {'id': 'w1', 'src': correct.digest(self.relation(1)), 'ok': False,
+             'old': 'Sternbilder', 'gloss': 'damit isst man Suppe oder rührt um',
+             'confirmed': True},
+        ]) + '\n')
+        self.run_apply()
+        self.assertEqual(self.row(1)[2]['definitions'],
+                         ['damit isst man Suppe oder rührt um.', 'Sternbilder'])
+        # A source gloss is left as it is: there the word is a real cut.
+        self.assertEqual(self.row(3)[2]['definitions'], ['dick'])
+
 
 class PhrasalFits(unittest.TestCase):
     def test_only_particles_no_judge_fits_anywhere_are_offered(self):
