@@ -237,10 +237,20 @@ void main() {
             buildSyllableChallenges(pool: words, maxChallenges: 400);
         final wrong = <String>[];
         for (final challenge in challenges) {
-          final counted = challenge.word.hyphenation
-              .map(countSyllables)
-              .firstWhere((count) => count != null && count >= 1,
-                  orElse: () => null);
+          // The pronunciation's count where the pack has one: hyphenation
+          // never splits off one letter or a final "-ed", so "directed"
+          // hyphenates in two pieces and is said in three.
+          final counted = challenge.word.cmuSyllables ??
+              challenge.word.hyphenation
+                  .map(countSyllables)
+                  // Without one, only a hyphenation that agrees with the
+                  // spelling's vowel groups is trusted: "Penn-syl-va-ni-a".
+                  .firstWhere(
+                      (count) =>
+                          count != null &&
+                          count >= 1 &&
+                          count == vowelGroups(challenge.word.word),
+                      orElse: () => null);
           if (counted != challenge.syllableCount ||
               syllableBucket(counted!) != challenge.correctBucket) {
             wrong.add('${challenge.word.word}: keyed '
