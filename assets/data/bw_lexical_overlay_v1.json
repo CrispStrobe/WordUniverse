@@ -3,7 +3,7 @@
   "id": "bw-lexical-overlay-v1",
   "version": 1,
   "language": "de",
-  "appliesToPackSha256": "977cf9aa2e25d5d2884dd481b30bd653dc0e48a243539a7a5db4d5a77dc1c64f",
+  "appliesToPackSha256": "1df66b74d7074ce82d866acc7a5684db1647d9d1d1e45a3d5c5cb363a2d4af63",
   "membershipAsset": "assets/data/bw_membership_v1.json",
   "provenance": {
     "checkedAt": "2026-11-08",

@@ -191,7 +191,7 @@ node --test tools/deployment-config.test.mjs
 
 In the companion repository, run `python3 -m unittest discover -s tests -q`.
 The German artifact SHA-256 is
-`977cf9aa2e25d5d2884dd481b30bd653dc0e48a243539a7a5db4d5a77dc1c64f`;
+`1df66b74d7074ce82d866acc7a5684db1647d9d1d1e45a3d5c5cb363a2d4af63`;
 the runtime correction layer leaves its bytes unchanged. The source CSV's
 original BOM/CRLF are preserved, and whitespace verification permits CRLF.
 

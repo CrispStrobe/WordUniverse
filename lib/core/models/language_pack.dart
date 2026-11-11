@@ -264,17 +264,24 @@ const Map<String, LanguagePack> kLanguagePacks = {
     // Schiele Art Center" from a synset OpenThesaurus had hidden, and 2,625
     // words themselves. Synonyms and antonyms a child is asked for come from
     // a three-judge review (llm_synonyms, llm_antonyms, llm_rejected_*).
+    //
+    // Rebuilt 2026-11-11: the meaning a child means leads (llm_correct.py
+    // sense, pipeline/llm_review/de_sense.jsonl). "Kater" led with a
+    // hangover, "Füller" with a filler; 1,358 entries changed where a model
+    // of another family confirmed it, the old gloss kept behind. 1,082
+    // glosses rewritten in words a primary-school child reads.
     remoteUrl:
-        'https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/e6dafc8b114c2f7f720ab2a53a3562a25e1e8e2f/grundwortschatz-app.db.gz',
+        'https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/5b4757f2ba5ba8bd40ecc7ad2df0c45b53b5e953/grundwortschatz-app.db.gz',
     // Update the immutable URL and all pins together; retain this qualified
     // databaseName in previousDatabaseNames when publishing a new artifact.
-    expectedCompressedBytes: 15994220,
+    expectedCompressedBytes: 16047300,
     expectedCompressedSha256:
-        '0cbe09e65bc90d4ad638a12d70743bbc77ad665073b6d00234873e57374c12bf',
-    expectedDecompressedBytes: 96206848,
+        'cd350f6e5fda2dc7a5aba2121188ee475e54b9fd273fa5e4214533cdefb42059',
+    expectedDecompressedBytes: 96518144,
     expectedDecompressedSha256:
-        '977cf9aa2e25d5d2884dd481b30bd653dc0e48a243539a7a5db4d5a77dc1c64f',
+        '1df66b74d7074ce82d866acc7a5684db1647d9d1d1e45a3d5c5cb363a2d4af63',
     previousDatabaseNames: [
+      'grundwortschatz-977cf9aa2e25d5d2884dd481b30bd653dc0e48a243539a7a5db4d5a77dc1c64f.db',
       'grundwortschatz-3884c856c5fa0340942b0d21b25fa7f28ac3ea909282944d2623870b0d16bba0.db',
       'grundwortschatz-71eadae4644dbe300f2c567adc2d2b7c85a2123556ecc34f4be2ce08bc1cbfe1.db',
       'grundwortschatz-a4598603ebaadb27ac127e65613a0103b5e5d553b80b4a62f3d154d1ca46d873.db',
@@ -362,9 +369,15 @@ const Map<String, LanguagePack> kLanguagePacks = {
     // vulgar senses removed ("know" and "love" listed "fuck", "make" "shit",
     // "tools" "cock"), synonym/antonym answers from a three-judge review, and
     // grades raised to the CEFR level unless a children's list places the word.
+    //
+    // Rebuilt 2026-11-11: the meaning a child means leads (llm_correct.py
+    // sense): 1,413 entries, each confirmed by a model of another family —
+    // "comedy" was a choric song, "hunch" a hump — and 1,725 glosses
+    // rewritten in words a child reads.
     expectedDecompressedSha256:
-        'e556525f8e8f6f6d64375c204cd1ae019e39cef0a7ff033c44aa35b3f7fb3d4b',
+        '18609cb53c57ccf1406ca47ed3e1c24e74a702af5828642ae089b14249596655',
     previousDatabaseNames: [
+      'grundwortschatz_en-e556525f8e8f6f6d64375c204cd1ae019e39cef0a7ff033c44aa35b3f7fb3d4b.db',
       'grundwortschatz_en-a815a888c8bc7312fb39b93709f8b51401e3413b8a5f741eb105c41fe3fed023.db',
       'grundwortschatz_en-38649e2cf2fd70bd4c45e9964291a22a048b4c0eb4db481bcfc98ab5981c3d30.db',
       'grundwortschatz_en-4f3e9bbed8211f95ac180a7a26e83daaab64aa30335ff1818e792b63bc2f619c.db',

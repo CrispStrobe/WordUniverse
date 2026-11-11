@@ -19,12 +19,12 @@ of the ZSL's description of **approximately 870 words**.
 The registry in [language_pack.dart](../lib/core/models/language_pack.dart)
 pins this immutable Hugging Face revision:
 
-[`e6dafc8b114c2f7f720ab2a53a3562a25e1e8e2f/grundwortschatz-app.db.gz`](https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/e6dafc8b114c2f7f720ab2a53a3562a25e1e8e2f/grundwortschatz-app.db.gz).
+[`5b4757f2ba5ba8bd40ecc7ad2df0c45b53b5e953/grundwortschatz-app.db.gz`](https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/5b4757f2ba5ba8bd40ecc7ad2df0c45b53b5e953/grundwortschatz-app.db.gz).
 
 | Input | Bytes | SHA-256 |
 | --- | ---: | --- |
-| Compressed runtime pack | 15,994,220 | `0cbe09e65bc90d4ad638a12d70743bbc77ad665073b6d00234873e57374c12bf` |
-| Decompressed SQLite database | 96,206,848 | `977cf9aa2e25d5d2884dd481b30bd653dc0e48a243539a7a5db4d5a77dc1c64f` |
+| Compressed runtime pack | 16,047,300 | `cd350f6e5fda2dc7a5aba2121188ee475e54b9fd273fa5e4214533cdefb42059` |
+| Decompressed SQLite database | 96,518,144 | `1df66b74d7074ce82d866acc7a5684db1647d9d1d1e45a3d5c5cb363a2d4af63` |
 
 Both local files match these pins. The database contains **13,040 word rows**.
 The audit opens it with SQLite `mode=ro` and `PRAGMA query_only=ON`. It does
@@ -288,8 +288,8 @@ structure, and 13 memorized spellings. These project enrichment categories
 are not an official KOMPASS scoring scheme.
 
 The shipped feature index additionally marks eight tagged rows as not
-being their own enriched headword, and 15 as lacking a usable leading
-definition. A separate pack flag marks 21 leading glosses as above their
+being their own enriched headword, and 13 as lacking a usable leading
+definition. A separate pack flag marks 7 leading glosses as above their
 reader's level. Some of these are useful function words whose dictionary
 parses do not make suitable child-facing meaning questions. Such flags
 call for appropriate game filtering or a reviewed explanation; they do

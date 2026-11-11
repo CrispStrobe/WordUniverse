@@ -70,30 +70,30 @@
       verpacke
     ✓ schlage
 ── definition_quiz (4)
-  nach der Kaiserin höchste monarchische Würdenträgerin eines Staates (Königreichs)
+  ein schnelles Fahrzeug mit zwei Rädern und Motor
+      die Wärme
+      die E-Mail
       das Rad
-      der Gruß
+    ✓ das Motorrad
+    · word: Motorrad  grade: 3
+  Eine Frau, die über ein Land herrscht.
+      der Satz
       die Mandarine
+      die Tüte
     ✓ die Königin
     · word: Königin  grade: 3
-  ___ ist Luft, die sich bewegt.
-      die Mitte
+  Luft, die sich bewegt
     ✓ der Wind
-      der Reifen
+      die Mitte
       das Ohr
+      die Freiheit
     · word: Wind  grade: 3
-  in Flammen stehen, dem Feuer ausgesetzt sein
-      sprechen
-      ändern
-    ✓ brennen
+  Feuer frisst etwas.
+      vornehmen
       verkaufen
+    ✓ brennen
+      ändern
     · word: brennen  grade: 3
-  freundliche Wünsche, die eine Person einer anderen ausrichten soll, dies als Zeichen der Verbundenheit
-      das Rad
-      die Wärme
-      der Kakao
-    ✓ der Gruß
-    · word: Gruß  grade: 3
 ── expression_flash (4)
   bei Nacht und ___
       Film
@@ -133,22 +133,22 @@
     ✓ klein
     · word: bewölkt  rule: Adjektive werden kleingeschrieben
 ── grossstadt (4)
-  Groß oder klein? ZUM [überfallen]
+  Groß oder klein? BEIM [herunterladen]
     ✓ GROSS
       klein
-    · rule: Nomen-Signal "ZUM" → Großschreibung
-  Groß oder klein? WIR [überfallen]
-      GROSS
-    ✓ klein
-    · rule: Verben im Satz → Kleinschreibung
-  Groß oder klein? DARF [überfallen]
+    · rule: Nomen-Signal "BEIM" → Großschreibung
+  Groß oder klein? KANN [herunterladen]
       GROSS
     ✓ klein
     · rule: Verben (Infinitiv) → Kleinschreibung
-  Groß oder klein? DAS [angreifen]
+  Groß oder klein? BEIM [belohnen]
     ✓ GROSS
       klein
-    · rule: Nomen-Signal "DAS" → Großschreibung
+    · rule: Nomen-Signal "BEIM" → Großschreibung
+  Groß oder klein? ICH [belohne]
+      GROSS
+    ✓ klein
+    · rule: Verben im Satz → Kleinschreibung
 ── hypernym_flash (4)
   Tulpe
     ✓ Blume
@@ -218,32 +218,32 @@
       fleißig
 ── sentence_completion (4)
   Die Kinder sind ___, wenn sie im Park spielen.
-(Zufalls-)Glück oder Erfolg habend
+sich sehr freuen und zufrieden sein
     ✓ glücklich
       satt
       scharf
       freundlich
     · cue label: Eine mögliche Bedeutung: …
   Ich lehne mein Fahrrad an die ___.
-Seite oder Fläche, die irgendeinen Raum oder Hohlkörper begrenzt
+die Seite von einem Raum oder Haus
       Filzstift
     ✓ Wand
       Schwimmbad
       Richtung
     · cue label: Eine mögliche Bedeutung: …
   Meine Familie isst ___ nur am Wochenende.
-Muskel- und häufig auch Fettgewebe
+Das, was man von Tieren isst, wie vom Huhn oder Schwein.
       Rakete
     ✓ Fleisch
       Hobby
       Fluss
     · cue label: Eine mögliche Bedeutung: …
-  Der Lehrer gab uns ein ___ für unsere Teamarbeit.
-Anerkennung von Leistungen oder Verhaltensweisen durch sprachliche oder körpersprachliche Ausdrucksmittel
+  Der ___ ist eine geometrische Figur ohne Kanten.
+Runde Form wie ein Teller oder ein Ring.
       Salz
       Rakete
       Richtung
-    ✓ Lob
+    ✓ Kreis
     · cue label: Eine mögliche Bedeutung: …
 ── spelling_spotter (4)
   Which spelling is correct?
@@ -272,23 +272,23 @@ Anerkennung von Leistungen oder Verhaltensweisen durch sprachliche oder körpers
       der
     ✓ das
     · type: article  assessedSkill: articleSelection
-  "nach der Kaiserin höchste monarchische Würdenträgerin eines Staates (Königreichs)"
-      das Quadrat
-      die Freiheit
-      die E-Mail
+  "Eine Frau, die über ein Land herrscht."
+      die Mitte
     ✓ die Königin
+      die Tüte
+      der Hai
     · type: definition  assessedSkill: vocabulary
   Welche Wortart?
 Wind
-      Adverb
-      Pronomen
       Verb
     ✓ Nomen
+      Adjektiv
+      Adverb
     · type: wordType  assessedSkill: wordType
   Großschreibung
 Ich packe die ___ ein.
-      tüte
     ✓ Tüte
+      tüte
     · type: capitalization  assessedSkill: capitalization
 ── syllable_count (4)
   vornehmen
@@ -389,16 +389,16 @@ Das Hochwasser dringt in den Keller ein.
 ── word_builder (4)
   Build "Film" from its letters
     ✓ Film
-    · grade: 3  gloss: dünne Schicht von etwas
+    · grade: 3  gloss: Etwas, das man im Kino oder Fernsehen anschaut.
   Build "Impfung" from its letters
     ✓ Impfung
-    · grade: 3  gloss: eine Spritze, die man bekommt, um sich vor einer Krankheit zu schützen
+    · grade: 3  gloss: eine Spritze, die vor Krankheit schützt
   Build "Wand" from its letters
     ✓ Wand
-    · grade: 3  gloss: Seite oder Fläche, die irgendeinen Raum oder Hohlkörper begrenzt
+    · grade: 3  gloss: die Seite von einem Raum oder Haus
   Build "Strom" from its letters
     ✓ Strom
-    · grade: 3  gloss: allgemein eine Menge (Informationen, Menschen, Teilchen, Wasser), die sich fließend in eine bestimmte Richtung bewegt
+    · grade: 3  gloss: viel Wasser, das schnell fließt
 ── word_class_flash (4)
   der Klebstoff
     ✓ Nomen
@@ -419,81 +419,81 @@ Das Hochwasser dringt in den Keller ein.
 ── word_find (4)
   Find "Film" in the grid
     ✓ Film
-    · grade: 3  gloss: dünne Schicht von etwas
+    · grade: 3  gloss: Etwas, das man im Kino oder Fernsehen anschaut.
   Find "Impfung" in the grid
     ✓ Impfung
-    · grade: 3  gloss: eine Spritze, die man bekommt, um sich vor einer Krankheit zu schützen
+    · grade: 3  gloss: eine Spritze, die vor Krankheit schützt
   Find "Wand" in the grid
     ✓ Wand
-    · grade: 3  gloss: Seite oder Fläche, die irgendeinen Raum oder Hohlkörper begrenzt
+    · grade: 3  gloss: die Seite von einem Raum oder Haus
   Find "Strom" in the grid
     ✓ Strom
-    · grade: 3  gloss: allgemein eine Menge (Informationen, Menschen, Teilchen, Wasser), die sich fließend in eine bestimmte Richtung bewegt
+    · grade: 3  gloss: viel Wasser, das schnell fließt
 ── word_memory (4)
   Match the pair for "Film"
-    ✓ dünne Schicht von etwas
+    ✓ Etwas, das man im Kino oder Fernsehen anschaut.
     · grade: 3  partner: definition
   Match the pair for "Impfung"
-    ✓ eine Spritze, die man bekommt, um sich vor einer Kra…
+    ✓ eine Spritze, die vor Krankheit schützt
     · grade: 3  partner: definition
   Match the pair for "Wand"
-    ✓ Seite oder Fläche, die irgendeinen Raum oder Hohlkör…
+    ✓ die Seite von einem Raum oder Haus
     · grade: 3  partner: definition
   Match the pair for "Strom"
-    ✓ allgemein eine Menge (Informationen, Menschen, Teilc…
+    ✓ viel Wasser, das schnell fließt
     · grade: 3  partner: definition
 ── word_of_the_day (4)
-  2026-01-01: leider
-    ✓ Ausdruck des Bedauerns
+  2026-01-01: die Nummer
+    ✓ Eine Zahl, die etwas ordnet.
     · grade: 4  cefr: —
-  2026-01-02: der Kilometer
-    ✓ eine Maßeinheit der Länge, der Entfernung; entspricht eintausend Metern
+  2026-01-02: zahlen
+    ✓ Geld für etwas geben
     · grade: 4  cefr: —
-  2026-01-03: später
-    ✓ zukünftig aus heutiger Perspektive
+  2026-01-03: das Problem
+    ✓ Etwas, das schwer zu lösen ist.
     · grade: 4  cefr: —
   2026-01-04: das Gepäck
-    ✓ gesamte Ausrüstung für eine Reise, eine Wanderung oder einen Marsch
+    ✓ alles, was man auf Reisen mitnimmt
     · grade: 4  cefr: —
 ── word_snake (4)
   Trace "Film"
     ✓ Film
-    · grade: 3  gloss: dünne Schicht von etwas
+    · grade: 3  gloss: Etwas, das man im Kino oder Fernsehen anschaut.
   Trace "Impfung"
     ✓ Impfung
-    · grade: 3  gloss: eine Spritze, die man bekommt, um sich vor einer Krankheit zu schützen
+    · grade: 3  gloss: eine Spritze, die vor Krankheit schützt
   Trace "Wand"
     ✓ Wand
-    · grade: 3  gloss: Seite oder Fläche, die irgendeinen Raum oder Hohlkörper begrenzt
+    · grade: 3  gloss: die Seite von einem Raum oder Haus
   Trace "Strom"
     ✓ Strom
-    · grade: 3  gloss: allgemein eine Menge (Informationen, Menschen, Teilchen, Wasser), die sich fließend in eine bestimmte Richtung bewegt
+    · grade: 3  gloss: viel Wasser, das schnell fließt
 ── word_sort (4)
   Sort "Film" into its word class
     ✓ Nomen
-    · grade: 3  gloss: dünne Schicht von etwas
+    · grade: 3  gloss: Etwas, das man im Kino oder Fernsehen anschaut.
   Sort "Impfung" into its word class
     ✓ Nomen
-    · grade: 3  gloss: eine Spritze, die man bekommt, um sich vor einer Krankheit zu schützen
+    · grade: 3  gloss: eine Spritze, die vor Krankheit schützt
   Sort "Wand" into its word class
     ✓ Nomen
-    · grade: 3  gloss: Seite oder Fläche, die irgendeinen Raum oder Hohlkörper begrenzt
+    · grade: 3  gloss: die Seite von einem Raum oder Haus
   Sort "Strom" into its word class
     ✓ Nomen
-    · grade: 3  gloss: allgemein eine Menge (Informationen, Menschen, Teilchen, Wasser), die sich fließend in eine bestimmte Richtung bewegt
+    · grade: 3  gloss: viel Wasser, das schnell fließt
 ── word_type_whirl (4)
   Catch "der Film" in the right bin
     ✓ Nomen
-    · grade: 3  gloss: dünne Schicht von etwas
+    · grade: 3  gloss: Etwas, das man im Kino oder Fernsehen anschaut.
   Catch "die Impfung" in the right bin
     ✓ Nomen
-    · grade: 3  gloss: eine Spritze, die man bekommt, um sich vor einer Krankheit zu schützen
+    · grade: 3  gloss: eine Spritze, die vor Krankheit schützt
   Catch "die Wand" in the right bin
     ✓ Nomen
-    · grade: 3  gloss: Seite oder Fläche, die irgendeinen Raum oder Hohlkörper begrenzt
+    · grade: 3  gloss: die Seite von einem Raum oder Haus
   Catch "der Strom" in the right bin
     ✓ Nomen
-    · grade: 3  gloss: allgemein eine Menge (Informationen, Menschen, Teilchen, Wasser), die sich fließend in eine bestimmte Richtung bewegt
+    · grade: 3  gloss: viel Wasser, das schnell fließt
 ── wortbaumeister (4)
   Build the compound: Montag + nachmittag
     ✓ Montagnachmittag

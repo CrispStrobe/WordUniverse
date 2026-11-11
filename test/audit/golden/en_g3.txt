@@ -50,29 +50,29 @@
     · word: challenge
 ── definition_quiz (4)
   A liquid fuel used to power cars and other vehicles.
-      stamp
+      receipt
+      intelligence
     ✓ petrol
-      laziness
-      visitor
+      cruise
     · word: petrol  grade: 3
   Something fun or interesting to watch or do.
-      wisdom
-      receipt
-      visitor
     ✓ entertainment
+      intelligence
+      wisdom
+      skiing
     · word: entertainment  grade: 3
   Devoid of content; containing nothing or nobody; vacant.
-      lively
+      scientific
       latter
+      lively
     ✓ empty
-      useful
     · word: empty  grade: 3
-  the ability to comprehend; to understand and profit from experience
-      thief
-      metre
-    ✓ intelligence
+  A crunchy orange vegetable you can eat.
+    ✓ carrot
+      skiing
+      entertainment
       petrol
-    · word: intelligence  grade: 3
+    · word: carrot  grade: 3
 ── false_friends (4)
   What does "ordinary" really mean?
       ordinär
@@ -184,7 +184,7 @@
     · phrasal: draw away  means: move away from something
 ── sentence_completion (4)
   We need a good ___.
-A professional person with a graduate law degree that qualifies for legal work (such as Juris Doctor)
+A person who helps with legal problems.
       consequence
       fog
       skate
@@ -205,7 +205,7 @@ A piece of jewelry worn on the ear.
       integrity
     · cue label: One possible meaning: …
   Our school has a ___.
-An employee (such as a secretary) who works in reception (receiving visitors and/or calls) for a person or business, especially an office.
+A person who greets visitors in an office.
       earring
       spaghetti
     ✓ receptionist
@@ -255,11 +255,11 @@ That’s a very ___ tool for gardeners.
     ✓ useful
       Useful
     · type: capitalization  assessedSkill: capitalization
-  "The quality or state of being able; capacity to do or of doing something; having the necessary power."
-      entertainment
+  "The power or skill to do something."
     ✓ ability
-      visitor
-      petrol
+      carrot
+      wisdom
+      skiing
     · type: definition  assessedSkill: vocabulary
 ── syllable_count (4)
   goodbye
@@ -324,23 +324,11 @@ That’s a very ___ tool for gardeners.
   Build "whom" from its letters
     ✓ whom
     · grade: 3
-── word_class_flash (4)
-  governance
-    ✓ Noun
-      Verb
-      Adjective
-  receive
-      Noun
-    ✓ Verb
-      Adjective
-  indoor
+── word_class_flash (1)
+  dishonest
       Noun
       Verb
     ✓ Adjective
-  costa
-    ✓ Noun
-      Verb
-      Adjective
 ── word_find (4)
   Find "communications" in the grid
     ✓ communications
@@ -365,14 +353,14 @@ That’s a very ___ tool for gardeners.
     ✓ A body of water (especially the sea) contained by a …
     · grade: 3  partner: definition
   Match the pair for "fortune"
-    ✓ Destiny, especially favorable.
+    ✓ Good luck or a lot of money.
     · grade: 3  partner: definition
 ── word_of_the_day (4)
   2026-01-01: press
-    ✓ An instance of applying pressure; an instance of pressing.
+    ✓ News media or a printing machine.
     · grade: 4  cefr: B1
-  2026-01-02: protection
-    ✓ The process of keeping (something or someone) safe.
+  2026-01-02: rubber
+    ✓ A stretchy material used for erasers or balls.
     · grade: 4  cefr: B1
   2026-01-03: blog
     ✓ a shared on-line journal where people can post diary entries about their personal experiences and hobbies
