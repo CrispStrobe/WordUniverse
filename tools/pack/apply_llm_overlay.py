@@ -53,7 +53,7 @@ import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from llm_correct import (OUT_DIR, PARTICLES, RELATIONS_TEXT,  # noqa: E402
-                         blind_gloss, digest, entry_of, lexrel_candidates,
+                         blind_gloss, blind_hit, blind_names, digest, entry_of, lexrel_candidates,
                          pack_vocabulary, relation_entry)
 from llm_correct import _terms as terms  # noqa: E402
 
@@ -524,9 +524,12 @@ def apply_blind(db, lang):
         if record.get('ok') is not False:
             counts['ok'] += 1
             continue
-        row = find_row(db, entry_id, 'id, word, enrichment_json, metadata_json')
+        row = find_row(db, entry_id, 'id, word, lemma, enrichment_json, metadata_json')
         if row is None:
             counts['missing'] += 1
+            continue
+        if blind_hit(record.get('guesses') or [], blind_names(row)):
+            counts['ok'] += 1  # the reader named the lemma of an inflected form
             continue
         enrichment = json.loads(row['enrichment_json'] or '{}')
         metadata = json.loads(row['metadata_json'] or '{}')

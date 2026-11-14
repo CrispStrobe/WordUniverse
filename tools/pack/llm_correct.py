@@ -1492,7 +1492,10 @@ def blind_norm(text):
 def blind_names(row):
     """The word and its synonyms, as a guess would name them."""
     enrichment = json.loads(row['enrichment_json'] or '{}')
-    names = {blind_norm(row['word'])}
+    names = {blind_norm(row['word']), blind_norm(enrichment.get('primary_lemma') or '')}
+    # An inflected form ("hatte", "ist") is found when its lemma is named.
+    if 'lemma' in row.keys() and row['lemma']:
+        names.add(blind_norm(row['lemma']))
     for s in enrichment.get('synonyms') or []:
         if isinstance(s, str):
             names.add(blind_norm(s))
