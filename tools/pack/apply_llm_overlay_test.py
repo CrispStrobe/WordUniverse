@@ -235,6 +235,53 @@ class Guards(unittest.TestCase):
         # A source gloss is left as it is: there the word is a real cut.
         self.assertEqual(self.row(3)[2]['definitions'], ['dick'])
 
+    def test_a_family_word_of_someone_is_never_the_word_itself(self):
+        self.assertTrue(apply.self_relative('Opa von Papa oder Mama', 'Großvater', ['Opa']))
+        self.assertTrue(apply.self_relative('Oma und Opa von Papa oder Mama',
+                                            'Großeltern', ['Oma und Opa']))
+        self.assertTrue(apply.self_relative("The grandpa of your mom", 'grandfather',
+                                            ['grandpa']))
+        self.assertFalse(apply.self_relative('der Vater von Papa oder Mama',
+                                             'Großvater', ['Opa']))
+        self.assertFalse(apply.self_relative('Ein Stück von etwas.', 'Teil', ['Stück']))
+        self.assertFalse(apply.self_relative('Der Junge von Mama und Papa.', 'Sohn',
+                                             ['Junge']))
+
+    def test_a_childrens_gloss_naming_a_relative_is_not_applied(self):
+        root = pathlib.Path(self.dir.name)
+        self.db.execute("UPDATE words SET word='Großvater', enrichment_json=? WHERE id=1",
+                        (json.dumps({'definitions': ['Vater des Vaters oder der Mutter'],
+                                     'synonyms': ['Opa']}),))
+        self.db.commit()
+        (root / 'de_kidgloss.jsonl').write_text(json.dumps(
+            {'id': 'w1', 'src': correct.digest(self.relation(1)),
+             'gloss': 'Opa von Papa oder Mama', 'old': 'Vater des Vaters oder der Mutter',
+             'ok': True}) + '\n')
+        self.run_apply()
+        self.assertEqual(self.row(1)[2]['definitions'], ['Vater des Vaters oder der Mutter'])
+
+    def test_a_gloss_a_blind_reader_could_not_trace_is_replaced_or_dropped(self):
+        root = pathlib.Path(self.dir.name)
+        (root / 'de_kidgloss.jsonl').write_text('\n'.join(json.dumps(r) for r in [
+            {'id': 'w1', 'src': correct.digest(self.relation(1)),
+             'gloss': 'Damit kannst du etwas halten.', 'old': 'Sternbilder', 'ok': True},
+            {'id': 'w3', 'src': correct.digest(self.relation(3)),
+             'gloss': 'Etwas zum Werfen', 'old': 'dick', 'ok': True},
+        ]) + '\n')
+        (root / 'de_blind.jsonl').write_text('\n'.join(json.dumps(r) for r in [
+            {'id': 'w1', 'gloss': 'Damit kannst du etwas halten', 'guesses': ['Ball'],
+             'ok': False, 'fix': 'Ein Tier, das bellt.', 'fix_found': True},
+            {'id': 'w3', 'gloss': 'Etwas zum Werfen', 'guesses': ['Ball'],
+             'ok': False, 'fix': 'Etwas', 'fix_found': False},
+        ]) + '\n')
+        self.run_apply()
+        _, _, enr, meta = self.row(1)
+        self.assertEqual(enr['definitions'], ['Ein Tier, das bellt.', 'Sternbilder'])
+        self.assertEqual(meta['gloss_source'], 'llm-reviewed')
+        _, _, enr, meta = self.row(3)
+        self.assertEqual(enr['definitions'], ['dick'])
+        self.assertNotIn('gloss_source', meta)
+
 
 class PhrasalFits(unittest.TestCase):
     def test_only_particles_no_judge_fits_anywhere_are_offered(self):

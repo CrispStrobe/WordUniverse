@@ -53,7 +53,7 @@ import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from llm_correct import (OUT_DIR, PARTICLES, RELATIONS_TEXT,  # noqa: E402
-                         digest, entry_of, lexrel_candidates,
+                         blind_gloss, digest, entry_of, lexrel_candidates,
                          pack_vocabulary, relation_entry)
 from llm_correct import _terms as terms  # noqa: E402
 
@@ -215,6 +215,8 @@ def main():
     # the sense check was read against the children's glosses.
     kidgloss = apply_kidgloss(db, args.lang)
     sense = apply_sense(db, args.lang)
+    # After every step that writes a leading gloss: it judged those glosses.
+    blind = apply_blind(db, args.lang)
     finished = finish_glosses(db)
     db.commit()
     print(json.dumps({'corrections': len(corrections), **counts, 'fields': fields,
@@ -224,6 +226,7 @@ def main():
                       **({'lexrel': lexrel} if lexrel else {}),
                       **({'kidgloss': kidgloss} if kidgloss else {}),
                       **({'sense': sense} if sense else {}),
+                      **({'blind': blind} if blind else {}),
                       'glosses_finished': finished}))
 
 
@@ -396,6 +399,9 @@ def apply_kidgloss(db, lang):
             counts['unchanged'] += 1
             continue
         enrichment = json.loads(row['enrichment_json'] or '{}')
+        if self_relative(gloss, row['word'], enrichment.get('synonyms')):
+            counts['self_relative'] = counts.get('self_relative', 0) + 1
+            continue
         metadata = json.loads(row['metadata_json'] or '{}')
         enrichment['definitions'] = [gloss] + [
             d for d in enrichment.get('definitions') or [] if d != gloss]
@@ -442,6 +448,9 @@ def apply_sense(db, lang):
             continue
         gloss = record['gloss'].strip()
         enrichment = json.loads(row['enrichment_json'] or '{}')
+        if self_relative(gloss, row['word'], enrichment.get('synonyms')):
+            counts['self_relative'] = counts.get('self_relative', 0) + 1
+            continue
         metadata = json.loads(row['metadata_json'] or '{}')
         enrichment['definitions'] = [gloss] + [
             d for d in enrichment.get('definitions') or [] if d != gloss]
@@ -451,6 +460,98 @@ def apply_sense(db, lang):
                    (json.dumps(enrichment, ensure_ascii=False),
                     json.dumps(metadata, ensure_ascii=False), row['id']))
         counts['applied'] += 1
+    return counts
+
+
+# Family words name a relation, so a family word "of" someone is a further
+# relation: "Opa von Papa oder Mama" is the great-grandfather. A model wrote
+# that for Großvater, simplifying "Vater des Vaters oder der Mutter", and a
+# model of another family passed it; both read it as meant. A gloss that
+# starts with a family word that is the word itself or its synonym, followed
+# by "von"/"of", is never the word. ("Teil: ein Stück von etwas" is fine:
+# only family words compose.)
+KIN = {
+    'opa', 'oma', 'opi', 'omi', 'großvater', 'großmutter', 'großeltern',
+    'vater', 'mutter', 'papa', 'mama', 'eltern', 'sohn', 'tochter', 'kind',
+    'bruder', 'schwester', 'geschwister', 'onkel', 'tante', 'cousin',
+    'cousine', 'enkel', 'enkelin', 'neffe', 'nichte',
+    'grandpa', 'grandma', 'granddad', 'grandmother', 'grandfather',
+    'grandparents', 'father', 'mother', 'dad', 'mom', 'mum', 'parent',
+    'parents', 'son', 'daughter', 'child', 'brother', 'sister', 'sibling',
+    'uncle', 'aunt', 'cousin', 'grandson', 'granddaughter', 'grandchild',
+    'nephew', 'niece',
+}
+_LEAD = {'der', 'die', 'das', 'dein', 'deine', 'ein', 'eine', 'the', 'a',
+         'an', 'your'}
+
+
+def self_relative(gloss, word, synonyms):
+    names = {word.lower()} | {s.lower() for s in synonyms or [] if isinstance(s, str)}
+    tokens = re.findall(r"[\w-]+", gloss.lower())
+    i = 1 if tokens and tokens[0] in _LEAD else 0
+    heads = []
+    while i < len(tokens) and tokens[i] in KIN:
+        heads.append(tokens[i])
+        i += 1
+        if i < len(tokens) and tokens[i] in ('und', 'oder', 'and', 'or'):
+            i += 1
+    if not heads or i >= len(tokens) or tokens[i] not in ('von', 'vom', 'of'):
+        return False
+    phrase = re.findall(r"[\w-]+", ' '.join(tokens[:i]))
+    return any(h in names for h in heads) or \
+        any(set(re.findall(r"[\w-]+", n)) <= set(phrase) and ' ' in n for n in names)
+
+
+def apply_blind(db, lang):
+    """What <lang>_blind.jsonl found about the model-written glosses.
+
+    A gloss a reader who saw only it could not trace to its word, and a judge
+    of another family then found wrong, is replaced by the judge's gloss
+    where a third, blind reader found the word from it, and otherwise
+    dropped, so the dictionary's own meaning leads again. A record applies
+    only to the gloss it read.
+    """
+    path = OUT_DIR / f'{lang}_blind.jsonl'
+    if not path.exists():
+        return None
+    latest = {}
+    for line in path.read_text(encoding='utf-8').splitlines():
+        if line.strip():
+            record = json.loads(line)
+            latest[record['id']] = record
+    counts = {'ok': 0, 'replaced': 0, 'dropped': 0, 'stale': 0, 'missing': 0}
+    for entry_id, record in latest.items():
+        if record.get('ok') is not False:
+            counts['ok'] += 1
+            continue
+        row = find_row(db, entry_id, 'id, word, enrichment_json, metadata_json')
+        if row is None:
+            counts['missing'] += 1
+            continue
+        enrichment = json.loads(row['enrichment_json'] or '{}')
+        metadata = json.loads(row['metadata_json'] or '{}')
+        defs = enrichment.get('definitions') or []
+        if not defs or not isinstance(defs[0], str) or \
+                blind_gloss(defs[0]) != record['gloss'] or \
+                metadata.get('gloss_source') not in WRITTEN_WHOLE:
+            counts['stale'] += 1
+            continue
+        fix = record.get('fix') if record.get('fix_found') else None
+        if fix:
+            enrichment['definitions'] = [fix] + [d for d in defs[1:] if d != fix]
+            counts['replaced'] += 1
+        elif len(defs) > 1:
+            enrichment['definitions'] = defs[1:]
+            metadata.pop('gloss_source', None)
+            counts['dropped'] += 1
+        else:
+            enrichment['definitions'] = []
+            metadata.pop('gloss_source', None)
+            counts['dropped'] += 1
+        metadata['gloss_blind'] = record['gloss']
+        db.execute('UPDATE words SET enrichment_json=?, metadata_json=? WHERE id=?',
+                   (json.dumps(enrichment, ensure_ascii=False),
+                    json.dumps(metadata, ensure_ascii=False), row['id']))
     return counts
 
 

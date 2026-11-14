@@ -1154,6 +1154,9 @@ KIDGLOSS_PROMPT = """You write word meanings for a {language} vocabulary app for
 For each entry write the usual meaning of the word in ONE short {language} sentence or phrase of at most
 12 words, using only common everyday words a child knows. Describe the meaning given in "gloss"
 (the usual one), not a rare sense. Do not use the word itself or a word of its family.
+Keep relations exact: "Vater des Vaters" is "der Vater von Papa oder Mama", not
+"der Opa von Papa" (that is the great-grandfather). The gloss must name this word,
+not a relative of it, a broader or narrower thing, or a part of it.
 {style}
 If the current gloss is already short, correct and easy for a child, return it unchanged.
 
@@ -1172,6 +1175,8 @@ KIDGLOSS_STYLE = {
 KIDGLOSS_VERIFY = """You check word meanings written for children aged 7 to 10 learning {language}.
 For each entry, "ok" is true only if ALL hold:
 - the gloss is correct for the usual meaning of the word (the "old" gloss shows the intended sense),
+- read alone, it names exactly this word, not another one: "Opa von Papa oder Mama" is the
+  great-grandfather, so it is wrong for Großvater; check relations, broader/narrower things and parts,
 - a child of eight can understand every word of it,
 - it does not contain the word itself or a word of its family,
 - it is at most 12 words.
@@ -1314,7 +1319,10 @@ For each entry a reviewer replaced the meaning shown first ("old") with "new".
 - "new" is the meaning a child of that grade most likely means by the word,
   and "old" was not (for "Kater": a male cat, not a hangover),
 - "new" is correct, easy for a child, at most 12 words, and does not contain
-  the word itself or a word of its family.
+  the word itself or a word of its family,
+- read alone, "new" names exactly this word, not a relative of it ("Opa von
+  Papa" is the great-grandfather, not the grandfather), nor a broader or
+  narrower thing.
 
 Answer with JSON only: [{{"id": "...", "ok": true|false}}]
 
@@ -1428,6 +1436,195 @@ def sense(args):
                 rate = i / max(1, time.time() - started) * 3600
                 print(f'[{i}/{len(futures)}] {stats} ~{rate:.0f} batches/h', flush=True)
     print_lanes(pool)
+
+
+# ─── Blind: does the gloss name its word? ────────────────────────────────
+#
+# The definitions quiz shows a gloss and asks which word it describes. A
+# model-written gloss passed a check that saw word and gloss together, and
+# "Opa von Papa oder Mama" passed for Großvater although it is the
+# great-grandfather: a reader who knows the word reads the gloss as meant.
+# This pass reads it the way the child does. A model sees only the gloss
+# and the word class and names the words it describes; where the word (or
+# one of its synonyms) is not among them, a judge of another family sees
+# word and gloss and says whether the gloss is right, writing a new one if
+# not, and a third model, blind again, has to find the word from that.
+
+BLIND_GUESS = """A {language} children's dictionary gives these meanings. For each, name
+the {language} words it most likely describes, best first, at most 4, as
+dictionary forms (nouns without article). Read each meaning literally and
+exactly, as a strict teacher would: "Mutter von Mama" is the grandmother, so
+"Oma von Papa" is the great-grandmother; a part, a tool or a use of a thing is
+not the thing.
+
+Answer with JSON only: [{{"id": "...", "words": ["...", "..."]}}]
+
+Entries:
+{entries}"""
+
+BLIND_JUDGE = """You check meanings in a {language} vocabulary app for children aged 6 to 11.
+The app shows the meaning ("gloss") and asks the child which word it describes.
+Someone who saw only the gloss guessed other words ("guesses"); "other" lists
+the dictionary's meanings of the word.
+
+"ok" is true if the gloss correctly describes the usual meaning of "word", so
+that a child can find the word from it; the guesses may be near synonyms of it.
+"ok" is false if it describes something else: a relative of it ("Opa von Papa
+oder Mama" is the great-grandfather, not Großvater), a broader or narrower
+thing, a part of it, the opposite, or is plainly wrong.
+If false, also give "gloss": the right meaning in ONE short {language} sentence
+or phrase of at most 12 everyday words, without the word itself or a word of its
+family. {style}
+
+Answer with JSON only: [{{"id": "...", "ok": true}}, {{"id": "...", "ok": false, "gloss": "..."}}]
+
+Entries:
+{entries}"""
+
+
+def blind_norm(text):
+    text = re.sub(r"[^\w\s-]", ' ', text or '').lower().split()
+    while text and text[0] in ('der', 'die', 'das', 'the', 'a', 'an', 'to', 'sich'):
+        text = text[1:]
+    return ' '.join(text)
+
+
+def blind_names(row):
+    """The word and its synonyms, as a guess would name them."""
+    enrichment = json.loads(row['enrichment_json'] or '{}')
+    names = {blind_norm(row['word'])}
+    for s in enrichment.get('synonyms') or []:
+        if isinstance(s, str):
+            names.add(blind_norm(s))
+    names.discard('')
+    return names
+
+
+def blind_hit(guesses, names):
+    return any(blind_norm(g) in names for g in guesses if isinstance(g, str))
+
+
+def blind(args):
+    env = load_env(args.env_file)
+    pool = Pool(env, only=set(args.lanes.split(',')) if args.lanes else None)
+    assign_roles(pool, set(args.guessers.split(',')), set(args.judges.split(',')))
+    language = 'German' if args.lang == 'de' else 'English'
+    out = OUT_DIR / f'{args.lang}_blind.jsonl'
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    seen = set()
+    if out.exists():
+        for line in open(out, encoding='utf-8'):
+            if line.strip():
+                r = json.loads(line)
+                seen.add((r['id'], r['gloss']))
+    db = sqlite3.connect(args.pack)
+    db.row_factory = sqlite3.Row
+    rows = db.execute(
+        "SELECT id, original_id, word, word_type, article, grade_level, "
+        "enrichment_json, metadata_json FROM words WHERE grade_level "
+        "BETWEEN 1 AND ? AND coalesce(json_extract(metadata_json, "
+        "'$.quality.vocabulary'), 1) = 1 AND json_extract(metadata_json, "
+        "'$.gloss_source') IN ('llm-reviewed', 'llm-sense') "
+        "ORDER BY grade_level, id", (args.max_grade,)).fetchall()
+    todo = []
+    for row in rows:
+        entry = relation_entry(row, args.lang)
+        gloss = blind_gloss(entry['meaning'])
+        if not gloss or (entry['id'], gloss) in seen:
+            continue
+        defs = [d for d in json.loads(row['enrichment_json'] or '{}').get('definitions') or []
+                if isinstance(d, str) and d.strip()]
+        todo.append({'id': entry['id'], 'word': entry['word'],
+                     'word_type': entry['word_type'], 'gloss': gloss,
+                     'other': [d[:120] for d in defs[1:5]],
+                     'names': blind_names(row)})
+    if args.ids:
+        wanted = set(args.ids.split(','))
+        todo = [e for e in todo if e['id'] in wanted or e['word'] in wanted]
+    if args.limit:
+        todo = todo[:args.limit]
+    batches = [todo[i:i + args.batch] for i in range(0, len(todo), args.batch)]
+    print(f'{len(todo)} entries in {len(batches)} batches', flush=True)
+    lock = threading.Lock()
+    stats = {'entries': 0, 'found': 0, 'judged_ok': 0, 'fixed': 0, 'wrong': 0, 'failed': 0}
+
+    def guess(entries, exclude=None):
+        shown = [{'id': e['id'], 'word_type': e['word_type'], 'gloss': e['gloss']}
+                 for e in entries]
+        lane, answers = pool.run('propose', BLIND_GUESS.format(
+            language=language, entries=json.dumps(shown, ensure_ascii=False, indent=0)),
+            exclude_family=exclude, attempts=30)
+        by_id = {a.get('id'): a.get('words') for a in answers if isinstance(a, dict)}
+        if sum(1 for e in entries if isinstance(by_id.get(e['id']), list)) < len(entries) * 0.9:
+            raise RuntimeError(f'{lane.name}: guessed too few entries')
+        return lane, by_id
+
+    def one(batch):
+        guesser, guesses = guess(batch)
+        missed = [e for e in batch if isinstance(guesses.get(e['id']), list)
+                  and not blind_hit(guesses[e['id']], e['names'])]
+        verdict, fixes, judge, second = {}, {}, None, {}
+        if missed:
+            shown = [{'id': e['id'], 'word': e['word'], 'gloss': e['gloss'],
+                      'guesses': guesses[e['id']][:4], 'other': e['other']} for e in missed]
+            judge, verdicts = pool.run('verify', BLIND_JUDGE.format(
+                language=language, style=KIDGLOSS_STYLE[args.lang],
+                entries=json.dumps(shown, ensure_ascii=False, indent=0)),
+                exclude_family=guesser.family, attempts=30)
+            for v in verdicts:
+                if isinstance(v, dict) and isinstance(v.get('ok'), bool):
+                    verdict[v.get('id')] = v['ok']
+                    if v['ok'] is False and isinstance(v.get('gloss'), str) and v['gloss'].strip():
+                        fixes[v.get('id')] = v['gloss'].strip()
+            if fixes:
+                again = [dict(e, gloss=fixes[e['id']]) for e in missed if e['id'] in fixes]
+                _, second = guess(again, exclude=judge.family)
+        with lock, open(out, 'a', encoding='utf-8') as f:
+            for e in batch:
+                g = guesses.get(e['id'])
+                if not isinstance(g, list):
+                    continue
+                record = {'id': e['id'], 'word': e['word'], 'gloss': e['gloss'],
+                          'guesses': g[:4], 'by': guesser.model}
+                if e in missed:
+                    if e['id'] not in verdict:
+                        continue
+                    record.update(ok=verdict[e['id']], checked_by=judge.model)
+                    if e['id'] in fixes:
+                        record['fix'] = fixes[e['id']]
+                        record['fix_guesses'] = (second.get(e['id']) or [])[:4]
+                        record['fix_found'] = blind_hit(record['fix_guesses'], e['names'])
+                else:
+                    record['ok'] = True
+                f.write(json.dumps(record, ensure_ascii=False) + '\n')
+                stats['entries'] += 1
+                if e not in missed:
+                    stats['found'] += 1
+                elif record['ok']:
+                    stats['judged_ok'] += 1
+                elif record.get('fix_found'):
+                    stats['fixed'] += 1
+                else:
+                    stats['wrong'] += 1
+
+    started = time.time()
+    with ThreadPoolExecutor(max_workers=args.workers) as ex:
+        futures = [ex.submit(one, b) for b in batches]
+        for i, f in enumerate(as_completed(futures), 1):
+            try:
+                f.result()
+            except Exception as e:
+                stats['failed'] += 1
+                print(f'batch failed: {e}', flush=True)
+            if i % 10 == 0 or i == len(futures):
+                rate = i / max(1, time.time() - started) * 3600
+                print(f'[{i}/{len(futures)}] {stats} ~{rate:.0f} batches/h', flush=True)
+    print_lanes(pool)
+
+
+def blind_gloss(gloss):
+    """The gloss as the blind pass keys it: finish_glosses may have added a stop."""
+    return (gloss or '').strip().rstrip('.').strip()
 
 
 def print_lanes(pool):
@@ -1586,6 +1783,18 @@ def main():
     se.add_argument('--proposers', default='mistral-large,mistral-medium')
     se.add_argument('--verifiers', default='iceman,gpt-oss-120b,gemini-3-flash,nemotron-ultra,longcat-2.5')
     se.add_argument('--env-file', default=str(pathlib.Path.home() / 'code' / '.env'))
+    bl = sub.add_parser('blind', help='does a model-written gloss, read alone, name its word?')
+    bl.add_argument('pack')
+    bl.add_argument('--lang', choices=['de', 'en'], required=True)
+    bl.add_argument('--max-grade', type=int, default=13)
+    bl.add_argument('--ids', help='comma-separated entry ids or words, for a trial')
+    bl.add_argument('--limit', type=int)
+    bl.add_argument('--batch', type=int, default=40)
+    bl.add_argument('--workers', type=int, default=6)
+    bl.add_argument('--lanes')
+    bl.add_argument('--guessers', default='mistral-large,mistral-medium,gemini-3-flash')
+    bl.add_argument('--judges', default='iceman,gpt-oss-120b,gemini-3-flash,nemotron-ultra,longcat-2.5')
+    bl.add_argument('--env-file', default=str(pathlib.Path.home() / 'code' / '.env'))
     pf = sub.add_parser('phrasal-fits')
     pf.add_argument('--judges', default='mistral-large,command-a')
     pf.add_argument('--round', type=int, default=1,
@@ -1600,7 +1809,7 @@ def main():
     {'propose': propose, 'report': report, 'phrasal': phrasal,
      'audit': audit, 'relations': relations,
      'phrasal-fits': phrasal_fits, 'lexrel': lexrel,
-     'kidgloss': kidgloss, 'sense': sense}[args.cmd](args)
+     'kidgloss': kidgloss, 'sense': sense, 'blind': blind}[args.cmd](args)
 
 
 if __name__ == '__main__':
