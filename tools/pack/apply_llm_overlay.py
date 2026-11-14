@@ -502,13 +502,19 @@ def self_relative(gloss, word, synonyms):
         any(set(re.findall(r"[\w-]+", n)) <= set(phrase) and ' ' in n for n in names)
 
 
+# A judge sometimes answers about the entry instead of the word: "Fehler:
+# richtiges Wort ist 'Schuhe'" for "die Schuhen". Never a gloss.
+META_FIX = re.compile(r"\b(Fehler|falsches Wort|richtig(es)? Wort|richtig:|"
+                      r"wrong word|typo|misspell|not a word|kein Wort)", re.I)
+
+
 def apply_blind(db, lang):
     """What <lang>_blind.jsonl found about the model-written glosses.
 
     A gloss a reader who saw only it could not trace to its word, and a judge
     of another family then found wrong, is replaced by the judge's gloss
-    where a third, blind reader found the word from it, and otherwise
-    dropped, so the dictionary's own meaning leads again. A record applies
+    where a third, blind reader found the word (or its lemma) from it, and
+    otherwise marked above the reader, so no game asks by it. A record applies
     only to the gloss it read.
     """
     path = OUT_DIR / f'{lang}_blind.jsonl'
@@ -519,7 +525,7 @@ def apply_blind(db, lang):
         if line.strip():
             record = json.loads(line)
             latest[record['id']] = record
-    counts = {'ok': 0, 'replaced': 0, 'dropped': 0, 'stale': 0, 'missing': 0}
+    counts = {'ok': 0, 'replaced': 0, 'unconfirmed': 0, 'stale': 0, 'missing': 0}
     for entry_id, record in latest.items():
         if record.get('ok') is not False:
             counts['ok'] += 1
@@ -539,18 +545,23 @@ def apply_blind(db, lang):
                 metadata.get('gloss_source') not in WRITTEN_WHOLE:
             counts['stale'] += 1
             continue
-        fix = record.get('fix') if record.get('fix_found') else None
+        names = blind_names(row)
+        found = record.get('fix_found') or \
+            blind_hit(record.get('fix_guesses') or [], names)
+        fix = record.get('fix') if found and not record.get('fix_rejected') \
+            and not META_FIX.search(record.get('fix') or '') else None
         if fix:
             enrichment['definitions'] = [fix] + [d for d in defs[1:] if d != fix]
             counts['replaced'] += 1
-        elif len(defs) > 1:
-            enrichment['definitions'] = defs[1:]
-            metadata.pop('gloss_source', None)
-            counts['dropped'] += 1
         else:
-            enrichment['definitions'] = []
-            metadata.pop('gloss_source', None)
-            counts['dropped'] += 1
+            # The judges are not always right ("kleine Eiskügelchen, die vom
+            # Himmel fallen" for Graupel, where the reader said Hagel), and
+            # the gloss behind is often a grammar note ("Nominativ Singular
+            # Maskulinum ..."). So the gloss stays to be read, but no game
+            # asks for the word by it: gloss_above_reader keeps it out of
+            # learnerDefinitions, which the quiz and word of the day read.
+            metadata['gloss_above_reader'] = True
+            counts['unconfirmed'] += 1
         metadata['gloss_blind'] = record['gloss']
         db.execute('UPDATE words SET enrichment_json=?, metadata_json=? WHERE id=?',
                    (json.dumps(enrichment, ensure_ascii=False),

@@ -260,7 +260,7 @@ class Guards(unittest.TestCase):
         self.run_apply()
         self.assertEqual(self.row(1)[2]['definitions'], ['Vater des Vaters oder der Mutter'])
 
-    def test_a_gloss_a_blind_reader_could_not_trace_is_replaced_or_dropped(self):
+    def test_a_gloss_a_blind_reader_could_not_trace_is_replaced_or_kept_out_of_games(self):
         root = pathlib.Path(self.dir.name)
         (root / 'de_kidgloss.jsonl').write_text('\n'.join(json.dumps(r) for r in [
             {'id': 'w1', 'src': correct.digest(self.relation(1)),
@@ -279,8 +279,8 @@ class Guards(unittest.TestCase):
         self.assertEqual(enr['definitions'], ['Ein Tier, das bellt.', 'Sternbilder'])
         self.assertEqual(meta['gloss_source'], 'llm-reviewed')
         _, _, enr, meta = self.row(3)
-        self.assertEqual(enr['definitions'], ['dick'])
-        self.assertNotIn('gloss_source', meta)
+        self.assertEqual(enr['definitions'], ['Etwas zum Werfen', 'dick'])
+        self.assertTrue(meta['gloss_above_reader'])
 
 
 class PhrasalFits(unittest.TestCase):
