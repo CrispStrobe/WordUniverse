@@ -7,6 +7,10 @@ import 'kompass_grader.dart';
 class KompassAttempt {
   final String id, courseId, taskId, mode, reviewer, taskKind;
   final String? stimulusId, sessionId, courseFingerprint;
+
+  /// 'touch' or 'keyboard' for a task that can be answered either way; null
+  /// for one that offers only one way (and for attempts saved before).
+  final String? inputMode;
   final int taskVersion, courseVersion, elapsedSeconds;
   final DateTime occurredAt;
   final List<String> competencyIds, assistance;
@@ -31,6 +35,7 @@ class KompassAttempt {
     this.stimulusId,
     this.sessionId,
     this.courseFingerprint,
+    this.inputMode,
   });
 
   double get earnedPoints => parts.fold(0, (sum, p) => sum + (p.points ?? 0));
@@ -60,6 +65,7 @@ class KompassAttempt {
         'stimulusId': stimulusId,
         'sessionId': sessionId,
         'courseFingerprint': courseFingerprint,
+        if (inputMode != null) 'inputMode': inputMode,
       };
 
   factory KompassAttempt.fromJson(Map<String, dynamic> json) {
@@ -99,6 +105,7 @@ class KompassAttempt {
       stimulusId: json['stimulusId'] as String?,
       sessionId: json['sessionId'] as String?,
       courseFingerprint: json['courseFingerprint'] as String?,
+      inputMode: json['inputMode'] as String?,
     );
   }
 
@@ -124,6 +131,7 @@ class KompassAttempt {
         stimulusId: stimulusId,
         sessionId: sessionId,
         courseFingerprint: courseFingerprint,
+        inputMode: inputMode,
       );
 }
 
@@ -430,7 +438,9 @@ class KompassProgressService extends ChangeNotifier {
         !mapOf('assistance', strings) ||
         !mapOf('attemptIds', (v) => v is String) ||
         !mapOf('elapsed', (v) => v is int && v >= 0) ||
-        !mapOf('hintCounts', (v) => v is int && v >= 0)) return false;
+        !mapOf('hintCounts', (v) => v is int && v >= 0) ||
+        !mapOf('touchState', (v) => v is Map) ||
+        (raw['typing'] != null && raw['typing'] is! bool)) return false;
     return ['skipped', 'seenStimuli']
         .every((key) => raw[key] == null || strings(raw[key]));
   }
@@ -443,6 +453,7 @@ class KompassProgressService extends ChangeNotifier {
     Set<String> assistance = const {},
     int elapsedSeconds = 0,
     String? sessionId,
+    String? inputMode,
   }) async {
     if (!const {
       'practice',
@@ -494,6 +505,7 @@ class KompassProgressService extends ChangeNotifier {
       stimulusId: task.stimulusId,
       sessionId: sessionId,
       courseFingerprint: course.fingerprint,
+      inputMode: inputMode,
     );
     _attempts.add(attempt);
     await _persist();

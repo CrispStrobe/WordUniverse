@@ -7,6 +7,7 @@ import '../services/kompass_course_service.dart';
 import '../services/kompass_progress_service.dart';
 import '../widgets/kompass_blocks.dart';
 import '../widgets/kompass_part_input.dart';
+import '../widgets/kompass_touch_input.dart';
 import '../widgets/kompass_review_sheet.dart';
 import '../widgets/kompass_strings.dart';
 import '../widgets/kompass_ui.dart';
@@ -43,6 +44,10 @@ class _KompassPlayerScreenState extends State<KompassPlayerScreen>
   final Set<String> _skipped = {};
   final Set<String> _seenStimuli = {};
   final Map<String, int> _hintCounts = {};
+  // Taps of each touch widget, by task and widget index.
+  final Map<String, Map<String, dynamic>> _touchState = {};
+  final Map<String, int> _revisions = {};
+  bool _typing = false;
   final ScrollController _taskScroll = ScrollController();
   late KompassProgressService _progress;
   late String _sessionId;
@@ -112,6 +117,13 @@ class _KompassPlayerScreenState extends State<KompassPlayerScreen>
                 .entries) {
           _hintCounts[entry.key] = (entry.value as num).toInt();
         }
+        for (final entry
+            in Map<String, dynamic>.from(draft['touchState'] as Map? ?? {})
+                .entries) {
+          _touchState[entry.key] =
+              Map<String, dynamic>.from(entry.value as Map);
+        }
+        _typing = draft['typing'] == true;
         _skipped.addAll(List<String>.from(draft['skipped'] as List? ?? []));
         _seenStimuli
             .addAll(List<String>.from(draft['seenStimuli'] as List? ?? []));
@@ -183,6 +195,8 @@ class _KompassPlayerScreenState extends State<KompassPlayerScreen>
       'attemptIds': _attemptIds,
       'elapsed': _elapsed,
       'hintCounts': _hintCounts,
+      'touchState': _touchState,
+      'typing': _typing,
       'skipped': _skipped.toList(),
       'seenStimuli': _seenStimuli.toList(),
     }, course: _course);
@@ -443,9 +457,39 @@ class _KompassPlayerScreenState extends State<KompassPlayerScreen>
 
   List<Widget> _responseInputs(
       KompassStimulus? stimulus, KompassAttempt? attempt) {
+    final touch = _task.touch;
+    final tapping = !_typing && _task.canTap;
+    final widgetOf = <String, int>{
+      for (var i = 0; i < touch.length; i++)
+        for (final id in touch[i].partIds) id: i,
+    };
+    final enabled = !_busy && attempt == null;
+    final inputs = <Widget>[
+      if (_task.canTap) _inputModeSwitch(enabled),
+    ];
+    final shown = <int>{};
     final seenGroups = <String>{};
-    final inputs = <Widget>[];
     for (final part in _task.parts) {
+      final w = widgetOf[part.id];
+      if (tapping && w != null && touch[w].kind != 'quote') {
+        if (!shown.add(w)) continue;
+        final widgetTouch = touch[w];
+        inputs.add(KompassTouchInput(
+          key: ValueKey('${_task.id}/touch/$w'),
+          touch: widgetTouch,
+          state: Map<String, dynamic>.from(
+              _touchState[_task.id]?['$w'] as Map? ?? const {}),
+          prompt: widgetTouch.partIds.length == 1 ? part.prompt : null,
+          enabled: enabled,
+          onChanged: (state, values) {
+            _touchState.putIfAbsent(_task.id, () => {})['$w'] = state;
+            for (final entry in values.entries) {
+              _change(entry.key, entry.value);
+            }
+          },
+        ));
+        continue;
+      }
       final group = part.metadata['responseGroupId'] as String?;
       if (group != null && !seenGroups.add(group)) continue;
       final grouped = group == null
@@ -459,20 +503,77 @@ class _KompassPlayerScreenState extends State<KompassPlayerScreen>
               ...part.metadata,
               'prompt': part.metadata['responseGroupPrompt'] ?? part.prompt,
             });
+      final revisionKey = '${_task.id}/${part.id}';
       inputs.add(KompassPartInput(
         key: ValueKey('${_task.id}/${group ?? part.id}'),
         part: displayPart,
         value: _answers[_task.id]?[part.id],
         stimulus: stimulus,
-        enabled: !_busy && attempt == null,
+        enabled: enabled,
+        revision: _revisions[revisionKey] ?? 0,
         onChanged: (value) {
           for (final target in grouped) {
             _change(target.id, value);
           }
         },
       ));
+      if (w != null && touch[w].kind == 'quote' && stimulus != null) {
+        inputs.add(Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: KompassQuotePicker(
+            touch: touch[w],
+            stimulus: stimulus,
+            value: '${_answers[_task.id]?[part.id] ?? ''}',
+            enabled: enabled,
+            onChanged: (value) {
+              _revisions[revisionKey] = (_revisions[revisionKey] ?? 0) + 1;
+              _change(part.id, value);
+            },
+          ),
+        ));
+      }
     }
     return inputs;
+  }
+
+  /// Tap or type: the same answer either way. Switching to tapping shows the
+  /// taps saved for this task and answers with them, so what is on screen is
+  /// what gets checked.
+  Widget _inputModeSwitch(bool enabled) {
+    final s = KompassStrings.of(context);
+    return Align(
+      alignment: Alignment.centerRight,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: TextButton.icon(
+          key: const ValueKey('kompass-input-mode'),
+          onPressed: !enabled
+              ? null
+              : () {
+                  setState(() => _typing = !_typing);
+                  if (!_typing) _answerFromTaps();
+                  _persist();
+                },
+          icon: Icon(
+              _typing ? Icons.touch_app_outlined : Icons.keyboard_alt_outlined),
+          label: Text(_typing
+              ? s.choose('Lieber antippen', 'Tap instead')
+              : s.choose('Lieber tippen', 'Type instead')),
+        ),
+      ),
+    );
+  }
+
+  void _answerFromTaps() {
+    final touch = _task.touch;
+    for (var w = 0; w < touch.length; w++) {
+      if (touch[w].kind == 'quote') continue;
+      final state = Map<String, dynamic>.from(
+          _touchState[_task.id]?['$w'] as Map? ?? const {});
+      for (final entry in touch[w].values(state).entries) {
+        _change(entry.key, entry.value);
+      }
+    }
   }
 
   Widget _support(BuildContext context) {
@@ -635,7 +736,8 @@ class _KompassPlayerScreenState extends State<KompassPlayerScreen>
           mode: widget.mode,
           sessionId: _sessionId,
           assistance: _assistance[task.id] ?? {},
-          elapsedSeconds: _elapsed[task.id] ?? 0);
+          elapsedSeconds: _elapsed[task.id] ?? 0,
+          inputMode: task.canTap ? (_typing ? 'keyboard' : 'touch') : null);
       _attemptIds[task.id] = result.id;
       await _persist();
     } catch (_) {

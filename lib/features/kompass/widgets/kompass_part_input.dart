@@ -9,13 +9,18 @@ class KompassPartInput extends StatelessWidget {
   final ValueChanged<dynamic> onChanged;
   final KompassStimulus? stimulus;
   final bool enabled;
+
+  /// Bumped when the answer changes from outside the field (a line copied
+  /// from the text), so the field shows it.
+  final int revision;
   const KompassPartInput(
       {super.key,
       required this.part,
       required this.value,
       required this.onChanged,
       this.stimulus,
-      this.enabled = true});
+      this.enabled = true,
+      this.revision = 0});
   @override
   Widget build(BuildContext context) {
     final s = KompassStrings.of(context);
@@ -73,7 +78,8 @@ class KompassPartInput extends StatelessWidget {
             ],
             if (part.type == 'text' || part.type == 'review')
               TextFormField(
-                key: ValueKey('${part.id}-${enabled ? 'edit' : 'locked'}'),
+                key: ValueKey(
+                    '${part.id}-${enabled ? 'edit' : 'locked'}-$revision'),
                 initialValue: value is String ? value as String : '',
                 enabled: enabled,
                 onChanged: onChanged,

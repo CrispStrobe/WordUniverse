@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
+import 'kompass_touch.dart';
+
 /// Course identifiers are strings and content is versioned independently of
 /// the app's historical grade/skill enums (which are persisted by index).
 class KompassCourse {
@@ -234,6 +236,18 @@ class KompassTask {
           json['parts'],
         ).map(KompassPart.fromJson).toList(growable: false),
         metadata = Map.unmodifiable(json);
+
+  /// The ways to answer this task by tapping instead of typing; kinds this
+  /// app does not know are left out, so their parts stay typed.
+  List<KompassTouch> get touch => [
+        for (final widget in _maps(metadata['touch']))
+          if (KompassTouch.kinds.contains(widget['kind']))
+            KompassTouch.fromJson(widget),
+      ];
+
+  /// Whether any part can be tapped rather than typed (a quote only helps
+  /// with an open answer, which stays typed).
+  bool get canTap => touch.any((w) => w.kind != 'quote');
 
   /// The task text as the app shows it. The blocks are the print task, which
   /// asks for pen and paper ("Kreise das Verb ein", "Grenze ... durch

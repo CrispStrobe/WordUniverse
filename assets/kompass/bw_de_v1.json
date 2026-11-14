@@ -2277,7 +2277,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
+        "companionSha256": "34192a64425ce28501053f354195414298d293050ee631ef674b62732d15449a"
       },
       "sourceRubric": [
         "a: 1 Punkt für Montag. Herbstferien allein beantwortet die Frage nach dem Wochentag nicht.",
@@ -2303,6 +2303,26 @@
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "3e004d2134b09f781da91c50c9f3f8daa5acaf50ed618055341874233db77b32",
       "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a",
+          "options": [
+            "Freitag",
+            "Montag",
+            "Dienstag"
+          ]
+        },
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "in der Turnhalle",
+            "im Keller",
+            "im Abstellraum"
+          ]
+        }
+      ],
       "stimulusId": "passage_deutsch1"
     },
     {
@@ -2429,7 +2449,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
+        "companionSha256": "34192a64425ce28501053f354195414298d293050ee631ef674b62732d15449a"
       },
       "sourceRubric": [
         "a: 1 Punkt für ausschließlich nein, sonst 0 Punkte.",
@@ -2601,7 +2621,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
+        "companionSha256": "34192a64425ce28501053f354195414298d293050ee631ef674b62732d15449a"
       },
       "sourceRubric": [
         "a: 1 Punkt für ausschließlich B.",
@@ -2630,6 +2650,27 @@
       "digitalText": {
         "Kreuze genau eine Antwort an.": "Wähle genau eine Antwort."
       },
+      "touch": [
+        {
+          "kind": "select",
+          "parts": [
+            "b"
+          ],
+          "words": [
+            "Es",
+            "sollte",
+            "nur",
+            "vorübergehend",
+            "bleiben,",
+            "bis",
+            "das",
+            "feste",
+            "Holzschild",
+            "fertig",
+            "war."
+          ]
+        }
+      ],
       "stimulusId": "passage_deutsch1"
     },
     {
@@ -2714,7 +2755,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
+        "companionSha256": "34192a64425ce28501053f354195414298d293050ee631ef674b62732d15449a"
       },
       "sourceRubric": [
         "Je 1 Punkt für jeden der beiden verschiedenen Gründe, höchstens 2 Punkte. Die Reihenfolge und das benutzte Antwortfeld sind unerheblich.",
@@ -2744,6 +2785,12 @@
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "3172a5531fe03196b602c64cac4f72734ca865d4268e9383d44dcfc868ef13f8",
       "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "quote",
+          "part": "reasons"
+        }
+      ],
       "stimulusId": "passage_deutsch1"
     },
     {
@@ -2877,7 +2924,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
+        "companionSha256": "34192a64425ce28501053f354195414298d293050ee631ef674b62732d15449a"
       },
       "sourceRubric": [
         "a: 1 Punkt für ausschließlich A.",
@@ -2907,6 +2954,16 @@
       "digitalText": {
         "Kreuze genau eine Antwort an.": "Wähle genau eine Antwort."
       },
+      "touch": [
+        {
+          "kind": "quote",
+          "part": "b",
+          "lines": [
+            19,
+            24
+          ]
+        }
+      ],
       "stimulusId": "passage_deutsch1"
     },
     {
@@ -3083,7 +3140,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
+        "companionSha256": "34192a64425ce28501053f354195414298d293050ee631ef674b62732d15449a"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für die richtige Zahl an einer der vier abgedruckten Positionen: 3, 4, 1, 2. Insgesamt höchstens 2 Punkte.",
@@ -3113,6 +3170,23 @@
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "9dc44f325f2481bef1f42106332afd05987d2e935ed09a17b1905c39ab853250",
       "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "rank",
+          "parts": [
+            "position1",
+            "position2",
+            "position3",
+            "position4"
+          ],
+          "labels": [
+            "Das Kind bekommt das Spielzeug.",
+            "Das Kind bringt das Spielzeug zurück.",
+            "Das Kind sucht ein Spielzeug aus.",
+            "Das Kind gibt seine Namenskarte ab."
+          ]
+        }
+      ],
       "stimulusId": "passage_deutsch1"
     },
     {
@@ -3261,7 +3335,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
+        "companionSha256": "34192a64425ce28501053f354195414298d293050ee631ef674b62732d15449a"
       },
       "sourceRubric": [
         "a: 1 Punkt für ausschließlich B. Gleichzeitig begrenzt die Zahl der parallel ausgeliehenen Spielsachen; nach einer Rückgabe ist ein Wechsel erlaubt.",
@@ -3449,7 +3523,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
+        "companionSha256": "34192a64425ce28501053f354195414298d293050ee631ef674b62732d15449a"
       },
       "sourceRubric": [
         "a: 1 Punkt für Tom, sonst 0 Punkte.",
@@ -3474,7 +3548,27 @@
       "scoringPolicy": "independent-parts",
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "eb01358bc22b894df8efde1d22179aecd307bd0096f9042105fd7b7829a88925",
-      "prerequisiteCompetencyIds": []
+      "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a",
+          "options": [
+            "Lea",
+            "Tom",
+            "Sami"
+          ]
+        },
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "Dienstag",
+            "Donnerstag",
+            "Freitag"
+          ]
+        }
+      ]
     },
     {
       "id": "d1_09",
@@ -3582,7 +3676,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
+        "companionSha256": "34192a64425ce28501053f354195414298d293050ee631ef674b62732d15449a"
       },
       "sourceRubric": [
         "Je 1 Punkt für Heute und Buch mit richtigem Anfangsbuchstaben. Die Reihenfolge der beiden Wörter spielt keine Rolle. Wenn das Kind freiwillig den ganzen Satz richtig aufschreibt, ebenfalls 2 Punkte. Emil ist bereits richtig geschrieben und zählt nicht als Berichtigung. Höchstens 2 Punkte."
@@ -3596,7 +3690,24 @@
       "scoringPolicy": "independent-parts",
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "aa15ee033dcb4211a75b2bcc74dff96ada2715c341bab2899760f04f50f7f05c",
-      "prerequisiteCompetencyIds": []
+      "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "select",
+          "parts": [
+            "a",
+            "b"
+          ],
+          "capitalize": true,
+          "words": [
+            "heute",
+            "liest",
+            "Emil",
+            "ein",
+            "buch."
+          ]
+        }
+      ]
     },
     {
       "id": "d1_10",
@@ -3709,7 +3820,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
+        "companionSha256": "34192a64425ce28501053f354195414298d293050ee631ef674b62732d15449a"
       },
       "sourceRubric": [
         "a) 1 Punkt für Berg. b) 1 Punkt für Berge. Die beiden Einträge getrennt bewerten: Eine richtige Mehrzahl erhält ihren Punkt auch dann, wenn a falsch ist. Andere Wörter, die lediglich ähnlich klingen, sind keine Verlängerung. Höchstens 2 Punkte."
@@ -3723,7 +3834,27 @@
       "scoringPolicy": "independent-parts",
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "d7fde2580f78a9a1609fcd69d896250ac99a24bcd340465473be85133a3b3b89",
-      "prerequisiteCompetencyIds": []
+      "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a",
+          "options": [
+            "g",
+            "k"
+          ],
+          "template": "Ber{}"
+        },
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "Berke",
+            "Berge",
+            "Bergen"
+          ]
+        }
+      ]
     },
     {
       "id": "d1_11",
@@ -3837,7 +3968,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
+        "companionSha256": "34192a64425ce28501053f354195414298d293050ee631ef674b62732d15449a"
       },
       "sourceRubric": [
         "a) 1 Punkt für kälter. b) 1 Punkt für kalt oder ein anderes tatsächlich verwandtes Wort mit a, das die Ableitung klärt, zum Beispiel kalte oder erkalten. Die Antworten unabhängig bewerten. Ein unverbundenes Wort mit a erhält keinen Punkt. Höchstens 2 Punkte."
@@ -3851,7 +3982,27 @@
       "scoringPolicy": "independent-parts",
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "defd3d136b309acf60ee6b94d2db939e0966672d96c7cd05a6776cdfb62538d2",
-      "prerequisiteCompetencyIds": []
+      "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a",
+          "options": [
+            "ä",
+            "e"
+          ],
+          "template": "k{}lter"
+        },
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "kühl",
+            "Kälte",
+            "kalt"
+          ]
+        }
+      ]
     },
     {
       "id": "d1_12",
@@ -3963,7 +4114,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
+        "companionSha256": "34192a64425ce28501053f354195414298d293050ee631ef674b62732d15449a"
       },
       "sourceRubric": [
         "Je 1 Punkt für Puppe und Koffer. Die beiden Wörter getrennt bewerten. Ein erklärender Regelsatz ist nicht verlangt. Höchstens 2 Punkte."
@@ -3977,7 +4128,27 @@
       "scoringPolicy": "independent-parts",
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "fc1a20dc9d103f5caf6673ee12a3c5d1d5f3a299d7fe563bed2dc18d7cfd35ff",
-      "prerequisiteCompetencyIds": []
+      "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a",
+          "options": [
+            "p",
+            "pp"
+          ],
+          "template": "Pu{}e"
+        },
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "f",
+            "ff"
+          ],
+          "template": "Ko{}er"
+        }
+      ]
     },
     {
       "id": "d1_13",
@@ -4081,7 +4252,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
+        "companionSha256": "34192a64425ce28501053f354195414298d293050ee631ef674b62732d15449a"
       },
       "sourceRubric": [
         "a) 1 Punkt für ß in hei____. b) 1 Punkt für ss in Ki____en. Auch die ausgeschriebenen richtigen Wörter heiß und Kissen gelten. Die beiden Lücken getrennt bewerten. Höchstens 2 Punkte."
@@ -4095,7 +4266,27 @@
       "scoringPolicy": "independent-parts",
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "aff421964ba8cc612c9d99e202e14ea24e88ebcafae7abd32648e6db362bbdd6",
-      "prerequisiteCompetencyIds": []
+      "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a",
+          "options": [
+            "ss",
+            "ß"
+          ],
+          "template": "hei{}"
+        },
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "ss",
+            "ß"
+          ],
+          "template": "Ki{}en"
+        }
+      ]
     },
     {
       "id": "d1_14",
@@ -4265,7 +4456,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
+        "companionSha256": "34192a64425ce28501053f354195414298d293050ee631ef674b62732d15449a"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für die Berichtigungen Mittwoch, Brot, liegt und Tisch. Die Reihenfolge ist beliebig. Das richtige Unterstreichen allein erhält noch keinen Punkt, weil die Berichtigung geprüft wird. Eine richtige Berichtigung zählt auch dann, wenn das falsche Wort nicht zusätzlich unterstrichen wurde. Die übrigen Textwörter müssen nicht abgeschrieben werden. Höchstens 2 Punkte."
@@ -4283,7 +4474,74 @@
       "prerequisiteCompetencyIds": [],
       "digitalText": {
         "Unterstreiche sie. Schreibe nur diese vier Wörter richtig auf.": "Finde sie und schreibe nur diese vier Wörter richtig auf, von links nach rechts."
-      }
+      },
+      "touch": [
+        {
+          "kind": "fix",
+          "parts": [
+            "word1",
+            "word2",
+            "word3",
+            "word4"
+          ],
+          "words": [
+            "Am",
+            "Mitwoch",
+            "kauft",
+            "Lina",
+            "ein",
+            "Brod.",
+            "Es",
+            "ligt",
+            "in",
+            "einer",
+            "Tüte",
+            "auf",
+            "dem",
+            "Tish."
+          ],
+          "options": [
+            [],
+            [
+              "Mittwoch",
+              "Mittwoh"
+            ],
+            [
+              "kaufd"
+            ],
+            [],
+            [
+              "ain"
+            ],
+            [
+              "Broht",
+              "Brot"
+            ],
+            [],
+            [
+              "liegt",
+              "liekt"
+            ],
+            [],
+            [
+              "ainer"
+            ],
+            [
+              "Tütte"
+            ],
+            [
+              "auff"
+            ],
+            [
+              "dehm"
+            ],
+            [
+              "Tiesch",
+              "Tisch"
+            ]
+          ]
+        }
+      ]
     },
     {
       "id": "d1_15",
@@ -4470,7 +4728,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
+        "companionSha256": "34192a64425ce28501053f354195414298d293050ee631ef674b62732d15449a"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für den Doppelpunkt nach sagt, das öffnende Anführungszeichen vor Der, das schließende Anführungszeichen am Ende der gesprochenen Wörter und den Punkt nach gleich vor dem schließenden Anführungszeichen. Die genaue Stellung des Punkts wird nur beim Punkt bewertet: Steht der Punkt fälschlich außerhalb der Anführungszeichen, bleiben die 0,5 Punkte für ein ansonsten richtig gesetztes schließendes Anführungszeichen erhalten. Übliche handschriftliche oder typografische Formen der doppelten Anführungszeichen anerkennen. Ein Ausrufezeichen erfüllt den ausdrücklich verlangten Punkt nicht. Höchstens 2 Punkte."
@@ -4488,7 +4746,35 @@
       "prerequisiteCompetencyIds": [],
       "requiresTaughtContent": true,
       "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
-      "digitalInstructions": "Schreibe den Satz unten einmal vollständig mit den verlangten Satzzeichen. Danach prüfst du vier Kriterien getrennt."
+      "digitalInstructions": "Schreibe den Satz unten einmal vollständig mit den verlangten Satzzeichen. Danach prüfst du vier Kriterien getrennt.",
+      "touch": [
+        {
+          "kind": "punctuate",
+          "parts": [
+            "colon",
+            "opening_quote",
+            "sentence_end",
+            "closing_quote"
+          ],
+          "words": [
+            "Paul",
+            "sagt",
+            "Der",
+            "Bus",
+            "kommt",
+            "gleich"
+          ],
+          "marks": [
+            ":",
+            "„",
+            "“",
+            ".",
+            "?",
+            "!",
+            ","
+          ]
+        }
+      ]
     },
     {
       "id": "d1_16",
@@ -4606,7 +4892,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
+        "companionSha256": "34192a64425ce28501053f354195414298d293050ee631ef674b62732d15449a"
       },
       "sourceRubric": [
         "Wortgrenzen: 1 Punkt, wenn alle sieben Wörter richtig getrennt sind; 0,5 Punkte bei genau einer fehlenden oder zusätzlich eingefügten Wortgrenze; sonst 0 Punkte. Groß- und Kleinschreibung: 1 Punkt, wenn alle sieben Wörter richtig geschrieben sind; 0,5 Punkte bei genau einem Wort mit falscher Groß- oder Kleinschreibung; sonst 0 Punkte. Die beiden Kriterien unabhängig bewerten. Mehrere Leerzeichen zwischen zwei Wörtern zählen als eine Wortgrenze. Der bereits vorgegebene Schlusspunkt erhält keinen eigenen Punkt. Höchstens 2 Punkte."
@@ -4620,7 +4906,18 @@
       "scoringPolicy": "independent-parts",
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "cab49e15aeafd684664209864e9cac7d45a4c9bd16d227ab320916268201a2ee",
-      "prerequisiteCompetencyIds": []
+      "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "letters",
+          "parts": [
+            "boundaries",
+            "capitalization"
+          ],
+          "letters": "DIEGELBEBIRNELIEGTAUFDEMTELLER",
+          "end": "."
+        }
+      ]
     },
     {
       "id": "d1_17",
@@ -4781,7 +5078,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
+        "companionSha256": "34192a64425ce28501053f354195414298d293050ee631ef674b62732d15449a"
       },
       "sourceRubric": [
         "a) 1 Punkt für die erkennbare Zusammensetzung Regenjacke in dieser Reihenfolge. Eine eindeutige Darstellung der Verbindung mit Bindestrich ebenfalls anerkennen; zwei unverbundene Wörter sind keine gebildete Zusammensetzung. b) 0,5 Punkte für backen in der verlangten Grundform und unabhängig davon 0,5 Punkte für Verb beziehungsweise eine eindeutige gleichbedeutende Wortartbezeichnung. Back- oder back zeigt die Zerlegung, erfüllt aber den ausdrücklich verlangten Infinitiv nicht. Die Wortart wird bezogen auf den Zielbestandteil bewertet, auch wenn die Grundform fehlt oder falsch geschrieben ist. Orthografische Ungenauigkeiten nicht zusätzlich abziehen, sofern Zusammensetzung beziehungsweise grammatische Form erkennbar bleiben. Höchstens 2 Punkte."
@@ -4797,7 +5094,27 @@
       "sourceTaskSha256": "96c89392e41ef74c40cac78c0d0dd55966e3100fa059fafad63b28392a779c89",
       "prerequisiteCompetencyIds": [],
       "requiresTaughtContent": true,
-      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde."
+      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "compound",
+          "options": [
+            "Regen Jacke",
+            "Regenjacke",
+            "Jackenregen"
+          ]
+        },
+        {
+          "kind": "choice",
+          "part": "infinitive",
+          "options": [
+            "gebacken",
+            "Back",
+            "backen"
+          ]
+        }
+      ]
     },
     {
       "id": "d1_18",
@@ -4929,7 +5246,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
+        "companionSha256": "34192a64425ce28501053f354195414298d293050ee631ef674b62732d15449a"
       },
       "sourceRubric": [
         "a) 1 Punkt für die eindeutige Auswahl ausschließlich von fand. Werden weitere Wörter mit ausgewählt, 0 Punkte für a; eindeutig zurückgenommene Markierungen nicht mitzählen. b) Unabhängig von a 1 Punkt für finden. Personalformen wie findet oder fanden erfüllen den Auftrag Grundform nicht. Rechtschreibfehler nicht zusätzlich werten, solange die beabsichtigte Grundform eindeutig erkennbar ist. Höchstens 2 Punkte."
@@ -4948,7 +5265,18 @@
       "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
       "digitalText": {
         "a) Unterstreiche das Verb.": "a) Finde das Verb im Satz."
-      }
+      },
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "fanden",
+            "finden",
+            "gefunden"
+          ]
+        }
+      ]
     },
     {
       "id": "d1_19",
@@ -5098,7 +5426,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
+        "companionSha256": "34192a64425ce28501053f354195414298d293050ee631ef674b62732d15449a"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für den in einem Wort genau abgegrenzten Stamm bau beziehungsweise Bau, insgesamt vier unabhängige Markierungen. Werden im jeweiligen Wort zusätzlich um, en, werk oder stelle mitmarkiert oder Teile des Stamms ausgelassen, erhält nur diese Markierung 0 Punkte. Einkreisen, Einklammern oder eine eindeutig dem einzelnen Wort zugeordnete Stammangabe sind gleichwertig. Groß- und Kleinschreibung bei zusätzlich aufgeschriebenen Stammangaben nicht bewerten. Höchstens 2 Punkte."
@@ -5117,7 +5445,29 @@
       "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
       "digitalText": {
         "Unterstreiche in jedem Wort nur den gemeinsamen Wortstamm.": "Schreibe für jedes Wort nur den gemeinsamen Wortstamm auf."
-      }
+      },
+      "touch": [
+        {
+          "kind": "span",
+          "part": "stem1",
+          "word": "bauen"
+        },
+        {
+          "kind": "span",
+          "part": "stem2",
+          "word": "umbauen"
+        },
+        {
+          "kind": "span",
+          "part": "stem3",
+          "word": "Bauwerk"
+        },
+        {
+          "kind": "span",
+          "part": "stem4",
+          "word": "Baustelle"
+        }
+      ]
     },
     {
       "id": "d1_20",
@@ -5223,7 +5573,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
+        "companionSha256": "34192a64425ce28501053f354195414298d293050ee631ef674b62732d15449a"
       },
       "sourceRubric": [
         "Je 1 Punkt für die passende Form kleinen beziehungsweise blaue. Beide Lücken unabhängig bewerten. Eine vollständig abgeschriebene richtige Satzfassung ist ebenfalls zulässig, aber nicht erforderlich. Bewertet werden das vorgegebene Adjektiv und seine passende Endung; eine grammatisch andere Endung wie kleiner oder blaues ist falsch. Sonstige Rechtschreibfehler und Großschreibung nicht zusätzlich abziehen, wenn die verlangte Form eindeutig erkennbar bleibt. Höchstens 2 Punkte."
@@ -5239,7 +5589,31 @@
       "sourceTaskSha256": "a80ebb9bf0e0e9a2401e94e35ba1bdf9d4d87fb1e43b9403da90c9f0e04a413b",
       "prerequisiteCompetencyIds": [],
       "requiresTaughtContent": true,
-      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde."
+      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a",
+          "options": [
+            "e",
+            "en",
+            "er",
+            "es"
+          ],
+          "template": "klein{}"
+        },
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "e",
+            "en",
+            "er",
+            "es"
+          ],
+          "template": "blau{}"
+        }
+      ]
     },
     {
       "id": "d1_21",
@@ -5339,7 +5713,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
+        "companionSha256": "34192a64425ce28501053f354195414298d293050ee631ef674b62732d15449a"
       },
       "sourceRubric": [
         "1 Punkt für besser in der ersten Lücke und unabhängig davon 1 Punkt für besten beziehungsweise am besten in der zweiten Lücke. Die falschen Vergleichsformen guter oder gutesten erhalten keinen Punkt. Reine Rechtschreibfehler wie beser nicht zusätzlich abziehen, sofern die beabsichtigte Vergleichsform eindeutig ist. Eine andere Flexionsform wie beste statt besten erfüllt die vorgegebene Verbindung am nicht. Höchstens 2 Punkte."
@@ -5355,7 +5729,27 @@
       "sourceTaskSha256": "80e328b1aad5ec5dcad70a608ca179fcf8a774f3e412629ce0e19c1b1ee5aa3f",
       "prerequisiteCompetencyIds": [],
       "requiresTaughtContent": true,
-      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde."
+      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a",
+          "options": [
+            "guter",
+            "besser",
+            "bester"
+          ]
+        },
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "gutesten",
+            "besten",
+            "bessersten"
+          ]
+        }
+      ]
     },
     {
       "id": "d1_22",
@@ -5583,7 +5977,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
+        "companionSha256": "34192a64425ce28501053f354195414298d293050ee631ef674b62732d15449a"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für jede richtige Zuordnung. Alle vier Sätze unabhängig bewerten; wiederholte Bezeichnungen sind ausdrücklich erlaubt. Eindeutige Ersatzbezeichnungen laut Lösung und reine Schreibfehler in den Begriffen anerkennen. Vergangenheit allein genügt bei b, c und d nicht, weil damit Präteritum und Perfekt nicht unterschieden werden. Zwei nicht eindeutig korrigierte konkurrierende Bezeichnungen zu einem Satz ergeben nur für diesen Satz 0 Punkte. Höchstens 2 Punkte."
@@ -5706,7 +6100,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
+        "companionSha256": "34192a64425ce28501053f354195414298d293050ee631ef674b62732d15449a"
       },
       "sourceRubric": [
         "Je 1 Punkt für die passende Präteritumform mit richtiger Person und Zahl: fragtest beziehungsweise gingen. Beide Antworten unabhängig bewerten. Ein vollständig abgeschriebener Satz ist ebenfalls zulässig, aber nicht erforderlich. Perfektformen erfüllen den Auftrag nicht; auch fragte bei du beziehungsweise ging bei wir sind grammatisch andere Formen und erhalten keinen Punkt. Sonstige Rechtschreibfehler nicht zusätzlich werten, wenn die verlangte Form eindeutig erkennbar bleibt. Höchstens 2 Punkte."
@@ -5722,7 +6116,27 @@
       "sourceTaskSha256": "141c2c0c7955ed17f82a1561d44871d1163727ebadc483fa639a1310e01e2a0c",
       "prerequisiteCompetencyIds": [],
       "requiresTaughtContent": true,
-      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde."
+      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a",
+          "options": [
+            "fragte",
+            "fragst",
+            "fragtest"
+          ]
+        },
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "gingen",
+            "gehten",
+            "gegangen"
+          ]
+        }
+      ]
     },
     {
       "id": "d1_24",
@@ -5872,7 +6286,7 @@
         "official": false,
         "manifestId": "deutsch1",
         "companionPath": "content/interactive/deutsch1.json",
-        "companionSha256": "849e4b289f5c41ccf9d64cf0c3ba9db91827a0245e69b8f70f0cbd0be46497cd"
+        "companionSha256": "34192a64425ce28501053f354195414298d293050ee631ef674b62732d15449a"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für jede vollständig und ausschließlich abgegrenzte Einheit Vor dem Haus, fegt, Leni und die Treppe. Satzanfang und Satzende gelten als äußere Grenzen; insgesamt genügen deshalb drei Trennstriche. Eine zusätzlich innerhalb einer Einheit gesetzte Grenze nimmt nur dieser Einheit ihren halben Punkt. Fehlende Grenzen betreffen die jeweils nicht vollständig abgegrenzten Einheiten. Keine Minuspunkte. Gleichwertiges Einklammern der vier Einheiten oder eine eindeutig gegliederte Abschrift anerkennen. Das Prädikat wird entsprechend dem ausdrücklichen Auftrag als eigene Einheit abgegrenzt; eine Benennung der Satzgliedarten oder eine aufgeschriebene Umstellprobe ist nicht erforderlich. Bei einer Abschrift reine Rechtschreibfehler nicht zusätzlich bewerten, sofern die Struktur eindeutig erhalten bleibt. Höchstens 2 Punkte."
@@ -5892,7 +6306,27 @@
       "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
       "digitalText": {
         "Grenze die Satzglieder und das Prädikat durch senkrechte Striche voneinander ab. Zusammengehörige Wörter bleiben zusammen.": "Teile den Satz in seine Satzglieder und das Prädikat. Schreibe jeden Teil in ein eigenes Feld, von links nach rechts. Zusammengehörige Wörter kommen in dasselbe Feld."
-      }
+      },
+      "touch": [
+        {
+          "kind": "split",
+          "parts": [
+            "group1",
+            "group2",
+            "group3",
+            "group4"
+          ],
+          "words": [
+            "Vor",
+            "dem",
+            "Haus",
+            "fegt",
+            "Leni",
+            "die",
+            "Treppe."
+          ]
+        }
+      ]
     },
     {
       "id": "d2_01",
@@ -6009,7 +6443,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
+        "companionSha256": "7f53f4779152f0c79b4f487bfa063df508d66cd9f0e483c1d2e9a16ec0483aaf"
       },
       "sourceRubric": [
         "Je 1 Punkt. Bei a genügt Dose; bei b genügt Regal. Kein vollständiger Satz und keine Zeilenangabe erforderlich. Tisch oder Vorrat ist bei b nicht richtig."
@@ -6024,6 +6458,26 @@
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "4eea761a798b05f1add6460d3b0244753657698504eb2f2e04d4de5046dfb90b",
       "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a",
+          "options": [
+            "eine Zeitung",
+            "eine Dose",
+            "eine Schüssel"
+          ]
+        },
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "zu einem Tisch",
+            "zu einem Tuch",
+            "zu einem Regal"
+          ]
+        }
+      ],
       "stimulusId": "passage_deutsch2"
     },
     {
@@ -6150,7 +6604,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
+        "companionSha256": "7f53f4779152f0c79b4f487bfa063df508d66cd9f0e483c1d2e9a16ec0483aaf"
       },
       "sourceRubric": [
         "Je 1 Punkt für Urteil und tragenden Beleg, unabhängig voneinander. Statt der Zahl genügt die eindeutige Wiedergabe, dass die Lehrerin die Blätter in der nächsten Woche abholt. Zeile 19 allein nennt nur die Trocknungsdauer, nicht den Abholtermin. Pauschal 19-24 ohne erkennbare Auswahl genügt nicht."
@@ -6312,7 +6766,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
+        "companionSha256": "7f53f4779152f0c79b4f487bfa063df508d66cd9f0e483c1d2e9a16ec0483aaf"
       },
       "sourceRubric": [
         "Je 1 Punkt. a verlangt ausschließlich C. b erhält den Punkt für eine Formulierung, die die leichte Beschädigung durch Reißen nennt; reißen allein genügt im Zusammenhang ebenfalls. Beide Teile unabhängig werten."
@@ -6330,6 +6784,27 @@
       "digitalText": {
         "Kreuze genau eine Antwort an.": "Wähle genau eine Antwort."
       },
+      "touch": [
+        {
+          "kind": "select",
+          "parts": [
+            "b"
+          ],
+          "words": [
+            "Frau",
+            "Winter",
+            "nennt",
+            "das",
+            "Blatt",
+            "empfindlich:",
+            "Es",
+            "kann",
+            "jetzt",
+            "leicht",
+            "reißen."
+          ]
+        }
+      ],
       "stimulusId": "passage_deutsch2"
     },
     {
@@ -6412,7 +6887,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
+        "companionSha256": "7f53f4779152f0c79b4f487bfa063df508d66cd9f0e483c1d2e9a16ec0483aaf"
       },
       "sourceRubric": [
         "Je 1 Punkt für jeden unterschiedlichen Grund; Reihenfolge beliebig. Kurzantworten wie gegenseitig helfen und nicht genug Rahmen genügen. Derselbe Grund in anderen Worten zählt nur einmal. Ein erfundener Grund wie schneller fertig werden zählt nicht."
@@ -6427,6 +6902,12 @@
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "04e208ef7b88d183e23cb9bc9354412e9ff57e83b687a256ff963851d712206e",
       "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "quote",
+          "part": "reasons"
+        }
+      ],
       "stimulusId": "passage_deutsch2"
     },
     {
@@ -6558,7 +7039,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
+        "companionSha256": "7f53f4779152f0c79b4f487bfa063df508d66cd9f0e483c1d2e9a16ec0483aaf"
       },
       "sourceRubric": [
         "a) 1 Punkt ausschließlich für B. b) 1 Punkt zum Beispiel für Trocknen im Regal, Beschriften der Tücher, nur trockenes Papier mitnehmen, fertige Blätter aus dem Vorrat oder späteres Abholen durch die Lehrerin. Bloßes Wiederholen der Überschrift genügt nicht. b unabhängig vom Kreuz werten."
@@ -6576,6 +7057,16 @@
       "digitalText": {
         "Kreuze genau eine Antwort an.": "Wähle genau eine Antwort."
       },
+      "touch": [
+        {
+          "kind": "quote",
+          "part": "b",
+          "lines": [
+            19,
+            24
+          ]
+        }
+      ],
       "stimulusId": "passage_deutsch2"
     },
     {
@@ -6694,7 +7185,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
+        "companionSha256": "7f53f4779152f0c79b4f487bfa063df508d66cd9f0e483c1d2e9a16ec0483aaf"
       },
       "sourceRubric": [
         "Je 1 Punkt pro vollständig richtigem Schritt an der richtigen Position. Je 0,5 Punkte, wenn bei Schritt 2 nur Herausheben oder Abtropfen, bei Schritt 4 nur zweites Tuch auflegen oder Wasser herauspressen genannt wird. Sinngleiche Formulierungen gelten. Vertauschte Schritte zählen nicht für ihre Position."
@@ -6709,6 +7200,24 @@
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "596a1e064c5ee4cc2180f93f7f99cdde51304763fa9c9161dd2a2878a8ab5e99",
       "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "quote",
+          "part": "step2",
+          "lines": [
+            13,
+            16
+          ]
+        },
+        {
+          "kind": "quote",
+          "part": "step4",
+          "lines": [
+            13,
+            16
+          ]
+        }
+      ],
       "stimulusId": "passage_deutsch2"
     },
     {
@@ -6871,7 +7380,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
+        "companionSha256": "7f53f4779152f0c79b4f487bfa063df508d66cd9f0e483c1d2e9a16ec0483aaf"
       },
       "sourceRubric": [
         "Je 1 Punkt für die eindeutige Zuordnung. A bedeutet, dass niemand hetzen muss. D erhält die unterschiedlichen Arten der Gestaltung. Mehrere ungestrichene Buchstaben in einem Feld ergeben nur für dieses Feld 0 Punkte. Keine zusätzliche Begründung verlangen."
@@ -7042,7 +7551,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
+        "companionSha256": "7f53f4779152f0c79b4f487bfa063df508d66cd9f0e483c1d2e9a16ec0483aaf"
       },
       "sourceRubric": [
         "Je 1 Punkt. Bei a sind Raum 2 oder nur 2 eindeutig und zulässig. Bei b genügt Falten; Papier allein ist nicht eindeutig. Die Tabelle liefert alle benötigten Informationen."
@@ -7056,7 +7565,26 @@
       "scoringPolicy": "independent-parts",
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "3189fc0235056007c7745104499deba4e241aca8059e75f8ab5a8c1f49672047",
-      "prerequisiteCompetencyIds": []
+      "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a",
+          "options": [
+            "Werkraum 1",
+            "Werkraum 2"
+          ]
+        },
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "Buchbinden",
+            "Falten aus Papier",
+            "Bilder aus Papier"
+          ]
+        }
+      ]
     },
     {
       "id": "d2_09",
@@ -7164,7 +7692,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
+        "companionSha256": "7f53f4779152f0c79b4f487bfa063df508d66cd9f0e483c1d2e9a16ec0483aaf"
       },
       "sourceRubric": [
         "Je 1 Punkt für die richtige Großschreibung von Morgen und Mütze; Reihenfolge beliebig. Ein vollständig korrigierter Satz ist ebenfalls zulässig. Jule ist bereits richtig geschrieben."
@@ -7178,7 +7706,24 @@
       "scoringPolicy": "independent-parts",
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "6ca6676bc3f381290bcd19761a257ba64731d2525843cf0505da3f4fa2c30b3c",
-      "prerequisiteCompetencyIds": []
+      "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "select",
+          "parts": [
+            "a",
+            "b"
+          ],
+          "capitalize": true,
+          "words": [
+            "morgen",
+            "sucht",
+            "Jule",
+            "ihre",
+            "mütze."
+          ]
+        }
+      ]
     },
     {
       "id": "d2_10",
@@ -7291,7 +7836,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
+        "companionSha256": "7f53f4779152f0c79b4f487bfa063df508d66cd9f0e483c1d2e9a16ec0483aaf"
       },
       "sourceRubric": [
         "Je 1 Punkt für Korb und Körbe. Die richtige Mehrzahl erhält ihren Punkt unabhängig von a. Eine Erklärung ist nicht verlangt; beide Wörter müssen richtig geschrieben sein."
@@ -7305,7 +7850,27 @@
       "scoringPolicy": "independent-parts",
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "fea19979166aa199fa8cf12de87904d307569bc1df7b7879a4ed7d21f8f079e6",
-      "prerequisiteCompetencyIds": []
+      "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a",
+          "options": [
+            "b",
+            "p"
+          ],
+          "template": "Kor{}"
+        },
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "Korbe",
+            "Körbe",
+            "Körpe"
+          ]
+        }
+      ]
     },
     {
       "id": "d2_11",
@@ -7419,7 +7984,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
+        "companionSha256": "7f53f4779152f0c79b4f487bfa063df508d66cd9f0e483c1d2e9a16ec0483aaf"
       },
       "sourceRubric": [
         "Je 1 Punkt, unabhängig. Das zweite Wort muss erkennbar zu Baum gehören und au enthalten. Ein anderes, unverbundenes Wort mit au genügt nicht."
@@ -7433,7 +7998,27 @@
       "scoringPolicy": "independent-parts",
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "7b78622e32f21a368069cb7179744d6e8890906018ffa61c108dbb127f12769c",
-      "prerequisiteCompetencyIds": []
+      "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a",
+          "options": [
+            "äu",
+            "eu"
+          ],
+          "template": "B{}me"
+        },
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "Raum",
+            "Bäumchen",
+            "Baum"
+          ]
+        }
+      ]
     },
     {
       "id": "d2_12",
@@ -7545,7 +8130,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
+        "companionSha256": "7f53f4779152f0c79b4f487bfa063df508d66cd9f0e483c1d2e9a16ec0483aaf"
       },
       "sourceRubric": [
         "Je 1 Punkt für das vollständig richtig geschriebene Wort. Tasse hat ss, Rose hat s. Ein erklärender Regelsatz ist nicht verlangt."
@@ -7559,7 +8144,27 @@
       "scoringPolicy": "independent-parts",
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "f5076b813a1bd42a23b19b366bf29d0ca70bc305db2a0b2f173f8342123cade1",
-      "prerequisiteCompetencyIds": []
+      "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a",
+          "options": [
+            "s",
+            "ss"
+          ],
+          "template": "Ta{}e"
+        },
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "s",
+            "ss"
+          ],
+          "template": "Ro{}e"
+        }
+      ]
     },
     {
       "id": "d2_13",
@@ -7663,7 +8268,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
+        "companionSha256": "7f53f4779152f0c79b4f487bfa063df508d66cd9f0e483c1d2e9a16ec0483aaf"
       },
       "sourceRubric": [
         "Je 1 Punkt. Auch das jeweils vollständig richtig geschriebene Wort anerkennen. Die beiden Lücken getrennt werten."
@@ -7677,7 +8282,27 @@
       "scoringPolicy": "independent-parts",
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "b93a420b7d929b4c07cbe1101fe72fba1b4eb8958741b57ea37e70c3bb04c9c5",
-      "prerequisiteCompetencyIds": []
+      "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a",
+          "options": [
+            "ss",
+            "ß"
+          ],
+          "template": "Stra{}e"
+        },
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "ss",
+            "ß"
+          ],
+          "template": "Wa{}er"
+        }
+      ]
     },
     {
       "id": "d2_14",
@@ -7847,7 +8472,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
+        "companionSha256": "7f53f4779152f0c79b4f487bfa063df508d66cd9f0e483c1d2e9a16ec0483aaf"
       },
       "sourceRubric": [
         "Je 0,5 Punkte pro richtiger Berichtigung; Reihenfolge beliebig. Unterstreichen allein zählt nicht. Eine richtige Berichtigung erhält ihren Punkt auch ohne Unterstreichung. Ein vollständig korrigierter Text ist ebenfalls zulässig."
@@ -7865,7 +8490,76 @@
       "prerequisiteCompetencyIds": [],
       "digitalText": {
         "Unterstreiche sie und schreibe diese vier Wörter richtig auf.": "Finde sie und schreibe diese vier Wörter richtig auf, von links nach rechts."
-      }
+      },
+      "touch": [
+        {
+          "kind": "fix",
+          "parts": [
+            "word1",
+            "word2",
+            "word3",
+            "word4"
+          ],
+          "words": [
+            "Im",
+            "Somer",
+            "fährt",
+            "Ben",
+            "mit",
+            "dem",
+            "Fahrad",
+            "zum",
+            "See.",
+            "Er",
+            "nimt",
+            "ein",
+            "Hantuch",
+            "mit."
+          ],
+          "options": [
+            [],
+            [
+              "Sohmer",
+              "Sommer"
+            ],
+            [
+              "färt"
+            ],
+            [],
+            [
+              "mitt"
+            ],
+            [
+              "dehm"
+            ],
+            [
+              "Fahrrad",
+              "Farrad"
+            ],
+            [
+              "zumm"
+            ],
+            [
+              "Seh"
+            ],
+            [],
+            [
+              "niemt",
+              "nimmt"
+            ],
+            [
+              "ain"
+            ],
+            [
+              "Handtuch",
+              "Hanttuch"
+            ],
+            [
+              "mitt"
+            ]
+          ]
+        }
+      ]
     },
     {
       "id": "d2_15",
@@ -8052,7 +8746,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
+        "companionSha256": "7f53f4779152f0c79b4f487bfa063df508d66cd9f0e483c1d2e9a16ec0483aaf"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für Doppelpunkt, öffnendes und schließendes Anführungszeichen sowie Fragezeichen nach Heft innerhalb der Anführungszeichen. Ein falsch außerhalb gesetztes Fragezeichen nimmt nur dessen Punkt, nicht zusätzlich den für ein sonst richtiges Schlusszeichen. Übliche Formen doppelter Anführungszeichen anerkennen."
@@ -8070,7 +8764,35 @@
       "prerequisiteCompetencyIds": [],
       "requiresTaughtContent": true,
       "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
-      "digitalInstructions": "Schreibe den Satz unten einmal vollständig mit den verlangten Satzzeichen. Danach prüfst du vier Kriterien getrennt."
+      "digitalInstructions": "Schreibe den Satz unten einmal vollständig mit den verlangten Satzzeichen. Danach prüfst du vier Kriterien getrennt.",
+      "touch": [
+        {
+          "kind": "punctuate",
+          "parts": [
+            "colon",
+            "opening_quote",
+            "sentence_end",
+            "closing_quote"
+          ],
+          "words": [
+            "Nora",
+            "fragt",
+            "Wo",
+            "ist",
+            "mein",
+            "Heft"
+          ],
+          "marks": [
+            ":",
+            "„",
+            "“",
+            ".",
+            "?",
+            "!",
+            ","
+          ]
+        }
+      ]
     },
     {
       "id": "d2_16",
@@ -8188,7 +8910,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
+        "companionSha256": "7f53f4779152f0c79b4f487bfa063df508d66cd9f0e483c1d2e9a16ec0483aaf"
       },
       "sourceRubric": [
         "Wortgrenzen: 1 Punkt bei allen richtigen Grenzen, 0,5 bei genau einer fehlenden oder zusätzlichen Grenze. Groß/Klein: 1 Punkt bei allen richtigen Formen, 0,5 bei genau einem falsch geschriebenen Wort. Sonst für das jeweilige Kriterium 0; unabhängig werten. Der vorgegebene Punkt zählt nicht extra."
@@ -8202,7 +8924,18 @@
       "scoringPolicy": "independent-parts",
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "b078ff3fa006ff98fb45f87eef743b1d93ede38229928b2c1b3487b8c1e6fe6b",
-      "prerequisiteCompetencyIds": []
+      "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "letters",
+          "parts": [
+            "boundaries",
+            "capitalization"
+          ],
+          "letters": "DERVOGELBAUTSEINNESTIMBAUM",
+          "end": "."
+        }
+      ]
     },
     {
       "id": "d2_17",
@@ -8353,7 +9086,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
+        "companionSha256": "7f53f4779152f0c79b4f487bfa063df508d66cd9f0e483c1d2e9a16ec0483aaf"
       },
       "sourceRubric": [
         "1 Punkt für ausschließlich suchen. Je 0,5 Punkte für suche und suchst, unabhängig von der Markierung. Eindeutiges Unterstreichen oder Aufschreiben statt Einkreisen ist zulässig. Die passende Personenform muss erkennbar sein."
@@ -8372,7 +9105,27 @@
       "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
       "digitalText": {
         "Kreise das Verb ein. Verändere dieses Wort dann": "Finde das Verb. Verändere dieses Wort dann"
-      }
+      },
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "ich",
+          "options": [
+            "suchst",
+            "suche",
+            "sucht"
+          ]
+        },
+        {
+          "kind": "choice",
+          "part": "du",
+          "options": [
+            "sucht",
+            "suche",
+            "suchst"
+          ]
+        }
+      ]
     },
     {
       "id": "d2_18",
@@ -8570,7 +9323,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
+        "companionSha256": "7f53f4779152f0c79b4f487bfa063df508d66cd9f0e483c1d2e9a16ec0483aaf"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für die passende Verbform. Jede Lücke unabhängig werten. Auch eine eindeutig markierte richtige Auswahl in der Klammer zählt, wenn das Antwortfeld leer bleibt."
@@ -8698,7 +9451,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
+        "companionSha256": "7f53f4779152f0c79b4f487bfa063df508d66cd9f0e483c1d2e9a16ec0483aaf"
       },
       "sourceRubric": [
         "Je 1 Punkt für die richtige Grundform. Beide Antworten unabhängig werten. Gebeugte Formen wie trage oder schlief erfüllen den Auftrag nicht."
@@ -8714,7 +9467,27 @@
       "sourceTaskSha256": "ff6c3e6fbc3721b5c49499ebd797f683cbe873a48292b6eed2fddf9208211eeb",
       "prerequisiteCompetencyIds": [],
       "requiresTaughtContent": true,
-      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde."
+      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a",
+          "options": [
+            "trägen",
+            "trug",
+            "tragen"
+          ]
+        },
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "schlafen",
+            "schliefen",
+            "schlief"
+          ]
+        }
+      ]
     },
     {
       "id": "d2_20",
@@ -8816,7 +9589,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
+        "companionSha256": "7f53f4779152f0c79b4f487bfa063df508d66cd9f0e483c1d2e9a16ec0483aaf"
       },
       "sourceRubric": [
         "Je 1 Punkt für das richtige Adjektiv mit passender Endung. Andere Endungen erfüllen den Auftrag nicht. Reine Schreibfehler außerhalb der grammatisch gefragten Form nicht zusätzlich abziehen."
@@ -8832,7 +9605,31 @@
       "sourceTaskSha256": "f1f95321863672e715aac42f888d8c12ced6832b815ae98028b1b99dd126768a",
       "prerequisiteCompetencyIds": [],
       "requiresTaughtContent": true,
-      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde."
+      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a",
+          "options": [
+            "e",
+            "en",
+            "er",
+            "es"
+          ],
+          "template": "frisch{}"
+        },
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "e",
+            "en",
+            "er",
+            "es"
+          ],
+          "template": "rot{}"
+        }
+      ]
     },
     {
       "id": "d2_21",
@@ -8931,7 +9728,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
+        "companionSha256": "7f53f4779152f0c79b4f487bfa063df508d66cd9f0e483c1d2e9a16ec0483aaf"
       },
       "sourceRubric": [
         "Je 1 Punkt für höher und höchsten. Ein zusätzliches am in der zweiten Lücke nicht abziehen. Die veränderte Stammform und die passende Endung gehören zur grammatischen Leistung; hochst oder höchste passt nicht."
@@ -8947,7 +9744,27 @@
       "sourceTaskSha256": "c24e0a2daf6c470fb88db71f6ea854267b4453c085676b6c0a6d2d594841d0f1",
       "prerequisiteCompetencyIds": [],
       "requiresTaughtContent": true,
-      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde."
+      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a",
+          "options": [
+            "hocher",
+            "höher",
+            "höcher"
+          ]
+        },
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "hochsten",
+            "höhesten",
+            "höchsten"
+          ]
+        }
+      ]
     },
     {
       "id": "d2_22",
@@ -9175,7 +9992,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
+        "companionSha256": "7f53f4779152f0c79b4f487bfa063df508d66cd9f0e483c1d2e9a16ec0483aaf"
       },
       "sourceRubric": [
         "Je 0,5 Punkte. Eindeutige Abkürzungen sowie Gegenwart, erste Vergangenheit und zweite Vergangenheit sind zulässig. Vergangenheit allein unterscheidet die beiden Vergangenheitsformen nicht. Mehrere konkurrierende Angaben ergeben nur beim betreffenden Satz 0 Punkte."
@@ -9298,7 +10115,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
+        "companionSha256": "7f53f4779152f0c79b4f487bfa063df508d66cd9f0e483c1d2e9a16ec0483aaf"
       },
       "sourceRubric": [
         "Je 1 Punkt für das Präteritum in der passenden Person und Zahl. Perfektformen erfüllen den Auftrag nicht. Die Antworten unabhängig werten."
@@ -9314,7 +10131,27 @@
       "sourceTaskSha256": "b121a4b47e20101d0ca2c3f46b9fc6ac47a8b5fe7a2f20bf21b71843382e1246",
       "prerequisiteCompetencyIds": [],
       "requiresTaughtContent": true,
-      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde."
+      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a",
+          "options": [
+            "trinkte",
+            "trank",
+            "getrunken"
+          ]
+        },
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "spielte",
+            "spieltet",
+            "spieltest"
+          ]
+        }
+      ]
     },
     {
       "id": "d2_24",
@@ -9464,7 +10301,7 @@
         "official": false,
         "manifestId": "deutsch2",
         "companionPath": "content/interactive/deutsch2.json",
-        "companionSha256": "b00d1fee69b265cc93ca2116f95286e72d8e9ceece2f63ddb5da290be3a431a8"
+        "companionSha256": "7f53f4779152f0c79b4f487bfa063df508d66cd9f0e483c1d2e9a16ec0483aaf"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für jede vollständig und ausschließlich abgegrenzte Einheit. Satzanfang und Satzende sind äußere Grenzen; drei Striche genügen. Eine zusätzliche Grenze nimmt nur der betroffenen Einheit ihren Punkt. Eine fehlende Grenze betrifft die nicht vollständig abgegrenzten Einheiten. Gleichwertige Klammern oder gegliederte Abschrift zulässig."
@@ -9484,7 +10321,26 @@
       "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
       "digitalText": {
         "Grenze die Satzglieder und das Prädikat durch senkrechte Striche voneinander ab. Zusammengehörige Wörter bleiben zusammen.": "Teile den Satz in seine Satzglieder und das Prädikat. Schreibe jeden Teil in ein eigenes Feld, von links nach rechts. Zusammengehörige Wörter kommen in dasselbe Feld."
-      }
+      },
+      "touch": [
+        {
+          "kind": "split",
+          "parts": [
+            "group1",
+            "group2",
+            "group3",
+            "group4"
+          ],
+          "words": [
+            "Am",
+            "Morgen",
+            "füttert",
+            "Oskar",
+            "die",
+            "Kaninchen."
+          ]
+        }
+      ]
     },
     {
       "id": "d3_01",
@@ -9603,7 +10459,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
+        "companionSha256": "5809e94c1cf43563abe57f33c74d4e37f5c8374c16f710b7e9fc34d442290ea5"
       },
       "sourceRubric": [
         "Je 1 Punkt. Bei a auch die Lehrerin, wenn Frau Kern damit eindeutig gemeint ist. Bei b genügen Striche, Markierungen oder Skala. Keine vollständigen Sätze oder Zeilennummern erforderlich."
@@ -9618,6 +10474,26 @@
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "d925d146dd1da9c1bbc59ddd520b259ccd712772a953edf0183571652f51cc64",
       "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a",
+          "options": [
+            "Noah",
+            "Frau Kern",
+            "Elif"
+          ]
+        },
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "an den Blättern",
+            "an den Strichen",
+            "am Schild"
+          ]
+        }
+      ],
       "stimulusId": "passage_deutsch3"
     },
     {
@@ -9744,7 +10620,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
+        "companionSha256": "5809e94c1cf43563abe57f33c74d4e37f5c8374c16f710b7e9fc34d442290ea5"
       },
       "sourceRubric": [
         "Je 1 Punkt für das Urteil und den Beleg, unabhängig voneinander. Statt der Zeilenzahl ist die eindeutige Wiedergabe des Inhalts zulässig. Zeile 14 ist nur Elifs Vermutung und belegt das Ergebnis nicht. Ein breiter Bereich ohne erkennbare Auswahl genügt nicht."
@@ -9890,7 +10766,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
+        "companionSha256": "5809e94c1cf43563abe57f33c74d4e37f5c8374c16f710b7e9fc34d442290ea5"
       },
       "sourceRubric": [
         "Je 1 Punkt. a verlangt ausschließlich B. b verlangt den Bezug zur unterschiedlichen Wassermenge; etwa herausfinden, warum ein Becher voller ist. Bloßes Wiederholen der Bedeutung ohne Bezug zur Geschichte genügt nicht. b unabhängig vom Kreuz bewerten."
@@ -10062,7 +10938,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
+        "companionSha256": "5809e94c1cf43563abe57f33c74d4e37f5c8374c16f710b7e9fc34d442290ea5"
       },
       "sourceRubric": [
         "Je 1 Punkt für die eindeutige Zuordnung. Alternativ zählt der richtig aufgeschriebene Grund. Mehrere ungestrichene Buchstaben im selben Feld ergeben für dieses Feld 0 Punkte."
@@ -10188,7 +11064,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
+        "companionSha256": "5809e94c1cf43563abe57f33c74d4e37f5c8374c16f710b7e9fc34d442290ea5"
       },
       "sourceRubric": [
         "a) 1 Punkt für eine Überschrift, die das Prüfen, Vergleichen oder den neuen gemeinsamen Standort als Kern erfasst. Nur Frau Kern lobt oder Ein Schild ist zu eng. b) 1 Punkt für einen konkreten im Abschnitt genannten Schritt, der zur eigenen Überschrift passt. b kann auch bei einer zu engen, aber inhaltlich richtigen Überschrift zählen. Sinngleiche Formulierungen anerkennen."
@@ -10203,6 +11079,16 @@
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "148e509c854e2faef88ca096b551b7e72175de1041a66326ce5b4c598a217cdb",
       "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "quote",
+          "part": "b",
+          "lines": [
+            19,
+            24
+          ]
+        }
+      ],
       "stimulusId": "passage_deutsch3"
     },
     {
@@ -10375,7 +11261,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
+        "companionSha256": "5809e94c1cf43563abe57f33c74d4e37f5c8374c16f710b7e9fc34d442290ea5"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für die richtige Zahl bei dem betreffenden Ereignis. Jedes Feld unabhängig werten; eine falsche oder mehrfach verwendete Zahl macht andere richtige Zuordnungen nicht ungültig."
@@ -10390,6 +11276,23 @@
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "a538fe1db5665b1724e50ff928de2f13b86e8c44c4c6c50a5bf82678d245ea79",
       "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "rank",
+          "parts": [
+            "position1",
+            "position2",
+            "position3",
+            "position4"
+          ],
+          "labels": [
+            "Die beiden Becher werden nebeneinander auf die Wiese gestellt.",
+            "Elif sieht die vielen Blätter über ihrem Becher.",
+            "Die Kinder vergleichen die Becher am nächsten Morgen.",
+            "Noah prüft Elifs Becher mit Wasser aus der Gießkanne."
+          ]
+        }
+      ],
       "stimulusId": "passage_deutsch3"
     },
     {
@@ -10528,7 +11431,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
+        "companionSha256": "5809e94c1cf43563abe57f33c74d4e37f5c8374c16f710b7e9fc34d442290ea5"
       },
       "sourceRubric": [
         "Je 1 Punkt. Pro Teil nur die richtige Auswahl; mehrere ungestrichene Kreuze ergeben nur für den betreffenden Teil 0 Punkte. Keine Begründung erforderlich."
@@ -10697,7 +11600,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
+        "companionSha256": "5809e94c1cf43563abe57f33c74d4e37f5c8374c16f710b7e9fc34d442290ea5"
       },
       "sourceRubric": [
         "Je 1 Punkt. Bei a müssen beide Namen stimmen; die Reihenfolge ist frei. Bei b nur Ida, nicht das ganze Paar. Schreibungen mit eindeutig erkennbarem Namen akzeptieren."
@@ -10711,7 +11614,27 @@
       "scoringPolicy": "independent-parts",
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "3107bec4f50d20062d4779407dd820d7c498ef8ee25cf45b5b79839e4870cb23",
-      "prerequisiteCompetencyIds": []
+      "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a",
+          "options": [
+            "Ida und Ben",
+            "Mia und Omar",
+            "Elif und Noah"
+          ]
+        },
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "Omar",
+            "Mia",
+            "Ida"
+          ]
+        }
+      ]
     },
     {
       "id": "d3_09",
@@ -10831,7 +11754,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
+        "companionSha256": "5809e94c1cf43563abe57f33c74d4e37f5c8374c16f710b7e9fc34d442290ea5"
       },
       "sourceRubric": [
         "Je 1 Punkt für die eindeutige richtige Auswahl. Ein richtig aufgeschriebenes Wort zählt ebenfalls. Bei mehreren ungestrichenen Alternativen erhält nur der betreffende Satz 0 Punkte."
@@ -10962,7 +11885,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
+        "companionSha256": "5809e94c1cf43563abe57f33c74d4e37f5c8374c16f710b7e9fc34d442290ea5"
       },
       "sourceRubric": [
         "Je 1 Punkt. Die Grundschreibung und das geeignete richtig geschriebene Prüfwort unabhängig bewerten. Das Prüfwort muss das t vor einem hörbaren Vokal zeigen; eiskalt oder sehr kalt genügt nicht."
@@ -10976,7 +11899,27 @@
       "scoringPolicy": "independent-parts",
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "afa91b1e9f0232af939e6b24a544fad641979e15bb4ac6fbafb0968fffc2679c",
-      "prerequisiteCompetencyIds": []
+      "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a",
+          "options": [
+            "t",
+            "d"
+          ],
+          "template": "kal{}"
+        },
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "kalde",
+            "kahl",
+            "kalte"
+          ]
+        }
+      ]
     },
     {
       "id": "d3_11",
@@ -11083,7 +12026,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
+        "companionSha256": "5809e94c1cf43563abe57f33c74d4e37f5c8374c16f710b7e9fc34d442290ea5"
       },
       "sourceRubric": [
         "Je 1 Punkt. Für b zählt ein richtig geschriebenes Wort aus der Wortfamilie Wahl mit a, etwa Wahl, Auswahl oder Wahlzettel. Ein unverbundenes Wort mit a oder wählen ohne a erfüllt den Auftrag nicht."
@@ -11097,7 +12040,27 @@
       "scoringPolicy": "independent-parts",
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "067587be524fb8c3cd7f0e58644706e94eb4bf38ad6f626826b529e4cdaa8aee",
-      "prerequisiteCompetencyIds": []
+      "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a",
+          "options": [
+            "ä",
+            "e"
+          ],
+          "template": "w{}hlen"
+        },
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "Wahl",
+            "Wähler",
+            "Wehl"
+          ]
+        }
+      ]
     },
     {
       "id": "d3_12",
@@ -11209,7 +12172,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
+        "companionSha256": "5809e94c1cf43563abe57f33c74d4e37f5c8374c16f710b7e9fc34d442290ea5"
       },
       "sourceRubric": [
         "Je 1 Punkt für das richtig geschriebene Brille bzw. Schiff. Ein richtiges Wort erhält den Punkt auch ohne Unterstreichung."
@@ -11226,7 +12189,55 @@
       "prerequisiteCompetencyIds": [],
       "digitalText": {
         "Unterstreiche es und schreibe nur dieses Wort richtig auf.": "Finde es und schreibe nur dieses Wort richtig auf."
-      }
+      },
+      "touch": [
+        {
+          "kind": "fix",
+          "parts": [
+            "a"
+          ],
+          "words": [
+            "Ball",
+            "Brile",
+            "Hut"
+          ],
+          "options": [
+            [
+              "Bal"
+            ],
+            [
+              "Briele",
+              "Brille"
+            ],
+            [
+              "Hutt"
+            ]
+          ]
+        },
+        {
+          "kind": "fix",
+          "parts": [
+            "b"
+          ],
+          "words": [
+            "rot",
+            "Bett",
+            "Schif"
+          ],
+          "options": [
+            [
+              "roht"
+            ],
+            [
+              "Bet"
+            ],
+            [
+              "Schiff",
+              "Schihf"
+            ]
+          ]
+        }
+      ]
     },
     {
       "id": "d3_13",
@@ -11364,7 +12375,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
+        "companionSha256": "5809e94c1cf43563abe57f33c74d4e37f5c8374c16f710b7e9fc34d442290ea5"
       },
       "sourceRubric": [
         "Je 1 Punkt für die richtige Auswahl. Die übliche deutsche Rechtschreibung wird geübt. Beide Zeilen unabhängig bewerten; eine eindeutige Berichtigung zählt."
@@ -11551,7 +12562,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
+        "companionSha256": "5809e94c1cf43563abe57f33c74d4e37f5c8374c16f710b7e9fc34d442290ea5"
       },
       "sourceRubric": [
         "Je 0,5 Punkte pro richtig berichtigtem Wort; Reihenfolge beliebig. Ein vollständig korrigierter Text ist ebenfalls zulässig. Nicht gefragte zusätzliche Änderungen ergeben keine Zusatzpunkte."
@@ -11566,7 +12577,98 @@
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "assessmentAdaptationNote": "Die digitalen Felder bitten um die Reihenfolge im Text. Andere Reihenfolgen bleiben nach Rubrikprüfung zulässig; eine Zielkorrektur zählt nur einmal.",
       "sourceTaskSha256": "ca08e71fa825d4c1b0906c450518cc7e96bb2c16ace9cdf188341e6a8fc2e841",
-      "prerequisiteCompetencyIds": []
+      "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "fix",
+          "parts": [
+            "word1",
+            "word2",
+            "word3",
+            "word4"
+          ],
+          "words": [
+            "Bitte",
+            "die",
+            "offenne",
+            "Tür",
+            "schließen.",
+            "Neben",
+            "der",
+            "Bank",
+            "ligt",
+            "eine",
+            "Blume.",
+            "Tom",
+            "holt",
+            "den",
+            "Eimer",
+            "und",
+            "läst",
+            "die",
+            "Schaufel",
+            "im",
+            "Schranck."
+          ],
+          "options": [
+            [
+              "Bite"
+            ],
+            [],
+            [
+              "ofene",
+              "offene"
+            ],
+            [
+              "Tühr"
+            ],
+            [
+              "schliesen"
+            ],
+            [
+              "Nehben"
+            ],
+            [],
+            [
+              "Bangk"
+            ],
+            [
+              "liegt",
+              "liekt"
+            ],
+            [
+              "aine"
+            ],
+            [
+              "Bluhme"
+            ],
+            [],
+            [
+              "hohlt"
+            ],
+            [],
+            [
+              "Aimer"
+            ],
+            [
+              "unt"
+            ],
+            [
+              "lähst",
+              "lässt"
+            ],
+            [],
+            [
+              "Schauffel"
+            ],
+            [],
+            [
+              "Schrangk",
+              "Schrank"
+            ]
+          ]
+        }
+      ]
     },
     {
       "id": "d3_15",
@@ -11753,7 +12855,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
+        "companionSha256": "5809e94c1cf43563abe57f33c74d4e37f5c8374c16f710b7e9fc34d442290ea5"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für Doppelpunkt, öffnendes und schließendes Anführungszeichen sowie den Punkt nach Korb innerhalb der Anführungszeichen. Ein außerhalb gesetzter Punkt betrifft nur dessen Teilpunkt. Übliche Formen doppelter Anführungszeichen anerkennen."
@@ -11771,7 +12873,35 @@
       "prerequisiteCompetencyIds": [],
       "requiresTaughtContent": true,
       "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
-      "digitalInstructions": "Schreibe den Satz unten einmal vollständig mit den verlangten Satzzeichen. Danach prüfst du vier Kriterien getrennt."
+      "digitalInstructions": "Schreibe den Satz unten einmal vollständig mit den verlangten Satzzeichen. Danach prüfst du vier Kriterien getrennt.",
+      "touch": [
+        {
+          "kind": "punctuate",
+          "parts": [
+            "colon",
+            "opening_quote",
+            "sentence_end",
+            "closing_quote"
+          ],
+          "words": [
+            "Mira",
+            "sagt",
+            "Ich",
+            "bringe",
+            "den",
+            "Korb"
+          ],
+          "marks": [
+            ":",
+            "„",
+            "“",
+            ".",
+            "?",
+            "!",
+            ","
+          ]
+        }
+      ]
     },
     {
       "id": "d3_16",
@@ -11889,7 +13019,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
+        "companionSha256": "5809e94c1cf43563abe57f33c74d4e37f5c8374c16f710b7e9fc34d442290ea5"
       },
       "sourceRubric": [
         "Wortgrenzen: 1 Punkt bei allen richtigen Grenzen, 0,5 bei genau einer fehlenden oder zusätzlichen Grenze. Groß/Klein: 1 Punkt bei allen richtigen Wortformen, 0,5 bei genau einem falsch geschriebenen Wort. Sonst im jeweiligen Kriterium 0 Punkte. Beide Kriterien unabhängig werten; der Punkt ist vorgegeben."
@@ -11903,7 +13033,18 @@
       "scoringPolicy": "independent-parts",
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "abe71d7d4309391aac3c7e29e1c7be8271e669f39b319f343bf795d38906db51",
-      "prerequisiteCompetencyIds": []
+      "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "letters",
+          "parts": [
+            "boundaries",
+            "capitalization"
+          ],
+          "letters": "AUFDERWIESELIEGTEINROTERBALL",
+          "end": "."
+        }
+      ]
     },
     {
       "id": "d3_17",
@@ -12093,7 +13234,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
+        "companionSha256": "5809e94c1cf43563abe57f33c74d4e37f5c8374c16f710b7e9fc34d442290ea5"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für die richtige Zusammensetzung und je 0,5 für den passenden Artikel, unabhängig voneinander. Reine Schreibfehler, die die Wortbildung nicht verändern, nicht zusätzlich abziehen. Die Reihenfolge der vorgegebenen Bestandteile beibehalten."
@@ -12109,7 +13250,27 @@
       "sourceTaskSha256": "ac8f6a5a95ab6f4efd08692d8f9a0c8c2539c9e2b8f377392f81af222a471550",
       "prerequisiteCompetencyIds": [],
       "requiresTaughtContent": true,
-      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde."
+      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a_compound",
+          "options": [
+            "Torgarten",
+            "Gartentor",
+            "Gartenstor"
+          ]
+        },
+        {
+          "kind": "choice",
+          "part": "b_compound",
+          "options": [
+            "Fahrradhelm",
+            "Fahrradshelm",
+            "Helmfahrrad"
+          ]
+        }
+      ]
     },
     {
       "id": "d3_18",
@@ -12242,7 +13403,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
+        "companionSha256": "5809e94c1cf43563abe57f33c74d4e37f5c8374c16f710b7e9fc34d442290ea5"
       },
       "sourceRubric": [
         "Je 1 Punkt. a verlangt ausschließlich leise; die Länge des Wortes oder die Wortart ist nicht das Kriterium. In b genügt der erkennbare Stamm les ohne weitere Endung. Die beiden Leistungen unabhängig bewerten."
@@ -12261,7 +13422,18 @@
       "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
       "digitalText": {
         "a) Streiche das Wort durch, das nicht zur Wortfamilie gehört.": "a) Finde das Wort, das nicht zur Wortfamilie gehört."
-      }
+      },
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "lesen",
+            "les",
+            "lese"
+          ]
+        }
+      ]
     },
     {
       "id": "d3_19",
@@ -12463,7 +13635,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
+        "companionSha256": "5809e94c1cf43563abe57f33c74d4e37f5c8374c16f710b7e9fc34d442290ea5"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für das richtig markierte Bestimmungswort und je 0,5 für seine Wortart. Bei b ist Trink der zum Verb trinken gehörende erste Wortteil. Nomen ist in beiden Fällen die Wortart des ganzen Wortes, nicht des gefragten ersten Bestandteils. Teilantworten unabhängig bewerten."
@@ -12482,7 +13654,19 @@
       "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
       "digitalText": {
         "Unterstreiche diesen Wortteil und kreuze seine Wortart an.": "Schreibe diesen Wortteil auf und wähle seine Wortart."
-      }
+      },
+      "touch": [
+        {
+          "kind": "span",
+          "part": "a_stem",
+          "word": "Buntstift"
+        },
+        {
+          "kind": "span",
+          "part": "b_stem",
+          "word": "Trinkflasche"
+        }
+      ]
     },
     {
       "id": "d3_20",
@@ -12584,7 +13768,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
+        "companionSha256": "5809e94c1cf43563abe57f33c74d4e37f5c8374c16f710b7e9fc34d442290ea5"
       },
       "sourceRubric": [
         "Je 1 Punkt für die passende Adjektivform. Reine Schreibfehler außerhalb der verlangten Endung nicht zusätzlich abziehen; die grammatische Form muss eindeutig erkennbar sein."
@@ -12600,7 +13784,31 @@
       "sourceTaskSha256": "d911dbbf13ea7372f66092d2f88f90adb91efd534640cfffe0fb3263f4a1699f",
       "prerequisiteCompetencyIds": [],
       "requiresTaughtContent": true,
-      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde."
+      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a",
+          "options": [
+            "e",
+            "en",
+            "er",
+            "es"
+          ],
+          "template": "schwer{}"
+        },
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "e",
+            "en",
+            "er",
+            "es"
+          ],
+          "template": "weich{}"
+        }
+      ]
     },
     {
       "id": "d3_21",
@@ -12703,7 +13911,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
+        "companionSha256": "5809e94c1cf43563abe57f33c74d4e37f5c8374c16f710b7e9fc34d442290ea5"
       },
       "sourceRubric": [
         "Je 1 Punkt für kürzer und kürzesten. Ein zusätzliches am in der zweiten Lücke nicht abziehen. Andere Adjektive erfüllen den Auftrag nicht."
@@ -12719,7 +13927,27 @@
       "sourceTaskSha256": "211d61fc6b0a3ae15d7a5bf5dafb37baccfa2d5ffb2860574d89d82a5743ce5b",
       "prerequisiteCompetencyIds": [],
       "requiresTaughtContent": true,
-      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde."
+      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a",
+          "options": [
+            "kurzer",
+            "kürzer",
+            "kürzerer"
+          ]
+        },
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "kurzesten",
+            "kürzersten",
+            "kürzesten"
+          ]
+        }
+      ]
     },
     {
       "id": "d3_22",
@@ -12954,7 +14182,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
+        "companionSha256": "5809e94c1cf43563abe57f33c74d4e37f5c8374c16f710b7e9fc34d442290ea5"
       },
       "sourceRubric": [
         "Je 0,5 Punkte pro eindeutig in das richtige Feld eingetragenem Buchstaben. Steht ein Buchstabe ungestrichen in mehreren Feldern, zählt nur dieser Buchstabe 0 Punkte. Die Reihenfolge von C und D ist gleichgültig."
@@ -13087,7 +14315,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
+        "companionSha256": "5809e94c1cf43563abe57f33c74d4e37f5c8374c16f710b7e9fc34d442290ea5"
       },
       "sourceRubric": [
         "1 Punkt für den vollständig vorangestellten Satzteil Nach der Pause. 1 Punkt für den grammatisch richtigen restlichen Satz mit allen Wörtern: besucht unsere Klasse die Bücherei. Groß-/Kleinschreibfehler und fehlender Schlusspunkt werden hier nicht gesondert bewertet. Die Umstellung prüft zusammengehörige Satzteile."
@@ -13103,7 +14331,25 @@
       "sourceTaskSha256": "7e5cea3446bbd7c26894b84f63209c0e4706af5f2cce58a4a92d435ff8ca82fc",
       "prerequisiteCompetencyIds": [],
       "requiresTaughtContent": true,
-      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde."
+      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
+      "touch": [
+        {
+          "kind": "arrange",
+          "parts": [
+            "opening",
+            "rest"
+          ],
+          "tiles": [
+            "Bücherei",
+            "unsere",
+            "die",
+            "Nach der Pause",
+            "Klasse",
+            "besucht"
+          ],
+          "end": "."
+        }
+      ]
     },
     {
       "id": "d3_24",
@@ -13257,7 +14503,7 @@
         "official": false,
         "manifestId": "deutsch3",
         "companionPath": "content/interactive/deutsch3.json",
-        "companionSha256": "40c947c139268f1dcda6799b6b3e18c0339e672d86c96ccf0940206b621a9267"
+        "companionSha256": "5809e94c1cf43563abe57f33c74d4e37f5c8374c16f710b7e9fc34d442290ea5"
       },
       "sourceRubric": [
         "Je 0,5 Punkte pro vollständig und richtig markiertem Subjekt bzw. Prädikat. Die einfache/doppelte Markierung muss eindeutig sein; bei einer sonst klaren schriftlichen Benennung ebenfalls werten. Zusätzliche Wörter nehmen nur den Punkt des betroffenen Satzteils."
@@ -13276,7 +14522,65 @@
       "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
       "digitalText": {
         "Unterstreiche in jedem Satz das ganze Subjekt einmal und das ganze Prädikat zweimal.": "Schreibe für jeden Satz das ganze Subjekt und das ganze Prädikat auf."
-      }
+      },
+      "touch": [
+        {
+          "kind": "select",
+          "parts": [
+            "a_subject"
+          ],
+          "words": [
+            "Hinter",
+            "dem",
+            "Haus",
+            "wachsen",
+            "hohe",
+            "Blumen."
+          ]
+        },
+        {
+          "kind": "select",
+          "parts": [
+            "a_predicate"
+          ],
+          "words": [
+            "Hinter",
+            "dem",
+            "Haus",
+            "wachsen",
+            "hohe",
+            "Blumen."
+          ]
+        },
+        {
+          "kind": "select",
+          "parts": [
+            "b_subject"
+          ],
+          "words": [
+            "Die",
+            "beiden",
+            "Kinder",
+            "tragen",
+            "einen",
+            "Eimer."
+          ]
+        },
+        {
+          "kind": "select",
+          "parts": [
+            "b_predicate"
+          ],
+          "words": [
+            "Die",
+            "beiden",
+            "Kinder",
+            "tragen",
+            "einen",
+            "Eimer."
+          ]
+        }
+      ]
     },
     {
       "id": "d4_01",
@@ -13394,7 +14698,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
+        "companionSha256": "17f3da97a08ce97f69edecadd56c1eb585712838e7085423e28d9790775f536f"
       },
       "sourceRubric": [
         "a) 1 Punkt für Schulfest. Die Bücherei ist ein Ort und beantwortet die Frage nach der Veranstaltung nicht.",
@@ -13417,6 +14721,26 @@
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "aea0a77dad524e2cac0b8de3d604cec04cd73d772ba086f1aa0d6f28b7669751",
       "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a",
+          "options": [
+            "Elternabend",
+            "Schulfest",
+            "Waldfest"
+          ]
+        },
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "Holz",
+            "Blechdose",
+            "Glas"
+          ]
+        }
+      ],
       "stimulusId": "passage_deutsch4"
     },
     {
@@ -13544,7 +14868,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
+        "companionSha256": "17f3da97a08ce97f69edecadd56c1eb585712838e7085423e28d9790775f536f"
       },
       "sourceRubric": [
         "a) 1 Punkt für genau ein Kreuz bei nein.",
@@ -13695,7 +15019,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
+        "companionSha256": "17f3da97a08ce97f69edecadd56c1eb585712838e7085423e28d9790775f536f"
       },
       "sourceRubric": [
         "a) 1 Punkt für genau ein Kreuz bei C.",
@@ -13810,7 +15134,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
+        "companionSha256": "17f3da97a08ce97f69edecadd56c1eb585712838e7085423e28d9790775f536f"
       },
       "sourceRubric": [
         "Je 1 Punkt für jeden der beiden verschiedenen Vorteile: Ruhe beziehungsweise kein Schulhoflärm; vorhandenes und benutzbares Mikrofon.",
@@ -13838,6 +15162,16 @@
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "0abea7cb85e8218874b1163a25f189f4cbc886552943a3f1fa2a0342faee7f5d",
       "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "quote",
+          "part": "reasons",
+          "lines": [
+            13,
+            15
+          ]
+        }
+      ],
       "stimulusId": "passage_deutsch4"
     },
     {
@@ -13985,7 +15319,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
+        "companionSha256": "17f3da97a08ce97f69edecadd56c1eb585712838e7085423e28d9790775f536f"
       },
       "sourceRubric": [
         "Je 1 Punkt für die richtige Zuordnung B beziehungsweise A. Beide Felder unabhängig bewerten.",
@@ -14189,7 +15523,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
+        "companionSha256": "17f3da97a08ce97f69edecadd56c1eb585712838e7085423e28d9790775f536f"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für jede richtig eingetragene Zahl an der richtigen Stelle, insgesamt 2 Punkte.",
@@ -14211,6 +15545,23 @@
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "2b632418baffee084722ea23839e16fb5a50c622b5691044396c0717adb7085e",
       "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "rank",
+          "parts": [
+            "position1",
+            "position2",
+            "position3",
+            "position4"
+          ],
+          "labels": [
+            "Die Kinder hören sich ihre erste Aufnahme an.",
+            "Luis legt die Dinge in der Reihenfolge ihres Einsatzes bereit.",
+            "Die Kinder lesen und spielen die ganze Geschichte.",
+            "Aylin prüft, ob das Mikrofon die Stimmen gut aufnimmt."
+          ]
+        }
+      ],
       "stimulusId": "passage_deutsch4"
     },
     {
@@ -14349,7 +15700,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
+        "companionSha256": "17f3da97a08ce97f69edecadd56c1eb585712838e7085423e28d9790775f536f"
       },
       "sourceRubric": [
         "Je 1 Punkt für genau eine richtige Auswahl pro Teil: a) B, b) A.",
@@ -14521,7 +15872,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
+        "companionSha256": "17f3da97a08ce97f69edecadd56c1eb585712838e7085423e28d9790775f536f"
       },
       "sourceRubric": [
         "a) 1 Punkt für Lena.",
@@ -14543,7 +15894,27 @@
       "scoringPolicy": "independent-parts",
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "8187eb186cbbd5f9adc286821989f300d097e3ed838e69e3320ae44678d614a3",
-      "prerequisiteCompetencyIds": []
+      "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a",
+          "options": [
+            "Eda",
+            "Lena",
+            "Samir"
+          ]
+        },
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "Holzbrett und Löffel",
+            "trockenes Papier",
+            "Reis in einer Dose"
+          ]
+        }
+      ]
     },
     {
       "id": "d4_09",
@@ -14709,7 +16080,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
+        "companionSha256": "17f3da97a08ce97f69edecadd56c1eb585712838e7085423e28d9790775f536f"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für die richtige Groß- oder Kleinschreibung jedes Zielworts: Gestern, Stein, Garten, kleiner; insgesamt 2 Punkte.",
@@ -14730,7 +16101,41 @@
       "scoringPolicy": "independent-parts",
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "2b6a680045e6bc3022632b41389b2f386cf12b9d6ad64a4e5879a7e96460bf0f",
-      "prerequisiteCompetencyIds": []
+      "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a1",
+          "options": [
+            "gestern",
+            "Gestern"
+          ]
+        },
+        {
+          "kind": "choice",
+          "part": "a2",
+          "options": [
+            "Stein",
+            "stein"
+          ]
+        },
+        {
+          "kind": "choice",
+          "part": "b1",
+          "options": [
+            "garten",
+            "Garten"
+          ]
+        },
+        {
+          "kind": "choice",
+          "part": "b2",
+          "options": [
+            "Kleiner",
+            "kleiner"
+          ]
+        }
+      ]
     },
     {
       "id": "d4_10",
@@ -14842,7 +16247,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
+        "companionSha256": "17f3da97a08ce97f69edecadd56c1eb585712838e7085423e28d9790775f536f"
       },
       "sourceRubric": [
         "a) 1 Punkt für Schild mit d.",
@@ -14859,7 +16264,27 @@
       "scoringPolicy": "independent-parts",
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "61dae2ca1f3ee1f7bae5a774af89a2f84fc30121728642778de518d401f34e28",
-      "prerequisiteCompetencyIds": []
+      "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a",
+          "options": [
+            "d",
+            "t"
+          ],
+          "template": "Schil{}"
+        },
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "Schilter",
+            "Schilder",
+            "Schiltes"
+          ]
+        }
+      ]
     },
     {
       "id": "d4_11",
@@ -14971,7 +16396,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
+        "companionSha256": "17f3da97a08ce97f69edecadd56c1eb585712838e7085423e28d9790775f536f"
       },
       "sourceRubric": [
         "a) 1 Punkt für träumen mit äu.",
@@ -14988,7 +16413,27 @@
       "scoringPolicy": "independent-parts",
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "959f4ae9a56ef353f886f68ffadc746f1ba77bddc5301ab88e0bc0abeaceae4e",
-      "prerequisiteCompetencyIds": []
+      "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a",
+          "options": [
+            "äu",
+            "eu"
+          ],
+          "template": "tr{}men"
+        },
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "Treue",
+            "Traum",
+            "Trommel"
+          ]
+        }
+      ]
     },
     {
       "id": "d4_12",
@@ -15096,7 +16541,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
+        "companionSha256": "17f3da97a08ce97f69edecadd56c1eb585712838e7085423e28d9790775f536f"
       },
       "sourceRubric": [
         "Je 1 Punkt für Kamm mit mm und Name mit einfachem m. Beide Wörter unabhängig bewerten. Der vorgegebene Artikel darf mitgeschrieben werden, ist in der Antwort aber nicht erforderlich.",
@@ -15112,7 +16557,27 @@
       "scoringPolicy": "independent-parts",
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "97cb7633e9f1f95fde927ea73c3f8a6aa109696065189f7fded4a4f8fb5125ef",
-      "prerequisiteCompetencyIds": []
+      "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a",
+          "options": [
+            "m",
+            "mm"
+          ],
+          "template": "Ka{}"
+        },
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "m",
+            "mm"
+          ],
+          "template": "Na{}e"
+        }
+      ]
     },
     {
       "id": "d4_13",
@@ -15222,7 +16687,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
+        "companionSha256": "17f3da97a08ce97f69edecadd56c1eb585712838e7085423e28d9790775f536f"
       },
       "sourceRubric": [
         "Je 1 Punkt für die richtige Einsetzung: a) ß, b) ss. Die Teile unabhängig bewerten.",
@@ -15238,7 +16703,27 @@
       "scoringPolicy": "independent-parts",
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "756c53f9f480d7868bb29918120e7319c2d6a63352bd89c5795658f55cbfcad7",
-      "prerequisiteCompetencyIds": []
+      "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a",
+          "options": [
+            "ss",
+            "ß"
+          ],
+          "template": "Fu{}"
+        },
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "ss",
+            "ß"
+          ],
+          "template": "Schlo{}"
+        }
+      ]
     },
     {
       "id": "d4_14",
@@ -15394,7 +16879,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
+        "companionSha256": "17f3da97a08ce97f69edecadd56c1eb585712838e7085423e28d9790775f536f"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für jedes korrekt verbesserte Zielwort: Wintter → Winter, Sokken → Socken, nemen → nehmen, schnel → schnell; insgesamt 2 Punkte.",
@@ -15412,7 +16897,88 @@
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "assessmentAdaptationNote": "Die digitalen Felder bitten um die Reihenfolge im Text. Andere Reihenfolgen bleiben nach Rubrikprüfung zulässig; eine Zielkorrektur zählt nur einmal.",
       "sourceTaskSha256": "2c34d37688a8702f6512a4b93c12bf692f7e78a5bb887c58beba561fbf78576d",
-      "prerequisiteCompetencyIds": []
+      "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "fix",
+          "parts": [
+            "word1",
+            "word2",
+            "word3",
+            "word4"
+          ],
+          "words": [
+            "Im",
+            "Wintter",
+            "ziehen",
+            "die",
+            "Kinder",
+            "warme",
+            "Sokken",
+            "an.",
+            "Dann",
+            "nemen",
+            "sie",
+            "ihre",
+            "Mützen",
+            "und",
+            "gehen",
+            "schnel",
+            "nach",
+            "draußen."
+          ],
+          "options": [
+            [],
+            [
+              "Windter",
+              "Winter"
+            ],
+            [
+              "zihen"
+            ],
+            [],
+            [
+              "Kinter"
+            ],
+            [
+              "wahrme"
+            ],
+            [
+              "Socken",
+              "Soken"
+            ],
+            [],
+            [
+              "Dan"
+            ],
+            [
+              "nehmen",
+              "nemmen"
+            ],
+            [],
+            [
+              "iere"
+            ],
+            [
+              "Müzen"
+            ],
+            [
+              "unt"
+            ],
+            [
+              "geen"
+            ],
+            [
+              "schnehl",
+              "schnell"
+            ],
+            [],
+            [
+              "draussen"
+            ]
+          ]
+        }
+      ]
     },
     {
       "id": "d4_15",
@@ -15600,7 +17166,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
+        "companionSha256": "17f3da97a08ce97f69edecadd56c1eb585712838e7085423e28d9790775f536f"
       },
       "sourceRubric": [
         "Je 0,5 Punkte für den Doppelpunkt nach ruft, das öffnende Anführungszeichen vor Warte, das Ausrufezeichen nach mich und das schließende Anführungszeichen nach dem Ausrufezeichen.",
@@ -15620,7 +17186,34 @@
       "prerequisiteCompetencyIds": [],
       "requiresTaughtContent": true,
       "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
-      "digitalInstructions": "Schreibe den Satz unten einmal vollständig mit den verlangten Satzzeichen. Danach prüfst du vier Kriterien getrennt."
+      "digitalInstructions": "Schreibe den Satz unten einmal vollständig mit den verlangten Satzzeichen. Danach prüfst du vier Kriterien getrennt.",
+      "touch": [
+        {
+          "kind": "punctuate",
+          "parts": [
+            "colon",
+            "opening_quote",
+            "sentence_end",
+            "closing_quote"
+          ],
+          "words": [
+            "Amal",
+            "ruft",
+            "Warte",
+            "auf",
+            "mich"
+          ],
+          "marks": [
+            ":",
+            "„",
+            "“",
+            ".",
+            "?",
+            "!",
+            ","
+          ]
+        }
+      ]
     },
     {
       "id": "d4_16",
@@ -15737,7 +17330,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
+        "companionSha256": "17f3da97a08ce97f69edecadd56c1eb585712838e7085423e28d9790775f536f"
       },
       "sourceRubric": [
         "1 Punkt für die vollständige richtige Worttrennung: Der | kleine | Fuchs | schläft | unter | der | Bank.",
@@ -15754,7 +17347,18 @@
       "scoringPolicy": "independent-parts",
       "assessmentAdaptation": "Digitale Antwortfelder ergänzen die ursprüngliche Druckaufgabe. Teilpunkte bleiben unabhängig; offene Bedeutungsaussagen verlangen eine Rubrikprüfung.",
       "sourceTaskSha256": "bacd15d00176eee26987c82d43904ce50f567b0c1cd2ded27c14ef0b580c74ea",
-      "prerequisiteCompetencyIds": []
+      "prerequisiteCompetencyIds": [],
+      "touch": [
+        {
+          "kind": "letters",
+          "parts": [
+            "boundaries",
+            "capitalization"
+          ],
+          "letters": "DERKLEINEFUCHSSCHLÄFTUNTERDERBANK",
+          "end": "."
+        }
+      ]
     },
     {
       "id": "d4_17",
@@ -15878,7 +17482,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
+        "companionSha256": "17f3da97a08ce97f69edecadd56c1eb585712838e7085423e28d9790775f536f"
       },
       "sourceRubric": [
         "a) 1 Punkt für die eindeutige Auswahl hoffen.",
@@ -15904,7 +17508,18 @@
       "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
       "digitalText": {
         "a) Kreise das Verb ein.": "a) Finde das Verb."
-      }
+      },
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "hofft",
+            "hoffen",
+            "hoffst"
+          ]
+        }
+      ]
     },
     {
       "id": "d4_18",
@@ -16020,7 +17635,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
+        "companionSha256": "17f3da97a08ce97f69edecadd56c1eb585712838e7085423e28d9790775f536f"
       },
       "sourceRubric": [
         "Je 1 Punkt für die richtige Grundform geben beziehungsweise sehen. Beide Teile unabhängig bewerten.",
@@ -16038,7 +17653,27 @@
       "sourceTaskSha256": "d0d92bff0f2987a53c62fb9ce3f49297e13a74f09826cc3d1c142826efe79df7",
       "prerequisiteCompetencyIds": [],
       "requiresTaughtContent": true,
-      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde."
+      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a",
+          "options": [
+            "gab",
+            "geben",
+            "giben"
+          ]
+        },
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "sehen",
+            "sahen",
+            "sah"
+          ]
+        }
+      ]
     },
     {
       "id": "d4_19",
@@ -16193,7 +17828,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
+        "companionSha256": "17f3da97a08ce97f69edecadd56c1eb585712838e7085423e28d9790775f536f"
       },
       "sourceRubric": [
         "a) 1 Punkt für den genau abgegrenzten gemeinsamen Wortstamm mal beziehungsweise Mal. malen oder das ganze Wort bemalen ist nicht der verlangte Stamm.",
@@ -16217,7 +17852,27 @@
       "sourceTaskSha256": "f7649eea8cb1f8405daa5eb694e08d63ed24583b0ed71da50464a2816b1a061e",
       "prerequisiteCompetencyIds": [],
       "requiresTaughtContent": true,
-      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde."
+      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a",
+          "options": [
+            "male",
+            "mal",
+            "malen"
+          ]
+        },
+        {
+          "kind": "choice",
+          "part": "b_compound",
+          "options": [
+            "Malenbuch",
+            "Buchmal",
+            "Malbuch"
+          ]
+        }
+      ]
     },
     {
       "id": "d4_20",
@@ -16323,7 +17978,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
+        "companionSha256": "17f3da97a08ce97f69edecadd56c1eb585712838e7085423e28d9790775f536f"
       },
       "sourceRubric": [
         "Je 1 Punkt für die grammatisch passende Form langen beziehungsweise dünnes. Beide Teile unabhängig bewerten.",
@@ -16341,7 +17996,31 @@
       "sourceTaskSha256": "16b7974b061099df018a21f40fa62154f5e95c188e6c156307e97edd2f9ebe6e",
       "prerequisiteCompetencyIds": [],
       "requiresTaughtContent": true,
-      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde."
+      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a",
+          "options": [
+            "e",
+            "en",
+            "er",
+            "es"
+          ],
+          "template": "lang{}"
+        },
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "e",
+            "en",
+            "er",
+            "es"
+          ],
+          "template": "dünn{}"
+        }
+      ]
     },
     {
       "id": "d4_21",
@@ -16460,7 +18139,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
+        "companionSha256": "17f3da97a08ce97f69edecadd56c1eb585712838e7085423e28d9790775f536f"
       },
       "sourceRubric": [
         "1 Punkt für stark in der Grundstufe und unabhängig davon 1 Punkt für stärksten in der zweiten Vergleichsstufe.",
@@ -16478,7 +18157,27 @@
       "sourceTaskSha256": "d8817cfc595b7520dbf1b513e59554d463eacb6ae5f046ffec47c55ee8530d63",
       "prerequisiteCompetencyIds": [],
       "requiresTaughtContent": true,
-      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde."
+      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a",
+          "options": [
+            "stärke",
+            "stark",
+            "stärk"
+          ]
+        },
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "starksten",
+            "stärksten",
+            "stärkersten"
+          ]
+        }
+      ]
     },
     {
       "id": "d4_22",
@@ -16722,7 +18421,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
+        "companionSha256": "17f3da97a08ce97f69edecadd56c1eb585712838e7085423e28d9790775f536f"
       },
       "sourceRubric": [
         "a) 0,5 Punkte, wenn genau beide Verbteile haben und gedeckt markiert sind; unabhängig davon 0,5 Punkte für Perfekt.",
@@ -16859,7 +18558,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
+        "companionSha256": "17f3da97a08ce97f69edecadd56c1eb585712838e7085423e28d9790775f536f"
       },
       "sourceRubric": [
         "Je 1 Punkt für lachtest beziehungsweise las. Beide Teile unabhängig bewerten; Person und Zahl müssen erhalten bleiben.",
@@ -16877,7 +18576,27 @@
       "sourceTaskSha256": "65442416967ca5c222d6bb352f9f2f4eccdc8a964a12be8276d1683631db2bb2",
       "prerequisiteCompetencyIds": [],
       "requiresTaughtContent": true,
-      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde."
+      "prerequisiteNote": "Nutze diese Aufgabe, wenn die verlangte Wortart, Form oder Zeichensetzung bereits eingeführt wurde.",
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "a",
+          "options": [
+            "lachte",
+            "lachst",
+            "lachtest"
+          ]
+        },
+        {
+          "kind": "choice",
+          "part": "b",
+          "options": [
+            "lese",
+            "las",
+            "lasen"
+          ]
+        }
+      ]
     },
     {
       "id": "d4_24",
@@ -17028,7 +18747,7 @@
         "official": false,
         "manifestId": "deutsch4",
         "companionPath": "content/interactive/deutsch4.json",
-        "companionSha256": "7a9df824947e90b52354a52c4e296149b2347cf5de3eb3e6f5ae858c51e5425d"
+        "companionSha256": "17f3da97a08ce97f69edecadd56c1eb585712838e7085423e28d9790775f536f"
       },
       "sourceRubric": [
         "a) 1 Punkt, wenn die vollständige und ausschließlich gemeinte Wortgruppe ein müder Wanderer markiert ist. Nur Wanderer oder eine Markierung einschließlich sitzt reicht nicht.",
@@ -17141,7 +18860,7 @@
         "label": "Eigener Aufgabenentwurf; fachliche Freigabe ausstehend",
         "repository": "https://github.com/CrispStrobe/kompass4",
         "path": "content/interactive/supplement.json",
-        "sha256": "f9727244cd4a20c5399bde2c1a2328d44fc79881c2317a942c446f4c0ceac614",
+        "sha256": "075ba378ab9b2d6acf18a1464f65f3bede186c527f98905b52eef0a5ac850cd7",
         "reviewStatus": "draft",
         "official": false
       },
@@ -17255,7 +18974,7 @@
         "label": "Eigener Aufgabenentwurf; fachliche Freigabe ausstehend",
         "repository": "https://github.com/CrispStrobe/kompass4",
         "path": "content/interactive/supplement.json",
-        "sha256": "f9727244cd4a20c5399bde2c1a2328d44fc79881c2317a942c446f4c0ceac614",
+        "sha256": "075ba378ab9b2d6acf18a1464f65f3bede186c527f98905b52eef0a5ac850cd7",
         "reviewStatus": "draft",
         "official": false
       },
@@ -17352,7 +19071,7 @@
         "label": "Eigener Aufgabenentwurf; fachliche Freigabe ausstehend",
         "repository": "https://github.com/CrispStrobe/kompass4",
         "path": "content/interactive/supplement.json",
-        "sha256": "f9727244cd4a20c5399bde2c1a2328d44fc79881c2317a942c446f4c0ceac614",
+        "sha256": "075ba378ab9b2d6acf18a1464f65f3bede186c527f98905b52eef0a5ac850cd7",
         "reviewStatus": "draft",
         "official": false
       },
@@ -17370,6 +19089,26 @@
       "heldOutForTransfer": true,
       "prerequisiteCompetencyIds": [
         "D-L08"
+      ],
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "wu_transfer_reading_table_a",
+          "options": [
+            "Ida",
+            "Omar",
+            "Jule"
+          ]
+        },
+        {
+          "kind": "choice",
+          "part": "wu_transfer_reading_table_b",
+          "options": [
+            "Montag",
+            "Mittwoch",
+            "Freitag"
+          ]
+        }
       ]
     },
     {
@@ -17446,7 +19185,7 @@
         "label": "Eigener Aufgabenentwurf; fachliche Freigabe ausstehend",
         "repository": "https://github.com/CrispStrobe/kompass4",
         "path": "content/interactive/supplement.json",
-        "sha256": "f9727244cd4a20c5399bde2c1a2328d44fc79881c2317a942c446f4c0ceac614",
+        "sha256": "075ba378ab9b2d6acf18a1464f65f3bede186c527f98905b52eef0a5ac850cd7",
         "reviewStatus": "draft",
         "official": false
       },
@@ -17463,6 +19202,26 @@
       "heldOutForTransfer": true,
       "prerequisiteCompetencyIds": [
         "D-R02"
+      ],
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "wu_transfer_spelling_extend_a",
+          "options": [
+            "d",
+            "t"
+          ],
+          "template": "Hun{}"
+        },
+        {
+          "kind": "choice",
+          "part": "wu_transfer_spelling_extend_b",
+          "options": [
+            "Hunte",
+            "Hunde",
+            "Hündin"
+          ]
+        }
       ]
     },
     {
@@ -17540,7 +19299,7 @@
         "label": "Eigener Aufgabenentwurf; fachliche Freigabe ausstehend",
         "repository": "https://github.com/CrispStrobe/kompass4",
         "path": "content/interactive/supplement.json",
-        "sha256": "f9727244cd4a20c5399bde2c1a2328d44fc79881c2317a942c446f4c0ceac614",
+        "sha256": "075ba378ab9b2d6acf18a1464f65f3bede186c527f98905b52eef0a5ac850cd7",
         "reviewStatus": "draft",
         "official": false
       },
@@ -17557,6 +19316,26 @@
       "heldOutForTransfer": true,
       "prerequisiteCompetencyIds": [
         "D-R03"
+      ],
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "wu_transfer_spelling_derive_a",
+          "options": [
+            "äu",
+            "eu"
+          ],
+          "template": "H{}ser"
+        },
+        {
+          "kind": "choice",
+          "part": "wu_transfer_spelling_derive_b",
+          "options": [
+            "Heus",
+            "Haus",
+            "Hause"
+          ]
+        }
       ]
     },
     {
@@ -17636,7 +19415,7 @@
         "label": "Eigener Aufgabenentwurf; fachliche Freigabe ausstehend",
         "repository": "https://github.com/CrispStrobe/kompass4",
         "path": "content/interactive/supplement.json",
-        "sha256": "f9727244cd4a20c5399bde2c1a2328d44fc79881c2317a942c446f4c0ceac614",
+        "sha256": "075ba378ab9b2d6acf18a1464f65f3bede186c527f98905b52eef0a5ac850cd7",
         "reviewStatus": "draft",
         "official": false
       },
@@ -17656,6 +19435,26 @@
         "D-R06",
         "D-R04",
         "D-R01"
+      ],
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "wu_transfer_spelling_repair_a",
+          "options": [
+            "schuppen",
+            "Schupen",
+            "Schuppen"
+          ]
+        },
+        {
+          "kind": "choice",
+          "part": "wu_transfer_spelling_repair_b",
+          "options": [
+            "Gießkanne",
+            "Giesskane",
+            "Gießkane"
+          ]
+        }
       ]
     },
     {
@@ -17735,7 +19534,7 @@
         "label": "Eigener Aufgabenentwurf; fachliche Freigabe ausstehend",
         "repository": "https://github.com/CrispStrobe/kompass4",
         "path": "content/interactive/supplement.json",
-        "sha256": "f9727244cd4a20c5399bde2c1a2328d44fc79881c2317a942c446f4c0ceac614",
+        "sha256": "075ba378ab9b2d6acf18a1464f65f3bede186c527f98905b52eef0a5ac850cd7",
         "reviewStatus": "draft",
         "official": false
       },
@@ -17754,6 +19553,26 @@
       "prerequisiteCompetencyIds": [
         "D-S04",
         "D-S01"
+      ],
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "wu_transfer_language_wordparts_a",
+          "options": [
+            "spielen",
+            "spiel",
+            "spiele"
+          ]
+        },
+        {
+          "kind": "choice",
+          "part": "wu_transfer_language_wordparts_b",
+          "options": [
+            "das Spielplatz",
+            "der Spielplatz",
+            "der Spielenplatz"
+          ]
+        }
       ]
     },
     {
@@ -17833,7 +19652,7 @@
         "label": "Eigener Aufgabenentwurf; fachliche Freigabe ausstehend",
         "repository": "https://github.com/CrispStrobe/kompass4",
         "path": "content/interactive/supplement.json",
-        "sha256": "f9727244cd4a20c5399bde2c1a2328d44fc79881c2317a942c446f4c0ceac614",
+        "sha256": "075ba378ab9b2d6acf18a1464f65f3bede186c527f98905b52eef0a5ac850cd7",
         "reviewStatus": "draft",
         "official": false
       },
@@ -17851,6 +19670,26 @@
       "heldOutForTransfer": true,
       "prerequisiteCompetencyIds": [
         "D-S06"
+      ],
+      "touch": [
+        {
+          "kind": "choice",
+          "part": "wu_transfer_language_comparison_a",
+          "options": [
+            "weit",
+            "weiter",
+            "weiterer"
+          ]
+        },
+        {
+          "kind": "choice",
+          "part": "wu_transfer_language_comparison_b",
+          "options": [
+            "weitesten",
+            "weitsten",
+            "weiteresten"
+          ]
+        }
       ]
     },
     {
@@ -17948,7 +19787,7 @@
         "label": "Eigener Aufgabenentwurf; fachliche Freigabe ausstehend",
         "repository": "https://github.com/CrispStrobe/kompass4",
         "path": "content/interactive/supplement.json",
-        "sha256": "f9727244cd4a20c5399bde2c1a2328d44fc79881c2317a942c446f4c0ceac614",
+        "sha256": "075ba378ab9b2d6acf18a1464f65f3bede186c527f98905b52eef0a5ac850cd7",
         "reviewStatus": "draft",
         "official": false
       },
@@ -18029,7 +19868,7 @@
         "label": "Eigener Aufgabenentwurf; fachliche Freigabe ausstehend",
         "repository": "https://github.com/CrispStrobe/kompass4",
         "path": "content/interactive/supplement.json",
-        "sha256": "f9727244cd4a20c5399bde2c1a2328d44fc79881c2317a942c446f4c0ceac614",
+        "sha256": "075ba378ab9b2d6acf18a1464f65f3bede186c527f98905b52eef0a5ac850cd7",
         "reviewStatus": "draft",
         "official": false
       },
@@ -18105,7 +19944,7 @@
         "label": "Eigener Aufgabenentwurf; fachliche Freigabe ausstehend",
         "repository": "https://github.com/CrispStrobe/kompass4",
         "path": "content/interactive/supplement.json",
-        "sha256": "f9727244cd4a20c5399bde2c1a2328d44fc79881c2317a942c446f4c0ceac614",
+        "sha256": "075ba378ab9b2d6acf18a1464f65f3bede186c527f98905b52eef0a5ac850cd7",
         "reviewStatus": "draft",
         "official": false
       },
@@ -18181,7 +20020,7 @@
         "label": "Eigener Aufgabenentwurf; fachliche Freigabe ausstehend",
         "repository": "https://github.com/CrispStrobe/kompass4",
         "path": "content/interactive/supplement.json",
-        "sha256": "f9727244cd4a20c5399bde2c1a2328d44fc79881c2317a942c446f4c0ceac614",
+        "sha256": "075ba378ab9b2d6acf18a1464f65f3bede186c527f98905b52eef0a5ac850cd7",
         "reviewStatus": "draft",
         "official": false
       },
@@ -18259,7 +20098,7 @@
         "label": "Eigener Aufgabenentwurf; fachliche Freigabe ausstehend",
         "repository": "https://github.com/CrispStrobe/kompass4",
         "path": "content/interactive/supplement.json",
-        "sha256": "f9727244cd4a20c5399bde2c1a2328d44fc79881c2317a942c446f4c0ceac614",
+        "sha256": "075ba378ab9b2d6acf18a1464f65f3bede186c527f98905b52eef0a5ac850cd7",
         "reviewStatus": "draft",
         "official": false
       },
@@ -18335,7 +20174,7 @@
         "label": "Eigener Aufgabenentwurf; fachliche Freigabe ausstehend",
         "repository": "https://github.com/CrispStrobe/kompass4",
         "path": "content/interactive/supplement.json",
-        "sha256": "f9727244cd4a20c5399bde2c1a2328d44fc79881c2317a942c446f4c0ceac614",
+        "sha256": "075ba378ab9b2d6acf18a1464f65f3bede186c527f98905b52eef0a5ac850cd7",
         "reviewStatus": "draft",
         "official": false
       },
@@ -18411,7 +20250,7 @@
         "label": "Eigener Aufgabenentwurf; fachliche Freigabe ausstehend",
         "repository": "https://github.com/CrispStrobe/kompass4",
         "path": "content/interactive/supplement.json",
-        "sha256": "f9727244cd4a20c5399bde2c1a2328d44fc79881c2317a942c446f4c0ceac614",
+        "sha256": "075ba378ab9b2d6acf18a1464f65f3bede186c527f98905b52eef0a5ac850cd7",
         "reviewStatus": "draft",
         "official": false
       },
@@ -18487,7 +20326,7 @@
         "label": "Eigener Aufgabenentwurf; fachliche Freigabe ausstehend",
         "repository": "https://github.com/CrispStrobe/kompass4",
         "path": "content/interactive/supplement.json",
-        "sha256": "f9727244cd4a20c5399bde2c1a2328d44fc79881c2317a942c446f4c0ceac614",
+        "sha256": "075ba378ab9b2d6acf18a1464f65f3bede186c527f98905b52eef0a5ac850cd7",
         "reviewStatus": "draft",
         "official": false
       },
@@ -18563,7 +20402,7 @@
         "label": "Eigener Aufgabenentwurf; fachliche Freigabe ausstehend",
         "repository": "https://github.com/CrispStrobe/kompass4",
         "path": "content/interactive/supplement.json",
-        "sha256": "f9727244cd4a20c5399bde2c1a2328d44fc79881c2317a942c446f4c0ceac614",
+        "sha256": "075ba378ab9b2d6acf18a1464f65f3bede186c527f98905b52eef0a5ac850cd7",
         "reviewStatus": "draft",
         "official": false
       },

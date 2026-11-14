@@ -41,6 +41,21 @@ parts**, **27 competency IDs**, **6 stimuli**, and **8 original PDF booklets**.
 PDF save/share and print actions work independently of preview rendering.
 The paper-answer workflow keeps its own review provenance.
 
+Every typed answer can be tapped instead, and tapping is the default. A switch
+on each task changes to the keyboard and back; both give the same answer text.
+Typical touch answers: the letters for a gap (Ber**g**, hei**ß**, klein**en**),
+bars between Satzglieder, cuts between letters, punctuation marks put into gaps,
+words tapped and respelt, sentences numbered by tapping them in order, and the
+first and last letter of a stem. Open answers that ask for something from the
+text offer its lines to copy. The widgets are described by each task's `touch`
+list. Lists come from kompass4's companion annotations, and its exporter proves
+that the right taps produce an accepted answer
+(`lib/features/kompass/models/kompass_touch.dart`,
+`test/features/kompass/kompass_touch_test.dart`). Each attempt records
+`inputMode` (`touch` or `keyboard`). Picking from options is easier than writing
+for some parts, so this is kept on record. It does not by itself mark an
+attempt as supported.
+
 Reading passages remain available beside the task on wide screens and in an
 expandable panel on phones. Logical line numbers survive wrapping. Authored
 emphasis is rendered safely. Multiple criteria for one sentence share one

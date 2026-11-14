@@ -112,9 +112,10 @@ class KompassBlocks extends StatelessWidget {
                                                 color: kompassInk,
                                                 fontSize: 15,
                                                 height: 1.4,
-                                                fontWeight: i == 0 && headers.isNotEmpty
-                                                    ? FontWeight.bold
-                                                    : FontWeight.normal))),
+                                                fontWeight:
+                                                    i == 0 && headers.isNotEmpty
+                                                        ? FontWeight.bold
+                                                        : FontWeight.normal))),
                                   )
                               ],
                             )
