@@ -270,17 +270,24 @@ const Map<String, LanguagePack> kLanguagePacks = {
     // hangover, "Füller" with a filler; 1,358 entries changed where a model
     // of another family confirmed it, the old gloss kept behind. 1,082
     // glosses rewritten in words a primary-school child reads.
+    //
+    // Rebuilt 2026-11-15: model-written glosses read blind (llm_correct.py
+    // blind). "Opa von Papa oder Mama" stood for Großvater — that is the
+    // great-grandfather. 69 glosses replaced where a judge of another family
+    // found them wrong and a blind reader found the word from the fix; 78
+    // the judges doubted are kept out of the games (gloss_above_reader).
     remoteUrl:
-        'https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/5b4757f2ba5ba8bd40ecc7ad2df0c45b53b5e953/grundwortschatz-app.db.gz',
+        'https://huggingface.co/datasets/cstr/grundwortschatz-voc-de/resolve/4cc0f0465710393c02d7aa0cb27debfbc2d277e8/grundwortschatz-app.db.gz',
     // Update the immutable URL and all pins together; retain this qualified
     // databaseName in previousDatabaseNames when publishing a new artifact.
-    expectedCompressedBytes: 16047300,
+    expectedCompressedBytes: 16009435,
     expectedCompressedSha256:
-        'cd350f6e5fda2dc7a5aba2121188ee475e54b9fd273fa5e4214533cdefb42059',
-    expectedDecompressedBytes: 96518144,
+        '25077157fea98f9c958330b8865f4ebdbc41a86f9afe9881cd148ee8a5bafb51',
+    expectedDecompressedBytes: 96423936,
     expectedDecompressedSha256:
-        '1df66b74d7074ce82d866acc7a5684db1647d9d1d1e45a3d5c5cb363a2d4af63',
+        'e9aaa9d743a8b93e7ef26d86cd652de09702ea2977a485347f9801574ade202a',
     previousDatabaseNames: [
+      'grundwortschatz-1df66b74d7074ce82d866acc7a5684db1647d9d1d1e45a3d5c5cb363a2d4af63.db',
       'grundwortschatz-977cf9aa2e25d5d2884dd481b30bd653dc0e48a243539a7a5db4d5a77dc1c64f.db',
       'grundwortschatz-3884c856c5fa0340942b0d21b25fa7f28ac3ea909282944d2623870b0d16bba0.db',
       'grundwortschatz-71eadae4644dbe300f2c567adc2d2b7c85a2123556ecc34f4be2ce08bc1cbfe1.db',
@@ -374,9 +381,14 @@ const Map<String, LanguagePack> kLanguagePacks = {
     // sense): 1,413 entries, each confirmed by a model of another family —
     // "comedy" was a choric song, "hunch" a hump — and 1,725 glosses
     // rewritten in words a child reads.
+    //
+    // Rebuilt 2026-11-15: model-written glosses read blind (llm_correct.py
+    // blind): "cop" was "To get something you want"; 52 replaced, 31 the
+    // judges doubted kept out of the games.
     expectedDecompressedSha256:
-        '18609cb53c57ccf1406ca47ed3e1c24e74a702af5828642ae089b14249596655',
+        'add6ab802cdc18523e787e49f6a091ee03ad5b1af26aa8ae8d6f30b4f2800ff1',
     previousDatabaseNames: [
+      'grundwortschatz_en-18609cb53c57ccf1406ca47ed3e1c24e74a702af5828642ae089b14249596655.db',
       'grundwortschatz_en-e556525f8e8f6f6d64375c204cd1ae019e39cef0a7ff033c44aa35b3f7fb3d4b.db',
       'grundwortschatz_en-a815a888c8bc7312fb39b93709f8b51401e3413b8a5f741eb105c41fe3fed023.db',
       'grundwortschatz_en-38649e2cf2fd70bd4c45e9964291a22a048b4c0eb4db481bcfc98ab5981c3d30.db',

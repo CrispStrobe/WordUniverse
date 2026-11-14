@@ -324,11 +324,15 @@ That’s a very ___ tool for gardeners.
   Build "whom" from its letters
     ✓ whom
     · grade: 3
-── word_class_flash (1)
-  dishonest
+── word_class_flash (2)
+  depend
       Noun
+    ✓ Verb
+      Adjective
+  degree
+    ✓ Noun
       Verb
-    ✓ Adjective
+      Adjective
 ── word_find (4)
   Find "communications" in the grid
     ✓ communications
