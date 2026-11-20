@@ -13,7 +13,10 @@ on:
 env:
   BUNDLE_ID: com.CrispStrobe.wordUniverse
   PROFILE_NAME: WordUniverse MacAppStore CI
-  FLUTTER_VERSION: '3.44.2'
+  # >= 3.44.8: older Flutter fails release_unpack_macos on Xcode 27 ("FlutterMacOS
+  # ... does not contain architectures arm64 x86_64"; lipo -verify_arch change,
+  # flutter/flutter#188346, fixed by #189792 in 3.44.8). iOS stays on 3.44.2.
+  FLUTTER_VERSION: '3.44.9'
 
 jobs:
   build-upload:
