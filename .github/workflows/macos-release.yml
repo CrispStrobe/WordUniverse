@@ -141,6 +141,15 @@ jobs:
           PATH="/usr/bin:$PATH" flutter build macos --release --config-only
           PATH="/usr/bin:$PATH" env -u GEM_HOME -u GEM_PATH -u RUBYOPT \
             pod install --project-directory=macos || echo "No podfile, skipping pod install"
+          # Xcode 27 cannot build for macOS < 12.0 (an error: "range of supported
+          # deployment target versions is 12.0 to 27.2.x"). Raise every target
+          # below 12.0 -- pods AND the app, so the shipped minimum becomes
+          # macOS 12 -- in the CI copy of the projects. Required by the
+          # Xcode 27 move (ITMS-90725); targets already >= 12.0 are untouched.
+          for PBX in macos/Pods/Pods.xcodeproj/project.pbxproj macos/Runner.xcodeproj/project.pbxproj; do
+            [ -f "$PBX" ] || continue
+            perl -pi -e 's/MACOSX_DEPLOYMENT_TARGET = (\d+)(\.\d+)*;/$1 < 12 ? "MACOSX_DEPLOYMENT_TARGET = 12.0;" : $&/ge' "$PBX"
+          done
           
           export ASC_TEAM_ID="${{ secrets.ASC_TEAM_ID }}"
           ruby -e "
