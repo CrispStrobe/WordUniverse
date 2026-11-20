@@ -17,12 +17,13 @@ env:
 
 jobs:
   build-upload:
-    # macos-15 ships Xcode 16.4 by default (macOS 15.5 SDK). The old macos-14
-    # image (Xcode 15.4, SDK 14.5) fails to compile in_app_purchase_storekit,
-    # which uses the StoreKit2 win-back API (winBackOffers /
-    # eligibleWinBackOfferIDs) introduced in the macOS 15 SDK. macos-14 is also
-    # deprecated by GitHub (unsupported after 2026-11-02).
-    runs-on: macos-15
+    # The macOS 15+ SDK is the floor anyway: in_app_purchase_storekit uses the
+    # StoreKit2 win-back API (winBackOffers / eligibleWinBackOfferIDs).
+    # ITMS-90725: from April 2027 App Store Connect only accepts builds made
+    # with the 27 SDKs (Xcode 27). The standard macOS images only ship
+    # Xcode 26.x, so the store build runs on GitHub's xcode-27 image (arm64)
+    # and fails before signing if the SDK is older.
+    runs-on: xcode-27
     timeout-minutes: 60
     defaults:
       run:
@@ -35,11 +36,17 @@ jobs:
       - name: Check App Store metadata
         run: python3 tools/test_macos_metadata.py
 
-      - name: Select Xcode 16.4
+      - name: Select the newest Xcode 27 and require the macOS 27 SDK
         run: |
-          sudo xcode-select --switch /Applications/Xcode_16.4.app/Contents/Developer
+          set -euo pipefail
+          XC=$(ls -d /Applications/Xcode_27*.app | sort -V | tail -1)
+          sudo xcode-select -s "$XC/Contents/Developer"
           xcodebuild -version
-          xcrun --sdk macosx --show-sdk-version
+          SDK=$(xcrun --sdk macosx --show-sdk-version)
+          echo "macosx SDK: $SDK"
+          if [ "${SDK%%.*}" -lt 27 ]; then
+            echo "::error::macOS SDK $SDK < 27 (ITMS-90725)"; exit 1
+          fi
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -61,7 +68,10 @@ jobs:
         run: |
           set -euo pipefail
           KC="$RUNNER_TEMP/mac-signing.keychain-db"
-          KC_PW="throwaway"
+          # Empty password: on the xcode-27 image unlock-keychain rejects the
+          # password the keychain was just created with (runner-images#14837).
+          # The keychain lives in RUNNER_TEMP on a single-use VM.
+          KC_PW=""
           security create-keychain -p "$KC_PW" "$KC"
           security default-keychain -s "$KC"
           security unlock-keychain -p "$KC_PW" "$KC"
