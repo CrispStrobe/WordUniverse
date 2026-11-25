@@ -86,11 +86,10 @@ SentenceChallenge? buildSentenceChallenge({
     if (_unsupportedAdjectiveContext(word, matchedForm, before, after,
         isGerman: isGerman)) continue;
     // Repeated occurrences, including known inflections, answer the gap.
-    if (blankWord('$before $after', word.word,
-            forms: forms.map((form) => form.text)) !=
-        null) {
-      continue;
-    }
+    // A hyphen compound counts too: "___ and non-breakable objects" or
+    // "Die Online-Einzahlung ist schneller als eine ___" writes the answer
+    // next to the gap even though it could not have been cut from there.
+    if (_textNamesAnswer('$before $after', forms)) continue;
 
     final distractors = _pickDistractors(
       target: word,
@@ -276,13 +275,17 @@ bool _partOfSpeechMatches(GermanWord word) {
 /// "bulb-shaped" still writes the answer `bulb` in front of the learner.
 /// Treat hyphens as boundaries here without loosening source-span matching.
 bool _cueNamesAnswer(String cue, List<_DeclaredForm> forms) =>
+    _textNamesAnswer(cue, forms);
+
+/// Whether [text] writes any of [forms] as a word, hyphen compounds included.
+bool _textNamesAnswer(String text, List<_DeclaredForm> forms) =>
     forms.any((form) => RegExp(
             r'(^|[^\p{L}\p{M}\p{N}_])' +
                 RegExp.escape(form.text) +
                 r'(?=$|[^\p{L}\p{M}\p{N}_])',
             unicode: true,
             caseSensitive: false)
-        .hasMatch(cue));
+        .hasMatch(text));
 
 bool _usableAsOption(GermanWord word) =>
     _contentTypes.contains(word.wordType) &&

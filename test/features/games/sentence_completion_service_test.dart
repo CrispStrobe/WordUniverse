@@ -392,6 +392,19 @@ void main() {
       expect(_build(word), isNull);
     });
 
+    test('skips a source whose hyphen compound shows the answer', () {
+      final plain = _word('Einzahlung', examples: {
+        '4': ['Die Zahlung ist schneller als eine Einzahlung in der Bank.']
+      });
+      expect(_build(plain), isNotNull);
+      final compound = _word('Einzahlung', examples: {
+        '4': [
+          'Die Online-Einzahlung ist schneller als eine Einzahlung in der Bank.'
+        ]
+      });
+      expect(_build(compound), isNull);
+    });
+
     test('uses another source when one repeats the answer', () {
       final word = _word('Tisch', examples: {
         '4': ['Der Tisch ist ein Tisch.', 'Der Tisch steht im Zimmer.']
