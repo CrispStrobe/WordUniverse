@@ -1,3 +1,4 @@
+import '../../../shared/widgets/ai_content_notice.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/theme/space_theme.dart';
@@ -40,44 +41,52 @@ class GameUI extends StatelessWidget {
             horizontal: isCompact ? 12 : 16,
             vertical: 8,
           ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Back Button
-              Semantics(
-                label: S.of(context)!.semanticsBack,
-                button: true,
-                child: IconButton(
-                  icon: Icon(
-                    Icons.arrow_back_ios,
-                    color: Colors.white,
-                    size: isCompact ? 22 : 28,
-                  ),
-                  onPressed: onBack,
-                ),
-              ),
-
-              SizedBox(width: isCompact ? 12 : 16),
-
-              // Title Area
-              Expanded(
-                // Use the custom widget if provided; otherwise, use the default Text title.
-                child: customTitleWidget ?? FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    title,
-                    style: SpaceTheme.headlineStyle.copyWith(
-                      fontSize: isCompact ? 20 : 28,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Back Button
+                  Semantics(
+                    label: S.of(context)!.semanticsBack,
+                    button: true,
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.arrow_back_ios,
+                        color: Colors.white,
+                        size: isCompact ? 22 : 28,
+                      ),
+                      onPressed: onBack,
                     ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
                   ),
-                ),
+
+                  SizedBox(width: isCompact ? 8 : 16),
+
+                  // Title Area
+                  Expanded(
+                    // Use the custom widget if provided; otherwise, use the default Text title.
+                    child: customTitleWidget ??
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            title,
+                            style: SpaceTheme.headlineStyle.copyWith(
+                              fontSize: isCompact ? 20 : 28,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ),
+                  ),
+
+                  // Game Stats
+                  _buildStatsRow(context, isCompact),
+                ],
               ),
-              
-              // Game Stats
-              _buildStatsRow(context, isCompact),
+              const ActivePackAiContentInfo(),
             ],
           ),
         );
@@ -127,12 +136,14 @@ class GameUI extends StatelessWidget {
         if (timeLeft != null) ...[
           SizedBox(width: isCompact ? 8 : 12),
           Semantics(
-            label: S.of(context)!.semanticsTimeRemaining(_formatTime(timeLeft!)),
+            label:
+                S.of(context)!.semanticsTimeRemaining(_formatTime(timeLeft!)),
             child: _buildStatItem(
               icon: Icons.timer,
               label: isCompact ? '' : S.of(context)!.wordBuilderTime,
               value: _formatTime(timeLeft!),
-              color: timeLeft! > 10 ? SpaceTheme.cosmicPink : SpaceTheme.rocketRed,
+              color:
+                  timeLeft! > 10 ? SpaceTheme.cosmicPink : SpaceTheme.rocketRed,
               isCompact: isCompact,
             ),
           ),
@@ -193,7 +204,7 @@ class GameUI extends StatelessWidget {
       ),
     );
   }
-  
+
   /// Formats the time from seconds into a M:SS string.
   String _formatTime(int seconds) {
     final minutes = seconds ~/ 60;

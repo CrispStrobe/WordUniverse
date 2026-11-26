@@ -1003,6 +1003,14 @@ class GermanWord {
   /// pass (tools/pack/llm_correct.py), metadata `gloss_source`.
   final bool glossReviewed;
 
+  /// Optional per-field origin from the pack writer. Empty means unrecorded.
+  /// This is application metadata, not a signature or a human-review claim.
+  final Map<String, dynamic> aiContent;
+  final bool hasLegacyAiContent;
+  bool get hasAiContentEvidence => hasLegacyAiContent || glossReviewed ||
+      sources.contains('LLM_GENERATED') ||
+      (aiContent['fields'] is Map && (aiContent['fields'] as Map).isNotEmpty);
+
   /// The word classes two reviewing models of different families named for
   /// this spelling, united (metadata `llm_classes`, written by
   /// tools/pack/apply_llm_overlay.py). Null where the entry was not reviewed.
@@ -1113,6 +1121,8 @@ class GermanWord {
     this.packLemma,
     this.cmuSyllables,
     this.glossReviewed = false,
+    this.aiContent = const {},
+    this.hasLegacyAiContent = false,
     this.reviewedClasses,
     this.reviewedCategory,
     this.reviewedSynonyms,
@@ -1264,6 +1274,13 @@ class GermanWord {
       packLemma: json['lemma'] as String?,
       cmuSyllables: _cmuSyllables(json['pronunciation']),
       glossReviewed: json['gloss_source'] == 'llm-reviewed',
+      aiContent: json['ai_content'] is Map
+          ? Map<String, dynamic>.unmodifiable(json['ai_content'] as Map)
+          : const {},
+      hasLegacyAiContent: json['legacy_ai_content'] == true ||
+          json['llm_corrected'] == true ||
+          (json['gloss_source'] is String &&
+              (json['gloss_source'] as String).startsWith('llm-')),
       reviewedClasses: json['llm_classes'] is List
           ? List<String>.unmodifiable(
               (json['llm_classes'] as List).whereType<String>())
@@ -1448,6 +1465,8 @@ class GermanWord {
         packLemma: packLemma,
         cmuSyllables: cmuSyllables,
         glossReviewed: glossReviewed,
+        aiContent: aiContent,
+        hasLegacyAiContent: hasLegacyAiContent,
         reviewedClasses: reviewedClasses,
         reviewedCategory: reviewedCategory,
         reviewedSynonyms: reviewedSynonyms,
@@ -1466,6 +1485,9 @@ class GermanWord {
         'forms': forms,
         'url': url,
         'sources': sources,
+        if (aiContent.isNotEmpty) 'ai_content': aiContent,
+        if (hasLegacyAiContent || glossReviewed || sources.contains('LLM_GENERATED'))
+          'legacy_ai_content': true,
         'isGrundwortschatzBW': isGrundwortschatzBW,
         'genus': genus,
         'nurImPlural': nurImPlural,

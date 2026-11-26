@@ -48,6 +48,14 @@ import urllib.request
 import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
+from ai_provenance import response_metadata
+
+
+def lane_provenance(lane):
+    # Each worker keeps the successful response it actually used.
+    return getattr(getattr(lane, '_tls', None), 'generation', None)
+
+
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 OUT_DIR = ROOT / 'pipeline' / 'llm_review'
 
@@ -207,6 +215,7 @@ class Lane:
         self.headers = headers or {}
         self.role, self.interval, self.family = role, interval, family
         self.lock = threading.Lock()
+        self._tls = threading.local()
         self.next_at = 0.0
         self.parked_until = 0.0
         self.calls = self.failures = 0
@@ -229,6 +238,7 @@ class Lane:
         self.park(min(3600, seconds * 2 ** (self.streak - 1)))
 
     def call(self, prompt, timeout=150):
+        self._tls.generation = None
         with self.lock:
             wait = self.next_at - time.time()
             if wait > 0:
@@ -249,6 +259,8 @@ class Lane:
         self.calls += 1
         with urllib.request.urlopen(request, timeout=timeout) as response:
             data = json.load(response)
+        self._tls.generation = response_metadata(
+            self.name, self.base, self.model, data.get('model'))
         return data['choices'][0]['message']['content'] or ''
 
 
@@ -430,7 +442,7 @@ def process(batch, pool, store, lang, language, stats):
             # has been read and stands. Recorded so a rerun skips it.
             store.write(store.accepted, {'id': entry['id'], 'word': entry['word'],
                                          'src': src, 'ok': True,
-                                         'by': proposer.model})
+                                         'by': proposer.model, 'generation': lane_provenance(proposer)})
             stats['ok'] += 1
     if not changes:
         return
@@ -451,7 +463,7 @@ def process(batch, pool, store, lang, language, stats):
                 or (k == 'not_vocabulary' and accept.get('vocabulary') is True)}
         dropped = {k: val for k, val in change.items() if k not in kept}
         base = {'id': entry['id'], 'word': entry['word'], 'src': src,
-                'reason': reason, 'by': proposer.model, 'checked_by': verifier.model}
+                'reason': reason, 'by': proposer.model, 'generation': lane_provenance(proposer), 'checked_by': verifier.model, 'verification': lane_provenance(verifier)}
         if kept:
             store.write(store.accepted, {**base, 'ok': False, 'change': kept,
                                          'original': {k: entry.get(k) for k in
@@ -621,7 +633,7 @@ def phrasal(args):
                 continue
             if p.get('keep') is False:
                 records.append({'id': item['id'], 'keep': False,
-                                'reason': p.get('reason', ''), 'by': proposer.model})
+                                'reason': p.get('reason', ''), 'by': proposer.model, 'generation': lane_provenance(proposer)})
                 continue
             particle = item['particle'].lower()
             sentences = [s.strip() for s in p.get('sentences') or []
@@ -631,7 +643,7 @@ def phrasal(args):
                      if w in PARTICLES and w != particle][:3]
             meaning = (p.get('meaning') or item['meaning']).strip()
             if len(sentences) < 2 or len(wrong) < 3:
-                records.append({'id': item['id'], 'keep': None, 'by': proposer.model,
+                records.append({'id': item['id'], 'keep': None, 'by': proposer.model, 'generation': lane_provenance(proposer),
                                 'note': 'proposal unusable'})
                 continue
             to_check.append({'id': item['id'], 'phrasal': item['phrasal'],
@@ -650,10 +662,10 @@ def phrasal(args):
                     records.append({'id': c['id'], 'keep': True, 'meaning': c['meaning'],
                                     'sentences': good,
                                     'wrong_particles': c['wrong_particles'],
-                                    'by': proposer.model, 'checked_by': verifier.model})
+                                    'by': proposer.model, 'generation': lane_provenance(proposer), 'checked_by': verifier.model, 'verification': lane_provenance(verifier)})
                 else:
-                    records.append({'id': c['id'], 'keep': None, 'by': proposer.model,
-                                    'checked_by': verifier.model,
+                    records.append({'id': c['id'], 'keep': None, 'by': proposer.model, 'generation': lane_provenance(proposer),
+                                    'checked_by': verifier.model, 'verification': lane_provenance(verifier),
                                     'note': v.get('note', 'rejected'), 'proposal': c})
         with lock:
             with open(out, 'a', encoding='utf-8') as f:
@@ -896,6 +908,7 @@ def assign_roles(pool, proposers, verifiers):
         for role, names in (('propose', proposers), ('verify', verifiers)):
             if base in names:
                 twin = copy.copy(lane)
+                twin._tls = threading.local()
                 twin.lock = threading.Lock()
                 twin.role = role
                 lanes.append(twin)
@@ -969,7 +982,7 @@ def relations(args):
                             'word_type': entry['word_type'], 'classes': classes,
                             'category': category,
                             'proposed_category': item['category'],
-                            'by': proposer.model, 'checked_by': verifier.model})
+                            'by': proposer.model, 'generation': lane_provenance(proposer), 'checked_by': verifier.model, 'verification': lane_provenance(verifier)})
         with lock, open(out, 'a', encoding='utf-8') as f:
             for r in records:
                 f.write(json.dumps(r, ensure_ascii=False) + '\n')
@@ -1258,7 +1271,7 @@ def kidgloss(args):
                 record = {'id': item['id'], 'word': item['word'],
                           'src': src_of[item['id']], 'gloss': item['gloss'],
                           'old': item['old'], 'ok': ok[item['id']],
-                          'by': proposer.model, 'checked_by': verifier.model}
+                          'by': proposer.model, 'generation': lane_provenance(proposer), 'checked_by': verifier.model, 'verification': lane_provenance(verifier)}
                 f.write(json.dumps(record, ensure_ascii=False) + '\n')
                 stats['entries'] += 1
                 if not record['ok']:
@@ -1408,12 +1421,12 @@ def sense(args):
                 if not isinstance(a.get('ok'), bool):
                     continue
                 record = {'id': e['id'], 'word': e['word'], 'src': src_of[e['id']],
-                          'ok': a['ok'], 'by': proposer.model}
+                          'ok': a['ok'], 'by': proposer.model, 'generation': lane_provenance(proposer)}
                 if e['id'] in changed:
                     if not isinstance(verdict.get(e['id']), bool):
                         continue
                     record.update(old=e['gloss'], gloss=changed[e['id']]['new'],
-                                  confirmed=verdict[e['id']], checked_by=checker.model)
+                                  confirmed=verdict[e['id']], checked_by=checker.model, verification=lane_provenance(checker))
                 f.write(json.dumps(record, ensure_ascii=False) + '\n')
                 stats['entries'] += 1
                 if a['ok']:
@@ -1595,6 +1608,7 @@ def blind(args):
                     record.update(ok=verdict[e['id']], checked_by=judge.model)
                     if e['id'] in fixes:
                         record['fix'] = fixes[e['id']]
+                        record['fix_generation'] = lane_provenance(judge)
                         record['fix_guesses'] = (second.get(e['id']) or [])[:4]
                         record['fix_found'] = blind_hit(record['fix_guesses'], e['names'])
                 else:

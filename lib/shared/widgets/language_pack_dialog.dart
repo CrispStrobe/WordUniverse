@@ -1,3 +1,4 @@
+import 'ai_content_notice.dart';
 // lib/shared/widgets/language_pack_dialog.dart
 //
 // The one place the user is asked about a language pack, and the one gate that
@@ -235,6 +236,8 @@ class _LanguagePackDialogState extends State<LanguagePackDialog> {
           s.packRequiredMessage(_pack.nativeName, _pack.downloadSizeLabel),
           style: SpaceTheme.bodyStyle,
         ),
+        if (_pack.containsAiAssistedContent)
+          const AiLearningContentNotice(),
         if (_hasPreviousPack) ...[
           const SizedBox(height: 8),
           Text(s.packUpdateNotice, style: SpaceTheme.bodyStyle),

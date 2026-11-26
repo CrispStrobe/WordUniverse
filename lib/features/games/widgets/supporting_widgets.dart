@@ -1,3 +1,4 @@
+import '../../../shared/widgets/ai_content_notice.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:math' as math;
@@ -142,7 +143,7 @@ class GameUI extends StatelessWidget {
   final int level;
   final int? timeLeft;
   final VoidCallback onBack;
-  
+
   const GameUI({
     super.key,
     required this.title,
@@ -165,74 +166,83 @@ class GameUI extends StatelessWidget {
           ],
         ),
       ),
-      child: Row(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Back Button
-          IconButton(
-            onPressed: onBack,
-            icon: const Icon(
-              Icons.arrow_back_ios,
-              color: Colors.white,
-              size: 28,
-            ),
-            style: IconButton.styleFrom(
-              backgroundColor: SpaceTheme.deepSpace.withValues(alpha: 0.8),
-              padding: const EdgeInsets.all(12),
-            ),
-          ),
-          
-          const SizedBox(width: 20),
-          
-          // Title
-          Expanded(
-            child: Text(
-              title,
-              style: SpaceTheme.headlineStyle.copyWith(fontSize: 28),
-            ),
-          ),
-          
-          // Game Stats
           Row(
             children: [
-              // Level
-              _buildStatItem(
-                icon: Icons.emoji_events,
-                label: S.of(context)!.level,
-                value: level.toString(),
-                color: SpaceTheme.starYellow,
-              ),
-              
-              const SizedBox(width: 20),
-              
-              // Score
-              Consumer<GameProvider>(
-                builder: (context, gameProvider, child) {
-                  return _buildStatItem(
-                    icon: Icons.star,
-                    label: S.of(context)!.score,
-                    value: gameProvider.score.toString(),
-                    color: SpaceTheme.alienGreen,
-                  );
-                },
-              ),
-              
-              // Time (if provided)
-              if (timeLeft != null) ...[
-                const SizedBox(width: 20),
-                _buildStatItem(
-                  icon: Icons.timer,
-                  label: S.of(context)!.time,
-                  value: _formatTime(timeLeft!),
-                  color: timeLeft! > 10 ? SpaceTheme.cosmicPink : SpaceTheme.rocketRed,
+              // Back Button
+              IconButton(
+                onPressed: onBack,
+                icon: const Icon(
+                  Icons.arrow_back_ios,
+                  color: Colors.white,
+                  size: 28,
                 ),
-              ],
+                style: IconButton.styleFrom(
+                  backgroundColor: SpaceTheme.deepSpace.withValues(alpha: 0.8),
+                  padding: const EdgeInsets.all(12),
+                ),
+              ),
+
+              const SizedBox(width: 20),
+
+              // Title
+              Expanded(
+                child: Text(
+                  title,
+                  style: SpaceTheme.headlineStyle.copyWith(fontSize: 28),
+                ),
+              ),
+
+              // Game Stats
+              Row(
+                children: [
+                  // Level
+                  _buildStatItem(
+                    icon: Icons.emoji_events,
+                    label: S.of(context)!.level,
+                    value: level.toString(),
+                    color: SpaceTheme.starYellow,
+                  ),
+
+                  const SizedBox(width: 20),
+
+                  // Score
+                  Consumer<GameProvider>(
+                    builder: (context, gameProvider, child) {
+                      return _buildStatItem(
+                        icon: Icons.star,
+                        label: S.of(context)!.score,
+                        value: gameProvider.score.toString(),
+                        color: SpaceTheme.alienGreen,
+                      );
+                    },
+                  ),
+
+                  // Time (if provided)
+                  if (timeLeft != null) ...[
+                    const SizedBox(width: 20),
+                    _buildStatItem(
+                      icon: Icons.timer,
+                      label: S.of(context)!.time,
+                      value: _formatTime(timeLeft!),
+                      color: timeLeft! > 10
+                          ? SpaceTheme.cosmicPink
+                          : SpaceTheme.rocketRed,
+                    ),
+                  ],
+                ],
+              ),
             ],
           ),
+          const ActivePackAiContentInfo(),
         ],
       ),
     );
   }
-  
+
   Widget _buildStatItem({
     required IconData icon,
     required String label,
@@ -277,7 +287,7 @@ class GameUI extends StatelessWidget {
       ),
     );
   }
-  
+
   String _formatTime(int seconds) {
     final minutes = seconds ~/ 60;
     final remainingSeconds = seconds % 60;
@@ -286,6 +296,7 @@ class GameUI extends StatelessWidget {
 }
 
 // Space Button Widget
+
 class SpaceButton extends StatefulWidget {
   final String text;
   final VoidCallback onPressed;
