@@ -52,6 +52,8 @@ import sqlite3
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from ai_provenance import (record_fields, generation_from_record,
+                           refresh_pack_manifest, value_digest)
 from llm_correct import (OUT_DIR, PARTICLES, RELATIONS_TEXT,  # noqa: E402
                          blind_gloss, blind_hit, blind_names, digest, entry_of, lexrel_candidates,
                          pack_vocabulary, relation_entry)
@@ -196,6 +198,9 @@ def main():
             if reason not in reasons:
                 reasons.append(reason)
             metadata['quality'] = {'vocabulary': False, 'reasons': reasons}
+        if 'definition' in change:
+            record_fields(metadata, {'enrichment.definitions.0': enrichment['definitions'][0]},
+                          generation_from_record(record), origin='ai_assisted_revision')
         metadata['llm_review'] = record['src']
         for k in change:
             fields[k] = fields.get(k, 0) + 1
@@ -218,6 +223,7 @@ def main():
     # After every step that writes a leading gloss: it judged those glosses.
     blind = apply_blind(db, args.lang)
     finished = finish_glosses(db)
+    refresh_pack_manifest(db)
     db.commit()
     print(json.dumps({'corrections': len(corrections), **counts, 'fields': fields,
                       **({'phrasal': phrasal} if phrasal else {}),
@@ -266,8 +272,14 @@ def finish_glosses(db):
                 gloss.split()[-1].lower() not in DANGLING:
             continue
         enrichment['definitions'] = [gloss + '.'] + defs[1:]
-        db.execute('UPDATE words SET enrichment_json=? WHERE id=?',
-                   (json.dumps(enrichment, ensure_ascii=False), row_id))
+        attribution = metadata.get('ai_content', {}).get('fields', {}).get(
+            'enrichment.definitions.0')
+        if attribution and attribution.get('value_sha256') == value_digest(defs[0]):
+            attribution['value_sha256'] = value_digest(enrichment['definitions'][0])
+            attribution['postprocessing'] = ['terminal_punctuation']
+        db.execute('UPDATE words SET enrichment_json=?, metadata_json=? WHERE id=?',
+                   (json.dumps(enrichment, ensure_ascii=False),
+                    json.dumps(metadata, ensure_ascii=False), row_id))
         n += 1
     return n
 
@@ -407,6 +419,8 @@ def apply_kidgloss(db, lang):
             d for d in enrichment.get('definitions') or [] if d != gloss]
         metadata['gloss_source'] = 'llm-reviewed'
         metadata.pop('gloss_above_reader', None)
+        record_fields(metadata, {'enrichment.definitions.0': gloss},
+                      generation_from_record(record), origin='ai_generated')
         db.execute('UPDATE words SET enrichment_json=?, metadata_json=? WHERE id=?',
                    (json.dumps(enrichment, ensure_ascii=False),
                     json.dumps(metadata, ensure_ascii=False), row['id']))
@@ -456,6 +470,8 @@ def apply_sense(db, lang):
             d for d in enrichment.get('definitions') or [] if d != gloss]
         metadata['gloss_source'] = 'llm-sense'
         metadata.pop('gloss_above_reader', None)
+        record_fields(metadata, {'enrichment.definitions.0': gloss},
+                      generation_from_record(record), origin='ai_assisted_revision')
         db.execute('UPDATE words SET enrichment_json=?, metadata_json=? WHERE id=?',
                    (json.dumps(enrichment, ensure_ascii=False),
                     json.dumps(metadata, ensure_ascii=False), row['id']))
@@ -552,6 +568,10 @@ def apply_blind(db, lang):
             and not META_FIX.search(record.get('fix') or '') else None
         if fix:
             enrichment['definitions'] = [fix] + [d for d in defs[1:] if d != fix]
+            record_fields(metadata, {'enrichment.definitions.0': fix},
+                          generation_from_record({'generation': record.get('fix_generation'),
+                                                  'by': record.get('checked_by')}),
+                          origin='ai_assisted_revision')
             counts['replaced'] += 1
         else:
             # The judges are not always right ("kleine Eiskügelchen, die vom
@@ -675,6 +695,9 @@ def apply_phrasal(db):
     path = OUT_DIR / 'en_phrasal.jsonl'
     if not path.exists():
         return None
+    columns = {r[1] for r in db.execute('PRAGMA table_info(phrasal_verbs)')}
+    if 'ai_content_json' not in columns:
+        db.execute('ALTER TABLE phrasal_verbs ADD COLUMN ai_content_json TEXT')
     counts = {'rewritten': 0, 'removed': 0, 'unverified, removed': 0,
               'no safe distractors, removed': 0}
     fits = load_fits()
@@ -690,7 +713,7 @@ def apply_phrasal(db):
             if record.get('keep') is not None or record['id'] not in latest:
                 latest[record['id']] = record
     for phrasal_verb, record in latest.items():
-        row = db.execute('SELECT id, grade_band FROM phrasal_verbs WHERE phrasal = ?',
+        row = db.execute('SELECT id, grade_band, meaning, examples_json, ai_content_json FROM phrasal_verbs WHERE phrasal = ?',
                          (phrasal_verb,)).fetchone()
         if row is None:
             continue
@@ -706,12 +729,20 @@ def apply_phrasal(db):
                     counts['no safe distractors, removed'] += 1
                     continue
                 record = {**record, 'sentences': sentences, 'wrong_particles': wrong}
+            metadata = {'ai_content': json.loads(row['ai_content_json'] or '{}')}
+            proposed = {'meaning': record['meaning'],
+                        'examples': {str(row['grade_band'] or 3): record['sentences']}}
+            previous = {'meaning': row['meaning'],
+                        'examples': json.loads(row['examples_json'] or '{}')}
+            record_fields(metadata, {k: v for k, v in proposed.items() if previous[k] != v},
+                          generation_from_record(record), origin='ai_assisted_revision')
             db.execute('UPDATE phrasal_verbs SET meaning=?, examples_json=?, '
-                       'distractors_json=?, wiktionary_examples_json=? WHERE id=?',
+                       'distractors_json=?, wiktionary_examples_json=?, ai_content_json=? WHERE id=?',
                        (record['meaning'],
                         json.dumps({str(row['grade_band'] or 3): record['sentences']},
                                    ensure_ascii=False),
-                        json.dumps(record['wrong_particles']), '[]', row['id']))
+                        json.dumps(record['wrong_particles']), '[]',
+                        json.dumps(metadata['ai_content'], ensure_ascii=False), row['id']))
             counts['rewritten'] += 1
         else:
             # Read, rewritten, and the rewrite failed verification. The row's

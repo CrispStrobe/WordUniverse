@@ -1,3 +1,4 @@
+import '../../../shared/widgets/ai_content_notice.dart';
 // lib/features/settings/screens/settings_screen.dart
 import 'package:flutter/material.dart';
 import '../../../main.dart' show MyApp;
@@ -1259,6 +1260,8 @@ class _SettingsScreenState extends State<SettingsScreen>
                               : '$label · ${s.packMetaSizes(pack.downloadSizeLabel, pack.installedSizeLabel!, pack.licenseLabel)}',
                       style: TextStyle(color: color, fontSize: 11),
                     ),
+                    if (pack.containsAiAssistedContent)
+                      const AiLearningContentNotice(),
                     // A pack that is part-way downloaded looked untouched
                     // before, even though tapping Resume continues from disk.
                     if (state.isResumable)

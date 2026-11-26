@@ -56,6 +56,8 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[1]
+sys.path.insert(0, str(REPO / "tools" / "pack"))
+from ai_provenance import record_fields, generation_from_record, refresh_pack_manifest
 WIKT_DB_PATH = "/Volumes/backups/code/WiktionaryEN-space/en_wiktionary_normalized.db"
 SRC_DB = HERE / "grundwortschatz_en.db"
 DB_GZ = REPO / "assets" / "grundwortschatz_en.db.gz"
@@ -561,6 +563,8 @@ def run_grade(limit: int | None, dry_run: bool) -> int:
             "meaning_kid": str((data.get("meaning_kid") or r["meaning"])).strip(),
             "grade_examples": block,
             "provider": getattr(llm._tls, "last_provider", None),
+            "generation": getattr(llm._tls, "last_generation", None),
+            "meaning_generated": bool(data.get("meaning_kid")),
         }
         with GRADE_JSONL.open("a") as jf:
             jf.write(json.dumps(rec, ensure_ascii=False) + "\n")
@@ -617,7 +621,8 @@ def run_check(dry_run: bool) -> int:
                                      ph) if isinstance(data, dict) else None
         rec = {"phrasal": ph,
                "grade_examples": block or r["grade_examples"],
-               "ok": bool(block)}
+               "ok": bool(block),
+               "generation": getattr(llm._tls, "last_generation", None) if block else None}
         with CHECK_JSONL.open("a") as jf:
             jf.write(json.dumps(rec, ensure_ascii=False) + "\n")
         fixed += 1 if block else 0
@@ -648,6 +653,7 @@ CREATE TABLE phrasal_verbs (
     base_zipf REAL,
     source TEXT,
     license TEXT,
+    ai_content_json TEXT,
     FOREIGN KEY(word_id) REFERENCES words(id) ON DELETE CASCADE
 )
 """
@@ -662,6 +668,8 @@ def load(compress: bool) -> int:
     grade_by = {r["phrasal"]: r for r in _load_jsonl(GRADE_JSONL)}
     for r in _load_jsonl(CHECK_JSONL):
         if r.get("ok") and r["phrasal"] in grade_by:
+            if grade_by[r["phrasal"]]["grade_examples"] != r["grade_examples"]:
+                grade_by[r["phrasal"]]["examples_check"] = r
             grade_by[r["phrasal"]]["grade_examples"] = r["grade_examples"]
 
     con = sqlite3.connect(SRC_DB)
@@ -675,22 +683,32 @@ def load(compress: bool) -> int:
         g = grade_by.get(r["phrasal"])
         examples = g["grade_examples"] if g else {}
         meaning = (g.get("meaning_kid") if g else None) or r["meaning"]
+        metadata = {}
         if g:
             with_llm += 1
+            check = g.get("examples_check")
+            record_fields(metadata, {"examples": examples},
+                          generation_from_record(check or g),
+                          origin="ai_assisted_revision" if check else "ai_generated")
+            # Historical fallback meanings are not retroactively called generated.
+            if g.get("meaning_generated") is True or meaning != r["meaning"]:
+                record_fields(metadata, {"meaning": meaning}, generation_from_record(g))
         con.execute(
             """INSERT INTO phrasal_verbs
                (word_id, phrasal, base_verb, particle, meaning, senses_json,
                 distractors_json, examples_json, wiktionary_examples_json,
-                synonyms_json, grade_band, base_zipf, source, license)
-               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                synonyms_json, grade_band, base_zipf, source, license, ai_content_json)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             (r["word_id"], r["phrasal"], r["base_verb"], r["particle"], meaning,
              json.dumps(r["senses"], ensure_ascii=False),
              json.dumps(r["distractors"]),
              json.dumps(examples, ensure_ascii=False),
              json.dumps(r["wiktionary_examples"], ensure_ascii=False),
              json.dumps(r["synonyms"], ensure_ascii=False),
-             r["grade_band"], r["base_zipf"], r["source"], r["license"]),
+             r["grade_band"], r["base_zipf"], r["source"], r["license"],
+             json.dumps(metadata.get("ai_content", {}), ensure_ascii=False)),
         )
+    refresh_pack_manifest(con)
     con.commit()
     n = con.execute("SELECT count(*) FROM phrasal_verbs").fetchone()[0]
     con.close()

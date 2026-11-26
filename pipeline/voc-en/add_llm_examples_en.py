@@ -49,6 +49,12 @@ from typing import Any
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[1]
+sys.path.insert(0, str(REPO / "tools" / "pack"))
+from ai_provenance import (response_metadata, record_fields,
+                           generation_from_record, refresh_pack_manifest)
+
+def _generation(llm):
+    return getattr(llm._tls, "last_generation", None)
 GRADE_JSONL = HERE / "grade_results_en.jsonl"
 CHECK_JSONL  = HERE / "check_results_en.jsonl"
 
@@ -159,6 +165,7 @@ class LLMClient:
                     "name": env_var.replace("_API_KEY", "").lower(),
                     "type": "openai_compat",
                     "client": _openai.OpenAI(api_key=key, base_url=base_url),
+                    "endpoint": base_url,
                     "fill_model": fill_model,
                     "review_model": review_model,
                 })
@@ -173,6 +180,7 @@ class LLMClient:
                     "name": "anthropic",
                     "type": "anthropic",
                     "client": _anthropic.Anthropic(api_key=anthr_key),
+                    "endpoint": "https://api.anthropic.com",
                     "fill_model": "claude-haiku-4-5-20251001",
                     "review_model": "claude-sonnet-4-6",
                     "correct_model": "claude-sonnet-4-6",
@@ -248,6 +256,8 @@ class LLMClient:
         mode: str = "fill",
         dry_run: bool = False,
     ) -> str | None:
+        self._tls.last_generation = None
+        self._tls.last_provider = None
         if dry_run:
             print(f"  [dry-run] {mode} call ({len(user)} chars)")
             return None
@@ -275,6 +285,8 @@ class LLMClient:
                         print(f"  [{prov['name']}] empty response", file=sys.stderr)
                         self._bump(prov["name"], "empty")
                         continue
+                    self._tls.last_generation = response_metadata(
+                        prov["name"], prov["endpoint"], model, getattr(resp, "model", None))
                     self._tls.last_provider = prov["name"]
                     self._bump(prov["name"], "ok")
                     return content.strip()
@@ -291,6 +303,8 @@ class LLMClient:
                     )
                     with self._rr_lock:
                         self._rr_index += 1
+                    self._tls.last_generation = response_metadata(
+                        prov["name"], prov["endpoint"], model, getattr(resp, "model", None))
                     self._tls.last_provider = prov["name"]
                     self._bump(prov["name"], "ok")
                     return resp.content[0].text.strip()
@@ -533,6 +547,7 @@ def run_fill(
                 continue
             meta = _meta(r)
             meta["llm_examples"] = clean
+            record_fields(meta, {"metadata.llm_examples": clean}, _generation(llm))
             _tag_source(meta)
             _write(con, r, meta, dry_run)
             updated += 1
@@ -570,6 +585,7 @@ def run_fill(
             continue
         meta = _meta(r)
         meta["sense_examples"] = sense_examples
+        record_fields(meta, {"metadata.sense_examples": sense_examples}, _generation(llm))
         _tag_source(meta)
         _write(con, r, meta, dry_run)
         updated += 1
@@ -637,6 +653,8 @@ def run_grade_fill(
             meta = _meta(r)
             if rec.get("grade_examples") and not meta.get("grade_examples"):
                 meta["grade_examples"] = rec["grade_examples"]
+                record_fields(meta, {"metadata.grade_examples": rec["grade_examples"]},
+                              generation_from_record(rec), origin="ai_generated")
                 _tag_source(meta)
                 _write(con, r, meta, dry_run)
                 jsonl_applied += 1
@@ -663,7 +681,7 @@ def run_grade_fill(
 
     jsonl_lock = threading.Lock()
     counter = [0]
-    results: list[tuple[int, str, dict]] = []
+    results: list[tuple[int, str, dict, dict | None]] = []
 
     def grade_batch(batch: list[dict]) -> tuple[int, int]:
         words = [r["word"] for r in batch]
@@ -707,10 +725,10 @@ def run_grade_fill(
                     with GRADE_JSONL.open("a") as jf:
                         jf.write(json.dumps({"id": r["id"], "word": word,
                                              "grade_examples": grade_block,
-                                             "provider": provider},
+                                             "provider": provider, "generation": _generation(llm)},
                                             ensure_ascii=False) + "\n")
             with jsonl_lock:
-                results.append((r["id"], word, grade_block))
+                results.append((r["id"], word, grade_block, _generation(llm)))
             u += 1
             s += sum(len(v) for v in grade_block.values())
         return u, s
@@ -727,12 +745,14 @@ def run_grade_fill(
     if not dry_run and results:
         print(f"  Applying {len(results)} results to DB …")
         row_by_id = {r["id"]: r for r in candidates}
-        for row_id, word, grade_block in results:
+        for row_id, word, grade_block, generation in results:
             r = row_by_id.get(row_id)
             if not r:
                 continue
             meta = _meta(r)
             meta["grade_examples"] = grade_block
+            record_fields(meta, {"metadata.grade_examples": grade_block},
+                          generation, origin="ai_generated")
             _tag_source(meta)
             _write(con, r, meta, dry_run=False)
         con.commit()
@@ -778,7 +798,10 @@ def run_check(
                         if r and rec.get("grade_examples"):
                             meta = _meta(r)
                             meta["grade_examples"] = rec["grade_examples"]
-                            _tag_source(meta)
+                            if rec["grade_examples"] != _meta(r).get("grade_examples"):
+                                record_fields(meta, {"metadata.grade_examples": rec["grade_examples"]},
+                                              generation_from_record(rec), origin="ai_assisted_revision")
+                                _tag_source(meta)
                             _write(con, r, meta, dry_run)
                         check_done.add(row_id)
                 except Exception:
@@ -802,7 +825,7 @@ def run_check(
 
     jsonl_lock = threading.Lock()
     counter = [0]
-    results: list[tuple[int, str, dict]] = []
+    results: list[tuple[int, str, dict, dict | None]] = []
 
     def check_one_batch(batch: list[dict]) -> tuple[int, int]:
         payload = {r["word"]: _meta(r).get("grade_examples", {}) for r in batch}
@@ -850,10 +873,11 @@ def run_check(
                 with jsonl_lock:
                     with CHECK_JSONL.open("a") as jf:
                         jf.write(json.dumps({"id": r["id"], "word": word,
-                                             "grade_examples": grade_block},
+                                             "grade_examples": grade_block,
+                                             "generation": _generation(llm)},
                                             ensure_ascii=False) + "\n")
             with jsonl_lock:
-                results.append((r["id"], word, grade_block))
+                results.append((r["id"], word, grade_block, _generation(llm)))
                 check_done.add(r["id"])
             u += 1
             s += sum(len(v) for v in grade_block.values())
@@ -871,13 +895,16 @@ def run_check(
     if not dry_run and results:
         print(f"  Applying {len(results)} check results to DB …")
         row_by_id = {r["id"]: r for r in candidates}
-        for row_id, word, grade_block in results:
+        for row_id, word, grade_block, generation in results:
             r = row_by_id.get(row_id)
             if not r:
                 continue
             meta = _meta(r)
             meta["grade_examples"] = grade_block
-            _tag_source(meta)
+            if grade_block != _meta(r).get("grade_examples"):
+                record_fields(meta, {"metadata.grade_examples": grade_block},
+                              generation, origin="ai_assisted_revision")
+                _tag_source(meta)
             _write(con, r, meta, dry_run=False)
         con.commit()
 
@@ -960,6 +987,9 @@ def run_review(
                                 if isinstance(s, str)
                                 and len(s.split()) <= MAX_SENTENCE_WORDS
                             ]
+                            record_fields(meta, {"metadata.llm_examples": meta["llm_examples"]},
+                                          _generation(llm))
+                            _tag_source(meta)
                             _write(con, r, meta, dry_run)
                             replaced += 1
 
@@ -1034,9 +1064,12 @@ def run_correct(
         if bad or not patch:
             continue
 
+        changed_patch = {k: v for k, v in patch.items() if enrich.get(k) != v}
         enrich.update(patch)
         meta = _meta(r)
         meta["llm_corrected"] = True
+        record_fields(meta, {"enrichment." + k: v for k, v in changed_patch.items()},
+                      _generation(llm), origin="ai_assisted_revision")
         _tag_source(meta)
 
         if not dry_run:
@@ -1090,6 +1123,7 @@ def _write(con: sqlite3.Connection, r: dict, meta: dict, dry_run: bool) -> None:
             "UPDATE words SET metadata_json = ? WHERE id = ?",
             (json.dumps(meta, ensure_ascii=False), r["id"]),
         )
+        r["metadata_json"] = json.dumps(meta, ensure_ascii=False)
 
 
 # ---------------------------------------------------------------------------
@@ -1292,6 +1326,9 @@ def main() -> int:
         print(f"\nCorrect: {n} entries improved, {f} fields updated")
         total_updated += n
 
+    if not args.dry_run:
+        refresh_pack_manifest(con)
+        con.commit()
     con.close()
 
     if not args.dry_run and total_updated > 0:

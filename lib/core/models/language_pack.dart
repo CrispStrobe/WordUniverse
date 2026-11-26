@@ -70,6 +70,10 @@ class LanguagePack {
   /// SPDX-ish label for the data license, shown next to the pack.
   final String licenseLabel;
 
+  /// Pack-level fact: selected fields contain generated/revised AI prose.
+  /// Does not attribute every entry, assert human review, or name an unknown model.
+  final bool containsAiAssistedContent;
+
   /// Where the dataset (and its attribution) lives.
   final String? datasetUrl;
 
@@ -79,6 +83,7 @@ class LanguagePack {
     required String databaseName,
     this.previousDatabaseNames = const [],
     required this.licenseLabel,
+    this.containsAiAssistedContent = false,
     this.assetPath,
     this.remoteUrl,
     this.expectedCompressedBytes,
@@ -224,6 +229,7 @@ class LanguagePackState {
 const Map<String, LanguagePack> kLanguagePacks = {
   'de': LanguagePack(
     code: 'de',
+    containsAiAssistedContent: true,
     nativeName: 'Deutsch',
     databaseName: 'grundwortschatz.db',
     // GPL-3.0 data (childLex-derived) → intentionally NOT bundled in store
@@ -310,6 +316,7 @@ const Map<String, LanguagePack> kLanguagePacks = {
   ),
   'en': LanguagePack(
     code: 'en',
+    containsAiAssistedContent: true,
     nativeName: 'English',
     databaseName: 'grundwortschatz_en.db',
     assetPath: 'assets/grundwortschatz_en.db.gz',

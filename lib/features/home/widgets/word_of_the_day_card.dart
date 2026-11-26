@@ -1,3 +1,4 @@
+import '../../../shared/widgets/ai_content_notice.dart';
 // lib/features/home/widgets/word_of_the_day_card.dart
 //
 // Word of the Day home-screen card.
@@ -225,6 +226,9 @@ class _WordOfTheDayContent extends StatelessWidget {
               ],
             ),
 
+            if (word.hasAiContentEvidence)
+              const AiLearningContentNotice(entry: true),
+
             // Definition
             if (definition != null) ...[
               SizedBox(height: isVerySmall ? 4 : 6),
@@ -415,6 +419,9 @@ class _WordDetailSheet extends StatelessWidget {
               style: const TextStyle(color: Colors.white38, fontSize: 12),
             ),
             const SizedBox(height: 16),
+
+            if (word.hasAiContentEvidence)
+              AiEntryContentNotice(aiContent: word.aiContent),
 
             // Definitions
             if (defs.isNotEmpty) ...[

@@ -1,3 +1,4 @@
+import '../../../shared/widgets/ai_content_notice.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/models/language_pack.dart';
@@ -166,6 +167,8 @@ class _LanguageSetupScreenState extends State<LanguageSetupScreen> {
                                 widget.onLocaleChanged(Locale(value!));
                               },
                       ),
+                      if (languagePackFor(learning)?.containsAiAssistedContent == true)
+                        AiLearningContentNotice(language: interface),
                       if (saveFailed)
                         Padding(
                             padding: const EdgeInsets.only(top: 16),
